@@ -4,12 +4,17 @@ import { lusitana } from '@/app/ui/fonts';
 import CardWrapper from '@/app/ui/dashboard/cards';
 import { Suspense } from 'react';
 import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from '@/app/ui/skeletons';
+import ImageUpload from '@/app/ui/image';
 export default async function Page() {
   
   
 
   return (
     <main>
+
+      <div className="grid gap-6 sm:grid-cols-12 lg:grid-cols-12">
+      <ImageUpload></ImageUpload>
+      </div>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Dashboard
       </h1>
