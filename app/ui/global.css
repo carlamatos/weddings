@@ -2,10 +2,79 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --blush-pink: #FADADD;
+  --dusty-rose: #D4A5A5;
+  --champagne: #F7E7CE;
+  --ivory: #FFFFF0;
+  --muted-sage: #B5C4B1;
+}
+
+.dusty-rose {
+  background-color: var(--dusty-rose);
+}
+.ivory{
+  background-color: var(--ivory);
+}
+.blush-pink{
+  background-color: var(--blush-pink);
+}
+
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+img.top_img {
+  position: absolute;
+}
+
+
+div.banner_wrap {
+  display: flex;
+  height: 558px;
+  overflow: hidden;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+div.main_content{
+  padding: 24px 0;
+    
+}
+.description_text{
+  font-size: 16px;
+  text-align: center;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 24px 0px;
+  width: 648px;
+  background: #ffffff;
+  cursor: pointer;
+}
+h1.top_title{ cursor:pointer}
+h1.top_title, input#top_heading{font-size: 29px;
+  line-height: 1.4;
+  color: #292929;
+  font-weight: 300;
+   text-align:center;}
+
+input#top_heading{margin: 0 auto; display:table;}
+button.edit-but {
+  background: var(--champagne);
+  border-radius: 10px;
+  padding: 5px 20px;
+  position: relative;
+  font-size: 14px;
+  opacity: .9;
+  display:flex;
+  align-items: center;
+}
+button.edit-but svg{    width: 16px;
+  height: 16px;
+  margin-right: 0.4rem;}
+
+button.edit-but:hover{opacity: 1;} 
 
 input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -15,4 +84,13 @@ input[type='number']::-webkit-inner-spin-button {
 input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+@media(max-width: 1200px){
+  img.top_img {
+    position: absolute;
+    max-width: unset;
+    max-height: 100%;
+    width: auto;
+}
 }

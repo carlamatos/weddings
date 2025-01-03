@@ -20,7 +20,7 @@ async function getUser(email: string): Promise<User | undefined> {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
-    /*Credentials({
+    Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
@@ -40,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
  
         return null;
       },
-    }),*/ Google,
+    }), Google,
     
   ],
 });

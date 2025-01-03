@@ -7,3 +7,14 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+
+module.exports = {
+  async rewrites() {
+    return [
+      {
+        source: '/images/:path*',
+        destination: '/images/:path*',
+      },
+    ];
+  },
+};

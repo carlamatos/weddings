@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from 'react';
-
+import Image from 'next/image';
 export default function ImageUpload() {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<string | null>(null);
 
   // Handle image upload
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; // Use optional chaining to ensure 'files' is not null
     if (file) {
       // Create a URL for the uploaded image
       const imageUrl = URL.createObjectURL(file);
@@ -16,15 +16,32 @@ export default function ImageUpload() {
   };
 
   return (
-    <div>
+    <div className="rounded-xl bg-gray-50 p-2 shadow-sm mb-6">
+      <div className="flex p-4 relative justify-end">
+
+        <button className="edit-but" onClick={() => {
+          const fileInput = document.getElementById('fileInput');
+          if (fileInput) {
+            fileInput.click();
+          }
+        }}>Replace Photo</button>
+      </div>
       {/* Image or default placeholder */}
-      <img
-        src={image || '/banner_2.jpeg'} // Default image if no image is uploaded
-        alt="Uploaded"
-        style={{ width: '200px', height: '200px', cursor: 'pointer' }}
-        onClick={() => document.getElementById('fileInput').click()} // Trigger file input on image click
-      />
-      
+
+      <div className="banner_wrap">
+        <Image
+          src={image || '/images/banner_2.png'}
+          width={2000}
+          height={760}
+          className="top_img md:block"
+          alt="Screenshots of the dashboard project showing desktop version"
+          style={{ cursor: 'pointer' }}
+
+        />
+
+
+      </div>
+
       {/* Hidden file input */}
       <input
         type="file"

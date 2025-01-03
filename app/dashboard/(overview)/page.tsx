@@ -5,15 +5,21 @@ import CardWrapper from '@/app/ui/dashboard/cards';
 import { Suspense } from 'react';
 import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from '@/app/ui/skeletons';
 import ImageUpload from '@/app/ui/image';
+import EditableHeading from '@/app/ui/heading';
+import EditableDescription from '@/app/ui/description';
 export default async function Page() {
   
   
 
   return (
-    <main>
+    <main className='p-6'>
 
-      <div className="grid gap-6 sm:grid-cols-12 lg:grid-cols-12">
+      <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
       <ImageUpload></ImageUpload>
+      <div className='main_content'>
+      <EditableHeading></EditableHeading>
+      <EditableDescription defaultDescription="Love is friendship that has deepened and grown stronger. It is a gentle connection, built on trust and shared understanding. It thrives on compassion, support, and forgiveness. It stands by you through both the highs and the lows, accepting imperfections and embracing each other's flaws." />
+      </div>
       </div>
       <h1 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Dashboard
