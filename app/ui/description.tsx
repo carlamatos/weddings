@@ -28,7 +28,7 @@ export default function EditableDescription({ defaultDescription = "Editable Des
   };
 
   return (
-    <div className="rounded-xl bg-gray-50 p-2 shadow-sm mb-6">
+    <div className="rounded-xl dusty-blue p-2 shadow-sm mb-6">
             <div className="flex p-4 relative justify-end">
       {/* "Edit" or "Save" button */}
       <button

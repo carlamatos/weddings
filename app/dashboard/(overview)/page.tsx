@@ -1,3 +1,4 @@
+
 import RevenueChart from '@/app/ui/dashboard/revenue-chart';
 import LatestInvoices from '@/app/ui/dashboard/latest-invoices';
 import { lusitana } from '@/app/ui/fonts';
@@ -7,14 +8,17 @@ import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from '@/a
 import ImageUpload from '@/app/ui/image';
 import EditableHeading from '@/app/ui/heading';
 import EditableDescription from '@/app/ui/description';
-export default async function Page() {
-  
-  
+import { auth, signOut } from "@/auth";
 
+
+export default async function Page() {
+  const session = await auth();
   return (
     <main className='p-6'>
-
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
+        
+      <p>Welcome, { session?.user?.name || 'Guest' }!</p>
+      <p>Email: {session?.user?.email}</p>
       <ImageUpload></ImageUpload>
       <div className='main_content'>
       <EditableHeading></EditableHeading>
@@ -41,4 +45,4 @@ export default async function Page() {
       </div>
     </main>
   );
-}
+  }

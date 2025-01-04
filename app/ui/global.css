@@ -8,7 +8,33 @@
   --champagne: #F7E7CE;
   --ivory: #FFFFF0;
   --muted-sage: #B5C4B1;
+
+  --dusty-blue: #b6c1c8;
+  --sage: #c5c8b7;
+  --rose:#deb6ad;
+  --orange-rose: #e9d4c5;
+  --light-sage: rgba(197,200,183,0.2)
+
 }
+.dusty-blue{
+  background-color: var(--dusty-blue);
+}
+.sage{
+  background-color: var(--sage);
+}
+.light-sage{
+  background-color: var(--light-sage);
+}
+
+.rose{
+  background-color: var(--rose);
+}
+.orange-rose{
+  background-color: var(--orange-rose);
+}
+
+
+
 
 .dusty-rose {
   background-color: var(--dusty-rose);
@@ -28,7 +54,7 @@ input[type='number'] {
 img.top_img {
   position: absolute;
 }
-
+.sidebar-menu:hover{ background: #c7c8c3}
 
 div.banner_wrap {
   display: flex;
@@ -61,7 +87,7 @@ h1.top_title, input#top_heading{font-size: 29px;
 
 input#top_heading{margin: 0 auto; display:table;}
 button.edit-but {
-  background: var(--champagne);
+  background: var(--orange-rose);
   border-radius: 10px;
   padding: 5px 20px;
   position: relative;
