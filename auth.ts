@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
+import { createUser } from './app/lib/actions';
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -49,12 +50,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async jwt({ token, user, account, profile }) {
       // Add user info to the token when logging in
-      console.log('GOOGLE');
+
       if (account?.provider === 'google' && profile) {
-        
+        token.id = profile.id;
         token.name = profile.name;
         token.email = profile.email;
         token.picture = profile.picture;
+
+        const localuser = await getUser(token.email);
+        if (!localuser) {
+          const userdata: User = { id: token.id, name: token.name, email: token.email, password: '' };
+          const result = await createUser(userdata);
+
+          if (result && result.errors) {
+            // There was an error, handle the error
+            console.log('Error:', result.errors);
+            console.log('Message:', result.message);
+          } else if (result && result.message) {
+            // No errors, just a success message
+            console.log('Success:', result.message);
+          }
+        }
       }
 
       if (user) {

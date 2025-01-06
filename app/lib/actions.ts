@@ -8,6 +8,7 @@ import { sql } from '@vercel/postgres';
 
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
+import { User } from './definitions';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string({
@@ -22,9 +23,21 @@ const FormSchema = z.object({
     date: z.string(),
   });
 
+  const UserSchema = z.object({
+    id: z.string(),
+    name: z.string({
+      invalid_type_error: 'Please specify a name.',
+    }),
+    email: z.string()
+      .email({ message: 'Invalid email address. Please enter a valid email.'}),
+   
+    password: z.string(),
+  });
+
+
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
-
+const CreateUser = UserSchema.omit({id: true, password:true});
 export type State = {
     errors?: {
       customerId?: string[];
@@ -126,4 +139,41 @@ export async function authenticate(
 
 export async function GoogleSignIn() {
   await signIn("google")
+}
+
+
+export async function createUser(user: User) {
+  
+  
+  const validatedFields = CreateUser.safeParse({
+      
+      name: user.name,
+      email: user.email,
+  });
+  if (!validatedFields.success) {
+    
+    return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to Create User.',
+      };
+      
+    }
+    const {name, email } = validatedFields.data;
+    const date = new Date().toISOString().split('T')[0];
+  try {
+      await sql`
+  INSERT INTO users (name, email, date)
+  VALUES (${name}, ${email}, ${date})
+`;
+    
+  } catch (error) {
+    console.log("error inserting User");
+      return {
+          message: 'Database Error: Failed to Create Invoice.',
+      };
+  }
+
+  //revalidatePath('/dashboard/invoices');
+  //redirect('/dashboard/invoices');
+
 }
