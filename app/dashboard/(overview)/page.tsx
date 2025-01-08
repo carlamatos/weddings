@@ -17,8 +17,7 @@ export default async function Page() {
     <main className='p-6'>
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">
         
-      <p>Welcome, { session?.user?.name || 'Guest' }!</p>
-      <p>Email: {session?.user?.email}</p>
+      
       <ImageUpload></ImageUpload>
       <div className='main_content'>
       <EditableHeading></EditableHeading>

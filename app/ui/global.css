@@ -33,6 +33,11 @@
   background-color: var(--orange-rose);
 }
 
+form.setup{
+  display: flex;
+  flex-direction: column;
+}
+form.setup input, form.setup textarea{margin: 10px 0}
 
 
 
