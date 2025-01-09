@@ -32,10 +32,11 @@
 .orange-rose{
   background-color: var(--orange-rose);
 }
-
+.sage-but:hover{ background-color: var(--dusty-blue);}
 form.setup{
   display: flex;
   flex-direction: column;
+  width: 100%
 }
 form.setup input, form.setup textarea{margin: 10px 0}
 

@@ -2,12 +2,35 @@
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
 // However, these types are generated automatically if you're using an ORM such as Prisma.
+export type UserPage = {
+  id: string;
+  user_id: string;
+  slug: string;
+  banner_image: string;
+  heading: string;
+  main_content: string;
+  event_date: string;
+  location: string;
+  user_email: string;
+  description: string;
+  created_at: string;
+  url: string;
+  street_address: string;
+  unit_number: string;
+  postal_code: string;
+  city: string;
+  country: string;
+
+};
+
+
 export type User = {
   id: string;
   name: string;
   email: string;
   password: string;
 };
+
 
 export type Customer = {
   id: string;

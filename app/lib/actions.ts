@@ -9,6 +9,7 @@ import { sql } from '@vercel/postgres';
 import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { User } from './definitions';
+import { auth } from '@/auth';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string({
@@ -35,8 +36,35 @@ const FormSchema = z.object({
   });
 
 
+  const UserPageSchema = z.object({
+    id: z.string(),
+    event_name: z.string(), 
+    description: z.string(), 
+    event_date: z.string(),
+    location: z.string(),
+    slug: z.string({
+      invalid_type_error: 'Please specify a name.',
+    }),
+    email: z.string()
+      .email({ message: 'Invalid email address. Please enter a valid email.'}),
+   
+    
+    url: z.string(),
+    street_address: z.string(),
+    unit_number: z.string(),
+    postal_code: z.string(), 
+    city: z.string(), 
+    country: z.string(),
+    
+    create_at: z.date(),
+
+    
+  });
+
+
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true });
 const CreateUser = UserSchema.omit({id: true, password:true});
 export type State = {
     errors?: {
@@ -46,6 +74,80 @@ export type State = {
     };
     message?: string | null;
   };
+
+
+  export type UserPageState = {
+    errors?: {
+      event_name?: string[];
+      event_date?: string[];
+      location?: string[];
+      email?: string[];
+      slug?: string[];
+      description?: string[];
+      url?: string[];
+      
+    };
+    unit_number?: string | null;
+    street_address?: string | null;
+    postal_code?: string | null;
+    city?: string | null;
+    country?: string | null;
+  };
+
+
+  export async function createUserPage(prevState: UserPageState, formData: FormData){
+
+    const session = await auth();
+    const validatedFields = CreateUserPage.safeParse({
+      event_name: formData.get('eventName'),
+      event_date: formData.get('eventDate'),
+      location: formData.get('location'),
+      email: formData.get('email'),
+      slug: formData.get('slug'),
+      description: formData.get('description'),
+      url: formData.get('slug'),
+      street_address: formData.get('streetAddress'),
+      unit_number: formData.get('unitNumber'),
+      postal_code: formData.get('postalCode'),
+      city: formData.get('city'),
+      country: formData.get('country'),
+  });
+  //console.log(formData);
+  
+  if (!validatedFields.success) {
+      return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to Create Page.',
+      };
+    }
+    
+    const { event_name, description, event_date,location,email,slug,url,street_address,unit_number,postal_code, city, country } = validatedFields.data;
+
+    const user_id = session?.user?.id;
+  const date = new Date().toISOString().split('T')[0];
+  try {
+      await sql`
+  INSERT INTO user_page (
+        heading, main_content, description, event_date, location,
+        user_email, slug, url, street_address, unit_number, postal_code, city, country
+      ) VALUES (
+        ${event_name}, ${description},${description}, ${event_date}, ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country}
+      );
+`;
+  } catch (error) {
+    
+    console.error('Database Error:', error); // Log the actual error to the server console
+
+    // Return a user-friendly error message while logging the actual error
+    return {
+      message: 'Database Error: Failed to Create page.',
+      error: error.message || error, // Include the error details in the response for debugging
+    };
+  }
+
+  revalidatePath(`/${slug}`);
+  redirect(`/${slug}`);
+  }
    
   export async function createInvoice(prevState: State, formData: FormData) {
     const validatedFields = CreateInvoice.safeParse({
