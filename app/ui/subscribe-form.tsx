@@ -3,7 +3,7 @@ import { useActionState, useState } from 'react';
 import { UserPage } from '../lib/definitions';
 import { createUserPage, State, UserPageState } from '../lib/actions';
 
-export default function Form({ userpage }: { userpage: UserPage }) {
+export default function Form() {
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
   const [formData, setFormData] = useState({
     eventName: 'John and Jane Wedding',

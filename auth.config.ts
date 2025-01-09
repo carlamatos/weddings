@@ -12,6 +12,10 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
+        //check if slug is a user page first
+
+        //console.log("not dashboard");
+        //return true;
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
       return true;

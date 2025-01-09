@@ -6,11 +6,14 @@ import {
   InvoicesTable,
   LatestInvoiceRaw,
   Revenue,
+  Slugs,
+  UserPage,
 } from './definitions';
 import { formatCurrency } from './utils';
+import { Noto_Sans_Telugu } from 'next/font/google';
 
 export async function fetchUsers(){
-  
+
 }
 
 export async function fetchRevenue() {
@@ -29,6 +32,44 @@ export async function fetchRevenue() {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch revenue data.');
+  }
+}
+export async function fetchUserPages(){
+  try {
+    const data = await sql<Slugs>`
+      SELECT slug
+      FROM user_page
+      ORDER BY user_page.created_at DESC `;
+
+    const pages = data.rows.map((page) => ({
+      ...page,
+    }));
+    
+    return pages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch the user pages.');
+  }
+}
+
+export async function fetchUserPage(slug: string){
+  try {
+    
+    const data = await sql<UserPage>`
+      SELECT *
+      FROM user_page
+      WHERE slug = ${slug}
+      ORDER BY user_page.created_at DESC
+      LIMIT 5`;
+
+    const pages = data.rows.map((page) => ({
+      ...page,
+    }));
+    
+    return pages;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch single user page.');
   }
 }
 
