@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { fetchUserPage, fetchUserPages } from '../lib/data';
-import { NextResponse } from 'next/server';
+
 
 interface EventData {
   id: string;
