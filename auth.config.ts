@@ -1,5 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
+import { fetchUserPageByEmail } from './app/lib/data';
+import {fetchUser} from './app/lib/data';
 export const authConfig = {
   pages: {
     signIn: '/login', 
@@ -12,10 +14,22 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        //check if slug is a user page first
+        
+        
+        //check if the user has a page or if it is the first time it logs in
+        const email = auth?.user?.email;
+        console.log ("USER EMAIL" + email);
 
-        //console.log("not dashboard");
-        //return true;
+        const loggedInUser = fetchUser(email);
+        
+
+        console.log ("USER id" + loggedInUser);
+        const userPage = false; //fetchUserPageByEmail(user_id);
+        if (!userPage){
+          return Response.redirect(new URL('/dashboard/setup', nextUrl));
+        }
+
+
         return Response.redirect(new URL('/dashboard', nextUrl));
       }
       return true;

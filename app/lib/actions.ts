@@ -127,11 +127,11 @@ export type State = {
   const date = new Date().toISOString().split('T')[0];
   try {
       await sql`
-  INSERT INTO user_page (
+  INSERT INTO user_page ( user_id,
         heading, main_content, description, event_date, location,
         user_email, slug, url, street_address, unit_number, postal_code, city, country
       ) VALUES (
-        ${event_name}, ${description},${description}, ${event_date}, ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country}
+        ${user_id}, ${event_name}, ${description},${description}, ${event_date}, ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country}
       );
 `;
   } catch (error) {
@@ -141,7 +141,7 @@ export type State = {
     // Return a user-friendly error message while logging the actual error
     return {
       message: 'Database Error: Failed to Create page.',
-      error: error.message || error, // Include the error details in the response for debugging
+      error: error, // Include the error details in the response for debugging
     };
   }
 
@@ -226,8 +226,9 @@ export async function authenticate(
   try {
     await signIn('credentials', formData);
   } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
+    const authError = error as AuthError;
+    if (authError.type) {
+      switch (authError.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
         default:

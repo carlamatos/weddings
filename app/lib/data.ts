@@ -10,10 +10,25 @@ import {
   UserPage,
 } from './definitions';
 import { formatCurrency } from './utils';
-import { Noto_Sans_Telugu } from 'next/font/google';
 
-export async function fetchUsers(){
 
+export async function fetchUser(email: string){
+  try {
+    
+    const data = await sql<UserPage>`
+      SELECT *
+      FROM users
+      WHERE email = ${email}`;
+      
+      if (!data.rows[0]) { return false; }
+
+      const user = data.rows[0]; // Access the first (and only) row
+
+      return user;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch user.');
+  }
 }
 
 export async function fetchRevenue() {
@@ -62,11 +77,28 @@ export async function fetchUserPage(slug: string){
       ORDER BY user_page.created_at DESC
       LIMIT 5`;
 
-    const pages = data.rows.map((page) => ({
-      ...page,
-    }));
+      const page = data.rows[0]; // Access the first (and only) row
+
+      return page;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch single user page.');
+  }
+}
+
+export async function fetchUserPageByEmail(user_id: string){
+  try {
     
-    return pages;
+    const data = await sql<UserPage>`
+      SELECT *
+      FROM user_page
+      WHERE user_id = ${user_id}`;
+
+      if (!data.rows[0]) { return false; } 
+
+      const page = data.rows[0]; // Access the first (and only) row
+
+      return page;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch single user page.');
