@@ -8,7 +8,7 @@ import {
   Revenue,
   Slugs,
   UserPage,
-  User,
+  DBUser,
 } from './definitions';
 import { formatCurrency } from './utils';
 
@@ -16,7 +16,7 @@ import { formatCurrency } from './utils';
 export async function fetchUser(email: string){
   try {
     
-    const data = await sql<User>`
+    const data = await sql<DBUser>`
       SELECT *
       FROM users
       WHERE email = ${email}`;
