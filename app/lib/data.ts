@@ -8,6 +8,7 @@ import {
   Revenue,
   Slugs,
   UserPage,
+  User,
 } from './definitions';
 import { formatCurrency } from './utils';
 
@@ -15,12 +16,12 @@ import { formatCurrency } from './utils';
 export async function fetchUser(email: string){
   try {
     
-    const data = await sql<UserPage>`
+    const data = await sql<User>`
       SELECT *
       FROM users
       WHERE email = ${email}`;
       
-      if (!data.rows[0]) { return false; }
+      if (!data.rows[0]) { return undefined; }
 
       const user = data.rows[0]; // Access the first (and only) row
 
@@ -73,9 +74,11 @@ export async function fetchUserPage(slug: string){
     const data = await sql<UserPage>`
       SELECT *
       FROM user_page
-      WHERE slug = ${slug}
-      ORDER BY user_page.created_at DESC
-      LIMIT 5`;
+      WHERE slug = ${slug}`;
+
+      
+
+      if (!data.rows[0]) { return undefined; }
 
       const page = data.rows[0]; // Access the first (and only) row
 
@@ -86,7 +89,7 @@ export async function fetchUserPage(slug: string){
   }
 }
 
-export async function fetchUserPageByEmail(user_id: string){
+export async function fetchUserPageById(user_id: string){
   try {
     
     const data = await sql<UserPage>`
@@ -94,7 +97,7 @@ export async function fetchUserPageByEmail(user_id: string){
       FROM user_page
       WHERE user_id = ${user_id}`;
 
-      if (!data.rows[0]) { return false; } 
+      if (!data.rows[0]) { return undefined; } 
 
       const page = data.rows[0]; // Access the first (and only) row
 

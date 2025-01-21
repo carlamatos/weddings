@@ -10,6 +10,7 @@ import { signIn } from '@/auth';
 import { AuthError } from 'next-auth';
 import { User } from './definitions';
 import { auth } from '@/auth';
+import { fetchUserPage } from './data';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string({
@@ -33,6 +34,11 @@ const FormSchema = z.object({
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
    
     password: z.string(),
+    given_name:  z.string(),
+    family_name:  z.string(),
+    provider:  z.string(),
+    provider_id:  z.string(),
+    picture:  z.string(),
   });
 
 
@@ -43,7 +49,7 @@ const FormSchema = z.object({
     event_date: z.string(),
     location: z.string(),
     slug: z.string({
-      invalid_type_error: 'Please specify a name.',
+      invalid_type_error: 'Please specify a slug (page URL).',
     }),
     email: z.string()
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
@@ -65,7 +71,8 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true });
-const CreateUser = UserSchema.omit({id: true, password:true});
+const CreateUser = UserSchema.omit({id: true, password:true,  given_name: true, family_name: true, provider: true,provider_id:true,picture: true,});
+const CreateExtendedUser = UserSchema.omit({id: true, password:true});
 export type State = {
     errors?: {
       customerId?: string[];
@@ -87,17 +94,26 @@ export type State = {
       url?: string[];
       
     };
-    unit_number?: string | null;
-    street_address?: string | null;
-    postal_code?: string | null;
-    city?: string | null;
-    country?: string | null;
+    message?: string | null;
   };
 
 
   export async function createUserPage(prevState: UserPageState, formData: FormData){
 
     const session = await auth();
+  
+    const formSlug = formData.get('slug');
+    //check if the slug already exists
+    if (typeof formSlug === 'string' && formSlug.trim() !== '') {
+     const userPage = await fetchUserPage(formSlug);
+
+     if (userPage !== undefined){
+      return {
+        errors: new Error('The URL '+  formSlug +'already in use, please user another slug'),
+        message: 'The URL '+  formSlug +'already in use, please user another slug',
+      };
+     }
+    }
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
@@ -114,6 +130,8 @@ export type State = {
   });
   //console.log(formData);
   
+
+
   if (!validatedFields.success) {
       return {
         errors: validatedFields.error.flatten().fieldErrors,
@@ -242,6 +260,52 @@ export async function authenticate(
 
 export async function GoogleSignIn() {
   await signIn("google")
+}
+
+
+export async function createExtendedUser(user: User) {
+  
+ /* console.log("UserID: " + user.id);
+  console.log("UserNAME: " + user.name);
+  console.log("UserEMAIL: " + user.email);
+  */
+  const validatedFields = CreateExtendedUser.safeParse({
+      
+      name: user.name,
+      email: user.email,
+      given_name: user.given_name,
+      family_name: user.family_name,
+      provider: user.provider,
+      provider_id: user.provider_id,
+      picture: user.picture,
+      
+  });
+  if (!validatedFields.success) {
+    
+    return {
+        errors: validatedFields.error.flatten().fieldErrors,
+        message: 'Missing Fields. Failed to Create User.',
+      };
+      
+    }
+    const {name, email, given_name, family_name, provider, provider_id, picture } = validatedFields.data;
+    const date = new Date().toISOString().split('T')[0];
+  try {
+      await sql`
+  INSERT INTO users (name, email, date, given_name,family_name,provider,provider_id,picture)
+  VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture})
+`;
+    
+  } catch (error) {
+      
+      return {
+          message: 'Database Error: Failed to Create user.',
+      };
+  }
+
+  //revalidatePath('/dashboard/invoices');
+  //redirect('/dashboard/invoices');
+
 }
 
 

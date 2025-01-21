@@ -1,36 +1,42 @@
 import type { NextAuthConfig } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import { fetchUserPageByEmail } from './app/lib/data';
-import {fetchUser} from './app/lib/data';
+import { fetchUserPageById } from './app/lib/data';
+import { fetchUser } from './app/lib/data';
 export const authConfig = {
   pages: {
-    signIn: '/login', 
+    signIn: '/login',
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    async authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isLoggedIn) {
-        
-        
+
+
         //check if the user has a page or if it is the first time it logs in
         const email = auth?.user?.email;
-        console.log ("USER EMAIL" + email);
 
-        const loggedInUser = fetchUser(email);
-        
 
-        console.log ("USER id" + loggedInUser);
-        const userPage = false; //fetchUserPageByEmail(user_id);
-        if (!userPage){
-          return Response.redirect(new URL('/dashboard/setup', nextUrl));
+        const loggedInUser = await fetchUser(email);
+
+        if (loggedInUser !== undefined) {
+
+          const userPage = await fetchUserPageById(loggedInUser.id);
+
+
+          if (userPage === undefined) {
+            return Response.redirect(new URL('/dashboard/setup', nextUrl));
+          }
         }
 
+        console.log('Current URL:', nextUrl.toString());
 
-        return Response.redirect(new URL('/dashboard', nextUrl));
+        if (nextUrl.pathname.startsWith('/login')) {
+          return Response.redirect(new URL('/dashboard', nextUrl));
+        }
       }
       return true;
     },
@@ -43,3 +49,4 @@ export const authConfig = {
     strategy: 'jwt',
   },
 } satisfies NextAuthConfig;
+

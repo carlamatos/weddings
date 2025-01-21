@@ -32,6 +32,11 @@ export type User = {
   name: string;
   email: string;
   password: string;
+  given_name: string;
+  family_name: string;
+  provider: string;
+  provider_id: string;
+  picture: string;
 };
 
 

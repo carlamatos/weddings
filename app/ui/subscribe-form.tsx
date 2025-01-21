@@ -1,7 +1,7 @@
 "use client"
 import { useActionState, useState } from 'react';
-import { UserPage } from '../lib/definitions';
-import { createUserPage, State, UserPageState } from '../lib/actions';
+
+import { createUserPage, UserPageState } from '../lib/actions';
 
 export default function Form() {
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
@@ -45,7 +45,11 @@ export default function Form() {
   return (
     <form action={formAction} className="setup max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Create Your Event</h2>
-    
+      <div id="customer-error" aria-live="polite" aria-atomic="true">
+           <p> {state.message}</p>
+          </div>
+
+
       <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-2">Event Name:</label>
         <input

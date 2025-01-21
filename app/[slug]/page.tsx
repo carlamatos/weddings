@@ -23,30 +23,35 @@ interface EventData {
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
+
+
   const res = await fetchUserPage(slug); // Fetch the data from your database
-  if (!res || res.length === 0) {
+
+  console.log("THE RECORD IS:" +  res.id);
+
+  if (!res || res === undefined) {
     return null; // Return null if no data is found
   }
 
   // Map the result to the expected EventData structure
   const eventData: EventData = {
-    id: res[0].id,
-    user_id: res[0].user_id,
-    slug: res[0].slug,
-    banner_image: res[0].banner_image,
-    heading: res[0].heading,
-    main_content: res[0].main_content,
-    event_date: res[0].event_date,
-    location: res[0].location,
-    user_email: res[0].user_email,
-    description: res[0].description,
-    created_at: res[0].created_at,
-    url: res[0].url || undefined,
-    street_address: res[0].street_address || undefined,
-    unit_number: res[0].unit_number || undefined,
-    postal_code: res[0].postal_code || undefined,
-    city: res[0].city || undefined,
-    country: res[0].country || undefined,
+    id: res.id,
+    user_id: res.user_id,
+    slug: res.slug,
+    banner_image: res.banner_image,
+    heading: res.heading,
+    main_content: res.main_content,
+    event_date: res.event_date,
+    location: res.location,
+    user_email: res.user_email,
+    description: res.description,
+    created_at: res.created_at,
+    url: res.url || undefined,
+    street_address: res.street_address || undefined,
+    unit_number: res.unit_number || undefined,
+    postal_code: res.postal_code || undefined,
+    city: res.city || undefined,
+    country: res.country || undefined,
   };
 
   return eventData; // Return the event data
@@ -78,8 +83,8 @@ export async function generateStaticParams() {
 }
 
 export default async function EventPage({ params }: { params: { slug: string } }) {
-  //console.log('PARAMS');
-  //console.log(params);
+  console.log('PARAMS');
+  console.log(params);
   const { slug } = await Promise.resolve(params); // Ensures params is resolved before use
 
   const data = await fetchEventData(slug);

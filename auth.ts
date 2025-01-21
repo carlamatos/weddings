@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
-import { createUser } from './app/lib/actions';
+import { createExtendedUser } from './app/lib/actions';
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -45,6 +45,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorization: {
+        params: {
+          scope: 'openid profile email',
+        },
+      },
     }),
   ],
   callbacks: {
@@ -52,15 +57,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // Add user info to the token when logging in
 
       if (account?.provider === 'google' && profile) {
-        token.id = profile.id;
+        //console.log('Profile object:', profile);
+        token.id = profile.sub;
         token.name = profile.name;
         token.email = profile.email;
+        token.given_name = profile.given_name;
+        token.family_name = profile.family_name;
+        token.provider_id = profile.provider_id;
         token.picture = profile.picture;
 
         const localuser = await getUser(token.email);
         if (!localuser) {
-          const userdata: User = { id: token.id, name: token.name, email: token.email, password: '' };
-          const result = await createUser(userdata);
+          const userdata: User = { id: token.id, name: token.name, email: token.email, password: '', given_name: token.given_name,family_name:token.family_name, provider: 'Google', provider_id: token.sub, picture: token.picture  };
+          const result = await createExtendedUser(userdata);
 
           if (result && result.errors) {
             // There was an error, handle the error
@@ -81,8 +90,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       // Pass token data to the session object
+      const localuser = await getUser(token.email);
       if (token) {
-        session.user.id = token.id as string;
+        
+        if (localuser !== undefined){
+          session.user.id = localuser.id;
+        }
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.image = token.picture as string;
