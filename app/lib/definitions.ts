@@ -27,7 +27,7 @@ export type UserPage = {
 };
 
 
-export type User = {
+export type DBUser = {
   id: string;
   name: string;
   email: string;

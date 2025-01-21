@@ -1,20 +1,27 @@
-import NextAuth from 'next-auth';
+import NextAuth, { DefaultSession } from 'next-auth';
+import { Account, Profile, User, Session } from 'next-auth';
+
 import Credentials from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { authConfig } from 'auth.config';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
-import type { User } from '@/app/lib/definitions';
+import type { DBUser } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
 import { createExtendedUser } from './app/lib/actions';
+import {JWT} from 'next-auth/jwt'
 
-async function getUser(email: string): Promise<User | undefined> {
+
+
+
+async function getUser(email: string): Promise<DBUser | undefined> {
   try {
-    const user = await sql<User>`SELECT * FROM users WHERE email=${email}`;
+    const user = await sql<DBUser>`SELECT * FROM users WHERE email=${email}`;
     return user.rows[0];
   } catch (error) {
     console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
+    //throw new Error('Failed to fetch user.');
+    return undefined;
   }
 }
 
@@ -53,22 +60,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account, profile }) {
+    async jwt({token, user, account, profile } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null }) {
       // Add user info to the token when logging in
-
-      if (account?.provider === 'google' && profile) {
+      
+      if (account?.provider === 'google' && profile?.email 
+        && profile?.sub
+        && profile.given_name
+        && profile?.family_name
+        && profile.name && token?.id) {
         //console.log('Profile object:', profile);
-        token.id = profile.sub;
-        token.name = profile.name;
-        token.email = profile.email;
-        token.given_name = profile.given_name;
-        token.family_name = profile.family_name;
-        token.provider_id = profile.provider_id;
-        token.picture = profile.picture;
+       
 
-        const localuser = await getUser(token.email);
+        const localuser = await getUser(profile.email);
         if (!localuser) {
-          const userdata: User = { id: token.id, name: token.name, email: token.email, password: '', given_name: token.given_name,family_name:token.family_name, provider: 'Google', provider_id: token.sub, picture: token.picture  };
+          const userdata: DBUser = { id: '0', name: profile.name, email: profile.email, password: '', given_name: profile.given_name,family_name:profile.family_name, provider: 'Google', provider_id: profile.sub, picture: profile.picture  };
           const result = await createExtendedUser(userdata);
 
           if (result && result.errors) {
@@ -82,17 +87,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      if (user) {
+      if (user && token) {
         token.id = user.id;
       }
 
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: {
+      session: Session | DefaultSession;
+      token: JWT;
+    }) {
       // Pass token data to the session object
-      const localuser = await getUser(token.email);
-      if (token) {
-        
+      if (token?.email && session?.user) {
+        const localuser = await getUser(token.email);  
         if (localuser !== undefined){
           session.user.id = localuser.id;
         }

@@ -7,8 +7,8 @@ import { redirect } from 'next/navigation';
 import { sql } from '@vercel/postgres';
 
 import { signIn } from '@/auth';
-import { AuthError } from 'next-auth';
-import { User } from './definitions';
+
+import { DBUser } from './definitions';
 import { auth } from '@/auth';
 import { fetchUserPage } from './data';
 const FormSchema = z.object({
@@ -244,16 +244,10 @@ export async function authenticate(
   try {
     await signIn('credentials', formData);
   } catch (error) {
-    const authError = error as AuthError;
-    if (authError.type) {
-      switch (authError.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
-    }
-    throw error;
+    console.error('Sign In Error', error);   
+    return 'Invalid credentials.';
+       
+    
   }
 }
 
@@ -263,7 +257,7 @@ export async function GoogleSignIn() {
 }
 
 
-export async function createExtendedUser(user: User) {
+export async function createExtendedUser(user: DBUser) {
   
  /* console.log("UserID: " + user.id);
   console.log("UserNAME: " + user.name);
@@ -309,7 +303,7 @@ export async function createExtendedUser(user: User) {
 }
 
 
-export async function createUser(user: User) {
+export async function createUser(user: DBUser) {
   
   
   const validatedFields = CreateUser.safeParse({

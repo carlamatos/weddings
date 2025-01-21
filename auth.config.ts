@@ -1,13 +1,22 @@
-import type { NextAuthConfig } from 'next-auth';
+
 import GoogleProvider from 'next-auth/providers/google';
 import { fetchUserPageById } from './app/lib/data';
 import { fetchUser } from './app/lib/data';
+import type { Session } from "next-auth";
+import type { NextRequest  } from "next/server";
 export const authConfig = {
   pages: {
     signIn: '/login',
   },
   callbacks: {
-    async authorized({ auth, request: { nextUrl } }) {
+    async authorized({
+      auth,
+      request,
+    }: {
+      auth: Session | null; // Type for the auth object
+      request: NextRequest; // Type for the incoming request
+    }) {
+      const nextUrl = request.nextUrl;
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
       if (isOnDashboard) {
@@ -19,7 +28,7 @@ export const authConfig = {
         //check if the user has a page or if it is the first time it logs in
         const email = auth?.user?.email;
 
-
+        if (email){
         const loggedInUser = await fetchUser(email);
 
         if (loggedInUser !== undefined) {
@@ -38,15 +47,13 @@ export const authConfig = {
           return Response.redirect(new URL('/dashboard', nextUrl));
         }
       }
+      }
       return true;
     },
   },
   providers: [GoogleProvider({
     clientId: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-  }),],
-  session: {
-    strategy: 'jwt',
-  },
-} satisfies NextAuthConfig;
+  }),]
+}
 
