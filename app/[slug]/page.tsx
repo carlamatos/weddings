@@ -27,7 +27,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
 
   const res = await fetchUserPage(slug); // Fetch the data from your database
 
-  console.log("THE RECORD IS:" +  res.id);
+  //console.log("THE RECORD IS:" +  res.id);
 
   if (!res || res === undefined) {
     return null; // Return null if no data is found
@@ -85,7 +85,7 @@ export async function generateStaticParams() {
 export default async function EventPage({ params }: { params: { slug: string } }) {
   console.log('PARAMS');
   console.log(params);
-  const { slug } = await Promise.resolve(params); // Ensures params is resolved before use
+  const { slug } = params; // Ensures params is resolved before use
 
   const data = await fetchEventData(slug);
   //console.log(data);
