@@ -92,9 +92,15 @@ export type State = {
       slug?: string[];
       description?: string[];
       url?: string[];
+      unit_number?:string[];
       
     };
     message?: string | null;
+    unit_number?:string | null;
+    street_address?:string | null;
+    postal_code?:string | null;
+    city?:string | null;
+    country?:string | null;
   };
 
 
