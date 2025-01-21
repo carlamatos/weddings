@@ -82,10 +82,10 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function EventPage({ params }: { params: { slug: string } }) {
+export default async function EventPage({ params }: { params: Promise<{ slug: string }>}) {
   console.log('PARAMS');
   console.log(params);
-  const { slug } = params; // Ensures params is resolved before use
+  const slug  = (await params).slug; // Ensures params is resolved before use
 
   const data = await fetchEventData(slug);
   //console.log(data);
