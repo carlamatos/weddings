@@ -142,7 +142,7 @@ export type State = {
     const { event_name, description, event_date,location,email,slug,url,street_address,unit_number,postal_code, city, country } = validatedFields.data;
 
     const user_id = session?.user?.id;
-  const date = new Date().toISOString().split('T')[0];
+    
   try {
       await sql`
   INSERT INTO user_page ( user_id,

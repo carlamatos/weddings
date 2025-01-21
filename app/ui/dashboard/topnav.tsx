@@ -1,6 +1,3 @@
-import Link from 'next/link';
-
-import AcmeLogo from '@/app/ui/acme-logo';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
 

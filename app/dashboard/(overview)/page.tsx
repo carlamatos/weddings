@@ -8,7 +8,7 @@ import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from '@/a
 import ImageUpload from '@/app/ui/image';
 import EditableHeading from '@/app/ui/heading';
 import EditableDescription from '@/app/ui/description';
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 
 
 export default async function Page() {
