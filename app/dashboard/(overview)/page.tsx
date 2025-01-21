@@ -8,11 +8,11 @@ import { CardsSkeleton, LatestInvoicesSkeleton, RevenueChartSkeleton } from '@/a
 import ImageUpload from '@/app/ui/image';
 import EditableHeading from '@/app/ui/heading';
 import EditableDescription from '@/app/ui/description';
-import { auth } from "@/auth";
+
 
 
 export default async function Page() {
-  const session = await auth();
+  
   return (
     <main className='p-6'>
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-1">

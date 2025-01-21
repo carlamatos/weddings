@@ -190,7 +190,7 @@ export type State = {
   `;
     } catch (error) {
         return {
-            message: 'Database Error: Failed to Create Invoice.',
+            message: `Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
         };
     }
 
@@ -216,7 +216,7 @@ export async function updateInvoice(id: string, formData: FormData) {
   `;
     } catch (error) {
         return {
-            message: 'Database Error: Failed to update Invoice.',
+            message: `Database Error: Failed to update Invoice. ${error instanceof Error ? error.message : String(error)}`
         };
     }
 
@@ -232,7 +232,7 @@ export async function deleteInvoice(id: string) {
         await sql`DELETE FROM invoices WHERE id = ${id}`;
     } catch (error) {
         return {
-            message: 'Database Error: Failed to Delete Invoice.',
+            message:`Database Error: Failed to Delete Invoice. ${error instanceof Error ? error.message : String(error)}`,
         };
     }
     revalidatePath('/dashboard/invoices');
@@ -299,7 +299,7 @@ export async function createExtendedUser(user: User) {
   } catch (error) {
       
       return {
-          message: 'Database Error: Failed to Create user.',
+          message:`Database Error: Failed to Create user. ${error instanceof Error ? error.message : String(error)}`,
       };
   }
 
@@ -336,7 +336,8 @@ export async function createUser(user: User) {
   } catch (error) {
     console.log("error inserting User");
       return {
-          message: 'Database Error: Failed to Create Invoice.',
+          message:`Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
+          
       };
   }
 
