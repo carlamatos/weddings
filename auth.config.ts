@@ -4,6 +4,7 @@ import { fetchUserPageById } from './app/lib/data';
 import { fetchUser } from './app/lib/data';
 import type { Session } from "next-auth";
 import type { NextRequest  } from "next/server";
+import type { NextAuthConfig } from 'next-auth';
 export const authConfig = {
   pages: {
     signIn: '/login',
@@ -55,5 +56,5 @@ export const authConfig = {
     clientId: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
   }),]
-}
+} satisfies NextAuthConfig;
 
