@@ -11,6 +11,7 @@ import { signIn } from '@/auth';
 import { DBUser } from './definitions';
 import { auth } from '@/auth';
 import { fetchUserPage } from './data';
+import { AuthError } from 'next-auth';
 const FormSchema = z.object({
     id: z.string(),
     customerId: z.string({
@@ -252,8 +253,15 @@ export async function authenticate(
   try {
     await signIn('credentials', formData);
   } catch (error) {
-    console.error('Sign In Error', error);   
-    return 'Invalid credentials.';
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin':
+          return 'Invalid credentials.';
+        default:
+          return 'Something went wrong.';
+      }
+    }
+    throw error;
        
     
   }
