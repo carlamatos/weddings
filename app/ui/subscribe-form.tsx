@@ -22,11 +22,7 @@ export default function Form() {
 
     
 
-   const initialState: UserPageState = {  unit_number:null,
-    street_address:null,
-    postal_code:null,
-    city:null,
-    country:null, errors: {} };
+   const initialState: UserPageState = { message: null, errors: {} };
   
     const [state, formAction] = useActionState(createUserPage, initialState);
   

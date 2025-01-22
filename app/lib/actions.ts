@@ -86,21 +86,23 @@ export type State = {
   export type UserPageState = {
     errors?: {
       event_name?: string[];
+      description?: string[];
       event_date?: string[];
       location?: string[];
-      email?: string[];
       slug?: string[];
-      description?: string[];
-      url?: string[];
-      unit_number?:string[];
+      email?: string[];
       
+     
+      url?: string[];
+      unit_number?: string[];
+      street_address?: string[];
+      postal_code?: string[];
+      city?: string[];
+      country?: string[];
+      
+
     };
     message?: string | null;
-    unit_number?:string | null;
-    street_address?:string | null;
-    postal_code?:string | null;
-    city?:string | null;
-    country?:string | null;
   };
 
 
@@ -115,8 +117,8 @@ export type State = {
 
      if (userPage !== undefined){
       return {
-        errors: new Error('The URL '+  formSlug +'already in use, please user another slug'),
-        message: 'The URL '+  formSlug +'already in use, please user another slug',
+        errors: { slug: [`The URL '${formSlug}' is already in use, please use another slug`] },
+        message: `The URL '${formSlug}' is already in use, please use another slug`,
       };
      }
     }
@@ -164,8 +166,8 @@ export type State = {
 
     // Return a user-friendly error message while logging the actual error
     return {
-      message: 'Database Error: Failed to Create page.',
-      error: error, // Include the error details in the response for debugging
+      //errors:  { database: ['Database Error: Failed to Create Page.'] }, // Include the error details in the response for debugging
+      message: `Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
     };
   }
 
