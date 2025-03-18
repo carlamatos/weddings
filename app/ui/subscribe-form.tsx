@@ -42,7 +42,7 @@ export default function Form() {
     <form action={formAction} className="setup max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Create Your Event</h2>
       <div id="customer-error" aria-live="polite" aria-atomic="true">
-           <p> {state.message}</p>
+      {state.message && <p>{state.message}</p>}
           </div>
 
 
