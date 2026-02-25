@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import { sql } from '@vercel/postgres';
+import bcrypt from 'bcrypt';
 
 import { signIn } from '@/auth';
 
@@ -12,20 +13,6 @@ import { DBUser } from './definitions';
 import { auth } from '@/auth';
 import { fetchUserPage } from './data';
 import { AuthError } from 'next-auth';
-const FormSchema = z.object({
-    id: z.string(),
-    customerId: z.string({
-      invalid_type_error: 'Please select a customer.',
-    }),
-    amount: z.coerce
-      .number()
-      .gt(0, { message: 'Please enter an amount greater than $0.' }),
-    status: z.enum(['pending', 'paid'], {
-      invalid_type_error: 'Please select an invoice status.',
-    }),
-    date: z.string(),
-  });
-
   const UserSchema = z.object({
     id: z.string(),
     name: z.string({
@@ -69,22 +56,10 @@ const FormSchema = z.object({
   });
 
 
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
-const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true });
 const CreateUser = UserSchema.omit({id: true, password:true,  given_name: true, family_name: true, provider: true,provider_id:true,picture: true,});
 const CreateExtendedUser = UserSchema.omit({id: true, password:true});
-export type State = {
-    errors?: {
-      customerId?: string[];
-      amount?: string[];
-      status?: string[];
-    };
-    message?: string | null;
-  };
-
-
-  export type UserPageState = {
+export type UserPageState = {
     errors?: {
       event_name?: string[];
       description?: string[];
@@ -176,76 +151,6 @@ export type State = {
   redirect(`/${slug}`);
   }
    
-  export async function createInvoice(prevState: State, formData: FormData) {
-    const validatedFields = CreateInvoice.safeParse({
-        customerId: formData.get('customerId'),
-        amount: formData.get('amount'),
-        status: formData.get('status'),
-    });
-    if (!validatedFields.success) {
-        return {
-          errors: validatedFields.error.flatten().fieldErrors,
-          message: 'Missing Fields. Failed to Create Invoice.',
-        };
-      }
-      const { customerId, amount, status } = validatedFields.data;
-
-    const amountInCents = amount * 100;
-    const date = new Date().toISOString().split('T')[0];
-    try {
-        await sql`
-    INSERT INTO invoices (customer_id, amount, status, date)
-    VALUES (${customerId}, ${amountInCents}, ${status}, ${date})
-  `;
-    } catch (error) {
-        return {
-            message: `Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
-        };
-    }
-
-    revalidatePath('/dashboard/invoices');
-    redirect('/dashboard/invoices');
-
-}
-
-
-export async function updateInvoice(id: string, formData: FormData) {
-    const { customerId, amount, status } = UpdateInvoice.parse({
-        customerId: formData.get('customerId'),
-        amount: formData.get('amount'),
-        status: formData.get('status'),
-    });
-
-    const amountInCents = amount * 100;
-    try {
-        await sql`
-    UPDATE invoices
-    SET customer_id = ${customerId}, amount = ${amountInCents}, status = ${status}
-    WHERE id = ${id}
-  `;
-    } catch (error) {
-        return {
-            message: `Database Error: Failed to update Invoice. ${error instanceof Error ? error.message : String(error)}`
-        };
-    }
-
-    revalidatePath('/dashboard/invoices');
-    redirect('/dashboard/invoices');
-}
-
-export async function deleteInvoice(id: string) {
-    
-  
-    
-    try {
-        await sql`DELETE FROM invoices WHERE id = ${id}`;
-    } catch (error) {
-        return {
-            message:`Database Error: Failed to Delete Invoice. ${error instanceof Error ? error.message : String(error)}`,
-        };
-    }
-    revalidatePath('/dashboard/invoices');
-}
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
@@ -342,16 +247,89 @@ export async function createUser(user: DBUser) {
   INSERT INTO users (name, email, date)
   VALUES (${name}, ${email}, ${date})
 `;
-    
+
   } catch (error) {
     console.log("error inserting User");
       return {
           message:`Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
-          
+
       };
   }
 
   //revalidatePath('/dashboard/invoices');
   //redirect('/dashboard/invoices');
 
+}
+
+const RegisterSchema = z.object({
+  given_name: z.string().min(1, { message: 'Please enter your first name.' }),
+  family_name: z.string().min(1, { message: 'Please enter your last name.' }),
+  phone: z.string().optional(),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match.',
+  path: ['confirmPassword'],
+});
+
+export type RegisterState = {
+  errors?: {
+    given_name?: string[];
+    family_name?: string[];
+    phone?: string[];
+    email?: string[];
+    password?: string[];
+    confirmPassword?: string[];
+  };
+  message?: string | null;
+};
+
+export async function registerUser(prevState: RegisterState, formData: FormData) {
+  const validatedFields = RegisterSchema.safeParse({
+    given_name: formData.get('given_name'),
+    family_name: formData.get('family_name'),
+    phone: (formData.get('phone') as string) || undefined,
+    email: formData.get('email'),
+    password: formData.get('password'),
+    confirmPassword: formData.get('confirmPassword'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Please fix the errors below.',
+    };
+  }
+
+  const { given_name, family_name, phone, email, password } = validatedFields.data;
+
+  try {
+    const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
+    if (existing.rows.length > 0) {
+      return {
+        errors: { email: ['An account with this email already exists.'] },
+        message: 'An account with this email already exists.',
+      };
+    }
+  } catch (error) {
+    return { message: `Database Error: ${error instanceof Error ? error.message : String(error)}` };
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const name = `${given_name} ${family_name}`;
+  const date = new Date().toISOString().split('T')[0];
+
+  try {
+    await sql`
+      INSERT INTO users (name, email, password, date, given_name, family_name, provider, provider_id, picture, phone)
+      VALUES (${name}, ${email}, ${hashedPassword}, ${date}, ${given_name}, ${family_name}, 'credentials', '', '', ${phone || ''})
+    `;
+  } catch (error) {
+    return {
+      message: `Database Error: Failed to create account. ${error instanceof Error ? error.message : String(error)}`,
+    };
+  }
+
+  redirect('/login');
 }

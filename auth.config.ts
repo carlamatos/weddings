@@ -44,7 +44,7 @@ export const authConfig = {
 
         console.log('Current URL:', nextUrl.toString());
 
-        if (nextUrl.pathname.startsWith('/login')) {
+        if (nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register')) {
           return Response.redirect(new URL('/dashboard', nextUrl));
         }
       }

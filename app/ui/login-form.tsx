@@ -1,5 +1,5 @@
 'use client';
- 
+
 import { lusitana } from '@/app/ui/fonts';
 import {
   AtSymbolIcon,
@@ -10,6 +10,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
 import { useActionState } from 'react';
 import { authenticate, GoogleSignIn } from '@/app/lib/actions';
+import Link from 'next/link';
 
 
 
@@ -85,6 +86,12 @@ export default function LoginForm() {
       </div>
     </form>
     <button onClick={() => GoogleSignIn()}>Google Sign In</button>
-</div> 
+    <p className="mt-4 text-center text-sm text-gray-600">
+      Don&apos;t have an account?{' '}
+      <Link href="/register" className="font-medium text-blue-600 hover:underline">
+        Sign up
+      </Link>
+    </p>
+</div>
   );
 }
