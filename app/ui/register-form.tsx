@@ -39,16 +39,16 @@ export default function RegisterForm() {
               <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="given_name">
                 First Name
               </label>
-              <div className="relative">
+              <div className="form-input-group">
                 <input
-                  className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                  className="form-input"
                   id="given_name"
                   type="text"
                   name="given_name"
                   placeholder="First name"
                   required
                 />
-                <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                <UserIcon className="form-input-icon" />
               </div>
               {state.errors?.given_name && (
                 <p className="mt-1 text-xs text-red-500">{state.errors.given_name[0]}</p>
@@ -60,16 +60,16 @@ export default function RegisterForm() {
               <label className="mb-2 block text-xs font-medium text-gray-900" htmlFor="family_name">
                 Last Name
               </label>
-              <div className="relative">
+              <div className="form-input-group">
                 <input
-                  className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                  className="form-input"
                   id="family_name"
                   type="text"
                   name="family_name"
                   placeholder="Last name"
                   required
                 />
-                <UserIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+                <UserIcon className="form-input-icon" />
               </div>
               {state.errors?.family_name && (
                 <p className="mt-1 text-xs text-red-500">{state.errors.family_name[0]}</p>
@@ -84,13 +84,13 @@ export default function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                className="form-input"
                 id="phone"
                 type="tel"
                 name="phone"
                 placeholder="Enter phone number"
               />
-              <PhoneIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <PhoneIcon className="form-input-icon" />
             </div>
           </div>
 
@@ -101,14 +101,14 @@ export default function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                className="form-input"
                 id="email"
                 type="email"
                 name="email"
                 placeholder="Enter your email address"
                 required
               />
-              <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <AtSymbolIcon className="form-input-icon" />
             </div>
             {state.errors?.email && (
               <p className="mt-1 text-xs text-red-500">{state.errors.email[0]}</p>
@@ -122,7 +122,7 @@ export default function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                className="form-input"
                 id="password"
                 type="password"
                 name="password"
@@ -130,7 +130,7 @@ export default function RegisterForm() {
                 required
                 minLength={6}
               />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <KeyIcon className="form-input-icon" />
             </div>
             {state.errors?.password && (
               <p className="mt-1 text-xs text-red-500">{state.errors.password[0]}</p>
@@ -144,7 +144,7 @@ export default function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
+                className="form-input"
                 id="confirmPassword"
                 type="password"
                 name="confirmPassword"
@@ -152,7 +152,7 @@ export default function RegisterForm() {
                 required
                 minLength={6}
               />
-              <KeyIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
+              <KeyIcon className="form-input-icon" />
             </div>
             {state.errors?.confirmPassword && (
               <p className="mt-1 text-xs text-red-500">{state.errors.confirmPassword[0]}</p>
@@ -165,7 +165,7 @@ export default function RegisterForm() {
 
           <p className="mt-4 text-center text-sm text-gray-600">
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-blue-600 hover:underline">
+            <Link href="/login" className="link-auth">
               Log in
             </Link>
           </p>
