@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './styles.css';
 
 :root {
   --blush-pink: #FADADD;
@@ -19,13 +17,17 @@
 .dusty-blue{
   background-color: var(--dusty-blue);
 }
-.sage{
-  background-color: var(--sage);
+.charcoal{
+  background-color: #4A4A4A;
 }
 .light-sage{
-  background-color: var(--light-sage);
+  background-color: #F4F2EE;
 }
-
+.customer-error p{padding: 10px;}
+.customer-error{border: 1px solid #f9fafb;
+    border-radius: 10px;
+    background: #f4f2ee;
+    color: brown;}
 .rose{
   background-color: var(--rose);
 }
@@ -117,7 +119,10 @@ input[type='number']::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-
+.logo-container{
+  align-items: center;
+  justify-content: center;
+}
 @media(max-width: 1200px){
   img.top_img {
     position: absolute;

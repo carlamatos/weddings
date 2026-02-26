@@ -32,27 +32,31 @@ import { AuthError } from 'next-auth';
 
   const UserPageSchema = z.object({
     id: z.string(),
-    event_name: z.string(), 
-    description: z.string(), 
+    event_name: z.string(),
+    description: z.string(),
     event_date: z.string(),
+    event_time: z.string().min(1, { message: 'Event time is required.' }),
+    event_theme: z.enum(['wedding', 'event'], { invalid_type_error: 'Please select a theme.' }),
     location: z.string(),
     slug: z.string({
       invalid_type_error: 'Please specify a slug (page URL).',
     }),
     email: z.string()
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
-   
-    
+
+
     url: z.string(),
     street_address: z.string(),
     unit_number: z.string(),
-    postal_code: z.string(), 
-    city: z.string(), 
+    postal_code: z.string(),
+    city: z.string(),
     country: z.string(),
-    
+    place_id: z.string().optional(),
+    formatted_address: z.string().optional(),
+
     create_at: z.date(),
 
-    
+
   });
 
 
@@ -64,19 +68,17 @@ export type UserPageState = {
       event_name?: string[];
       description?: string[];
       event_date?: string[];
+      event_time?: string[];
+      event_theme?: string[];
       location?: string[];
       slug?: string[];
       email?: string[];
-      
-     
       url?: string[];
       unit_number?: string[];
       street_address?: string[];
       postal_code?: string[];
       city?: string[];
       country?: string[];
-      
-
     };
     message?: string | null;
   };
@@ -101,16 +103,20 @@ export type UserPageState = {
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
+      event_time: formData.get('eventTime'),
+      event_theme: formData.get('eventTheme'),
       location: formData.get('location'),
       email: formData.get('email'),
       slug: formData.get('slug'),
       description: formData.get('description'),
-      url: formData.get('slug'),
-      street_address: formData.get('streetAddress'),
-      unit_number: formData.get('unitNumber'),
-      postal_code: formData.get('postalCode'),
-      city: formData.get('city'),
-      country: formData.get('country'),
+      url: (formData.get('url') as string) ?? '',
+      street_address: (formData.get('streetAddress') as string) ?? '',
+      unit_number: (formData.get('unitNumber') as string) ?? '',
+      postal_code: (formData.get('postalCode') as string) ?? '',
+      city: (formData.get('city') as string) ?? '',
+      country: (formData.get('country') as string) ?? '',
+      place_id: formData.get('placeId') as string || undefined,
+      formatted_address: formData.get('formattedAddress') as string || undefined,
   });
   //console.log(formData);
   
@@ -123,17 +129,20 @@ export type UserPageState = {
       };
     }
     
-    const { event_name, description, event_date,location,email,slug,url,street_address,unit_number,postal_code, city, country } = validatedFields.data;
+    const { event_name, description, event_date, event_time, event_theme, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
 
     const user_id = session?.user?.id;
-    
+
   try {
       await sql`
-  INSERT INTO user_page ( user_id,
-        heading, main_content, description, event_date, location,
-        user_email, slug, url, street_address, unit_number, postal_code, city, country
+  INSERT INTO user_page (
+        user_id, heading, main_content, description, event_date, event_time, event_theme,
+        location, user_email, slug, url, street_address, unit_number, postal_code, city, country,
+        place_id, formatted_address
       ) VALUES (
-        ${user_id}, ${event_name}, ${description},${description}, ${event_date}, ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country}
+        ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_theme},
+        ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
+        ${place_id ?? null}, ${formatted_address ?? null}
       );
 `;
   } catch (error) {

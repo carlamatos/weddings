@@ -1,4 +1,3 @@
-import { Inter } from 'next/font/google';
-import { Lusitana } from 'next/font/google';
-export const inter = Inter({ subsets: ['latin'] });
-export const lusitana = Lusitana({ weight: ['400','700'], subsets: ['latin'], }); 
+import { DM_Sans, Nunito } from 'next/font/google';
+export const inter = DM_Sans({ subsets: ['latin'] });
+export const lusitana = Nunito({ weight: ['400','700'], subsets: ['latin'] });

@@ -11,28 +11,30 @@ const links = [
   { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon },
 ];
 
-export default function NavLinks() {
+export default function NavLinks({ hasPage }: { hasPage: boolean }) {
   const pathname = usePathname();
   return (
     <>
-      {links.map((link) => {
-        const LinkIcon = link.icon;
-        return (
-          <Link
-          key={link.name}
-          href={link.href}
-          className={clsx(
-            'sidebar-menu flex h-[48px] grow items-center justify-center gap-2 light-sage  p-3 text-sm font-medium hover:sage hover:text-black-600 md:flex-none md:justify-start md:p-2 md:px-3',
-            {
-              'sage text-black-600': pathname === link.href,
-            },
-          )}
-        >
-          <LinkIcon className="w-6" />
-          <p className="hidden md:block">{link.name}</p>
-        </Link>
-        );
-      })}
+      {links
+        .filter((link) => link.name !== 'Edit Page' || hasPage)
+        .map((link) => {
+          const LinkIcon = link.icon;
+          return (
+            <Link
+            key={link.name}
+            href={link.href}
+            className={clsx(
+              'nav-link sidebar-menu light-sage',
+              {
+                'nav-link--active': pathname === link.href,
+              },
+            )}
+          >
+            <LinkIcon className="w-6" />
+            <p>{link.name}</p>
+          </Link>
+          );
+        })}
     </>
   );
 }

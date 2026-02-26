@@ -16,6 +16,8 @@ export type UserPage = {
   postal_code: string;
   city: string;
   country: string;
+  place_id?: string;
+  formatted_address?: string;
 };
 
 export type DBUser = {

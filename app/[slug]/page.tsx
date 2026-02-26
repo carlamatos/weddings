@@ -20,6 +20,8 @@ interface EventData {
   postal_code?: string;
   city?: string;
   country?: string;
+  place_id?: string;
+  formatted_address?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -52,6 +54,8 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     postal_code: res.postal_code || undefined,
     city: res.city || undefined,
     country: res.country || undefined,
+    place_id: res.place_id || undefined,
+    formatted_address: res.formatted_address || undefined,
   };
 
   return eventData; // Return the event data
@@ -115,6 +119,23 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <p><strong>Postal Code:</strong> {data.postal_code}</p>
           <p><strong>City:</strong> {data.city}</p>
           <p><strong>Country:</strong> {data.country}</p>
+        </div>
+      )}
+      {data.location === 'address' && (data.place_id || data.formatted_address) && (
+        <div className="mt-6">
+          <iframe
+            width="100%"
+            height="350"
+            style={{ border: 0, borderRadius: '0.5rem' }}
+            loading="lazy"
+            allowFullScreen
+            referrerPolicy="no-referrer-when-downgrade"
+            src={
+              data.place_id
+                ? `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=place_id:${data.place_id}`
+                : `https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&q=${encodeURIComponent(data.formatted_address!)}`
+            }
+          />
         </div>
       )}
     </div>

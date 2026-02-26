@@ -1,13 +1,17 @@
 "use client"
 import { useActionState, useState } from 'react';
+import Image from 'next/image';
 
 import { createUserPage, UserPageState } from '../lib/actions';
+import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
 
 export default function Form() {
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
   const [formData, setFormData] = useState({
     eventName: 'John and Jane Wedding',
     eventDate: '2025-01-31',
+    eventTime: '',
+    eventTheme: 'wedding',
     location: 'address',
     email: 'carlamatos@gmail.com',
     slug: 'janeandjohn',
@@ -18,6 +22,8 @@ export default function Form() {
     postalCode: 'V2W0B8',
     city: 'Maple Ridge',
     country: 'Canada',
+    placeId: '',
+    formattedAddress: '',
   });
 
     
@@ -34,6 +40,18 @@ export default function Form() {
     if (name === 'location') {
       setLocation(value as 'address' | 'virtual');
     }
+  };
+
+  const handlePlaceSelect = (components: AddressComponents) => {
+    setFormData((prev) => ({
+      ...prev,
+      streetAddress: components.streetAddress,
+      postalCode: components.postalCode,
+      city: components.city,
+      country: components.country,
+      placeId: components.placeId,
+      formattedAddress: components.formattedAddress,
+    }));
   };
 
 
@@ -53,22 +71,77 @@ export default function Form() {
           name="eventName"
           value={formData.eventName}
           onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+          className="setup-input"
           placeholder="Enter event name"
           required
         />
       </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Event Date:</label>
-        <input
-          type="date"
-          name="eventDate"
-          value={formData.eventDate}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-          required
-        />
+      <div className="form-row-2">
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Event Date:</label>
+          <input
+            type="date"
+            name="eventDate"
+            value={formData.eventDate}
+            onChange={handleChange}
+            className="setup-input"
+            required
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Event Time:</label>
+          <input
+            type="time"
+            name="eventTime"
+            value={formData.eventTime}
+            onChange={handleChange}
+            className="setup-input"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <label className="block text-gray-700 font-medium mb-3">Event Theme:</label>
+        <input type="hidden" name="eventTheme" value={formData.eventTheme} required />
+        <div className="theme-cards">
+          {[
+            { value: 'wedding', label: 'Wedding', src: '/images/themes/wedding.png' },
+            { value: 'event',   label: 'Event',   src: '/images/themes/event.png'   },
+          ].map(({ value, label, src }) => (
+            <label
+              key={value}
+              className={`theme-card${formData.eventTheme === value ? ' theme-card--selected' : ''}`}
+            >
+              <input
+                type="radio"
+                name="eventTheme"
+                value={value}
+                checked={formData.eventTheme === value}
+                onChange={handleChange}
+              />
+              <Image
+                src={src}
+                alt={label}
+                width={400}
+                height={160}
+                className="theme-card__image"
+              />
+              <div className="theme-card__label">
+                <span className="theme-card__check">
+                  {formData.eventTheme === value && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  )}
+                </span>
+                {label}
+              </div>
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="mb-4">
@@ -77,7 +150,7 @@ export default function Form() {
           name="location"
           value={formData.location}
           onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+          className="setup-input"
           required
         >
           <option value="address">Address</option>
@@ -87,67 +160,38 @@ export default function Form() {
 
       {location === 'address' ? (
         <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Street Address:</label>
-            <input
-              type="text"
-              name="streetAddress"
-              value={formData.streetAddress}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-              placeholder="Enter street address"
-            />
-          </div>
+          {/* Hidden fields populated by autocomplete */}
+          <input type="hidden" name="placeId" value={formData.placeId} />
+          <input type="hidden" name="formattedAddress" value={formData.formattedAddress} />
+          <input type="hidden" name="streetAddress" value={formData.streetAddress} />
+          <input type="hidden" name="postalCode" value={formData.postalCode} />
+          <input type="hidden" name="city" value={formData.city} />
+          <input type="hidden" name="country" value={formData.country} />
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Unit Number:</label>
-            <input
-              type="text"
-              name="unitNumber"
-              value={formData.unitNumber}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-              placeholder="Enter unit number"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="form-row-2">
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">Postal Code:</label>
-              <input
-                type="text"
-                name="postalCode"
-                value={formData.postalCode}
-                onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-                placeholder="Enter postal code"
-              />
+              <label className="block text-gray-700 font-medium mb-2">Address:</label>
+              <AddressAutocomplete onPlaceSelect={handlePlaceSelect} />
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 font-medium mb-2">City:</label>
+              <label className="block text-gray-700 font-medium mb-2">Unit Number:</label>
               <input
                 type="text"
-                name="city"
-                value={formData.city}
+                name="unitNumber"
+                value={formData.unitNumber}
                 onChange={handleChange}
-                className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-                placeholder="Enter city"
+                className="setup-input"
+                placeholder="Apt, suite, unit..."
               />
             </div>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 font-medium mb-2">Country:</label>
-            <input
-              type="text"
-              name="country"
-              value={formData.country}
-              onChange={handleChange}
-              className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-              placeholder="Enter country"
-            />
-          </div>
+          {formData.formattedAddress && (
+            <p className="text-sm text-gray-500 -mt-2 mb-4">
+              Selected: {formData.formattedAddress}
+            </p>
+          )}
         </>
       ) : (
         <div className="mb-4">
@@ -157,37 +201,39 @@ export default function Form() {
             name="url"
             value={formData.url}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+            className="setup-input"
             placeholder="Enter event URL"
             required
           />
         </div>
       )}
 
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Your Email:</label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-          placeholder="Enter your email"
-          required
-        />
-      </div>
+      <div className="form-row-2">
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Your Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="setup-input"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
 
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-2">Choose a URL (slug):</label>
-        <input
-          type="text"
-          name="slug"
-          value={formData.slug}
-          onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
-          placeholder="e.g., myevent"
-          required
-        />
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-2">Choose a URL (slug):</label>
+          <input
+            type="text"
+            name="slug"
+            value={formData.slug}
+            onChange={handleChange}
+            className="setup-input"
+            placeholder="e.g., myevent"
+            required
+          />
+        </div>
       </div>
 
       <div className="mb-4">
@@ -196,7 +242,7 @@ export default function Form() {
           name="description"
           value={formData.description}
           onChange={handleChange}
-          className="w-full p-3 border rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+          className="setup-input"
           placeholder="Enter a brief description of the event"
           required
         ></textarea>
@@ -204,7 +250,7 @@ export default function Form() {
 
       <button
         type="submit"
-        className="w-full sage sage-but text-black font-bold py-3 px-6 rounded-lg focus:outline-none focus:ring focus:ring-indigo-300"
+        className="w-full charcoal sage-but text-black font-bold py-3 px-6 rounded-lg setup-submit"
       >
         Create Event
       </button>
