@@ -1,64 +1,43 @@
 "use client"
 
-import { useState, ChangeEvent, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { updateDescription } from '../lib/actions';
 
-// Define the prop type for the default description (making it optional)
-interface EditableDescriptionProps {
+interface Props {
   defaultDescription?: string;
 }
 
-export default function EditableDescription({ defaultDescription = "Editable Description" }: EditableDescriptionProps) {
-  const [isEditing, setIsEditing] = useState<boolean>(false); // Track edit mode
-  const [descriptionText, setDescriptionText] = useState<string>(defaultDescription); // Use defaultDescription as the initial value
+export default function EditableDescription({ defaultDescription = '' }: Props) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [text, setText] = useState(defaultDescription);
 
-  const handleEditClick = (): void => setIsEditing(true);
+  useEffect(() => { setText(defaultDescription); }, [defaultDescription]);
 
-  const handleSaveClick = (): void => setIsEditing(false);
-
-  useEffect(() => {
-    if (isEditing) {
-      const headingInput = document.getElementById("description") as HTMLInputElement | null;
-      if (headingInput) {
-        headingInput.focus();
-      }
-    }
-  }, [isEditing]); // Runs whenever `isEditing` changes
-  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>): void => {
-    setDescriptionText(e.target.value);
+  const handleSave = async () => {
+    setIsEditing(false);
+    await updateDescription(text);
   };
 
   return (
-    <div className="rounded-xl dusty-blue p-2 shadow-sm mb-6">
-            <div className="flex p-4 relative justify-end">
-      {/* "Edit" or "Save" button */}
-      <button
-        onClick={isEditing ? handleSaveClick : handleEditClick}
-        className="edit-but"
-      >
-        {isEditing ? "Save" : "Edit"}
-      </button>
-        </div>
-      {/* Editable Description */}
-      <div className="bg-white">
+    <div className="wedding-description-section">
+      <div className="section-toolbar">
+        <button onClick={isEditing ? handleSave : () => setIsEditing(true)} className="edit-but">
+          <PencilSquareIcon />
+          {isEditing ? 'Save' : 'Edit'}
+        </button>
+      </div>
       {isEditing ? (
         <textarea
-          value={descriptionText}
-          id="description"
-          onChange={handleInputChange}
-          rows={5} // Adjust the number of rows for the textarea
-          style={{
-            fontSize: "1rem",
-            padding: "10px",
-            border: "1px solid #ccc",
-            borderRadius: "5px",
-            width: "100%",
-            resize: "vertical", // Allow vertical resizing
-          }}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          rows={4}
+          className="wedding-description-input"
+          autoFocus
         />
       ) : (
-        <p className="description_text" onClick={isEditing ? handleSaveClick : handleEditClick}>{descriptionText}</p>
+        <p className="wedding-description">{text}</p>
       )}
-      </div>
     </div>
   );
 }

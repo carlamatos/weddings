@@ -18,6 +18,12 @@ export type UserPage = {
   country: string;
   place_id?: string;
   formatted_address?: string;
+  event_time?: string;
+  event_theme?: string;
+  section_2_image?: string;
+  section_2_description?: string;
+  section_2_button_text?: string;
+  section_2_button_link?: string;
 };
 
 export type DBUser = {

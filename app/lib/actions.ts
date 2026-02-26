@@ -159,7 +159,89 @@ export type UserPageState = {
   revalidatePath(`/${slug}`);
   redirect(`/${slug}`);
   }
-   
+
+export async function updateLocation(data: {
+  location: string;
+  streetAddress?: string;
+  unitNumber?: string;
+  postalCode?: string;
+  city?: string;
+  country?: string;
+  placeId?: string;
+  formattedAddress?: string;
+  url?: string;
+}) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`
+      UPDATE user_page SET
+        location          = ${data.location},
+        street_address    = ${data.streetAddress ?? null},
+        unit_number       = ${data.unitNumber ?? null},
+        postal_code       = ${data.postalCode ?? null},
+        city              = ${data.city ?? null},
+        country           = ${data.country ?? null},
+        place_id          = ${data.placeId ?? null},
+        formatted_address = ${data.formattedAddress ?? null},
+        url               = ${data.url ?? null}
+      WHERE user_id = ${userId}
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update location:', error);
+  }
+}
+
+export async function updateHeading(heading: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET heading = ${heading} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update heading:', error);
+  }
+}
+
+export async function updateDescription(description: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET description = ${description} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update description:', error);
+  }
+}
+
+export async function updateSection2(data: {
+  image?: string;
+  description?: string;
+  buttonText?: string;
+  buttonLink?: string;
+}) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`
+      UPDATE user_page SET
+        section_2_image       = ${data.image ?? null},
+        section_2_description = ${data.description ?? null},
+        section_2_button_text = ${data.buttonText ?? null},
+        section_2_button_link = ${data.buttonLink ?? null}
+      WHERE user_id = ${userId}
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update section 2:', error);
+  }
+}
+
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,

@@ -72,6 +72,9 @@ div.banner_wrap {
   align-items: center;
   justify-content: center;
 }
+div.banner_wrap img{color: transparent;
+    cursor: pointer;
+    object-fit: cover;}
 div.main_content{
   padding: 24px 0;
     

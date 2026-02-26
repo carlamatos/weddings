@@ -1,0 +1,237 @@
+/* ============================================================
+   Wedding Theme
+   ============================================================ */
+
+.wedding-page {
+  background: #fff;
+  font-family: 'DM Sans', sans-serif;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Section toolbar (edit button row) */
+.section-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem 1rem;
+  background: #f9f7f4;
+  border-bottom: 1px solid #e8e4de;
+}
+
+/* Heading */
+.wedding-heading-section {
+  text-align: center;
+  padding: 3rem 2rem 2rem;
+  background: #fff;
+}
+.wedding-heading {
+  font-family: 'Nunito', sans-serif;
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  color: #2a2a2a;
+  text-transform: uppercase;
+}
+.wedding-heading-input {
+  font-family: 'Nunito', sans-serif;
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  text-align: center;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  color: #2a2a2a;
+}
+
+/* Banner */
+.wedding-banner-section {
+  background: #f0ece5;
+}
+
+/* Description */
+.wedding-description-section {
+  text-align: center;
+  padding: 3rem 4rem;
+  background: #fff;
+}
+.wedding-description {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.9;
+  max-width: 580px;
+  margin: 0 auto;
+}
+.wedding-description-input {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.9;
+  width: 100%;
+  max-width: 580px;
+  margin: 0 auto;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 0.75rem;
+  resize: vertical;
+}
+
+/* Registry */
+.wedding-registry-section {
+  background: #fff;
+}
+.registry-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  background: #f9f7f4;
+  border-bottom: 1px solid #e8e4de;
+}
+.registry-edit-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.registry-file-input {
+  font-size: 0.875rem;
+  color: #374151;
+}
+.registry-image-wrap {
+  width: 100%;
+  min-height: 420px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+.registry-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 2rem;
+}
+.registry-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.75rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+  margin-bottom: 1rem;
+}
+.registry-description {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  max-width: 480px;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+.registry-button {
+  display: inline-block;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  color: #fff;
+  padding: 0.6rem 2.25rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 150ms;
+}
+.registry-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Venue edit panel */
+.venue-edit-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background: #f9f7f4;
+  border-bottom: 1px solid #e8e4de;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.venue-edit-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.venue-selected-address {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: -0.25rem;
+}
+.venue-virtual {
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Venue */
+.wedding-venue-section {
+  padding: 3.5rem 2rem;
+  background: #f9f7f4;
+}
+.venue-title {
+  font-family: 'Nunito', sans-serif;
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #2a2a2a;
+  margin-bottom: 2rem;
+}
+.venue-inner {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  max-width: 720px;
+  margin: 0 auto;
+  align-items: start;
+}
+.venue-address {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 2;
+}
+@media (max-width: 600px) {
+  .venue-inner { grid-template-columns: 1fr; }
+}
+
+/* Footer */
+.wedding-footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: #f9f7f4;
+  border-top: 1px solid #e5e2de;
+}
+.footer-date {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+.footer-time {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  color: #777;
+}
