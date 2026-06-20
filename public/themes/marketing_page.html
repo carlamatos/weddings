@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gala — Beautiful wedding pages, made simple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F2ED;
+    --paper-deep: #EDE6DB;
+    --ink: #241F2B;
+    --ink-soft: #6B6470;
+    --rose: #B6584A;
+    --rose-deep: #9A4738;
+    --line: #DCD3C5;
+
+    --tc-rust: #BC5A38;
+    --tc-ochre: #CC9A3E;
+    --tc-cream: #F7F1E6;
+    --tc-blue: #A9C4DE;
+
+    --mb-ink: #0F1F1A;
+    --mb-gold: #C9A75D;
+    --mb-parchment: #F2EAD3;
+
+    --qc-sage: #8C9A93;
+    --qc-sand: #DCD4C0;
+    --qc-chalk: #F4F1EA;
+
+    --font-display: Georgia, 'Times New Roman', serif;
+    --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+
+  img { max-width: 100%; }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.08s; }
+  .reveal.delay-2 { transition-delay: 0.16s; }
+  .reveal.delay-3 { transition-delay: 0.24s; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* ---------- top bar with sticky CTA ---------- */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    background: rgba(246, 242, 237, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .wordmark {
+    font-family: 'Great Vibes', cursive;
+    font-size: 36px;
+    font-weight: 400;
+    color: var(--ink);
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    line-height: 1;
+    display: inline-block;
+  }
+  .wordmark .accent { color: var(--rose); }
+  .topbar-cta {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 10px 22px;
+    border-radius: 999px;
+    border: none;
+    background: var(--rose);
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .topbar-cta:hover { background: var(--rose-deep); transform: translateY(-1px); }
+
+  /* ---------- general type ---------- */
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--rose);
+    font-weight: 600;
+    margin: 0 0 14px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 18px;
+    letter-spacing: 0.2px;
+  }
+  .section-sub { font-size: 16px; color: var(--ink-soft); line-height: 1.7; margin: 0; max-width: 540px; }
+
+  .wrap { max-width: 1120px; margin: 0 auto; padding: 0 32px; }
+  .section { padding: 100px 0; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 20px; }
+    .section { padding: 70px 0; }
+  }
+
+  /* ---------- buttons ---------- */
+  .btn-primary {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 15px 32px;
+    border-radius: 999px;
+    border: none;
+    background: var(--rose);
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--rose-deep); transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    padding: 15px 32px;
+    border-radius: 999px;
+    border: 1.5px solid var(--ink);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-secondary:hover { background: var(--paper-deep); }
+
+  /* ---------- HERO: fanned overlapping theme cards ---------- */
+  .hero {
+    padding: 80px 32px 60px;
+    text-align: center;
+    position: relative;
+  }
+  .hero-eyebrow { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--rose); font-weight: 600; margin: 0 0 20px; }
+  .hero-headline {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 6.5vw, 64px);
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 22px;
+    line-height: 1.08;
+    letter-spacing: -0.5px;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--ink-soft);
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 auto 36px;
+  }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 70px; }
+
+  .fan-wrap {
+    position: relative;
+    max-width: 880px;
+    margin: 0 auto;
+    height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mock-card {
+    position: absolute;
+    width: 260px;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 18px 40px -10px rgba(36, 31, 43, 0.25);
+    border: 1px solid rgba(36, 31, 43, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .mock-card:hover { transform: translateY(-8px) scale(1.02) !important; box-shadow: 0 24px 50px -10px rgba(36, 31, 43, 0.32); z-index: 10; }
+  .mock-card.card-left { transform: rotate(-7deg) translateX(-130px) translateY(10px); z-index: 1; }
+  .mock-card.card-center { transform: translateY(-16px); z-index: 2; width: 280px; }
+  .mock-card.card-right { transform: rotate(7deg) translateX(130px) translateY(10px); z-index: 1; }
+  .mock-browser-bar { display: flex; align-items: center; gap: 6px; padding: 10px 14px; background: rgba(0,0,0,0.06); }
+  .mock-browser-bar span { width: 7px; height: 7px; border-radius: 50%; background: rgba(0,0,0,0.18); }
+  .mock-screen { padding: 22px 18px 28px; }
+
+  @media (max-width: 760px) {
+    .fan-wrap { height: 340px; }
+    .mock-card { width: 190px; }
+    .mock-card.card-center { width: 210px; }
+    .mock-card.card-left { transform: rotate(-7deg) translateX(-78px) translateY(10px); }
+    .mock-card.card-right { transform: rotate(7deg) translateX(78px) translateY(10px); }
+  }
+
+  /* mini mockup theme renders */
+  .mock-tc { background: var(--tc-cream); }
+  .mock-tc .mock-eyebrow { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--tc-rust); font-weight: 600; margin: 0 0 6px; }
+  .mock-tc .mock-name { font-family: var(--font-display); font-size: 22px; color: #3D2B1F; margin: 0 0 6px; }
+  .mock-tc .mock-date { font-size: 9px; letter-spacing: 1px; color: #7A6451; margin: 0 0 14px; }
+  .mock-tc .mock-band { display: flex; height: 5px; margin-top: 10px; }
+  .mock-tc .mock-band span { flex: 1; }
+
+  .mock-mb { background: var(--mb-ink); }
+  .mock-mb .mock-eyebrow { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--mb-gold); font-weight: 600; margin: 0 0 6px; }
+  .mock-mb .mock-name { font-family: var(--font-display); font-style: italic; font-size: 22px; color: var(--mb-parchment); margin: 0 0 6px; }
+  .mock-mb .mock-date { font-size: 9px; letter-spacing: 1px; color: #9CB3A4; margin: 0 0 14px; text-transform: uppercase; }
+  .mock-mb .mock-rule { width: 18px; height: 1px; background: var(--mb-gold); margin: 10px auto 0; }
+
+  .mock-qc { background: #FFFFFF; }
+  .mock-qc .mock-eyebrow { font-size: 8px; letter-spacing: 2px; text-transform: lowercase; color: var(--qc-sage); font-weight: 500; margin: 0 0 6px; }
+  .mock-qc .mock-name { font-size: 24px; color: var(--ink); margin: 0 0 6px; letter-spacing: -1px; font-weight: 400; }
+  .mock-qc .mock-date { font-size: 9px; letter-spacing: 1px; color: var(--ink-soft); margin: 0; text-transform: lowercase; }
+  .mock-qc .mock-hairline { width: 100%; height: 1px; background: var(--qc-sand); margin-top: 14px; }
+
+  /* ---------- social proof strip ---------- */
+  .proof-strip { display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; padding: 0 0 90px; text-align: center; }
+  .proof-stat .num { font-family: var(--font-display); font-size: 32px; color: var(--ink); }
+  .proof-stat .label { font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- value props ---------- */
+  .props-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px; margin-top: 8px; }
+  .prop-card { padding: 0; }
+  .prop-num { font-family: var(--font-display); font-size: 14px; color: var(--rose); margin: 0 0 14px; letter-spacing: 1px; }
+  .prop-title { font-size: 18px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
+  .prop-copy { font-size: 15px; color: var(--ink-soft); line-height: 1.7; margin: 0; }
+  @media (max-width: 760px) { .props-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+  /* ---------- theme showcase ---------- */
+  .theme-showcase { background: var(--paper-deep); }
+  .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 50px; }
+  @media (max-width: 800px) { .theme-grid { grid-template-columns: 1fr; } }
+
+  .theme-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .theme-card:hover { transform: translateY(-4px); box-shadow: 0 16px 32px -8px rgba(36, 31, 43, 0.18); }
+  .theme-preview { height: 220px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .theme-preview.tc { background: var(--tc-cream); }
+  .theme-preview.mb { background: var(--mb-ink); }
+  .theme-preview.qc { background: #FFFFFF; border-bottom: 1px solid var(--line); }
+  .theme-info { padding: 22px 24px 26px; }
+  .theme-name { font-size: 17px; font-weight: 600; color: var(--ink); margin: 0 0 6px; }
+  .theme-desc { font-size: 14px; color: var(--ink-soft); margin: 0; line-height: 1.6; }
+
+  /* ---------- pricing ---------- */
+  .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 50px; max-width: 760px; margin-left: auto; margin-right: auto; }
+  @media (max-width: 680px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+  .price-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    border: 1px solid var(--line);
+    padding: 36px 32px;
+    display: flex;
+    flex-direction: column;
+  }
+  .price-card.featured { border: 2px solid var(--rose); position: relative; }
+  .price-badge {
+    position: absolute;
+    top: -13px;
+    left: 32px;
+    background: var(--rose);
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 14px;
+    border-radius: 999px;
+  }
+  .price-tier { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; margin: 0 0 14px; }
+  .price-amount { font-family: var(--font-display); font-size: 44px; color: var(--ink); margin: 0 0 4px; }
+  .price-amount .per { font-size: 15px; font-family: var(--font-sans); color: var(--ink-soft); font-weight: 400; }
+  .price-desc { font-size: 14px; color: var(--ink-soft); margin: 0 0 28px; }
+  .price-features { list-style: none; padding: 0; margin: 0 0 28px; flex: 1; }
+  .price-features li { font-size: 14px; color: var(--ink); padding: 9px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; }
+  .price-features li:last-child { border-bottom: none; }
+  .price-features li::before { content: "✓"; color: var(--rose); font-weight: 600; flex-shrink: 0; }
+
+  /* ---------- FAQ ---------- */
+  .faq-item { border-bottom: 1px solid var(--line); padding: 24px 0; }
+  .faq-item:first-child { border-top: 1px solid var(--line); }
+  .faq-q { font-size: 16px; font-weight: 600; color: var(--ink); margin: 0 0 10px; }
+  .faq-a { font-size: 15px; color: var(--ink-soft); line-height: 1.7; margin: 0; }
+
+  /* ---------- final CTA ---------- */
+  .final-cta { text-align: center; padding: 110px 32px; background: var(--ink); }
+  .final-cta .section-title { color: var(--paper); }
+  .final-cta .hero-sub { color: rgba(246, 242, 237, 0.7); margin: 0 auto 36px; }
+
+  /* ---------- footer ---------- */
+  .footer { padding: 50px 32px; text-align: center; }
+  .footer p { font-size: 13px; color: var(--ink-soft); margin: 0; }
+  .footer-wordmark { font-family: 'Great Vibes', cursive; font-size: 28px; color: var(--ink); line-height: 1; margin: 0; }
+  .footer-wordmark .accent { color: var(--rose); }
+</style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <a href="#" class="wordmark">My<span class="accent">Gala</span></a>
+    <a href="#pricing" class="topbar-cta">Start your wedding page</a>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <p class="hero-eyebrow reveal">For couples who want it done right</p>
+    <h1 class="hero-headline reveal delay-1">A wedding page as considered as the wedding itself.</h1>
+    <p class="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and the whole day, beautifully kept in one place.</p>
+    <div class="hero-actions reveal delay-2">
+      <a href="#pricing" class="btn-primary">Start your wedding page</a>
+      <a href="#themes" class="btn-secondary">See the themes</a>
+    </div>
+
+    <div class="fan-wrap reveal delay-3">
+      <div class="mock-card card-left">
+        <div class="mock-browser-bar"><span></span><span></span><span></span></div>
+        <div class="mock-screen mock-tc">
+          <p class="mock-eyebrow">Together with their families</p>
+          <p class="mock-name">Elena &amp; Marcus</p>
+          <p class="mock-date">SEPT 20, 2026 · MAPLE RIDGE</p>
+          <div class="mock-band">
+            <span style="background:#BC5A38"></span><span style="background:#CC9A3E"></span><span style="background:#EFCBA3"></span><span style="background:#F7F1E6"></span><span style="background:#A9C4DE"></span><span style="background:#D8D2C2"></span>
+          </div>
+        </div>
+      </div>
+      <div class="mock-card card-center">
+        <div class="mock-browser-bar"><span></span><span></span><span></span></div>
+        <div class="mock-screen mock-mb">
+          <p class="mock-eyebrow">Save the date</p>
+          <p class="mock-name">Sofia &amp; James</p>
+          <p class="mock-date">November 7, 2026</p>
+          <div class="mock-rule"></div>
+        </div>
+      </div>
+      <div class="mock-card card-right">
+        <div class="mock-browser-bar"><span></span><span></span><span></span></div>
+        <div class="mock-screen mock-qc">
+          <p class="mock-eyebrow">together with their families</p>
+          <p class="mock-name">Nora + Theo</p>
+          <p class="mock-date">june 13, 2027 · tofino</p>
+          <div class="mock-hairline"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROOF STRIP -->
+  <div class="proof-strip">
+    <div class="proof-stat reveal"><div class="num">15+</div><div class="label">RSVP fields handled</div></div>
+    <div class="proof-stat reveal delay-1"><div class="num">3</div><div class="label">elegant themes</div></div>
+    <div class="proof-stat reveal delay-2"><div class="num">1</div><div class="label">link for everyone</div></div>
+  </div>
+
+  <!-- VALUE PROPS -->
+  <div class="wrap">
+    <div class="section">
+      <div class="reveal" style="max-width: 600px; margin-bottom: 50px;">
+        <p class="eyebrow">Why couples choose Gala</p>
+        <h2 class="section-title">Everything your wedding website needs, nothing it doesn't.</h2>
+      </div>
+      <div class="props-grid">
+        <div class="prop-card reveal">
+          <p class="prop-num">01</p>
+          <h3 class="prop-title">Set up in minutes</h3>
+          <p class="prop-copy">Choose a theme, add your names and date, and your page is live. No designer, no developer, no waiting.</p>
+        </div>
+        <div class="prop-card reveal delay-1">
+          <p class="prop-num">02</p>
+          <h3 class="prop-title">Everything in one place</h3>
+          <p class="prop-copy">RSVPs, the schedule, the registry, your story, guest photos, even song requests — all on one page you control.</p>
+        </div>
+        <div class="prop-card reveal delay-2">
+          <p class="prop-num">03</p>
+          <h3 class="prop-title">Built to be shared</h3>
+          <p class="prop-copy">One clean link works everywhere — texts, invitations, Instagram bios. Your guests always know where to look.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- THEME SHOWCASE -->
+  <div class="theme-showcase" id="themes">
+    <div class="wrap">
+      <div class="section">
+        <div class="reveal" style="max-width: 600px;">
+          <p class="eyebrow">Three ways to set the mood</p>
+          <h2 class="section-title">Pick the theme that feels like your day.</h2>
+          <p class="section-sub">Every theme includes the same full set of tools — RSVP, countdown, gallery, livestream, and more. Only the mood changes.</p>
+        </div>
+        <div class="theme-grid">
+          <div class="theme-card reveal">
+            <div class="theme-preview tc">
+              <div style="text-align: center; padding: 0 20px;">
+                <p style="font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #BC5A38; font-weight: 600; margin: 0 0 8px;">Together with their families</p>
+                <p style="font-family: Georgia, serif; font-size: 26px; color: #3D2B1F; margin: 0 0 8px;">Elena &amp; Marcus</p>
+                <p style="font-size: 10px; letter-spacing: 1px; color: #7A6451; margin: 0;">SEPT 20, 2026</p>
+              </div>
+            </div>
+            <div class="theme-info">
+              <p class="theme-name">Terracotta Harvest</p>
+              <p class="theme-desc">Warm rust, ochre, and linen. Golden-hour, earthy, and intimate — built for outdoor and orchard weddings.</p>
+            </div>
+          </div>
+          <div class="theme-card reveal delay-1">
+            <div class="theme-preview mb">
+              <div style="text-align: center; padding: 0 20px;">
+                <p style="font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: #C9A75D; font-weight: 600; margin: 0 0 8px;">Save the date</p>
+                <p style="font-family: Georgia, serif; font-style: italic; font-size: 26px; color: #F2EAD3; margin: 0 0 8px;">Sofia &amp; James</p>
+                <p style="font-size: 10px; letter-spacing: 1px; color: #9CB3A4; margin: 0; text-transform: uppercase;">November 7, 2026</p>
+              </div>
+            </div>
+            <div class="theme-info">
+              <p class="theme-name">Midnight Botanical</p>
+              <p class="theme-desc">Deep emerald and antique gold. Formal and candlelit — built for evening affairs and manor venues.</p>
+            </div>
+          </div>
+          <div class="theme-card reveal delay-2">
+            <div class="theme-preview qc">
+              <div style="text-align: center; padding: 0 20px;">
+                <p style="font-size: 9px; letter-spacing: 2px; text-transform: lowercase; color: #8C9A93; font-weight: 500; margin: 0 0 8px;">together with their families</p>
+                <p style="font-size: 28px; color: #3F4A45; margin: 0 0 8px; letter-spacing: -1px; font-weight: 400;">Nora + Theo</p>
+                <p style="font-size: 10px; letter-spacing: 1px; color: #7C8B86; margin: 0; text-transform: lowercase;">june 13, 2027</p>
+              </div>
+            </div>
+            <div class="theme-info">
+              <p class="theme-name">Quiet Coastal</p>
+              <p class="theme-desc">Sage, sand, and chalk. Airy and minimal — built for beach ceremonies and destination weddings.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="wrap" id="pricing">
+    <div class="section">
+      <div class="reveal" style="text-align: center; max-width: 600px; margin: 0 auto 10px;">
+        <p class="eyebrow" style="text-align: center;">Simple pricing</p>
+        <h2 class="section-title">Start free. Upgrade when you're ready.</h2>
+        <p class="section-sub" style="margin: 0 auto;">No hidden fees, no surprise charges as your wedding gets closer.</p>
+      </div>
+      <div class="pricing-grid">
+        <div class="price-card reveal">
+          <p class="price-tier">Free</p>
+          <p class="price-amount">$0</p>
+          <p class="price-desc">Everything you need to get started.</p>
+          <ul class="price-features">
+            <li>1 wedding page</li>
+            <li>All 3 themes</li>
+            <li>RSVP &amp; guest count</li>
+            <li>Countdown &amp; event details</li>
+            <li>Up to 20 guest photo uploads</li>
+            <li>Gala subdomain (yourname.mygala.ca)</li>
+          </ul>
+          <a href="#" class="btn-secondary" style="text-align: center;">Get started free</a>
+        </div>
+        <div class="price-card featured reveal delay-1">
+          <span class="price-badge">Most popular</span>
+          <p class="price-tier">Plus</p>
+          <p class="price-amount">$15<span class="per"> / month</span></p>
+          <p class="price-desc">For couples who want it all, exactly their way.</p>
+          <ul class="price-features">
+            <li>Everything in Free</li>
+            <li>Unlimited photo uploads</li>
+            <li>Livestream link &amp; song requests</li>
+            <li>Custom domain support</li>
+            <li>Remove Gala branding</li>
+            <li>Priority support</li>
+          </ul>
+          <a href="#" class="btn-primary" style="text-align: center;">Start your wedding page</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="wrap">
+    <div class="section" style="max-width: 720px; margin: 0 auto;">
+      <div class="reveal" style="margin-bottom: 40px;">
+        <p class="eyebrow">A few questions</p>
+        <h2 class="section-title">Good to know</h2>
+      </div>
+      <div class="reveal">
+        <div class="faq-item">
+          <p class="faq-q">Can I switch themes after I've started?</p>
+          <p class="faq-a">Yes. Your content stays put — switching themes only changes how it looks, any time, as many times as you like.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-q">Do my guests need an account to RSVP or upload photos?</p>
+          <p class="faq-a">No. Guests just visit your link. No sign-up, no app, no friction.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-q">What happens to my page after the wedding?</p>
+          <p class="faq-a">It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages keep every feature active for as long as you're subscribed.</p>
+        </div>
+        <div class="faq-item">
+          <p class="faq-q">Can I cancel anytime?</p>
+          <p class="faq-a">Yes, with no long-term contract. Cancel whenever you like and your page reverts to the Free plan limits.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL CTA -->
+  <div class="final-cta reveal">
+    <h2 class="section-title">Your story deserves a beautiful home.</h2>
+    <p class="hero-sub">Start free today. Upgrade only if you need to.</p>
+    <a href="#pricing" class="btn-primary">Start your wedding page</a>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p class="footer-wordmark">My<span class="accent">Gala</span></p>
+    <p style="margin-top: 6px;">mygala.ca</p>
+  </div>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach((el) => revealObserver.observe(el));
+</script>
+</body>
+</html>

@@ -1,16 +1,9 @@
-import Image from 'next/image';
+import { greatVibes } from '@/app/ui/fonts';
+
 export default function AcmeLogo() {
   return (
-    <div>
-     <Image
-             src="/images/logo_2.png"
-             width={250}
-             height={90}
-             className="logo-img"
-             alt="My Gala Logo"
-           />
-           <br/>
-      
-    </div>
+    <span className={greatVibes.className} style={{ fontSize: '36px', color: '#241F2B', letterSpacing: '0.5px', lineHeight: 1 }}>
+      My<span style={{ color: '#B6584A' }}>Gala</span>
+    </span>
   );
 }

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nora + Theo — June 13, 2027</title>
+<style>
+  :root {
+    --sage: #8C9A93;
+    --sage-deep: #5C6B61;
+    --sand: #DCD4C0;
+    --chalk: #F4F1EA;
+    --slate: #C8D2D6;
+    --ink: #3F4A45;
+    --ink-soft: #7C8B86;
+    --font-sans: 'Helvetica Neue', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: #FFFFFF;
+    color: var(--ink);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  img { max-width: 100%; }
+
+  /* ---------- the single hairline (signature motif) ----------
+     One thin horizontal rule, nothing else. No bands, no spine. */
+  .hairline { width: 100%; height: 1px; background: var(--slate); border: none; margin: 0; }
+
+  /* ---------- reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.8s ease, transform 0.8s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal.delay-1 { transition-delay: 0.08s; }
+  .reveal.delay-2 { transition-delay: 0.16s; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  /* ---------- typography ---------- */
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: lowercase;
+    color: var(--sage-deep);
+    font-weight: 500;
+    margin: 0 0 18px;
+  }
+  .title {
+    font-family: var(--font-sans);
+    font-size: clamp(26px, 3.4vw, 34px);
+    font-weight: 500;
+    color: var(--ink);
+    margin: 0 0 32px;
+    letter-spacing: -0.5px;
+  }
+
+  /* ---------- layout shell ---------- */
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+  .section { padding: 110px 0; }
+  .section-tight { padding: 80px 0; }
+  @media (max-width: 640px) {
+    .wrap { padding: 0 22px; }
+    .section { padding: 80px 0; }
+    .section-tight { padding: 60px 0; }
+  }
+
+  /* asymmetric split: two-thirds / one-third */
+  .split { display: grid; grid-template-columns: 2fr 1fr; gap: 64px; align-items: start; }
+  .split.reverse { grid-template-columns: 1fr 2fr; }
+  .split.reverse .col-wide { order: 2; }
+  .split.reverse .col-narrow { order: 1; }
+  @media (max-width: 800px) {
+    .split, .split.reverse { grid-template-columns: 1fr; gap: 36px; }
+    .split.reverse .col-wide, .split.reverse .col-narrow { order: unset; }
+  }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    padding: 14px 32px;
+    border-radius: 0;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: #FFFFFF;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn:hover { opacity: 0.78; }
+  .btn:active { opacity: 0.6; }
+  .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
+  .btn-outline:hover { background: var(--chalk); opacity: 1; }
+
+  /* ---------- forms ---------- */
+  input, textarea, select {
+    font-family: var(--font-sans);
+    font-size: 15px;
+    padding: 12px 0;
+    border-radius: 0;
+    border: none;
+    border-bottom: 1px solid var(--slate);
+    outline: none;
+    background: transparent;
+    color: var(--ink);
+    width: 100%;
+  }
+  input:focus, textarea:focus, select:focus { border-bottom-color: var(--ink); }
+  label.field-label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: lowercase;
+    font-weight: 500;
+    color: var(--ink-soft);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .radio-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  .radio-label input { width: auto; border: none; }
+
+  /* ---------- hero (minimal, huge whitespace) ---------- */
+  .hero {
+    min-height: 96vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 80px 24px;
+  }
+  .hero-photo {
+    width: 96px;
+    height: 96px;
+    margin: 0 0 36px;
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  .hero-photo img, .hero-photo svg { width: 100%; height: 100%; display: block; object-fit: cover; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-eyebrow { animation: fadeUp 1s ease both; }
+  .hero-name {
+    animation: fadeUp 1s ease 0.15s both;
+    font-size: clamp(40px, 8vw, 76px);
+    font-weight: 400;
+    color: var(--ink);
+    margin: 0 0 22px;
+    letter-spacing: -2px;
+    line-height: 1;
+  }
+  .hero-date {
+    animation: fadeUp 1s ease 0.3s both;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: var(--ink-soft);
+    margin: 0 0 40px;
+    text-transform: lowercase;
+  }
+  .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---------- countdown ---------- */
+  .countdown-row { display: flex; gap: clamp(28px, 6vw, 64px); }
+  .countdown-block { text-align: left; }
+  .countdown-value { font-size: clamp(32px, 5vw, 52px); color: var(--ink); font-weight: 300; line-height: 1; letter-spacing: -1px; }
+  .countdown-label { font-size: 11px; letter-spacing: 2px; text-transform: lowercase; color: var(--ink-soft); margin-top: 10px; }
+
+  /* ---------- details ---------- */
+  .detail-row { display: flex; justify-content: space-between; padding: 22px 0; border-bottom: 1px solid var(--slate); gap: 24px; }
+  .detail-row:first-child { border-top: 1px solid var(--slate); }
+  .detail-row .label { font-size: 12px; letter-spacing: 1.5px; text-transform: lowercase; color: var(--ink-soft); white-space: nowrap; padding-top: 2px; }
+  .detail-row .value { font-size: 16px; color: var(--ink); text-align: right; }
+  .detail-row .value .sub { display: block; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+  .map-frame { overflow: hidden; min-height: 280px; margin-top: 0; }
+  .map-frame iframe { border: 0; display: block; width: 100%; height: 100%; min-height: 280px; filter: saturate(0.5); }
+  .directions-link { margin-top: 16px; }
+  .directions-link a { font-size: 13px; color: var(--sage-deep); font-weight: 500; text-decoration: underline; }
+
+  /* ---------- RSVP ---------- */
+  .rsvp-form { display: flex; flex-direction: column; gap: 26px; max-width: 420px; }
+  .rsvp-error { color: #A0524A; font-size: 13px; margin: 0; }
+  .rsvp-success { padding: 10px 0; }
+  .rsvp-success .headline { font-size: 20px; color: var(--ink); margin: 0 0 8px; letter-spacing: -0.3px; }
+  .rsvp-success .sub { font-size: 14px; color: var(--ink-soft); margin: 0; }
+  .attend-options { display: flex; gap: 24px; margin-top: 4px; }
+
+  /* ---------- gallery: full-width horizontal filmstrip ---------- */
+  .gallery-strip { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: thin; }
+  .gallery-strip::-webkit-scrollbar { height: 4px; }
+  .gallery-strip::-webkit-scrollbar-thumb { background: var(--slate); }
+  .gallery-tile { flex: 0 0 auto; width: 260px; height: 320px; overflow: hidden; }
+  .gallery-tile img, .gallery-tile svg { width: 100%; height: 100%; display: block; object-fit: cover; cursor: pointer; }
+  .gallery-tile.tall { height: 380px; margin-top: -60px; }
+
+  /* ---------- upload ---------- */
+  .upload-copy { font-size: 15px; color: var(--ink-soft); margin: 0 0 24px; max-width: 380px; line-height: 1.7; }
+  .uploaded-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: 8px; margin-top: 28px; max-width: 460px; }
+  .uploaded-tile { overflow: hidden; aspect-ratio: 1; }
+  .uploaded-tile img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
+
+  /* ---------- livestream ---------- */
+  .livestream-copy { font-size: 15px; color: var(--ink-soft); margin: 0 0 28px; max-width: 420px; line-height: 1.7; }
+
+  /* ---------- song requests ---------- */
+  .song-form { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; max-width: 460px; }
+  .song-form input:nth-child(1) { flex: 2 1 160px; }
+  .song-form input:nth-child(2) { flex: 1 1 120px; }
+  .song-form button { flex: 0 0 auto; }
+  .song-list { max-width: 460px; }
+  .song-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--slate); font-size: 14px; }
+  .song-row:first-child { border-top: 1px solid var(--slate); }
+  .song-row .title { font-weight: 500; color: var(--ink); }
+  .song-row .artist { color: var(--ink-soft); }
+
+  /* ---------- hashtag + share ---------- */
+  .hashtag { font-size: clamp(24px, 4vw, 36px); color: var(--ink); margin: 0 0 32px; font-weight: 400; letter-spacing: -1px; }
+  .share-row { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* ---------- footer ---------- */
+  .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; }
+  .footer p { font-size: 14px; color: var(--ink-soft); margin: 0 0 4px; }
+  .footer-signoff { font-size: 14px; color: var(--ink); letter-spacing: -0.2px; margin: 0; }
+  .footer-credit { font-size: 11px; color: var(--ink-soft); letter-spacing: 0.3px; margin-top: 24px; }
+
+  /* ---------- lightbox ---------- */
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(63, 74, 69, 0.94);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 40px 24px;
+  }
+  .lightbox-overlay.open { display: flex; }
+  .lightbox-content {
+    position: relative;
+    max-width: min(760px, 92vw);
+    max-height: 86vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox-content img, .lightbox-content svg {
+    max-width: 100%;
+    max-height: 86vh;
+    display: block;
+  }
+  .lightbox-close, .lightbox-prev, .lightbox-next {
+    position: fixed;
+    background: transparent;
+    border: 1px solid rgba(244, 241, 234, 0.5);
+    color: var(--chalk);
+    cursor: pointer;
+    border-radius: 0;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-family: var(--font-sans);
+    transition: opacity 0.15s ease;
+  }
+  .lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover { background: rgba(244, 241, 234, 0.12); }
+  .lightbox-close { top: 24px; right: 24px; }
+  .lightbox-prev { top: 50%; left: 24px; transform: translateY(-50%); }
+  .lightbox-next { top: 50%; right: 24px; transform: translateY(-50%); }
+  @media (max-width: 640px) {
+    .lightbox-prev { left: 10px; }
+    .lightbox-next { right: 10px; }
+    .lightbox-close { top: 12px; right: 12px; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-photo">
+      <img src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=300&q=80" alt="Nora and Theo" />
+    </div>
+    <p class="eyebrow hero-eyebrow">together with their families</p>
+    <h1 class="hero-name">Nora + Theo</h1>
+    <p class="hero-date">june 13, 2027 &nbsp;·&nbsp; tofino, bc</p>
+    <div class="hero-actions">
+      <a href="#rsvp" class="btn">rsvp</a>
+      <a href="#story" class="btn btn-outline">our story</a>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- STORY -->
+  <div id="story" class="wrap">
+    <div class="section split reveal">
+      <div class="col-wide">
+        <p class="eyebrow">our story</p>
+        <h2 class="title">how we got here</h2>
+        <p style="font-size: 17px; line-height: 1.9; color: var(--ink-soft); margin: 0; max-width: 520px;">
+          We met on a rainy Tuesday at a coffee shop that no longer exists, both reaching for the
+          last almond croissant. Five years, two apartments, and one very stubborn golden doodle
+          later, we're ready to say "I do" by the water. We can't wait to celebrate with you on
+          the coast.
+        </p>
+      </div>
+      <div class="col-narrow">
+        <div class="gallery-tile" style="width: 100%; height: 260px;">
+          <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&q=80" alt="The couple" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- COUNTDOWN -->
+  <div class="wrap">
+    <div class="section-tight reveal">
+      <p class="eyebrow">counting down</p>
+      <h2 class="title" id="countdown-heading">until we say I do</h2>
+      <div class="countdown-row">
+        <div class="countdown-block"><div class="countdown-value" id="cd-days">00</div><div class="countdown-label">days</div></div>
+        <div class="countdown-block"><div class="countdown-value" id="cd-hours">00</div><div class="countdown-label">hours</div></div>
+        <div class="countdown-block"><div class="countdown-value" id="cd-mins">00</div><div class="countdown-label">mins</div></div>
+        <div class="countdown-block"><div class="countdown-value" id="cd-secs">00</div><div class="countdown-label">secs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- DATE / LOCATION -->
+  <div class="wrap">
+    <div class="section split reverse reveal">
+      <div class="col-narrow">
+        <p class="eyebrow">the details</p>
+        <h2 class="title">date &amp; location</h2>
+        <div class="directions-link">
+          <a href="https://www.google.com/maps?q=Tofino+BC" target="_blank" rel="noopener noreferrer">get directions →</a>
+        </div>
+      </div>
+      <div class="col-wide">
+        <div class="detail-row">
+          <span class="label">ceremony</span>
+          <span class="value">4:30 pm<span class="sub">Sunday, June 13, 2027</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="label">venue</span>
+          <span class="value">Long Beach Lodge<span class="sub">1441 Pacific Rim Hwy, Tofino, BC</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="label">reception</span>
+          <span class="value">6:00 pm<span class="sub">Oceanfront terrace</span></span>
+        </div>
+        <div class="map-frame">
+          <iframe title="Venue map" loading="lazy" src="https://www.google.com/maps?q=Tofino+BC&output=embed"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- RSVP -->
+  <div id="rsvp" class="wrap">
+    <div class="section reveal">
+      <p class="eyebrow">kindly respond</p>
+      <h2 class="title">rsvp</h2>
+      <form class="rsvp-form" id="rsvp-form">
+        <div>
+          <label class="field-label" for="rsvp-name">full name</label>
+          <input type="text" id="rsvp-name" placeholder="Jane Doe" />
+        </div>
+        <div>
+          <label class="field-label" for="rsvp-email">email</label>
+          <input type="email" id="rsvp-email" placeholder="jane@email.com" />
+        </div>
+        <div>
+          <label class="field-label">will you attend?</label>
+          <div class="attend-options">
+            <label class="radio-label"><input type="radio" name="attending" value="yes" checked /> joyfully accepts</label>
+            <label class="radio-label"><input type="radio" name="attending" value="no" /> regretfully declines</label>
+          </div>
+        </div>
+        <div id="guest-count-field">
+          <label class="field-label" for="rsvp-guests">number of guests</label>
+          <select id="rsvp-guests">
+            <option value="1">just me</option>
+            <option value="2">2 guests</option>
+            <option value="3">3 guests</option>
+            <option value="4">4 guests</option>
+          </select>
+        </div>
+        <div>
+          <label class="field-label" for="rsvp-note">note for the couple (optional)</label>
+          <textarea id="rsvp-note" rows="3" placeholder="So excited for you two..." style="resize: vertical;"></textarea>
+        </div>
+        <p class="rsvp-error" id="rsvp-error" style="display: none;"></p>
+        <button type="submit" class="btn" style="width: fit-content;">send rsvp</button>
+      </form>
+      <div class="rsvp-success" id="rsvp-success" style="display: none;">
+        <p class="headline" id="rsvp-headline"></p>
+        <p class="sub" id="rsvp-subline"></p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- GALLERY (full-bleed horizontal filmstrip, breaks out of .wrap) -->
+  <div class="section-tight reveal">
+    <div class="wrap">
+      <p class="eyebrow">memories so far</p>
+      <h2 class="title">gallery</h2>
+    </div>
+    <div class="gallery-strip" style="padding-left: 32px; padding-right: 32px;">
+      <div class="gallery-tile">
+        <img src="https://images.unsplash.com/photo-1465495976277-4387d4b0b4c6?w=400&q=80" alt="Coastal wedding moment" />
+      </div>
+      <div class="gallery-tile tall">
+        <img src="https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=400&q=80" alt="Couple dancing" />
+      </div>
+      <div class="gallery-tile">
+        <img src="https://images.unsplash.com/photo-1525258833660-99d5d0cda517?w=400&q=80" alt="Wedding toast" />
+      </div>
+      <div class="gallery-tile tall">
+        <img src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?w=400&q=80" alt="Bridal bouquet" />
+      </div>
+      <div class="gallery-tile">
+        <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=400&q=80" alt="Wedding reception venue" />
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- PHOTO UPLOAD -->
+  <div class="wrap">
+    <div class="section-tight reveal">
+      <p class="eyebrow">add to our story</p>
+      <h2 class="title">share your photos</h2>
+      <p class="upload-copy">Snapped something good during the day? Upload it here so it becomes part of our shared album.</p>
+      <input type="file" id="photo-input" accept="image/*" multiple style="display: none;" />
+      <button class="btn btn-outline" id="upload-btn">upload photos</button>
+      <div class="uploaded-grid" id="uploaded-grid"></div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- LIVESTREAM -->
+  <div class="wrap">
+    <div class="section-tight reveal">
+      <p class="eyebrow">can't make it in person?</p>
+      <h2 class="title">watch the livestream</h2>
+      <p class="livestream-copy">The ceremony will be streamed live starting at 4:15 PM PT. The link goes live the morning of the wedding.</p>
+      <a href="#livestream" class="btn">open livestream</a>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- SONG REQUESTS -->
+  <div class="wrap">
+    <div class="section-tight reveal">
+      <p class="eyebrow">build our playlist</p>
+      <h2 class="title">song requests</h2>
+      <form class="song-form" id="song-form">
+        <input type="text" id="song-title" placeholder="song title" />
+        <input type="text" id="song-artist" placeholder="artist" />
+        <button type="submit" class="btn btn-outline">add</button>
+      </form>
+      <div class="song-list" id="song-list"></div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- HASHTAG + SHARE -->
+  <div class="wrap">
+    <div class="section-tight reveal">
+      <p class="eyebrow">tag your posts</p>
+      <h2 class="hashtag">#NoraAndTheo2027</h2>
+      <div class="share-row">
+        <button class="btn btn-outline" id="share-facebook">facebook</button>
+        <button class="btn btn-outline" id="share-twitter">x / twitter</button>
+        <button class="btn btn-outline" id="share-whatsapp">whatsapp</button>
+        <button class="btn btn-outline" id="copy-link">copy link</button>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- FOOTER -->
+  <div class="wrap">
+    <div class="footer section-tight reveal">
+      <div class="footer-grid">
+        <div>
+          <p class="eyebrow" style="margin-bottom: 14px;">questions?</p>
+          <p>Nora Bennett &amp; Theo Marchetti</p>
+          <p>noraandtheo@email.com</p>
+          <p>(604) 555-0176</p>
+        </div>
+        <p class="footer-signoff">with love, Nora + Theo</p>
+      </div>
+      <p class="footer-credit">Photos courtesy of Unsplash</p>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox-overlay" id="lightbox-overlay">
+    <button class="lightbox-close" id="lightbox-close" aria-label="Close">&times;</button>
+    <button class="lightbox-prev" id="lightbox-prev" aria-label="Previous photo">&lsaquo;</button>
+    <div class="lightbox-content" id="lightbox-content"></div>
+    <button class="lightbox-next" id="lightbox-next" aria-label="Next photo">&rsaquo;</button>
+  </div>
+
+<script>
+  // ---------- scroll reveal ----------
+  const revealEls = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+  revealEls.forEach((el) => revealObserver.observe(el));
+
+  // ---------- countdown ----------
+  const WEDDING_DATE = new Date('2027-06-13T16:30:00').getTime();
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function updateCountdown() {
+    const diff = Math.max(WEDDING_DATE - Date.now(), 0);
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff / 3600000) % 24);
+    const mins = Math.floor((diff / 60000) % 60);
+    const secs = Math.floor((diff / 1000) % 60);
+    document.getElementById('cd-days').textContent = pad(days);
+    document.getElementById('cd-hours').textContent = pad(hours);
+    document.getElementById('cd-mins').textContent = pad(mins);
+    document.getElementById('cd-secs').textContent = pad(secs);
+    document.getElementById('countdown-heading').textContent = diff <= 0 ? 'today is the day' : 'until we say I do';
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // ---------- RSVP form ----------
+  const rsvpForm = document.getElementById('rsvp-form');
+  const rsvpError = document.getElementById('rsvp-error');
+  const rsvpSuccess = document.getElementById('rsvp-success');
+  const guestCountField = document.getElementById('guest-count-field');
+
+  document.querySelectorAll('input[name="attending"]').forEach((radio) => {
+    radio.addEventListener('change', (e) => {
+      guestCountField.style.display = e.target.value === 'yes' ? 'block' : 'none';
+    });
+  });
+
+  rsvpForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = document.getElementById('rsvp-name').value.trim();
+    const email = document.getElementById('rsvp-email').value.trim();
+    const attending = document.querySelector('input[name="attending"]:checked').value;
+
+    if (!name || !email) {
+      rsvpError.textContent = 'Please fill in your name and email.';
+      rsvpError.style.display = 'block';
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      rsvpError.textContent = 'Please enter a valid email address.';
+      rsvpError.style.display = 'block';
+      return;
+    }
+    rsvpError.style.display = 'none';
+    rsvpForm.style.display = 'none';
+    rsvpSuccess.style.display = 'block';
+    document.getElementById('rsvp-headline').textContent =
+      attending === 'yes' ? "we can't wait to celebrate with you" : "we'll miss you, but thank you for letting us know";
+    document.getElementById('rsvp-subline').textContent = `a confirmation has been noted for ${name}.`;
+  });
+
+  // ---------- lightbox setup ----------
+  // lightboxItems holds every viewable photo on the page (story photo + gallery + uploads)
+  const lightboxItems = [];
+
+  document.querySelectorAll('.gallery-tile img').forEach((img) => {
+    const itemIndex = lightboxItems.length;
+    lightboxItems.push({ src: img.src });
+    img.addEventListener('click', () => openLightbox(itemIndex));
+  });
+
+  // ---------- photo upload ----------
+  const photoInput = document.getElementById('photo-input');
+  const uploadBtn = document.getElementById('upload-btn');
+  const uploadedGrid = document.getElementById('uploaded-grid');
+  uploadBtn.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', (e) => {
+    Array.from(e.target.files || []).forEach((file) => {
+      const url = URL.createObjectURL(file);
+      const tile = document.createElement('div');
+      tile.className = 'uploaded-tile';
+      tile.innerHTML = `<img src="${url}" alt="Uploaded photo" style="cursor: pointer;" />`;
+      uploadedGrid.appendChild(tile);
+
+      const itemIndex = lightboxItems.length;
+      lightboxItems.push({ src: url });
+      tile.querySelector('img').addEventListener('click', () => openLightbox(itemIndex));
+    });
+  });
+
+  // ---------- lightbox ----------
+  const lightboxOverlay = document.getElementById('lightbox-overlay');
+  const lightboxContent = document.getElementById('lightbox-content');
+  const lightboxClose = document.getElementById('lightbox-close');
+  const lightboxPrev = document.getElementById('lightbox-prev');
+  const lightboxNext = document.getElementById('lightbox-next');
+  let currentLightboxIndex = 0;
+
+  function renderLightboxItem(index) {
+    const item = lightboxItems[index];
+    if (!item) return;
+    lightboxContent.innerHTML = `<img src="${item.src}" alt="Photo" />`;
+  }
+
+  function openLightbox(index) {
+    currentLightboxIndex = index;
+    renderLightboxItem(currentLightboxIndex);
+    lightboxOverlay.classList.add('open');
+  }
+
+  function closeLightbox() {
+    lightboxOverlay.classList.remove('open');
+    lightboxContent.innerHTML = '';
+  }
+
+  function showNext() {
+    currentLightboxIndex = (currentLightboxIndex + 1) % lightboxItems.length;
+    renderLightboxItem(currentLightboxIndex);
+  }
+
+  function showPrev() {
+    currentLightboxIndex = (currentLightboxIndex - 1 + lightboxItems.length) % lightboxItems.length;
+    renderLightboxItem(currentLightboxIndex);
+  }
+
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightboxNext.addEventListener('click', showNext);
+  lightboxPrev.addEventListener('click', showPrev);
+  lightboxOverlay.addEventListener('click', (e) => {
+    if (e.target === lightboxOverlay) closeLightbox();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!lightboxOverlay.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowRight') showNext();
+    if (e.key === 'ArrowLeft') showPrev();
+  });
+
+
+  // ---------- song requests ----------
+  const songForm = document.getElementById('song-form');
+  const songList = document.getElementById('song-list');
+  const initialSongs = [
+    { title: 'At Last', artist: 'Etta James' },
+    { title: 'Banana Pancakes', artist: 'Jack Johnson' },
+  ];
+  function renderSong(song) {
+    const row = document.createElement('div');
+    row.className = 'song-row';
+    row.innerHTML = `<span class="title"></span><span class="artist"></span>`;
+    row.querySelector('.title').textContent = song.title;
+    row.querySelector('.artist').textContent = song.artist;
+    songList.appendChild(row);
+  }
+  initialSongs.forEach(renderSong);
+  songForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const titleInput = document.getElementById('song-title');
+    const artistInput = document.getElementById('song-artist');
+    const title = titleInput.value.trim();
+    const artist = artistInput.value.trim();
+    if (!title) return;
+    renderSong({ title, artist: artist || 'unknown artist' });
+    titleInput.value = '';
+    artistInput.value = '';
+  });
+
+  // ---------- social sharing ----------
+  const PAGE_URL = 'https://noraandtheo.wedding';
+  const SHARE_TEXT = "Join us for Nora & Theo's wedding — June 13, 2027";
+
+  document.getElementById('share-facebook').addEventListener('click', () => {
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(PAGE_URL)}`, '_blank');
+  });
+  document.getElementById('share-twitter').addEventListener('click', () => {
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(SHARE_TEXT)}&url=${encodeURIComponent(PAGE_URL)}`, '_blank');
+  });
+  document.getElementById('share-whatsapp').addEventListener('click', () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(SHARE_TEXT + ' ' + PAGE_URL)}`, '_blank');
+  });
+  document.getElementById('copy-link').addEventListener('click', (e) => {
+    navigator.clipboard?.writeText(PAGE_URL).catch(() => {});
+    const btn = e.target;
+    const original = btn.textContent;
+    btn.textContent = 'link copied';
+    setTimeout(() => { btn.textContent = original; }, 2000);
+  });
+</script>
+</body>
+</html>

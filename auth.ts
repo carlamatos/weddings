@@ -3,6 +3,8 @@ import { Account, Profile, User, Session } from 'next-auth';
 
 import Credentials from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
+import AppleProvider from 'next-auth/providers/apple';
+import FacebookProvider from 'next-auth/providers/facebook';
 import { authConfig } from 'auth.config';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
@@ -58,30 +60,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         },
       },
     }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: process.env.APPLE_CLIENT_SECRET!,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID!,
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+    }),
   ],
   callbacks: {
     async jwt({token, user, account, profile } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null }) {
       // Add user info to the token when logging in
       
-      if (account?.provider === 'google' && profile?.email 
-        && profile?.sub
-        && profile.given_name
-        && profile?.family_name
-        && profile.name && token?.id) {
-        //console.log('Profile object:', profile);
-       
+      const oauthProviders = ['google', 'apple', 'facebook'];
+      if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub && token?.id) {
+        const providerName = account.provider.charAt(0).toUpperCase() + account.provider.slice(1);
+        const given_name = (profile.given_name as string) ?? (profile.name as string)?.split(' ')[0] ?? '';
+        const family_name = (profile.family_name as string) ?? (profile.name as string)?.split(' ').slice(1).join(' ') ?? '';
 
         const localuser = await getUser(profile.email);
         if (!localuser) {
-          const userdata: DBUser = { id: '0', name: profile.name, email: profile.email, password: '', given_name: profile.given_name,family_name:profile.family_name, provider: 'Google', provider_id: profile.sub, picture: profile.picture  };
+          const userdata: DBUser = { id: '0', name: profile.name as string, email: profile.email, password: '', given_name, family_name, provider: providerName, provider_id: profile.sub, picture: profile.picture as string };
           const result = await createExtendedUser(userdata);
 
           if (result && result.errors) {
-            // There was an error, handle the error
             console.log('Error:', result.errors);
             console.log('Message:', result.message);
           } else if (result && result.message) {
-            // No errors, just a success message
             console.log('Success:', result.message);
           }
         }

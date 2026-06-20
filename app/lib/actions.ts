@@ -7,7 +7,9 @@ import { redirect } from 'next/navigation';
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 
+import { headers } from 'next/headers';
 import { signIn } from '@/auth';
+import { isRateLimited, recordFailedAttempt, clearLoginAttempts } from './rate-limit';
 
 import { DBUser } from './definitions';
 import { auth } from '@/auth';
@@ -246,10 +248,21 @@ export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
 ) {
+  const headersList = await headers();
+  const ip =
+    headersList.get('x-forwarded-for')?.split(',')[0].trim() ??
+    headersList.get('x-real-ip') ??
+    '127.0.0.1';
+
+  if (isRateLimited(ip)) {
+    return 'Too many login attempts. Please try again in 15 minutes.';
+  }
+
   try {
     await signIn('credentials', formData);
   } catch (error) {
     if (error instanceof AuthError) {
+      recordFailedAttempt(ip);
       switch (error.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
@@ -257,15 +270,23 @@ export async function authenticate(
           return 'Something went wrong.';
       }
     }
+    // Successful login triggers a redirect — clear failed attempts
+    clearLoginAttempts(ip);
     throw error;
-       
-    
   }
 }
 
 
 export async function GoogleSignIn() {
   await signIn("google")
+}
+
+export async function AppleSignIn() {
+  await signIn("apple")
+}
+
+export async function FacebookSignIn() {
+  await signIn("facebook")
 }
 
 
