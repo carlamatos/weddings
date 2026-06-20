@@ -37,9 +37,6 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  experimental: {
-    ppr: 'incremental',
-  },
   async headers() {
     return [
       {
