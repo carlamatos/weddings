@@ -24,6 +24,40 @@ export default function AddressAutocomplete({ onPlaceSelect, defaultValue }: Pro
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
     if (!apiKey) return;
 
+    function initAutocomplete() {
+      if (!inputRef.current) return;
+
+      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        types: ['address'],
+        fields: ['place_id', 'formatted_address', 'address_components'],
+      });
+
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current!.getPlace();
+        if (!place.place_id) return;
+
+        const components: AddressComponents = {
+          streetAddress: '',
+          postalCode: '',
+          city: '',
+          country: '',
+          formattedAddress: place.formatted_address || '',
+          placeId: place.place_id,
+        };
+
+        for (const component of place.address_components || []) {
+          const type = component.types[0];
+          if (type === 'street_number') components.streetAddress = component.long_name + ' ';
+          if (type === 'route') components.streetAddress += component.long_name;
+          if (type === 'locality') components.city = component.long_name;
+          if (type === 'postal_code') components.postalCode = component.long_name;
+          if (type === 'country') components.country = component.long_name;
+        }
+
+        onPlaceSelect(components);
+      });
+    }
+
     if (window.google?.maps?.places) {
       initAutocomplete();
       return;
@@ -43,41 +77,7 @@ export default function AddressAutocomplete({ onPlaceSelect, defaultValue }: Pro
     script.defer = true;
     script.onload = initAutocomplete;
     document.head.appendChild(script);
-  }, []);
-
-  function initAutocomplete() {
-    if (!inputRef.current) return;
-
-    autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
-      types: ['address'],
-      fields: ['place_id', 'formatted_address', 'address_components'],
-    });
-
-    autocompleteRef.current.addListener('place_changed', () => {
-      const place = autocompleteRef.current!.getPlace();
-      if (!place.place_id) return;
-
-      const components: AddressComponents = {
-        streetAddress: '',
-        postalCode: '',
-        city: '',
-        country: '',
-        formattedAddress: place.formatted_address || '',
-        placeId: place.place_id,
-      };
-
-      for (const component of place.address_components || []) {
-        const type = component.types[0];
-        if (type === 'street_number') components.streetAddress = component.long_name + ' ';
-        if (type === 'route') components.streetAddress += component.long_name;
-        if (type === 'locality') components.city = component.long_name;
-        if (type === 'postal_code') components.postalCode = component.long_name;
-        if (type === 'country') components.country = component.long_name;
-      }
-
-      onPlaceSelect(components);
-    });
-  }
+  }, [onPlaceSelect]);
 
   return (
     <input

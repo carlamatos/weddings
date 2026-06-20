@@ -9,7 +9,7 @@ export default function Page() {
 
       {/* TOP BAR */}
       <div className="topbar">
-        <a href="/" className="wordmark">My<span className="accent">Gala</span></a>
+        <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
         <Link href="/login" className="topbar-cta">Start your wedding page</Link>
       </div>
 
