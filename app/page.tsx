@@ -10,7 +10,10 @@ export default function Page() {
       {/* TOP BAR */}
       <div className="topbar">
         <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
-        <Link href="/login" className="topbar-cta">Start your wedding page</Link>
+        <div className="topbar-actions">
+          <Link href="/login" className="topbar-login">Log in</Link>
+          <Link href="/register" className="topbar-signup">Sign up</Link>
+        </div>
       </div>
 
       {/* HERO */}

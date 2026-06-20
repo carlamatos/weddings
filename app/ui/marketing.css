@@ -69,12 +69,34 @@
   display: inline-block;
 }
 .marketing-page .wordmark .accent { color: var(--rose); }
-.marketing-page .topbar-cta {
+.marketing-page .topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.marketing-page .topbar-login {
   font-family: var(--font-sans);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.3px;
-  padding: 10px 22px;
+  padding: 9px 20px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  text-decoration: none;
+  display: inline-block;
+  white-space: nowrap;
+}
+.marketing-page .topbar-login:hover { background: var(--paper-deep); }
+.marketing-page .topbar-signup {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 9px 20px;
   border-radius: 999px;
   border: none;
   background: var(--rose);
@@ -83,8 +105,17 @@
   transition: background 0.15s ease, transform 0.15s ease;
   text-decoration: none;
   display: inline-block;
+  white-space: nowrap;
 }
-.marketing-page .topbar-cta:hover { background: var(--rose-deep); transform: translateY(-1px); }
+.marketing-page .topbar-signup:hover { background: var(--rose-deep); transform: translateY(-1px); }
+
+@media (max-width: 480px) {
+  .marketing-page .topbar { padding: 14px 18px; }
+  .marketing-page .wordmark { font-size: 28px; }
+  .marketing-page .topbar-actions { gap: 8px; }
+  .marketing-page .topbar-login,
+  .marketing-page .topbar-signup { font-size: 12px; padding: 8px 14px; }
+}
 
 /* general type */
 .marketing-page .eyebrow {
