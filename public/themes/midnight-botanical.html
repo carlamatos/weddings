@@ -157,12 +157,13 @@
     background: var(--ink-black);
     overflow: hidden;
   }
-  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; }
+  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; object-fit: cover; }
   .hero-content { position: relative; z-index: 1; }
   .hero-frame {
     border: 1px solid var(--gold-dim);
     padding: 56px 48px;
     max-width: 480px;
+    background: rgba(30, 58, 46, 0.6);
   }
   @media (max-width: 640px) { .hero-frame { padding: 40px 24px; } }
 
@@ -346,20 +347,7 @@
 
   <!-- HERO -->
   <div class="hero">
-    <svg class="hero-bg" viewBox="0 0 1600 1100" preserveAspectRatio="xMidYMid slice">
-      <rect width="1600" height="1100" fill="#0F1F1A" />
-      <rect width="1600" height="1100" fill="#14241E" opacity="0.6" />
-      <path d="M-100 1100 C 100 700, 300 500, 250 100" stroke="#3C5C46" stroke-width="3" fill="none" opacity="0.5" />
-      <path d="M-100 1100 C 150 750, 200 600, 150 300" stroke="#1E3A2E" stroke-width="2" fill="none" opacity="0.6" />
-      <circle cx="120" cy="380" r="6" fill="#C9A75D" opacity="0.5" />
-      <circle cx="200" cy="520" r="4" fill="#C9A75D" opacity="0.4" />
-      <circle cx="90" cy="650" r="5" fill="#C9A75D" opacity="0.35" />
-      <path d="M1700 1100 C 1500 700, 1300 500, 1350 100" stroke="#3C5C46" stroke-width="3" fill="none" opacity="0.5" />
-      <path d="M1700 1100 C 1450 750, 1400 600, 1450 300" stroke="#1E3A2E" stroke-width="2" fill="none" opacity="0.6" />
-      <circle cx="1480" cy="380" r="6" fill="#C9A75D" opacity="0.5" />
-      <circle cx="1400" cy="520" r="4" fill="#C9A75D" opacity="0.4" />
-      <circle cx="1510" cy="650" r="5" fill="#C9A75D" opacity="0.35" />
-    </svg>
+    <img class="hero-bg" src="/images/themes/midnight-botanical/woods.png" alt="" />
     <div class="hero-content">
       <div class="hero-frame">
         <div class="hero-photo">
