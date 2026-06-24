@@ -11,7 +11,7 @@ const securityHeaders = [
       "img-src 'self' data: blob: https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com",
       "media-src 'self'",
       "connect-src 'self' https://maps.googleapis.com https://accounts.google.com",
-      "frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com",
+      "frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com",
