@@ -1,4 +1,4 @@
-import type { ThemeProps, ThemePreviewProps, ThemeSlots } from './types';
+import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import RsvpForm from './RsvpForm';
 
@@ -124,7 +124,6 @@ export default function MidnightBotanical({
   city,
   country,
   streetAddress,
-  unitNumber,
   postalCode,
   formattedAddress,
   placeId,

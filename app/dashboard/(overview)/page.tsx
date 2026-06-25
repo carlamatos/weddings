@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { auth } from '@/auth';
 import { fetchUserPageById, fetchGalleryImages } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -21,20 +22,14 @@ export default async function Page() {
     return (
       <div style={{ padding: '60px 32px', textAlign: 'center', color: '#6B6470', fontFamily: 'system-ui, sans-serif' }}>
         <p style={{ fontSize: 16 }}>No event page yet.</p>
-        <a href="/dashboard/setup" style={{ color: '#B6584A', fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
+        <Link href="/dashboard/setup" style={{ color: '#B6584A', fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
           Create your event page →
-        </a>
+        </Link>
       </div>
     );
   }
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  const mapSrc = userPage.place_id && mapsKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${userPage.place_id}`
-    : userPage.formatted_address && mapsKey
-    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${encodeURIComponent(userPage.formatted_address)}`
-    : null;
 
   // Build the date display string the same way each theme would
   const heroDateText = userPage.event_date
