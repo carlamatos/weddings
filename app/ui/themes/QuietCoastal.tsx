@@ -158,7 +158,10 @@ export default function QuietCoastal({
 
       {/* HERO */}
       <div className="hero">
-        {editSlots?.heroBg ?? <img className="hero-bg" src={heroImg} alt="" />}
+        {editSlots?.heroBg ?? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="hero-bg" src={heroImg} alt="" />
+        )}
         <div className="hero-content">
           <p className="eyebrow hero-eyebrow">together with their families</p>
           {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}

@@ -186,6 +186,7 @@ export default function TerracottaHarvest({
       {/* HERO */}
       <div className="hero">
         {editSlots?.heroBg ?? (bannerImage ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img className="hero-bg" src={bannerImage} alt="" />
         ) : (
           <svg className="hero-bg-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">

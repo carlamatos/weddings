@@ -168,7 +168,10 @@ export default function MidnightBotanical({
 
       {/* HERO */}
       <div className="hero">
-        {editSlots?.heroBg ?? <img className="hero-bg" src={heroImg} alt="" />}
+        {editSlots?.heroBg ?? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="hero-bg" src={heroImg} alt="" />
+        )}
         <div className="hero-content">
           <div className="hero-frame">
             <p className="eyebrow on-dark hero-eyebrow">Save the date</p>

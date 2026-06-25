@@ -119,7 +119,7 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
         <label className="check-label">
           <input type="checkbox" checked={receiveUpdates}
             onChange={(e) => setReceiveUpdates(e.target.checked)} />
-          I'd like to receive event updates via email
+          I&apos;d like to receive event updates via email
         </label>
         <p className="check-hint">you can unsubscribe at any time.</p>
       </div>
