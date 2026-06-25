@@ -35,6 +35,7 @@ export type UserPage = {
   section_2_button_link?: string;
   custom_domain?: string;
   domain_status?: string;
+  plan_type?: string;
 };
 
 export type DBUser = {
