@@ -1,12 +1,13 @@
 'use client';
 
-import { DocumentIcon, UsersIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
   { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon },
   { name: 'RSVPs', href: '/dashboard/rsvp', icon: UsersIcon },
+  { name: 'Domain', href: '/dashboard/domain', icon: GlobeAltIcon },
 ];
 
 export default function NavLinks({ hasPage }: { hasPage: boolean }) {

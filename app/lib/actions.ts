@@ -318,6 +318,71 @@ export async function deleteGalleryImage(imageId: string) {
   }
 }
 
+export async function saveDomain(domain: string): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+
+  const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+  if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(clean)) {
+    return { error: 'Invalid domain format.' };
+  }
+
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const token = process.env.VERCEL_API_TOKEN;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!projectId || !token) return { error: 'Vercel API not configured.' };
+
+  const qs = teamId ? `?teamId=${teamId}` : '';
+  const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains${qs}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: clean }),
+  });
+  if (!res.ok && res.status !== 409) {
+    const body = await res.json().catch(() => ({}));
+    return { error: body?.error?.message || 'Failed to add domain to Vercel.' };
+  }
+
+  try {
+    await sql`
+      UPDATE user_page
+      SET custom_domain = ${clean}, domain_status = 'pending'
+      WHERE user_id = ${userId}
+    `;
+  } catch (error) {
+    return { error: `Database error: ${error instanceof Error ? error.message : String(error)}` };
+  }
+
+  revalidatePath('/dashboard/domain');
+  return {};
+}
+
+export async function removeDomain(): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+
+  const result = await sql`SELECT custom_domain FROM user_page WHERE user_id = ${userId}`;
+  const domain = result.rows[0]?.custom_domain;
+  if (!domain) return {};
+
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const token = process.env.VERCEL_API_TOKEN;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!projectId || !token) return { error: 'Vercel API not configured.' };
+
+  const qs = teamId ? `?teamId=${teamId}` : '';
+  await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains/${domain}${qs}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  await sql`UPDATE user_page SET custom_domain = NULL, domain_status = 'pending' WHERE user_id = ${userId}`;
+  revalidatePath('/dashboard/domain');
+  return {};
+}
+
 export async function updateTheme(themeId: string) {
   const session = await auth();
   const userId = session?.user?.id;

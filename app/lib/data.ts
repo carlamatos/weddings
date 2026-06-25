@@ -129,6 +129,20 @@ export async function fetchGalleryImages(user_id: string): Promise<GalleryImage[
   }
 }
 
+export async function fetchUserPageByDomain(domain: string): Promise<UserPage | undefined> {
+  try {
+    const data = await sql<UserPage>`
+      SELECT up.*, et.slug as theme_slug
+      FROM user_page up
+      LEFT JOIN event_themes et ON et.theme_id = up.theme_id
+      WHERE up.custom_domain = ${domain}`;
+    return data.rows[0];
+  } catch (error) {
+    console.error('Database Error:', error);
+    return undefined;
+  }
+}
+
 export async function fetchUserPageById(user_id: string){
   try {
 

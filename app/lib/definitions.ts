@@ -33,6 +33,8 @@ export type UserPage = {
   section_2_description?: string;
   section_2_button_text?: string;
   section_2_button_link?: string;
+  custom_domain?: string;
+  domain_status?: string;
 };
 
 export type DBUser = {
