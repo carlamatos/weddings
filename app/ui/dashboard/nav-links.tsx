@@ -1,14 +1,12 @@
 'use client';
 
-import {
-  DocumentIcon,
-} from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import clsx from 'clsx';
 
 const links = [
   { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon },
+  { name: 'RSVPs', href: '/dashboard/rsvp', icon: UsersIcon },
 ];
 
 export default function NavLinks({ hasPage }: { hasPage: boolean }) {
@@ -16,23 +14,18 @@ export default function NavLinks({ hasPage }: { hasPage: boolean }) {
   return (
     <>
       {links
-        .filter((link) => link.name !== 'Edit Page' || hasPage)
+        .filter((link) => link.name === 'Edit Page' ? hasPage : hasPage)
         .map((link) => {
-          const LinkIcon = link.icon;
+          const Icon = link.icon;
           return (
             <Link
-            key={link.name}
-            href={link.href}
-            className={clsx(
-              'nav-link sidebar-menu light-sage',
-              {
-                'nav-link--active': pathname === link.href,
-              },
-            )}
-          >
-            <LinkIcon className="w-6" />
-            <p>{link.name}</p>
-          </Link>
+              key={link.name}
+              href={link.href}
+              className={`dash-nav-link${pathname === link.href ? ' dash-nav-link--active' : ''}`}
+            >
+              <Icon />
+              {link.name}
+            </Link>
           );
         })}
     </>

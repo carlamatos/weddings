@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { updateSection2 } from '@/app/lib/actions';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
 
 export default function RegistrySection({
   defaultImage = '',
-  defaultDescription = 'We have a few items on our registry that would make our new home feel extra special. Your presence at our wedding is the greatest gift of all.',
+  defaultDescription = 'We have a few items on our registry that would make our new home feel extra special.',
   defaultButtonText = 'View Registry',
   defaultButtonLink = '',
 }: Props) {
@@ -40,56 +40,60 @@ export default function RegistrySection({
   const displayImage = previewImage || defaultImage || '/images/themes/wedding/registry.png';
 
   return (
-    <div className="wedding-registry-section">
-      <div className="section-toolbar">
-        <button onClick={isEditing ? handleSave : () => setIsEditing(true)} className="edit-but">
-          <PencilSquareIcon />
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <p className="dash-card-title">Registry Section</p>
+        <button
+          className={`dash-edit-btn${isEditing ? ' dash-edit-btn--save' : ''}`}
+          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+        >
+          {isEditing ? <CheckIcon style={{ width: 14, height: 14 }} /> : <PencilSquareIcon style={{ width: 14, height: 14 }} />}
           {isEditing ? 'Save' : 'Edit'}
         </button>
       </div>
+      <div className="dash-card-body">
+        {isEditing && (
+          <div className="dash-edit-fields">
+            <div className="dash-field">
+              <label>Section Text</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                className="dash-input dash-textarea"
+              />
+            </div>
+            <div className="dash-2col">
+              <div className="dash-field">
+                <label>Button Text</label>
+                <input type="text" value={buttonText} onChange={(e) => setButtonText(e.target.value)} className="dash-input" />
+              </div>
+              <div className="dash-field">
+                <label>Button URL</label>
+                <input type="url" value={buttonLink} onChange={(e) => setButtonLink(e.target.value)} className="dash-input" placeholder="https://…" />
+              </div>
+            </div>
+            <div className="dash-field">
+              <label>Replace Image</label>
+              <label className="dash-file-label">
+                Choose file
+                <input type="file" accept="image/*" onChange={handleImageChange} style={{ display: 'none' }} />
+              </label>
+            </div>
+          </div>
+        )}
 
-      {isEditing && (
-        <div className="registry-edit-fields">
-          <label className="registry-edit-label">Section Text</label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            rows={3}
-            className="setup-input"
-          />
-          <label className="registry-edit-label">Button Text</label>
-          <input
-            type="text"
-            value={buttonText}
-            onChange={(e) => setButtonText(e.target.value)}
-            className="setup-input"
-          />
-          <label className="registry-edit-label">Button URL</label>
-          <input
-            type="url"
-            value={buttonLink}
-            onChange={(e) => setButtonLink(e.target.value)}
-            className="setup-input"
-            placeholder="https://..."
-          />
-          <label className="registry-edit-label">Replace Image</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} className="registry-file-input" />
+        <div className="dash-registry-preview" style={{ backgroundImage: `url(${displayImage})` }}>
+          <div className="dash-registry-preview-overlay">
+            <span className="dash-registry-preview-label">Registry</span>
+          </div>
         </div>
-      )}
-
-      <div className="registry-image-wrap" style={{ backgroundImage: `url(${displayImage})` }}>
-        <div className="registry-overlay">
-          <h2 className="registry-title">REGISTRY</h2>
-          <p className="registry-description">{description}</p>
-          <a
-            href={buttonLink || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="registry-button"
-          >
-            {buttonText}
+        <p className="dash-description-display" style={{ marginTop: 12 }}>{description}</p>
+        {buttonLink && (
+          <a href={buttonLink} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: 'var(--rose)', fontWeight: 600, textDecoration: 'none' }}>
+            {buttonText} →
           </a>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -1,52 +1,107 @@
-import '@/app/ui/wedding.css';
 import { auth } from '@/auth';
-import { fetchUserPageById } from '@/app/lib/data';
-import ImageUpload from '@/app/ui/image';
-import EditableHeading from '@/app/ui/heading';
-import EditableDescription from '@/app/ui/description';
-import RegistrySection from '@/app/ui/dashboard/registry-section';
-import VenueSection from '@/app/ui/dashboard/venue-section';
-import EventFooter from '@/app/ui/dashboard/event-footer';
+import { fetchUserPageById, fetchGalleryImages } from '@/app/lib/data';
+import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import {
+  EditableHeroName,
+  EditableHeroDate,
+  EditableDescription,
+  EditableBannerBg,
+} from '@/app/ui/themes/slots';
+import { EditableGallery } from '@/app/ui/themes/GallerySection';
 
 export default async function Page() {
   const session = await auth();
   const userId = session?.user?.id;
-  const userPage = userId ? await fetchUserPageById(userId) : undefined;
+  const [userPage, galleryImages] = await Promise.all([
+    userId ? fetchUserPageById(userId) : undefined,
+    userId ? fetchGalleryImages(userId) : [],
+  ]);
+
+  if (!userPage) {
+    return (
+      <div style={{ padding: '60px 32px', textAlign: 'center', color: '#6B6470', fontFamily: 'system-ui, sans-serif' }}>
+        <p style={{ fontSize: 16 }}>No event page yet.</p>
+        <a href="/dashboard/setup" style={{ color: '#B6584A', fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
+          Create your event page →
+        </a>
+      </div>
+    );
+  }
+
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const mapSrc = userPage.place_id && mapsKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${userPage.place_id}`
+    : userPage.formatted_address && mapsKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${encodeURIComponent(userPage.formatted_address)}`
+    : null;
+
+  // Build the date display string the same way each theme would
+  const heroDateText = userPage.event_date
+    ? (() => {
+        const d = new Date(userPage.event_date + 'T00:00:00');
+        const formatted = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const loc = [userPage.city, userPage.country].filter(Boolean).join(', ');
+        return loc ? `${formatted} · ${loc}` : formatted;
+      })()
+    : '';
+
+  const editSlots = {
+    heroBg: (
+      <EditableBannerBg
+        src={userPage.banner_image || ''}
+      />
+    ),
+    heroName: (
+      <EditableHeroName
+        value={userPage.heading || ''}
+      />
+    ),
+    heroDate: heroDateText ? (
+      <EditableHeroDate
+        displayText={heroDateText}
+        eventDate={userPage.event_date || undefined}
+        eventTime={userPage.event_time || undefined}
+        city={userPage.city || undefined}
+        country={userPage.country || undefined}
+      />
+    ) : undefined,
+    description: (
+      <EditableDescription
+        value={userPage.description || ''}
+        style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
+      />
+    ),
+    gallery: <EditableGallery initialImages={galleryImages} />,
+  };
 
   return (
-    <main className="wedding-page">
-
-      <EditableHeading defaultHeading={userPage?.heading || ''} />
-
-      <ImageUpload defaultImage={userPage?.banner_image || ''} />
-
-      <EditableDescription defaultDescription={userPage?.description || ''} />
-
-      <RegistrySection
-        defaultImage={userPage?.section_2_image || ''}
-        defaultDescription={userPage?.section_2_description || ''}
-        defaultButtonText={userPage?.section_2_button_text || 'View Registry'}
-        defaultButtonLink={userPage?.section_2_button_link || ''}
+    <div style={{ margin: '-32px -28px' }}>
+      <ThemeRenderer
+        themeSlug={userPage.theme_slug}
+        heading={userPage.heading || ''}
+        description={userPage.description || undefined}
+        eventDate={userPage.event_date || undefined}
+        eventTime={userPage.event_time || undefined}
+        location={userPage.location}
+        city={userPage.city || undefined}
+        country={userPage.country || undefined}
+        streetAddress={userPage.street_address || undefined}
+        unitNumber={userPage.unit_number || undefined}
+        postalCode={userPage.postal_code || undefined}
+        formattedAddress={userPage.formatted_address || undefined}
+        placeId={userPage.place_id || undefined}
+        url={userPage.url || undefined}
+        bannerImage={userPage.banner_image || undefined}
+        userEmail={userPage.user_email || undefined}
+        mapsKey={mapsKey}
+        registryImage={userPage.section_2_image || undefined}
+        registryDescription={userPage.section_2_description || undefined}
+        registryButtonText={userPage.section_2_button_text || undefined}
+        registryButtonLink={userPage.section_2_button_link || undefined}
+        galleryImages={galleryImages}
+        editSlots={editSlots}
       />
-
-      {userPage && (
-        <VenueSection
-          location={userPage.location}
-          streetAddress={userPage.street_address}
-          unitNumber={userPage.unit_number}
-          city={userPage.city}
-          postalCode={userPage.postal_code}
-          country={userPage.country}
-          placeId={userPage.place_id}
-          formattedAddress={userPage.formatted_address}
-        />
-      )}
-
-      <EventFooter
-        eventDate={userPage?.event_date}
-        eventTime={userPage?.event_time}
-      />
-
-    </main>
+    </div>
   );
 }

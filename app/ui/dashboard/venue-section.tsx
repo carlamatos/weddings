@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import AddressAutocomplete, { AddressComponents } from '@/app/ui/address-autocomplete';
 import { updateLocation } from '@/app/lib/actions';
 
@@ -59,112 +59,76 @@ export default function VenueSection({
 
   const handleSave = async () => {
     setIsEditing(false);
-    await updateLocation({
-      location,
-      streetAddress,
-      unitNumber,
-      postalCode,
-      city,
-      country,
-      placeId,
-      formattedAddress,
-      url,
-    });
+    await updateLocation({ location, streetAddress, unitNumber, postalCode, city, country, placeId, formattedAddress, url });
   };
 
   return (
-    <div className="wedding-venue-section">
-      <div className="section-toolbar">
-        <button onClick={isEditing ? handleSave : () => setIsEditing(true)} className="edit-but">
-          <PencilSquareIcon />
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <p className="dash-card-title">Venue / Location</p>
+        <button
+          className={`dash-edit-btn${isEditing ? ' dash-edit-btn--save' : ''}`}
+          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+        >
+          {isEditing ? <CheckIcon style={{ width: 14, height: 14 }} /> : <PencilSquareIcon style={{ width: 14, height: 14 }} />}
           {isEditing ? 'Save' : 'Edit'}
         </button>
       </div>
-
-      <h2 className="venue-title">VENUE LOCATION</h2>
-
-      {isEditing && (
-        <div className="venue-edit-fields">
-          <div className="venue-edit-row">
-            <label className="registry-edit-label">Location Type</label>
-            <select
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="setup-input"
-            >
-              <option value="address">Address</option>
-              <option value="virtual">Virtual</option>
-            </select>
-          </div>
-
-          {location === 'address' ? (
-            <>
-              <div className="venue-edit-row">
-                <label className="registry-edit-label">Search Address</label>
-                <AddressAutocomplete
-                  onPlaceSelect={handlePlaceSelect}
-                  defaultValue={formattedAddress}
-                />
-              </div>
-              {formattedAddress && (
-                <p className="venue-selected-address">Selected: {formattedAddress}</p>
-              )}
-              <div className="venue-edit-row">
-                <label className="registry-edit-label">Unit / Suite</label>
-                <input
-                  type="text"
-                  value={unitNumber}
-                  onChange={(e) => setUnitNumber(e.target.value)}
-                  className="setup-input"
-                  placeholder="Apt, suite, unit..."
-                />
-              </div>
-            </>
-          ) : (
-            <div className="venue-edit-row">
-              <label className="registry-edit-label">Event URL</label>
-              <input
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                className="setup-input"
-                placeholder="https://..."
-              />
+      <div className="dash-card-body">
+        {isEditing && (
+          <div className="dash-edit-fields">
+            <div className="dash-field">
+              <label>Location Type</label>
+              <select value={location} onChange={(e) => setLocation(e.target.value)} className="dash-input dash-select">
+                <option value="address">Address</option>
+                <option value="virtual">Virtual</option>
+              </select>
             </div>
-          )}
-        </div>
-      )}
 
-      {location === 'address' ? (
-        <div className="venue-inner">
-          <div className="venue-address">
-            {streetAddress && <p>{streetAddress}</p>}
-            {unitNumber && <p>{unitNumber}</p>}
-            {city && <p>{city}</p>}
-            {postalCode && <p>{postalCode}</p>}
-            {country && <p>{country}</p>}
+            {location === 'address' ? (
+              <>
+                <div className="dash-field">
+                  <label>Search Address</label>
+                  <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={formattedAddress} />
+                </div>
+                {formattedAddress && <p className="dash-hint">Selected: {formattedAddress}</p>}
+                <div className="dash-field">
+                  <label>Unit / Suite</label>
+                  <input type="text" value={unitNumber} onChange={(e) => setUnitNumber(e.target.value)} className="dash-input" placeholder="Apt, suite…" />
+                </div>
+              </>
+            ) : (
+              <div className="dash-field">
+                <label>Event URL</label>
+                <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} className="dash-input" placeholder="https://…" />
+              </div>
+            )}
           </div>
-          {mapSrc && (
-            <iframe
-              key={mapSrc}
-              src={mapSrc}
-              width="100%"
-              height="300"
-              style={{ border: 0, borderRadius: '0.5rem' }}
-              loading="lazy"
-              allowFullScreen
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          )}
-        </div>
-      ) : (
-        <div className="venue-virtual">
-          {url
-            ? <a href={url} target="_blank" rel="noopener noreferrer" className="link-auth">{url}</a>
-            : <p className="venue-address">No URL set.</p>
-          }
-        </div>
-      )}
+        )}
+
+        {location === 'address' ? (
+          <>
+            <div className="dash-address-lines">
+              {streetAddress && <span>{streetAddress}</span>}
+              {unitNumber && <span>{unitNumber}</span>}
+              {city && <span>{city}</span>}
+              {postalCode && <span>{postalCode}</span>}
+              {country && <span>{country}</span>}
+              {!streetAddress && !city && <span style={{ color: 'var(--ink-soft)', opacity: 0.5 }}>No address set — click Edit to add one.</span>}
+            </div>
+            {mapSrc && (
+              <iframe key={mapSrc} src={mapSrc} className="dash-map-frame" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" />
+            )}
+          </>
+        ) : (
+          <div>
+            {url
+              ? <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: 'var(--rose)', fontWeight: 500 }}>{url}</a>
+              : <span style={{ fontSize: 14, color: 'var(--ink-soft)' }}>No URL set — click Edit to add one.</span>
+            }
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,19 +1,18 @@
 import SideNav from '@/app/ui/dashboard/sidenav';
-import TopNav from '../ui/dashboard/topnav';
-export const experimental_ppr = true;
+import TopNav from '@/app/ui/dashboard/topnav';
+import { greatVibes } from '@/app/ui/fonts';
+import '@/app/ui/dashboard.css';
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    
-    <div className="flex h-screen flex-col md-overflow-hidden">
-    <div className="charcoal"><TopNav /></div>
-
-    <div className="flex flex-col md-flex-row md-overflow-hidden">
-
-      <div className="w-full flex-none md-w-64">
-        <SideNav />
+    <div className={`dash dash-shell ${greatVibes.variable}`}>
+      <SideNav />
+      <div className="dash-main">
+        <TopNav />
+        <div className="dash-content">
+          {children}
+        </div>
       </div>
-      <div className="flex-grow p-0 md-overflow-y-auto">{children}</div>
-    </div>
     </div>
   );
 }

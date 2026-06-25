@@ -4,6 +4,9 @@ import {
   Slugs,
   UserPage,
   DBUser,
+  EventTheme,
+  GalleryImage,
+  Rsvp,
 } from './definitions';
 
 
@@ -64,13 +67,14 @@ export async function fetchUserPages(){
 
 export async function fetchUserPage(slug: string){
   try {
-    
-    const data = await sql<UserPage>`
-      SELECT *
-      FROM user_page
-      WHERE slug = ${slug}`;
 
-      
+    const data = await sql<UserPage>`
+      SELECT up.*, et.slug as theme_slug
+      FROM user_page up
+      LEFT JOIN event_themes et ON et.theme_id = up.theme_id
+      WHERE up.slug = ${slug}`;
+
+
 
       if (!data.rows[0]) { return undefined; }
 
@@ -83,15 +87,58 @@ export async function fetchUserPage(slug: string){
   }
 }
 
+export async function fetchEventThemes(): Promise<EventTheme[]> {
+  try {
+    const data = await sql<EventTheme>`SELECT * FROM event_themes ORDER BY name`;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error fetching themes:', error);
+    return [];
+  }
+}
+
+export async function fetchRsvps(user_id: string): Promise<Rsvp[]> {
+  try {
+    const data = await sql<Rsvp>`
+      SELECT er.*
+      FROM event_rsvp er
+      JOIN user_page up ON up.id = er.user_page_id
+      WHERE up.user_id = ${user_id}
+      ORDER BY er.created_at DESC
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch RSVPs:', error);
+    return [];
+  }
+}
+
+export async function fetchGalleryImages(user_id: string): Promise<GalleryImage[]> {
+  try {
+    const data = await sql<GalleryImage>`
+      SELECT eg.*
+      FROM event_gallery eg
+      JOIN user_page up ON up.id = eg.user_page_id
+      WHERE up.user_id = ${user_id}
+      ORDER BY eg.created_at ASC
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch gallery images:', error);
+    return [];
+  }
+}
+
 export async function fetchUserPageById(user_id: string){
   try {
-    
-    const data = await sql<UserPage>`
-      SELECT *
-      FROM user_page
-      WHERE user_id = ${user_id}`;
 
-      if (!data.rows[0]) { return undefined; } 
+    const data = await sql<UserPage>`
+      SELECT up.*, et.slug as theme_slug
+      FROM user_page up
+      LEFT JOIN event_themes et ON et.theme_id = up.theme_id
+      WHERE up.user_id = ${user_id}`;
+
+      if (!data.rows[0]) { return undefined; }
 
       const page = data.rows[0]; // Access the first (and only) row
 
