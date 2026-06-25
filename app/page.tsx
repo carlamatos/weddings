@@ -2,8 +2,12 @@ import { greatVibes } from '@/app/ui/fonts';
 import Link from 'next/link';
 import '@/app/ui/marketing.css';
 import MarketingReveal from '@/app/ui/marketing-reveal';
+import { auth } from '@/auth';
 
-export default function Page() {
+export default async function Page() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className={`marketing-page ${greatVibes.variable}`}>
 
@@ -11,8 +15,14 @@ export default function Page() {
       <div className="topbar">
         <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
         <div className="topbar-actions">
-          <Link href="/login" className="topbar-login">Log in</Link>
-          <Link href="/register" className="topbar-signup">Sign up</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
+          ) : (
+            <>
+              <Link href="/login" className="topbar-login">Log in</Link>
+              <Link href="/register" className="topbar-signup">Sign up</Link>
+            </>
+          )}
         </div>
       </div>
 

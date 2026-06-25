@@ -339,6 +339,7 @@
           <path d="M200 235 Q224 255 250 232" stroke="#BC5A38" stroke-width="3" fill="none" opacity="0.5" />
         </svg>
       </div>
+      <div class="hero-content">
       <p class="hero-eyebrow">Together with their families</p>
       <h1 class="hero-name">Elena &amp; Marcus</h1>
       <div class="hero-rule"></div>
@@ -347,6 +348,7 @@
         <a href="#rsvp" class="btn">RSVP now</a>
         <a href="#story" class="btn btn-outline">Our story</a>
       </div>
+    </div>
     </div>
   </div>
 
@@ -422,6 +424,10 @@
           <input type="email" id="rsvp-email" placeholder="jane@email.com" />
         </div>
         <div>
+          <label class="field-label" for="rsvp-phone">Phone (optional)</label>
+          <input type="tel" id="rsvp-phone" placeholder="+1 (555) 000-0000" />
+        </div>
+        <div>
           <label class="field-label">Will you attend?</label>
           <div class="attend-options">
             <label class="radio-label"><input type="radio" name="attending" value="yes" checked /> Joyfully accepts</label>
@@ -440,6 +446,13 @@
         <div>
           <label class="field-label" for="rsvp-note">Note for the couple (optional)</label>
           <textarea id="rsvp-note" rows="3" placeholder="So excited for you two..." style="resize: vertical;"></textarea>
+        </div>
+        <div>
+          <label class="radio-label" style="gap: 10px;">
+            <input type="checkbox" id="rsvp-updates" style="width: auto; border: none; padding: 0; accent-color: var(--rust);" />
+            I'd like to receive event updates via email
+          </label>
+          <p style="font-size: 12px; color: var(--ink-soft); margin: 4px 0 0;">You can unsubscribe at any time.</p>
         </div>
         <p class="rsvp-error" id="rsvp-error" style="display: none;"></p>
         <button type="submit" class="btn" style="width: 100%;">Send RSVP</button>

@@ -1,14 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
+import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { updateHeading } from '../lib/actions';
 
-interface Props {
-  defaultHeading?: string;
-}
-
-export default function EditableHeading({ defaultHeading = 'Your Event' }: Props) {
+export default function EditableHeading({ defaultHeading = 'Your Event' }: { defaultHeading?: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(defaultHeading);
 
@@ -20,24 +16,30 @@ export default function EditableHeading({ defaultHeading = 'Your Event' }: Props
   };
 
   return (
-    <div className="wedding-heading-section">
-      <div className="section-toolbar">
-        <button onClick={isEditing ? handleSave : () => setIsEditing(true)} className="edit-but">
-          <PencilSquareIcon />
+    <div className="dash-card">
+      <div className="dash-card-header">
+        <p className="dash-card-title">Event Name</p>
+        <button
+          className={`dash-edit-btn${isEditing ? ' dash-edit-btn--save' : ''}`}
+          onClick={isEditing ? handleSave : () => setIsEditing(true)}
+        >
+          {isEditing ? <CheckIcon /> : <PencilSquareIcon />}
           {isEditing ? 'Save' : 'Edit'}
         </button>
       </div>
-      {isEditing ? (
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          className="wedding-heading-input"
-          autoFocus
-        />
-      ) : (
-        <h1 className="wedding-heading">{text}</h1>
-      )}
+      <div className="dash-card-body">
+        {isEditing ? (
+          <input
+            type="text"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            className="dash-heading-input"
+            autoFocus
+          />
+        ) : (
+          <h1 className="dash-heading-display">{text || 'Your Event'}</h1>
+        )}
+      </div>
     </div>
   );
 }

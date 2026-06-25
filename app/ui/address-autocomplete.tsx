@@ -83,8 +83,8 @@ export default function AddressAutocomplete({ onPlaceSelect, defaultValue }: Pro
     <input
       ref={inputRef}
       type="text"
-      className="setup-input"
-      placeholder="Search for an address..."
+      className="auth-input"
+      placeholder="Search for an address…"
       defaultValue={defaultValue}
       autoComplete="off"
     />

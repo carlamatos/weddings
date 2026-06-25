@@ -431,6 +431,10 @@
           <input type="email" id="rsvp-email" placeholder="jane@email.com" />
         </div>
         <div>
+          <label class="field-label" for="rsvp-phone">Phone (optional)</label>
+          <input type="tel" id="rsvp-phone" placeholder="+1 (555) 000-0000" />
+        </div>
+        <div>
           <label class="field-label">Will you attend?</label>
           <div class="attend-options">
             <label class="radio-label"><input type="radio" name="attending" value="yes" checked /> Joyfully accepts</label>
@@ -449,6 +453,13 @@
         <div>
           <label class="field-label" for="rsvp-note">Note for the couple (optional)</label>
           <textarea id="rsvp-note" rows="3" placeholder="So excited for you two..." style="resize: vertical;"></textarea>
+        </div>
+        <div>
+          <label class="radio-label" style="gap: 10px;">
+            <input type="checkbox" id="rsvp-updates" style="width: auto; border: none; border-bottom: none; padding: 0; accent-color: var(--gold);" />
+            I'd like to receive event updates via email
+          </label>
+          <p style="font-size: 12px; color: var(--moss); margin: 4px 0 0;">You can unsubscribe at any time.</p>
         </div>
         <p class="rsvp-error" id="rsvp-error" style="display: none;"></p>
         <button type="submit" class="btn" style="width: 100%;">Send RSVP</button>

@@ -1,5 +1,6 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
+import Script from 'next/script';
 
 export default function RootLayout({
   children,
@@ -8,7 +9,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-       <body className={`${inter.className} antialiased`}>{children}</body>
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-5MD6D8FQ6X"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-5MD6D8FQ6X');
+          `}
+        </Script>
+      </head>
+      <body className={`${inter.className} antialiased`}>{children}</body>
     </html>
   );
 }

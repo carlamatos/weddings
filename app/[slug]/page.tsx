@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
-import { fetchUserPage, fetchUserPages } from '../lib/data';
+import Link from 'next/link';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages } from '../lib/data';
+import { auth } from '@/auth';
+import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
 
 interface EventData {
@@ -12,11 +14,11 @@ interface EventData {
   main_content: string;
   event_date: string;
   event_time?: string;
-  event_theme?: string;
   location: string;
   user_email: string;
   description: string;
   created_at: string;
+  theme_slug?: string;
   url?: string;
   street_address?: string;
   unit_number?: string;
@@ -43,11 +45,11 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     main_content: res.main_content,
     event_date: res.event_date,
     event_time: res.event_time || undefined,
-    event_theme: res.event_theme || undefined,
     location: res.location,
     user_email: res.user_email,
     description: res.description,
     created_at: res.created_at,
+    theme_slug: res.theme_slug || undefined,
     url: res.url || undefined,
     street_address: res.street_address || undefined,
     unit_number: res.unit_number || undefined,
@@ -71,116 +73,51 @@ export async function generateStaticParams() {
 
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
-  const data = await fetchEventData(slug);
+  const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
+  const galleryImages = data ? await fetchGalleryImages(data.user_id) : [];
   if (!data) notFound();
 
+  const isOwner = session?.user?.id === data.user_id;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-  const mapSrc = data.place_id
-    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${data.place_id}`
-    : data.formatted_address
-    ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=${encodeURIComponent(data.formatted_address)}`
-    : null;
-
-  const formattedDate = data.event_date
-    ? new Date(data.event_date + 'T00:00:00').toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-      }).toUpperCase()
-    : '';
-
-  const formattedTime = data.event_time
-    ? new Date(`1970-01-01T${data.event_time}`).toLocaleTimeString('en-US', {
-        hour: 'numeric', minute: '2-digit', hour12: true,
-      })
-    : '';
-
-  const registryImage = data.section_2_image || '/images/themes/wedding/registry.png';
 
   return (
-    <div className="wedding-page">
-
-      {/* Heading */}
-      <div className="wedding-heading-section">
-        <h1 className="wedding-heading">{data.heading}</h1>
-      </div>
-
-      {/* Banner */}
-      <div className="wedding-banner-section">
-        <div className="banner_wrap">
-          <Image
-            src={data.banner_image || '/images/themes/wedding/banner.png'}
-            width={2000}
-            height={760}
-            className="top_img"
-            alt={data.heading}
-          />
-        </div>
-      </div>
-
-      {/* Description */}
-      {data.description && (
-        <div className="wedding-description-section">
-          <p className="wedding-description">{data.description}</p>
-        </div>
+    <>
+      {/* Edit button — visible to page owner only */}
+      {isOwner && (
+        <Link href="/dashboard" className="edit-page-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit page
+        </Link>
       )}
 
-      {/* Registry */}
-      <div className="wedding-registry-section">
-        <div
-          className="registry-image-wrap"
-          style={{ backgroundImage: `url(${registryImage})` }}
-        >
-          <div className="registry-overlay">
-            <h2 className="registry-title">REGISTRY</h2>
-            {data.section_2_description && (
-              <p className="registry-description">{data.section_2_description}</p>
-            )}
-            {data.section_2_button_link && (
-              <a
-                href={data.section_2_button_link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="registry-button"
-              >
-                {data.section_2_button_text || 'View Registry'}
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Venue */}
-      {data.location === 'address' && (
-        <div className="wedding-venue-section">
-          <h2 className="venue-title">VENUE LOCATION</h2>
-          <div className="venue-inner">
-            <div className="venue-address">
-              {data.street_address && <p>{data.street_address}</p>}
-              {data.unit_number && <p>{data.unit_number}</p>}
-              {data.city && <p>{data.city}</p>}
-              {data.postal_code && <p>{data.postal_code}</p>}
-              {data.country && <p>{data.country}</p>}
-            </div>
-            {mapSrc && (
-              <iframe
-                src={mapSrc}
-                width="100%"
-                height="300"
-                style={{ border: 0, borderRadius: '0.5rem' }}
-                loading="lazy"
-                allowFullScreen
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <footer className="wedding-footer">
-        {formattedDate && <p className="footer-date">{formattedDate}</p>}
-        {formattedTime && <p className="footer-time">{formattedTime}</p>}
-      </footer>
-
-    </div>
+      <ThemeRenderer
+        themeSlug={data.theme_slug}
+        heading={data.heading}
+        description={data.description || undefined}
+        eventDate={data.event_date || undefined}
+        eventTime={data.event_time}
+        location={data.location}
+        city={data.city}
+        country={data.country}
+        streetAddress={data.street_address}
+        unitNumber={data.unit_number}
+        postalCode={data.postal_code}
+        formattedAddress={data.formatted_address}
+        placeId={data.place_id}
+        url={data.url}
+        userPageId={String(data.id)}
+        bannerImage={data.banner_image || undefined}
+        userEmail={data.user_email || undefined}
+        mapsKey={mapsKey}
+        registryImage={data.section_2_image}
+        registryDescription={data.section_2_description}
+        registryButtonText={data.section_2_button_text}
+        registryButtonLink={data.section_2_button_link}
+        galleryImages={galleryImages}
+      />
+    </>
   );
 }

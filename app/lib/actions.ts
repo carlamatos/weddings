@@ -38,14 +38,14 @@ import { AuthError } from 'next-auth';
     description: z.string(),
     event_date: z.string(),
     event_time: z.string().min(1, { message: 'Event time is required.' }),
-    event_theme: z.enum(['wedding', 'event'], { invalid_type_error: 'Please select a theme.' }),
+    event_type: z.enum(['wedding', 'event'], { invalid_type_error: 'Please select an event type.' }),
+    theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
     location: z.string(),
     slug: z.string({
       invalid_type_error: 'Please specify a slug (page URL).',
     }),
     email: z.string()
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
-
 
     url: z.string(),
     street_address: z.string(),
@@ -57,8 +57,6 @@ import { AuthError } from 'next-auth';
     formatted_address: z.string().optional(),
 
     create_at: z.date(),
-
-
   });
 
 
@@ -71,7 +69,8 @@ export type UserPageState = {
       description?: string[];
       event_date?: string[];
       event_time?: string[];
-      event_theme?: string[];
+      event_type?: string[];
+      theme_slug?: string[];
       location?: string[];
       slug?: string[];
       email?: string[];
@@ -89,24 +88,30 @@ export type UserPageState = {
   export async function createUserPage(prevState: UserPageState, formData: FormData){
 
     const session = await auth();
-  
-    const formSlug = formData.get('slug');
-    //check if the slug already exists
-    if (typeof formSlug === 'string' && formSlug.trim() !== '') {
-     const userPage = await fetchUserPage(formSlug);
 
-     if (userPage !== undefined){
-      return {
-        errors: { slug: [`The URL '${formSlug}' is already in use, please use another slug`] },
-        message: `The URL '${formSlug}' is already in use, please use another slug`,
-      };
-     }
+    const formSlug = formData.get('slug');
+
+    // Check if slug is already taken — guarded so a DB error doesn't crash the action
+    if (typeof formSlug === 'string' && formSlug.trim() !== '') {
+      try {
+        const userPage = await fetchUserPage(formSlug);
+        if (userPage !== undefined) {
+          return {
+            errors: { slug: [`The URL '${formSlug}' is already in use, please choose another`] },
+            message: `The URL '${formSlug}' is already in use, please choose another`,
+          };
+        }
+      } catch {
+        // If the slug check fails (e.g. DB not yet migrated) just continue
+      }
     }
+
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
       event_time: formData.get('eventTime'),
-      event_theme: formData.get('eventTheme'),
+      event_type: formData.get('eventType'),
+      theme_slug: formData.get('themeSlug'),
       location: formData.get('location'),
       email: formData.get('email'),
       slug: formData.get('slug'),
@@ -119,47 +124,44 @@ export type UserPageState = {
       country: (formData.get('country') as string) ?? '',
       place_id: formData.get('placeId') as string || undefined,
       formatted_address: formData.get('formattedAddress') as string || undefined,
-  });
-  //console.log(formData);
-  
+    });
 
-
-  if (!validatedFields.success) {
+    if (!validatedFields.success) {
       return {
         errors: validatedFields.error.flatten().fieldErrors,
         message: 'Missing Fields. Failed to Create Page.',
       };
     }
-    
-    const { event_name, description, event_date, event_time, event_theme, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+
+    const { event_name, description, event_date, event_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
 
     const user_id = session?.user?.id;
 
-  try {
+    try {
+      // Resolve theme slug → theme_id
+      const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
+      const theme_id = themeRow.rows[0]?.theme_id ?? null;
+
       await sql`
-  INSERT INTO user_page (
-        user_id, heading, main_content, description, event_date, event_time, event_theme,
-        location, user_email, slug, url, street_address, unit_number, postal_code, city, country,
-        place_id, formatted_address
-      ) VALUES (
-        ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_theme},
-        ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-        ${place_id ?? null}, ${formatted_address ?? null}
-      );
-`;
-  } catch (error) {
-    
-    console.error('Database Error:', error); // Log the actual error to the server console
+        INSERT INTO user_page (
+          user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
+          location, user_email, slug, url, street_address, unit_number, postal_code, city, country,
+          place_id, formatted_address
+        ) VALUES (
+          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
+          ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
+          ${place_id ?? null}, ${formatted_address ?? null}
+        )
+      `;
+    } catch (error) {
+      console.error('Database Error:', error);
+      return {
+        message: `Database Error: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
 
-    // Return a user-friendly error message while logging the actual error
-    return {
-      //errors:  { database: ['Database Error: Failed to Create Page.'] }, // Include the error details in the response for debugging
-      message: `Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
-    };
-  }
-
-  revalidatePath(`/${slug}`);
-  redirect(`/${slug}`);
+    revalidatePath(`/${slug}`);
+    redirect(`/${slug}`);
   }
 
 export async function updateLocation(data: {
@@ -241,6 +243,155 @@ export async function updateSection2(data: {
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update section 2:', error);
+  }
+}
+
+export async function updateBannerImage(url: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET banner_image = ${url} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update banner image:', error);
+  }
+}
+
+export async function updateEventDateTime(data: {
+  date?: string;
+  time?: string;
+  city?: string;
+  country?: string;
+}) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`
+      UPDATE user_page SET
+        event_date = COALESCE(${data.date ?? null}, event_date),
+        event_time = COALESCE(${data.time ?? null}, event_time),
+        city       = COALESCE(${data.city ?? null}, city),
+        country    = COALESCE(${data.country ?? null}, country)
+      WHERE user_id = ${userId}
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update event date/time:', error);
+  }
+}
+
+export async function addGalleryImage(data: { imagePath: string; imageName: string; imageType: string }) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    const page = await sql`SELECT id FROM user_page WHERE user_id = ${userId} LIMIT 1`;
+    const pageId = page.rows[0]?.id;
+    if (!pageId) return;
+    const count = await sql`SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId}`;
+    if (Number(count.rows[0].count) >= 8) return;
+    await sql`
+      INSERT INTO event_gallery (user_page_id, image_path, image_name, image_type)
+      VALUES (${pageId}, ${data.imagePath}, ${data.imageName}, ${data.imageType})
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to add gallery image:', error);
+  }
+}
+
+export async function deleteGalleryImage(imageId: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`
+      DELETE FROM event_gallery
+      WHERE id = ${imageId}
+      AND user_page_id = (SELECT id FROM user_page WHERE user_id = ${userId} LIMIT 1)
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to delete gallery image:', error);
+  }
+}
+
+export async function saveDomain(domain: string): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+
+  const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+  if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(clean)) {
+    return { error: 'Invalid domain format.' };
+  }
+
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const token = process.env.VERCEL_API_TOKEN;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!projectId || !token) return { error: 'Vercel API not configured.' };
+
+  const qs = teamId ? `?teamId=${teamId}` : '';
+  const res = await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains${qs}`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: clean }),
+  });
+  if (!res.ok && res.status !== 409) {
+    const body = await res.json().catch(() => ({}));
+    return { error: body?.error?.message || 'Failed to add domain to Vercel.' };
+  }
+
+  try {
+    await sql`
+      UPDATE user_page
+      SET custom_domain = ${clean}, domain_status = 'pending'
+      WHERE user_id = ${userId}
+    `;
+  } catch (error) {
+    return { error: `Database error: ${error instanceof Error ? error.message : String(error)}` };
+  }
+
+  revalidatePath('/dashboard/domain');
+  return {};
+}
+
+export async function removeDomain(): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+
+  const result = await sql`SELECT custom_domain FROM user_page WHERE user_id = ${userId}`;
+  const domain = result.rows[0]?.custom_domain;
+  if (!domain) return {};
+
+  const projectId = process.env.VERCEL_PROJECT_ID;
+  const token = process.env.VERCEL_API_TOKEN;
+  const teamId = process.env.VERCEL_TEAM_ID;
+  if (!projectId || !token) return { error: 'Vercel API not configured.' };
+
+  const qs = teamId ? `?teamId=${teamId}` : '';
+  await fetch(`https://api.vercel.com/v10/projects/${projectId}/domains/${domain}${qs}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  await sql`UPDATE user_page SET custom_domain = NULL, domain_status = 'pending' WHERE user_id = ${userId}`;
+  revalidatePath('/dashboard/domain');
+  return {};
+}
+
+export async function updateTheme(themeId: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET theme_id = ${themeId} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update theme:', error);
   }
 }
 
