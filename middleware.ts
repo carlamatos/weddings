@@ -16,9 +16,7 @@ export default NextAuth(authConfig).auth(function middleware(req: NextRequest) {
     !host.includes(rootDomain);
 
   if (isCustomDomain) {
-    const url = req.nextUrl.clone();
-    url.pathname = `/site/${host}`;
-    return NextResponse.rewrite(url);
+    return NextResponse.rewrite(new URL(`/site/${host}`, req.url));
   }
 
   // Under construction gate (main domain only, skip construction page itself)
@@ -26,9 +24,7 @@ export default NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   if (constructionPassword && pathname !== '/construction') {
     const bypass = req.cookies.get('site_bypass')?.value;
     if (bypass !== constructionPassword) {
-      const url = req.nextUrl.clone();
-      url.pathname = '/construction';
-      return NextResponse.rewrite(url);
+      return NextResponse.rewrite(new URL('/construction', req.url));
     }
   }
 });
