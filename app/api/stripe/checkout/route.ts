@@ -3,7 +3,7 @@ import { auth } from '@/auth';
 import { stripe } from '@/app/lib/stripe';
 import { fetchUserPageById } from '@/app/lib/data';
 
-export async function POST() {
+export async function POST(req: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +17,8 @@ export async function POST() {
     return NextResponse.json({ error: 'Already on paid plan' }, { status: 400 });
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+  const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+  const baseUrl = origin;
 
   const checkoutSession = await stripe.checkout.sessions.create({
     mode: 'subscription',
