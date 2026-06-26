@@ -190,7 +190,7 @@ export default async function Page() {
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
               <p className="price-tier">Plus</p>
-              <p className="price-amount">$15<span className="per"> / month</span></p>
+              <p className="price-amount">$29.99<span className="per"> / month</span></p>
               <p className="price-desc">For couples who want it all, exactly their way.</p>
               <ul className="price-features">
                 <li>Everything in Free</li>

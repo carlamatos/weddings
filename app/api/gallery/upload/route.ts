@@ -23,7 +23,7 @@ export async function POST(request: Request) {
 
     const buffer = await optimizeImage(rawBuffer);
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
       const { put } = await import('@vercel/blob');
       const blob = await put(`gallery/${session.user.id}-${Date.now()}.webp`, buffer, {
         access: 'public',
