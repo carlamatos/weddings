@@ -32,6 +32,7 @@ export default async function DomainPage({
 
       <DomainForm
         initialDomain={userPage?.custom_domain ?? null}
+        initialStatus={userPage?.domain_status ?? 'pending'}
         isPaid={isPaid}
         hasCustomer={!!userPage?.stripe_customer_id}
       />

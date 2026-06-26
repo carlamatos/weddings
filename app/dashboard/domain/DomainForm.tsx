@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { saveDomain, removeDomain } from '@/app/lib/actions';
+
+const VERCEL_IP = '216.150.1.1';
+const VERCEL_CNAME = '842c52a8e96459ec.vercel-dns-017.com';
 
 function DnsRecord({ label, type, name, value }: { label: string; type: string; name: string; value: string }) {
   return (
@@ -32,18 +35,18 @@ function DnsInstructions({ domain }: { domain: string }) {
       <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Option A — Apex domain (example.com)
       </p>
-      <DnsRecord label="Points the root domain to your event page" type="A" name="@" value="76.76.21.21" />
+      <DnsRecord label="Points the root domain to your event page" type="A" name="@" value={VERCEL_IP} />
 
       <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Option B — www subdomain (www.example.com)
       </p>
-      <DnsRecord label="Points www to your event page" type="CNAME" name="www" value="cname.vercel-dns.com" />
+      <DnsRecord label="Points www to your event page" type="CNAME" name="www" value={VERCEL_CNAME} />
 
       <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Recommended — Both apex + www
       </p>
-      <DnsRecord label="Root domain" type="A" name="@" value="76.76.21.21" />
-      <DnsRecord label="www subdomain" type="CNAME" name="www" value="cname.vercel-dns.com" />
+      <DnsRecord label="Root domain" type="A" name="@" value={VERCEL_IP} />
+      <DnsRecord label="www subdomain" type="CNAME" name="www" value={VERCEL_CNAME} />
 
       <p style={{ fontSize: 12, color: '#9A8F8C', margin: '4px 0 0' }}>
         DNS changes can take up to 48 hours to propagate. SSL is provisioned automatically once the domain is verified.
@@ -72,19 +75,41 @@ async function redirectToStripe(endpoint: string, setError: (e: string) => void,
 
 export default function DomainForm({
   initialDomain,
+  initialStatus,
   isPaid,
   hasCustomer,
 }: {
   initialDomain: string | null;
+  initialStatus: string;
   isPaid: boolean;
   hasCustomer: boolean;
 }) {
   const [domain, setDomain] = useState<string | null>(initialDomain);
+  const [status, setStatus] = useState(initialStatus);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
+  const [checking, setChecking] = useState(false);
   const [stripeLoading, setStripeLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isRemoving, startRemoveTransition] = useTransition();
+
+  const checkStatus = useCallback(async () => {
+    setChecking(true);
+    try {
+      const res = await fetch('/api/domain/check', { method: 'POST' });
+      const data = await res.json();
+      if (data.status) setStatus(data.status);
+    } finally {
+      setChecking(false);
+    }
+  }, []);
+
+  // Auto-check once on mount if domain is set and still pending
+  useEffect(() => {
+    if (domain && status === 'pending') {
+      checkStatus();
+    }
+  }, [domain, status, checkStatus]);
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -96,6 +121,7 @@ export default function DomainForm({
       } else {
         const clean = input.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
         setDomain(clean);
+        setStatus('pending');
         setInput('');
       }
     });
@@ -104,11 +130,26 @@ export default function DomainForm({
   function handleRemove() {
     startRemoveTransition(async () => {
       const result = await removeDomain();
-      if (!result.error) setDomain(null);
+      if (!result.error) {
+        setDomain(null);
+        setStatus('pending');
+      }
     });
   }
 
-  // Free plan — greyed-out form + DNS instructions + Upgrade button
+  const isActive = status === 'active';
+
+  const StatusBadge = () => isActive ? (
+    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#EAF2EC', color: '#3D6B46' }}>
+      Active ✓
+    </span>
+  ) : (
+    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#FFF8E7', color: '#8A6800' }}>
+      Pending DNS
+    </span>
+  );
+
+  // Free plan
   if (!isPaid) {
     return (
       <>
@@ -159,10 +200,20 @@ export default function DomainForm({
             <p style={{ fontSize: 11, color: '#9A8F8C', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Your Domain</p>
             <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>{domain}</p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#FFF8E7', color: '#8A6800' }}>
-              Pending DNS
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <StatusBadge />
+            <button
+              onClick={checkStatus}
+              disabled={checking}
+              title="Re-check domain status"
+              style={{
+                padding: '5px 12px', borderRadius: 8, border: '1px solid #D8D3CE',
+                background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 500,
+                cursor: checking ? 'not-allowed' : 'pointer', opacity: checking ? 0.6 : 1,
+              }}
+            >
+              {checking ? 'Checking…' : '↻ Refresh'}
+            </button>
             <button
               onClick={handleRemove}
               disabled={isRemoving}
@@ -172,7 +223,15 @@ export default function DomainForm({
             </button>
           </div>
         </div>
+
+        {isActive && (
+          <div style={{ marginTop: 12, padding: '12px 16px', background: '#EAF2EC', border: '1px solid #B2D4B8', borderRadius: 10, fontSize: 13, color: '#3D6B46' }}>
+            Your domain is live! Guests can visit <strong>{domain}</strong> to see your event page.
+          </div>
+        )}
+
         <DnsInstructions domain={domain} />
+
         {hasCustomer && (
           <>
             {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '16px 0 0' }}>{error}</p>}
