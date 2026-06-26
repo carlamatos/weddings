@@ -9,6 +9,16 @@ import {
   Rsvp,
 } from './definitions';
 
+function normalizePage(page: UserPage): UserPage {
+  const d = page.event_date as unknown;
+  if (d instanceof Date) {
+    page.event_date = d.toISOString().split('T')[0];
+  } else if (typeof d === 'string' && d.includes('T')) {
+    page.event_date = d.split('T')[0];
+  }
+  return page;
+}
+
 
 export async function fetchUser(email: string){
   try {
@@ -77,10 +87,7 @@ export async function fetchUserPage(slug: string){
 
 
       if (!data.rows[0]) { return undefined; }
-
-      const page = data.rows[0]; // Access the first (and only) row
-
-      return page;
+      return normalizePage(data.rows[0]);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch single user page.');
@@ -136,7 +143,7 @@ export async function fetchUserPageByDomain(domain: string): Promise<UserPage | 
       FROM user_page up
       LEFT JOIN event_themes et ON et.theme_id = up.theme_id
       WHERE up.custom_domain = ${domain}`;
-    return data.rows[0];
+    return data.rows[0] ? normalizePage(data.rows[0]) : undefined;
   } catch (error) {
     console.error('Database Error:', error);
     return undefined;
@@ -153,10 +160,7 @@ export async function fetchUserPageById(user_id: string){
       WHERE up.user_id = ${user_id}`;
 
       if (!data.rows[0]) { return undefined; }
-
-      const page = data.rows[0]; // Access the first (and only) row
-
-      return page;
+      return normalizePage(data.rows[0]);
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch single user page.');

@@ -1,7 +1,9 @@
-import { UserCircleIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
 import { fetchUserPageById, fetchEventThemes } from '@/app/lib/data';
 import ThemeSwitcher from './theme-switcher';
+import UpgradeButton from './upgrade-button';
+import UserMenu from './user-menu';
 
 export default async function TopNav() {
   const session = await auth();
@@ -11,8 +13,11 @@ export default async function TopNav() {
     fetchEventThemes(),
   ]);
 
+  const isPaid = userPage?.plan_type === 'paid';
+
   return (
     <header className="dash-topnav">
+      {userPage && !isPaid && <UpgradeButton />}
       {userPage && themes.length > 0 && (
         <ThemeSwitcher
           currentThemeId={userPage.theme_id ?? null}
@@ -32,10 +37,7 @@ export default async function TopNav() {
         </a>
       )}
 
-      <div className="dash-user">
-        <UserCircleIcon />
-        <span>{session?.user?.name || 'Guest'}</span>
-      </div>
+      <UserMenu name={session?.user?.name || 'Guest'} isPaid={isPaid} />
     </header>
   );
 }
