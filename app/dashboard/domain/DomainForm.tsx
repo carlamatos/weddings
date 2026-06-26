@@ -29,33 +29,60 @@ function DnsInstructions({ domain }: { domain: string }) {
           : 'Before adding your domain, configure these DNS records at your registrar (Namecheap, GoDaddy, Cloudflare, etc.):'}
       </p>
 
-      <p style={{ fontSize: 12, fontWeight: 600, color: '#241F2B', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '0 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Option A — Apex domain (example.com)
       </p>
       <DnsRecord label="Points the root domain to your event page" type="A" name="@" value="76.76.21.21" />
 
-      <p style={{ fontSize: 12, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
         Option B — www subdomain (www.example.com)
       </p>
       <DnsRecord label="Points www to your event page" type="CNAME" name="www" value="cname.vercel-dns.com" />
 
-      <p style={{ fontSize: 12, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
-        Recommended — Both (apex + www)
+      <p style={{ fontSize: 11, fontWeight: 600, color: '#241F2B', margin: '16px 0 8px', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+        Recommended — Both apex + www
       </p>
       <DnsRecord label="Root domain" type="A" name="@" value="76.76.21.21" />
       <DnsRecord label="www subdomain" type="CNAME" name="www" value="cname.vercel-dns.com" />
 
-      <p style={{ fontSize: 12, color: '#9A8F8C', margin: '12px 0 0' }}>
+      <p style={{ fontSize: 12, color: '#9A8F8C', margin: '4px 0 0' }}>
         DNS changes can take up to 48 hours to propagate. SSL is provisioned automatically once the domain is verified.
       </p>
     </div>
   );
 }
 
-export default function DomainForm({ initialDomain, isPaid }: { initialDomain: string | null; isPaid: boolean }) {
+async function redirectToStripe(endpoint: string, setError: (e: string) => void, setLoading: (l: boolean) => void) {
+  setLoading(true);
+  setError('');
+  try {
+    const res = await fetch(endpoint, { method: 'POST' });
+    const data = await res.json();
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      setError(data.error || 'Something went wrong. Please try again.');
+      setLoading(false);
+    }
+  } catch {
+    setError('Network error. Please try again.');
+    setLoading(false);
+  }
+}
+
+export default function DomainForm({
+  initialDomain,
+  isPaid,
+  hasCustomer,
+}: {
+  initialDomain: string | null;
+  isPaid: boolean;
+  hasCustomer: boolean;
+}) {
   const [domain, setDomain] = useState<string | null>(initialDomain);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
+  const [stripeLoading, setStripeLoading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isRemoving, startRemoveTransition] = useTransition();
 
@@ -81,6 +108,7 @@ export default function DomainForm({ initialDomain, isPaid }: { initialDomain: s
     });
   }
 
+  // Free plan — greyed-out form + DNS instructions + Upgrade button
   if (!isPaid) {
     return (
       <>
@@ -93,24 +121,32 @@ export default function DomainForm({ initialDomain, isPaid }: { initialDomain: s
               type="text"
               placeholder="yourdomain.com or www.yourdomain.com"
               disabled
-              style={{
-                flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE',
-                fontSize: 14, color: '#241F2B', fontFamily: 'system-ui', background: '#F5F3F0',
-              }}
+              style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE', fontSize: 14, color: '#241F2B', fontFamily: 'system-ui', background: '#F5F3F0' }}
             />
-            <button
-              disabled
-              style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#241F2B', color: '#fff', fontSize: 14, fontWeight: 500 }}
-            >
+            <button disabled style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#241F2B', color: '#fff', fontSize: 14, fontWeight: 500 }}>
               Add Domain
             </button>
           </div>
         </div>
         <DnsInstructions domain="" />
+        {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '12px 0 0' }}>{error}</p>}
+        <button
+          onClick={() => redirectToStripe('/api/stripe/checkout', setError, setStripeLoading)}
+          disabled={stripeLoading}
+          style={{
+            marginTop: 20, padding: '11px 28px', borderRadius: 8, border: 'none',
+            background: '#B6584A', color: '#fff', fontSize: 14, fontWeight: 600,
+            cursor: stripeLoading ? 'not-allowed' : 'pointer',
+            opacity: stripeLoading ? 0.7 : 1,
+          }}
+        >
+          {stripeLoading ? 'Redirecting…' : 'Upgrade to add your domain'}
+        </button>
       </>
     );
   }
 
+  // Paid plan — domain already added
   if (domain) {
     return (
       <>
@@ -137,10 +173,27 @@ export default function DomainForm({ initialDomain, isPaid }: { initialDomain: s
           </div>
         </div>
         <DnsInstructions domain={domain} />
+        {hasCustomer && (
+          <>
+            {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '16px 0 0' }}>{error}</p>}
+            <button
+              onClick={() => redirectToStripe('/api/stripe/portal', setError, setStripeLoading)}
+              disabled={stripeLoading}
+              style={{
+                marginTop: 20, padding: '9px 20px', borderRadius: 8,
+                border: '1px solid #D8D3CE', background: '#fff', color: '#241F2B',
+                fontSize: 13, fontWeight: 500, cursor: stripeLoading ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {stripeLoading ? 'Redirecting…' : 'Manage Subscription'}
+            </button>
+          </>
+        )}
       </>
     );
   }
 
+  // Paid plan — no domain yet
   return (
     <>
       <form onSubmit={handleAdd}>
@@ -154,10 +207,7 @@ export default function DomainForm({ initialDomain, isPaid }: { initialDomain: s
             value={input}
             onChange={(e) => setInput(e.target.value)}
             required
-            style={{
-              flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE',
-              fontSize: 14, color: '#241F2B', outline: 'none', fontFamily: 'system-ui',
-            }}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE', fontSize: 14, color: '#241F2B', outline: 'none', fontFamily: 'system-ui' }}
           />
           <button
             type="submit"
@@ -178,6 +228,22 @@ export default function DomainForm({ initialDomain, isPaid }: { initialDomain: s
         </p>
       </form>
       <DnsInstructions domain="" />
+      {hasCustomer && (
+        <>
+          {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '16px 0 0' }}>{error}</p>}
+          <button
+            onClick={() => redirectToStripe('/api/stripe/portal', setError, setStripeLoading)}
+            disabled={stripeLoading}
+            style={{
+              marginTop: 20, padding: '9px 20px', borderRadius: 8,
+              border: '1px solid #D8D3CE', background: '#fff', color: '#241F2B',
+              fontSize: 13, fontWeight: 500, cursor: stripeLoading ? 'not-allowed' : 'pointer',
+            }}
+          >
+            {stripeLoading ? 'Redirecting…' : 'Manage Subscription'}
+          </button>
+        </>
+      )}
     </>
   );
 }

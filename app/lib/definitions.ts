@@ -36,6 +36,7 @@ export type UserPage = {
   custom_domain?: string;
   domain_status?: string;
   plan_type?: string;
+  stripe_customer_id?: string;
 };
 
 export type DBUser = {
