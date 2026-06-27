@@ -244,6 +244,11 @@ export default async function Page() {
       {/* FOOTER */}
       <div className="footer">
         <p className="footer-wordmark">My<span className="accent">Gala</span></p>
+        <p style={{ marginTop: 8, fontSize: 13 }}>
+          <Link href="/about" style={{ color: 'inherit', marginRight: 20 }}>About</Link>
+          <Link href="/privacy" style={{ color: 'inherit', marginRight: 20 }}>Privacy Policy</Link>
+          <Link href="/terms" style={{ color: 'inherit' }}>Terms of Service</Link>
+        </p>
         <p style={{ marginTop: '6px' }}>mygala.ca</p>
       </div>
 
