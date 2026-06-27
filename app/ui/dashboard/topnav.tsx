@@ -27,7 +27,11 @@ export default async function TopNav() {
 
       {userPage && (
         <a
-          href={`/${userPage.slug}`}
+          href={
+            isPaid && userPage.custom_domain
+              ? `https://${userPage.custom_domain}`
+              : `/${userPage.slug}`
+          }
           target="_blank"
           rel="noopener noreferrer"
           className="dash-preview-link"
