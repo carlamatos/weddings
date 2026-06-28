@@ -6,8 +6,7 @@ import {
   DBUser,
   EventTheme,
   GalleryImage,
-  Rsvp,
-  Invitee,
+  Guest,
 } from './definitions';
 
 function normalizePage(page: UserPage): UserPage {
@@ -105,33 +104,18 @@ export async function fetchEventThemes(): Promise<EventTheme[]> {
   }
 }
 
-export async function fetchRsvps(user_id: string): Promise<Rsvp[]> {
+export async function fetchGuests(user_id: string): Promise<Guest[]> {
   try {
-    const data = await sql<Rsvp>`
-      SELECT er.*
-      FROM event_rsvp er
-      JOIN user_page up ON up.id = er.user_page_id
+    const data = await sql<Guest>`
+      SELECT eg.*
+      FROM event_guests eg
+      JOIN user_page up ON up.id = eg.user_page_id
       WHERE up.user_id = ${user_id}
-      ORDER BY er.created_at DESC
+      ORDER BY eg.created_at DESC
     `;
     return data.rows;
   } catch (error) {
-    console.error('Failed to fetch RSVPs:', error);
-    return [];
-  }
-}
-
-export async function fetchInvitees(user_id: string): Promise<Invitee[]> {
-  try {
-    const data = await sql<Invitee>`
-      SELECT ei.*
-      FROM event_invitees ei
-      JOIN user_page up ON up.id = ei.user_page_id
-      WHERE up.user_id = ${user_id}
-      ORDER BY ei.created_at DESC
-    `;
-    return data.rows;
-  } catch {
+    console.error('Failed to fetch guests:', error);
     return [];
   }
 }

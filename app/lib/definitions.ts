@@ -61,26 +61,18 @@ export type GalleryImage = {
   created_at: string;
 };
 
-export type Rsvp = {
-  id: string;
-  user_page_id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  guests: number;
-  status: 'attending' | 'not_attending';
-  receive_updates: boolean;
-  message: string | null;
-  created_at: string;
-};
-
-export type Invitee = {
+export type Guest = {
   id: string;
   user_page_id: number;
   name: string;
   email: string | null;
   phone: string | null;
+  status: 'invited' | 'attending' | 'not_attending';
+  guests: number;
+  receive_updates: boolean;
+  message: string | null;
   created_at: string;
+  responded_at: string | null;
 };
 
 export type Revenue = {

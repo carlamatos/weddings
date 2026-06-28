@@ -8,17 +8,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  await sql`
-    CREATE TABLE IF NOT EXISTS event_invitees (
-      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-      user_page_id INTEGER NOT NULL,
-      name TEXT NOT NULL,
-      email TEXT,
-      phone TEXT,
-      created_at TIMESTAMP DEFAULT NOW()
-    )
-  `;
-
   const page = await sql`SELECT id FROM user_page WHERE user_id = ${session.user.id} LIMIT 1`;
   if (!page.rows[0]) {
     return NextResponse.json({ error: 'Page not found' }, { status: 404 });
@@ -36,14 +25,19 @@ export async function POST(request: Request) {
   let imported = 0;
   for (const contact of contacts) {
     if (!contact.name?.trim()) continue;
+    const email = contact.email?.trim() || null;
+
+    // Skip if this email is already in the guest list
+    if (email) {
+      const existing = await sql`
+        SELECT id FROM event_guests WHERE user_page_id = ${userPageId} AND email = ${email} LIMIT 1
+      `;
+      if (existing.rows[0]) continue;
+    }
+
     await sql`
-      INSERT INTO event_invitees (user_page_id, name, email, phone)
-      VALUES (
-        ${userPageId},
-        ${contact.name.trim()},
-        ${contact.email?.trim() || null},
-        ${contact.phone?.trim() || null}
-      )
+      INSERT INTO event_guests (user_page_id, name, email, phone, status)
+      VALUES (${userPageId}, ${contact.name.trim()}, ${email}, ${contact.phone?.trim() || null}, 'invited')
     `;
     imported++;
   }

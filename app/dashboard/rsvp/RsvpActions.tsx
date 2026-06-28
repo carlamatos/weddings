@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { Rsvp } from '@/app/lib/definitions';
+import type { Guest } from '@/app/lib/definitions';
 
 type Contact = { name: string; email?: string; phone?: string };
 
@@ -25,21 +25,21 @@ const btn: React.CSSProperties = {
   background: '#fff', color: '#241F2B', whiteSpace: 'nowrap',
 };
 
-export function RsvpActions({ rsvps }: { rsvps: Rsvp[] }) {
+export function RsvpActions({ guests }: { guests: Guest[] }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
 
   function downloadCSV() {
     const headers = ['Name', 'Email', 'Phone', 'Status', 'Guests', 'Updates', 'Note', 'Date'];
-    const rows = rsvps.map((r) => [
-      r.name,
-      r.email,
-      r.phone ?? '',
-      r.status === 'attending' ? 'Attending' : 'Declining',
-      r.status === 'attending' ? String(r.guests) : '',
-      r.receive_updates ? 'Yes' : 'No',
-      r.message ?? '',
-      new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    const rows = guests.map((g) => [
+      g.name,
+      g.email ?? '',
+      g.phone ?? '',
+      g.status === 'attending' ? 'Attending' : g.status === 'not_attending' ? 'Declining' : 'Invited',
+      g.status === 'attending' ? String(g.guests) : '',
+      g.receive_updates ? 'Yes' : 'No',
+      g.message ?? '',
+      new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     ]);
 
     const csv = [headers, ...rows]
@@ -48,7 +48,7 @@ export function RsvpActions({ rsvps }: { rsvps: Rsvp[] }) {
 
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-    a.download = 'rsvps.csv';
+    a.download = 'guests.csv';
     a.click();
   }
 
@@ -73,7 +73,6 @@ export function RsvpActions({ rsvps }: { rsvps: Rsvp[] }) {
   }
 
   async function importContacts() {
-    // Web Contact Picker API — available on Android Chrome and iOS Safari 14.5+
     if ('contacts' in navigator && 'ContactsManager' in window) {
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -107,7 +106,7 @@ export function RsvpActions({ rsvps }: { rsvps: Rsvp[] }) {
 
   return (
     <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
-      <button onClick={downloadCSV} style={btn} title="Download all RSVPs as CSV">
+      <button onClick={downloadCSV} style={btn} title="Download all guests as CSV">
         ↓ Export CSV
       </button>
       <button onClick={importContacts} disabled={importing} style={{ ...btn, background: importing ? '#F5F3F1' : '#fff' }}>

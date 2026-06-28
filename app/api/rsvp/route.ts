@@ -21,19 +21,43 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
 
-    await sql`
-      INSERT INTO event_rsvp (user_page_id, name, email, phone, status, guests, message, receive_updates)
-      VALUES (
-        ${Number(userPageId)},
-        ${name.trim()},
-        ${email.trim()},
-        ${phone?.trim() || null},
-        ${status},
-        ${status === 'attending' ? (Number(guests) || 1) : 1},
-        ${message?.trim() || null},
-        ${!!receiveUpdates}
-      )
+    const guestCount = status === 'attending' ? (Number(guests) || 1) : 1;
+
+    // If the guest was already invited, update their record; otherwise insert fresh
+    const existing = await sql`
+      SELECT id FROM event_guests
+      WHERE user_page_id = ${Number(userPageId)} AND email = ${email.trim()}
+      LIMIT 1
     `;
+
+    if (existing.rows[0]) {
+      await sql`
+        UPDATE event_guests SET
+          name = ${name.trim()},
+          phone = ${phone?.trim() || null},
+          status = ${status},
+          guests = ${guestCount},
+          message = ${message?.trim() || null},
+          receive_updates = ${!!receiveUpdates},
+          responded_at = NOW()
+        WHERE id = ${existing.rows[0].id}
+      `;
+    } else {
+      await sql`
+        INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, message, receive_updates, responded_at)
+        VALUES (
+          ${Number(userPageId)},
+          ${name.trim()},
+          ${email.trim()},
+          ${phone?.trim() || null},
+          ${status},
+          ${guestCount},
+          ${message?.trim() || null},
+          ${!!receiveUpdates},
+          NOW()
+        )
+      `;
+    }
 
     return NextResponse.json({ success: true });
   } catch (err) {
