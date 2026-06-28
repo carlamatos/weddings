@@ -7,6 +7,7 @@ import {
   EventTheme,
   GalleryImage,
   Rsvp,
+  Invitee,
 } from './definitions';
 
 function normalizePage(page: UserPage): UserPage {
@@ -116,6 +117,21 @@ export async function fetchRsvps(user_id: string): Promise<Rsvp[]> {
     return data.rows;
   } catch (error) {
     console.error('Failed to fetch RSVPs:', error);
+    return [];
+  }
+}
+
+export async function fetchInvitees(user_id: string): Promise<Invitee[]> {
+  try {
+    const data = await sql<Invitee>`
+      SELECT ei.*
+      FROM event_invitees ei
+      JOIN user_page up ON up.id = ei.user_page_id
+      WHERE up.user_id = ${user_id}
+      ORDER BY ei.created_at DESC
+    `;
+    return data.rows;
+  } catch {
     return [];
   }
 }

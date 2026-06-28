@@ -74,6 +74,15 @@ export type Rsvp = {
   created_at: string;
 };
 
+export type Invitee = {
+  id: string;
+  user_page_id: number;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+};
+
 export type Revenue = {
   month: string;
   revenue: number;

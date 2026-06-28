@@ -1,10 +1,12 @@
 import { auth } from '@/auth';
-import { fetchRsvps } from '@/app/lib/data';
+import { fetchRsvps, fetchInvitees } from '@/app/lib/data';
+import { RsvpActions } from './RsvpActions';
 
 export default async function RsvpPage() {
   const session = await auth();
   const userId = session?.user?.id;
   const rsvps = userId ? await fetchRsvps(userId) : [];
+  const invitees = userId ? await fetchInvitees(userId) : [];
 
   const attending = rsvps.filter((r) => r.status === 'attending');
   const declining = rsvps.filter((r) => r.status === 'not_attending');
@@ -19,7 +21,10 @@ export default async function RsvpPage() {
         <StatCard label="Attending" value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />
         <StatCard label="Declining" value={declining.length} accent="#9A8F8C" />
         <StatCard label="Total responses" value={rsvps.length} accent="#3F4A45" />
+        <StatCard label="Invited" value={invitees.length} accent="#7B6FA0" />
       </div>
+
+      <RsvpActions rsvps={rsvps} />
 
       {rsvps.length === 0 ? (
         <div style={{ padding: '48px 0', textAlign: 'center', color: '#9A8F8C', fontFamily: 'system-ui', fontSize: 15 }}>
@@ -68,6 +73,38 @@ export default async function RsvpPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Invitees section */}
+      {invitees.length > 0 && (
+        <div style={{ marginTop: 40 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 16px', fontFamily: 'system-ui' }}>
+            Invited Guests <span style={{ fontSize: 13, fontWeight: 400, color: '#9A8F8C' }}>({invitees.length})</span>
+          </h2>
+          <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #EDE8E3', background: '#fff' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'system-ui', fontSize: 14 }}>
+              <thead>
+                <tr style={{ background: '#FAF9F7', borderBottom: '1px solid #EDE8E3' }}>
+                  {['Name', 'Email', 'Phone', 'Added'].map((h) => (
+                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, fontSize: 12, letterSpacing: 0.5, color: '#6B6470', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {invitees.map((inv, i) => (
+                  <tr key={inv.id} style={{ borderBottom: i < invitees.length - 1 ? '1px solid #F0ECE8' : 'none' }}>
+                    <td style={{ padding: '14px 16px', fontWeight: 500, color: '#241F2B' }}>{inv.name}</td>
+                    <td style={{ padding: '14px 16px', color: '#6B6470' }}>{inv.email || '—'}</td>
+                    <td style={{ padding: '14px 16px', color: '#6B6470' }}>{inv.phone || '—'}</td>
+                    <td style={{ padding: '14px 16px', color: '#9A8F8C', whiteSpace: 'nowrap', fontSize: 13 }}>
+                      {new Date(inv.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>
