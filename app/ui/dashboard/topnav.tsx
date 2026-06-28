@@ -4,6 +4,7 @@ import { fetchUserPageById, fetchEventThemes } from '@/app/lib/data';
 import ThemeSwitcher from './theme-switcher';
 import UpgradeButton from './upgrade-button';
 import UserMenu from './user-menu';
+import MobileMenu from './MobileMenu';
 
 export default async function TopNav() {
   const session = await auth();
@@ -17,6 +18,8 @@ export default async function TopNav() {
 
   return (
     <header className="dash-topnav">
+      <MobileMenu hasPage={!!userPage} themes={themes} currentThemeId={userPage?.theme_id ?? null} />
+
       {userPage && !isPaid && <UpgradeButton />}
       {userPage && themes.length > 0 && (
         <ThemeSwitcher
@@ -37,7 +40,7 @@ export default async function TopNav() {
           className="dash-preview-link"
         >
           <ArrowTopRightOnSquareIcon />
-          Preview page
+          Preview<span className="dash-preview-full-text"> page</span>
         </a>
       )}
 

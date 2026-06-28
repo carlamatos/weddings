@@ -520,8 +520,100 @@
   font-weight: 600;
 }
 
+/* ---------- mobile burger button ---------- */
+.mobile-burger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  margin-right: auto;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--ink);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.mobile-burger svg { width: 22px; height: 22px; }
+.mobile-burger:hover { background: var(--paper); }
+
+/* ---------- mobile drawer ---------- */
+.mobile-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+}
+
+.mobile-menu-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 260px;
+  background: #fff;
+  border-right: 1px solid var(--line);
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  animation: slideInDrawer 0.22s ease;
+}
+
+@keyframes slideInDrawer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+.mobile-menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 12px 16px 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-menu-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--ink-soft);
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.mobile-menu-close svg { width: 20px; height: 20px; }
+.mobile-menu-close:hover { background: var(--paper); }
+
+.mobile-menu-theme {
+  padding: 12px 16px;
+  border-top: 1px solid var(--line);
+}
+.mobile-menu-theme-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 8px;
+  font-family: var(--font-sans);
+}
+/* Make the theme switcher fill the drawer width */
+.mobile-menu-theme .dash-theme-switcher { display: block; width: 100%; }
+.mobile-menu-theme .dash-theme-btn { width: 100%; justify-content: space-between; }
+.mobile-menu-theme .dash-theme-dropdown { width: 100%; }
+
+/* ---------- responsive rules ---------- */
 @media (max-width: 768px) {
   .dash-sidebar { display: none; }
+  .mobile-burger { display: flex; }
+  .dash-theme-switcher { display: none; }
+  .dash-preview-full-text { display: none; }
   .dash-content { padding: 20px 16px; }
   .dash-2col { grid-template-columns: 1fr; }
 }
