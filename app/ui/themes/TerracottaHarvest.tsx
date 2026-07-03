@@ -62,7 +62,7 @@ const css = `
   .tc .band-linen { background: var(--linen); }
   .tc .section-label { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--rust); font-weight: 600; margin: 0 0 10px; text-align: center; }
   .tc .section-title { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); font-weight: 500; color: var(--ink); margin: 0 0 28px; text-align: center; letter-spacing: 0.3px; }
-  .tc .btn { font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; padding: 12px 28px; border-radius: 999px; border: 1.5px solid var(--rust); background: var(--rust); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; }
+  .tc .btn { font-family: var(--font-sans); font-size: 14px; font-weight: 600; letter-spacing: 0.5px; padding: 12px 28px; border-radius: 999px; border: 1.5px solid var(--rust); background: var(--rust); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
   .tc .btn:hover { background: #A24A2D; transform: translateY(-1px); }
   .tc .btn-outline { background: transparent; color: var(--rust); }
   .tc .btn-outline:hover { background: rgba(239, 203, 163, 0.3); }
