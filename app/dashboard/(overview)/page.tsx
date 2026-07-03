@@ -47,6 +47,13 @@ export default async function Page() {
       ? 'Save the date'
       : 'Together with their families';
 
+  const themeEyebrowClass =
+    userPage.theme_slug === 'midnight-botanical'
+      ? 'eyebrow on-dark hero-eyebrow'
+      : userPage.theme_slug === 'quiet-coastal'
+      ? 'eyebrow hero-eyebrow'
+      : 'hero-eyebrow';
+
   const editSlots = {
     heroBg: (
       <EditableBannerBg
@@ -56,6 +63,7 @@ export default async function Page() {
     heroEyebrow: (
       <EditableHeroEyebrow
         value={userPage.hero_eyebrow || themeEyebrowDefault}
+        className={themeEyebrowClass}
       />
     ),
     heroName: (
