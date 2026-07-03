@@ -11,6 +11,7 @@ const WEDDING_THEMES = [
   { slug: 'quiet-coastal',      label: 'Quiet Coastal',      src: '/images/themes/quiet-coastal/coastal.png' },
   { slug: 'midnight-botanical', label: 'Midnight Botanical',  src: '/images/themes/midnight-botanical/woods.png' },
   { slug: 'terracotta-harvest', label: 'Terracotta Harvest',  src: '/images/themes/wedding.png' },
+  { slug: 'vilma',              label: 'Vilma',               src: '/images/themes/vilma/preview.png' },
 ];
 
 const EVENT_THEMES = [

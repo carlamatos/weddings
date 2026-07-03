@@ -4,6 +4,7 @@ import type { ThemeProps, ThemePreviewProps } from './types';
 import QuietCoastal, { HeroPreview as QCPreview } from './QuietCoastal';
 import MidnightBotanical, { HeroPreview as MBPreview } from './MidnightBotanical';
 import TerracottaHarvest, { HeroPreview as TCPreview } from './TerracottaHarvest';
+import Vilma, { HeroPreview as VLPreview } from './Vilma';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -19,9 +20,10 @@ export interface ThemeEntry {
 }
 
 export const themeRegistry: Record<string, ThemeEntry> = {
-  'quiet-coastal':    { Page: QuietCoastal,    Preview: QCPreview },
-  'midnight-botanical': { Page: MidnightBotanical, Preview: MBPreview },
+  'quiet-coastal':      { Page: QuietCoastal,      Preview: QCPreview },
+  'midnight-botanical': { Page: MidnightBotanical,  Preview: MBPreview },
   'terracotta-harvest': { Page: TerracottaHarvest,  Preview: TCPreview },
+  'vilma':              { Page: Vilma,              Preview: VLPreview },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';

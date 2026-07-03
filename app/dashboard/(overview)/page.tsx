@@ -50,7 +50,7 @@ export default async function Page() {
   const themeEyebrowClass =
     userPage.theme_slug === 'midnight-botanical'
       ? 'eyebrow on-dark hero-eyebrow'
-      : userPage.theme_slug === 'quiet-coastal'
+      : userPage.theme_slug === 'quiet-coastal' || userPage.theme_slug === 'vilma'
       ? 'eyebrow hero-eyebrow'
       : 'hero-eyebrow';
 

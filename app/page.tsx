@@ -115,7 +115,7 @@ export default async function Page() {
         <div className="wrap">
           <div className="section">
             <div className="reveal" style={{ maxWidth: '600px' }}>
-              <p className="eyebrow">Three ways to set the mood</p>
+              <p className="eyebrow">Four ways to set the mood</p>
               <h2 className="section-title">Pick the theme that feels like your day.</h2>
               <p className="section-sub">Every theme includes the same full set of tools — RSVP, countdown, gallery, livestream, and more. Only the mood changes.</p>
             </div>
@@ -157,6 +157,35 @@ export default async function Page() {
                 <div className="theme-info">
                   <p className="theme-name">Quiet Coastal</p>
                   <p className="theme-desc">Sage, sand, and chalk. Airy and minimal — built for beach ceremonies and destination weddings.</p>
+                </div>
+              </a>
+              <a href="/themes/vilma.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
+                <div className="theme-preview" style={{ background: '#FFFFFF', position: 'relative', overflow: 'hidden' }}>
+                  <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 400 220" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                      <radialGradient id="mk-g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#d2c3d6" stopOpacity="0.4"/><stop offset="100%" stopColor="#d2c3d6" stopOpacity="0"/></radialGradient>
+                      <radialGradient id="mk-g2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f4e3b5" stopOpacity="0.5"/><stop offset="100%" stopColor="#f4e3b5" stopOpacity="0"/></radialGradient>
+                    </defs>
+                    <ellipse cx="200" cy="110" rx="200" ry="110" fill="url(#mk-g1)"/>
+                    <ellipse cx="200" cy="110" rx="120" ry="80" fill="url(#mk-g2)"/>
+                    <circle cx="60" cy="30" r="3" fill="#f8ac4c" opacity="0.5"/>
+                    <circle cx="340" cy="40" r="2.5" fill="#f8ac4c" opacity="0.4"/>
+                    <circle cx="30" cy="180" r="4" fill="#d2c3d6" opacity="0.5"/>
+                    <circle cx="370" cy="190" r="3" fill="#92946f" opacity="0.35"/>
+                  </svg>
+                  <div style={{ position: 'relative', zIndex: 1, textAlign: 'center', padding: '0 20px' }}>
+                    <div style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid #d2c3d6', background: 'radial-gradient(circle, rgba(244,227,181,0.5) 0%, transparent 70%)', margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 15, height: 15, borderRadius: '50%', border: '0.5px solid rgba(248,172,76,0.4)' }} />
+                    </div>
+                    <p style={{ fontSize: '9px', letterSpacing: '2.5px', textTransform: 'uppercase', color: '#92946f', fontWeight: 600, margin: '0 0 6px', fontFamily: 'system-ui' }}>Together with their families</p>
+                    <p style={{ fontFamily: 'Georgia, cursive', fontSize: '30px', color: '#8c9eac', margin: '0 0 6px', fontWeight: 400, lineHeight: 1.1 }}>Isabella &amp; William</p>
+                    <div style={{ width: 28, height: 1.5, background: '#f8ac4c', margin: '0 auto 6px', border: 'none' }} />
+                    <p style={{ fontSize: '9px', letterSpacing: '2px', color: '#92946f', margin: 0, fontFamily: 'system-ui', textTransform: 'uppercase' }}>June 14, 2026</p>
+                  </div>
+                </div>
+                <div className="theme-info">
+                  <p className="theme-name">Vilma</p>
+                  <p className="theme-desc">Watercolour washes, steel blue, and amber accents. Soft and romantic — built for garden and manor weddings.</p>
                 </div>
               </a>
             </div>
