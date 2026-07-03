@@ -52,7 +52,7 @@ const css = `
   .mb .eyebrow.on-dark { color: var(--gold); }
   .mb .title { font-family: var(--font-serif); font-style: italic; font-size: clamp(26px, 3.6vw, 36px); font-weight: 500; color: var(--ink); margin: 0 0 24px; letter-spacing: 0.2px; }
   .mb .title.on-dark { color: var(--parchment); }
-  .mb .btn { font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 13px 30px; border-radius: 2px; border: 1px solid var(--gold); background: var(--gold); color: var(--ink-black); cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; }
+  .mb .btn { font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 13px 30px; border-radius: 2px; border: 1px solid var(--gold); background: var(--gold); color: var(--ink-black); cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1;}
   .mb .btn:hover { background: #D9B96E; transform: translateY(-1px); }
   .mb .btn-outline { background: transparent; color: var(--gold); }
   .mb .btn-outline:hover { background: rgba(201, 167, 93, 0.12); }
