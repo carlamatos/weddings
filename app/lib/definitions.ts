@@ -38,6 +38,7 @@ export type UserPage = {
   plan_type?: string;
   stripe_customer_id?: string;
   hero_eyebrow?: string;
+  venue_name?: string;
 };
 
 export type DBUser = {

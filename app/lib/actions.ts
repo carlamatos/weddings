@@ -134,6 +134,7 @@ export type UserPageState = {
     }
 
     const { event_name, description, event_date, event_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const venue_name = (formData.get('venueName') as string) || null;
 
     const user_id = session?.user?.id;
 
@@ -146,11 +147,11 @@ export type UserPageState = {
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
           location, user_email, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address
+          place_id, formatted_address, venue_name
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}
         )
       `;
     } catch (error) {
@@ -174,6 +175,7 @@ export async function updateLocation(data: {
   placeId?: string;
   formattedAddress?: string;
   url?: string;
+  venueName?: string;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -189,7 +191,8 @@ export async function updateLocation(data: {
         country           = ${data.country ?? null},
         place_id          = ${data.placeId ?? null},
         formatted_address = ${data.formattedAddress ?? null},
-        url               = ${data.url ?? null}
+        url               = ${data.url ?? null},
+        venue_name        = ${data.venueName ?? null}
       WHERE user_id = ${userId}
     `;
     revalidatePath('/', 'layout');

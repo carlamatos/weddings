@@ -15,6 +15,7 @@ interface Props {
   placeId?: string;
   formattedAddress?: string;
   url?: string;
+  venueName?: string;
 }
 
 export default function VenueSection({
@@ -27,6 +28,7 @@ export default function VenueSection({
   placeId: initialPlaceId = '',
   formattedAddress: initialFormattedAddress = '',
   url: initialUrl = '',
+  venueName: initialVenueName = '',
 }: Props) {
   const [isEditing, setIsEditing] = useState(false);
   const [location, setLocation] = useState(initialLocation);
@@ -38,6 +40,7 @@ export default function VenueSection({
   const [placeId, setPlaceId] = useState(initialPlaceId);
   const [formattedAddress, setFormattedAddress] = useState(initialFormattedAddress);
   const [url, setUrl] = useState(initialUrl);
+  const [venueName, setVenueName] = useState(initialVenueName);
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   const mapSrc = location === 'address'
@@ -59,7 +62,7 @@ export default function VenueSection({
 
   const handleSave = async () => {
     setIsEditing(false);
-    await updateLocation({ location, streetAddress, unitNumber, postalCode, city, country, placeId, formattedAddress, url });
+    await updateLocation({ location, streetAddress, unitNumber, postalCode, city, country, placeId, formattedAddress, url, venueName });
   };
 
   return (
@@ -88,6 +91,10 @@ export default function VenueSection({
             {location === 'address' ? (
               <>
                 <div className="dash-field">
+                  <label>Venue Name <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span></label>
+                  <input type="text" value={venueName} onChange={(e) => setVenueName(e.target.value)} className="dash-input" placeholder="e.g. Hycroft Manor" />
+                </div>
+                <div className="dash-field">
                   <label>Search Address</label>
                   <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={formattedAddress} />
                 </div>
@@ -109,6 +116,7 @@ export default function VenueSection({
         {location === 'address' ? (
           <>
             <div className="dash-address-lines">
+              {venueName && <span style={{ fontWeight: 600 }}>{venueName}</span>}
               {streetAddress && <span>{streetAddress}</span>}
               {unitNumber && <span>{unitNumber}</span>}
               {city && <span>{city}</span>}

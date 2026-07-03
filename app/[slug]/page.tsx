@@ -32,6 +32,7 @@ interface EventData {
   section_2_button_text?: string;
   section_2_button_link?: string;
   hero_eyebrow?: string;
+  venue_name?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -64,6 +65,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     section_2_button_text: res.section_2_button_text || undefined,
     section_2_button_link: res.section_2_button_link || undefined,
     hero_eyebrow: res.hero_eyebrow || undefined,
+    venue_name: res.venue_name || undefined,
   };
 }
 
@@ -119,6 +121,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         registryButtonText={data.section_2_button_text}
         registryButtonLink={data.section_2_button_link}
         heroEyebrow={data.hero_eyebrow}
+        venueName={data.venue_name}
         galleryImages={galleryImages}
       />
     </>

@@ -40,4 +40,5 @@ export interface ThemeProps {
   registryButtonText?: string;
   registryButtonLink?: string;
   heroEyebrow?: string;
+  venueName?: string;
 }

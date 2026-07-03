@@ -158,6 +158,7 @@ export default function TerracottaHarvest({
   userPageId,
   editSlots,
   heroEyebrow,
+  venueName,
 }: ThemeProps) {
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -239,6 +240,7 @@ export default function TerracottaHarvest({
                   <p className="label">Ceremony</p>
                   {formattedTime && <p className="time">{formattedTime}</p>}
                   {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                  {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                   {streetAddress && <p>{streetAddress}</p>}
                   {city && <p style={{ fontSize: 14, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
                   {showVirtual && (

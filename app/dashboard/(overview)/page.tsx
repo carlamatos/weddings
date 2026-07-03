@@ -115,6 +115,7 @@ export default async function Page() {
         registryButtonLink={userPage.section_2_button_link || undefined}
         galleryImages={galleryImages}
         heroEyebrow={userPage.hero_eyebrow || undefined}
+        venueName={userPage.venue_name || undefined}
         editSlots={editSlots}
       />
     </div>

@@ -129,6 +129,7 @@ export default function QuietCoastal({
   userPageId,
   editSlots,
   heroEyebrow,
+  venueName,
 }: ThemeProps) {
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -223,11 +224,12 @@ export default function QuietCoastal({
                   </span>
                 </div>
               )}
-              {showVenue && (streetAddress || city) && (
+              {showVenue && (venueName || streetAddress || city) && (
                 <div className="detail-row">
                   <span className="label">venue</span>
                   <span className="value">
-                    {streetAddress}
+                    {venueName ?? streetAddress}
+                    {venueName && streetAddress && <span className="sub">{streetAddress}</span>}
                     {city && <span className="sub">{[city, postalCode, country].filter(Boolean).join(', ')}</span>}
                   </span>
                 </div>

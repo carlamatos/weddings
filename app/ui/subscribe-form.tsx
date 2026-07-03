@@ -7,14 +7,42 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { createUserPage, UserPageState } from '../lib/actions';
 import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
 
-const WEDDING_THEMES = [
+const VilmaPreview = () => (
+  <div style={{ position: 'relative', width: '100%', height: 160, background: '#FFFFFF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="vl-sf-g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#d2c3d6" stopOpacity="0.42"/><stop offset="100%" stopColor="#d2c3d6" stopOpacity="0"/></radialGradient>
+        <radialGradient id="vl-sf-g2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f4e3b5" stopOpacity="0.5"/><stop offset="100%" stopColor="#f4e3b5" stopOpacity="0"/></radialGradient>
+      </defs>
+      <ellipse cx="200" cy="80" rx="200" ry="80" fill="url(#vl-sf-g1)"/>
+      <ellipse cx="200" cy="80" rx="120" ry="60" fill="url(#vl-sf-g2)"/>
+      <circle cx="55" cy="22" r="3" fill="#f8ac4c" opacity="0.5"/>
+      <circle cx="345" cy="28" r="2.5" fill="#f8ac4c" opacity="0.4"/>
+      <circle cx="28" cy="132" r="3.5" fill="#d2c3d6" opacity="0.5"/>
+      <circle cx="372" cy="138" r="3" fill="#92946f" opacity="0.35"/>
+    </svg>
+    <div style={{ position: 'relative', zIndex: 1 }}>
+      <div style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid #d2c3d6', background: 'radial-gradient(circle, rgba(244,227,181,0.5) 0%, transparent 70%)', margin: '0 auto 7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ width: 13, height: 13, borderRadius: '50%', border: '0.5px solid rgba(248,172,76,0.4)' }} />
+      </div>
+      <p style={{ fontSize: 8, letterSpacing: 2.5, textTransform: 'uppercase', color: '#92946f', fontWeight: 600, margin: '0 0 5px', fontFamily: 'system-ui' }}>Together with their families</p>
+      <p style={{ fontFamily: 'Georgia, cursive', fontSize: 26, color: '#8c9eac', margin: '0 0 5px', fontWeight: 400, lineHeight: 1.1 }}>Isabella &amp; William</p>
+      <div style={{ width: 24, height: 1.5, background: '#f8ac4c', margin: '0 auto 5px', border: 'none' }} />
+      <p style={{ fontSize: 8, letterSpacing: 2, color: '#92946f', margin: 0, fontFamily: 'system-ui', textTransform: 'uppercase' }}>June 14, 2026</p>
+    </div>
+  </div>
+);
+
+type ThemeOption = { slug: string; label: string; src?: string; preview?: React.ReactNode };
+
+const WEDDING_THEMES: ThemeOption[] = [
   { slug: 'quiet-coastal',      label: 'Quiet Coastal',      src: '/images/themes/quiet-coastal/coastal.png' },
   { slug: 'midnight-botanical', label: 'Midnight Botanical',  src: '/images/themes/midnight-botanical/woods.png' },
   { slug: 'terracotta-harvest', label: 'Terracotta Harvest',  src: '/images/themes/wedding.png' },
-  { slug: 'vilma',              label: 'Vilma',               src: '/images/themes/vilma/preview.png' },
+  { slug: 'vilma',              label: 'Vilma',               preview: <VilmaPreview /> },
 ];
 
-const EVENT_THEMES = [
+const EVENT_THEMES: ThemeOption[] = [
   { slug: 'event', label: 'Classic Event', src: '/images/themes/event.png' },
 ];
 
@@ -47,6 +75,7 @@ export default function Form() {
     email: '',
     description: '',
     url: '',
+    venueName: '',
     streetAddress: '',
     unitNumber: '',
     postalCode: '',
@@ -173,28 +202,31 @@ export default function Form() {
             {eventType === 'wedding' ? 'Wedding Theme' : 'Event Theme'}
           </label>
           <div className="setup-theme-cards">
-            {themes.map(({ slug, label, src }) => (
+            {themes.map((theme) => (
               <label
-                key={slug}
-                className={`setup-theme-card${formData.themeSlug === slug ? ' setup-theme-card--selected' : ''}`}
+                key={theme.slug}
+                className={`setup-theme-card${formData.themeSlug === theme.slug ? ' setup-theme-card--selected' : ''}`}
               >
                 <input
                   type="radio"
                   name="themeSlugRadio"
-                  value={slug}
-                  checked={formData.themeSlug === slug}
-                  onChange={() => setFormData(prev => ({ ...prev, themeSlug: slug }))}
+                  value={theme.slug}
+                  checked={formData.themeSlug === theme.slug}
+                  onChange={() => setFormData(prev => ({ ...prev, themeSlug: theme.slug }))}
                 />
-                <Image src={src} alt={label} width={400} height={160} className="setup-theme-card__image" />
+                {theme.src
+                  ? <Image src={theme.src} alt={theme.label} width={400} height={160} className="setup-theme-card__image" />
+                  : <div className="setup-theme-card__image" style={{ overflow: 'hidden' }}>{theme.preview}</div>
+                }
                 <div className="setup-theme-card__label">
                   <span className="setup-theme-card__check">
-                    {formData.themeSlug === slug && (
+                    {formData.themeSlug === theme.slug && (
                       <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                         <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                       </svg>
                     )}
                   </span>
-                  {label}
+                  {theme.label}
                 </div>
               </label>
             ))}
@@ -223,6 +255,14 @@ export default function Form() {
             <input type="hidden" name="postalCode" value={formData.postalCode} />
             <input type="hidden" name="city" value={formData.city} />
             <input type="hidden" name="country" value={formData.country} />
+
+            <div className="auth-field">
+              <label className="auth-label" htmlFor="venueName">Venue Name <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span></label>
+              <div className="auth-input-wrap">
+                <input className="auth-input" id="venueName" type="text" name="venueName"
+                  value={formData.venueName} onChange={handleChange} placeholder="e.g. Hycroft Manor" />
+              </div>
+            </div>
 
             <div className="auth-grid-2">
               <div className="auth-field">

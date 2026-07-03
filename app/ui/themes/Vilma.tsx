@@ -182,6 +182,7 @@ export default function Vilma({
   userPageId,
   editSlots,
   heroEyebrow,
+  venueName,
 }: ThemeProps) {
   const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -291,6 +292,7 @@ export default function Vilma({
                 <p className="label">Ceremony</p>
                 {formattedTime && <p className="time">{formattedTime}</p>}
                 {eventDate && <p>{formatDateLong(eventDate)}</p>}
+                {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                 {streetAddress && <p>{streetAddress}</p>}
                 {city && <p style={{ fontSize: 13, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
                 {showVirtual && (
