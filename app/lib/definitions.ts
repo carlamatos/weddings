@@ -37,6 +37,7 @@ export type UserPage = {
   domain_status?: string;
   plan_type?: string;
   stripe_customer_id?: string;
+  hero_eyebrow?: string;
 };
 
 export type DBUser = {

@@ -383,6 +383,18 @@ export async function removeDomain(): Promise<{ error?: string }> {
   return {};
 }
 
+export async function updateHeroEyebrow(eyebrow: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET hero_eyebrow = ${eyebrow} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update hero eyebrow:', error);
+  }
+}
+
 export async function updateTheme(themeId: string) {
   const session = await auth();
   const userId = session?.user?.id;

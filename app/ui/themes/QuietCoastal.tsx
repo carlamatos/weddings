@@ -128,6 +128,7 @@ export default function QuietCoastal({
   galleryImages,
   userPageId,
   editSlots,
+  heroEyebrow,
 }: ThemeProps) {
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -163,7 +164,7 @@ export default function QuietCoastal({
           <img className="hero-bg" src={heroImg} alt="" />
         )}
         <div className="hero-content">
-          <p className="eyebrow hero-eyebrow">together with their families</p>
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow">{heroEyebrow || 'together with their families'}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
           <div className="hero-actions">

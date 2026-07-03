@@ -138,6 +138,7 @@ export default function MidnightBotanical({
   galleryImages,
   userPageId,
   editSlots,
+  heroEyebrow,
 }: ThemeProps) {
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -174,7 +175,7 @@ export default function MidnightBotanical({
         )}
         <div className="hero-content">
           <div className="hero-frame">
-            <p className="eyebrow on-dark hero-eyebrow">Save the date</p>
+            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow">{heroEyebrow || 'Save the date'}</p>}
             {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
             <div className="hero-rule" />
             {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}

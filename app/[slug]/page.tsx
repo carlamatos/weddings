@@ -31,6 +31,7 @@ interface EventData {
   section_2_description?: string;
   section_2_button_text?: string;
   section_2_button_link?: string;
+  hero_eyebrow?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -62,6 +63,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     section_2_description: res.section_2_description || undefined,
     section_2_button_text: res.section_2_button_text || undefined,
     section_2_button_link: res.section_2_button_link || undefined,
+    hero_eyebrow: res.hero_eyebrow || undefined,
   };
 }
 
@@ -116,6 +118,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         registryDescription={data.section_2_description}
         registryButtonText={data.section_2_button_text}
         registryButtonLink={data.section_2_button_link}
+        heroEyebrow={data.hero_eyebrow}
         galleryImages={galleryImages}
       />
     </>

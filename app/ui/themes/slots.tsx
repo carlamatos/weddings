@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
-import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime } from '@/app/lib/actions';
+import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow } from '@/app/lib/actions';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -19,6 +19,80 @@ function CameraIcon() {
       <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
       <circle cx="12" cy="13" r="4" />
     </svg>
+  );
+}
+
+// ─── EditableHeroEyebrow ──────────────────────────────────
+// Replaces: <p className="hero-eyebrow">...</p>
+export function EditableHeroEyebrow({
+  value,
+  className = 'hero-eyebrow',
+}: {
+  value: string;
+  className?: string;
+}) {
+  const [hovered, setHovered] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [current, setCurrent] = useState(value);
+  const [draft, setDraft] = useState(value);
+  const [, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEdit = () => {
+    setDraft(current);
+    setEditing(true);
+    setHovered(false);
+    setTimeout(() => inputRef.current?.select(), 0);
+  };
+
+  const save = () => {
+    const v = draft.trim() || current;
+    setCurrent(v);
+    setEditing(false);
+    startTransition(() => updateHeroEyebrow(v));
+  };
+
+  const cancel = () => {
+    setDraft(current);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <span style={{ display: 'block', position: 'relative' }}>
+        <input
+          ref={inputRef}
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') save();
+            if (e.key === 'Escape') cancel();
+          }}
+          className={`${className} theme-edit-input`}
+          autoFocus
+        />
+        <div className="theme-edit-controls">
+          <button className="theme-edit-save" onClick={save}>Save</button>
+          <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
+        </div>
+      </span>
+    );
+  }
+
+  return (
+    <span
+      className="theme-editable"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{ display: 'block' }}
+    >
+      <p className={className}>{current}</p>
+      {hovered && (
+        <button className="theme-edit-badge" onClick={startEdit} title="Edit eyebrow text">
+          <PencilIcon /> Edit
+        </button>
+      )}
+    </span>
   );
 }
 

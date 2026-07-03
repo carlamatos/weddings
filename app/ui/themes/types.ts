@@ -8,6 +8,7 @@ export interface ThemePreviewProps {
 
 export interface ThemeSlots {
   heroBg?: React.ReactNode;
+  heroEyebrow?: React.ReactNode;
   heroName?: React.ReactNode;
   heroDate?: React.ReactNode;
   description?: React.ReactNode;
@@ -38,4 +39,5 @@ export interface ThemeProps {
   registryDescription?: string;
   registryButtonText?: string;
   registryButtonLink?: string;
+  heroEyebrow?: string;
 }

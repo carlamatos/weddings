@@ -157,6 +157,7 @@ export default function TerracottaHarvest({
   galleryImages,
   userPageId,
   editSlots,
+  heroEyebrow,
 }: ThemeProps) {
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
@@ -201,7 +202,7 @@ export default function TerracottaHarvest({
         ))}
         <div className="hero-overlay" />
         <div className="hero-content">
-          <p className="hero-eyebrow">Together with their families</p>
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow">{heroEyebrow || 'Together with their families'}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
           <div className="hero-rule" />
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}

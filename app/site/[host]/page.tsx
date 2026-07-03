@@ -35,6 +35,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       registryDescription={data.section_2_description}
       registryButtonText={data.section_2_button_text}
       registryButtonLink={data.section_2_button_link}
+      heroEyebrow={data.hero_eyebrow || undefined}
       galleryImages={galleryImages}
     />
   );

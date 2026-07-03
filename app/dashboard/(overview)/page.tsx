@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { fetchUserPageById, fetchGalleryImages } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
+  EditableHeroEyebrow,
   EditableHeroName,
   EditableHeroDate,
   EditableDescription,
@@ -41,10 +42,20 @@ export default async function Page() {
       })()
     : '';
 
+  const themeEyebrowDefault =
+    userPage.theme_slug === 'midnight-botanical'
+      ? 'Save the date'
+      : 'Together with their families';
+
   const editSlots = {
     heroBg: (
       <EditableBannerBg
         src={userPage.banner_image || ''}
+      />
+    ),
+    heroEyebrow: (
+      <EditableHeroEyebrow
+        value={userPage.hero_eyebrow || themeEyebrowDefault}
       />
     ),
     heroName: (
@@ -95,6 +106,7 @@ export default async function Page() {
         registryButtonText={userPage.section_2_button_text || undefined}
         registryButtonLink={userPage.section_2_button_link || undefined}
         galleryImages={galleryImages}
+        heroEyebrow={userPage.hero_eyebrow || undefined}
         editSlots={editSlots}
       />
     </div>
