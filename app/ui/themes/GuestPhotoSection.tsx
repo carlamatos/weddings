@@ -28,7 +28,7 @@ export function GuestPhotoSection({
 }: GuestPhotoSectionProps) {
   const [photos, setPhotos] = useState<GuestPhoto[]>(initialPhotos);
   const [hasMore, setHasMore] = useState(initialHasMore);
-  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<{ current: number; total: number } | null>(null);
   const [loadingMore, setLoadingMore] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
@@ -36,39 +36,52 @@ export function GuestPhotoSection({
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3500);
+    setTimeout(() => setToast(null), 4000);
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
 
-    const fd = new FormData();
-    fd.append('userPageId', userPageId);
-    fd.append('file', file);
+    setUploadProgress({ current: 0, total: files.length });
+    let succeeded = 0;
+    let lastError = '';
 
-    try {
-      const res = await fetch('/api/guests-photos/upload', { method: 'POST', body: fd });
-      const data = await res.json();
-      if (data.url) {
-        const newPhoto: GuestPhoto = {
-          id: data.id,
-          user_page_id: parseInt(userPageId, 10),
-          photo: data.url,
-          ip_address: null,
-          uploaded_at: data.uploaded_at ?? new Date().toISOString(),
-        };
-        setPhotos((prev) => [newPhoto, ...prev]);
-        showToast(labels.photoUploaded, true);
-      } else {
-        showToast(data.error ?? labels.photoUploadError, false);
+    for (let i = 0; i < files.length; i++) {
+      setUploadProgress({ current: i + 1, total: files.length });
+      const fd = new FormData();
+      fd.append('userPageId', userPageId);
+      fd.append('file', files[i]);
+      try {
+        const res = await fetch('/api/guests-photos/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.url) {
+          const newPhoto: GuestPhoto = {
+            id: data.id,
+            user_page_id: parseInt(userPageId, 10),
+            photo: data.url,
+            ip_address: null,
+            uploaded_at: data.uploaded_at ?? new Date().toISOString(),
+          };
+          setPhotos((prev) => [newPhoto, ...prev]);
+          succeeded++;
+        } else {
+          lastError = data.error ?? labels.photoUploadError;
+        }
+      } catch {
+        lastError = labels.photoUploadError;
       }
-    } catch {
-      showToast(labels.photoUploadError, false);
-    } finally {
-      setUploading(false);
-      e.target.value = '';
+    }
+
+    setUploadProgress(null);
+    e.target.value = '';
+
+    if (succeeded > 0 && succeeded === files.length) {
+      showToast(files.length === 1 ? labels.photoUploaded : `${succeeded} photos shared — thank you!`, true);
+    } else if (succeeded > 0) {
+      showToast(`${succeeded} of ${files.length} photos uploaded. ${lastError}`, false);
+    } else {
+      showToast(lastError || labels.photoUploadError, false);
     }
   };
 
@@ -93,15 +106,18 @@ export function GuestPhotoSection({
         <button
           className={btnClassName}
           type="button"
-          disabled={uploading}
+          disabled={!!uploadProgress}
           onClick={() => inputRef.current?.click()}
         >
-          {uploading ? labels.uploading : labels.shareYourPhoto}
+          {uploadProgress
+            ? `${labels.uploading} ${uploadProgress.current} / ${uploadProgress.total}`
+            : labels.shareYourPhoto}
         </button>
         <input
           ref={inputRef}
           type="file"
           accept="image/*"
+          multiple
           style={{ display: 'none' }}
           onChange={handleFile}
         />

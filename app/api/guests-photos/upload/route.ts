@@ -5,7 +5,8 @@ import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
 // Simple in-memory rate limiter: max 10 uploads per IP per hour
 const ipStore = new Map<string, { count: number; resetAt: number }>();
 const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_IP = 10;
+const MAX_PER_IP = 50;
+const MAX_PHOTOS_PAID = 500;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -51,6 +52,14 @@ export async function POST(request: Request) {
   `;
   if (!pageResult.rows[0] || pageResult.rows[0].plan_type !== 'paid') {
     return NextResponse.json({ error: 'Feature not available' }, { status: 403 });
+  }
+
+  // Enforce 500-photo limit
+  const countResult = await sql`
+    SELECT COUNT(*) FROM guests_photos WHERE user_page_id = ${userPageId}
+  `;
+  if (Number(countResult.rows[0].count) >= MAX_PHOTOS_PAID) {
+    return NextResponse.json({ error: 'Photo limit reached (500 max).' }, { status: 403 });
   }
 
   try {
