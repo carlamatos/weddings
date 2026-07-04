@@ -260,8 +260,8 @@ export default function Vilma({
         ))}
 
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow">{heroEyebrow || 'Together with their families'}</p>}
-          {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Together with their families'}</p>}
+          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           <hr className="vl-rule" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">

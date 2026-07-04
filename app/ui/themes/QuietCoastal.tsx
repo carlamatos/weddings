@@ -176,8 +176,8 @@ export default function QuietCoastal({
           <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
         )}
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow">{heroEyebrow || 'together with their families'}</p>}
-          {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'together with their families'}</p>}
+          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
           <div className="hero-actions">
             <a href="#rsvp" className="btn">{t.rsvpBtn.toLowerCase()}</a>

@@ -214,8 +214,8 @@ export default function TerracottaHarvest({
         ))}
         <div className="hero-overlay" />
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow">{heroEyebrow || 'Together with their families'}</p>}
-          {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Together with their families'}</p>}
+          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           <div className="hero-rule" />
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
           <div className="hero-actions">

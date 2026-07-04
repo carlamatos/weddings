@@ -187,8 +187,8 @@ export default function MidnightBotanical({
         )}
         <div className="hero-content">
           <div className="hero-frame">
-            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow">{heroEyebrow || 'Save the date'}</p>}
-            {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
+            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Save the date'}</p>}
+            {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
             <div className="hero-rule" />
             {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
             <div className="hero-actions">
