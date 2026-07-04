@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { fetchUserPageById, fetchGalleryImages } from '@/app/lib/data';
+import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -18,6 +18,10 @@ export default async function Page() {
     userId ? fetchUserPageById(userId) : undefined,
     userId ? fetchGalleryImages(userId) : [],
   ]);
+  const isPaid = userPage?.plan_type === 'paid';
+  const guestPhotosResult = userPage && isPaid
+    ? await fetchGuestPhotos(userPage.id, 0)
+    : { photos: [], hasMore: false };
 
   if (!userPage) {
     return (
@@ -117,6 +121,9 @@ export default async function Page() {
         heroEyebrow={userPage.hero_eyebrow || undefined}
         venueName={userPage.venue_name || undefined}
         language={userPage.language || 'en'}
+        isPaid={isPaid}
+        guestPhotos={guestPhotosResult.photos}
+        guestPhotosHasMore={guestPhotosResult.hasMore}
         editSlots={editSlots}
       />
     </div>

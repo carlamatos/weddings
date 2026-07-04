@@ -7,6 +7,7 @@ import {
   EventTheme,
   GalleryImage,
   Guest,
+  GuestPhoto,
 } from './definitions';
 
 function normalizePage(page: UserPage): UserPage {
@@ -133,6 +134,29 @@ export async function fetchGalleryImages(user_id: string): Promise<GalleryImage[
   } catch (error) {
     console.error('Failed to fetch gallery images:', error);
     return [];
+  }
+}
+
+const GUEST_PHOTOS_PAGE_SIZE = 20;
+
+export async function fetchGuestPhotos(
+  userPageId: string,
+  offset = 0,
+): Promise<{ photos: GuestPhoto[]; hasMore: boolean }> {
+  try {
+    const data = await sql<GuestPhoto>`
+      SELECT id, user_page_id, photo, ip_address, uploaded_at
+      FROM guests_photos
+      WHERE user_page_id = ${userPageId}
+      ORDER BY uploaded_at DESC
+      LIMIT ${GUEST_PHOTOS_PAGE_SIZE + 1} OFFSET ${offset}
+    `;
+    const rows = data.rows;
+    const hasMore = rows.length > GUEST_PHOTOS_PAGE_SIZE;
+    return { photos: hasMore ? rows.slice(0, GUEST_PHOTOS_PAGE_SIZE) : rows, hasMore };
+  } catch (error) {
+    console.error('Failed to fetch guest photos:', error);
+    return { photos: [], hasMore: false };
   }
 }
 

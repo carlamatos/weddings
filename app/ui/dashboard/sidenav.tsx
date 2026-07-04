@@ -9,6 +9,7 @@ export default async function SideNav() {
   const userId = session?.user?.id;
   const userPage = userId ? await fetchUserPageById(userId) : undefined;
   const hasPage = userPage !== undefined;
+  const isPaid = userPage?.plan_type === 'paid';
 
   return (
     <aside className="dash-sidebar">
@@ -19,7 +20,7 @@ export default async function SideNav() {
       </Link>
 
       <nav className="dash-sidebar-nav">
-        <NavLinks hasPage={hasPage} />
+        <NavLinks hasPage={hasPage} isPaid={isPaid} />
       </nav>
 
       <div className="dash-sidebar-footer">

@@ -1,5 +1,6 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
+import { GuestPhotoSection } from './GuestPhotoSection';
 import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
 import { getTranslations } from '@/app/lib/translations';
@@ -185,6 +186,9 @@ export default function Vilma({
   heroEyebrow,
   venueName,
   language,
+  isPaid,
+  guestPhotos,
+  guestPhotosHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
@@ -356,6 +360,24 @@ export default function Vilma({
                 {registryButtonText || t.viewRegistry}
               </a>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* GUEST PHOTOS */}
+      {isPaid && userPageId && (
+        <div className="section section-center">
+          <div className="wrap">
+            <p className="eyebrow">{t.guestPhotos}</p>
+            <h2 className="section-title">{t.shareYourPhoto}</h2>
+            <hr className="vl-rule" />
+            <GuestPhotoSection
+              userPageId={userPageId}
+              initialPhotos={guestPhotos ?? []}
+              initialHasMore={guestPhotosHasMore ?? false}
+              labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
+              btnClassName="btn"
+            />
           </div>
         </div>
       )}

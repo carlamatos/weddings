@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos } from '../lib/data';
 import { auth } from '@/auth';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
@@ -34,6 +34,7 @@ interface EventData {
   hero_eyebrow?: string;
   venue_name?: string;
   language?: string;
+  plan_type?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -68,6 +69,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     hero_eyebrow: res.hero_eyebrow || undefined,
     venue_name: res.venue_name || undefined,
     language: res.language || 'en',
+    plan_type: res.plan_type || undefined,
   };
 }
 
@@ -80,7 +82,11 @@ export async function generateStaticParams() {
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
-  const galleryImages = data ? await fetchGalleryImages(data.user_id) : [];
+  const isPaid = data?.plan_type === 'paid';
+  const [galleryImages, guestPhotosResult] = await Promise.all([
+    data ? fetchGalleryImages(data.user_id) : Promise.resolve([]),
+    data && isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+  ]);
   if (!data) notFound();
 
   const isOwner = session?.user?.id === data.user_id;
@@ -126,6 +132,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         venueName={data.venue_name}
         language={data.language}
         galleryImages={galleryImages}
+        isPaid={isPaid}
+        guestPhotos={guestPhotosResult.photos}
+        guestPhotosHasMore={guestPhotosResult.hasMore}
       />
     </>
   );

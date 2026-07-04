@@ -1,5 +1,6 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
+import { GuestPhotoSection } from './GuestPhotoSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -161,6 +162,9 @@ export default function TerracottaHarvest({
   heroEyebrow,
   venueName,
   language,
+  isPaid,
+  guestPhotos,
+  guestPhotosHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -321,6 +325,28 @@ export default function TerracottaHarvest({
           </div>
           <BandDivider thin />
         </>
+      )}
+
+      {/* GUEST PHOTOS */}
+      {isPaid && userPageId && (
+        <div className="section-wide">
+          <p className="section-label">{t.guestPhotos}</p>
+          <h2 className="section-title">{t.shareYourPhoto}</h2>
+          <GuestPhotoSection
+            userPageId={userPageId}
+            initialPhotos={guestPhotos ?? []}
+            initialHasMore={guestPhotosHasMore ?? false}
+            labels={{
+              shareYourPhoto: t.shareYourPhoto,
+              loadMore: t.loadMore,
+              beFirstToShare: t.beFirstToShare,
+              photoUploaded: t.photoUploaded,
+              photoUploadError: t.photoUploadError,
+              uploading: t.sending,
+            }}
+            btnClassName="btn"
+          />
+        </div>
       )}
 
       {/* FOOTER */}

@@ -86,3 +86,11 @@ export type Revenue = {
 export type Slugs = {
   slug: string;
 }
+
+export type GuestPhoto = {
+  id: string;
+  user_page_id: number;
+  photo: string;
+  ip_address: string | null;
+  uploaded_at: string;
+};

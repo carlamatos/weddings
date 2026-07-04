@@ -1,5 +1,6 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
+import { GuestPhotoSection } from './GuestPhotoSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -132,6 +133,9 @@ export default function QuietCoastal({
   heroEyebrow,
   venueName,
   language,
+  isPaid,
+  guestPhotos,
+  guestPhotosHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -306,6 +310,21 @@ export default function QuietCoastal({
           </div>
           <hr className="hairline" />
         </>
+      )}
+
+      {/* GUEST PHOTOS */}
+      {isPaid && userPageId && (
+        <div className="wrap" style={{ padding: '80px 32px' }}>
+          <p className="eyebrow" style={{ marginBottom: 8 }}>{t.guestPhotos.toLowerCase()}</p>
+          <h2 className="section-title" style={{ marginBottom: 28 }}>{t.shareYourPhoto.toLowerCase()}</h2>
+          <GuestPhotoSection
+            userPageId={userPageId}
+            initialPhotos={guestPhotos ?? []}
+            initialHasMore={guestPhotosHasMore ?? false}
+            labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
+            btnClassName="btn"
+          />
+        </div>
       )}
 
       {/* FOOTER */}

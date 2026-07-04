@@ -62,6 +62,13 @@ export interface Translations {
   errorName: string;
   errorEmail: string;
   errorGeneral: string;
+  // Guest photos
+  guestPhotos: string;
+  shareYourPhoto: string;
+  loadMore: string;
+  beFirstToShare: string;
+  photoUploaded: string;
+  photoUploadError: string;
 }
 
 const en: Translations = {
@@ -117,6 +124,12 @@ const en: Translations = {
   errorName: 'Please enter your name.',
   errorEmail: 'Please enter a valid email address.',
   errorGeneral: 'Something went wrong. Please try again.',
+  guestPhotos: 'Guest Photos',
+  shareYourPhoto: 'Share a photo',
+  loadMore: 'Load more',
+  beFirstToShare: 'Be the first to share a photo!',
+  photoUploaded: 'Photo shared — thank you!',
+  photoUploadError: 'Upload failed. Please try again.',
 };
 
 const fr: Translations = {
@@ -172,6 +185,12 @@ const fr: Translations = {
   errorName: 'Veuillez entrer votre nom.',
   errorEmail: 'Veuillez entrer une adresse courriel valide.',
   errorGeneral: 'Une erreur est survenue. Veuillez réessayer.',
+  guestPhotos: 'Photos des invités',
+  shareYourPhoto: 'Partager une photo',
+  loadMore: 'Charger plus',
+  beFirstToShare: 'Soyez le premier à partager une photo!',
+  photoUploaded: 'Photo partagée — merci!',
+  photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
 };
 
 const es: Translations = {
@@ -227,6 +246,12 @@ const es: Translations = {
   errorName: 'Por favor ingresa tu nombre.',
   errorEmail: 'Por favor ingresa una dirección de correo válida.',
   errorGeneral: 'Algo salió mal. Por favor intenta de nuevo.',
+  guestPhotos: 'Fotos de invitados',
+  shareYourPhoto: 'Compartir una foto',
+  loadMore: 'Cargar más',
+  beFirstToShare: '¡Sé el primero en compartir una foto!',
+  photoUploaded: 'Foto compartida — ¡gracias!',
+  photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
 };
 
 const map: Record<string, Translations> = { en, fr, es };

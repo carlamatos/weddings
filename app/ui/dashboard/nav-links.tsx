@@ -1,21 +1,22 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-  { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon },
-  { name: 'RSVPs', href: '/dashboard/rsvp', icon: UsersIcon },
-  { name: 'Domain', href: '/dashboard/domain', icon: GlobeAltIcon },
+  { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon, paidOnly: false },
+  { name: 'RSVPs', href: '/dashboard/rsvp', icon: UsersIcon, paidOnly: false },
+  { name: 'Domain', href: '/dashboard/domain', icon: GlobeAltIcon, paidOnly: false },
+  { name: 'Guest Photos', href: '/dashboard/guest-photos', icon: PhotoIcon, paidOnly: true },
 ];
 
-export default function NavLinks({ hasPage }: { hasPage: boolean }) {
+export default function NavLinks({ hasPage, isPaid }: { hasPage: boolean; isPaid?: boolean }) {
   const pathname = usePathname();
   return (
     <>
       {links
-        .filter((link) => link.name === 'Edit Page' ? hasPage : hasPage)
+        .filter((link) => hasPage && (!link.paidOnly || isPaid))
         .map((link) => {
           const Icon = link.icon;
           return (

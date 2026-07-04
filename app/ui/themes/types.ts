@@ -42,4 +42,7 @@ export interface ThemeProps {
   heroEyebrow?: string;
   venueName?: string;
   language?: string;
+  isPaid?: boolean;
+  guestPhotos?: import('@/app/lib/definitions').GuestPhoto[];
+  guestPhotosHasMore?: boolean;
 }

@@ -1,5 +1,6 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
+import { GuestPhotoSection } from './GuestPhotoSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -142,6 +143,9 @@ export default function MidnightBotanical({
   heroEyebrow,
   venueName,
   language,
+  isPaid,
+  guestPhotos,
+  guestPhotosHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -283,6 +287,21 @@ export default function MidnightBotanical({
               </a>
             )}
           </div>
+        </div>
+      )}
+
+      {/* GUEST PHOTOS */}
+      {isPaid && userPageId && (
+        <div style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
+          <p className="section-label" style={{ textAlign: 'center' }}>{t.guestPhotos}</p>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>{t.shareYourPhoto}</h2>
+          <GuestPhotoSection
+            userPageId={userPageId}
+            initialPhotos={guestPhotos ?? []}
+            initialHasMore={guestPhotosHasMore ?? false}
+            labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
+            btnClassName="btn"
+          />
         </div>
       )}
 

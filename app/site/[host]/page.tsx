@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { fetchUserPageByDomain, fetchGalleryImages } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
 
@@ -8,7 +8,11 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const data = await fetchUserPageByDomain(host);
   if (!data) notFound();
 
-  const galleryImages = await fetchGalleryImages(data.user_id);
+  const isPaid = data.plan_type === 'paid';
+  const [galleryImages, guestPhotosResult] = await Promise.all([
+    fetchGalleryImages(data.user_id),
+    isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+  ]);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -39,6 +43,9 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       venueName={data.venue_name || undefined}
       language={data.language || 'en'}
       galleryImages={galleryImages}
+      isPaid={isPaid}
+      guestPhotos={guestPhotosResult.photos}
+      guestPhotosHasMore={guestPhotosResult.hasMore}
     />
   );
 }
