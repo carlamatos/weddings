@@ -408,7 +408,7 @@ export default function Vilma({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn btn-amber"
-              inputStyle={{ flex: '2 1 160px', padding: '10px 14px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
+              inputStyle={{ flex: '2 1 160px', padding: '10px 14px 6px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
             />
           </div>
         </div>
