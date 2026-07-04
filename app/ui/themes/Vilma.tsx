@@ -254,10 +254,10 @@ export default function Vilma({
           <ellipse cx="800" cy="500" rx="210" ry="180" fill="url(#vl-g3)"/>
         </svg>
 
-        {editSlots?.heroBg ?? (bannerImage && (
+        {editSlots?.heroBg ?? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
-        ))}
+          <img className="hero-bg" src={bannerImage || '/images/themes/vilma/hero-bg.jpg'} alt="" style={{ objectFit: heroObjectFit }} />
+        )}
 
         <div className="hero-content">
           {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Together with their families'}</p>}
