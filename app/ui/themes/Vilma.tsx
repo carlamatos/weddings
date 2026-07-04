@@ -200,6 +200,7 @@ export default function Vilma({
   guestPhotosHasMore,
   guestSongs,
   guestSongsHasMore,
+  heroObjectFit = 'cover',
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
@@ -255,7 +256,7 @@ export default function Vilma({
 
         {editSlots?.heroBg ?? (bannerImage && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={bannerImage} alt="" />
+          <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
         ))}
 
         <div className="hero-content">

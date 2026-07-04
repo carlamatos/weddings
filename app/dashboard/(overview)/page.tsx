@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs } from '@/app/lib/data';
+import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -19,10 +19,12 @@ export default async function Page() {
     userId ? fetchGalleryImages(userId) : [],
   ]);
   const isPaid = userPage?.plan_type === 'paid';
-  const [guestPhotosResult, guestSongsResult] = await Promise.all([
+  const [guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
     userPage && isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     userPage && isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+    userPage ? fetchPageSettings(userPage.id) : Promise.resolve({} as Record<string, string>),
   ]);
+  const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
 
   if (!userPage) {
     return (
@@ -63,6 +65,7 @@ export default async function Page() {
     heroBg: (
       <EditableBannerBg
         src={userPage.banner_image || ''}
+        initialObjectFit={heroObjectFit}
       />
     ),
     heroEyebrow: (
@@ -127,6 +130,7 @@ export default async function Page() {
         guestPhotosHasMore={guestPhotosResult.hasMore}
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
+        heroObjectFit={heroObjectFit}
         editSlots={editSlots}
       />
     </div>

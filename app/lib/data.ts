@@ -198,6 +198,17 @@ export async function fetchUserPageByDomain(domain: string): Promise<UserPage | 
   }
 }
 
+export async function fetchPageSettings(userPageId: string | number): Promise<Record<string, string>> {
+  try {
+    const data = await sql<{ setting_name: string; setting_value: string }>`
+      SELECT setting_name, setting_value FROM user_page_settings WHERE user_page_id = ${userPageId}
+    `;
+    return Object.fromEntries(data.rows.map(r => [r.setting_name, r.setting_value]));
+  } catch {
+    return {};
+  }
+}
+
 export async function fetchUserPageById(user_id: string){
   try {
 

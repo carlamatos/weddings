@@ -149,6 +149,7 @@ export default function MidnightBotanical({
   guestPhotosHasMore,
   guestSongs,
   guestSongsHasMore,
+  heroObjectFit = 'cover',
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -182,7 +183,7 @@ export default function MidnightBotanical({
       <div className="hero">
         {editSlots?.heroBg ?? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={heroImg} alt="" />
+          <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
         )}
         <div className="hero-content">
           <div className="hero-frame">

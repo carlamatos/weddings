@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '../lib/data';
 import { auth } from '@/auth';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
@@ -83,11 +83,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
   const isPaid = data?.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
     data ? fetchGalleryImages(data.user_id) : Promise.resolve([]),
     data && isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     data && isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+    data ? fetchPageSettings(data.id) : Promise.resolve({} as Record<string, string>),
   ]);
+  const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   if (!data) notFound();
 
   const isOwner = session?.user?.id === data.user_id;
@@ -138,6 +140,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         guestPhotosHasMore={guestPhotosResult.hasMore}
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
+        heroObjectFit={heroObjectFit}
       />
     </>
   );

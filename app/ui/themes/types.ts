@@ -47,4 +47,5 @@ export interface ThemeProps {
   guestPhotosHasMore?: boolean;
   guestSongs?: import('@/app/lib/definitions').GuestSong[];
   guestSongsHasMore?: boolean;
+  heroObjectFit?: 'cover' | 'contain';
 }

@@ -9,6 +9,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Create page settings table
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_page_settings (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL,
+      setting_name TEXT NOT NULL,
+      setting_value TEXT NOT NULL,
+      updated_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (user_page_id, setting_name)
+    )
+  `;
+
   // Create unified table
   await sql`
     CREATE TABLE IF NOT EXISTS event_guests (

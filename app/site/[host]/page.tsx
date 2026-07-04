@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
 
@@ -9,11 +9,13 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   if (!data) notFound();
 
   const isPaid = data.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
     fetchGalleryImages(data.user_id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+    fetchPageSettings(data.id),
   ]);
+  const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -49,6 +51,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       guestPhotosHasMore={guestPhotosResult.hasMore}
       guestSongs={guestSongsResult.songs}
       guestSongsHasMore={guestSongsResult.hasMore}
+      heroObjectFit={heroObjectFit}
     />
   );
 }

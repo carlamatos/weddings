@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
-import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow } from '@/app/lib/actions';
+import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting } from '@/app/lib/actions';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -337,13 +337,20 @@ export function EditableDescription({
 // ─── EditableBannerBg ─────────────────────────────────────
 // Replaces: <img className="hero-bg" src={bannerImage} alt="" />
 // Shows a camera overlay; clicking opens a file picker.
-export function EditableBannerBg({ src }: { src: string }) {
+export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: string; initialObjectFit?: 'cover' | 'contain' }) {
   const [hovered, setHovered] = useState(false);
   const [current, setCurrent] = useState(src);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const toggleObjectFit = () => {
+    const next = objectFit === 'cover' ? 'contain' : 'cover';
+    setObjectFit(next);
+    startTransition(() => updatePageSetting('hero_object_fit', next));
+  };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -383,7 +390,7 @@ export function EditableBannerBg({ src }: { src: string }) {
       onMouseLeave={() => setHovered(false)}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="hero-bg" src={current || '/images/themes/quiet-coastal/coastal.png'} alt="" />
+      <img className="hero-bg" src={current || '/images/themes/quiet-coastal/coastal.png'} alt="" style={{ objectFit }} />
 
       <input
         ref={fileInputRef}
@@ -394,16 +401,25 @@ export function EditableBannerBg({ src }: { src: string }) {
       />
 
       {(hovered || uploading) && (
-        <button
-          className="theme-banner-overlay"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          title="Replace photo"
-          style={{ border: 'none', cursor: uploading ? 'wait' : 'pointer' }}
-        >
-          <CameraIcon />
-          <span>{uploading ? 'Uploading…' : 'Replace photo'}</span>
-        </button>
+        <div className="theme-banner-overlay" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            title="Replace photo"
+            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: uploading ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+          >
+            <CameraIcon />
+            <span>{uploading ? 'Uploading…' : 'Replace photo'}</span>
+          </button>
+          <span style={{ opacity: 0.4, fontSize: 13 }}>|</span>
+          <button
+            onClick={toggleObjectFit}
+            title={objectFit === 'cover' ? 'Switch to Contain' : 'Switch to Cover'}
+            style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 6, cursor: 'pointer', color: 'inherit', font: 'inherit', fontSize: 12, padding: '4px 10px', fontWeight: 600, letterSpacing: 0.5 }}
+          >
+            {objectFit === 'cover' ? 'Cover ✓' : 'Contain ✓'}
+          </button>
+        </div>
       )}
 
       {uploadError && (

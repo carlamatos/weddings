@@ -261,6 +261,25 @@ export async function updateSection2(data: {
   }
 }
 
+export async function updatePageSetting(settingName: string, settingValue: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    const page = await sql<{ id: number }>`SELECT id FROM user_page WHERE user_id = ${userId}`;
+    const userPageId = page.rows[0]?.id;
+    if (!userPageId) return;
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${userPageId}, ${settingName}, ${settingValue})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${settingValue}, updated_at = NOW()
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update page setting:', error);
+  }
+}
+
 export async function updateBannerImage(url: string) {
   const session = await auth();
   const userId = session?.user?.id;
