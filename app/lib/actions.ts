@@ -302,11 +302,12 @@ export async function addGalleryImage(data: { imagePath: string; imageName: stri
   const userId = session?.user?.id;
   if (!userId) return;
   try {
-    const page = await sql`SELECT id FROM user_page WHERE user_id = ${userId} LIMIT 1`;
+    const page = await sql`SELECT id, plan_type FROM user_page WHERE user_id = ${userId} LIMIT 1`;
     const pageId = page.rows[0]?.id;
     if (!pageId) return;
+    const maxImages = page.rows[0]?.plan_type === 'paid' ? 100 : 8;
     const count = await sql`SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId}`;
-    if (Number(count.rows[0].count) >= 8) return;
+    if (Number(count.rows[0].count) >= maxImages) return;
     await sql`
       INSERT INTO event_gallery (user_page_id, image_path, image_name, image_type)
       VALUES (${pageId}, ${data.imagePath}, ${data.imageName}, ${data.imageType})
