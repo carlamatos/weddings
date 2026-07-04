@@ -30,7 +30,7 @@ export default function AboutPage() {
       <ul style={ul}>
         <li><strong>Choose a theme</strong> — Three handcrafted themes (Terracotta Harvest, Midnight Botanical, Quiet Coastal) with more on the way. Switching is instant and never loses your content.</li>
         <li><strong>Collect RSVPs</strong> — Guests RSVP directly on your page. No account required for them, no spreadsheet management for you.</li>
-        <li><strong>Share a photo gallery</strong> — Upload up to 8 photos on the free plan; unlimited on Plus. Guests can browse them all in a lightbox.</li>
+        <li><strong>Share a photo gallery</strong> — Upload up to 8 photos on the free plan; up to 100 on Plus. Guests can browse them all in a lightbox.</li>
         <li><strong>Add a registry and livestream link</strong> — Everything in one place so guests aren&apos;t hunting through five different tabs.</li>
         <li><strong>Use your own domain</strong> — Plus plan members can point a custom domain (e.g. sarah-and-john.com) directly to their event page, so the link in your invitation looks exactly right.</li>
         <li><strong>Keep it after the wedding</strong> — Your page stays live as a keepsake. Free pages remain viewable; Plus pages keep every feature active for as long as you&apos;re subscribed.</li>
@@ -38,7 +38,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>Pricing</h2>
       <p>
-        MyGala is free to start. The free plan gives you a full-featured wedding page on a <em>yourname.mygala.ca</em> subdomain. The <strong>Plus plan</strong> ($29.99/month) adds unlimited photo uploads, a custom domain, no Gala branding, priority support, and more. Cancel any time — no contracts, no penalties.
+        MyGala is free to start. The free plan gives you a full-featured wedding page on a <em>yourname.mygala.ca</em> subdomain. The <strong>Plus plan</strong> ($29.99/month) adds up to 100 photo uploads, a custom domain, no Gala branding, priority support, and more. Cancel any time — no contracts, no penalties.
       </p>
 
       <h2 style={h2}>Privacy and your data</h2>

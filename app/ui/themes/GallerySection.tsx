@@ -130,14 +130,14 @@ function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
 }
 
 // ─── Editable gallery (passed as editSlots.gallery) ───────
-export function EditableGallery({ initialImages }: { initialImages: GalleryImage[] }) {
+export function EditableGallery({ initialImages, isPaid }: { initialImages: GalleryImage[]; isPaid?: boolean }) {
   const [images, setImages] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const MAX_IMAGES = 8;
+  const MAX_IMAGES = isPaid ? 100 : 8;
 
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -145,7 +145,7 @@ export function EditableGallery({ initialImages }: { initialImages: GalleryImage
 
     const slots = MAX_IMAGES - images.length;
     if (slots <= 0) {
-      setError('Gallery limit reached (8 photos maximum).');
+      setError(`Gallery limit reached (${MAX_IMAGES} photos maximum).`);
       e.target.value = '';
       return;
     }

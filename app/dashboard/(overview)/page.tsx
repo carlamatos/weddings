@@ -86,7 +86,7 @@ export default async function Page() {
         style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
       />
     ),
-    gallery: <EditableGallery initialImages={galleryImages} />,
+    gallery: <EditableGallery initialImages={galleryImages} isPaid={userPage.plan_type === 'paid'} />,
   };
 
   return (
