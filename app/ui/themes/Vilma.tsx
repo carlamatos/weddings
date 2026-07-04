@@ -114,10 +114,10 @@ const css = `
   .vl .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
   .vl .countdown-wrap { padding: 72px 24px; background: var(--vl-steel); text-align: center; }
-  .vl .countdown-heading { font-family: var(--vl-script); font-size: 39px; letter-spacing: 0.5px; color: #FFFFFF; margin: 0 0 36px; font-weight: 400; }
+  .vl .countdown-heading { font-family: var(--vl-script); font-size: 56px; letter-spacing: 0.5px; color: #FFFFFF; margin: 0 0 36px; font-weight: 400; }
   .vl .countdown-row { display: flex; justify-content: center; gap: clamp(20px, 6vw, 52px); }
   .vl .countdown-block { text-align: center; min-width: 60px; }
-  .vl .countdown-value { font-family: var(--vl-script); font-size: clamp(37px, 5.5vw, 55px); color: var(--vl-butter); font-weight: 400; line-height: 1; }
+  .vl .countdown-value { font-family: var(--vl-script); font-size: clamp(37px, 5.5vw, 75px); color: var(--vl-butter); font-weight: 400; line-height: 1; }
   .vl .countdown-label { font-family: var(--vl-sans); font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-top: 8px; }
 
   .vl .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 12px; }
@@ -154,13 +154,12 @@ const css = `
   .vl .footer { padding: 88px 24px 72px; background: var(--vl-olive-deep); text-align: center; }
   .vl .footer p { font-size: 14px; color: rgba(255,255,255,0.75); margin: 0 0 4px; }
   .vl .footer-rule { width: 40px; height: 1px; background: var(--vl-butter); margin: 22px auto; border: none; }
-  .vl .footer-signoff { font-family: var(--vl-script); font-size: 33px !important; font-weight: 400; color: var(--vl-butter); margin: 0; letter-spacing: 0.5px; }
+  .vl .footer-signoff { font-family: var(--vl-script); font-size: 44px !important; font-weight: 400; color: var(--vl-butter); margin: 0; letter-spacing: 0.5px; }
   .vl .footer-credit { font-family: var(--vl-sans); font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 24px; letter-spacing: 0.5px; }
 `;
 
-function formatDate(dateStr: string, city?: string, country?: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  const formatted = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
+  const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
   const loc = [city, country].filter(Boolean).join(', ');
   return loc ? `${formatted} · ${loc}` : formatted;
 }
@@ -204,7 +203,7 @@ export default function Vilma({
   heroObjectFit = 'cover',
 }: ThemeProps) {
   const t = getTranslations(language);
-  const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
+  const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
     ? new Date(`1970-01-01T${eventTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
