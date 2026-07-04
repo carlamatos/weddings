@@ -114,7 +114,7 @@ export default function RsvpForm({ userPageId, translations: t }: { userPageId?:
           style={{ resize: 'vertical' }}
         />
       </div>
-      <div>
+      <div style={{ display: 'none' }}>
         <label className="check-label">
           <input type="checkbox" checked={receiveUpdates}
             onChange={(e) => setReceiveUpdates(e.target.checked)} />
