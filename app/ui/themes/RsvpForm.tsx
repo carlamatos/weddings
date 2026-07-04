@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import type { Translations } from '@/app/lib/translations';
 
-export default function RsvpForm({ userPageId }: { userPageId?: string }) {
+export default function RsvpForm({ userPageId, translations: t }: { userPageId?: string; translations: Translations }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,9 +17,9 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) { setError('Please enter your name.'); return; }
+    if (!name.trim()) { setError(t.errorName); return; }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address.'); return;
+      setError(t.errorEmail); return;
     }
     setError('');
     setSubmitting(true);
@@ -30,12 +31,12 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? 'Something went wrong. Please try again.');
+        setError(data.error ?? t.errorGeneral);
       } else {
         setSubmitted(true);
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError(t.errorGeneral);
     } finally {
       setSubmitting(false);
     }
@@ -45,11 +46,9 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
     return (
       <div className="rsvp-success">
         <p className="rsvp-headline">
-          {status === 'attending'
-            ? "we can't wait to celebrate with you"
-            : "we'll miss you, but thank you for letting us know"}
+          {status === 'attending' ? t.successAttending : t.successNotAttending}
         </p>
-        <p className="rsvp-sub">a confirmation has been noted for {name}.</p>
+        <p className="rsvp-sub">{t.confirmationNoted.replace('{{name}}', name)}</p>
       </div>
     );
   }
@@ -57,7 +56,7 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
   return (
     <form className="rsvp-form" onSubmit={handleSubmit} noValidate>
       <div>
-        <label className="field-label" htmlFor="rsvp-name">full name</label>
+        <label className="field-label" htmlFor="rsvp-name">{t.fullName}</label>
         <input
           type="text" id="rsvp-name" value={name}
           onChange={(e) => setName(e.target.value)}
@@ -65,7 +64,7 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
         />
       </div>
       <div>
-        <label className="field-label" htmlFor="rsvp-email">email</label>
+        <label className="field-label" htmlFor="rsvp-email">{t.email}</label>
         <input
           type="email" id="rsvp-email" value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -73,7 +72,7 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
         />
       </div>
       <div>
-        <label className="field-label" htmlFor="rsvp-phone">phone (optional)</label>
+        <label className="field-label" htmlFor="rsvp-phone">{t.phoneOptional}</label>
         <input
           type="tel" id="rsvp-phone" value={phone}
           onChange={(e) => setPhone(e.target.value)}
@@ -81,37 +80,37 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
         />
       </div>
       <div>
-        <label className="field-label">will you attend?</label>
+        <label className="field-label">{t.willYouAttend}</label>
         <div className="attend-options">
           <label className="radio-label">
             <input type="radio" name="rsvp-attending" value="attending"
               checked={status === 'attending'} onChange={() => setStatus('attending')} />
-            joyfully accepts
+            {t.joyfullyAccepts}
           </label>
           <label className="radio-label">
             <input type="radio" name="rsvp-attending" value="not_attending"
               checked={status === 'not_attending'} onChange={() => setStatus('not_attending')} />
-            regretfully declines
+            {t.regretfullyDeclines}
           </label>
         </div>
       </div>
       {status === 'attending' && (
         <div>
-          <label className="field-label" htmlFor="rsvp-guests">number of guests</label>
+          <label className="field-label" htmlFor="rsvp-guests">{t.numberOfGuests}</label>
           <select id="rsvp-guests" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-            <option value={1}>just me</option>
-            <option value={2}>2 guests</option>
-            <option value={3}>3 guests</option>
-            <option value={4}>4 guests</option>
+            <option value={1}>{t.justMe}</option>
+            <option value={2}>2 {t.guests}</option>
+            <option value={3}>3 {t.guests}</option>
+            <option value={4}>4 {t.guests}</option>
           </select>
         </div>
       )}
       <div>
-        <label className="field-label" htmlFor="rsvp-note">note for the couple (optional)</label>
+        <label className="field-label" htmlFor="rsvp-note">{t.noteForCouple}</label>
         <textarea
           id="rsvp-note" value={message} rows={3}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="So excited for you two…"
+          placeholder={t.noteForCouplePlaceholder}
           style={{ resize: 'vertical' }}
         />
       </div>
@@ -119,13 +118,13 @@ export default function RsvpForm({ userPageId }: { userPageId?: string }) {
         <label className="check-label">
           <input type="checkbox" checked={receiveUpdates}
             onChange={(e) => setReceiveUpdates(e.target.checked)} />
-          I&apos;d like to receive event updates via email
+          {t.receiveUpdatesLabel}
         </label>
-        <p className="check-hint">you can unsubscribe at any time.</p>
+        <p className="check-hint">{t.unsubscribeHint}</p>
       </div>
       {error && <p className="rsvp-error">{error}</p>}
       <button type="submit" className="btn" disabled={submitting} style={{ width: 'fit-content' }}>
-        {submitting ? 'sending…' : 'send rsvp'}
+        {submitting ? t.sending : t.sendRsvp}
       </button>
     </form>
   );

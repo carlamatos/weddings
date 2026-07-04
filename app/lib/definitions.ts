@@ -39,6 +39,7 @@ export type UserPage = {
   stripe_customer_id?: string;
   hero_eyebrow?: string;
   venue_name?: string;
+  language?: string;
 };
 
 export type DBUser = {

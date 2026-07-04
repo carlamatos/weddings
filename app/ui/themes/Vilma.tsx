@@ -2,6 +2,7 @@ import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
+import { getTranslations } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -154,8 +155,8 @@ function formatDate(dateStr: string, city?: string, country?: string): string {
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
-function formatDateLong(dateStr: string): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+function formatDateLong(dateStr: string, locale = 'en-US'): string {
+  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export default function Vilma({
@@ -183,7 +184,9 @@ export default function Vilma({
   editSlots,
   heroEyebrow,
   venueName,
+  language,
 }: ThemeProps) {
+  const t = getTranslations(language);
   const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
 
   const formattedTime = eventTime
@@ -253,8 +256,8 @@ export default function Vilma({
           <hr className="vl-rule" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">
-            <a href="#rsvp" className="btn">RSVP</a>
-            <a href="#story" className="btn btn-outline">Our story</a>
+            <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
+            <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
           </div>
         </div>
       </div>
@@ -263,8 +266,8 @@ export default function Vilma({
       {(description || editSlots?.description) && (
         <div id="story" className="section section-center">
           <div className="wrap">
-            <p className="eyebrow">Our story</p>
-            <h2 className="section-title">How we got here</h2>
+            <p className="eyebrow">{t.ourStoryLabel}</p>
+            <h2 className="section-title">{t.howWeGotHere}</h2>
             <hr className="vl-rule" />
             {editSlots?.description ?? (
               <p style={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)', maxWidth: 580, margin: '0 auto' }}>
@@ -277,26 +280,26 @@ export default function Vilma({
 
       {/* COUNTDOWN */}
       {eventDate && !editSlots && (
-        <VilmaCountdown eventDate={eventDate} eventTime={eventTime} />
+        <VilmaCountdown eventDate={eventDate} eventTime={eventTime} translations={t} />
       )}
 
       {/* DATE / LOCATION */}
       {(showVenue || showVirtual) && (
         <div className="section section-center">
           <div className="wrap-wide">
-            <p className="eyebrow">The details</p>
-            <h2 className="section-title">Date &amp; location</h2>
+            <p className="eyebrow">{t.theDetails}</p>
+            <h2 className="section-title">{t.dateAndLocation}</h2>
             <hr className="vl-rule" />
             <div className="details-grid">
               <div className="details-card">
-                <p className="label">Ceremony</p>
+                <p className="label">{t.ceremony}</p>
                 {formattedTime && <p className="time">{formattedTime}</p>}
-                {eventDate && <p>{formatDateLong(eventDate)}</p>}
+                {eventDate && <p>{formatDateLong(eventDate, t.dateLocale)}</p>}
                 {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                 {streetAddress && <p>{streetAddress}</p>}
                 {city && <p style={{ fontSize: 13, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
                 {showVirtual && (
-                  <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--vl-steel)', textDecoration: 'none', fontWeight: 600 }}>Join Online →</a></p>
+                  <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--vl-steel)', textDecoration: 'none', fontWeight: 600 }}>{t.joinOnline}</a></p>
                 )}
               </div>
               {mapSrc ? (
@@ -305,14 +308,14 @@ export default function Vilma({
                 </div>
               ) : (
                 <div className="details-card">
-                  <p className="label">Reception</p>
+                  <p className="label">{t.reception}</p>
                   {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
                 </div>
               )}
             </div>
             {mapsUrl && (
               <div className="directions-link">
-                <a href={mapsUrl} target="_blank" rel="noopener noreferrer">Get directions →</a>
+                <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections}</a>
               </div>
             )}
           </div>
@@ -322,11 +325,11 @@ export default function Vilma({
       {/* RSVP */}
       {!editSlots && (
         <div id="rsvp" className="rsvp-section">
-          <p className="eyebrow">Kindly respond</p>
-          <h2 className="section-title on-butter">RSVP</h2>
+          <p className="eyebrow">{t.kindlyRespond}</p>
+          <h2 className="section-title on-butter">{t.rsvp}</h2>
           <hr className="vl-rule" />
           <div className="rsvp-card">
-            <RsvpForm userPageId={userPageId} />
+            <RsvpForm userPageId={userPageId} translations={t} />
           </div>
         </div>
       )}
@@ -337,8 +340,8 @@ export default function Vilma({
         return content ? (
           <div className="section section-center">
             <div className="wrap-wide">
-              <p className="eyebrow">Memories so far</p>
-              <h2 className="section-title">Our moments</h2>
+              <p className="eyebrow">{t.memoriesSoFar}</p>
+              <h2 className="section-title">{t.ourMoments}</h2>
               <hr className="vl-rule" />
               {content}
             </div>
@@ -353,11 +356,11 @@ export default function Vilma({
           style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
         >
           <div className="registry-overlay">
-            <p className="registry-title">Registry</p>
+            <p className="registry-title">{t.registry}</p>
             {registryDescription && <p className="registry-description">{registryDescription}</p>}
             {registryButtonLink && (
               <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
-                {registryButtonText || 'View Registry'}
+                {registryButtonText || t.viewRegistry}
               </a>
             )}
           </div>
@@ -366,13 +369,13 @@ export default function Vilma({
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>Questions?</p>
-        {eventDate && <p>{formatDateLong(eventDate)}</p>}
+        <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
+        {eventDate && <p>{formatDateLong(eventDate, t.dateLocale)}</p>}
         {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
         {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>{userEmail}</a></p>}
         <hr className="footer-rule" />
-        <p className="footer-signoff">With love, {heading || 'the couple'}</p>
-        <p className="footer-credit">made with mygala</p>
+        <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
+        <p className="footer-credit">{t.madeWithMygala}</p>
       </footer>
     </div>
   );

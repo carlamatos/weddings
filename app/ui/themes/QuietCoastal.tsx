@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import RsvpForm from './RsvpForm';
+import { getTranslations } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toLowerCase();
@@ -130,7 +131,9 @@ export default function QuietCoastal({
   editSlots,
   heroEyebrow,
   venueName,
+  language,
 }: ThemeProps) {
+  const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
   const formattedTime = eventTime
@@ -169,8 +172,8 @@ export default function QuietCoastal({
           {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
           <div className="hero-actions">
-            <a href="#rsvp" className="btn">rsvp</a>
-            <a href="#story" className="btn btn-outline">our story</a>
+            <a href="#rsvp" className="btn">{t.rsvpBtn.toLowerCase()}</a>
+            <a href="#story" className="btn btn-outline">{t.ourStoryBtn.toLowerCase()}</a>
           </div>
         </div>
       </div>
@@ -182,8 +185,8 @@ export default function QuietCoastal({
         <div id="story" className="wrap">
           <div className="section split">
             <div className="col-wide">
-              <p className="eyebrow">our story</p>
-              <h2 className="title">how we got here</h2>
+              <p className="eyebrow">{t.ourStoryLabel.toLowerCase()}</p>
+              <h2 className="title">{t.howWeGotHere.toLowerCase()}</h2>
               {editSlots?.description ?? (
                 <p style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)', margin: 0, maxWidth: 520 }}>
                   {description}
@@ -201,23 +204,23 @@ export default function QuietCoastal({
         <div className="wrap">
           <div className="section split reverse">
             <div className="col-narrow">
-              <p className="eyebrow">the details</p>
-              <h2 className="title">date &amp; location</h2>
+              <p className="eyebrow">{t.theDetails.toLowerCase()}</p>
+              <h2 className="title">{t.dateAndLocation.toLowerCase()}</h2>
               {mapsUrl && (
                 <div className="directions-link">
-                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer">get directions →</a>
+                  <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections.toLowerCase()}</a>
                 </div>
               )}
               {showVirtual && (
                 <div className="directions-link">
-                  <a href={url} target="_blank" rel="noopener noreferrer">join online →</a>
+                  <a href={url} target="_blank" rel="noopener noreferrer">{t.joinOnline.toLowerCase()}</a>
                 </div>
               )}
             </div>
             <div className="col-wide">
               {eventDate && (
                 <div className="detail-row">
-                  <span className="label">ceremony</span>
+                  <span className="label">{t.ceremony.toLowerCase()}</span>
                   <span className="value">
                     {formattedTime && <>{formattedTime}</>}
                     {eventDate && <span className="sub">{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</span>}
@@ -226,7 +229,7 @@ export default function QuietCoastal({
               )}
               {showVenue && (venueName || streetAddress || city) && (
                 <div className="detail-row">
-                  <span className="label">venue</span>
+                  <span className="label">{t.venue.toLowerCase()}</span>
                   <span className="value">
                     {venueName ?? streetAddress}
                     {venueName && streetAddress && <span className="sub">{streetAddress}</span>}
@@ -259,9 +262,9 @@ export default function QuietCoastal({
           <hr className="hairline" />
           <div id="rsvp" className="wrap">
             <div className="section">
-              <p className="eyebrow">kindly respond</p>
-              <h2 className="title">rsvp</h2>
-              <RsvpForm userPageId={userPageId} />
+              <p className="eyebrow">{t.kindlyRespond.toLowerCase()}</p>
+              <h2 className="title">{t.rsvp.toLowerCase()}</h2>
+              <RsvpForm userPageId={userPageId} translations={t} />
             </div>
           </div>
         </>
@@ -275,8 +278,8 @@ export default function QuietCoastal({
             <hr className="hairline" />
             <div className="wrap">
               <div className="section">
-                <p className="eyebrow">gallery</p>
-                <h2 className="title">our moments</h2>
+                <p className="eyebrow">{t.gallery.toLowerCase()}</p>
+                <h2 className="title">{t.ourMoments.toLowerCase()}</h2>
                 {content}
               </div>
             </div>
@@ -292,11 +295,11 @@ export default function QuietCoastal({
             style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
           >
             <div className="registry-overlay">
-              <p className="registry-title">registry</p>
+              <p className="registry-title">{t.registry.toLowerCase()}</p>
               {registryDescription && <p className="registry-description">{registryDescription}</p>}
               {registryButtonLink && (
                 <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
-                  {registryButtonText || 'view registry'}
+                  {registryButtonText || t.viewRegistry.toLowerCase()}
                 </a>
               )}
             </div>
@@ -309,7 +312,7 @@ export default function QuietCoastal({
       <footer className="footer wrap" style={{ padding: '80px 32px' }}>
         <div className="footer-grid">
           <div>
-            {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</p>}
+            {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</p>}
             {city && <p>{[city, country].filter(Boolean).join(', ').toLowerCase()}</p>}
           </div>
           {userEmail && (
@@ -318,7 +321,7 @@ export default function QuietCoastal({
             </div>
           )}
         </div>
-        <p className="footer-credit">made with mygala</p>
+        <p className="footer-credit">{t.madeWithMygala}</p>
       </footer>
     </div>
   );

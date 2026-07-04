@@ -33,6 +33,7 @@ interface EventData {
   section_2_button_link?: string;
   hero_eyebrow?: string;
   venue_name?: string;
+  language?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -66,6 +67,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     section_2_button_link: res.section_2_button_link || undefined,
     hero_eyebrow: res.hero_eyebrow || undefined,
     venue_name: res.venue_name || undefined,
+    language: res.language || 'en',
   };
 }
 
@@ -122,6 +124,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         registryButtonLink={data.section_2_button_link}
         heroEyebrow={data.hero_eyebrow}
         venueName={data.venue_name}
+        language={data.language}
         galleryImages={galleryImages}
       />
     </>

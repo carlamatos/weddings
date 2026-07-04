@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import RsvpForm from './RsvpForm';
+import { getTranslations } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -159,7 +160,9 @@ export default function TerracottaHarvest({
   editSlots,
   heroEyebrow,
   venueName,
+  language,
 }: ThemeProps) {
+  const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
   const formattedTime = eventTime
@@ -208,8 +211,8 @@ export default function TerracottaHarvest({
           <div className="hero-rule" />
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
           <div className="hero-actions">
-            <a href="#rsvp" className="btn">RSVP now</a>
-            <a href="#story" className="btn btn-outline">Our story</a>
+            <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
+            <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
           </div>
         </div>
       </div>
@@ -220,8 +223,8 @@ export default function TerracottaHarvest({
       {(description || editSlots?.description) && (
         <>
           <div id="story" className="section">
-            <p className="section-label">Our story</p>
-            <h2 className="section-title">How we got here</h2>
+            <p className="section-label">{t.ourStoryLabel}</p>
+            <h2 className="section-title">{t.howWeGotHere}</h2>
             {editSlots?.description ?? <p className="story-text">{description}</p>}
           </div>
           <BandDivider thin />
@@ -232,19 +235,19 @@ export default function TerracottaHarvest({
       {(showVenue || showVirtual) && (
         <>
           <div className="section-wide">
-            <p className="section-label">The details</p>
-            <h2 className="section-title">Date &amp; location</h2>
+            <p className="section-label">{t.theDetails}</p>
+            <h2 className="section-title">{t.dateAndLocation}</h2>
             <div className="details-grid">
               <div>
                 <div className="details-card">
-                  <p className="label">Ceremony</p>
+                  <p className="label">{t.ceremony}</p>
                   {formattedTime && <p className="time">{formattedTime}</p>}
-                  {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                  {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
                   {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                   {streetAddress && <p>{streetAddress}</p>}
                   {city && <p style={{ fontSize: 14, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
                   {showVirtual && (
-                    <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rust)', textDecoration: 'none', fontWeight: 600 }}>Join Online →</a></p>
+                    <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--rust)', textDecoration: 'none', fontWeight: 600 }}>{t.joinOnline}</a></p>
                   )}
                 </div>
               </div>
@@ -264,7 +267,7 @@ export default function TerracottaHarvest({
             </div>
             {mapsUrl && (
               <div className="directions-link">
-                <a href={mapsUrl} target="_blank" rel="noopener noreferrer">Get directions →</a>
+                <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections}</a>
               </div>
             )}
           </div>
@@ -276,9 +279,9 @@ export default function TerracottaHarvest({
       {!editSlots && (
         <>
           <div id="rsvp" className="section-tinted">
-            <p className="section-label">Kindly respond</p>
-            <h2 className="section-title">RSVP</h2>
-            <RsvpForm userPageId={userPageId} />
+            <p className="section-label">{t.kindlyRespond}</p>
+            <h2 className="section-title">{t.rsvp}</h2>
+            <RsvpForm userPageId={userPageId} translations={t} />
           </div>
           <BandDivider thin />
         </>
@@ -290,8 +293,8 @@ export default function TerracottaHarvest({
         return content ? (
           <>
             <div className="section-wide">
-              <p className="section-label">Gallery</p>
-              <h2 className="section-title">Our moments</h2>
+              <p className="section-label">{t.gallery}</p>
+              <h2 className="section-title">{t.ourMoments}</h2>
               {content}
             </div>
             <BandDivider thin />
@@ -307,11 +310,11 @@ export default function TerracottaHarvest({
             style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
           >
             <div className="registry-overlay">
-              <p className="registry-title">Registry</p>
+              <p className="registry-title">{t.registry}</p>
               {registryDescription && <p className="registry-description">{registryDescription}</p>}
               {registryButtonLink && (
                 <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
-                  {registryButtonText || 'View Registry'}
+                  {registryButtonText || t.viewRegistry}
                 </a>
               )}
             </div>
@@ -322,7 +325,7 @@ export default function TerracottaHarvest({
 
       {/* FOOTER */}
       <footer className="footer">
-        {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+        {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
         {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
         <div className="footer-rule" />
         {userEmail && (
@@ -330,7 +333,7 @@ export default function TerracottaHarvest({
             <a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a>
           </p>
         )}
-        <p className="footer-credit">made with mygala</p>
+        <p className="footer-credit">{t.madeWithMygala}</p>
       </footer>
     </div>
   );

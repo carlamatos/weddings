@@ -116,6 +116,7 @@ export default async function Page() {
         galleryImages={galleryImages}
         heroEyebrow={userPage.hero_eyebrow || undefined}
         venueName={userPage.venue_name || undefined}
+        language={userPage.language || 'en'}
         editSlots={editSlots}
       />
     </div>

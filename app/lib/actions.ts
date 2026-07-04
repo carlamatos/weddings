@@ -201,6 +201,18 @@ export async function updateLocation(data: {
   }
 }
 
+export async function updateLanguage(language: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`UPDATE user_page SET language = ${language} WHERE user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update language:', error);
+  }
+}
+
 export async function updateHeading(heading: string) {
   const session = await auth();
   const userId = session?.user?.id;

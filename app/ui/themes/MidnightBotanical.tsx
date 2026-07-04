@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import RsvpForm from './RsvpForm';
+import { getTranslations } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -140,7 +141,9 @@ export default function MidnightBotanical({
   editSlots,
   heroEyebrow,
   venueName,
+  language,
 }: ThemeProps) {
+  const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
 
   const formattedTime = eventTime
@@ -181,8 +184,8 @@ export default function MidnightBotanical({
             <div className="hero-rule" />
             {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
             <div className="hero-actions">
-              <a href="#rsvp" className="btn">RSVP</a>
-              <a href="#story" className="btn btn-outline">Our story</a>
+              <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
+              <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
             </div>
           </div>
         </div>
@@ -191,8 +194,8 @@ export default function MidnightBotanical({
       {/* STORY */}
       {(description || editSlots?.description) && (
         <div id="story" className="spine-section">
-          <p className="eyebrow">Our story</p>
-          <h2 className="title">How we got here</h2>
+          <p className="eyebrow">{t.ourStoryLabel}</p>
+          <h2 className="title">{t.howWeGotHere}</h2>
           {editSlots?.description ?? (
             <p style={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)', margin: 0 }}>
               {description}
@@ -204,14 +207,14 @@ export default function MidnightBotanical({
       {/* DATE / LOCATION */}
       {(showVenue || showVirtual) && (
         <div className="spine-section align-right wide">
-          <p className="eyebrow">The details</p>
-          <h2 className="title">Date &amp; location</h2>
+          <p className="eyebrow">{t.theDetails}</p>
+          <h2 className="title">{t.dateAndLocation}</h2>
           <div className="details-row">
             {eventDate && (
               <div className="details-card">
-                <p className="label">Ceremony</p>
+                <p className="label">{t.ceremony}</p>
                 {formattedTime && <p className="time">{formattedTime}</p>}
-                {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
                 {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                 {streetAddress && <p>{streetAddress}</p>}
                 {city && <p style={{ fontSize: 13, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
@@ -219,8 +222,8 @@ export default function MidnightBotanical({
             )}
             {showVirtual && (
               <div className="details-card">
-                <p className="label">Virtual Event</p>
-                <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)', textDecoration: 'none' }}>Join Online →</a></p>
+                <p className="label">{t.virtualEvent}</p>
+                <p><a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--gold)', textDecoration: 'none' }}>{t.joinOnline}</a></p>
               </div>
             )}
           </div>
@@ -238,7 +241,7 @@ export default function MidnightBotanical({
           )}
           {mapsUrl && (
             <div className="directions-link">
-              <a href={mapsUrl} target="_blank" rel="noopener noreferrer">Get directions →</a>
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections}</a>
             </div>
           )}
         </div>
@@ -247,9 +250,9 @@ export default function MidnightBotanical({
       {/* RSVP */}
       {!editSlots && (
         <div id="rsvp" className="spine-section">
-          <p className="eyebrow">Kindly respond</p>
-          <h2 className="title">RSVP</h2>
-          <RsvpForm userPageId={userPageId} />
+          <p className="eyebrow">{t.kindlyRespond}</p>
+          <h2 className="title">{t.rsvp}</h2>
+          <RsvpForm userPageId={userPageId} translations={t} />
         </div>
       )}
 
@@ -258,8 +261,8 @@ export default function MidnightBotanical({
         const content = editSlots?.gallery ?? (galleryImages?.length ? <GalleryGrid images={galleryImages} /> : null);
         return content ? (
           <div className="spine-section wide">
-            <p className="eyebrow">Gallery</p>
-            <h2 className="title">Our moments</h2>
+            <p className="eyebrow">{t.gallery}</p>
+            <h2 className="title">{t.ourMoments}</h2>
             {content}
           </div>
         ) : null;
@@ -272,11 +275,11 @@ export default function MidnightBotanical({
           style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
         >
           <div className="registry-overlay">
-            <p className="registry-title">Registry</p>
+            <p className="registry-title">{t.registry}</p>
             {registryDescription && <p className="registry-description">{registryDescription}</p>}
             {registryButtonLink && (
               <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
-                {registryButtonText || 'View Registry'}
+                {registryButtonText || t.viewRegistry}
               </a>
             )}
           </div>
@@ -285,11 +288,11 @@ export default function MidnightBotanical({
 
       {/* FOOTER */}
       <footer className="footer">
-        {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+        {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
         {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
         <div className="footer-rule" />
         {userEmail && <p className="footer-signoff"><a href={`mailto:${userEmail}`} style={{ color: 'var(--gold)', textDecoration: 'none' }}>{userEmail}</a></p>}
-        <p className="footer-credit">made with mygala</p>
+        <p className="footer-credit">{t.madeWithMygala}</p>
       </footer>
     </div>
   );

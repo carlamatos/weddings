@@ -5,6 +5,7 @@ import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import NavLinks from './nav-links';
 import ThemeSwitcher from './theme-switcher';
+import LanguageSwitcher from './language-switcher';
 import { Bars3Icon, XMarkIcon, PowerIcon } from '@heroicons/react/24/outline';
 import type { EventTheme } from '@/app/lib/definitions';
 
@@ -12,9 +13,10 @@ interface Props {
   hasPage: boolean;
   themes: EventTheme[];
   currentThemeId: string | null;
+  currentLanguage?: string;
 }
 
-export default function MobileMenu({ hasPage, themes, currentThemeId }: Props) {
+export default function MobileMenu({ hasPage, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -48,6 +50,10 @@ export default function MobileMenu({ hasPage, themes, currentThemeId }: Props) {
                 <ThemeSwitcher currentThemeId={currentThemeId} themes={themes} />
               </div>
             )}
+            <div className="mobile-menu-theme">
+              <p className="mobile-menu-theme-label">Language</p>
+              <LanguageSwitcher currentLanguage={currentLanguage} />
+            </div>
 
             <div className="dash-sidebar-footer">
               <button className="dash-signout-btn" onClick={() => signOut()}>
