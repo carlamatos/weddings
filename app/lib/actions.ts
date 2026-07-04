@@ -474,7 +474,7 @@ export async function authenticate(
   }
 
   try {
-    await signIn('credentials', formData);
+    await signIn('credentials', { ...Object.fromEntries(formData), redirectTo: '/dashboard' });
   } catch (error) {
     if (error instanceof AuthError) {
       recordFailedAttempt(ip);
@@ -493,15 +493,15 @@ export async function authenticate(
 
 
 export async function GoogleSignIn() {
-  await signIn("google")
+  await signIn("google", { redirectTo: '/dashboard' });
 }
 
 export async function AppleSignIn() {
-  await signIn("apple")
+  await signIn("apple", { redirectTo: '/dashboard' });
 }
 
 export async function FacebookSignIn() {
-  await signIn("facebook")
+  await signIn("facebook", { redirectTo: '/dashboard' });
 }
 
 
