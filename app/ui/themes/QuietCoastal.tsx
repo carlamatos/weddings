@@ -354,15 +354,16 @@ export default function QuietCoastal({
       <footer className="footer wrap" style={{ padding: '80px 32px' }}>
         <div className="footer-grid">
           <div>
-            {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</p>}
-            {city && <p>{[city, country].filter(Boolean).join(', ').toLowerCase()}</p>}
+            <p className="eyebrow" style={{ marginBottom: 14 }}>{t.getInTouch}</p>
+            {editSlots?.footerContact ?? (
+              <>
+                {heading && <p>{heading}</p>}
+                {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{userEmail}</a></p>}
+                {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userPhone}</a></p>}
+              </>
+            )}
           </div>
-          {editSlots?.footerContact ?? ((userEmail || userPhone) ? (
-            <div>
-              {userEmail && <p className="footer-signoff"><a href={`mailto:${userEmail}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{userEmail}</a></p>}
-              {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userPhone}</a></p>}
-            </div>
-          ) : null)}
+          <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
         </div>
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>

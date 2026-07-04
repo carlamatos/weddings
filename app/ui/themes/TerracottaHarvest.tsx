@@ -377,19 +377,15 @@ export default function TerracottaHarvest({
 
       {/* FOOTER */}
       <footer className="footer">
-        {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
-        {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
-        <div className="footer-rule" />
+        <h2 className="section-title" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
         {editSlots?.footerContact ?? (
           <>
-            {userEmail && (
-              <p className="footer-signoff">
-                <a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a>
-              </p>
-            )}
+            {heading && <p>{heading}</p>}
+            {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a></p>}
             {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userPhone}</a></p>}
           </>
         )}
+        <div className="footer-rule" />
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>

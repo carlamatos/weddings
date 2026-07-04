@@ -28,6 +28,7 @@ export interface Translations {
   registry: string;
   viewRegistry: string;
   // Footer
+  getInTouch: string;
   questions: string;
   theCouple: string;
   madeWithMygala: string;
@@ -103,6 +104,7 @@ const en: Translations = {
   ourMoments: 'Our moments',
   registry: 'Registry',
   viewRegistry: 'View Registry',
+  getInTouch: 'Get in touch',
   questions: 'Questions?',
   theCouple: 'the couple',
   madeWithMygala: 'made with mygala',
@@ -174,6 +176,7 @@ const fr: Translations = {
   ourMoments: 'Nos moments',
   registry: 'Liste de mariage',
   viewRegistry: 'Voir la liste',
+  getInTouch: 'Nous contacter',
   questions: 'Des questions?',
   theCouple: 'les mariés',
   madeWithMygala: 'créé avec mygala',
@@ -245,6 +248,7 @@ const es: Translations = {
   ourMoments: 'Nuestros momentos',
   registry: 'Lista de bodas',
   viewRegistry: 'Ver la lista',
+  getInTouch: 'Contactos',
   questions: '¿Preguntas?',
   theCouple: 'los novios',
   madeWithMygala: 'hecho con mygala',
