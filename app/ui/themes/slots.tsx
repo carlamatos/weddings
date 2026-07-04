@@ -377,12 +377,32 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
 
       if (fileIsVideo) {
         // Videos upload directly from browser to Blob — bypasses the 4.5 MB
-        // Vercel function body limit. The token route handles auth + type checks.
-        const { upload } = await import('@vercel/blob/client');
+        // Vercel function body limit.
+        //
+        // Step 1: fetch our token route manually so we surface real server errors
+        // instead of the opaque "Failed to retrieve the client token" from upload().
         const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
-        const blob = await upload(`banners/${Date.now()}.${ext}`, file, {
+        const pathname = `banners/${Date.now()}.${ext}`;
+
+        const tokenRes = await fetch('/api/upload/token', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            type: 'blob.generate-client-token',
+            payload: { pathname, clientPayload: null, multipart: false },
+          }),
+        });
+        const tokenData = await tokenRes.json() as { clientToken?: string; error?: string };
+        if (!tokenRes.ok || !tokenData.clientToken) {
+          throw new Error(tokenData.error ?? `Token request failed (${tokenRes.status})`);
+        }
+
+        // Step 2: upload directly to Vercel Blob with the client token.
+        const { put } = await import('@vercel/blob/client');
+        const blob = await put(pathname, file, {
           access: 'public',
-          handleUploadUrl: '/api/upload/token',
+          token: tokenData.clientToken,
+          contentType: file.type,
         });
         uploadedUrl = blob.url;
       } else {
