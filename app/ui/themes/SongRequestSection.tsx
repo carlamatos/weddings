@@ -93,7 +93,7 @@ export function SongRequestSection({
   const baseInput: React.CSSProperties = {
     flex: '1 1 140px', padding: '10px 14px', border: '1px solid rgba(0,0,0,0.15)',
     borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'rgba(255,255,255,0.7)',
-    outline: 'none', ...inputStyle,
+    outline: 'none', lineHeight: 'normal', boxSizing: 'border-box', ...inputStyle,
   };
 
   return (
