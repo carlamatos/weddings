@@ -267,6 +267,7 @@ export default function Vilma({
           <div className="hero-actions">
             <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
             <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
+            {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto}</a>}
           </div>
         </div>
       </div>
@@ -381,7 +382,7 @@ export default function Vilma({
         <div className="section section-center">
           <div className="wrap">
             <p className="eyebrow">{t.guestPhotos}</p>
-            <h2 className="section-title">{t.shareYourPhoto}</h2>
+            <h2 className="section-title" id="photos">{t.shareYourPhoto}</h2>
             <hr className="vl-rule" />
             <GuestPhotoSection
               userPageId={userPageId}

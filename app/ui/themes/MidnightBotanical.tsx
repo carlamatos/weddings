@@ -194,6 +194,7 @@ export default function MidnightBotanical({
             <div className="hero-actions">
               <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
               <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
+              {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto}</a>}
             </div>
           </div>
         </div>
@@ -296,7 +297,7 @@ export default function MidnightBotanical({
 
       {/* GUEST PHOTOS */}
       {isPaid && userPageId && (
-        <div style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
+        <div id="photos" style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
           <p className="section-label" style={{ textAlign: 'center' }}>{t.guestPhotos}</p>
           <h2 className="section-title" style={{ textAlign: 'center' }}>{t.shareYourPhoto}</h2>
           <GuestPhotoSection

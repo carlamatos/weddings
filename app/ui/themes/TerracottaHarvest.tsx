@@ -221,6 +221,7 @@ export default function TerracottaHarvest({
           <div className="hero-actions">
             <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
             <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
+            {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto}</a>}
           </div>
         </div>
       </div>
@@ -333,7 +334,7 @@ export default function TerracottaHarvest({
 
       {/* GUEST PHOTOS */}
       {isPaid && userPageId && (
-        <div className="section-wide">
+        <div id="photos" className="section-wide">
           <p className="section-label">{t.guestPhotos}</p>
           <h2 className="section-title">{t.shareYourPhoto}</h2>
           <GuestPhotoSection

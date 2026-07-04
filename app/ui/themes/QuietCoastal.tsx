@@ -182,6 +182,7 @@ export default function QuietCoastal({
           <div className="hero-actions">
             <a href="#rsvp" className="btn">{t.rsvpBtn.toLowerCase()}</a>
             <a href="#story" className="btn btn-outline">{t.ourStoryBtn.toLowerCase()}</a>
+            {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto.toLowerCase()}</a>}
           </div>
         </div>
       </div>
@@ -318,7 +319,7 @@ export default function QuietCoastal({
 
       {/* GUEST PHOTOS */}
       {isPaid && userPageId && (
-        <div className="wrap" style={{ padding: '80px 32px' }}>
+        <div id="photos" className="wrap" style={{ padding: '80px 32px' }}>
           <p className="eyebrow" style={{ marginBottom: 8 }}>{t.guestPhotos.toLowerCase()}</p>
           <h2 className="section-title" style={{ marginBottom: 28 }}>{t.shareYourPhoto.toLowerCase()}</h2>
           <GuestPhotoSection
