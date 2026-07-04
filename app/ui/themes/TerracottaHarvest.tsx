@@ -341,6 +341,7 @@ export default function TerracottaHarvest({
             initialPhotos={guestPhotos ?? []}
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{
+              takePhoto: t.takePhoto,
               shareYourPhoto: t.shareYourPhoto,
               loadMore: t.loadMore,
               beFirstToShare: t.beFirstToShare,

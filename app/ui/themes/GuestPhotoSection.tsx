@@ -9,6 +9,7 @@ interface GuestPhotoSectionProps {
   initialPhotos: GuestPhoto[];
   initialHasMore: boolean;
   labels: {
+    takePhoto: string;
     shareYourPhoto: string;
     loadMore: string;
     beFirstToShare: string;
@@ -32,7 +33,8 @@ export function GuestPhotoSection({
   const [loadingMore, setLoadingMore] = useState(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -88,22 +90,38 @@ export function GuestPhotoSection({
 
   return (
     <>
-      {/* Upload button */}
-      <div style={{ textAlign: 'center', marginBottom: 28 }}>
+      {/* Upload buttons */}
+      <div style={{ textAlign: 'center', marginBottom: 28, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {/* Camera — opens rear camera on mobile */}
         <button
           className={btnClassName}
           type="button"
           disabled={uploading}
-          onClick={() => inputRef.current?.click()}
+          onClick={() => cameraRef.current?.click()}
         >
-          {uploading ? labels.uploading : labels.shareYourPhoto}
+          {uploading ? labels.uploading : labels.takePhoto}
         </button>
-        {/* capture="environment" opens rear camera on mobile; falls back to file picker on desktop */}
         <input
-          ref={inputRef}
+          ref={cameraRef}
           type="file"
           accept="image/*"
           capture="environment"
+          style={{ display: 'none' }}
+          onChange={handleFile}
+        />
+        {/* Gallery — opens photo library */}
+        <button
+          className={btnClassName}
+          type="button"
+          disabled={uploading}
+          onClick={() => galleryRef.current?.click()}
+        >
+          {uploading ? labels.uploading : labels.shareYourPhoto}
+        </button>
+        <input
+          ref={galleryRef}
+          type="file"
+          accept="image/*"
           style={{ display: 'none' }}
           onChange={handleFile}
         />

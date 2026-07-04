@@ -325,7 +325,7 @@ export default function QuietCoastal({
             userPageId={userPageId}
             initialPhotos={guestPhotos ?? []}
             initialHasMore={guestPhotosHasMore ?? false}
-            labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
+            labels={{ takePhoto: t.takePhoto.toLowerCase(), shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
             btnClassName="btn"
           />
         </div>

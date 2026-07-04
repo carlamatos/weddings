@@ -387,7 +387,7 @@ export default function Vilma({
               userPageId={userPageId}
               initialPhotos={guestPhotos ?? []}
               initialHasMore={guestPhotosHasMore ?? false}
-              labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
+              labels={{ takePhoto: t.takePhoto, shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
               btnClassName="btn"
             />
           </div>
