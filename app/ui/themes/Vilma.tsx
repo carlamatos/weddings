@@ -144,7 +144,7 @@ const css = `
   .vl .footer { padding: 88px 24px 72px; background: var(--vl-olive-deep); text-align: center; }
   .vl .footer p { font-size: 14px; color: rgba(255,255,255,0.75); margin: 0 0 4px; }
   .vl .footer-rule { width: 40px; height: 1px; background: var(--vl-butter); margin: 22px auto; border: none; }
-  .vl .footer-signoff { font-family: var(--vl-script); font-size: 33px; font-weight: 400; color: var(--vl-butter); margin: 0; letter-spacing: 0.5px; }
+  .vl .footer-signoff { font-family: var(--vl-script); font-size: 33px !important; font-weight: 400; color: var(--vl-butter); margin: 0; letter-spacing: 0.5px; }
   .vl .footer-credit { font-family: var(--vl-sans); font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 24px; letter-spacing: 0.5px; }
 `;
 
