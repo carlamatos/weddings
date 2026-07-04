@@ -607,6 +607,7 @@
 .mobile-menu-theme .dash-theme-switcher { display: block; width: 100%; }
 .mobile-menu-theme .dash-theme-btn { width: 100%; justify-content: space-between; }
 .mobile-menu-theme .dash-theme-dropdown { width: 100%; }
+.mobile-menu-header .dash-sidebar-logo { border-bottom: 0; padding: 0; }
 
 /* ---------- responsive rules ---------- */
 @media (max-width: 768px) {

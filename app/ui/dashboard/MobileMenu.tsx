@@ -11,12 +11,13 @@ import type { EventTheme } from '@/app/lib/definitions';
 
 interface Props {
   hasPage: boolean;
+  isPaid?: boolean;
   themes: EventTheme[];
   currentThemeId: string | null;
   currentLanguage?: string;
 }
 
-export default function MobileMenu({ hasPage, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+export default function MobileMenu({ hasPage, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -41,7 +42,7 @@ export default function MobileMenu({ hasPage, themes, currentThemeId, currentLan
             </div>
 
             <nav className="dash-sidebar-nav" onClick={() => setOpen(false)}>
-              <NavLinks hasPage={hasPage} />
+              <NavLinks hasPage={hasPage} isPaid={isPaid} />
             </nav>
 
             {themes.length > 0 && (
