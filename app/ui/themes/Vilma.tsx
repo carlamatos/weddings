@@ -124,7 +124,7 @@ const css = `
   .vl .details-card .label { font-family: var(--vl-sans); font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--vl-olive); font-weight: 600; margin: 0 0 10px; }
   .vl .details-card .time { font-family: var(--vl-script); font-size: 33px; line-height: 1.2; margin: 0 0 6px; }
   .vl .details-card p { font-size: 14px; color: var(--vl-ink-soft); margin: 0 0 3px; }
-  .vl .map-frame { border-radius: 4px 20px 4px 20px; overflow: hidden; min-height: 220px; border: 1px solid var(--vl-mist); margin-top: 24px; }
+  .vl .map-frame { border-radius: 4px 20px 4px 20px; overflow: hidden; min-height: 220px; border: 1px solid var(--vl-mist); }
   .vl .map-frame iframe { border: 0; display: block; width: 100%; height: 100%; min-height: 220px; filter: saturate(0.7) sepia(5%); }
   .vl .directions-link { text-align: center; margin-top: 18px; }
   .vl .directions-link a { font-family: var(--vl-sans); font-size: 13px; color: var(--vl-steel); font-weight: 600; text-decoration: none; letter-spacing: 0.5px; }
