@@ -1,4 +1,4 @@
-import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { generateClientTokenFromReadWriteToken } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 
@@ -10,30 +10,41 @@ const ALLOWED_VIDEO_TYPES = [
 ];
 
 export async function POST(request: Request): Promise<NextResponse> {
-  const body = (await request.json()) as HandleUploadBody;
+  // After upload Vercel Blob sends a server-to-server callback to this route.
+  // We don't need to act on it — the client saves the URL via updateBannerImage.
+  const body = await request.json() as { type?: string; payload?: { pathname?: string } };
+  if (body.type === 'blob.upload-completed') {
+    return NextResponse.json({ response: 'ok' });
+  }
+
+  // Token generation: verify browser session (this request comes from the browser)
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const token = process.env.BLOB_READ_WRITE_TOKEN;
+  if (!token) {
+    return NextResponse.json(
+      { error: 'Vercel Blob is not configured (BLOB_READ_WRITE_TOKEN missing).' },
+      { status: 500 },
+    );
+  }
+
+  const pathname = body.payload?.pathname ?? `banners/${Date.now()}`;
 
   try {
-    const response = await handleUpload({
-      body,
-      request,
-      onBeforeGenerateToken: async () => {
-        // Runs only for the browser's token request — session cookies are present.
-        const session = await auth();
-        if (!session?.user?.id) throw new Error('Unauthorized');
-        return {
-          allowedContentTypes: ALLOWED_VIDEO_TYPES,
-          maximumSizeInBytes: 200 * 1024 * 1024,
-          tokenPayload: session.user.id,
-        };
-      },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Runs via a server-to-server callback from Vercel Blob — no browser
-        // session is present. The URL is saved by the client via updateBannerImage.
-        console.log('Video uploaded:', blob.url, 'user:', tokenPayload);
-      },
+    const validUntil = Date.now() + 60 * 60 * 1000; // 1 hour
+    const clientToken = await generateClientTokenFromReadWriteToken({
+      token,
+      pathname,
+      allowedContentTypes: ALLOWED_VIDEO_TYPES,
+      maximumSizeInBytes: 200 * 1024 * 1024,
+      validUntil,
     });
-    return NextResponse.json(response);
+    return NextResponse.json({ clientToken });
   } catch (err) {
-    return NextResponse.json({ error: String(err) }, { status: 400 });
+    console.error('generateClientTokenFromReadWriteToken error:', err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }
