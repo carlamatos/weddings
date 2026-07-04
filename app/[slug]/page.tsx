@@ -71,6 +71,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     venue_name: res.venue_name || undefined,
     language: res.language || 'en',
     plan_type: res.plan_type || undefined,
+    user_phone: res.user_phone || undefined,
   };
 }
 

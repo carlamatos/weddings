@@ -37,6 +37,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       userPageId={String(data.id)}
       bannerImage={data.banner_image || undefined}
       userEmail={data.user_email || undefined}
+      userPhone={data.user_phone || undefined}
       mapsKey={mapsKey}
       registryImage={data.section_2_image}
       registryDescription={data.section_2_description}
