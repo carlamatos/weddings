@@ -111,9 +111,8 @@ const css = `
   .mb .rsvp-sub { font-size: 14px; color: var(--moss); margin: 0; }
 `;
 
-function formatDate(dateStr: string, city?: string, country?: string): string {
-  const date = new Date(dateStr + 'T00:00:00');
-  const formatted = date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
+  const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
   return loc ? `${formatted} · ${loc}` : formatted;
 }
@@ -153,7 +152,7 @@ export default function MidnightBotanical({
   heroObjectFit = 'cover',
 }: ThemeProps) {
   const t = getTranslations(language);
-  const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
+  const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
     ? new Date(`1970-01-01T${eventTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
