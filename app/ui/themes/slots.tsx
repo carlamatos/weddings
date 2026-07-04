@@ -373,21 +373,37 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
     setUploadError('');
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const text = await res.text();
-      let data: { url?: string; error?: string };
-      try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
-      if (data.url) {
-        setCurrent(data.url);
-        setIsVideo(isVideoUrl(data.url) || fileIsVideo);
-        startTransition(() => updateBannerImage(data.url!));
+      let uploadedUrl: string;
+
+      if (fileIsVideo) {
+        // Videos upload directly from browser to Blob — bypasses the 4.5 MB
+        // Vercel function body limit. The token route handles auth + type checks.
+        const { upload } = await import('@vercel/blob/client');
+        const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
+        const blob = await upload(`banners/${Date.now()}.${ext}`, file, {
+          access: 'public',
+          handleUploadUrl: '/api/upload/token',
+        });
+        uploadedUrl = blob.url;
       } else {
-        setCurrent(src);
-        setIsVideo(isVideoUrl(src));
-        setUploadError(data.error ?? 'Upload failed. Please try again.');
+        // Images go through the server route for safety check + optimization.
+        const formData = new FormData();
+        formData.append('file', file);
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const text = await res.text();
+        let data: { url?: string; error?: string };
+        try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
+        if (!data.url) throw new Error(data.error ?? 'Upload failed. Please try again.');
+        uploadedUrl = data.url;
       }
+
+      setCurrent(uploadedUrl);
+      setIsVideo(isVideoUrl(uploadedUrl) || fileIsVideo);
+      startTransition(() => updateBannerImage(uploadedUrl));
+    } catch (err) {
+      setCurrent(src);
+      setIsVideo(isVideoUrl(src));
+      setUploadError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
     } finally {
       setUploading(false);
       e.target.value = '';
