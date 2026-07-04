@@ -343,21 +343,23 @@
   .uploaded-tile img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: pointer; }
 
   /* ── livestream ── */
-  .livestream-wrap { padding: 88px 24px; background: var(--steel); text-align: center; }
-  .livestream-copy { font-family: var(--font-serif); font-size: 15px; color: rgba(255,255,255,0.75); margin: 0 auto 28px; max-width: 440px; line-height: 1.7; }
+  .livestream-wrap { padding: 88px 24px; background: #FFFFFF; text-align: center; }
+  .livestream-copy { font-family: var(--font-serif); font-size: 15px; color: var(--ink-soft); margin: 0 auto 28px; max-width: 440px; line-height: 1.7; }
 
   /* ── song requests ── */
-  .song-section { background: #FFFFFF; padding: 88px 28px; }
-  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; max-width: 580px; }
+  .song-section { background: var(--steel); padding: 88px 28px; text-align: center; }
+  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; max-width: 580px; margin-left: auto; margin-right: auto; }
   .song-form input:nth-child(1) { flex: 2 1 130px; }
   .song-form input:nth-child(2) { flex: 2 1 130px; }
   .song-form input:nth-child(3) { flex: 1 1 100px; }
   .song-form button { flex: 0 0 auto; }
-  .song-list { max-width: 460px; border-top: 1.5px solid rgba(146,148,111,0.3); }
-  .song-row { display: flex; justify-content: space-between; padding: 13px 4px; border-bottom: 1px solid rgba(146,148,111,0.2); font-size: 14px; }
-  .song-row .title { font-family: var(--font-serif); font-weight: 600; color: var(--ink); }
-  .song-row .artist { font-family: var(--font-serif); font-style: italic; color: var(--ink-soft); }
-  /* song section inputs inherit the default underline style on white */
+  .song-form input { color: #FFFFFF; border-bottom-color: rgba(255,255,255,0.35); }
+  .song-form input::placeholder { color: rgba(255,255,255,0.55); }
+  .song-form input:focus { border-bottom-color: var(--butter); }
+  .song-list { max-width: 560px; border-top: 1.5px solid rgba(255,255,255,0.25); margin: 0 auto; }
+  .song-row { display: flex; justify-content: space-between; padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 14px; }
+  .song-row .title { font-family: var(--font-serif); font-weight: 600; color: #FFFFFF; }
+  .song-row .artist { font-family: var(--font-serif); font-style: italic; color: rgba(255,255,255,0.7); }
 
   /* ── hashtag + share ── */
   .hashtag-wrap { padding: 88px 24px; background: var(--olive); text-align: center; }
@@ -635,24 +637,24 @@
 
   <!-- LIVESTREAM -->
   <div class="livestream-wrap reveal">
-    <p class="eyebrow on-dark">Can't make it in person?</p>
-    <h2 class="section-title on-dark">Watch the livestream</h2>
+    <p class="eyebrow">Can't make it in person?</p>
+    <h2 class="section-title">Watch the livestream</h2>
     <hr class="vl-rule" />
     <p class="livestream-copy">The ceremony will be streamed live starting at 4:45 PM PT. The link goes live the morning of the wedding.</p>
-    <a href="#livestream" class="btn btn-amber">Open livestream</a>
+    <a href="#livestream" class="btn">Open livestream</a>
   </div>
 
   <!-- SONG REQUESTS -->
   <div class="song-section reveal">
     <div class="wrap">
-      <p class="eyebrow">Build our playlist</p>
-      <h2 class="section-title">Song requests</h2>
-      <hr class="vl-rule vl-rule-left" />
+      <p class="eyebrow on-dark">Build our playlist</p>
+      <h2 class="section-title on-dark">Song requests</h2>
+      <hr class="vl-rule" />
       <form class="song-form" id="song-form">
         <input type="text" id="song-name" placeholder="Your name" />
         <input type="text" id="song-title" placeholder="Song title" />
         <input type="text" id="song-artist" placeholder="Artist" />
-        <button type="submit" class="btn btn-outline">Add</button>
+        <button type="submit" class="btn btn-amber">Add</button>
       </form>
       <div class="song-list" id="song-list"></div>
     </div>

@@ -143,6 +143,15 @@ const css = `
   .vl .registry-button { display: inline-block; padding: 13px 30px; border-radius: 999px; border: 1.5px solid var(--vl-butter); color: var(--vl-butter); text-decoration: none; font-family: var(--vl-sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; transition: background 0.2s ease; line-height: 1; }
   .vl .registry-button:hover { background: rgba(244,227,181,0.15); }
 
+  .vl .song-section { background: var(--vl-steel); padding: 88px 28px; text-align: center; }
+  .vl .song-section .song-list { border-top: 1.5px solid rgba(255,255,255,0.25); max-width: 560px; margin: 0 auto; }
+  .vl .song-section .song-row { border-bottom: 1px solid rgba(255,255,255,0.15); }
+  .vl .song-section .song-row .title { color: #FFFFFF; }
+  .vl .song-section .song-row .artist { color: rgba(255,255,255,0.7); }
+  .vl .song-section input, .vl .song-section textarea { color: #FFFFFF; border-bottom-color: rgba(255,255,255,0.35); }
+  .vl .song-section input::placeholder { color: rgba(255,255,255,0.55); }
+  .vl .song-section input:focus { border-bottom-color: var(--vl-butter); }
+
   .vl .footer { padding: 88px 24px 72px; background: var(--vl-olive-deep); text-align: center; }
   .vl .footer p { font-size: 14px; color: rgba(255,255,255,0.75); margin: 0 0 4px; }
   .vl .footer-rule { width: 40px; height: 1px; background: var(--vl-butter); margin: 22px auto; border: none; }
@@ -387,17 +396,17 @@ export default function Vilma({
 
       {/* SONG REQUESTS */}
       {isPaid && userPageId && (
-        <div className="section section-center">
+        <div className="song-section">
           <div className="wrap">
-            <p className="eyebrow">{t.buildOurPlaylist}</p>
-            <h2 className="section-title">{t.songRequests}</h2>
+            <p className="eyebrow on-dark">{t.buildOurPlaylist}</p>
+            <h2 className="section-title on-dark">{t.songRequests}</h2>
             <hr className="vl-rule" />
             <SongRequestSection
               userPageId={userPageId}
               initialSongs={guestSongs ?? []}
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
-              btnClassName="btn"
+              btnClassName="btn btn-amber"
             />
           </div>
         </div>
