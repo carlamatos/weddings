@@ -135,6 +135,7 @@ export type UserPageState = {
 
     const { event_name, description, event_date, event_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
     const venue_name = (formData.get('venueName') as string) || null;
+    const user_phone = (formData.get('phone') as string)?.trim() || null;
 
     const user_id = session?.user?.id;
 
@@ -146,11 +147,11 @@ export type UserPageState = {
       await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
-          location, user_email, slug, url, street_address, unit_number, postal_code, city, country,
+          location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
           place_id, formatted_address, venue_name
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
-          ${location}, ${email}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
+          ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}
         )
       `;
@@ -427,6 +428,22 @@ export async function updateHeroEyebrow(eyebrow: string) {
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update hero eyebrow:', error);
+  }
+}
+
+export async function updateContactInfo(email: string, phone: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return;
+  try {
+    await sql`
+      UPDATE user_page
+      SET user_email = ${email.trim() || null}, user_phone = ${phone.trim() || null}
+      WHERE user_id = ${userId}
+    `;
+    revalidatePath('/', 'layout');
+  } catch (error) {
+    console.error('Failed to update contact info:', error);
   }
 }
 

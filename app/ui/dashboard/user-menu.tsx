@@ -11,7 +11,7 @@ interface Profile {
 }
 
 function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (name: string) => void }) {
-  const [form, setForm] = useState<Profile>({ given_name: '', family_name: '', email: '', phone: '' });
+  const [form, setForm] = useState<Profile>({ given_name: '', family_name: '', phone: '' });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');

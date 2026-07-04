@@ -3,7 +3,7 @@ import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
-import { getTranslations } from '@/app/lib/translations';
+import { getTranslations, localizeDate } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toLowerCase();
@@ -123,6 +123,7 @@ export default function QuietCoastal({
   url,
   bannerImage,
   userEmail,
+  userPhone,
   mapsKey,
   registryImage,
   registryDescription,
@@ -353,14 +354,15 @@ export default function QuietCoastal({
       <footer className="footer wrap" style={{ padding: '80px 32px' }}>
         <div className="footer-grid">
           <div>
-            {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</p>}
+            {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }).toLowerCase()}</p>}
             {city && <p>{[city, country].filter(Boolean).join(', ').toLowerCase()}</p>}
           </div>
-          {userEmail && (
+          {editSlots?.footerContact ?? ((userEmail || userPhone) ? (
             <div>
-              <p className="footer-signoff"><a href={`mailto:${userEmail}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{userEmail}</a></p>
+              {userEmail && <p className="footer-signoff"><a href={`mailto:${userEmail}`} style={{ color: 'var(--ink)', textDecoration: 'none' }}>{userEmail}</a></p>}
+              {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userPhone}</a></p>}
             </div>
-          )}
+          ) : null)}
         </div>
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>

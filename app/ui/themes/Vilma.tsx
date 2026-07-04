@@ -4,7 +4,7 @@ import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
-import { getTranslations } from '@/app/lib/translations';
+import { getTranslations, localizeDate } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -166,7 +166,7 @@ function formatDate(dateStr: string, city?: string, country?: string): string {
 }
 
 function formatDateLong(dateStr: string, locale = 'en-US'): string {
-  return new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  return localizeDate(dateStr, locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export default function Vilma({
@@ -184,6 +184,7 @@ export default function Vilma({
   url,
   bannerImage,
   userEmail,
+  userPhone,
   mapsKey,
   registryImage,
   registryDescription,
@@ -418,7 +419,12 @@ export default function Vilma({
         <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
         {eventDate && <p>{formatDateLong(eventDate, t.dateLocale)}</p>}
         {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
-        {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>{userEmail}</a></p>}
+        {editSlots?.footerContact ?? (
+          <>
+            {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>{userEmail}</a></p>}
+            {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>{userPhone}</a></p>}
+          </>
+        )}
         <hr className="footer-rule" />
         <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>

@@ -3,7 +3,7 @@ import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
-import { getTranslations } from '@/app/lib/translations';
+import { getTranslations, localizeDate } from '@/app/lib/translations';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -152,6 +152,7 @@ export default function TerracottaHarvest({
   url,
   bannerImage,
   userEmail,
+  userPhone,
   mapsKey,
   registryImage,
   registryDescription,
@@ -250,7 +251,7 @@ export default function TerracottaHarvest({
                 <div className="details-card">
                   <p className="label">{t.ceremony}</p>
                   {formattedTime && <p className="time">{formattedTime}</p>}
-                  {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                  {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
                   {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                   {streetAddress && <p>{streetAddress}</p>}
                   {city && <p style={{ fontSize: 14, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}
@@ -376,13 +377,18 @@ export default function TerracottaHarvest({
 
       {/* FOOTER */}
       <footer className="footer">
-        {eventDate && <p>{new Date(eventDate + 'T00:00:00').toLocaleDateString(t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+        {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
         {city && <p>{[city, country].filter(Boolean).join(', ')}</p>}
         <div className="footer-rule" />
-        {userEmail && (
-          <p className="footer-signoff">
-            <a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a>
-          </p>
+        {editSlots?.footerContact ?? (
+          <>
+            {userEmail && (
+              <p className="footer-signoff">
+                <a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a>
+              </p>
+            )}
+            {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userPhone}</a></p>}
+          </>
         )}
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>

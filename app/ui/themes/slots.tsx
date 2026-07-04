@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
-import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting } from '@/app/lib/actions';
+import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo } from '@/app/lib/actions';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -439,6 +439,85 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
           >×</button>
         </div>
       )}
+    </span>
+  );
+}
+
+// ─── EditableContactInfo ──────────────────────────────────
+// Replaces the contact block (email + phone) in the footer.
+export function EditableContactInfo({
+  email,
+  phone,
+  linkStyle,
+}: {
+  email?: string;
+  phone?: string;
+  linkStyle?: React.CSSProperties;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [emailVal, setEmailVal] = useState(email ?? '');
+  const [phoneVal, setPhoneVal] = useState(phone ?? '');
+  const [, startTransition] = useTransition();
+
+  function handleSave() {
+    startTransition(async () => {
+      await updateContactInfo(emailVal, phoneVal);
+      setEditing(false);
+    });
+  }
+
+  const inputStyle: React.CSSProperties = {
+    display: 'block', width: '100%', padding: '6px 10px', marginBottom: 6,
+    border: '1px solid rgba(255,255,255,0.3)', borderRadius: 6,
+    background: 'rgba(255,255,255,0.12)', color: 'inherit', fontSize: 13,
+    fontFamily: 'inherit', boxSizing: 'border-box',
+  };
+
+  if (editing) {
+    return (
+      <div style={{ minWidth: 220 }}>
+        <input
+          type="email" value={emailVal} onChange={e => setEmailVal(e.target.value)}
+          placeholder="Contact email" style={inputStyle}
+        />
+        <input
+          type="tel" value={phoneVal} onChange={e => setPhoneVal(e.target.value)}
+          placeholder="Phone (optional)" style={inputStyle}
+        />
+        <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+          <button
+            onClick={handleSave}
+            style={{ padding: '5px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.9)', color: '#333', fontSize: 12, fontWeight: 600 }}
+          >Save</button>
+          <button
+            onClick={() => { setEmailVal(email ?? ''); setPhoneVal(phone ?? ''); setEditing(false); }}
+            style={{ padding: '5px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', background: 'transparent', color: 'inherit', fontSize: 12 }}
+          >Cancel</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      {emailVal && <p style={{ margin: '0 0 4px' }}><a href={`mailto:${emailVal}`} style={{ textDecoration: 'none', ...linkStyle }}>{emailVal}</a></p>}
+      {phoneVal && <p style={{ margin: 0 }}><a href={`tel:${phoneVal}`} style={{ textDecoration: 'none', ...linkStyle }}>{phoneVal}</a></p>}
+      {!emailVal && !phoneVal && <p style={{ margin: 0, opacity: 0.5, fontStyle: 'italic' }}>Add contact info</p>}
+      <button
+        onClick={() => setEditing(true)}
+        title="Edit contact info"
+        style={{
+          position: 'absolute', top: 0, right: -28,
+          background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 4,
+          cursor: 'pointer', padding: 4, color: 'inherit', lineHeight: 1,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+        }}
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+      </button>
     </span>
   );
 }

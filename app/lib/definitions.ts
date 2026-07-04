@@ -40,6 +40,7 @@ export type UserPage = {
   hero_eyebrow?: string;
   venue_name?: string;
   language?: string;
+  user_phone?: string;
 };
 
 export type DBUser = {

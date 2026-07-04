@@ -73,6 +73,7 @@ export default function Form() {
     themeSlug: 'quiet-coastal',
     location: 'address',
     email: '',
+    phone: '',
     description: '',
     url: '',
     venueName: '',
@@ -293,15 +294,25 @@ export default function Form() {
           </div>
         )}
 
-        {/* Email */}
-        <div className="auth-field">
-          <label className="auth-label" htmlFor="email">Your Email</label>
-          <div className="auth-input-wrap">
-            <input className="auth-input" id="email" type="email" name="email"
-              value={formData.email} onChange={handleChange}
-              placeholder="you@example.com" required />
+        {/* Email + Phone */}
+        <div className="auth-grid-2">
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="email">Contact Email</label>
+            <div className="auth-input-wrap">
+              <input className="auth-input" id="email" type="email" name="email"
+                value={formData.email} onChange={handleChange}
+                placeholder="you@example.com" required />
+            </div>
+            {state.errors?.email && <p className="auth-field-error">{state.errors.email[0]}</p>}
           </div>
-          {state.errors?.email && <p className="auth-field-error">{state.errors.email[0]}</p>}
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="phone">Contact Phone <span style={{ fontWeight: 400, opacity: 0.6 }}>(optional)</span></label>
+            <div className="auth-input-wrap">
+              <input className="auth-input" id="phone" type="tel" name="phone"
+                value={formData.phone} onChange={handleChange}
+                placeholder="+1 (555) 000-0000" />
+            </div>
+          </div>
         </div>
 
         {/* Page URL — 4 generated options */}

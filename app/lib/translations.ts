@@ -301,6 +301,17 @@ export function getTranslations(language?: string): Translations {
   return map[language ?? 'en'] ?? en;
 }
 
+// Capitalizes day/month names in locales that output them lowercase (e.g. es-ES).
+// Skips short connector words like "de", "del", "du", "de la".
+export function localizeDate(dateStr: string, locale: string, options: Intl.DateTimeFormatOptions): string {
+  const str = new Date(dateStr + 'T00:00:00').toLocaleDateString(locale, options);
+  if (locale.startsWith('es') || locale.startsWith('fr')) {
+    return str.replace(/\b[a-záéíóúüñàâäéèêëîïôùûüç]{4,}/gi,
+      (w) => w.charAt(0).toUpperCase() + w.slice(1));
+  }
+  return str;
+}
+
 export const LANGUAGES: { code: Language; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'fr', label: 'Français' },

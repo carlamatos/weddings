@@ -35,6 +35,7 @@ interface EventData {
   venue_name?: string;
   language?: string;
   plan_type?: string;
+  user_phone?: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -126,6 +127,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         userPageId={String(data.id)}
         bannerImage={data.banner_image || undefined}
         userEmail={data.user_email || undefined}
+        userPhone={data.user_phone || undefined}
         mapsKey={mapsKey}
         registryImage={data.section_2_image}
         registryDescription={data.section_2_description}

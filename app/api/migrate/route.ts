@@ -9,6 +9,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Add user_phone to user_page
+  await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
+
   // Create page settings table
   await sql`
     CREATE TABLE IF NOT EXISTS user_page_settings (

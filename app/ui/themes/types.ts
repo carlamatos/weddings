@@ -13,6 +13,7 @@ export interface ThemeSlots {
   heroDate?: React.ReactNode;
   description?: React.ReactNode;
   gallery?: React.ReactNode;
+  footerContact?: React.ReactNode;
 }
 
 export interface ThemeProps {
@@ -48,4 +49,5 @@ export interface ThemeProps {
   guestSongs?: import('@/app/lib/definitions').GuestSong[];
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
+  userPhone?: string;
 }

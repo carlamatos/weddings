@@ -8,6 +8,7 @@ import {
   EditableHeroDate,
   EditableDescription,
   EditableBannerBg,
+  EditableContactInfo,
 } from '@/app/ui/themes/slots';
 import { EditableGallery } from '@/app/ui/themes/GallerySection';
 
@@ -95,6 +96,17 @@ export default async function Page() {
       />
     ),
     gallery: <EditableGallery initialImages={galleryImages} isPaid={userPage.plan_type === 'paid'} />,
+    footerContact: (
+      <EditableContactInfo
+        email={userPage.user_email || ''}
+        phone={userPage.user_phone || ''}
+        linkStyle={
+          userPage.theme_slug === 'vilma' ? { color: 'rgba(255,255,255,0.75)' } :
+          userPage.theme_slug === 'midnight-botanical' ? { color: 'var(--gold)' } :
+          { color: 'inherit' }
+        }
+      />
+    ),
   };
 
   return (
@@ -116,6 +128,7 @@ export default async function Page() {
         url={userPage.url || undefined}
         bannerImage={userPage.banner_image || undefined}
         userEmail={userPage.user_email || undefined}
+        userPhone={userPage.user_phone || undefined}
         mapsKey={mapsKey}
         registryImage={userPage.section_2_image || undefined}
         registryDescription={userPage.section_2_description || undefined}
