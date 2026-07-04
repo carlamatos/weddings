@@ -19,10 +19,10 @@ export async function PATCH(request: Request) {
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { given_name, family_name, email, phone } = await request.json();
+  const { given_name, family_name, phone } = await request.json();
 
-  if (!given_name?.trim() || !family_name?.trim() || !email?.trim()) {
-    return NextResponse.json({ error: 'Name and email are required.' }, { status: 400 });
+  if (!given_name?.trim() || !family_name?.trim()) {
+    return NextResponse.json({ error: 'Name is required.' }, { status: 400 });
   }
 
   const name = `${given_name.trim()} ${family_name.trim()}`;
@@ -32,7 +32,6 @@ export async function PATCH(request: Request) {
     SET given_name = ${given_name.trim()},
         family_name = ${family_name.trim()},
         name = ${name},
-        email = ${email.trim()},
         phone = ${phone?.trim() || null}
     WHERE id = ${userId}
   `;

@@ -7,7 +7,6 @@ import { UserCircleIcon } from '@heroicons/react/24/outline';
 interface Profile {
   given_name: string;
   family_name: string;
-  email: string;
   phone: string;
 }
 
@@ -25,7 +24,6 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
         setForm({
           given_name: data.given_name ?? '',
           family_name: data.family_name ?? '',
-          email: data.email ?? '',
           phone: data.phone ?? '',
         });
         setLoading(false);
@@ -79,10 +77,6 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
                 <label>Family name</label>
                 <input value={form.family_name} onChange={handleChange('family_name')} required autoComplete="family-name" />
               </div>
-            </div>
-            <div className="profile-field">
-              <label>Email</label>
-              <input type="email" value={form.email} onChange={handleChange('email')} required autoComplete="email" />
             </div>
             <div className="profile-field">
               <label>Phone</label>
