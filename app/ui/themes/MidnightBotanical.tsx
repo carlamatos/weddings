@@ -303,7 +303,7 @@ export default function MidnightBotanical({
             userPageId={userPageId}
             initialPhotos={guestPhotos ?? []}
             initialHasMore={guestPhotosHasMore ?? false}
-            labels={{ takePhoto: t.takePhoto, shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
+            labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
             btnClassName="btn"
           />
         </div>

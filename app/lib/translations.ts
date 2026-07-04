@@ -64,7 +64,6 @@ export interface Translations {
   errorGeneral: string;
   // Guest photos
   guestPhotos: string;
-  takePhoto: string;
   shareYourPhoto: string;
   loadMore: string;
   beFirstToShare: string;
@@ -137,7 +136,6 @@ const en: Translations = {
   errorEmail: 'Please enter a valid email address.',
   errorGeneral: 'Something went wrong. Please try again.',
   guestPhotos: 'Guest Photos',
-  takePhoto: 'Camera',
   shareYourPhoto: 'Upload Photo',
   loadMore: 'Load more',
   beFirstToShare: 'Be the first to share a photo!',
@@ -209,7 +207,6 @@ const fr: Translations = {
   errorEmail: 'Veuillez entrer une adresse courriel valide.',
   errorGeneral: 'Une erreur est survenue. Veuillez réessayer.',
   guestPhotos: 'Photos des invités',
-  takePhoto: 'Caméra',
   shareYourPhoto: 'Télécharger une photo',
   loadMore: 'Charger plus',
   beFirstToShare: 'Soyez le premier à partager une photo!',
@@ -281,7 +278,6 @@ const es: Translations = {
   errorEmail: 'Por favor ingresa una dirección de correo válida.',
   errorGeneral: 'Algo salió mal. Por favor intenta de nuevo.',
   guestPhotos: 'Fotos de invitados',
-  takePhoto: 'Cámara',
   shareYourPhoto: 'Subir foto',
   loadMore: 'Cargar más',
   beFirstToShare: '¡Sé el primero en compartir una foto!',
