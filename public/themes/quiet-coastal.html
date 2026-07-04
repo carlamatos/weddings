@@ -215,9 +215,10 @@
   .livestream-copy { font-size: 15px; color: var(--ink-soft); margin: 0 0 28px; max-width: 420px; line-height: 1.7; }
 
   /* ---------- song requests ---------- */
-  .song-form { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; max-width: 460px; }
-  .song-form input:nth-child(1) { flex: 2 1 160px; }
-  .song-form input:nth-child(2) { flex: 1 1 120px; }
+  .song-form { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; max-width: 580px; }
+  .song-form input:nth-child(1) { flex: 2 1 140px; }
+  .song-form input:nth-child(2) { flex: 2 1 140px; }
+  .song-form input:nth-child(3) { flex: 1 1 110px; }
   .song-form button { flex: 0 0 auto; }
   .song-list { max-width: 460px; }
   .song-row { display: flex; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--slate); font-size: 14px; }
@@ -496,6 +497,7 @@
       <p class="eyebrow">build our playlist</p>
       <h2 class="title">song requests</h2>
       <form class="song-form" id="song-form">
+        <input type="text" id="song-name" placeholder="your name" />
         <input type="text" id="song-title" placeholder="song title" />
         <input type="text" id="song-artist" placeholder="artist" />
         <button type="submit" class="btn btn-outline">add</button>

@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
+import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -146,6 +147,8 @@ export default function MidnightBotanical({
   isPaid,
   guestPhotos,
   guestPhotosHasMore,
+  guestSongs,
+  guestSongsHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -302,6 +305,23 @@ export default function MidnightBotanical({
             labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
             btnClassName="btn"
           />
+        </div>
+      )}
+
+      {/* SONG REQUESTS */}
+      {isPaid && userPageId && (
+        <div style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
+          <p className="section-label" style={{ textAlign: 'center' }}>{t.buildOurPlaylist}</p>
+          <h2 className="section-title" style={{ textAlign: 'center' }}>{t.songRequests}</h2>
+          <div style={{ maxWidth: 560, margin: '0 auto' }}>
+            <SongRequestSection
+              userPageId={userPageId}
+              initialSongs={guestSongs ?? []}
+              initialHasMore={guestSongsHasMore ?? false}
+              labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
+              btnClassName="btn"
+            />
+          </div>
         </div>
       )}
 

@@ -220,8 +220,9 @@
 
   /* song requests */
   .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
-  .song-form input:nth-child(1) { flex: 2 1 160px; }
-  .song-form input:nth-child(2) { flex: 1 1 120px; }
+  .song-form input:nth-child(1) { flex: 2 1 140px; }
+  .song-form input:nth-child(2) { flex: 2 1 140px; }
+  .song-form input:nth-child(3) { flex: 1 1 110px; }
   .song-form button { flex: 0 0 auto; }
   .song-list { background: #FFFFFF; border-radius: 14px; border: 1px solid var(--linen); overflow: hidden; }
   .song-row { display: flex; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--linen); font-size: 14px; }
@@ -512,6 +513,7 @@
     <h2 class="section-title">Song requests</h2>
     <div style="max-width: 480px; margin: 0 auto;">
       <form class="song-form" id="song-form">
+        <input type="text" id="song-name" placeholder="Your name" />
         <input type="text" id="song-title" placeholder="Song title" />
         <input type="text" id="song-artist" placeholder="Artist" />
         <button type="submit" class="btn">Add</button>

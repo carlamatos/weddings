@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos } from '@/app/lib/data';
+import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -19,9 +19,10 @@ export default async function Page() {
     userId ? fetchGalleryImages(userId) : [],
   ]);
   const isPaid = userPage?.plan_type === 'paid';
-  const guestPhotosResult = userPage && isPaid
-    ? await fetchGuestPhotos(userPage.id, 0)
-    : { photos: [], hasMore: false };
+  const [guestPhotosResult, guestSongsResult] = await Promise.all([
+    userPage && isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+    userPage && isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+  ]);
 
   if (!userPage) {
     return (
@@ -124,6 +125,8 @@ export default async function Page() {
         isPaid={isPaid}
         guestPhotos={guestPhotosResult.photos}
         guestPhotosHasMore={guestPhotosResult.hasMore}
+        guestSongs={guestSongsResult.songs}
+        guestSongsHasMore={guestSongsResult.hasMore}
         editSlots={editSlots}
       />
     </div>

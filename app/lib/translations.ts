@@ -69,6 +69,17 @@ export interface Translations {
   beFirstToShare: string;
   photoUploaded: string;
   photoUploadError: string;
+  // Song requests
+  songRequests: string;
+  buildOurPlaylist: string;
+  yourName: string;
+  songTitle: string;
+  artistLabel: string;
+  addSong: string;
+  songAdded: string;
+  songAddError: string;
+  noSongsYet: string;
+  requestedBy: string;
 }
 
 const en: Translations = {
@@ -130,6 +141,16 @@ const en: Translations = {
   beFirstToShare: 'Be the first to share a photo!',
   photoUploaded: 'Photo shared — thank you!',
   photoUploadError: 'Upload failed. Please try again.',
+  songRequests: 'Song Requests',
+  buildOurPlaylist: 'Build our playlist',
+  yourName: 'Your name',
+  songTitle: 'Song title',
+  artistLabel: 'Artist',
+  addSong: 'Add',
+  songAdded: 'Song added — thank you!',
+  songAddError: 'Failed to add song. Please try again.',
+  noSongsYet: 'No song requests yet. Be the first!',
+  requestedBy: 'Requested by',
 };
 
 const fr: Translations = {
@@ -191,6 +212,16 @@ const fr: Translations = {
   beFirstToShare: 'Soyez le premier à partager une photo!',
   photoUploaded: 'Photo partagée — merci!',
   photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
+  songRequests: 'Demandes de chansons',
+  buildOurPlaylist: 'Construisez notre playlist',
+  yourName: 'Votre nom',
+  songTitle: 'Titre de la chanson',
+  artistLabel: 'Artiste',
+  addSong: 'Ajouter',
+  songAdded: 'Chanson ajoutée — merci!',
+  songAddError: 'Échec de l\'ajout. Veuillez réessayer.',
+  noSongsYet: 'Aucune demande encore. Soyez le premier!',
+  requestedBy: 'Demandé par',
 };
 
 const es: Translations = {
@@ -252,6 +283,16 @@ const es: Translations = {
   beFirstToShare: '¡Sé el primero en compartir una foto!',
   photoUploaded: 'Foto compartida — ¡gracias!',
   photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
+  songRequests: 'Solicitudes de canciones',
+  buildOurPlaylist: 'Construye nuestra playlist',
+  yourName: 'Tu nombre',
+  songTitle: 'Título de la canción',
+  artistLabel: 'Artista',
+  addSong: 'Agregar',
+  songAdded: '¡Canción agregada — gracias!',
+  songAddError: 'Error al agregar. Por favor intenta de nuevo.',
+  noSongsYet: 'Sin solicitudes aún. ¡Sé el primero!',
+  requestedBy: 'Solicitado por',
 };
 
 const map: Record<string, Translations> = { en, fr, es };

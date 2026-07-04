@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
+import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -136,6 +137,8 @@ export default function QuietCoastal({
   isPaid,
   guestPhotos,
   guestPhotosHasMore,
+  guestSongs,
+  guestSongsHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -325,6 +328,24 @@ export default function QuietCoastal({
             btnClassName="btn"
           />
         </div>
+      )}
+
+      {/* SONG REQUESTS */}
+      {isPaid && userPageId && (
+        <>
+          <hr className="hairline" />
+          <div className="wrap" style={{ padding: '80px 32px' }}>
+            <p className="eyebrow" style={{ marginBottom: 8 }}>{t.buildOurPlaylist.toLowerCase()}</p>
+            <h2 className="section-title" style={{ marginBottom: 28 }}>{t.songRequests.toLowerCase()}</h2>
+            <SongRequestSection
+              userPageId={userPageId}
+              initialSongs={guestSongs ?? []}
+              initialHasMore={guestSongsHasMore ?? false}
+              labels={{ yourName: t.yourName.toLowerCase(), songTitle: t.songTitle.toLowerCase(), artistLabel: t.artistLabel.toLowerCase(), addSong: t.addSong.toLowerCase(), songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet.toLowerCase(), requestedBy: t.requestedBy.toLowerCase(), loadMore: t.loadMore.toLowerCase(), sending: t.sending.toLowerCase() }}
+              btnClassName="btn"
+            />
+          </div>
+        </>
       )}
 
       {/* FOOTER */}

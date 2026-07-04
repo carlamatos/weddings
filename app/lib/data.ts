@@ -8,6 +8,7 @@ import {
   GalleryImage,
   Guest,
   GuestPhoto,
+  GuestSong,
 } from './definitions';
 
 function normalizePage(page: UserPage): UserPage {
@@ -157,6 +158,29 @@ export async function fetchGuestPhotos(
   } catch (error) {
     console.error('Failed to fetch guest photos:', error);
     return { photos: [], hasMore: false };
+  }
+}
+
+const GUEST_SONGS_PAGE_SIZE = 20;
+
+export async function fetchGuestSongs(
+  userPageId: string,
+  offset = 0,
+): Promise<{ songs: GuestSong[]; hasMore: boolean }> {
+  try {
+    const data = await sql<GuestSong>`
+      SELECT id, user_page_id, requester_name, song_title, artist, ip_address, created_at
+      FROM guests_songs
+      WHERE user_page_id = ${userPageId}
+      ORDER BY created_at DESC
+      LIMIT ${GUEST_SONGS_PAGE_SIZE + 1} OFFSET ${offset}
+    `;
+    const rows = data.rows;
+    const hasMore = rows.length > GUEST_SONGS_PAGE_SIZE;
+    return { songs: hasMore ? rows.slice(0, GUEST_SONGS_PAGE_SIZE) : rows, hasMore };
+  } catch (error) {
+    console.error('Failed to fetch guest songs:', error);
+    return { songs: [], hasMore: false };
   }
 }
 

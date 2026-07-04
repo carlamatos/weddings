@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
+import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
 import { getTranslations } from '@/app/lib/translations';
@@ -189,6 +190,8 @@ export default function Vilma({
   isPaid,
   guestPhotos,
   guestPhotosHasMore,
+  guestSongs,
+  guestSongsHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDateText = eventDate ? formatDate(eventDate, city, country) : '';
@@ -376,6 +379,24 @@ export default function Vilma({
               initialPhotos={guestPhotos ?? []}
               initialHasMore={guestPhotosHasMore ?? false}
               labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
+              btnClassName="btn"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* SONG REQUESTS */}
+      {isPaid && userPageId && (
+        <div className="section section-center">
+          <div className="wrap">
+            <p className="eyebrow">{t.buildOurPlaylist}</p>
+            <h2 className="section-title">{t.songRequests}</h2>
+            <hr className="vl-rule" />
+            <SongRequestSection
+              userPageId={userPageId}
+              initialSongs={guestSongs ?? []}
+              initialHasMore={guestSongsHasMore ?? false}
+              labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn"
             />
           </div>

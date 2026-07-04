@@ -270,9 +270,10 @@
   .livestream-copy { font-size: 14px; color: var(--parchment-soft); margin: 0 0 24px; max-width: 420px; margin-left: auto; margin-right: auto; }
 
   /* ---------- song requests ---------- */
-  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; max-width: 440px; }
-  .song-form input:nth-child(1) { flex: 2 1 140px; }
-  .song-form input:nth-child(2) { flex: 1 1 110px; }
+  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; max-width: 560px; }
+  .song-form input:nth-child(1) { flex: 2 1 130px; }
+  .song-form input:nth-child(2) { flex: 2 1 130px; }
+  .song-form input:nth-child(3) { flex: 1 1 100px; }
   .song-form button { flex: 0 0 auto; }
   .song-list { border-top: 1px solid var(--parchment-soft); max-width: 440px; }
   .song-row { display: flex; justify-content: space-between; padding: 12px 4px; border-bottom: 1px solid var(--parchment-soft); font-size: 13px; }
@@ -526,6 +527,7 @@
     <p class="eyebrow">Build our playlist</p>
     <h2 class="title">Song requests</h2>
     <form class="song-form" id="song-form" style="margin-left: auto;">
+      <input type="text" id="song-name" placeholder="Your name" />
       <input type="text" id="song-title" placeholder="Song title" />
       <input type="text" id="song-artist" placeholder="Artist" />
       <button type="submit" class="btn btn-outline on-light">Add</button>

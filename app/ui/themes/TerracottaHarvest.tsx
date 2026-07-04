@@ -1,6 +1,7 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
+import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 
@@ -165,6 +166,8 @@ export default function TerracottaHarvest({
   isPaid,
   guestPhotos,
   guestPhotosHasMore,
+  guestSongs,
+  guestSongsHasMore,
 }: ThemeProps) {
   const t = getTranslations(language);
   const heroDate = eventDate ? formatDate(eventDate, city, country) : '';
@@ -347,6 +350,27 @@ export default function TerracottaHarvest({
             btnClassName="btn"
           />
         </div>
+      )}
+
+      {/* SONG REQUESTS */}
+      {isPaid && userPageId && (
+        <>
+          <BandDivider thin />
+          <div className="section-tinted">
+            <p className="section-label">{t.buildOurPlaylist}</p>
+            <h2 className="section-title">{t.songRequests}</h2>
+            <div style={{ maxWidth: 560, margin: '0 auto' }}>
+              <SongRequestSection
+                userPageId={userPageId}
+                initialSongs={guestSongs ?? []}
+                initialHasMore={guestSongsHasMore ?? false}
+                labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
+                btnClassName="btn"
+              />
+            </div>
+          </div>
+          <BandDivider thin />
+        </>
       )}
 
       {/* FOOTER */}

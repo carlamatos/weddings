@@ -45,4 +45,6 @@ export interface ThemeProps {
   isPaid?: boolean;
   guestPhotos?: import('@/app/lib/definitions').GuestPhoto[];
   guestPhotosHasMore?: boolean;
+  guestSongs?: import('@/app/lib/definitions').GuestSong[];
+  guestSongsHasMore?: boolean;
 }

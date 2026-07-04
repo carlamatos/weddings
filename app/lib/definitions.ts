@@ -94,3 +94,13 @@ export type GuestPhoto = {
   ip_address: string | null;
   uploaded_at: string;
 };
+
+export type GuestSong = {
+  id: string;
+  user_page_id: number;
+  requester_name: string;
+  song_title: string;
+  artist: string;
+  ip_address: string | null;
+  created_at: string;
+};

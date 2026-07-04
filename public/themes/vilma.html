@@ -348,9 +348,10 @@
 
   /* ── song requests ── */
   .song-section { background: #FFFFFF; padding: 88px 28px; }
-  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; max-width: 460px; }
-  .song-form input:nth-child(1) { flex: 2 1 140px; }
-  .song-form input:nth-child(2) { flex: 1 1 110px; }
+  .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; max-width: 580px; }
+  .song-form input:nth-child(1) { flex: 2 1 130px; }
+  .song-form input:nth-child(2) { flex: 2 1 130px; }
+  .song-form input:nth-child(3) { flex: 1 1 100px; }
   .song-form button { flex: 0 0 auto; }
   .song-list { max-width: 460px; border-top: 1.5px solid rgba(146,148,111,0.3); }
   .song-row { display: flex; justify-content: space-between; padding: 13px 4px; border-bottom: 1px solid rgba(146,148,111,0.2); font-size: 14px; }
@@ -648,6 +649,7 @@
       <h2 class="section-title">Song requests</h2>
       <hr class="vl-rule vl-rule-left" />
       <form class="song-form" id="song-form">
+        <input type="text" id="song-name" placeholder="Your name" />
         <input type="text" id="song-title" placeholder="Song title" />
         <input type="text" id="song-artist" placeholder="Artist" />
         <button type="submit" class="btn btn-outline">Add</button>
