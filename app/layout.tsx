@@ -1,6 +1,15 @@
 import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import Script from 'next/script';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'MyGala',
+    template: '%s | MyGala',
+  },
+  description: 'Beautiful wedding websites made easy.',
+};
 
 export default function RootLayout({
   children,

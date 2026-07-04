@@ -79,16 +79,20 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }
 ): Promise<Metadata> {
-  const slug = (await params).slug;
-  const page = await fetchUserPage(slug);
-  if (!page) return {};
-  const description = page.main_content
-    ? page.main_content.replace(/<[^>]*>/g, '').trim().slice(0, 140)
-    : undefined;
-  return {
-    title: page.heading || undefined,
-    description: description || undefined,
-  };
+  try {
+    const slug = (await params).slug;
+    const page = await fetchUserPage(slug);
+    if (!page) return {};
+    const description = page.main_content
+      ? page.main_content.replace(/<[^>]*>/g, '').trim().slice(0, 140)
+      : undefined;
+    return {
+      title: { absolute: page.heading || 'MyGala' },
+      description: description || undefined,
+    };
+  } catch {
+    return {};
+  }
 }
 
 export async function generateStaticParams() {
