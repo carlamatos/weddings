@@ -8,7 +8,8 @@ const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
 const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   const constructionPassword = process.env.CONSTRUCTION_PASSWORD;
   const { pathname } = req.nextUrl;
-  if (constructionPassword && pathname !== '/construction') {
+  const isAppRoute = pathname === '/login' || pathname.startsWith('/dashboard');
+  if (constructionPassword && pathname !== '/construction' && !isAppRoute) {
     const bypass = req.cookies.get('site_bypass')?.value;
     if (bypass !== constructionPassword) {
       return NextResponse.rewrite(new URL('/construction', req.url));
