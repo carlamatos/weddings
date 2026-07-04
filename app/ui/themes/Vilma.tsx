@@ -148,9 +148,8 @@ const css = `
   .vl .song-section .song-row { border-bottom: 1px solid rgba(255,255,255,0.15); }
   .vl .song-section .song-row .title { color: #FFFFFF; }
   .vl .song-section .song-row .artist { color: rgba(255,255,255,0.7); }
-  .vl .song-section input, .vl .song-section textarea { color: #FFFFFF; border-bottom-color: rgba(255,255,255,0.35); }
   .vl .song-section input::placeholder { color: rgba(255,255,255,0.55); }
-  .vl .song-section input:focus { border-bottom-color: var(--vl-butter); }
+  .vl .song-section input:focus { border-color: var(--vl-butter); }
 
   .vl .footer { padding: 88px 24px 72px; background: var(--vl-olive-deep); text-align: center; }
   .vl .footer p { font-size: 14px; color: rgba(255,255,255,0.75); margin: 0 0 4px; }
@@ -407,6 +406,7 @@ export default function Vilma({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn btn-amber"
+              inputStyle={{ flex: '2 1 160px', padding: '10px 14px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
             />
           </div>
         </div>

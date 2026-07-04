@@ -349,13 +349,25 @@
   /* ── song requests ── */
   .song-section { background: var(--steel); padding: 88px 28px; text-align: center; }
   .song-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; max-width: 580px; margin-left: auto; margin-right: auto; }
-  .song-form input:nth-child(1) { flex: 2 1 130px; }
-  .song-form input:nth-child(2) { flex: 2 1 130px; }
-  .song-form input:nth-child(3) { flex: 1 1 100px; }
+  .song-form input:nth-child(1) { flex: 2 1 160px; }
+  .song-form input:nth-child(2) { flex: 2 1 160px; }
+  .song-form input:nth-child(3) { flex: 1 1 120px; }
   .song-form button { flex: 0 0 auto; }
-  .song-form input { color: #FFFFFF; border-bottom-color: rgba(255,255,255,0.35); }
+  .song-form input {
+    padding: 10px 14px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    font-size: 14px;
+    font-family: inherit;
+    background: var(--steel);
+    color: #FFFFFF;
+    outline: none;
+    width: auto;
+    display: inline;
+  }
   .song-form input::placeholder { color: rgba(255,255,255,0.55); }
-  .song-form input:focus { border-bottom-color: var(--butter); }
+  .song-form input:focus { border-color: var(--butter); }
   .song-list { max-width: 560px; border-top: 1.5px solid rgba(255,255,255,0.25); margin: 0 auto; }
   .song-row { display: flex; justify-content: space-between; padding: 13px 4px; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 14px; }
   .song-row .title { font-family: var(--font-serif); font-weight: 600; color: #FFFFFF; }
