@@ -36,13 +36,13 @@ export function EditableHeroEyebrow({
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
   const [, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const startEdit = () => {
     setDraft(current);
     setEditing(true);
     setHovered(false);
-    setTimeout(() => inputRef.current?.select(), 0);
+    setTimeout(() => textareaRef.current?.select(), 0);
   };
 
   const save = () => {
@@ -60,15 +60,16 @@ export function EditableHeroEyebrow({
   if (editing) {
     return (
       <span style={{ display: 'block', position: 'relative' }}>
-        <input
-          ref={inputRef}
+        <textarea
+          ref={textareaRef}
           value={draft}
+          rows={3}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') save();
             if (e.key === 'Escape') cancel();
           }}
           className={`${className} theme-edit-input`}
+          style={{ resize: 'vertical', width: '100%' }}
           autoFocus
         />
         <div className="theme-edit-controls">
@@ -86,7 +87,7 @@ export function EditableHeroEyebrow({
       onMouseLeave={() => setHovered(false)}
       style={{ display: 'block' }}
     >
-      <p className={className}>{current}</p>
+      <p className={className} style={{ whiteSpace: 'pre-line' }}>{current}</p>
       {hovered && (
         <button className="theme-edit-badge" onClick={startEdit} title="Edit eyebrow text">
           <PencilIcon /> Edit
@@ -110,13 +111,13 @@ export function EditableHeroName({
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
   const [, startTransition] = useTransition();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const startEdit = () => {
     setDraft(current);
     setEditing(true);
     setHovered(false);
-    setTimeout(() => inputRef.current?.select(), 0);
+    setTimeout(() => textareaRef.current?.select(), 0);
   };
 
   const save = () => {
@@ -134,15 +135,16 @@ export function EditableHeroName({
   if (editing) {
     return (
       <span style={{ display: 'block', position: 'relative' }}>
-        <input
-          ref={inputRef}
+        <textarea
+          ref={textareaRef}
           value={draft}
+          rows={3}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') save();
             if (e.key === 'Escape') cancel();
           }}
           className={`${className} theme-edit-input`}
+          style={{ resize: 'vertical', width: '100%' }}
           autoFocus
         />
         <div className="theme-edit-controls">
@@ -160,7 +162,7 @@ export function EditableHeroName({
       onMouseLeave={() => setHovered(false)}
       style={{ display: 'block' }}
     >
-      <h1 className={className}>{current}</h1>
+      <h1 className={className} style={{ whiteSpace: 'pre-line' }}>{current}</h1>
       {hovered && (
         <button className="theme-edit-badge" onClick={startEdit} title="Edit name">
           <PencilIcon /> Edit
