@@ -250,7 +250,6 @@ export default function Vilma({
         ))}
 
         <div className="hero-content">
-          <div className="vl-ring" aria-hidden="true"><div className="vl-ring-inner" /></div>
           {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow">{heroEyebrow || 'Together with their families'}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name">{heading}</h1>}
           <hr className="vl-rule" />
