@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { LanguageIcon, CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { updateLanguage } from '@/app/lib/actions';
-import { LANGUAGES, type Language } from '@/app/lib/translations';
+import { LANGUAGES } from '@/app/lib/translations';
 
 interface Props {
   currentLanguage: string;
