@@ -608,12 +608,15 @@
   top: 0;
   left: 0;
   height: 100vh;
+  height: 100dvh;
   width: 260px;
   background: #fff;
   border-right: 1px solid var(--line);
   z-index: 201;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   animation: slideInDrawer 0.22s ease;
 }
 
@@ -664,6 +667,7 @@
 .mobile-menu-theme .dash-theme-btn { width: 100%; justify-content: space-between; }
 .mobile-menu-theme .dash-theme-dropdown { width: 100%; }
 .mobile-menu-header .dash-sidebar-logo { border-bottom: 0; padding: 0; }
+.mobile-menu-drawer .dash-sidebar-nav { flex: 1 0 auto; }
 
 /* ---------- responsive rules ---------- */
 @media (max-width: 768px) {
