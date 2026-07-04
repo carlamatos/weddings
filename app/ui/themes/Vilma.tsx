@@ -109,7 +109,7 @@ const css = `
   .vl .hero-content { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
   @keyframes vl-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .vl .hero-eyebrow { animation: vl-rise 1s ease both; }
-  .vl .hero-name { animation: vl-rise 1s ease 0.2s both; font-family: var(--vl-script); font-size: clamp(60px, 9.5vw, 110px); font-weight: 400; color: var(--vl-steel); margin: 0 0 6px; line-height: 1.1; }
+  .vl .hero-name { animation: vl-rise 1s ease 0.2s both; font-family: var(--vl-script); font-size: clamp(60px, 9.5vw, 110px); font-weight: 400; color: var(--vl-steel); margin: 0 0 30px; line-height: 0.8; }
   .vl .hero-date { animation: vl-rise 1s ease 0.4s both; font-family: var(--vl-sans); font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--vl-olive); margin: 0 0 30px; }
   .vl .hero-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
 
