@@ -164,6 +164,10 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+function isVideoUrl(url: string) {
+  return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
+}
+
 function formatDateLong(dateStr: string, locale = 'en-US'): string {
   return localizeDate(dateStr, locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 }
@@ -255,8 +259,12 @@ export default function Vilma({
         </svg>
 
         {editSlots?.heroBg ?? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={bannerImage || '/images/themes/vilma/hero-bg.jpg'} alt="" style={{ objectFit: heroObjectFit }} />
+          isVideoUrl(bannerImage || '') ? (
+            <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="hero-bg" src={bannerImage || '/images/themes/vilma/hero-bg.jpg'} alt="" style={{ objectFit: heroObjectFit }} />
+          )
         )}
 
         <div className="hero-content">

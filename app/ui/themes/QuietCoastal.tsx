@@ -101,6 +101,8 @@ const css = `
   .qc .rsvp-sub { font-size: 14px; color: var(--ink-soft); margin: 0; }
 `;
 
+function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
+
 function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
   const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' }).toLowerCase();
   const location = [city, country].filter(Boolean).join(', ').toLowerCase();
@@ -172,8 +174,12 @@ export default function QuietCoastal({
       {/* HERO */}
       <div className="hero">
         {editSlots?.heroBg ?? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
+          isVideoUrl(heroImg) ? (
+            <video className="hero-bg" src={heroImg} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
+          )
         )}
         <div className="hero-content">
           {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'together with their families'}</p>}

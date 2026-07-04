@@ -111,6 +111,8 @@ const css = `
   .mb .rsvp-sub { font-size: 14px; color: var(--moss); margin: 0; }
 `;
 
+function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
+
 function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
   const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -182,8 +184,12 @@ export default function MidnightBotanical({
       {/* HERO */}
       <div className="hero">
         {editSlots?.heroBg ?? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
+          isVideoUrl(heroImg) ? (
+            <video className="hero-bg" src={heroImg} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
+          )
         )}
         <div className="hero-content">
           <div className="hero-frame">

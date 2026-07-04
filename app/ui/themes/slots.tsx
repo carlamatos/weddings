@@ -338,10 +338,15 @@ export function EditableDescription({
 
 // ─── EditableBannerBg ─────────────────────────────────────
 // Replaces: <img className="hero-bg" src={bannerImage} alt="" />
-// Shows a camera overlay; clicking opens a file picker.
+// Shows a camera overlay; clicking opens a file picker (image or video).
+function isVideoUrl(url: string) {
+  return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
+}
+
 export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: string; initialObjectFit?: 'cover' | 'contain' }) {
   const [hovered, setHovered] = useState(false);
   const [current, setCurrent] = useState(src);
+  const [isVideo, setIsVideo] = useState(() => isVideoUrl(src));
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);
@@ -358,9 +363,12 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const fileIsVideo = file.type.startsWith('video/');
+
     // Optimistic preview
     const objectUrl = URL.createObjectURL(file);
     setCurrent(objectUrl);
+    setIsVideo(fileIsVideo);
     setUploading(true);
     setUploadError('');
 
@@ -373,17 +381,20 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
       try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
       if (data.url) {
         setCurrent(data.url);
+        setIsVideo(isVideoUrl(data.url) || fileIsVideo);
         startTransition(() => updateBannerImage(data.url!));
       } else {
-        setCurrent(src); // revert preview
+        setCurrent(src);
+        setIsVideo(isVideoUrl(src));
         setUploadError(data.error ?? 'Upload failed. Please try again.');
       }
     } finally {
       setUploading(false);
-      // Reset so the same file can be re-selected if needed
       e.target.value = '';
     }
   };
+
+  const mediaSrc = current || '/images/themes/quiet-coastal/coastal.png';
 
   return (
     <span
@@ -391,13 +402,25 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="hero-bg" src={current || '/images/themes/quiet-coastal/coastal.png'} alt="" style={{ objectFit }} />
+      {isVideo ? (
+        <video
+          className="hero-bg"
+          src={mediaSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ objectFit }}
+        />
+      ) : (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="hero-bg" src={mediaSrc} alt="" style={{ objectFit }} />
+      )}
 
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4,video/quicktime,video/webm"
         style={{ display: 'none' }}
         onChange={handleFile}
       />
@@ -411,7 +434,7 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
             style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: uploading ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
           >
             <CameraIcon />
-            <span>{uploading ? 'Uploading…' : 'Replace photo'}</span>
+            <span>{uploading ? 'Uploading…' : 'Replace media'}</span>
           </button>
           <span style={{ opacity: 0.4, fontSize: 13 }}>|</span>
           <button

@@ -130,6 +130,8 @@ const BandDivider = ({ thin }: { thin?: boolean }) => (
   </div>
 );
 
+function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
+
 function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
   const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
   const loc = [city, country].filter(Boolean).join(', ');
@@ -199,8 +201,12 @@ export default function TerracottaHarvest({
       {/* HERO */}
       <div className="hero">
         {editSlots?.heroBg ?? (bannerImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
+          isVideoUrl(bannerImage) ? (
+            <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+          ) : (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
+          )
         ) : (
           <svg className="hero-bg-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
             <rect width="1600" height="1000" fill="#F7F1E6" />
