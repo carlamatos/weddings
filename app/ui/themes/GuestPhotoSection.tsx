@@ -140,7 +140,7 @@ export function GuestPhotoSection({
         <p style={{ textAlign: 'center', opacity: 0.5, fontSize: 15 }}>{labels.beFirstToShare}</p>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
             {photos.map((p, i) => (
               <button
                 key={p.id}
