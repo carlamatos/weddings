@@ -105,7 +105,7 @@ const css = `
 
   .vl .hero { position: relative; min-height: 95vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 72px 24px 88px; background: #FFFFFF; overflow: hidden; }
   .vl .hero-watercolour { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-  .vl .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.8; }
+  .vl .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.8; border-bottom: 1px solid var(--vl-olive); }
   .vl .hero-content { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
   @keyframes vl-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
   .vl .hero-eyebrow { animation: vl-rise 1s ease both; }
