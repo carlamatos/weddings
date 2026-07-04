@@ -377,7 +377,8 @@ export default function TerracottaHarvest({
 
       {/* FOOTER */}
       <footer className="footer">
-        <h2 className="section-title" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
+        <p className="section-label">{t.questions}</p>
+        <h2 className="section-title">{t.getInTouch}</h2>
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}
@@ -386,6 +387,7 @@ export default function TerracottaHarvest({
           </>
         )}
         <div className="footer-rule" />
+        <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>

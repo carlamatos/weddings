@@ -329,6 +329,7 @@ export default function MidnightBotanical({
 
       {/* FOOTER */}
       <footer className="footer">
+        <p className="eyebrow on-dark" style={{ marginBottom: 16 }}>{t.questions}</p>
         <h2 className="title on-dark" style={{ marginBottom: 16 }}>{t.getInTouch}</h2>
         {editSlots?.footerContact ?? (
           <>
@@ -338,6 +339,7 @@ export default function MidnightBotanical({
           </>
         )}
         <div className="footer-rule" />
+        <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
         <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>

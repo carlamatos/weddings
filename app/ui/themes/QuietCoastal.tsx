@@ -354,7 +354,8 @@ export default function QuietCoastal({
       <footer className="footer wrap" style={{ padding: '80px 32px' }}>
         <div className="footer-grid">
           <div>
-            <p className="eyebrow" style={{ marginBottom: 14 }}>{t.getInTouch}</p>
+            <p className="eyebrow" style={{ marginBottom: 14 }}>{t.questions}</p>
+            <h2 className="title" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
             {editSlots?.footerContact ?? (
               <>
                 {heading && <p>{heading}</p>}

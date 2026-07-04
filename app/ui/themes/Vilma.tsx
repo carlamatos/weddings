@@ -416,6 +416,7 @@ export default function Vilma({
 
       {/* FOOTER */}
       <footer className="footer">
+        <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
         <h2 className="section-title on-dark" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
         {editSlots?.footerContact ?? (
           <>
