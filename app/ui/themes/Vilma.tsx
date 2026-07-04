@@ -421,7 +421,7 @@ export default function Vilma({
         {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'rgba(255,255,255,0.75)', textDecoration: 'none' }}>{userEmail}</a></p>}
         <hr className="footer-rule" />
         <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
-        <p className="footer-credit">{t.madeWithMygala}</p>
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

@@ -384,7 +384,7 @@ export default function TerracottaHarvest({
             <a href={`mailto:${userEmail}`} style={{ color: 'var(--ink-soft)', textDecoration: 'none' }}>{userEmail}</a>
           </p>
         )}
-        <p className="footer-credit">{t.madeWithMygala}</p>
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );
