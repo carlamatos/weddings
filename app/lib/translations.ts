@@ -229,7 +229,7 @@ const fr: Translations = {
 
 const es: Translations = {
   dateLocale: 'es-ES',
-  rsvpBtn: 'Confirmar',
+  rsvpBtn: 'RSVP',
   ourStoryBtn: 'Nuestra historia',
   ourStoryLabel: 'Nuestra historia',
   howWeGotHere: 'Cómo llegamos aquí',

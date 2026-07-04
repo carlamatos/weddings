@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '../lib/data';
 import { auth } from '@/auth';
@@ -72,6 +73,21 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     language: res.language || 'en',
     plan_type: res.plan_type || undefined,
     user_phone: res.user_phone || undefined,
+  };
+}
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ slug: string }> }
+): Promise<Metadata> {
+  const slug = (await params).slug;
+  const page = await fetchUserPage(slug);
+  if (!page) return {};
+  const description = page.main_content
+    ? page.main_content.replace(/<[^>]*>/g, '').trim().slice(0, 140)
+    : undefined;
+  return {
+    title: page.heading || undefined,
+    description: description || undefined,
   };
 }
 
