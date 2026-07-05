@@ -145,7 +145,7 @@ const css = `
 
   .vl .song-section { background: var(--vl-steel); padding: 88px 28px; text-align: center; }
   .vl .song-section .song-list { border-top: 1.5px solid rgba(255,255,255,0.25); max-width: 560px; margin: 0 auto; }
-  .vl .song-section .song-row { border-bottom: 1px solid rgba(255,255,255,0.15); }
+  .vl .song-section .song-row { border-bottom: 1px solid rgba(255,255,255,0.15); padding: 10px 0; }
   .vl .song-section .song-row .title { color: #FFFFFF; }
   .vl .song-section .song-row .artist { color: rgba(255,255,255,0.7); }
   .vl .song-section input::placeholder { color: rgba(255,255,255,0.55); }
