@@ -82,8 +82,8 @@ export async function generateMetadata(
   const slug = (await params).slug;
   const page = await fetchUserPage(slug);
   if (!page) return {};
-  const description = page.main_content
-    ? page.main_content.replace(/<[^>]*>/g, '').trim().slice(0, 140)
+  const description = page.description
+    ? page.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
     : undefined;
   return {
     title: { absolute: page.heading || 'MyGala' },
