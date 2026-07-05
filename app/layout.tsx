@@ -18,7 +18,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
+      <body className={`${inter.className} antialiased`}>
+        {children}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-5MD6D8FQ6X"
           strategy="afterInteractive"
@@ -31,8 +32,7 @@ export default function RootLayout({
             gtag('config', 'G-5MD6D8FQ6X');
           `}
         </Script>
-      </head>
-      <body className={`${inter.className} antialiased`}>{children}</body>
+      </body>
     </html>
   );
 }

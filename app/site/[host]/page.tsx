@@ -1,7 +1,23 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ host: string }> }
+): Promise<Metadata> {
+  const host = decodeURIComponent((await params).host);
+  const data = await fetchUserPageByDomain(host);
+  if (!data) return {};
+  const description = data.description
+    ? data.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
+    : undefined;
+  return {
+    title: { absolute: data.heading || 'MyGala' },
+    description: description || undefined,
+  };
+}
 
 export default async function CustomDomainPage({ params }: { params: Promise<{ host: string }> }) {
   const host = decodeURIComponent((await params).host);
