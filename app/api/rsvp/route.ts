@@ -4,7 +4,29 @@ import { sql } from '@vercel/postgres';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userPageId, name, email, phone, status, guests, message, receiveUpdates } = body;
+    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken } = body;
+
+    // Honeypot: bots fill hidden fields, real users don't
+    if (honeypot) {
+      return NextResponse.json({ success: true });
+    }
+
+    // Cloudflare Turnstile verification
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (turnstileSecret) {
+      if (!cfToken) {
+        return NextResponse.json({ error: 'Security check required.' }, { status: 400 });
+      }
+      const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ secret: turnstileSecret, response: cfToken }),
+      });
+      const verifyData = await verifyRes.json() as { success: boolean };
+      if (!verifyData.success) {
+        return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
+      }
+    }
 
     if (!name?.trim() || !email?.trim() || !status || !userPageId) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
