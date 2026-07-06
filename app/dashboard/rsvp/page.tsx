@@ -68,10 +68,8 @@ export default async function RsvpPage() {
                   <td style={{ padding: '14px 16px', textAlign: 'center', color: g.receive_updates ? '#3D6B46' : '#9A8F8C' }}>
                     {g.status !== 'invited' ? (g.receive_updates ? '✓' : '—') : '—'}
                   </td>
-                  <td style={{ padding: '14px 16px', color: '#9A8F8C', maxWidth: 200 }}>
-                    <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {g.message || '—'}
-                    </span>
+                  <td style={{ padding: '14px 16px', color: '#9A8F8C', maxWidth: 260 }}>
+                    {g.message || '—'}
                   </td>
                   <td style={{ padding: '14px 16px', color: '#9A8F8C', whiteSpace: 'nowrap', fontSize: 13 }}>
                     {new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
