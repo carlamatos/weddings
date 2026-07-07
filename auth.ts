@@ -29,6 +29,7 @@ async function getUser(email: string): Promise<DBUser | undefined> {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  trustHost: true,
   providers: [
     Credentials({
       async authorize(credentials) {
