@@ -1,15 +1,25 @@
 import Link from 'next/link';
 import { greatVibes } from '@/app/ui/fonts';
+import { auth } from '@/auth';
 import '@/app/ui/marketing.css';
 
-export default function LegalLayout({ children, title }: { children: React.ReactNode; title: string }) {
+export default async function LegalLayout({ children, title }: { children: React.ReactNode; title: string }) {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <div className={`marketing-page ${greatVibes.variable}`}>
       <div className="topbar">
         <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
         <div className="topbar-actions">
-          <Link href="/login" className="topbar-login">Log in</Link>
-          <Link href="/register" className="topbar-signup">Sign up</Link>
+          {isLoggedIn ? (
+            <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
+          ) : (
+            <>
+              <Link href="/login" className="topbar-login">Log in</Link>
+              <Link href="/register" className="topbar-signup">Sign up</Link>
+            </>
+          )}
         </div>
       </div>
 
