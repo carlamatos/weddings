@@ -387,10 +387,10 @@ export default function Vilma({
 
       {/* GUEST PHOTOS */}
       {isPaid && userPageId && (
-        <div className="section section-center">
+        <div id="photos" className="section section-center">
           <div className="wrap">
             <p className="eyebrow">{t.guestPhotos}</p>
-            <h2 className="section-title" id="photos">{t.shareYourPhoto}</h2>
+            <h2 className="section-title">{t.shareYourPhoto}</h2>
             <hr className="vl-rule" />
             <GuestPhotoSection
               userPageId={userPageId}
