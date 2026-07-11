@@ -25,7 +25,7 @@ export default function PlanPicker() {
         Get started for free, or unlock premium features from day one.
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
 
         {/* Free plan */}
         <div style={{ border: '1px solid #EDE8E3', borderRadius: 16, padding: '28px 28px 32px', background: '#fff', display: 'flex', flexDirection: 'column' }}>
