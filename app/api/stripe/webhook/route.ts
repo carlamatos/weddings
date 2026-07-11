@@ -27,6 +27,12 @@ export async function POST(req: NextRequest) {
         const customerId = session.customer as string | null;
         if (userId) {
           await sql`
+            INSERT INTO user_plans (user_id, plan_type, stripe_customer_id, updated_at)
+            VALUES (${userId}, 'paid', ${customerId}, NOW())
+            ON CONFLICT (user_id) DO UPDATE
+              SET plan_type = 'paid', stripe_customer_id = ${customerId}, updated_at = NOW()
+          `;
+          await sql`
             UPDATE user_page
             SET plan_type = 'paid', stripe_customer_id = ${customerId}
             WHERE user_id = ${userId}
@@ -39,6 +45,11 @@ export async function POST(req: NextRequest) {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
         if (userId) {
+          await sql`
+            INSERT INTO user_plans (user_id, plan_type, updated_at)
+            VALUES (${userId}, 'free', NOW())
+            ON CONFLICT (user_id) DO UPDATE SET plan_type = 'free', updated_at = NOW()
+          `;
           await sql`
             UPDATE user_page SET plan_type = 'free' WHERE user_id = ${userId}
           `;

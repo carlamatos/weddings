@@ -226,3 +226,12 @@ export async function fetchUserPageById(user_id: string){
   }
 }
 
+export async function fetchUserPlan(user_id: string): Promise<{ plan_type: string; stripe_customer_id: string | null } | null> {
+  try {
+    const data = await sql`SELECT plan_type, stripe_customer_id FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
+    return (data.rows[0] as { plan_type: string; stripe_customer_id: string | null } | undefined) ?? null;
+  } catch {
+    return null;
+  }
+}
+

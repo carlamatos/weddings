@@ -144,15 +144,19 @@ export type UserPageState = {
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
 
+      // Inherit plan from user_plans if the user already paid before creating their page
+      const planRow = await sql`SELECT plan_type FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
+      const plan_type = planRow.rows[0]?.plan_type ?? 'free';
+
       await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address, venue_name
+          place_id, formatted_address, venue_name, plan_type
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}
         )
       `;
     } catch (error) {

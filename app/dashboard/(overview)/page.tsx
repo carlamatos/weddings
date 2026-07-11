@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
-import { fetchUserPageById, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import { fetchUserPageById, fetchUserPlan, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import PlanPicker from '@/app/ui/dashboard/PlanPicker';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -15,8 +16,9 @@ import { EditableGallery } from '@/app/ui/themes/GallerySection';
 export default async function Page() {
   const session = await auth();
   const userId = session?.user?.id;
-  const [userPage, galleryImages] = await Promise.all([
+  const [userPage, userPlan, galleryImages] = await Promise.all([
     userId ? fetchUserPageById(userId) : undefined,
+    userId ? fetchUserPlan(userId) : null,
     userId ? fetchGalleryImages(userId) : [],
   ]);
   const isPaid = userPage?.plan_type === 'paid';
@@ -28,14 +30,24 @@ export default async function Page() {
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
 
   if (!userPage) {
-    return (
-      <div style={{ padding: '60px 32px', textAlign: 'center', color: '#6B6470', fontFamily: 'system-ui, sans-serif' }}>
-        <p style={{ fontSize: 16 }}>No event page yet.</p>
-        <Link href="/dashboard/setup" style={{ color: '#B6584A', fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
-          Create your event page →
-        </Link>
-      </div>
-    );
+    if (userPlan?.plan_type === 'paid') {
+      return (
+        <div style={{ padding: '60px 24px', maxWidth: 480, margin: '0 auto', fontFamily: 'system-ui, sans-serif', textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EAF2EC', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 24 }}>✓</div>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>Premium plan active</h1>
+          <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 28px', lineHeight: 1.6 }}>
+            Your payment was confirmed. Now let&apos;s create your wedding website.
+          </p>
+          <Link
+            href="/dashboard/setup"
+            style={{ display: 'inline-block', padding: '12px 28px', borderRadius: 999, background: '#8c9eac', color: '#fff', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}
+          >
+            Create your event page →
+          </Link>
+        </div>
+      );
+    }
+    return <PlanPicker />;
   }
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
