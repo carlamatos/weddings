@@ -3,7 +3,6 @@ import { auth } from '@/auth';
 import { fetchUserPageById } from '@/app/lib/data';
 import SubscribeForm from "@/app/ui/subscribe-form";
 import { greatVibes } from '@/app/ui/fonts';
-import Link from 'next/link';
 import '@/app/ui/auth.css';
 
 export default async function Page() {
@@ -16,11 +15,8 @@ export default async function Page() {
     }
 
     return (
-        <main className={`auth-page ${greatVibes.variable}`} style={{ justifyContent: 'flex-start', paddingTop: '48px', paddingBottom: '48px' }}>
-            <Link href="/" className="auth-wordmark">
-                My<span className="accent">Gala</span>
-            </Link>
+        <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
             <SubscribeForm />
-        </main>
-    )
+        </div>
+    );
 }
