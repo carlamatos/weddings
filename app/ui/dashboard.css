@@ -14,6 +14,14 @@
   --font-display: Georgia, 'Times New Roman', serif;
 }
 
+/* Prevent the document from scrolling when inside the dashboard shell.
+   All scrolling happens within .dash-content. */
+html:has(.dash-shell),
+body:has(.dash-shell) {
+  height: 100%;
+  overflow: hidden;
+}
+
 /* ---------- shell ---------- */
 .dash-shell {
   display: flex;
