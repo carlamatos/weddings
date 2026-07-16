@@ -31,7 +31,6 @@ export function EditableHeroEyebrow({
   value: string;
   className?: string;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -41,7 +40,6 @@ export function EditableHeroEyebrow({
   const startEdit = () => {
     setDraft(current);
     setEditing(true);
-    setHovered(false);
     setTimeout(() => textareaRef.current?.select(), 0);
   };
 
@@ -81,18 +79,11 @@ export function EditableHeroEyebrow({
   }
 
   return (
-    <span
-      className="theme-editable"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{ display: 'block' }}
-    >
+    <span className="theme-editable" style={{ display: 'block' }}>
       <p className={className} style={{ whiteSpace: 'pre-line' }}>{current}</p>
-      {hovered && (
-        <button className="theme-edit-badge" onClick={startEdit} title="Edit eyebrow text">
-          <PencilIcon /> Edit
-        </button>
-      )}
+      <button className="theme-edit-badge" onClick={startEdit} title="Edit eyebrow text">
+        <PencilIcon /> Edit
+      </button>
     </span>
   );
 }
@@ -106,7 +97,6 @@ export function EditableHeroName({
   value: string;
   className?: string;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -116,7 +106,6 @@ export function EditableHeroName({
   const startEdit = () => {
     setDraft(current);
     setEditing(true);
-    setHovered(false);
     setTimeout(() => textareaRef.current?.select(), 0);
   };
 
@@ -156,18 +145,11 @@ export function EditableHeroName({
   }
 
   return (
-    <span
-      className="theme-editable"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{ display: 'block' }}
-    >
+    <span className="theme-editable" style={{ display: 'block' }}>
       <h1 className={className} style={{ whiteSpace: 'pre-line' }}>{current}</h1>
-      {hovered && (
-        <button className="theme-edit-badge" onClick={startEdit} title="Edit name">
-          <PencilIcon /> Edit
-        </button>
-      )}
+      <button className="theme-edit-badge" onClick={startEdit} title="Edit name">
+        <PencilIcon /> Edit
+      </button>
     </span>
   );
 }
@@ -190,7 +172,6 @@ export function EditableHeroDate({
   city?: string;
   country?: string;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
   const [currentText, setCurrentText] = useState(displayText);
   const [, startTransition] = useTransition();
@@ -220,13 +201,11 @@ export function EditableHeroDate({
   return (
     <span
       className="theme-editable"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => !open && setHovered(false)}
       style={{ display: 'block', position: 'relative' }}
     >
       <p className={className}>{currentText}</p>
 
-      {!open && hovered && (
+      {!open && (
         <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit date & location">
           <PencilIcon /> Edit
         </button>
@@ -273,7 +252,6 @@ export function EditableDescription({
   className?: string;
   style?: React.CSSProperties;
 }) {
-  const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -282,7 +260,6 @@ export function EditableDescription({
   const startEdit = () => {
     setDraft(current);
     setEditing(true);
-    setHovered(false);
   };
 
   const save = () => {
@@ -320,18 +297,11 @@ export function EditableDescription({
   }
 
   return (
-    <span
-      className="theme-editable"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{ display: 'block' }}
-    >
+    <span className="theme-editable" style={{ display: 'block' }}>
       <p className={className} style={style}>{current}</p>
-      {hovered && (
-        <button className="theme-edit-badge" onClick={startEdit} title="Edit description">
-          <PencilIcon /> Edit
-        </button>
-      )}
+      <button className="theme-edit-badge" onClick={startEdit} title="Edit description">
+        <PencilIcon /> Edit
+      </button>
     </span>
   );
 }

@@ -695,7 +695,24 @@ body:has(.dash-shell) {
   cursor: pointer;
 }
 
-/* pencil badge that appears on hover */
+/* hover overlay tint + dashed border around editable area */
+.theme-editable::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 6px;
+  background: transparent;
+  border: 1.5px dashed transparent;
+  transition: background 0.2s, border-color 0.2s;
+  pointer-events: none;
+  z-index: 1;
+}
+.theme-editable:hover::after {
+  background: rgba(182, 88, 74, 0.07);
+  border-color: rgba(182, 88, 74, 0.35);
+}
+
+/* pencil badge — always visible, more prominent on hover */
 .theme-edit-badge {
   position: absolute;
   top: -10px;
@@ -716,9 +733,16 @@ body:has(.dash-shell) {
   cursor: pointer;
   box-shadow: 0 2px 8px rgba(0,0,0,0.25);
   white-space: nowrap;
-  transition: background 0.15s;
+  opacity: 0.45;
+  transform: scale(0.88);
+  transition: background 0.15s, opacity 0.15s, transform 0.15s, box-shadow 0.15s;
 }
-.theme-edit-badge:hover { background: #B6584A; }
+.theme-editable:hover .theme-edit-badge {
+  opacity: 1;
+  transform: scale(1);
+  background: #B6584A;
+  box-shadow: 0 4px 14px rgba(182, 88, 74, 0.45);
+}
 .theme-edit-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
 
 /* dashed outline while content is being edited */
