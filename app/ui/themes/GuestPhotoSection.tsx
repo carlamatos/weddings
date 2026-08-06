@@ -194,11 +194,29 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
   const [photos, setPhotos] = useState<GuestPhoto[]>(initialPhotos);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
 
   const deletePhoto = async (id: string) => {
     setPhotos((prev) => prev.filter((p) => p.id !== id));
     await fetch(`/api/guests-photos?id=${id}`, { method: 'DELETE' });
+  };
+
+  const downloadAll = async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(`/api/guests-photos/download?userPageId=${userPageId}`);
+      if (!res.ok) return;
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'guest-photos.zip';
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const loadMore = async () => {
@@ -225,6 +243,26 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
 
   return (
     <>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+        <button
+          onClick={downloadAll}
+          disabled={downloading}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 6,
+            padding: '8px 18px', borderRadius: 8, border: '1.5px solid #C5BEB8',
+            background: '#fff', cursor: downloading ? 'default' : 'pointer',
+            fontSize: 13, fontWeight: 600, color: '#241F2B',
+            opacity: downloading ? 0.6 : 1, fontFamily: 'system-ui, sans-serif',
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+            <polyline points="7 10 12 15 17 10" />
+            <line x1="12" y1="15" x2="12" y2="3" />
+          </svg>
+          {downloading ? 'Preparing zip…' : `Download all (${photos.length})`}
+        </button>
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
         {photos.map((p, i) => (
           <div key={p.id} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: '#f0ede8' }}>
