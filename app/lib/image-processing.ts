@@ -44,6 +44,7 @@ export async function isSafeImage(buffer: Buffer): Promise<{ safe: boolean; reas
 export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
   const sharp = (await import('sharp')).default;
   return sharp(buffer)
+    .rotate()
     .resize({ width: 1920, withoutEnlargement: true })
     .webp({ quality: 82 })
     .toBuffer();
