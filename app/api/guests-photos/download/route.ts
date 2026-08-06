@@ -51,9 +51,9 @@ export async function GET(req: NextRequest) {
     })
   );
 
-  const zipBuffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+  const zipArrayBuffer = await zip.generateAsync({ type: 'arraybuffer', compression: 'DEFLATE' });
 
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(zipArrayBuffer, {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': 'attachment; filename="guest-photos.zip"',
