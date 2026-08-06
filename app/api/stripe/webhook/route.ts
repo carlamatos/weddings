@@ -44,6 +44,12 @@ export async function POST(req: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.userId;
+        const customerId = subscription.customer as string | null;
+        const details = subscription.cancellation_details;
+        const cancelledAt = subscription.ended_at
+          ? new Date(subscription.ended_at * 1000).toISOString()
+          : new Date().toISOString();
+
         if (userId) {
           await sql`
             INSERT INTO user_plans (user_id, plan_type, updated_at)
@@ -52,6 +58,19 @@ export async function POST(req: NextRequest) {
           `;
           await sql`
             UPDATE user_page SET plan_type = 'free' WHERE user_id = ${userId}
+          `;
+          await sql`
+            INSERT INTO user_cancellations
+              (user_id, stripe_customer_id, stripe_subscription_id, cancelled_at, reason, feedback, comment)
+            VALUES (
+              ${userId},
+              ${customerId},
+              ${subscription.id},
+              ${cancelledAt},
+              ${details?.reason ?? null},
+              ${details?.feedback ?? null},
+              ${details?.comment ?? null}
+            )
           `;
         }
         break;

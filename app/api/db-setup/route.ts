@@ -20,5 +20,19 @@ export async function POST() {
     )
   `;
 
-  return NextResponse.json({ ok: true, message: 'user_plans table ready.' });
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_cancellations (
+      id SERIAL PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      stripe_customer_id TEXT,
+      stripe_subscription_id TEXT,
+      cancelled_at TIMESTAMPTZ NOT NULL,
+      reason TEXT,
+      feedback TEXT,
+      comment TEXT,
+      created_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  return NextResponse.json({ ok: true, message: 'Tables ready: user_plans, user_cancellations.' });
 }
