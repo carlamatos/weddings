@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import type { GuestPhoto } from '@/app/lib/definitions';
 
 // ─── Public-facing: upload + gallery ────────────────────────────
@@ -145,13 +146,14 @@ export function GuestPhotoSection({
               <button
                 key={p.id}
                 onClick={() => setLightbox(i)}
-                style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', aspectRatio: '1', overflow: 'hidden', borderRadius: 4 }}
+                style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', aspectRatio: '1', overflow: 'hidden', borderRadius: 4 }}
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={p.photo}
                   alt=""
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', transition: 'transform 0.3s ease' }}
+                  fill
+                  sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 200px"
+                  style={{ objectFit: 'cover', transition: 'transform 0.3s ease' }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
                 />
@@ -268,10 +270,15 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
           <div key={p.id} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: '#f0ede8' }}>
             <button
               onClick={() => setLightbox(i)}
-              style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', width: '100%', aspectRatio: '1' }}
+              style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', width: '100%', aspectRatio: '1' }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+              <Image
+                src={p.photo}
+                alt=""
+                fill
+                sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 180px"
+                style={{ objectFit: 'cover' }}
+              />
             </button>
 
             {/* Meta */}
@@ -344,8 +351,18 @@ function Lightbox({ photos, index, onClose }: { photos: GuestPhoto[]; index: num
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
       )}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={photos[cur].photo} alt="" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.6)', userSelect: 'none' }} />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{ position: 'relative', width: '90vw', height: '88vh', borderRadius: 4, overflow: 'hidden' }}
+      >
+        <Image
+          src={photos[cur].photo}
+          alt=""
+          fill
+          sizes="90vw"
+          style={{ objectFit: 'contain', filter: 'drop-shadow(0 8px 40px rgba(0,0,0,0.6))', userSelect: 'none' }}
+        />
+      </div>
       {photos.length > 1 && (
         <button onClick={(e) => { e.stopPropagation(); next(); }} style={lbBtn({ right: 16, top: '50%', transform: 'translateY(-50%)' })}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>

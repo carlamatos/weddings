@@ -37,6 +37,15 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
+    ],
+    minimumCacheTTL: 2678400, // 31 days — blob files are immutable (unique per upload)
+  },
   async headers() {
     return [
       {
