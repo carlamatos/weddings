@@ -17,7 +17,7 @@ const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRe
   }
 }) as (req: NextRequest) => Promise<NextResponse>;
 
-export default function middleware(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const rawHost = req.headers.get('host') ?? '';
   // Normalize: strip www. so matosweb.ca and www.matosweb.ca match the same record
   const host = rawHost.replace(/^www\./, '');
