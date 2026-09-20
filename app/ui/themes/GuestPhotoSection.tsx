@@ -143,7 +143,7 @@ export function GuestPhotoSection({
         <p style={{ textAlign: 'center', opacity: 0.5, fontSize: 15 }}>{labels.beFirstToShare}</p>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 240px))', gap: 8 }}>
             {photos.map((p, i) => (
               <button
                 key={p.id}
@@ -154,7 +154,8 @@ export function GuestPhotoSection({
                   src={p.photo}
                   alt=""
                   fill
-                  sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 200px"
+                  quality={90}
+                  sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 240px"
                   style={{ objectFit: 'cover', transition: 'transform 0.3s ease' }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
@@ -267,7 +268,7 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
           {downloading ? 'Preparing zip…' : `Download all (${photos.length})`}
         </button>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 220px))', gap: 12 }}>
         {photos.map((p, i) => (
           <div key={p.id} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: '#f0ede8' }}>
             <button
@@ -278,7 +279,8 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
                 src={p.photo}
                 alt=""
                 fill
-                sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 180px"
+                quality={90}
+                sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 220px"
                 style={{ objectFit: 'cover' }}
               />
             </button>
@@ -361,6 +363,7 @@ function Lightbox({ photos, index, onClose }: { photos: GuestPhoto[]; index: num
           src={photos[cur].photo}
           alt=""
           fill
+          quality={90}
           sizes="90vw"
           style={{ objectFit: 'contain', filter: 'drop-shadow(0 8px 40px rgba(0,0,0,0.6))', userSelect: 'none' }}
         />

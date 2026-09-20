@@ -45,6 +45,7 @@ const nextConfig: NextConfig = {
       },
     ],
     minimumCacheTTL: 2678400, // 31 days — blob files are immutable (unique per upload)
+    qualities: [75, 90], // 90 for photo thumbnails/lightbox — Next 16 defaults to [75] only
   },
   async headers() {
     return [
