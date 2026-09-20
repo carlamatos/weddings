@@ -232,7 +232,6 @@ export default function Vilma({
   return (
     <div className="vl">
       {/* Typekit fonts */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <link rel="stylesheet" href="https://use.typekit.net/ufj0hfm.css" />
       <style>{css}</style>
 

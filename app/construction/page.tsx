@@ -18,6 +18,9 @@ export default function ConstructionPage() {
         body: JSON.stringify({ password }),
       });
       if (res.ok) {
+        // Hard navigation (not router.push) so the proxy re-evaluates the
+        // freshly-set bypass cookie on a clean request.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.href = '/';
       } else {
         setError('Incorrect password.');

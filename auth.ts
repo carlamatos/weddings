@@ -27,12 +27,50 @@ async function getUser(email: string): Promise<DBUser | undefined> {
   }
 }
 
+// Precomputed bcrypt hash of a fixed, unguessable string. Compared against
+// when no account exists, so a login attempt for a nonexistent email costs
+// the same bcrypt.compare() time as one for a real email — otherwise the
+// response-time difference lets an attacker enumerate registered addresses.
+const DUMMY_PASSWORD_HASH = '$2b$10$riu05Pya1ylj.Ct6.p1sP.Z3G1qTBav1g3/In1RKoZsj3B5/hVZzy';
+
+// Simple in-memory rate limiter: max 10 login attempts per IP per 15 minutes
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS_PER_IP = 10;
+
+function isLoginRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+  if (!rec || now > rec.resetAt) return false;
+  return rec.count >= MAX_LOGIN_ATTEMPTS_PER_IP;
+}
+
+function recordLoginAttempt(ip: string): void {
+  const now = Date.now();
+  const rec = loginAttempts.get(ip);
+  if (!rec || now > rec.resetAt) {
+    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+  } else {
+    rec.count++;
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
   providers: [
     Credentials({
-      async authorize(credentials) {
+      async authorize(credentials, request) {
+        const ip =
+          request.headers.get('x-forwarded-for')?.split(',')[0].trim() ??
+          request.headers.get('x-real-ip') ??
+          'unknown';
+
+        if (isLoginRateLimited(ip)) {
+          return null;
+        }
+        recordLoginAttempt(ip);
+
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials);
@@ -40,13 +78,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
           const user = await getUser(email);
-          if (!user) {
-            console.log('User not found');
-            return null;
-          }
-          const passwordsMatch = await bcrypt.compare(password, user.password);
+          // Always run bcrypt.compare, even when the user doesn't exist, so
+          // the response time doesn't reveal whether the email is registered.
+          const passwordsMatch = await bcrypt.compare(password, user?.password ?? DUMMY_PASSWORD_HASH);
 
-          if (passwordsMatch) return user;
+          if (user && passwordsMatch) return user;
         }
 
         return null;

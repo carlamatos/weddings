@@ -63,6 +63,7 @@ export default function Form() {
   // Random suffix for option 4 — set after mount only to avoid SSR/client mismatch
   const [randomSuffix, setRandomSuffix] = useState<number | null>(null);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: Math.random() must not run during SSR render
     setRandomSuffix(Math.floor(1000 + Math.random() * 9000));
   }, []);
 

@@ -1,14 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { updateDescription } from '../lib/actions';
 
 export default function EditableDescription({ defaultDescription = '' }: { defaultDescription?: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(defaultDescription);
+  const [prevDefaultDescription, setPrevDefaultDescription] = useState(defaultDescription);
 
-  useEffect(() => { setText(defaultDescription); }, [defaultDescription]);
+  if (defaultDescription !== prevDefaultDescription) {
+    setPrevDefaultDescription(defaultDescription);
+    setText(defaultDescription);
+  }
 
   const handleSave = async () => {
     setIsEditing(false);

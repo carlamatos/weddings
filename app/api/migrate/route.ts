@@ -1,11 +1,13 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
 
 // One-time migration endpoint. Protected by MIGRATION_SECRET env var.
 // Call: POST /api/migrate  with header Authorization: Bearer <MIGRATION_SECRET>
 export async function POST(request: Request) {
   const secret = process.env.MIGRATION_SECRET;
-  if (!secret || request.headers.get('Authorization') !== `Bearer ${secret}`) {
+  const provided = request.headers.get('Authorization') ?? '';
+  if (!secret || !timingSafeStringEqual(provided, `Bearer ${secret}`)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

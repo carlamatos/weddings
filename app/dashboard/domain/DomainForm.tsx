@@ -55,6 +55,18 @@ function DnsInstructions({ domain }: { domain: string }) {
   );
 }
 
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  return isActive ? (
+    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#EAF2EC', color: '#3D6B46' }}>
+      Active ✓
+    </span>
+  ) : (
+    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#FFF8E7', color: '#8A6800' }}>
+      Pending DNS
+    </span>
+  );
+}
+
 async function redirectToStripe(endpoint: string, setError: (e: string) => void, setLoading: (l: boolean) => void) {
   setLoading(true);
   setError('');
@@ -104,9 +116,10 @@ export default function DomainForm({
     }
   }, []);
 
-  // Auto-check once on mount if domain is set and still pending
+  // Auto-check whenever a domain becomes pending (on mount, and right after adding one)
   useEffect(() => {
     if (domain && status === 'pending') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: fetching live DNS status, not mirroring a prop
       checkStatus();
     }
   }, [domain, status, checkStatus]);
@@ -138,16 +151,6 @@ export default function DomainForm({
   }
 
   const isActive = status === 'active';
-
-  const StatusBadge = () => isActive ? (
-    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#EAF2EC', color: '#3D6B46' }}>
-      Active ✓
-    </span>
-  ) : (
-    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, background: '#FFF8E7', color: '#8A6800' }}>
-      Pending DNS
-    </span>
-  );
 
   // Free plan
   if (!isPaid) {
@@ -201,7 +204,7 @@ export default function DomainForm({
             <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>{domain}</p>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <StatusBadge />
+            <StatusBadge isActive={isActive} />
             <button
               onClick={checkStatus}
               disabled={checking}

@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
+import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
 
 export async function POST(req: Request) {
   const { password } = await req.json();
   const correct = process.env.CONSTRUCTION_PASSWORD;
 
-  if (!correct || password !== correct) {
+  if (!correct || typeof password !== 'string' || !timingSafeStringEqual(password, correct)) {
     return NextResponse.json({ error: 'Incorrect password' }, { status: 401 });
   }
 

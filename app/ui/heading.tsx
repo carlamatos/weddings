@@ -1,14 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { updateHeading } from '../lib/actions';
 
 export default function EditableHeading({ defaultHeading = 'Your Event' }: { defaultHeading?: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [text, setText] = useState(defaultHeading);
+  const [prevDefaultHeading, setPrevDefaultHeading] = useState(defaultHeading);
 
-  useEffect(() => { setText(defaultHeading); }, [defaultHeading]);
+  if (defaultHeading !== prevDefaultHeading) {
+    setPrevDefaultHeading(defaultHeading);
+    setText(defaultHeading);
+  }
 
   const handleSave = async () => {
     setIsEditing(false);

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { PencilSquareIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { updateSection2 } from '@/app/lib/actions';
 
@@ -23,9 +23,17 @@ export default function RegistrySection({
   const [buttonLink, setButtonLink] = useState(defaultButtonLink);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
-  useEffect(() => { setDescription(defaultDescription); }, [defaultDescription]);
-  useEffect(() => { setButtonText(defaultButtonText); }, [defaultButtonText]);
-  useEffect(() => { setButtonLink(defaultButtonLink); }, [defaultButtonLink]);
+  const [prevDefaults, setPrevDefaults] = useState({ defaultDescription, defaultButtonText, defaultButtonLink });
+  if (
+    defaultDescription !== prevDefaults.defaultDescription ||
+    defaultButtonText !== prevDefaults.defaultButtonText ||
+    defaultButtonLink !== prevDefaults.defaultButtonLink
+  ) {
+    setPrevDefaults({ defaultDescription, defaultButtonText, defaultButtonLink });
+    setDescription(defaultDescription);
+    setButtonText(defaultButtonText);
+    setButtonLink(defaultButtonLink);
+  }
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
