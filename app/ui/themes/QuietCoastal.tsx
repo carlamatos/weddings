@@ -132,6 +132,7 @@ export default function QuietCoastal({
   registryButtonLink,
   galleryImages,
   userPageId,
+  galleryToken,
   editSlots,
   heroEyebrow,
   venueName,
@@ -324,12 +325,12 @@ export default function QuietCoastal({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <div id="photos" className="wrap" style={{ padding: '80px 32px' }}>
           <p className="eyebrow" style={{ marginBottom: 8 }}>{t.guestPhotos.toLowerCase()}</p>
           <h2 className="section-title" style={{ marginBottom: 28 }}>{t.shareYourPhoto.toLowerCase()}</h2>
           <GuestPhotoSection
-            userPageId={userPageId}
+            userPageId={galleryToken}
             initialPhotos={guestPhotos ?? []}
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
@@ -339,14 +340,14 @@ export default function QuietCoastal({
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <>
           <hr className="hairline" />
           <div className="wrap" style={{ padding: '80px 32px' }}>
             <p className="eyebrow" style={{ marginBottom: 8 }}>{t.buildOurPlaylist.toLowerCase()}</p>
             <h2 className="section-title" style={{ marginBottom: 28 }}>{t.songRequests.toLowerCase()}</h2>
             <SongRequestSection
-              userPageId={userPageId}
+              userPageId={galleryToken}
               initialSongs={guestSongs ?? []}
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName.toLowerCase(), songTitle: t.songTitle.toLowerCase(), artistLabel: t.artistLabel.toLowerCase(), addSong: t.addSong.toLowerCase(), songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet.toLowerCase(), requestedBy: t.requestedBy.toLowerCase(), loadMore: t.loadMore.toLowerCase(), sending: t.sending.toLowerCase() }}

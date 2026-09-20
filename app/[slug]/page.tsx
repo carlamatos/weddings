@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '../lib/data';
 import { auth } from '@/auth';
+import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
 
@@ -142,6 +143,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         placeId={data.place_id}
         url={data.url}
         userPageId={String(data.id)}
+        galleryToken={isPaid ? signPageId(data.id) : undefined}
         bannerImage={data.banner_image || undefined}
         userEmail={data.user_email || undefined}
         userPhone={data.user_phone || undefined}

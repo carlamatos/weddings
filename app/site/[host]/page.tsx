@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import '@/app/ui/wedding.css';
 
@@ -51,6 +52,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       placeId={data.place_id || undefined}
       url={data.url || undefined}
       userPageId={String(data.id)}
+      galleryToken={isPaid ? signPageId(data.id) : undefined}
       bannerImage={data.banner_image || undefined}
       userEmail={data.user_email || undefined}
       userPhone={data.user_phone || undefined}

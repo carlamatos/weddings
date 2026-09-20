@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
+import { verifyPageToken } from '@/app/lib/page-token';
 
 // Simple in-memory rate limiter: max 20 submissions per IP per hour
 const ipStore = new Map<string, { count: number; resetAt: number }>();
@@ -28,18 +29,34 @@ const PAGE_SIZE = 20;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userPageId = searchParams.get('userPageId');
   const offset = parseInt(searchParams.get('offset') ?? '0', 10);
 
-  if (!userPageId) {
-    return NextResponse.json({ error: 'Missing userPageId' }, { status: 400 });
+  const session = await auth();
+  let pageId: number;
+
+  if (session?.user?.id) {
+    // Dashboard/owner request — always resolve the page from the session,
+    // never trust a client-supplied id.
+    const page = await sql`SELECT id FROM user_page WHERE user_id = ${session.user.id} LIMIT 1`;
+    if (!page.rows[0]) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+    pageId = page.rows[0].id;
+  } else {
+    // Public/guest request — requires the signed token minted when the
+    // wedding page was rendered, so raw sequential ids can't be enumerated.
+    const verified = verifyPageToken(searchParams.get('userPageId'));
+    if (verified === null) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    pageId = verified;
   }
 
   try {
     const data = await sql`
       SELECT id, requester_name, song_title, artist, created_at
       FROM guests_songs
-      WHERE user_page_id = ${userPageId}
+      WHERE user_page_id = ${pageId}
       ORDER BY created_at DESC
       LIMIT ${PAGE_SIZE + 1} OFFSET ${offset}
     `;
@@ -69,9 +86,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
   }
 
+  const pageId = verifyPageToken(userPageId);
+  if (pageId === null) {
+    return NextResponse.json({ error: 'Invalid page' }, { status: 401 });
+  }
+
   // Verify paid plan
   const pageResult = await sql`
-    SELECT plan_type FROM user_page WHERE id = ${userPageId} LIMIT 1
+    SELECT plan_type FROM user_page WHERE id = ${pageId} LIMIT 1
   `;
   if (!pageResult.rows[0] || pageResult.rows[0].plan_type !== 'paid') {
     return NextResponse.json({ error: 'Feature not available' }, { status: 403 });
@@ -80,7 +102,7 @@ export async function POST(request: Request) {
   try {
     const result = await sql`
       INSERT INTO guests_songs (user_page_id, requester_name, song_title, artist, ip_address)
-      VALUES (${userPageId}, ${requesterName.trim()}, ${songTitle.trim()}, ${artist.trim()}, ${ip})
+      VALUES (${pageId}, ${requesterName.trim()}, ${songTitle.trim()}, ${artist.trim()}, ${ip})
       RETURNING id, requester_name, song_title, artist, created_at
     `;
     recordSubmission(ip);

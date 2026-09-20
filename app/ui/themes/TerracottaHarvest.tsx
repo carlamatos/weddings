@@ -161,6 +161,7 @@ export default function TerracottaHarvest({
   registryButtonLink,
   galleryImages,
   userPageId,
+  galleryToken,
   editSlots,
   heroEyebrow,
   venueName,
@@ -339,12 +340,12 @@ export default function TerracottaHarvest({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <div id="photos" className="section-wide">
           <p className="section-label">{t.guestPhotos}</p>
           <h2 className="section-title">{t.shareYourPhoto}</h2>
           <GuestPhotoSection
-            userPageId={userPageId}
+            userPageId={galleryToken}
             initialPhotos={guestPhotos ?? []}
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{
@@ -361,7 +362,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <>
           <BandDivider thin />
           <div className="section-tinted">
@@ -369,7 +370,7 @@ export default function TerracottaHarvest({
             <h2 className="section-title">{t.songRequests}</h2>
             <div style={{ maxWidth: 560, margin: '0 auto' }}>
               <SongRequestSection
-                userPageId={userPageId}
+                userPageId={galleryToken}
                 initialSongs={guestSongs ?? []}
                 initialHasMore={guestSongsHasMore ?? false}
                 labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}

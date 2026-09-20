@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
+import { verifyPageToken } from '@/app/lib/page-token';
 
 // Simple in-memory rate limiter: max 10 uploads per IP per hour
 const ipStore = new Map<string, { count: number; resetAt: number }>();
@@ -36,11 +37,11 @@ export async function POST(request: Request) {
   }
 
   const formData = await request.formData();
-  const userPageId = formData.get('userPageId') as string | null;
+  const pageId = verifyPageToken(formData.get('userPageId') as string | null);
   const file = formData.get('file') as File | null;
 
-  if (!userPageId) {
-    return NextResponse.json({ error: 'Missing userPageId' }, { status: 400 });
+  if (pageId === null) {
+    return NextResponse.json({ error: 'Invalid page' }, { status: 401 });
   }
   if (!file || !file.type.startsWith('image/')) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
 
   // Verify the page exists and is paid
   const pageResult = await sql`
-    SELECT plan_type FROM user_page WHERE id = ${userPageId} LIMIT 1
+    SELECT plan_type FROM user_page WHERE id = ${pageId} LIMIT 1
   `;
   if (!pageResult.rows[0] || pageResult.rows[0].plan_type !== 'paid') {
     return NextResponse.json({ error: 'Feature not available' }, { status: 403 });
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
 
   // Enforce 500-photo limit
   const countResult = await sql`
-    SELECT COUNT(*) FROM guests_photos WHERE user_page_id = ${userPageId}
+    SELECT COUNT(*) FROM guests_photos WHERE user_page_id = ${pageId}
   `;
   if (Number(countResult.rows[0].count) >= MAX_PHOTOS_PAID) {
     return NextResponse.json({ error: 'Photo limit reached (500 max).' }, { status: 403 });
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
 
     if (process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID) {
       const { put } = await import('@vercel/blob');
-      const blob = await put(`guests/${userPageId}-${Date.now()}.webp`, buffer, {
+      const blob = await put(`guests/${pageId}-${Date.now()}.webp`, buffer, {
         access: 'public',
         contentType: 'image/webp',
       });
@@ -80,7 +81,7 @@ export async function POST(request: Request) {
     } else {
       const { writeFile, mkdir } = await import('fs/promises');
       const { join } = await import('path');
-      const filename = `guest-${userPageId}-${Date.now()}.webp`;
+      const filename = `guest-${pageId}-${Date.now()}.webp`;
       const dir = join(process.cwd(), 'public', 'uploads');
       await mkdir(dir, { recursive: true });
       await writeFile(join(dir, filename), buffer);
@@ -89,7 +90,7 @@ export async function POST(request: Request) {
 
     const result = await sql`
       INSERT INTO guests_photos (user_page_id, photo, ip_address)
-      VALUES (${userPageId}, ${url}, ${ip})
+      VALUES (${pageId}, ${url}, ${ip})
       RETURNING id, uploaded_at
     `;
 

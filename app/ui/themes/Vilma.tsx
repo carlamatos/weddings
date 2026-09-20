@@ -195,6 +195,7 @@ export default function Vilma({
   registryButtonLink,
   galleryImages,
   userPageId,
+  galleryToken,
   editSlots,
   heroEyebrow,
   venueName,
@@ -386,14 +387,14 @@ export default function Vilma({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <div id="photos" className="section section-center">
           <div className="wrap">
             <p className="eyebrow">{t.guestPhotos}</p>
             <h2 className="section-title">{t.shareYourPhoto}</h2>
             <hr className="vl-rule" />
             <GuestPhotoSection
-              userPageId={userPageId}
+              userPageId={galleryToken}
               initialPhotos={guestPhotos ?? []}
               initialHasMore={guestPhotosHasMore ?? false}
               labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
@@ -404,14 +405,14 @@ export default function Vilma({
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && userPageId && (
+      {isPaid && galleryToken && (
         <div className="song-section">
           <div className="wrap">
             <p className="eyebrow on-dark">{t.buildOurPlaylist}</p>
             <h2 className="section-title on-dark">{t.songRequests}</h2>
             <hr className="vl-rule" />
             <SongRequestSection
-              userPageId={userPageId}
+              userPageId={galleryToken}
               initialSongs={guestSongs ?? []}
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}

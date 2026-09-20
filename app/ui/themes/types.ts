@@ -19,6 +19,7 @@ export interface ThemeSlots {
 export interface ThemeProps {
   heading: string;
   userPageId?: string;
+  galleryToken?: string;
   galleryImages?: import('@/app/lib/definitions').GalleryImage[];
   editSlots?: ThemeSlots;
   description?: string;
