@@ -7,25 +7,39 @@ const LIKELIHOOD_RANK: Record<string, number> = {
   VERY_LIKELY: 5,
 };
 
+const MODERATION_UNAVAILABLE = {
+  safe: false,
+  reason: 'Photo moderation is temporarily unavailable. Please try again shortly.',
+};
+
 export async function isSafeImage(buffer: Buffer): Promise<{ safe: boolean; reason?: string }> {
   const apiKey = process.env.GOOGLE_VISION_API_KEY;
-  if (!apiKey) return { safe: true };
+  if (!apiKey) {
+    console.error('GOOGLE_VISION_API_KEY is not set; rejecting upload (fail closed)');
+    return MODERATION_UNAVAILABLE;
+  }
 
   const base64 = buffer.toString('base64');
-  const res = await fetch(
-    `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        requests: [{ image: { content: base64 }, features: [{ type: 'SAFE_SEARCH_DETECTION' }] }],
-      }),
-    }
-  );
+  let res: Response;
+  try {
+    res = await fetch(
+      `https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requests: [{ image: { content: base64 }, features: [{ type: 'SAFE_SEARCH_DETECTION' }] }],
+        }),
+      }
+    );
+  } catch (err) {
+    console.error('Vision API request failed:', err);
+    return MODERATION_UNAVAILABLE; // fail closed
+  }
 
   if (!res.ok) {
     console.error('Vision API error:', await res.text());
-    return { safe: true }; // fail open
+    return MODERATION_UNAVAILABLE; // fail closed
   }
 
   const data = await res.json();
