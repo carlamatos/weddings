@@ -3,6 +3,7 @@
 import { useState, useRef, useTransition, useEffect, useCallback } from 'react';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { addGalleryImage, deleteGalleryImage } from '@/app/lib/actions';
+import { compressImageFile } from '@/app/lib/compress-image';
 
 // ─── Static grid with lightbox (used in live theme pages) ────
 export function GalleryGrid({ images }: { images: GalleryImage[] }) {
@@ -170,8 +171,9 @@ export function EditableGallery({ initialImages, isPaid }: { initialImages: Gall
       setImages((prev) => [...prev, tempImage]);
 
       try {
+        const compressed = await compressImageFile(file);
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressed);
         const res = await fetch('/api/gallery/upload', { method: 'POST', body: formData });
         const text = await res.text();
         let data: { url?: string; error?: string };

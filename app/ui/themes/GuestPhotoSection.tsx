@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import type { GuestPhoto } from '@/app/lib/definitions';
+import { compressImageFile } from '@/app/lib/compress-image';
 
 // ─── Public-facing: upload + gallery ────────────────────────────
 interface GuestPhotoSectionProps {
@@ -52,8 +53,9 @@ export function GuestPhotoSection({
       setUploadProgress({ current: i + 1, total: files.length });
       const fd = new FormData();
       fd.append('userPageId', userPageId);
-      fd.append('file', files[i]);
       try {
+        const compressed = await compressImageFile(files[i]);
+        fd.append('file', compressed);
         const res = await fetch('/api/guests-photos/upload', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.url) {

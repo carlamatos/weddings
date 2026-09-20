@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo } from '@/app/lib/actions';
+import { compressImageFile } from '@/app/lib/compress-image';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -377,8 +378,9 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
         uploadedUrl = blob.url;
       } else {
         // Images go through the server route for safety check + optimization.
+        const compressed = await compressImageFile(file);
         const formData = new FormData();
-        formData.append('file', file);
+        formData.append('file', compressed);
         const res = await fetch('/api/upload', { method: 'POST', body: formData });
         const text = await res.text();
         let data: { url?: string; error?: string };
