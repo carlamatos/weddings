@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { getSuperAdmin, isSuperAdmin } from '@/app/lib/admin';
-import { fetchAllUsers } from '@/app/lib/admin-data';
+import { countUsers, fetchAllUsers } from '@/app/lib/admin-data';
 import { hydrateSubscriptionInfo } from '@/app/lib/subscriptions';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
+import Total from '@/app/ui/admin/total';
 import SubscriptionBadge from '@/app/ui/admin/subscription-badge';
 import TrashUserButton from '@/app/ui/admin/trash-user-button';
 import { formatDate } from '@/app/ui/admin/format';
@@ -16,7 +17,7 @@ export default async function AdminUsersPage({
   const admin = await getSuperAdmin();
   const offset = parseOffset((await searchParams).offset);
 
-  const { rows, hasMore, error } = await fetchAllUsers(offset);
+  const [{ rows, hasMore, error }, total] = await Promise.all([fetchAllUsers(offset), countUsers()]);
   await hydrateSubscriptionInfo(rows, (r) => r.id);
 
   return (
@@ -33,6 +34,8 @@ export default async function AdminUsersPage({
           (POST /api/db-setup while signed in as a super admin).
         </div>
       )}
+
+      <Total label={total === 1 ? 'user' : 'users'} count={total} />
 
       <div style={tableWrap}>
         <table style={table}>

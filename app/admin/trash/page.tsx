@@ -1,12 +1,13 @@
-import { fetchTrashedUsers } from '@/app/lib/admin-data';
+import { countTrashedUsers, fetchTrashedUsers } from '@/app/lib/admin-data';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
+import Total from '@/app/ui/admin/total';
 import TrashActions from '@/app/ui/admin/trash-actions';
 import { formatDateTime } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 
 export default async function AdminTrashPage({ searchParams }: { searchParams: Promise<{ offset?: string }> }) {
   const offset = parseOffset((await searchParams).offset);
-  const { rows, hasMore, error } = await fetchTrashedUsers(offset);
+  const [{ rows, hasMore, error }, total] = await Promise.all([fetchTrashedUsers(offset), countTrashedUsers()]);
 
   return (
     <>
@@ -23,6 +24,8 @@ export default async function AdminTrashPage({ searchParams }: { searchParams: P
           (POST /api/db-setup while signed in as a super admin).
         </div>
       )}
+
+      <Total label={total === 1 ? 'user in the trash' : 'users in the trash'} count={total} />
 
       <div style={tableWrap}>
         <table style={table}>

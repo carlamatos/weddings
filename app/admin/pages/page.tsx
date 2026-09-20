@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import {
+  countUserPages,
   fetchAllUserPages,
   type PlanFilter,
   type SortOrder,
@@ -7,6 +8,7 @@ import {
 } from '@/app/lib/admin-data';
 import { hydrateSubscriptionInfo } from '@/app/lib/subscriptions';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
+import Total from '@/app/ui/admin/total';
 import SubscriptionBadge from '@/app/ui/admin/subscription-badge';
 import PageStatusToggle from '@/app/ui/admin/page-status-toggle';
 import { formatDate } from '@/app/ui/admin/format';
@@ -34,7 +36,12 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
   const sort: SortOrder = pick(sp.sort, ['newest', 'oldest'] as const, 'newest');
   const offset = parseOffset(sp.offset);
 
-  const { rows, hasMore, error } = await fetchAllUserPages({ plan, status, sort, offset });
+  const filtered = plan !== 'all' || status !== 'all';
+  const [{ rows, hasMore, error }, matching, overall] = await Promise.all([
+    fetchAllUserPages({ plan, status, sort, offset }),
+    countUserPages(plan, status),
+    filtered ? countUserPages() : Promise.resolve(null),
+  ]);
   await hydrateSubscriptionInfo(rows, (r) => r.user_id);
 
   return (
@@ -86,6 +93,8 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
           (POST /api/db-setup while signed in as a super admin).
         </div>
       )}
+
+      <Total label={matching === 1 ? 'page' : 'pages'} count={matching} of={overall} />
 
       <div style={tableWrap}>
         <table style={table}>

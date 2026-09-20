@@ -98,6 +98,16 @@ export const TRASH_SQL = `
   LIMIT $1 OFFSET $2
 `;
 
+export const USERS_COUNT_SQL = `SELECT count(*)::int AS n FROM users`;
+
+export const PAGES_COUNT_SQL = `
+  SELECT count(*)::int AS n FROM user_page p
+  WHERE ($1 = 'all' OR COALESCE(p.plan_type, 'free') = $1)
+    AND ($2 = 'all' OR COALESCE(p.status, 'active') = $2)
+`;
+
+export const TRASH_COUNT_SQL = `SELECT count(*)::int AS n FROM deleted_users WHERE restored_at IS NULL`;
+
 type Listed<T> = { rows: T[]; hasMore: boolean; error: string | null };
 
 // Fetch one extra row to learn whether there is another page.
@@ -132,3 +142,19 @@ export async function fetchAllUserPages(opts: {
 export async function fetchTrashedUsers(offset = 0) {
   return list<TrashedUserRow>(TRASH_SQL, [], offset);
 }
+
+// Totals shown above each table. null means the count couldn't be read
+// (e.g. schema setup not run yet) — the list itself reports the error.
+async function count(text: string, params: unknown[] = []): Promise<number | null> {
+  try {
+    const result = await sql.query<{ n: number }>(text, params);
+    return result.rows[0]?.n ?? 0;
+  } catch {
+    return null;
+  }
+}
+
+export const countUsers = () => count(USERS_COUNT_SQL);
+export const countTrashedUsers = () => count(TRASH_COUNT_SQL);
+export const countUserPages = (plan: PlanFilter = 'all', status: StatusFilter = 'all') =>
+  count(PAGES_COUNT_SQL, [plan, status]);
