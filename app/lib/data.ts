@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { effectiveTier, maxPagesFor } from './plans';
 import {
   Revenue,
   Slugs,
@@ -106,13 +107,12 @@ export async function fetchEventThemes(): Promise<EventTheme[]> {
   }
 }
 
-export async function fetchGuests(user_id: string): Promise<Guest[]> {
+export async function fetchGuests(pageId: number): Promise<Guest[]> {
   try {
     const data = await sql<Guest>`
       SELECT eg.*
       FROM event_guests eg
-      JOIN user_page up ON up.id = eg.user_page_id
-      WHERE up.user_id = ${user_id}
+      WHERE eg.user_page_id = ${pageId}
       ORDER BY eg.created_at DESC
     `;
     return data.rows;
@@ -122,13 +122,12 @@ export async function fetchGuests(user_id: string): Promise<Guest[]> {
   }
 }
 
-export async function fetchGalleryImages(user_id: string): Promise<GalleryImage[]> {
+export async function fetchGalleryImages(pageId: number | string): Promise<GalleryImage[]> {
   try {
     const data = await sql<GalleryImage>`
       SELECT eg.*
       FROM event_gallery eg
-      JOIN user_page up ON up.id = eg.user_page_id
-      WHERE up.user_id = ${user_id}
+      WHERE eg.user_page_id = ${pageId}
       ORDER BY eg.created_at ASC
     `;
     return data.rows;
@@ -209,21 +208,65 @@ export async function fetchPageSettings(userPageId: string | number): Promise<Re
   }
 }
 
-export async function fetchUserPageById(user_id: string){
-  try {
+// A page id coming from a URL, form or client call: a positive integer or null.
+export function parsePageId(value: unknown): number | null {
+  const n = typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : value;
+  return typeof n === 'number' && Number.isInteger(n) && n > 0 ? n : null;
+}
 
+// The one way to load a page on behalf of a signed-in user: returns the page
+// only if this user owns it. Use it for every dashboard page, server action
+// and owner API so one user can never reach another user's page.
+export async function fetchOwnedPage(userId: string, pageId: number): Promise<UserPage | undefined> {
+  try {
     const data = await sql<UserPage>`
       SELECT up.*, et.slug as theme_slug
       FROM user_page up
       LEFT JOIN event_themes et ON et.theme_id = up.theme_id
-      WHERE up.user_id = ${user_id}`;
-
-      if (!data.rows[0]) { return undefined; }
-      return normalizePage(data.rows[0]);
+      WHERE up.id = ${pageId} AND up.user_id = ${userId}`;
+    return data.rows[0] ? normalizePage(data.rows[0]) : undefined;
   } catch (error) {
     console.error('Database Error:', error);
-    throw new Error('Failed to fetch single user page.');
+    throw new Error('Failed to fetch page.');
   }
+}
+
+// Cheap ownership check for routes that only need a yes/no.
+export async function ownsPage(userId: string, pageId: number): Promise<boolean> {
+  try {
+    const data = await sql`SELECT 1 FROM user_page WHERE id = ${pageId} AND user_id = ${userId}`;
+    return data.rows.length > 0;
+  } catch (error) {
+    console.error('Database Error:', error);
+    return false;
+  }
+}
+
+// All of a user's pages, oldest first.
+export async function listOwnedPages(userId: string): Promise<UserPage[]> {
+  try {
+    const data = await sql<UserPage>`
+      SELECT up.*, et.slug as theme_slug
+      FROM user_page up
+      LEFT JOIN event_themes et ON et.theme_id = up.theme_id
+      WHERE up.user_id = ${userId}
+      ORDER BY up.created_at ASC, up.id ASC`;
+    return data.rows.map(normalizePage);
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch pages.');
+  }
+}
+
+export async function countUserPages(userId: string): Promise<number> {
+  const data = await sql`SELECT COUNT(*)::int AS n FROM user_page WHERE user_id = ${userId}`;
+  return data.rows[0]?.n ?? 0;
+}
+
+// How many pages the user has and how many their plan allows.
+export async function fetchPageQuota(userId: string): Promise<{ count: number; limit: number }> {
+  const [count, plan] = await Promise.all([countUserPages(userId), fetchUserPlan(userId)]);
+  return { count, limit: maxPagesFor(effectiveTier(plan?.plan_type, null)) };
 }
 
 export async function fetchUserPlan(user_id: string): Promise<{ plan_type: string; stripe_customer_id: string | null } | null> {

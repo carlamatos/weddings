@@ -6,10 +6,11 @@ import { updateLanguage } from '@/app/lib/actions';
 import { LANGUAGES } from '@/app/lib/translations';
 
 interface Props {
+  pageId: number;
   currentLanguage: string;
 }
 
-export default function LanguageSwitcher({ currentLanguage }: Props) {
+export default function LanguageSwitcher({ pageId, currentLanguage }: Props) {
   const current = LANGUAGES.find((l) => l.code === currentLanguage) ?? LANGUAGES[0];
   const [selected, setSelected] = useState(current);
   const [open, setOpen] = useState(false);
@@ -26,7 +27,7 @@ export default function LanguageSwitcher({ currentLanguage }: Props) {
   const handleSelect = async (lang: typeof LANGUAGES[0]) => {
     setSelected(lang);
     setOpen(false);
-    await updateLanguage(lang.code);
+    await updateLanguage(pageId, lang.code);
   };
 
   const others = LANGUAGES.filter((l) => l.code !== selected.code);

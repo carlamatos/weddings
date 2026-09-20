@@ -2,8 +2,7 @@
 import GoogleProvider from 'next-auth/providers/google';
 import AppleProvider from 'next-auth/providers/apple';
 import FacebookProvider from 'next-auth/providers/facebook';
-import { fetchUserPageById } from './app/lib/data';
-import { fetchUser } from './app/lib/data';
+import { countUserPages, fetchUser } from './app/lib/data';
 import type { Session } from "next-auth";
 import type { NextRequest  } from "next/server";
 import type { NextAuthConfig } from 'next-auth';
@@ -42,10 +41,10 @@ export const authConfig = {
 
         if (loggedInUser !== undefined) {
 
-          const userPage = await fetchUserPageById(loggedInUser.id);
+          const pageCount = await countUserPages(loggedInUser.id);
 
 
-          if (userPage === undefined) {
+          if (pageCount === 0) {
             return Response.redirect(new URL('/dashboard/setup', nextUrl));
           }
         }

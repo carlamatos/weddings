@@ -25,7 +25,7 @@ const btn: React.CSSProperties = {
   background: '#fff', color: '#241F2B', whiteSpace: 'nowrap',
 };
 
-export function RsvpActions({ guests }: { guests: Guest[] }) {
+export function RsvpActions({ pageId, guests }: { pageId: number; guests: Guest[] }) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
 
@@ -59,7 +59,7 @@ export function RsvpActions({ guests }: { guests: Guest[] }) {
       const res = await fetch('/api/invitees', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contacts }),
+        body: JSON.stringify({ pageId, contacts }),
       });
       const data = await res.json();
       if (data.success) {

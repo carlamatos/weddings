@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { fetchUserPageById } from '@/app/lib/data';
+import { fetchPageQuota } from '@/app/lib/data';
 import SubscribeForm from "@/app/ui/subscribe-form";
 import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
@@ -10,8 +10,9 @@ export default async function Page() {
     const userId = session?.user?.id;
 
     if (userId) {
-        const userPage = await fetchUserPageById(userId);
-        if (userPage) redirect('/dashboard');
+        // Already at the page limit for their plan: nothing to set up.
+        const quota = await fetchPageQuota(userId);
+        if (quota.count >= quota.limit) redirect('/dashboard');
     }
 
     return (

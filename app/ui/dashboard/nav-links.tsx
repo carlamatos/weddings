@@ -5,26 +5,29 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
-  { name: 'Edit Page', href: '/dashboard', icon: DocumentIcon, paidOnly: false },
-  { name: 'RSVPs', href: '/dashboard/rsvp', icon: UsersIcon, paidOnly: false },
-  { name: 'Domain', href: '/dashboard/domain', icon: GlobeAltIcon, paidOnly: false },
-  { name: 'Guest Photos', href: '/dashboard/guest-photos', icon: PhotoIcon, paidOnly: true },
-  { name: 'Song Requests', href: '/dashboard/song-requests', icon: MusicalNoteIcon, paidOnly: true },
+  { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false },
+  { name: 'RSVPs', section: '/rsvp', icon: UsersIcon, paidOnly: false },
+  { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false },
+  { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: true },
+  { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: true },
 ];
 
-export default function NavLinks({ hasPage, isPaid }: { hasPage: boolean; isPaid?: boolean }) {
+// Links only appear when a page is selected (pageId set), and point at that page.
+export default function NavLinks({ pageId, isPaid }: { pageId?: number; isPaid?: boolean }) {
   const pathname = usePathname();
+  if (pageId === undefined) return null;
   return (
     <>
       {links
-        .filter((link) => hasPage && (!link.paidOnly || isPaid))
+        .filter((link) => !link.paidOnly || isPaid)
         .map((link) => {
           const Icon = link.icon;
+          const href = `/dashboard/pages/${pageId}${link.section}`;
           return (
             <Link
               key={link.name}
-              href={link.href}
-              className={`dash-nav-link${pathname === link.href ? ' dash-nav-link--active' : ''}`}
+              href={href}
+              className={`dash-nav-link${pathname === href ? ' dash-nav-link--active' : ''}`}
             >
               <Icon />
               {link.name}

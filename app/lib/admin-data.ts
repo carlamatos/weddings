@@ -17,6 +17,7 @@ export type AdminUserRow = {
   page_slug: string | null;
   page_heading: string | null;
   page_status: string | null;
+  page_count: number;
 };
 
 export type AdminPageRow = {
@@ -60,7 +61,8 @@ export const USERS_SQL = `
          pl.current_period_end,
          COALESCE(pl.cancel_at_period_end, false) AS cancel_at_period_end,
          p.id AS page_id, p.slug AS page_slug, p.heading AS page_heading,
-         COALESCE(p.status, 'active') AS page_status
+         COALESCE(p.status, 'active') AS page_status,
+         (SELECT count(*)::int FROM user_page WHERE user_id = u.id) AS page_count
   FROM users u
   LEFT JOIN user_plans pl ON pl.user_id = u.id::text
   LEFT JOIN LATERAL (

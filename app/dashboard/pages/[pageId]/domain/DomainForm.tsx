@@ -86,11 +86,13 @@ async function redirectToStripe(endpoint: string, setError: (e: string) => void,
 }
 
 export default function DomainForm({
+  pageId,
   initialDomain,
   initialStatus,
   isPaid,
   hasCustomer,
 }: {
+  pageId: number;
   initialDomain: string | null;
   initialStatus: string;
   isPaid: boolean;
@@ -108,13 +110,17 @@ export default function DomainForm({
   const checkStatus = useCallback(async () => {
     setChecking(true);
     try {
-      const res = await fetch('/api/domain/check', { method: 'POST' });
+      const res = await fetch('/api/domain/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageId }),
+      });
       const data = await res.json();
       if (data.status) setStatus(data.status);
     } finally {
       setChecking(false);
     }
-  }, []);
+  }, [pageId]);
 
   // Auto-check whenever a domain becomes pending (on mount, and right after adding one)
   useEffect(() => {
@@ -128,7 +134,7 @@ export default function DomainForm({
     e.preventDefault();
     setError('');
     startTransition(async () => {
-      const result = await saveDomain(input);
+      const result = await saveDomain(pageId, input);
       if (result.error) {
         setError(result.error);
       } else {
@@ -142,7 +148,7 @@ export default function DomainForm({
 
   function handleRemove() {
     startRemoveTransition(async () => {
-      const result = await removeDomain();
+      const result = await removeDomain(pageId);
       if (!result.error) {
         setDomain(null);
         setStatus('pending');

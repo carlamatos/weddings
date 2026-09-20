@@ -1,16 +1,9 @@
 import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { PowerIcon } from '@heroicons/react/24/outline';
-import { signOut, auth } from '@/auth';
-import { fetchUserPageById } from '@/app/lib/data';
+import { signOut } from '@/auth';
 
-export default async function SideNav() {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const userPage = userId ? await fetchUserPageById(userId) : undefined;
-  const hasPage = userPage !== undefined;
-  const isPaid = userPage?.plan_type === 'paid';
-
+export default function SideNav({ pageId, isPaid }: { pageId?: number; isPaid?: boolean }) {
   return (
     <aside className="dash-sidebar">
       <Link href="/" className="dash-sidebar-logo">
@@ -20,7 +13,7 @@ export default async function SideNav() {
       </Link>
 
       <nav className="dash-sidebar-nav">
-        <NavLinks hasPage={hasPage} isPaid={isPaid} />
+        <NavLinks pageId={pageId} isPaid={isPaid} />
       </nav>
 
       <div className="dash-sidebar-footer">

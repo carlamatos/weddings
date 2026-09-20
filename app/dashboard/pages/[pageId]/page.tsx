@@ -1,7 +1,5 @@
-import Link from 'next/link';
-import { auth } from '@/auth';
-import { fetchUserPageById, fetchUserPlan, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
-import PlanPicker from '@/app/ui/dashboard/PlanPicker';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import { requireOwnedPage } from '@/app/lib/dashboard';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -13,42 +11,17 @@ import {
 } from '@/app/ui/themes/slots';
 import { EditableGallery } from '@/app/ui/themes/GallerySection';
 
-export default async function Page() {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const [userPage, userPlan, galleryImages] = await Promise.all([
-    userId ? fetchUserPageById(userId) : undefined,
-    userId ? fetchUserPlan(userId) : null,
-    userId ? fetchGalleryImages(userId) : [],
-  ]);
-  const isPaid = userPage?.plan_type === 'paid';
-  const [guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
-    userPage && isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
-    userPage && isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
-    userPage ? fetchPageSettings(userPage.id) : Promise.resolve({} as Record<string, string>),
+export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
+  const userPage = await requireOwnedPage(params);
+  const pageId = Number(userPage.id);
+  const isPaid = userPage.plan_type === 'paid';
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
+    fetchGalleryImages(pageId),
+    isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+    isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+    fetchPageSettings(userPage.id),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
-
-  if (!userPage) {
-    if (userPlan?.plan_type === 'paid') {
-      return (
-        <div style={{ padding: '60px 24px', maxWidth: 480, margin: '0 auto', fontFamily: 'system-ui, sans-serif', textAlign: 'center' }}>
-          <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EAF2EC', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 24 }}>✓</div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>Premium plan active</h1>
-          <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 28px', lineHeight: 1.6 }}>
-            Your payment was confirmed. Now let&apos;s create your wedding website.
-          </p>
-          <Link
-            href="/dashboard/setup"
-            style={{ display: 'inline-block', padding: '12px 28px', borderRadius: 999, background: '#8c9eac', color: '#fff', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}
-          >
-            Create your event page →
-          </Link>
-        </div>
-      );
-    }
-    return <PlanPicker />;
-  }
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -77,23 +50,27 @@ export default async function Page() {
   const editSlots = {
     heroBg: (
       <EditableBannerBg
+        pageId={pageId}
         src={userPage.banner_image || ''}
         initialObjectFit={heroObjectFit}
       />
     ),
     heroEyebrow: (
       <EditableHeroEyebrow
+        pageId={pageId}
         value={userPage.hero_eyebrow || themeEyebrowDefault}
         className={themeEyebrowClass}
       />
     ),
     heroName: (
       <EditableHeroName
+        pageId={pageId}
         value={userPage.heading || ''}
       />
     ),
     heroDate: heroDateText ? (
       <EditableHeroDate
+        pageId={pageId}
         displayText={heroDateText}
         eventDate={userPage.event_date || undefined}
         eventTime={userPage.event_time || undefined}
@@ -103,13 +80,15 @@ export default async function Page() {
     ) : undefined,
     description: (
       <EditableDescription
+        pageId={pageId}
         value={userPage.description || ''}
         style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
       />
     ),
-    gallery: <EditableGallery initialImages={galleryImages} isPaid={userPage.plan_type === 'paid'} />,
+    gallery: <EditableGallery pageId={pageId} initialImages={galleryImages} isPaid={userPage.plan_type === 'paid'} />,
     footerContact: (
       <EditableContactInfo
+        pageId={pageId}
         email={userPage.user_email || ''}
         phone={userPage.user_phone || ''}
         linkStyle={

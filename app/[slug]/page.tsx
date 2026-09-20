@@ -109,7 +109,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   if (data?.status === 'inactive') return <PageUnavailable />;
   const isPaid = data?.plan_type === 'paid';
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
-    data ? fetchGalleryImages(data.user_id) : Promise.resolve([]),
+    data ? fetchGalleryImages(data.id) : Promise.resolve([]),
     data && isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     data && isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     data ? fetchPageSettings(data.id) : Promise.resolve({} as Record<string, string>),

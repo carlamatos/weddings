@@ -1,0 +1,44 @@
+import { requireOwnedPage } from '@/app/lib/dashboard';
+import DomainForm from './DomainForm';
+
+export default async function DomainPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ pageId: string }>;
+  searchParams: Promise<{ success?: string }>;
+}) {
+  const userPage = await requireOwnedPage(params);
+  const query = await searchParams;
+
+  const isPaid = userPage.plan_type === 'paid';
+  const justUpgraded = query.success === '1';
+
+  return (
+    <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 640 }}>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Custom Domain</h1>
+      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 32px' }}>
+        Point your own domain to your event page. Guests will see your domain instead of mygala.ca.
+      </p>
+
+      {justUpgraded && (
+        <div style={{ marginBottom: 24, padding: '14px 18px', background: '#EAF2EC', border: '1px solid #B2D4B8', borderRadius: 10, fontSize: 14, color: '#3D6B46', fontWeight: 500 }}>
+          Welcome to the paid plan! You can now add your custom domain below.
+        </div>
+      )}
+
+      <DomainForm
+        pageId={Number(userPage.id)}
+        initialDomain={userPage.custom_domain ?? null}
+        initialStatus={userPage.domain_status ?? 'pending'}
+        isPaid={isPaid}
+        hasCustomer={!!userPage.stripe_customer_id}
+      />
+
+      <div style={{ marginTop: 36, padding: '16px 20px', background: '#F5F3F0', borderRadius: 10, fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
+        <strong style={{ color: '#241F2B' }}>How it works:</strong> After adding your domain and configuring DNS,
+        visitors who go to your domain will see your event page. Vercel provisions SSL within minutes of DNS verification.
+      </div>
+    </div>
+  );
+}

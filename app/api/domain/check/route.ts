@@ -1,13 +1,18 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
+import { parsePageId } from '@/app/lib/data';
 
-export async function POST() {
+export async function POST(request: Request) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
-  const result = await sql`SELECT custom_domain FROM user_page WHERE user_id = ${userId}`;
+  const body = (await request.json().catch(() => null)) as { pageId?: unknown } | null;
+  const pageId = parsePageId(body?.pageId);
+  if (pageId === null) return NextResponse.json({ error: 'Missing page' }, { status: 400 });
+
+  const result = await sql`SELECT custom_domain FROM user_page WHERE id = ${pageId} AND user_id = ${userId}`;
   const domain = result.rows[0]?.custom_domain;
   if (!domain) return NextResponse.json({ status: 'none' });
 
@@ -27,7 +32,7 @@ export async function POST() {
   const data = await res.json();
 
   if (data.verified) {
-    await sql`UPDATE user_page SET domain_status = 'active' WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET domain_status = 'active' WHERE id = ${pageId} AND user_id = ${userId}`;
     return NextResponse.json({ status: 'active', domain });
   }
 

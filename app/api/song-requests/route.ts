@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
 import { verifyPageToken } from '@/app/lib/page-token';
+import { ownsPage, parsePageId } from '@/app/lib/data';
 
 // Simple in-memory rate limiter: max 20 submissions per IP per hour
 const ipStore = new Map<string, { count: number; resetAt: number }>();
@@ -31,25 +32,18 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const offset = parseInt(searchParams.get('offset') ?? '0', 10);
 
-  const session = await auth();
-  let pageId: number;
-
-  if (session?.user?.id) {
-    // Dashboard/owner request — always resolve the page from the session,
-    // never trust a client-supplied id.
-    const page = await sql`SELECT id FROM user_page WHERE user_id = ${session.user.id} LIMIT 1`;
-    if (!page.rows[0]) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-    pageId = page.rows[0].id;
-  } else {
-    // Public/guest request — requires the signed token minted when the
-    // wedding page was rendered, so raw sequential ids can't be enumerated.
-    const verified = verifyPageToken(searchParams.get('userPageId'));
-    if (verified === null) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    pageId = verified;
+  // Guests present the signed token minted when the wedding page was rendered,
+  // so raw sequential ids can't be enumerated. A signed-in owner (dashboard)
+  // may instead pass the raw id of a page they own.
+  const param = searchParams.get('userPageId');
+  let pageId = verifyPageToken(param);
+  if (pageId === null) {
+    const session = await auth();
+    const raw = parsePageId(param);
+    if (session?.user?.id && raw !== null && (await ownsPage(session.user.id, raw))) pageId = raw;
+  }
+  if (pageId === null) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
@@ -129,7 +123,7 @@ export async function DELETE(request: Request) {
     await sql`
       DELETE FROM guests_songs
       WHERE id = ${songId}
-        AND user_page_id = (SELECT id FROM user_page WHERE user_id = ${session.user.id} LIMIT 1)
+        AND user_page_id IN (SELECT id FROM user_page WHERE user_id = ${session.user.id})
     `;
     return NextResponse.json({ ok: true });
   } catch (err) {

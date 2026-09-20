@@ -131,7 +131,7 @@ function ChevronIcon({ dir }: { dir: 'left' | 'right' }) {
 }
 
 // ─── Editable gallery (passed as editSlots.gallery) ───────
-export function EditableGallery({ initialImages, isPaid }: { initialImages: GalleryImage[]; isPaid?: boolean }) {
+export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: number; initialImages: GalleryImage[]; isPaid?: boolean }) {
   const [images, setImages] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -174,6 +174,7 @@ export function EditableGallery({ initialImages, isPaid }: { initialImages: Gall
         const compressed = await compressImageFile(file);
         const formData = new FormData();
         formData.append('file', compressed);
+        formData.append('pageId', String(pageId));
         const res = await fetch('/api/gallery/upload', { method: 'POST', body: formData });
         const text = await res.text();
         let data: { url?: string; error?: string };
@@ -186,7 +187,7 @@ export function EditableGallery({ initialImages, isPaid }: { initialImages: Gall
             )
           );
           startTransition(() =>
-            addGalleryImage({ imagePath: data.url!, imageName: file.name, imageType: 'image/webp' })
+            addGalleryImage(pageId, { imagePath: data.url!, imageName: file.name, imageType: 'image/webp' })
           );
         } else {
           setImages((prev) => prev.filter((img) => img.id !== tempId));

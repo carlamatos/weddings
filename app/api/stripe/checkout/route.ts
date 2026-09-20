@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { stripe } from '@/app/lib/stripe';
-import { fetchUserPageById } from '@/app/lib/data';
+import { fetchUserPlan, listOwnedPages } from '@/app/lib/data';
 
 export async function POST(req: Request) {
   const session = await auth();
@@ -11,9 +11,9 @@ export async function POST(req: Request) {
 
   const userId = session.user.id;
   const userEmail = session.user.email ?? undefined;
-  const userPage = await fetchUserPageById(userId);
+  const [plan, pages] = await Promise.all([fetchUserPlan(userId), listOwnedPages(userId)]);
 
-  if (userPage?.plan_type === 'paid') {
+  if (plan?.plan_type === 'paid' || pages.some((p) => p.plan_type === 'paid')) {
     return NextResponse.json({ error: 'Already on paid plan' }, { status: 400 });
   }
 

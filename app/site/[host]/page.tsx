@@ -30,7 +30,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
 
   const isPaid = data.plan_type === 'paid';
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
-    fetchGalleryImages(data.user_id),
+    fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchPageSettings(data.id),

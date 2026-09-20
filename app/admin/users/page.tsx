@@ -68,6 +68,9 @@ export default async function AdminUsersPage({
                         <Link href={`/${u.page_slug}`} target="_blank" style={{ color: c.ink }}>
                           /{u.page_slug}
                         </Link>
+                        {u.page_count > 1 && (
+                          <div style={{ color: c.muted, fontSize: 11 }}>+{u.page_count - 1} more page{u.page_count - 1 === 1 ? '' : 's'}</div>
+                        )}
                         {u.page_status === 'inactive' && (
                           <div style={{ color: c.amber, fontSize: 11, fontWeight: 600 }}>Deactivated</div>
                         )}

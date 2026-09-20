@@ -26,9 +26,11 @@ function CameraIcon() {
 // ─── EditableHeroEyebrow ──────────────────────────────────
 // Replaces: <p className="hero-eyebrow">...</p>
 export function EditableHeroEyebrow({
+  pageId,
   value,
   className = 'hero-eyebrow',
 }: {
+  pageId: number;
   value: string;
   className?: string;
 }) {
@@ -48,7 +50,7 @@ export function EditableHeroEyebrow({
     const v = draft.trim() || current;
     setCurrent(v);
     setEditing(false);
-    startTransition(() => updateHeroEyebrow(v));
+    startTransition(() => updateHeroEyebrow(pageId, v));
   };
 
   const cancel = () => {
@@ -92,9 +94,11 @@ export function EditableHeroEyebrow({
 // ─── EditableHeroName ─────────────────────────────────────
 // Replaces: <h1 className="hero-name">{heading}</h1>
 export function EditableHeroName({
+  pageId,
   value,
   className = 'hero-name',
 }: {
+  pageId: number;
   value: string;
   className?: string;
 }) {
@@ -114,7 +118,7 @@ export function EditableHeroName({
     const v = draft.trim() || current;
     setCurrent(v);
     setEditing(false);
-    startTransition(() => updateHeading(v));
+    startTransition(() => updateHeading(pageId, v));
   };
 
   const cancel = () => {
@@ -159,6 +163,7 @@ export function EditableHeroName({
 // Replaces: <p className="hero-date">{formatted date}</p>
 // Shows a popover with date / time / city / country inputs.
 export function EditableHeroDate({
+  pageId,
   className = 'hero-date',
   displayText,
   eventDate,
@@ -166,6 +171,7 @@ export function EditableHeroDate({
   city,
   country,
 }: {
+  pageId: number;
   className?: string;
   displayText: string;
   eventDate?: string;
@@ -193,7 +199,7 @@ export function EditableHeroDate({
     if (loc) parts.push(loc);
     if (parts.length) setCurrentText(parts.join(' · '));
     startTransition(() =>
-      updateEventDateTime({ date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined })
+      updateEventDateTime(pageId, { date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined })
     );
   };
 
@@ -245,10 +251,12 @@ export function EditableHeroDate({
 // ─── EditableDescription ──────────────────────────────────
 // Replaces the story/description paragraph.
 export function EditableDescription({
+  pageId,
   value,
   className,
   style,
 }: {
+  pageId: number;
   value: string;
   className?: string;
   style?: React.CSSProperties;
@@ -267,7 +275,7 @@ export function EditableDescription({
     const v = draft.trim() || current;
     setCurrent(v);
     setEditing(false);
-    startTransition(() => updateDescription(v));
+    startTransition(() => updateDescription(pageId, v));
   };
 
   const cancel = () => {
@@ -314,7 +322,7 @@ function isVideoUrl(url: string) {
   return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
 }
 
-export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: string; initialObjectFit?: 'cover' | 'contain' }) {
+export function EditableBannerBg({ pageId, src, initialObjectFit = 'cover' }: { pageId: number; src: string; initialObjectFit?: 'cover' | 'contain' }) {
   const [hovered, setHovered] = useState(false);
   const [current, setCurrent] = useState(src);
   const [isVideo, setIsVideo] = useState(() => isVideoUrl(src));
@@ -327,7 +335,7 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
   const toggleObjectFit = () => {
     const next = objectFit === 'cover' ? 'contain' : 'cover';
     setObjectFit(next);
-    startTransition(() => updatePageSetting('hero_object_fit', next));
+    startTransition(() => updatePageSetting(pageId, 'hero_object_fit', next));
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -391,7 +399,7 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
 
       setCurrent(uploadedUrl);
       setIsVideo(isVideoUrl(uploadedUrl) || fileIsVideo);
-      startTransition(() => updateBannerImage(uploadedUrl));
+      startTransition(() => updateBannerImage(pageId, uploadedUrl));
     } catch (err) {
       setCurrent(src);
       setIsVideo(isVideoUrl(src));
@@ -477,10 +485,12 @@ export function EditableBannerBg({ src, initialObjectFit = 'cover' }: { src: str
 // ─── EditableContactInfo ──────────────────────────────────
 // Replaces the contact block (email + phone) in the footer.
 export function EditableContactInfo({
+  pageId,
   email,
   phone,
   linkStyle,
 }: {
+  pageId: number;
   email?: string;
   phone?: string;
   linkStyle?: React.CSSProperties;
@@ -492,7 +502,7 @@ export function EditableContactInfo({
 
   function handleSave() {
     startTransition(async () => {
-      await updateContactInfo(emailVal, phoneVal);
+      await updateContactInfo(pageId, emailVal, phoneVal);
       setEditing(false);
     });
   }

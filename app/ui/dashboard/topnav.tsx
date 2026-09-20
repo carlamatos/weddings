@@ -1,35 +1,34 @@
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
-import { fetchUserPageById, fetchEventThemes } from '@/app/lib/data';
+import { fetchEventThemes } from '@/app/lib/data';
+import type { UserPage } from '@/app/lib/definitions';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import UpgradeButton from './upgrade-button';
 import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
 
-export default async function TopNav() {
+export default async function TopNav({ page: userPage }: { page?: UserPage }) {
   const session = await auth();
-  const userId = session?.user?.id;
-  const [userPage, themes] = await Promise.all([
-    userId ? fetchUserPageById(userId) : Promise.resolve(undefined),
-    fetchEventThemes(),
-  ]);
+  const themes = await fetchEventThemes();
+  const pageId = userPage ? Number(userPage.id) : undefined;
 
   const isPaid = userPage?.plan_type === 'paid';
 
   return (
     <header className="dash-topnav">
-      <MobileMenu hasPage={!!userPage} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
+      <MobileMenu pageId={pageId} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {userPage && !isPaid && <UpgradeButton />}
-      {userPage && themes.length > 0 && (
+      {pageId !== undefined && userPage && themes.length > 0 && (
         <ThemeSwitcher
+          pageId={pageId}
           currentThemeId={userPage.theme_id ?? null}
           themes={themes}
         />
       )}
-      {userPage && (
-        <LanguageSwitcher currentLanguage={userPage.language ?? 'en'} />
+      {pageId !== undefined && userPage && (
+        <LanguageSwitcher pageId={pageId} currentLanguage={userPage.language ?? 'en'} />
       )}
 
       {userPage && (

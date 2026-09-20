@@ -10,14 +10,14 @@ import { Bars3Icon, XMarkIcon, PowerIcon } from '@heroicons/react/24/outline';
 import type { EventTheme } from '@/app/lib/definitions';
 
 interface Props {
-  hasPage: boolean;
+  pageId?: number;
   isPaid?: boolean;
   themes: EventTheme[];
   currentThemeId: string | null;
   currentLanguage?: string;
 }
 
-export default function MobileMenu({ hasPage, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+export default function MobileMenu({ pageId, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -42,19 +42,21 @@ export default function MobileMenu({ hasPage, isPaid, themes, currentThemeId, cu
             </div>
 
             <nav className="dash-sidebar-nav" onClick={() => setOpen(false)}>
-              <NavLinks hasPage={hasPage} isPaid={isPaid} />
+              <NavLinks pageId={pageId} isPaid={isPaid} />
             </nav>
 
-            {themes.length > 0 && (
+            {pageId !== undefined && themes.length > 0 && (
               <div className="mobile-menu-theme">
                 <p className="mobile-menu-theme-label">Theme</p>
-                <ThemeSwitcher currentThemeId={currentThemeId} themes={themes} />
+                <ThemeSwitcher pageId={pageId} currentThemeId={currentThemeId} themes={themes} />
               </div>
             )}
-            <div className="mobile-menu-theme">
-              <p className="mobile-menu-theme-label">Language</p>
-              <LanguageSwitcher currentLanguage={currentLanguage} />
-            </div>
+            {pageId !== undefined && (
+              <div className="mobile-menu-theme">
+                <p className="mobile-menu-theme-label">Language</p>
+                <LanguageSwitcher pageId={pageId} currentLanguage={currentLanguage} />
+              </div>
+            )}
 
             <div className="dash-sidebar-footer">
               <button className="dash-signout-btn" onClick={() => signOut()}>

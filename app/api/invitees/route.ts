@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
+import { ownsPage, parsePageId } from '@/app/lib/data';
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -8,15 +9,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const page = await sql`SELECT id FROM user_page WHERE user_id = ${session.user.id} LIMIT 1`;
-  if (!page.rows[0]) {
-    return NextResponse.json({ error: 'Page not found' }, { status: 404 });
-  }
-  const userPageId = page.rows[0].id;
-
-  const { contacts } = await request.json() as {
+  const { pageId, contacts } = (await request.json().catch(() => ({}))) as {
+    pageId?: unknown;
     contacts: Array<{ name: string; email?: string; phone?: string }>;
   };
+
+  const userPageId = parsePageId(pageId);
+  if (userPageId === null || !(await ownsPage(session.user.id, userPageId))) {
+    return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+  }
 
   if (!Array.isArray(contacts) || contacts.length === 0) {
     return NextResponse.json({ error: 'No contacts provided' }, { status: 400 });

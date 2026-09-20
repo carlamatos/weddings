@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
+import { parsePageId } from '@/app/lib/data';
 import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
 
 export async function POST(request: Request) {
@@ -11,16 +12,21 @@ export async function POST(request: Request) {
 
   const userId = session.user.id;
 
-  // Enforce gallery limit based on plan
-  const pageResult = await sql`SELECT plan_type FROM user_page WHERE user_id = ${userId} LIMIT 1`;
-  const isPaid = pageResult.rows[0]?.plan_type === 'paid';
+  const formData = await request.formData();
+  const pageId = parsePageId(formData.get('pageId'));
+  if (pageId === null) {
+    return NextResponse.json({ error: 'Missing page' }, { status: 400 });
+  }
+
+  // The page must belong to this user; its plan and its own gallery decide the limit.
+  const pageResult = await sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND user_id = ${userId}`;
+  if (!pageResult.rows[0]) {
+    return NextResponse.json({ error: 'Page not found' }, { status: 404 });
+  }
+  const isPaid = pageResult.rows[0].plan_type === 'paid';
   const MAX_IMAGES = isPaid ? 100 : 8;
 
-  const countResult = await sql`
-    SELECT COUNT(*) as count FROM event_gallery eg
-    JOIN user_page up ON up.id = eg.user_page_id
-    WHERE up.user_id = ${userId}
-  `;
+  const countResult = await sql`SELECT COUNT(*) as count FROM event_gallery WHERE user_page_id = ${pageId}`;
   const currentCount = parseInt(countResult.rows[0]?.count ?? '0', 10);
   if (currentCount >= MAX_IMAGES) {
     return NextResponse.json(
@@ -29,7 +35,6 @@ export async function POST(request: Request) {
     );
   }
 
-  const formData = await request.formData();
   const file = formData.get('file') as File | null;
 
   if (!file || !file.type.startsWith('image/')) {

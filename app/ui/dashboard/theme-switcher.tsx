@@ -6,11 +6,12 @@ import { updateTheme } from '@/app/lib/actions';
 import { EventTheme } from '@/app/lib/definitions';
 
 interface Props {
+  pageId: number;
   currentThemeId: string | null;
   themes: EventTheme[];
 }
 
-export default function ThemeSwitcher({ currentThemeId, themes }: Props) {
+export default function ThemeSwitcher({ pageId, currentThemeId, themes }: Props) {
   const current = themes.find((t) => t.theme_id === currentThemeId) ?? themes[0] ?? null;
   const [selected, setSelected] = useState<EventTheme | null>(current);
   const [open, setOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function ThemeSwitcher({ currentThemeId, themes }: Props) {
   const handleSelect = async (theme: EventTheme) => {
     setSelected(theme);
     setOpen(false);
-    await updateTheme(theme.theme_id);
+    await updateTheme(pageId, theme.theme_id);
   };
 
   if (!themes.length) return null;

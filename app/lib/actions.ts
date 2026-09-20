@@ -13,7 +13,7 @@ import { isRateLimited, recordFailedAttempt, clearLoginAttempts } from './rate-l
 
 import { DBUser } from './definitions';
 import { auth } from '@/auth';
-import { fetchUserPage } from './data';
+import { fetchUserPage, parsePageId, fetchPageQuota } from './data';
 import { AuthError } from 'next-auth';
   const UserSchema = z.object({
     id: z.string(),
@@ -88,6 +88,16 @@ export type UserPageState = {
   export async function createUserPage(prevState: UserPageState, formData: FormData){
 
     const session = await auth();
+
+    // Enforce the plan's page limit on the server. (The setup page also
+    // redirects, but that is only a UI courtesy — this action can be called directly.)
+    const limitUserId = session?.user?.id;
+    if (limitUserId) {
+      const quota = await fetchPageQuota(limitUserId);
+      if (quota.count >= quota.limit) {
+        return { message: `You've reached the maximum number of pages for your plan (${quota.limit}).` };
+      }
+    }
 
     const formSlug = formData.get('slug');
 
@@ -170,7 +180,7 @@ export type UserPageState = {
     redirect(`/${slug}`);
   }
 
-export async function updateLocation(data: {
+export async function updateLocation(pageId: number, data: {
   location: string;
   streetAddress?: string;
   unitNumber?: string;
@@ -184,7 +194,8 @@ export async function updateLocation(data: {
 }) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
     await sql`
       UPDATE user_page SET
@@ -198,7 +209,7 @@ export async function updateLocation(data: {
         formatted_address = ${data.formattedAddress ?? null},
         url               = ${data.url ?? null},
         venue_name        = ${data.venueName ?? null}
-      WHERE user_id = ${userId}
+      WHERE id = ${pid} AND user_id = ${userId}
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -206,43 +217,46 @@ export async function updateLocation(data: {
   }
 }
 
-export async function updateLanguage(language: string) {
+export async function updateLanguage(pageId: number, language: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET language = ${language} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET language = ${language} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update language:', error);
   }
 }
 
-export async function updateHeading(heading: string) {
+export async function updateHeading(pageId: number, heading: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET heading = ${heading} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET heading = ${heading} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update heading:', error);
   }
 }
 
-export async function updateDescription(description: string) {
+export async function updateDescription(pageId: number, description: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET description = ${description} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET description = ${description} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update description:', error);
   }
 }
 
-export async function updateSection2(data: {
+export async function updateSection2(pageId: number, data: {
   image?: string;
   description?: string;
   buttonText?: string;
@@ -250,7 +264,8 @@ export async function updateSection2(data: {
 }) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
     await sql`
       UPDATE user_page SET
@@ -258,7 +273,7 @@ export async function updateSection2(data: {
         section_2_description = ${data.description ?? null},
         section_2_button_text = ${data.buttonText ?? null},
         section_2_button_link = ${data.buttonLink ?? null}
-      WHERE user_id = ${userId}
+      WHERE id = ${pid} AND user_id = ${userId}
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -266,17 +281,16 @@ export async function updateSection2(data: {
   }
 }
 
-export async function updatePageSetting(settingName: string, settingValue: string) {
+export async function updatePageSetting(pageId: number, settingName: string, settingValue: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    const page = await sql<{ id: number }>`SELECT id FROM user_page WHERE user_id = ${userId}`;
-    const userPageId = page.rows[0]?.id;
-    if (!userPageId) return;
+    // The SELECT only returns a row when the page belongs to this user.
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-      VALUES (${userPageId}, ${settingName}, ${settingValue})
+      SELECT id, ${settingName}::text, ${settingValue}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${settingValue}, updated_at = NOW()
     `;
     revalidatePath('/', 'layout');
@@ -285,19 +299,20 @@ export async function updatePageSetting(settingName: string, settingValue: strin
   }
 }
 
-export async function updateBannerImage(url: string) {
+export async function updateBannerImage(pageId: number, url: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET banner_image = ${url} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET banner_image = ${url} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update banner image:', error);
   }
 }
 
-export async function updateEventDateTime(data: {
+export async function updateEventDateTime(pageId: number, data: {
   date?: string;
   time?: string;
   city?: string;
@@ -305,7 +320,8 @@ export async function updateEventDateTime(data: {
 }) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
     await sql`
       UPDATE user_page SET
@@ -313,7 +329,7 @@ export async function updateEventDateTime(data: {
         event_time = COALESCE(${data.time ?? null}, event_time),
         city       = COALESCE(${data.city ?? null}, city),
         country    = COALESCE(${data.country ?? null}, country)
-      WHERE user_id = ${userId}
+      WHERE id = ${pid} AND user_id = ${userId}
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -321,20 +337,21 @@ export async function updateEventDateTime(data: {
   }
 }
 
-export async function addGalleryImage(data: { imagePath: string; imageName: string; imageType: string }) {
+export async function addGalleryImage(pageId: number, data: { imagePath: string; imageName: string; imageType: string }) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    const page = await sql`SELECT id, plan_type FROM user_page WHERE user_id = ${userId} LIMIT 1`;
-    const pageId = page.rows[0]?.id;
-    if (!pageId) return;
+    const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    const ownedPageId = page.rows[0]?.id;
+    if (!ownedPageId) return;
     const maxImages = page.rows[0]?.plan_type === 'paid' ? 100 : 8;
-    const count = await sql`SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId}`;
+    const count = await sql`SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${ownedPageId}`;
     if (Number(count.rows[0].count) >= maxImages) return;
     await sql`
       INSERT INTO event_gallery (user_page_id, image_path, image_name, image_type)
-      VALUES (${pageId}, ${data.imagePath}, ${data.imageName}, ${data.imageType})
+      VALUES (${ownedPageId}, ${data.imagePath}, ${data.imageName}, ${data.imageType})
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -350,7 +367,7 @@ export async function deleteGalleryImage(imageId: string) {
     await sql`
       DELETE FROM event_gallery
       WHERE id = ${imageId}
-      AND user_page_id = (SELECT id FROM user_page WHERE user_id = ${userId} LIMIT 1)
+      AND user_page_id IN (SELECT id FROM user_page WHERE user_id = ${userId})
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -358,10 +375,16 @@ export async function deleteGalleryImage(imageId: string) {
   }
 }
 
-export async function saveDomain(domain: string): Promise<{ error?: string }> {
+export async function saveDomain(pageId: number, domain: string): Promise<{ error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: 'Not authenticated.' };
+  const pid = parsePageId(pageId);
+  if (pid === null) return { error: 'Invalid page.' };
+
+  // Confirm the page is theirs before touching the Vercel project.
+  const owned = await sql`SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+  if (!owned.rows[0]) return { error: 'Page not found.' };
 
   const clean = domain.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
   if (!/^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z]{2,})+$/.test(clean)) {
@@ -388,7 +411,7 @@ export async function saveDomain(domain: string): Promise<{ error?: string }> {
     await sql`
       UPDATE user_page
       SET custom_domain = ${clean}, domain_status = 'pending'
-      WHERE user_id = ${userId}
+      WHERE id = ${pid} AND user_id = ${userId}
     `;
   } catch (error) {
     return { error: `Database error: ${error instanceof Error ? error.message : String(error)}` };
@@ -398,12 +421,14 @@ export async function saveDomain(domain: string): Promise<{ error?: string }> {
   return {};
 }
 
-export async function removeDomain(): Promise<{ error?: string }> {
+export async function removeDomain(pageId: number): Promise<{ error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: 'Not authenticated.' };
+  const pid = parsePageId(pageId);
+  if (pid === null) return { error: 'Invalid page.' };
 
-  const result = await sql`SELECT custom_domain FROM user_page WHERE user_id = ${userId}`;
+  const result = await sql`SELECT custom_domain FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
   const domain = result.rows[0]?.custom_domain;
   if (!domain) return {};
 
@@ -418,32 +443,34 @@ export async function removeDomain(): Promise<{ error?: string }> {
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  await sql`UPDATE user_page SET custom_domain = NULL, domain_status = 'pending' WHERE user_id = ${userId}`;
+  await sql`UPDATE user_page SET custom_domain = NULL, domain_status = 'pending' WHERE id = ${pid} AND user_id = ${userId}`;
   revalidatePath('/dashboard/domain');
   return {};
 }
 
-export async function updateHeroEyebrow(eyebrow: string) {
+export async function updateHeroEyebrow(pageId: number, eyebrow: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET hero_eyebrow = ${eyebrow} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET hero_eyebrow = ${eyebrow} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update hero eyebrow:', error);
   }
 }
 
-export async function updateContactInfo(email: string, phone: string) {
+export async function updateContactInfo(pageId: number, email: string, phone: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
     await sql`
       UPDATE user_page
       SET user_email = ${email.trim() || null}, user_phone = ${phone.trim() || null}
-      WHERE user_id = ${userId}
+      WHERE id = ${pid} AND user_id = ${userId}
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
@@ -451,12 +478,13 @@ export async function updateContactInfo(email: string, phone: string) {
   }
 }
 
-export async function updateTheme(themeId: string) {
+export async function updateTheme(pageId: number, themeId: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
   try {
-    await sql`UPDATE user_page SET theme_id = ${themeId} WHERE user_id = ${userId}`;
+    await sql`UPDATE user_page SET theme_id = ${themeId} WHERE id = ${pid} AND user_id = ${userId}`;
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update theme:', error);
