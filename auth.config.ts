@@ -22,9 +22,15 @@ export const authConfig = {
       const nextUrl = request.nextUrl;
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
+      const isOnAdmin = nextUrl.pathname.startsWith('/admin');
       if (isOnDashboard) {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
+      } else if (isOnAdmin) {
+        // Must come before the branch below, which sends users without a
+        // wedding page to /dashboard/setup — a super admin may not have one.
+        // Whether the user is actually an admin is checked in app/admin/layout.tsx.
+        return isLoggedIn;
       } else if (isLoggedIn) {
 
 

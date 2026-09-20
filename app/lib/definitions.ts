@@ -36,6 +36,7 @@ export type UserPage = {
   custom_domain?: string;
   domain_status?: string;
   plan_type?: string;
+  status?: string; // 'active' | 'inactive' — inactive pages are hidden from guests
   stripe_customer_id?: string;
   hero_eyebrow?: string;
   venue_name?: string;

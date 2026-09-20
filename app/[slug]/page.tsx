@@ -5,6 +5,7 @@ import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fe
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 
 interface EventData {
@@ -37,6 +38,7 @@ interface EventData {
   venue_name?: string;
   language?: string;
   plan_type?: string;
+  status?: string;
   user_phone?: string;
 }
 
@@ -73,6 +75,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     venue_name: res.venue_name || undefined,
     language: res.language || 'en',
     plan_type: res.plan_type || undefined,
+    status: res.status || 'active',
     user_phone: res.user_phone || undefined,
   };
 }
@@ -83,6 +86,8 @@ export async function generateMetadata(
   const slug = (await params).slug;
   const page = await fetchUserPage(slug);
   if (!page) return {};
+  // Don't advertise (or let search engines keep) a deactivated page.
+  if (page.status === 'inactive') return { robots: { index: false, follow: false } };
   const description = page.description
     ? page.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
     : undefined;
@@ -101,6 +106,7 @@ export async function generateStaticParams() {
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
+  if (data?.status === 'inactive') return <PageUnavailable />;
   const isPaid = data?.plan_type === 'paid';
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
     data ? fetchGalleryImages(data.user_id) : Promise.resolve([]),

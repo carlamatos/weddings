@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
+import { isDeadSubscription, subscriptionPeriodEnd } from '@/app/lib/subscriptions';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -36,6 +37,27 @@ export async function POST(req: NextRequest) {
             UPDATE user_page
             SET plan_type = 'paid', stripe_customer_id = ${customerId}
             WHERE user_id = ${userId}
+          `;
+        }
+        break;
+      }
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        // Keep the renewal/expiry date fresh for the admin panel. Only the two
+        // date columns are written — plan_type is still driven by checkout
+        // completion and subscription deletion above/below.
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.userId;
+        if (userId && !isDeadSubscription(subscription.status)) {
+          const periodEnd = subscriptionPeriodEnd(subscription);
+          await sql`
+            INSERT INTO user_plans (user_id, plan_type, current_period_end, cancel_at_period_end, updated_at)
+            VALUES (${userId}, 'free', ${periodEnd}, ${subscription.cancel_at_period_end}, NOW())
+            ON CONFLICT (user_id) DO UPDATE
+              SET current_period_end = ${periodEnd},
+                  cancel_at_period_end = ${subscription.cancel_at_period_end},
+                  updated_at = NOW()
           `;
         }
         break;

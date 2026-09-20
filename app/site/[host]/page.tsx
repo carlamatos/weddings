@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 
 export async function generateMetadata(
@@ -11,6 +12,7 @@ export async function generateMetadata(
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) return {};
+  if (data.status === 'inactive') return { robots: { index: false, follow: false } };
   const description = data.description
     ? data.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
     : undefined;
@@ -24,6 +26,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) notFound();
+  if (data.status === 'inactive') return <PageUnavailable />;
 
   const isPaid = data.plan_type === 'paid';
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
