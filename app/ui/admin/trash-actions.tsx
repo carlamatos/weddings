@@ -64,7 +64,7 @@ export default function TrashActions({ trashId, email }: { trashId: number; emai
         <ConfirmEmailModal
           title="Delete permanently?"
           description="This removes the account, their page, all guest data, and every photo and file they uploaded from storage. This cannot be undone."
-          email={email}
+          phrase={email}
           confirmLabel="Delete permanently"
           onConfirm={purge}
           onClose={() => {

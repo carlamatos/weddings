@@ -14,6 +14,9 @@ import PageStatusToggle from '@/app/ui/admin/page-status-toggle';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, buttonBase, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 
+// Live admin data: never run these queries at build time.
+export const dynamic = 'force-dynamic';
+
 type Search = { plan?: string; status?: string; sort?: string; offset?: string };
 
 function pick<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {

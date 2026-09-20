@@ -37,6 +37,7 @@ export type UserPage = {
   domain_status?: string;
   plan_type?: string;
   status?: string; // 'active' | 'inactive' — inactive pages are hidden from guests
+  status_changed_at?: string; // when status last changed (starts the offline-retention clock)
   stripe_customer_id?: string;
   hero_eyebrow?: string;
   venue_name?: string;

@@ -48,7 +48,7 @@ export default function TrashUserButton({
         <ConfirmEmailModal
           title="Move this user to the trash?"
           description="Their page will go offline and they will no longer be able to sign in. Nothing is permanently deleted — you can restore them from the Trash tab at any time."
-          email={email}
+          phrase={email}
           confirmLabel="Move to trash"
           onConfirm={trash}
           onClose={() => {

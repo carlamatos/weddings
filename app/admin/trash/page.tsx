@@ -5,6 +5,9 @@ import TrashActions from '@/app/ui/admin/trash-actions';
 import { formatDateTime } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 
+// Live admin data: never run these queries at build time.
+export const dynamic = 'force-dynamic';
+
 export default async function AdminTrashPage({ searchParams }: { searchParams: Promise<{ offset?: string }> }) {
   const offset = parseOffset((await searchParams).offset);
   const [{ rows, hasMore, error }, total] = await Promise.all([fetchTrashedUsers(offset), countTrashedUsers()]);

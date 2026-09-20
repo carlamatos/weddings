@@ -8,6 +8,7 @@ const links = [
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/pages', label: 'Pages' },
   { href: '/admin/trash', label: 'Trash' },
+  { href: '/admin/cleanup', label: 'Cleanup' },
 ];
 
 export default function AdminNav() {

@@ -18,7 +18,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   try {
-    const result = await sql`UPDATE user_page SET status = ${body.status} WHERE id = ${pageId} RETURNING id`;
+    const result = await sql`UPDATE user_page SET status = ${body.status}, status_changed_at = NOW() WHERE id = ${pageId} RETURNING id`;
     if (!result.rows[0]) return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     return NextResponse.json({ ok: true, status: body.status });
   } catch (err) {

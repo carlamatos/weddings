@@ -6,19 +6,20 @@ import { alertError, alertOk, buttonBase, c } from './styles';
 export type ConfirmResult = { error: string } | { success: string };
 
 // Destructive-action confirmation: the button stays disabled until the admin
-// types the account's email exactly. The server re-checks it too. Failures
-// (e.g. "active subscription") are shown here as a red alert.
+// types the required phrase exactly (an account's email, or e.g. "delete 3
+// pages"). The server re-checks it too. Failures (e.g. "active subscription")
+// are shown here as a red alert.
 export default function ConfirmEmailModal({
   title,
   description,
-  email,
+  phrase,
   confirmLabel,
   onConfirm,
   onClose,
 }: {
   title: string;
   description: string;
-  email: string;
+  phrase: string;
   confirmLabel: string;
   onConfirm: (typedEmail: string) => Promise<ConfirmResult>;
   onClose: () => void;
@@ -27,7 +28,7 @@ export default function ConfirmEmailModal({
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ConfirmResult | null>(null);
 
-  const matches = typed.trim().toLowerCase() === email.toLowerCase();
+  const matches = typed.trim().toLowerCase() === phrase.toLowerCase();
   const done = result !== null && 'success' in result;
 
   async function submit() {
@@ -71,7 +72,7 @@ export default function ConfirmEmailModal({
         ) : (
           <>
             <label style={{ display: 'block', fontSize: 13, marginBottom: 6 }}>
-              Type <strong>{email}</strong> to confirm
+              Type <strong>{phrase}</strong> to confirm
             </label>
             <input
               type="text"
