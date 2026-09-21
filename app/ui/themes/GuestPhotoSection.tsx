@@ -143,19 +143,21 @@ export function GuestPhotoSection({
         <p style={{ textAlign: 'center', opacity: 0.5, fontSize: 15 }}>{labels.beFirstToShare}</p>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 240px))', gap: 8 }}>
+          {/* Always 3 per row, centered (incomplete last row too). The 17px (not 16px)
+              leaves 1px of slack so sub-pixel rounding can never push a tile onto the next row. */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, maxWidth: 720, margin: '0 auto' }}>
             {photos.map((p, i) => (
               <button
                 key={p.id}
                 onClick={() => setLightbox(i)}
-                style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', aspectRatio: '1', overflow: 'hidden', borderRadius: 4 }}
+                style={{ flex: '0 0 calc((100% - 17px) / 3)', padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', aspectRatio: '1', overflow: 'hidden', borderRadius: 4 }}
               >
                 <Image
                   src={p.photo}
                   alt=""
                   fill
                   quality={90}
-                  sizes="(max-width: 480px) 45vw, (max-width: 900px) 30vw, 240px"
+                  sizes="(max-width: 780px) 33vw, 240px"
                   style={{ objectFit: 'cover', transition: 'transform 0.3s ease' }}
                   onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.04)')}
                   onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
