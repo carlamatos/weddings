@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { HERO_DEFAULTS } from './hero-defaults';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
@@ -173,7 +174,7 @@ export default function MidnightBotanical({
     ? `https://www.google.com/maps?q=${encodeURIComponent(formattedAddress)}`
     : null;
 
-  const heroImg = bannerImage || '/images/themes/midnight-botanical/woods.png';
+  const heroImg = bannerImage || HERO_DEFAULTS['midnight-botanical'];
 
   const showVenue = location === 'address';
   const showVirtual = location === 'virtual' && url;

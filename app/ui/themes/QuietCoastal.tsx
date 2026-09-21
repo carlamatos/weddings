@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { HERO_DEFAULTS } from './hero-defaults';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
@@ -163,7 +164,7 @@ export default function QuietCoastal({
     ? `https://www.google.com/maps?q=${encodeURIComponent(formattedAddress)}`
     : null;
 
-  const heroImg = bannerImage || '/images/themes/quiet-coastal/coastal.png';
+  const heroImg = bannerImage || HERO_DEFAULTS['quiet-coastal'];
 
   const showVenue = location === 'address';
   const showVirtual = location === 'virtual' && url;

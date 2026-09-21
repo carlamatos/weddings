@@ -322,7 +322,21 @@ function isVideoUrl(url: string) {
   return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
 }
 
-export function EditableBannerBg({ pageId, src, initialObjectFit = 'cover' }: { pageId: number; src: string; initialObjectFit?: 'cover' | 'contain' }) {
+export function EditableBannerBg({
+  pageId,
+  src,
+  initialObjectFit = 'cover',
+  defaultSrc,
+  fallback,
+}: {
+  pageId: number;
+  src: string;
+  initialObjectFit?: 'cover' | 'contain';
+  // What the current theme shows when there is no banner (its default image, or
+  // a custom element such as Terracotta's illustration).
+  defaultSrc?: string;
+  fallback?: React.ReactNode;
+}) {
   const [hovered, setHovered] = useState(false);
   const [current, setCurrent] = useState(src);
   const [isVideo, setIsVideo] = useState(() => isVideoUrl(src));
@@ -410,7 +424,7 @@ export function EditableBannerBg({ pageId, src, initialObjectFit = 'cover' }: { 
     }
   };
 
-  const mediaSrc = current || '/images/themes/quiet-coastal/coastal.png';
+  const mediaSrc = current || defaultSrc || '';
 
   return (
     <span
@@ -418,7 +432,9 @@ export function EditableBannerBg({ pageId, src, initialObjectFit = 'cover' }: { 
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {isVideo ? (
+      {!mediaSrc ? (
+        fallback
+      ) : isVideo ? (
         <video
           className="hero-bg"
           src={mediaSrc}

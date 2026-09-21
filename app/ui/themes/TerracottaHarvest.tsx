@@ -138,6 +138,22 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+// What Terracotta Harvest shows in place of a banner image. Exported so the
+// dashboard editor shows exactly the same thing.
+export function TerracottaDefaultHero() {
+  return (
+    <svg className="hero-bg-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
+      <rect width="1600" height="1000" fill="#F7F1E6" />
+      <circle cx="220" cy="760" r="340" fill="#EFCBA3" opacity="0.5" />
+      <circle cx="1400" cy="180" r="300" fill="#A9C4DE" opacity="0.35" />
+      <circle cx="1300" cy="850" r="220" fill="#CC9A3E" opacity="0.25" />
+      <circle cx="80" cy="120" r="160" fill="#D8D2C2" opacity="0.5" />
+      <path d="M0 760 C 250 680, 420 820, 700 740 S 1180 660, 1600 760 L1600 1000 L0 1000 Z" fill="#BC5A38" opacity="0.14" />
+      <path d="M0 840 C 300 780, 520 900, 820 830 S 1300 760, 1600 850 L1600 1000 L0 1000 Z" fill="#CC9A3E" opacity="0.18" />
+    </svg>
+  );
+}
+
 export default function TerracottaHarvest({
   heading,
   description,
@@ -209,15 +225,7 @@ export default function TerracottaHarvest({
             <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
           )
         ) : (
-          <svg className="hero-bg-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice">
-            <rect width="1600" height="1000" fill="#F7F1E6" />
-            <circle cx="220" cy="760" r="340" fill="#EFCBA3" opacity="0.5" />
-            <circle cx="1400" cy="180" r="300" fill="#A9C4DE" opacity="0.35" />
-            <circle cx="1300" cy="850" r="220" fill="#CC9A3E" opacity="0.25" />
-            <circle cx="80" cy="120" r="160" fill="#D8D2C2" opacity="0.5" />
-            <path d="M0 760 C 250 680, 420 820, 700 740 S 1180 660, 1600 760 L1600 1000 L0 1000 Z" fill="#BC5A38" opacity="0.14" />
-            <path d="M0 840 C 300 780, 520 900, 820 830 S 1300 760, 1600 850 L1600 1000 L0 1000 Z" fill="#CC9A3E" opacity="0.18" />
-          </svg>
+          <TerracottaDefaultHero />
         ))}
         <div className="hero-overlay" />
         <div className="hero-content">

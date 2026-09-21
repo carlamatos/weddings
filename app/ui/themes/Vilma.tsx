@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { HERO_DEFAULTS } from './hero-defaults';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
@@ -263,7 +264,7 @@ export default function Vilma({
             <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={bannerImage || '/images/themes/vilma/hero-bg.jpg'} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={bannerImage || HERO_DEFAULTS.vilma} alt="" style={{ objectFit: heroObjectFit }} />
           )
         )}
 

@@ -10,6 +10,7 @@ import {
   EditableContactInfo,
 } from '@/app/ui/themes/slots';
 import { EditableGallery } from '@/app/ui/themes/GallerySection';
+import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -51,6 +52,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
     heroBg: (
       <EditableBannerBg
         pageId={pageId}
+        {...heroFallbackFor(userPage.theme_slug)}
         src={userPage.banner_image || ''}
         initialObjectFit={heroObjectFit}
       />
