@@ -282,7 +282,7 @@ export default function MidnightBotanical({
       )}
 
       {/* EVENT PROGRAM */}
-      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+      {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="spine-section wide">
           <p className="eyebrow">{t.theSchedule}</p>
           <h2 className="title">{t.eventProgram}</h2>

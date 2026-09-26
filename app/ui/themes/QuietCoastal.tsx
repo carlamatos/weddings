@@ -286,7 +286,7 @@ export default function QuietCoastal({
       <hr className="hairline" />
 
       {/* EVENT PROGRAM */}
-      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+      {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
           <div className="wrap">
             <div className="section">

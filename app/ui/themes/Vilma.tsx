@@ -360,7 +360,7 @@ export default function Vilma({
       )}
 
       {/* EVENT PROGRAM */}
-      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+      {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="section section-center">
           <div className="wrap">
             <p className="eyebrow">{t.theSchedule}</p>

@@ -438,7 +438,7 @@ export default function Nexus({
       )}
 
       {/* EVENT PROGRAM */}
-      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+      {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
           <Reveal>
             <div className="section section-center">

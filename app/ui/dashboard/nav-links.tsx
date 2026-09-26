@@ -7,12 +7,13 @@ import { usePathname } from 'next/navigation';
 const links = [
   { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'RSVPs', section: '/rsvp', icon: UsersIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: true, greyOutIfFree: false },
-  { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: true, greyOutIfFree: false },
   // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
-  // reaches the upgrade prompt on the Event Program page itself.
-  { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: true },
+  // reaches the upgrade prompt on each section's own page.
+  { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
+  // Free tier now, same as everything else.
+  { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
 ];
 
 // Links only appear when a page is selected (pageId set), and point at that page.

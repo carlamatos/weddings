@@ -316,7 +316,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* EVENT PROGRAM */}
-      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+      {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
           <div className="section-wide">
             <p className="section-label">{t.theSchedule}</p>
