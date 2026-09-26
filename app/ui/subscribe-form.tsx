@@ -1,50 +1,44 @@
 "use client"
 import { useActionState, useState, useMemo, useEffect } from 'react';
-import Image from 'next/image';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
 import { createUserPage, UserPageState } from '../lib/actions';
 import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
+import { themesByCategory } from './themes/registry';
+import type { EventCategory } from './themes/types';
+import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
 
-const VilmaPreview = () => (
-  <div style={{ position: 'relative', width: '100%', height: 160, background: '#FFFFFF', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-    <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice">
-      <defs>
-        <radialGradient id="vl-sf-g1" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#d2c3d6" stopOpacity="0.42"/><stop offset="100%" stopColor="#d2c3d6" stopOpacity="0"/></radialGradient>
-        <radialGradient id="vl-sf-g2" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#f4e3b5" stopOpacity="0.5"/><stop offset="100%" stopColor="#f4e3b5" stopOpacity="0"/></radialGradient>
-      </defs>
-      <ellipse cx="200" cy="80" rx="200" ry="80" fill="url(#vl-sf-g1)"/>
-      <ellipse cx="200" cy="80" rx="120" ry="60" fill="url(#vl-sf-g2)"/>
-      <circle cx="55" cy="22" r="3" fill="#f8ac4c" opacity="0.5"/>
-      <circle cx="345" cy="28" r="2.5" fill="#f8ac4c" opacity="0.4"/>
-      <circle cx="28" cy="132" r="3.5" fill="#d2c3d6" opacity="0.5"/>
-      <circle cx="372" cy="138" r="3" fill="#92946f" opacity="0.35"/>
-    </svg>
-    <div style={{ position: 'relative', zIndex: 1 }}>
-      <div style={{ width: 22, height: 22, borderRadius: '50%', border: '1px solid #d2c3d6', background: 'radial-gradient(circle, rgba(244,227,181,0.5) 0%, transparent 70%)', margin: '0 auto 7px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ width: 13, height: 13, borderRadius: '50%', border: '0.5px solid rgba(248,172,76,0.4)' }} />
+const CATEGORY_LABELS: Record<EventCategory, string> = {
+  wedding: 'Wedding',
+  birthdays: 'Birthdays',
+  business: 'Business',
+  community: 'Community',
+};
+
+const EVENT_NAME_PLACEHOLDER: Record<EventCategory, string> = {
+  wedding: 'e.g. Sofia & James Wedding',
+  birthdays: "e.g. Sofia's Quinceañera or Sweet 16",
+  business: 'e.g. Annual Leadership Summit',
+  community: 'e.g. Neighborhood Block Party',
+};
+
+// Every theme card shows the theme's own real HeroPreview, scaled down to
+// fit the card — this always matches the live theme exactly (no separately
+// maintained thumbnail image to fall out of sync).
+const PREVIEW_NATURAL_HEIGHT = 280;
+const PREVIEW_CARD_HEIGHT = 130;
+const PREVIEW_SCALE = PREVIEW_CARD_HEIGHT / PREVIEW_NATURAL_HEIGHT;
+
+function ThemeCardPreview({ themeSlug, heading }: { themeSlug: string; heading: string }) {
+  return (
+    <div className="setup-theme-card__preview">
+      <div style={{ width: `${100 / PREVIEW_SCALE}%`, transform: `scale(${PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+        <ThemeHeroPreview themeSlug={themeSlug} heading={heading} />
       </div>
-      <p style={{ fontSize: 8, letterSpacing: 2.5, textTransform: 'uppercase', color: '#92946f', fontWeight: 600, margin: '0 0 5px', fontFamily: 'system-ui' }}>Together with their families</p>
-      <p style={{ fontFamily: 'Georgia, cursive', fontSize: 26, color: '#8c9eac', margin: '0 0 5px', fontWeight: 400, lineHeight: 1.1 }}>Isabella &amp; William</p>
-      <div style={{ width: 24, height: 1.5, background: '#f8ac4c', margin: '0 auto 5px', border: 'none' }} />
-      <p style={{ fontSize: 8, letterSpacing: 2, color: '#92946f', margin: 0, fontFamily: 'system-ui', textTransform: 'uppercase' }}>June 14, 2026</p>
     </div>
-  </div>
-);
-
-type ThemeOption = { slug: string; label: string; src?: string; preview?: React.ReactNode };
-
-const WEDDING_THEMES: ThemeOption[] = [
-  { slug: 'quiet-coastal',      label: 'Quiet Coastal',      src: '/images/themes/quiet-coastal/coastal.png' },
-  { slug: 'midnight-botanical', label: 'Midnight Botanical',  src: '/images/themes/midnight-botanical/woods.png' },
-  { slug: 'terracotta-harvest', label: 'Terracotta Harvest',  src: '/images/themes/wedding.png' },
-  { slug: 'vilma',              label: 'Vilma',               preview: <VilmaPreview /> },
-];
-
-const EVENT_THEMES: ThemeOption[] = [
-  { slug: 'event', label: 'Classic Event', src: '/images/themes/event.png' },
-];
+  );
+}
 
 function slugify(text: string): string {
   return text
@@ -57,7 +51,7 @@ function slugify(text: string): string {
 }
 
 export default function Form() {
-  const [eventType, setEventType] = useState<'wedding' | 'event'>('wedding');
+  const [eventType, setEventType] = useState<EventCategory>('wedding');
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
   const [selectedSlug, setSelectedSlug] = useState<string>('');
   // Random suffix for option 4 — set after mount only to avoid SSR/client mismatch
@@ -90,7 +84,7 @@ export default function Form() {
   const initialState: UserPageState = { message: null, errors: {} };
   const [state, formAction, isPending] = useActionState(createUserPage, initialState);
 
-  const themes = eventType === 'wedding' ? WEDDING_THEMES : EVENT_THEMES;
+  const themes = themesByCategory(eventType);
 
   // Generate 4 slug options live from current form values
   const slugOptions = useMemo(() => {
@@ -116,9 +110,9 @@ export default function Form() {
     if (name === 'location') setLocation(value as 'address' | 'virtual');
   };
 
-  const handleEventTypeChange = (type: 'wedding' | 'event') => {
+  const handleEventTypeChange = (type: EventCategory) => {
     setEventType(type);
-    setFormData(prev => ({ ...prev, themeSlug: type === 'wedding' ? 'quiet-coastal' : 'event' }));
+    setFormData(prev => ({ ...prev, themeSlug: themesByCategory(type)[0]?.slug ?? '' }));
   };
 
   const handlePlaceSelect = (components: AddressComponents) => {
@@ -136,7 +130,7 @@ export default function Form() {
   return (
     <div className="auth-card" style={{ maxWidth: 620 }}>
       <h1 className="auth-heading">Create your event</h1>
-      <p className="auth-subheading">Set up your wedding page in just a few steps.</p>
+      <p className="auth-subheading">Set up your event page in just a few steps.</p>
 
       {state.message && (
         <div className="auth-error">
@@ -154,14 +148,14 @@ export default function Form() {
         <div className="auth-field">
           <label className="auth-label">Event Type</label>
           <div className="setup-type-pills">
-            {(['wedding', 'event'] as const).map((type) => (
+            {(['wedding', 'birthdays', 'business', 'community'] as const).map((type) => (
               <button
                 key={type}
                 type="button"
                 className={`setup-type-pill${eventType === type ? ' setup-type-pill--active' : ''}`}
                 onClick={() => handleEventTypeChange(type)}
               >
-                {type === 'wedding' ? 'Wedding' : 'Event'}
+                {CATEGORY_LABELS[type]}
               </button>
             ))}
           </div>
@@ -174,7 +168,7 @@ export default function Form() {
           <div className="auth-input-wrap">
             <input className="auth-input" id="eventName" type="text" name="eventName"
               value={formData.eventName} onChange={handleChange}
-              placeholder={eventType === 'wedding' ? 'e.g. Sofia & James Wedding' : 'e.g. Annual Gala 2027'} required />
+              placeholder={EVENT_NAME_PLACEHOLDER[eventType]} required />
           </div>
           {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
         </div>
@@ -200,39 +194,40 @@ export default function Form() {
 
         {/* Theme picker */}
         <div className="auth-field">
-          <label className="auth-label">
-            {eventType === 'wedding' ? 'Wedding Theme' : 'Event Theme'}
-          </label>
-          <div className="setup-theme-cards">
-            {themes.map((theme) => (
-              <label
-                key={theme.slug}
-                className={`setup-theme-card${formData.themeSlug === theme.slug ? ' setup-theme-card--selected' : ''}`}
-              >
-                <input
-                  type="radio"
-                  name="themeSlugRadio"
-                  value={theme.slug}
-                  checked={formData.themeSlug === theme.slug}
-                  onChange={() => setFormData(prev => ({ ...prev, themeSlug: theme.slug }))}
-                />
-                {theme.src
-                  ? <Image src={theme.src} alt={theme.label} width={400} height={160} className="setup-theme-card__image" />
-                  : <div className="setup-theme-card__image" style={{ overflow: 'hidden' }}>{theme.preview}</div>
-                }
-                <div className="setup-theme-card__label">
-                  <span className="setup-theme-card__check">
-                    {formData.themeSlug === theme.slug && (
-                      <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                        <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </span>
-                  {theme.label}
-                </div>
-              </label>
-            ))}
-          </div>
+          <label className="auth-label">{CATEGORY_LABELS[eventType]} Theme</label>
+          {themes.length === 0 ? (
+            <div className="setup-theme-cards--empty">
+              No {CATEGORY_LABELS[eventType].toLowerCase()} themes yet — more are on the way. Pick another category for now.
+            </div>
+          ) : (
+            <div className="setup-theme-cards">
+              {themes.map((theme) => (
+                <label
+                  key={theme.slug}
+                  className={`setup-theme-card${formData.themeSlug === theme.slug ? ' setup-theme-card--selected' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="themeSlugRadio"
+                    value={theme.slug}
+                    checked={formData.themeSlug === theme.slug}
+                    onChange={() => setFormData(prev => ({ ...prev, themeSlug: theme.slug }))}
+                  />
+                  <ThemeCardPreview themeSlug={theme.slug} heading={formData.eventName} />
+                  <div className="setup-theme-card__label">
+                    <span className="setup-theme-card__check">
+                      {formData.themeSlug === theme.slug && (
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                          <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      )}
+                    </span>
+                    {theme.label}
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
           {state.errors?.theme_slug && <p className="auth-field-error">{state.errors.theme_slug[0]}</p>}
         </div>
 

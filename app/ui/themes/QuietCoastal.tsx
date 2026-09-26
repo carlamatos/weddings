@@ -5,6 +5,7 @@ import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toLowerCase();
@@ -77,6 +78,9 @@ const css = `
   .qc .map-frame iframe { border: 0; display: block; width: 100%; height: 100%; min-height: 280px; filter: saturate(0.5); }
   .qc .directions-link { margin-top: 16px; }
   .qc .directions-link a { font-size: 13px; color: var(--sage-deep); font-weight: 500; text-decoration: underline; }
+  .qc .schedule-day { margin-bottom: 32px; }
+  .qc .schedule-day:last-child { margin-bottom: 0; }
+  .qc .schedule-day-title { font-size: 12px; letter-spacing: 1.5px; text-transform: lowercase; color: var(--sage-deep); font-weight: 500; margin: 0 0 4px; }
   .qc .footer-grid { display: flex; justify-content: space-between; align-items: flex-end; gap: 32px; flex-wrap: wrap; }
   .qc .footer p { font-size: 14px; color: var(--ink-soft); margin: 0 0 4px; }
   .qc .footer-signoff { font-size: 14px; color: var(--ink); letter-spacing: -0.2px; margin: 0; }
@@ -144,8 +148,16 @@ export default function QuietCoastal({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  eventProgram,
+  showEventProgram,
+  showSongRequests,
+  showGuestPhotos,
+  showRsvp,
 }: ThemeProps) {
   const t = getTranslations(language);
+  // editSlots is only ever passed by the dashboard's live preview — reuse it
+  // as the single signal that guest-facing forms must render read-only.
+  const isPreview = !!editSlots;
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
@@ -273,15 +285,42 @@ export default function QuietCoastal({
 
       <hr className="hairline" />
 
+      {/* EVENT PROGRAM */}
+      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+        <>
+          <div className="wrap">
+            <div className="section">
+              <p className="eyebrow">{t.theSchedule.toLowerCase()}</p>
+              <h2 className="title">{t.eventProgram.toLowerCase()}</h2>
+              {groupEventProgramByDate(eventProgram).map((group) => (
+                <div className="schedule-day" key={group.date}>
+                  <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale).toLowerCase()}</p>
+                  {group.items.map((item) => (
+                    <div className="detail-row" key={item.id}>
+                      <span className="label">{formatProgramTime(item, t.dateLocale).toLowerCase() || '—'}</span>
+                      <span className="value">
+                        {item.name}
+                        {item.location && <span className="sub">{item.location}</span>}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <hr className="hairline" />
+        </>
+      )}
+
       {/* RSVP */}
-      {!editSlots && (
+      {showRsvp !== false && (
         <>
           <hr className="hairline" />
           <div id="rsvp" className="wrap">
             <div className="section">
               <p className="eyebrow">{t.kindlyRespond.toLowerCase()}</p>
               <h2 className="title">{t.rsvp.toLowerCase()}</h2>
-              <RsvpForm userPageId={userPageId} translations={t} />
+              <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
             </div>
           </div>
         </>
@@ -326,7 +365,7 @@ export default function QuietCoastal({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="wrap" style={{ padding: '80px 32px' }}>
           <p className="eyebrow" style={{ marginBottom: 8 }}>{t.guestPhotos.toLowerCase()}</p>
           <h2 className="section-title" style={{ marginBottom: 28 }}>{t.shareYourPhoto.toLowerCase()}</h2>
@@ -336,12 +375,13 @@ export default function QuietCoastal({
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
             btnClassName="btn"
+            disabled={isPreview}
           />
         </div>
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showSongRequests !== false && (
         <>
           <hr className="hairline" />
           <div className="wrap" style={{ padding: '80px 32px' }}>
@@ -353,6 +393,7 @@ export default function QuietCoastal({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName.toLowerCase(), songTitle: t.songTitle.toLowerCase(), artistLabel: t.artistLabel.toLowerCase(), addSong: t.addSong.toLowerCase(), songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet.toLowerCase(), requestedBy: t.requestedBy.toLowerCase(), loadMore: t.loadMore.toLowerCase(), sending: t.sending.toLowerCase() }}
               btnClassName="btn"
+              disabled={isPreview}
             />
           </div>
         </>

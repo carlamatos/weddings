@@ -5,6 +5,7 @@ import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -87,6 +88,14 @@ const css = `
   .mb .map-frame iframe { border: 0; display: block; width: 100%; height: 100%; min-height: 220px; filter: grayscale(20%); }
   .mb .directions-link { margin-top: 18px; }
   .mb .directions-link a { font-size: 13px; letter-spacing: 1px; color: var(--moss); font-weight: 600; text-decoration: none; }
+  .mb .schedule-day { margin-bottom: 40px; }
+  .mb .schedule-day:last-child { margin-bottom: 0; }
+  .mb .schedule-day-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--moss); font-weight: 600; margin: 0 0 16px; }
+  .mb .schedule-list { display: flex; flex-direction: column; gap: 18px; }
+  .mb .schedule-row { display: flex; gap: 20px; align-items: baseline; border-bottom: 1px solid var(--parchment-soft); padding-bottom: 14px; }
+  .mb .schedule-time { font-family: var(--font-serif); font-style: italic; font-size: 18px; color: var(--gold-dim); min-width: 120px; flex-shrink: 0; }
+  .mb .schedule-info .name { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 3px; }
+  .mb .schedule-info .loc { font-size: 13px; color: var(--moss); margin: 0; }
   .mb .registry-wrap { position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
   .mb .registry-overlay { background: rgba(15, 31, 26, 0.7); padding: 48px 64px; text-align: center; border: 1px solid var(--gold-dim); }
   .mb .registry-title { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin: 0 0 14px; font-weight: 600; }
@@ -154,8 +163,16 @@ export default function MidnightBotanical({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  eventProgram,
+  showEventProgram,
+  showSongRequests,
+  showGuestPhotos,
+  showRsvp,
 }: ThemeProps) {
   const t = getTranslations(language);
+  // editSlots is only ever passed by the dashboard's live preview — reuse it
+  // as the single signal that guest-facing forms must render read-only.
+  const isPreview = !!editSlots;
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
@@ -264,12 +281,36 @@ export default function MidnightBotanical({
         </div>
       )}
 
+      {/* EVENT PROGRAM */}
+      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+        <div className="spine-section wide">
+          <p className="eyebrow">{t.theSchedule}</p>
+          <h2 className="title">{t.eventProgram}</h2>
+          {groupEventProgramByDate(eventProgram).map((group) => (
+            <div className="schedule-day" key={group.date}>
+              <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
+              <div className="schedule-list">
+                {group.items.map((item) => (
+                  <div className="schedule-row" key={item.id}>
+                    <div className="schedule-time">{formatProgramTime(item, t.dateLocale) || '—'}</div>
+                    <div className="schedule-info">
+                      <p className="name">{item.name}</p>
+                      {item.location && <p className="loc">{item.location}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* RSVP */}
-      {!editSlots && (
+      {showRsvp !== false && (
         <div id="rsvp" className="spine-section">
           <p className="eyebrow">{t.kindlyRespond}</p>
           <h2 className="title">{t.rsvp}</h2>
-          <RsvpForm userPageId={userPageId} translations={t} />
+          <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
         </div>
       )}
 
@@ -304,7 +345,7 @@ export default function MidnightBotanical({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
           <p className="section-label" style={{ textAlign: 'center' }}>{t.guestPhotos}</p>
           <h2 className="section-title" style={{ textAlign: 'center' }}>{t.shareYourPhoto}</h2>
@@ -314,12 +355,13 @@ export default function MidnightBotanical({
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
             btnClassName="btn"
+            disabled={isPreview}
           />
         </div>
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showSongRequests !== false && (
         <div style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
           <p className="section-label" style={{ textAlign: 'center' }}>{t.buildOurPlaylist}</p>
           <h2 className="section-title" style={{ textAlign: 'center' }}>{t.songRequests}</h2>
@@ -330,6 +372,7 @@ export default function MidnightBotanical({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn"
+              disabled={isPreview}
             />
           </div>
         </div>

@@ -4,7 +4,24 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Elena &amp; Marcus — September 20, 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
 <style>
+  /* MyGala site banner (preview pages only) */
+  .mg-topbar { position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; background: rgba(246,242,237,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid #DCD3C5; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  .mg-back { font-size: 13px; font-weight: 600; color: #6B6470; text-decoration: none; white-space: nowrap; }
+  .mg-back:hover { color: #241F2B; }
+  .mg-wordmark { font-family: 'Great Vibes', cursive; font-size: 28px; font-weight: 400; color: #241F2B; letter-spacing: 0.5px; text-decoration: none; line-height: 1; }
+  .mg-wordmark .mg-accent { color: #B6584A; }
+  .mg-topbar-actions { display: flex; align-items: center; gap: 18px; }
+  .mg-auth-actions { display: inline-flex; align-items: center; gap: 10px; }
+  .mg-topbar-login { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; padding: 8px 18px; border-radius: 999px; border: 1.5px solid #241F2B; background: transparent; color: #241F2B; text-decoration: none; white-space: nowrap; transition: background 0.15s ease; }
+  .mg-topbar-login:hover { background: #EDE6DB; }
+  .mg-topbar-signup { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; padding: 8px 18px; border-radius: 999px; border: none; background: #B6584A; color: #fff; text-decoration: none; white-space: nowrap; transition: background 0.15s ease, transform 0.15s ease; }
+  .mg-topbar-signup:hover { background: #9A4738; transform: translateY(-1px); }
+  @media (max-width: 480px) { .mg-topbar { padding: 12px 16px; } .mg-wordmark { font-size: 22px; } .mg-topbar-login { display: none; } }
+
   :root {
     --rust: #BC5A38;
     --ochre: #CC9A3E;
@@ -198,6 +215,15 @@
   .directions-link { text-align: center; margin-top: 22px; }
   .directions-link a { font-size: 14px; color: var(--rust); font-weight: 600; text-decoration: none; }
 
+  /* schedule: event program timeline */
+  .schedule-day { margin-bottom: 36px; }
+  .schedule-day:last-child { margin-bottom: 0; }
+  .schedule-day-title { font-family: var(--font-serif); font-size: 18px; color: var(--rust); margin: 0 0 16px; text-align: center; }
+  .schedule-row { display: flex; gap: 20px; align-items: baseline; border-bottom: 1px solid var(--linen); padding: 14px 0; text-align: left; }
+  .schedule-time { font-family: var(--font-serif); font-size: 17px; color: var(--rust); min-width: 130px; flex-shrink: 0; }
+  .schedule-info .name { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
+  .schedule-info .loc { font-size: 13px; color: var(--ink-soft); margin: 0; }
+
   /* RSVP */
   .rsvp-card { max-width: 480px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; padding: 32px; border: 1px solid var(--linen); }
   .rsvp-form { display: flex; flex-direction: column; gap: 16px; }
@@ -302,6 +328,31 @@
 </style>
 </head>
 <body>
+<div class="mg-topbar">
+  <a href="/" class="mg-wordmark">My<span class="mg-accent">Gala</span></a>
+  <div class="mg-topbar-actions">
+    <a href="/#themes" class="mg-back">&larr; Back to themes</a>
+    <span class="mg-auth-actions">
+      <a href="/login" class="mg-topbar-login">Log in</a>
+      <a href="/login" class="mg-topbar-signup">Start your event page</a>
+    </span>
+  </div>
+</div>
+<script>
+  // Static page, so it can't check auth server-side — asks NextAuth's own
+  // session endpoint and swaps in a Dashboard link if already signed in.
+  (function () {
+    fetch('/api/auth/session', { credentials: 'same-origin' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (session) {
+        if (session && session.user) {
+          var actions = document.querySelector('.mg-auth-actions');
+          if (actions) actions.innerHTML = '<a href="/dashboard" class="mg-topbar-signup">Dashboard</a>';
+        }
+      })
+      .catch(function () {});
+  })();
+</script>
 
   <!-- HERO -->
   <div class="hero">
@@ -406,6 +457,43 @@
     </div>
     <div class="directions-link reveal delay-3">
       <a href="https://www.google.com/maps?q=Maple+Ridge+BC" target="_blank" rel="noopener noreferrer">Get directions →</a>
+    </div>
+  </div>
+
+  <div class="band thin"><span class="band-rust"></span><span class="band-ochre"></span><span class="band-peach"></span><span class="band-cream"></span><span class="band-blue"></span><span class="band-linen"></span></div>
+
+  <!-- EVENT PROGRAM -->
+  <div class="section-wide reveal">
+    <p class="section-label">What to expect</p>
+    <h2 class="section-title">Event Program</h2>
+    <div style="max-width: 620px; margin: 0 auto;">
+      <div class="schedule-day">
+        <p class="schedule-day-title">Saturday, September 19, 2026</p>
+        <div class="schedule-row">
+          <div class="schedule-time">6:00 – 9:00 PM</div>
+          <div class="schedule-info">
+            <p class="name">Rehearsal dinner</p>
+            <p class="loc">Maple Ridge Orchard Estate</p>
+          </div>
+        </div>
+      </div>
+      <div class="schedule-day">
+        <p class="schedule-day-title">Sunday, September 20, 2026</p>
+        <div class="schedule-row">
+          <div class="schedule-time">4:00 PM</div>
+          <div class="schedule-info">
+            <p class="name">Ceremony</p>
+            <p class="loc">Maple Ridge Orchard Estate</p>
+          </div>
+        </div>
+        <div class="schedule-row">
+          <div class="schedule-time">5:30 – 11:00 PM</div>
+          <div class="schedule-info">
+            <p class="name">Reception</p>
+            <p class="loc">Orchard Barn</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

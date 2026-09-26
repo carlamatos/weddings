@@ -4,7 +4,24 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Nora + Theo — June 13, 2027</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
 <style>
+  /* MyGala site banner (preview pages only) */
+  .mg-topbar { position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; justify-content: space-between; padding: 14px 28px; background: rgba(246,242,237,0.94); backdrop-filter: blur(8px); border-bottom: 1px solid #DCD3C5; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  .mg-back { font-size: 13px; font-weight: 600; color: #6B6470; text-decoration: none; white-space: nowrap; }
+  .mg-back:hover { color: #241F2B; }
+  .mg-wordmark { font-family: 'Great Vibes', cursive; font-size: 28px; font-weight: 400; color: #241F2B; letter-spacing: 0.5px; text-decoration: none; line-height: 1; }
+  .mg-wordmark .mg-accent { color: #B6584A; }
+  .mg-topbar-actions { display: flex; align-items: center; gap: 18px; }
+  .mg-auth-actions { display: inline-flex; align-items: center; gap: 10px; }
+  .mg-topbar-login { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; padding: 8px 18px; border-radius: 999px; border: 1.5px solid #241F2B; background: transparent; color: #241F2B; text-decoration: none; white-space: nowrap; transition: background 0.15s ease; }
+  .mg-topbar-login:hover { background: #EDE6DB; }
+  .mg-topbar-signup { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; padding: 8px 18px; border-radius: 999px; border: none; background: #B6584A; color: #fff; text-decoration: none; white-space: nowrap; transition: background 0.15s ease, transform 0.15s ease; }
+  .mg-topbar-signup:hover { background: #9A4738; transform: translateY(-1px); }
+  @media (max-width: 480px) { .mg-topbar { padding: 12px 16px; } .mg-wordmark { font-size: 22px; } .mg-topbar-login { display: none; } }
+
   :root {
     --sage: #8C9A93;
     --sage-deep: #5C6B61;
@@ -190,6 +207,11 @@
   .directions-link { margin-top: 16px; }
   .directions-link a { font-size: 13px; color: var(--sage-deep); font-weight: 500; text-decoration: underline; }
 
+  /* ---------- schedule: event program timeline ---------- */
+  .schedule-day { margin-bottom: 32px; }
+  .schedule-day:last-child { margin-bottom: 0; }
+  .schedule-day-title { font-size: 12px; letter-spacing: 1.5px; text-transform: lowercase; color: var(--sage-deep); font-weight: 500; margin: 0 0 4px; }
+
   /* ---------- RSVP ---------- */
   .rsvp-form { display: flex; flex-direction: column; gap: 26px; max-width: 420px; }
   .rsvp-error { color: #A0524A; font-size: 13px; margin: 0; }
@@ -290,6 +312,31 @@
 </style>
 </head>
 <body>
+<div class="mg-topbar">
+  <a href="/" class="mg-wordmark">My<span class="mg-accent">Gala</span></a>
+  <div class="mg-topbar-actions">
+    <a href="/#themes" class="mg-back">&larr; Back to themes</a>
+    <span class="mg-auth-actions">
+      <a href="/login" class="mg-topbar-login">Log in</a>
+      <a href="/login" class="mg-topbar-signup">Start your event page</a>
+    </span>
+  </div>
+</div>
+<script>
+  // Static page, so it can't check auth server-side — asks NextAuth's own
+  // session endpoint and swaps in a Dashboard link if already signed in.
+  (function () {
+    fetch('/api/auth/session', { credentials: 'same-origin' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (session) {
+        if (session && session.user) {
+          var actions = document.querySelector('.mg-auth-actions');
+          if (actions) actions.innerHTML = '<a href="/dashboard" class="mg-topbar-signup">Dashboard</a>';
+        }
+      })
+      .catch(function () {});
+  })();
+</script>
 
   <!-- HERO -->
   <div class="hero">
@@ -374,6 +421,34 @@
         </div>
         <div class="map-frame">
           <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d41752.15421731408!2d-125.93043486041978!3d49.15293402665403!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x548990ccb0093843%3A0x331095695a741a35!2sTofino%2C%20BC%20V0R%203A0!5e0!3m2!1sen!2sca!4v1782278226149!5m2!1sen!2sca" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="hairline" />
+
+  <!-- EVENT PROGRAM -->
+  <div class="wrap">
+    <div class="section reveal">
+      <p class="eyebrow">what to expect</p>
+      <h2 class="title">event program</h2>
+      <div class="schedule-day">
+        <p class="schedule-day-title">friday, june 11, 2027</p>
+        <div class="detail-row">
+          <span class="label">6:00 – 9:00 pm</span>
+          <span class="value">Rehearsal dinner<span class="sub">Long Beach Lodge</span></span>
+        </div>
+      </div>
+      <div class="schedule-day">
+        <p class="schedule-day-title">sunday, june 13, 2027</p>
+        <div class="detail-row">
+          <span class="label">4:30 pm</span>
+          <span class="value">Ceremony<span class="sub">Long Beach Lodge</span></span>
+        </div>
+        <div class="detail-row">
+          <span class="label">6:00 – 11:00 pm</span>
+          <span class="value">Reception<span class="sub">Oceanfront terrace</span></span>
         </div>
       </div>
     </div>

@@ -26,6 +26,20 @@ export async function POST(request: Request) {
     )
   `;
 
+  // Create event program table (schedule of phases: rehearsal dinner, ceremony, etc.)
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_program (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      event_date DATE NOT NULL,
+      name TEXT NOT NULL,
+      start_time TIME,
+      end_time TIME,
+      location TEXT,
+      created_at TIMESTAMP DEFAULT NOW()
+    )
+  `;
+
   // Create unified table
   await sql`
     CREATE TABLE IF NOT EXISTS event_guests (

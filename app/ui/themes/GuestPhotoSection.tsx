@@ -19,6 +19,7 @@ interface GuestPhotoSectionProps {
     uploading: string;
   };
   btnClassName?: string;
+  disabled?: boolean;
 }
 
 export function GuestPhotoSection({
@@ -27,6 +28,7 @@ export function GuestPhotoSection({
   initialHasMore,
   labels,
   btnClassName = 'btn',
+  disabled = false,
 }: GuestPhotoSectionProps) {
   const [photos, setPhotos] = useState<GuestPhoto[]>(initialPhotos);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -42,6 +44,9 @@ export function GuestPhotoSection({
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Belt-and-suspenders: the input/button below are already disabled and
+    // can't trigger a change event, but a preview render should never upload.
+    if (disabled) return;
     const files = Array.from(e.target.files ?? []);
     if (!files.length) return;
 
@@ -106,11 +111,17 @@ export function GuestPhotoSection({
     <>
       {/* Upload button */}
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
+        {disabled && (
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px', display: 'inline-block' }}>
+            Preview only — photos can be shared from your live page.
+          </p>
+        )}
         <button
           className={btnClassName}
           type="button"
-          disabled={!!uploadProgress}
+          disabled={disabled || !!uploadProgress}
           onClick={() => inputRef.current?.click()}
+          style={disabled ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
         >
           {uploadProgress
             ? `${labels.uploading} ${uploadProgress.current} / ${uploadProgress.total}`
@@ -121,6 +132,7 @@ export function GuestPhotoSection({
           type="file"
           accept="image/*"
           multiple
+          disabled={disabled}
           style={{ display: 'none' }}
           onChange={handleFile}
         />

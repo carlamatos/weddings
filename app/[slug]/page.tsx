@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -108,13 +108,18 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
   if (data?.status === 'inactive') return <PageUnavailable />;
   const isPaid = data?.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
     data ? fetchGalleryImages(data.id) : Promise.resolve([]),
     data && isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     data && isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     data ? fetchPageSettings(data.id) : Promise.resolve({} as Record<string, string>),
+    data ? fetchEventProgram(data.id) : Promise.resolve([]),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
+  const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
+  const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
+  const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   if (!data) notFound();
 
   const isOwner = session?.user?.id === data.user_id;
@@ -168,6 +173,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
         heroObjectFit={heroObjectFit}
+        eventProgram={eventProgram}
+        showEventProgram={showEventProgram}
+        showSongRequests={showSongRequests}
+        showGuestPhotos={showGuestPhotos}
+        showRsvp={showRsvp}
+        isLoggedIn={!!session?.user}
       />
     </>
   );

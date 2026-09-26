@@ -19,7 +19,7 @@ declare global {
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-export default function RsvpForm({ userPageId, translations: t }: { userPageId?: string; translations: Translations }) {
+export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -58,6 +58,9 @@ export default function RsvpForm({ userPageId, translations: t }: { userPageId?:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Belt-and-suspenders: the fieldset below already disables every control
+    // and blocks native submission, but a preview render should never POST.
+    if (disabled) return;
     if (!name.trim()) { setError(t.errorName); return; }
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError(t.errorEmail); return;
@@ -104,6 +107,14 @@ export default function RsvpForm({ userPageId, translations: t }: { userPageId?:
 
   return (
     <form className="rsvp-form" onSubmit={handleSubmit} noValidate>
+      {disabled && (
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: 0 }}>
+          Preview only — RSVPs can be submitted from your live page.
+        </p>
+      )}
+      {/* A native fieldset disables every control inside it (including via
+          keyboard) — more robust than disabling each input individually. */}
+      <fieldset disabled={disabled} style={{ display: 'contents' }}>
       {/* Honeypot — hidden from real users, bots fill it in */}
       <div style={{ position: 'absolute', left: '-9999px', top: 'auto', width: 1, height: 1, overflow: 'hidden' }} aria-hidden="true">
         <label htmlFor="rsvp-website">Website</label>
@@ -187,6 +198,7 @@ export default function RsvpForm({ userPageId, translations: t }: { userPageId?:
       <button type="submit" className="btn" disabled={submitting || (!!SITE_KEY && !cfToken)} style={{ width: 'fit-content' }}>
         {submitting ? t.sending : t.sendRsvp}
       </button>
+      </fieldset>
     </form>
   );
 }

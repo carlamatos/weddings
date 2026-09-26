@@ -6,6 +6,7 @@ import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
 import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -132,6 +133,15 @@ const css = `
   .vl .directions-link { text-align: center; margin-top: 18px; }
   .vl .directions-link a { font-family: var(--vl-sans); font-size: 13px; color: var(--vl-steel); font-weight: 600; text-decoration: none; letter-spacing: 0.5px; }
 
+  .vl .schedule-day { max-width: 620px; margin: 0 auto 48px; }
+  .vl .schedule-day:last-child { margin-bottom: 0; }
+  .vl .schedule-day-title { font-family: var(--vl-sans); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--vl-amber); font-weight: 600; margin: 0 0 20px; text-align: left; }
+  .vl .schedule-list { border-top: 1.5px solid var(--vl-mist); text-align: left; }
+  .vl .schedule-row { display: flex; gap: 20px; padding: 18px 0; border-bottom: 1px solid var(--vl-mist); align-items: baseline; }
+  .vl .schedule-time { font-family: var(--vl-script); font-size: 28px; color: var(--vl-steel); min-width: 130px; flex-shrink: 0; }
+  .vl .schedule-info .name { font-family: var(--vl-serif); font-size: 17px; color: var(--vl-ink); font-weight: 600; margin: 0 0 3px; }
+  .vl .schedule-info .loc { font-family: var(--vl-sans); font-size: 13px; color: var(--vl-ink-soft); margin: 0; }
+
   .vl .rsvp-section { background: var(--vl-butter); padding: 88px 28px; text-align: center; }
   .vl .rsvp-card { max-width: 460px; margin: 0 auto; background: #FFFFFF; border-radius: 4px 20px 4px 20px; padding: 36px 32px; border: 1px solid rgba(146,148,111,0.22); box-shadow: 0 4px 28px rgba(140,158,172,0.1); text-align: left; }
 
@@ -207,8 +217,16 @@ export default function Vilma({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  eventProgram,
+  showEventProgram,
+  showSongRequests,
+  showGuestPhotos,
+  showRsvp,
 }: ThemeProps) {
   const t = getTranslations(language);
+  // editSlots is only ever passed by the dashboard's live preview — reuse it
+  // as the single signal that guest-facing forms must render read-only.
+  const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
@@ -341,14 +359,41 @@ export default function Vilma({
         </div>
       )}
 
+      {/* EVENT PROGRAM */}
+      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+        <div className="section section-center">
+          <div className="wrap">
+            <p className="eyebrow">{t.theSchedule}</p>
+            <h2 className="section-title">{t.eventProgram}</h2>
+            <hr className="vl-rule" />
+            {groupEventProgramByDate(eventProgram).map((group) => (
+              <div className="schedule-day" key={group.date}>
+                <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
+                <div className="schedule-list">
+                  {group.items.map((item) => (
+                    <div className="schedule-row" key={item.id}>
+                      <div className="schedule-time">{formatProgramTime(item, t.dateLocale) || '—'}</div>
+                      <div className="schedule-info">
+                        <p className="name">{item.name}</p>
+                        {item.location && <p className="loc">{item.location}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* RSVP */}
-      {!editSlots && (
+      {showRsvp !== false && (
         <div id="rsvp" className="rsvp-section">
           <p className="eyebrow">{t.kindlyRespond}</p>
           <h2 className="section-title on-butter">{t.rsvp}</h2>
           <hr className="vl-rule" />
           <div className="rsvp-card">
-            <RsvpForm userPageId={userPageId} translations={t} />
+            <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
           </div>
         </div>
       )}
@@ -387,7 +432,7 @@ export default function Vilma({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="section section-center">
           <div className="wrap">
             <p className="eyebrow">{t.guestPhotos}</p>
@@ -399,13 +444,14 @@ export default function Vilma({
               initialHasMore={guestPhotosHasMore ?? false}
               labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
               btnClassName="btn"
+              disabled={isPreview}
             />
           </div>
         </div>
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showSongRequests !== false && (
         <div className="song-section">
           <div className="wrap">
             <p className="eyebrow on-dark">{t.buildOurPlaylist}</p>
@@ -418,6 +464,7 @@ export default function Vilma({
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn btn-amber"
               inputStyle={{ flex: '2 1 160px', padding: '10px 14px 6px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
+              disabled={isPreview}
             />
           </div>
         </div>

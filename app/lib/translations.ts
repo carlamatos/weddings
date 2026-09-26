@@ -17,6 +17,9 @@ export interface Translations {
   virtualEvent: string;
   joinOnline: string;
   getDirections: string;
+  // Event program section
+  theSchedule: string;
+  eventProgram: string;
   // RSVP section
   kindlyRespond: string;
   rsvp: string;
@@ -97,6 +100,8 @@ const en: Translations = {
   virtualEvent: 'Virtual Event',
   joinOnline: 'Join Online →',
   getDirections: 'Get directions →',
+  theSchedule: 'What to expect',
+  eventProgram: 'Event Program',
   kindlyRespond: 'Kindly respond',
   rsvp: 'RSVP',
   gallery: 'Gallery',
@@ -169,6 +174,8 @@ const fr: Translations = {
   virtualEvent: 'Événement virtuel',
   joinOnline: 'Rejoindre en ligne →',
   getDirections: "Obtenir l'itinéraire →",
+  theSchedule: 'À quoi s\'attendre',
+  eventProgram: "Programme de l'événement",
   kindlyRespond: 'Votre réponse',
   rsvp: 'RSVP',
   gallery: 'Galerie',
@@ -241,6 +248,8 @@ const es: Translations = {
   virtualEvent: 'Evento virtual',
   joinOnline: 'Unirse en línea →',
   getDirections: 'Cómo llegar →',
+  theSchedule: 'Qué esperar',
+  eventProgram: 'Programa del evento',
   kindlyRespond: 'Confirma tu asistencia',
   rsvp: 'RSVP',
   gallery: 'Galería',

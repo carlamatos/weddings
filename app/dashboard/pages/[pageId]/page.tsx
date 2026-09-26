@@ -1,5 +1,6 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
+import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -16,13 +17,18 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
   const isPaid = userPage.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
     fetchGalleryImages(pageId),
     isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchPageSettings(userPage.id),
+    fetchEventProgram(pageId),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
+  const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
+  const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
+  const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -123,6 +129,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         userEmail={userPage.user_email || undefined}
         userPhone={userPage.user_phone || undefined}
         mapsKey={mapsKey}
+        galleryToken={isPaid ? signPageId(pageId) : undefined}
         registryImage={userPage.section_2_image || undefined}
         registryDescription={userPage.section_2_description || undefined}
         registryButtonText={userPage.section_2_button_text || undefined}
@@ -137,6 +144,11 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
         heroObjectFit={heroObjectFit}
+        eventProgram={eventProgram}
+        showEventProgram={showEventProgram}
+        showSongRequests={showSongRequests}
+        showGuestPhotos={showGuestPhotos}
+        showRsvp={showRsvp}
         editSlots={editSlots}
       />
     </div>

@@ -12,7 +12,7 @@ export default function LoginForm() {
   return (
     <div className="auth-card">
       <h1 className="auth-heading">Welcome back</h1>
-      <p className="auth-subheading">Log in to manage your wedding page.</p>
+      <p className="auth-subheading">Log in to manage your event page.</p>
 
       {errorMessage && (
         <div className="auth-error" aria-live="polite">

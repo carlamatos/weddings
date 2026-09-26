@@ -3,6 +3,11 @@ import Link from 'next/link';
 import '@/app/ui/marketing.css';
 import MarketingReveal from '@/app/ui/marketing-reveal';
 import { auth } from '@/auth';
+import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
+
+// New-theme showcase cards scale the theme's own real HeroPreview (280px
+// tall) down to the marketing grid's 220px preview slot.
+const NEW_THEME_PREVIEW_SCALE = 220 / 280;
 
 export default async function Page() {
   const session = await auth();
@@ -14,15 +19,29 @@ export default async function Page() {
       {/* TOP BAR */}
       <div className="topbar">
         <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
-        <div className="topbar-actions">
-          {isLoggedIn ? (
-            <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
-          ) : (
-            <>
-              <Link href="/login" className="topbar-login">Log in</Link>
-              <Link href="/register" className="topbar-signup">Sign up</Link>
-            </>
-          )}
+        <div className="topbar-right">
+          <nav className="topbar-nav">
+            <div className="nav-item">
+              <a href="#themes" className="nav-link">Events</a>
+              <div className="nav-dropdown">
+                <a href="#theme-wedding">Weddings</a>
+                <a href="#theme-business">Business Events</a>
+                <a href="#theme-birthdays">Birthdays</a>
+                <a href="#theme-community">Community Celebrations</a>
+              </div>
+            </div>
+            <Link href="/about" className="nav-link">About Us</Link>
+          </nav>
+          <div className="topbar-actions">
+            {isLoggedIn ? (
+              <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login" className="topbar-login">Log in</Link>
+                <Link href="/register" className="topbar-signup">Sign up</Link>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -34,14 +53,14 @@ export default async function Page() {
           muted
           loop
           playsInline
-          src="/videos/couples_kissing.mp4"
+          src="/videos/community-event.mp4"
         />
         <div className="hero-overlay" />
-        <p className="hero-eyebrow reveal">For couples who want it done right</p>
-        <h1 className="hero-headline reveal delay-1">A wedding page as considered as the wedding itself.</h1>
-        <p className="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and the whole day, beautifully kept in one place.</p>
+        <p className="hero-eyebrow reveal">For every celebration that deserves it done right</p>
+        <h1 className="hero-headline reveal delay-1">A page as considered as the celebration itself.</h1>
+        <p className="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions reveal delay-2">
-          <Link href="/login" className="btn-primary">Start your wedding page</Link>
+          <Link href="/login" className="btn-primary">Start your event page</Link>
           <a href="#themes" className="btn-secondary">See the themes</a>
         </div>
 
@@ -87,8 +106,8 @@ export default async function Page() {
       <div className="wrap">
         <div className="section">
           <div className="reveal" style={{ maxWidth: '600px', marginBottom: '50px' }}>
-            <p className="eyebrow">Why couples choose Gala</p>
-            <h2 className="section-title">Everything your wedding website needs, nothing it doesn&apos;t.</h2>
+            <p className="eyebrow">Why hosts choose Gala</p>
+            <h2 className="section-title">Everything your event page needs, nothing it doesn&apos;t.</h2>
           </div>
           <div className="props-grid">
             <div className="prop-card reveal">
@@ -115,11 +134,13 @@ export default async function Page() {
         <div className="wrap">
           <div className="section">
             <div className="reveal" style={{ maxWidth: '600px' }}>
-              <p className="eyebrow">Four ways to set the mood</p>
+              <p className="eyebrow">Eight ways to set the mood</p>
               <h2 className="section-title">Pick the theme that feels like your day.</h2>
               <p className="section-sub">Every theme includes the same full set of tools — RSVP, countdown, gallery, livestream, and more. Only the mood changes.</p>
             </div>
-            <div className="theme-grid">
+            <div className="theme-category" id="theme-wedding">
+              <h3 className="theme-category-title reveal">Wedding</h3>
+              <div className="theme-grid">
               <a href="/themes/terracotta-harvest.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
                   <div style={{ textAlign: 'center', padding: '0 20px' }}>
@@ -188,6 +209,102 @@ export default async function Page() {
                   <p className="theme-desc">Watercolour washes, steel blue, and amber accents. Soft and romantic — built for garden and manor weddings.</p>
                 </div>
               </a>
+              </div>
+            </div>
+
+            <div className="theme-category" id="theme-business">
+              <h3 className="theme-category-title reveal">Business Events</h3>
+              <div className="theme-grid">
+                <a href="/annual-summit-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#14171C' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="summit" heading="Annual Leadership Summit" eventDate="2027-04-14" city="Austin" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Summit</p>
+                    <p className="theme-desc">Cobalt and ink with a confident, modern edge — built for conferences, galas, and company celebrations.</p>
+                  </div>
+                </a>
+                <a href="/nexus-team-offsite-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1D2124' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="nexus" heading="Nexus Team Offsite 2027" eventDate="2027-05-20" city="Seattle" country="WA" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Nexus</p>
+                    <p className="theme-desc">Charcoal and amber with a teal accent. Professional and innovative — built for team offsites and summits.</p>
+                  </div>
+                </a>
+                <a href="/annual-gala-dinner-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#0a1420' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="dinner-gala" heading="The Annual Gala Dinner" eventDate="2027-03-20" city="Toronto" country="CA" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Dinner Gala</p>
+                    <p className="theme-desc">Deep navy and warm gold, sober and refined — built for galas, fundraisers, and formal corporate dinners.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div className="theme-category" id="theme-birthdays">
+              <h3 className="theme-category-title reveal">Birthdays</h3>
+              <div className="theme-grid">
+                <a href="/sofias-quinceanera-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera Party" eventDate="2027-06-12" city="San Antonio" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Alegría</p>
+                    <p className="theme-desc">Blush, lilac, and gold. Romantic and joyful — built for quinceañeras and sweet 16 celebrations.</p>
+                  </div>
+                </a>
+                <a href="/sweet16-fun-party-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1A0B2E' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="fun-party" heading="The Big Sweet 16" eventDate="2027-08-08" city="Miami" country="FL" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Fun Party</p>
+                    <p className="theme-desc">Hot pink, cyan, and neon yellow on a graffiti backdrop. Bold and rebellious — built for sweet 16s and quinceañeras that want to stand out.</p>
+                  </div>
+                </a>
+                <a href="/noahs-7th-birthday-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="balloons" heading="Kids Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Balloons</p>
+                    <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids' celebrations.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div className="theme-category" id="theme-community">
+              <h3 className="theme-category-title reveal">Community</h3>
+              <div className="theme-grid">
+                <a href="/maple-street-block-party-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F6E0BD' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="community" heading="Maple Street Block Party" eventDate="2027-06-19" city="Portland" country="OR" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Community Day</p>
+                    <p className="theme-desc">Warm cream and navy with a rainbow of festival bunting. Fun and elegant at once — built for block parties, fairs, and neighborhood celebrations.</p>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -229,7 +346,7 @@ export default async function Page() {
                 <li>Remove Gala branding</li>
                 <li>Priority support</li>
               </ul>
-              <Link href="/login" className="btn-primary" style={{ textAlign: 'center' }}>Start your wedding page</Link>
+              <Link href="/login" className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>
           </div>
         </div>
@@ -267,7 +384,7 @@ export default async function Page() {
       <div className="final-cta reveal">
         <h2 className="section-title">Your story deserves a beautiful home.</h2>
         <p className="hero-sub">Start free today. Upgrade only if you need to.</p>
-        <Link href="/login" className="btn-primary">Start your wedding page</Link>
+        <Link href="/login" className="btn-primary">Start your event page</Link>
       </div>
 
       {/* FOOTER */}

@@ -33,6 +33,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# raw source photos/videos for theme design work — not served by the app
+# (public/images/themes and public/videos hold the actual copies we use)
+/app/ui/themes/media/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

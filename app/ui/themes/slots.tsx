@@ -339,7 +339,9 @@ export function EditableBannerBg({
 }) {
   const [hovered, setHovered] = useState(false);
   const [current, setCurrent] = useState(src);
-  const [isVideo, setIsVideo] = useState(() => isVideoUrl(src));
+  // Falls back to defaultSrc too — otherwise a theme whose default hero is a
+  // video (no banner uploaded yet) would render it through an <img> tag.
+  const [isVideo, setIsVideo] = useState(() => isVideoUrl(src || defaultSrc || ''));
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);

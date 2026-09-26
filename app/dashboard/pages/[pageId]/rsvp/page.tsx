@@ -1,6 +1,7 @@
-import { fetchGuests } from '@/app/lib/data';
+import { fetchGuests, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { RsvpActions } from './RsvpActions';
+import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 
 const statusLabel: Record<string, string> = {
   attending: 'Attending',
@@ -17,7 +18,10 @@ const statusStyle: Record<string, React.CSSProperties> = {
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
-  const guests = await fetchGuests(pageId);
+  const [guests, settings] = await Promise.all([
+    fetchGuests(pageId),
+    fetchPageSettings(pageId),
+  ]);
 
   const attending = guests.filter((g) => g.status === 'attending');
   const declining = guests.filter((g) => g.status === 'not_attending');
@@ -26,7 +30,14 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 28px', fontFamily: 'system-ui' }}>Guests</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 20px', fontFamily: 'system-ui' }}>Guests</h1>
+
+      <SectionToggle
+        pageId={pageId}
+        settingName="show_rsvp"
+        initialOn={isSectionOn(settings, 'show_rsvp')}
+        label="RSVP form visible on your page"
+      />
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
         <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />

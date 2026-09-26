@@ -10,6 +10,7 @@ import {
   Guest,
   GuestPhoto,
   GuestSong,
+  EventProgramItem,
 } from './definitions';
 
 function normalizePage(page: UserPage): UserPage {
@@ -20,6 +21,16 @@ function normalizePage(page: UserPage): UserPage {
     page.event_date = d.split('T')[0];
   }
   return page;
+}
+
+export function normalizeEventProgramItem(item: EventProgramItem): EventProgramItem {
+  const d = item.event_date as unknown;
+  if (d instanceof Date) {
+    item.event_date = d.toISOString().split('T')[0];
+  } else if (typeof d === 'string' && d.includes('T')) {
+    item.event_date = d.split('T')[0];
+  }
+  return item;
 }
 
 
@@ -137,6 +148,20 @@ export async function fetchGalleryImages(pageId: number | string): Promise<Galle
   }
 }
 
+export async function fetchEventProgram(pageId: number | string): Promise<EventProgramItem[]> {
+  try {
+    const data = await sql<EventProgramItem>`
+      SELECT * FROM event_program
+      WHERE user_page_id = ${pageId}
+      ORDER BY event_date ASC, start_time ASC NULLS LAST, id ASC
+    `;
+    return data.rows.map(normalizeEventProgramItem);
+  } catch (error) {
+    console.error('Failed to fetch event program:', error);
+    return [];
+  }
+}
+
 const GUEST_PHOTOS_PAGE_SIZE = 20;
 
 export async function fetchGuestPhotos(
@@ -206,6 +231,12 @@ export async function fetchPageSettings(userPageId: string | number): Promise<Re
   } catch {
     return {};
   }
+}
+
+// A section is visible unless its setting is explicitly turned off — the
+// only exception is new pages, which set show_event_program='false' at creation.
+export function isSectionOn(settings: Record<string, string>, key: string): boolean {
+  return settings[key] !== 'false';
 }
 
 // A page id coming from a URL, form or client call: a positive integer or null.

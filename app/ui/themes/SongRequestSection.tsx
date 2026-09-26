@@ -24,6 +24,7 @@ interface SongRequestSectionProps {
   labels: Labels;
   btnClassName?: string;
   inputStyle?: React.CSSProperties;
+  disabled?: boolean;
 }
 
 export function SongRequestSection({
@@ -33,6 +34,7 @@ export function SongRequestSection({
   labels,
   btnClassName = 'btn',
   inputStyle,
+  disabled = false,
 }: SongRequestSectionProps) {
   const [songs, setSongs] = useState<GuestSong[]>(initialSongs);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -50,6 +52,9 @@ export function SongRequestSection({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Belt-and-suspenders: the fieldset below already disables every control
+    // and blocks native submission, but a preview render should never POST.
+    if (disabled) return;
     if (!name.trim() || !title.trim() || !artist.trim()) return;
     setSubmitting(true);
 
@@ -99,39 +104,48 @@ export function SongRequestSection({
   return (
     <>
       {/* Form */}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 28 }}>
-        <input
-          type="text"
-          placeholder={labels.yourName}
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          style={{ ...baseInput, flex: '2 1 160px' }}
-        />
-        <input
-          type="text"
-          placeholder={labels.songTitle}
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          style={{ ...baseInput, flex: '2 1 160px' }}
-        />
-        <input
-          type="text"
-          placeholder={labels.artistLabel}
-          value={artist}
-          onChange={(e) => setArtist(e.target.value)}
-          required
-          style={{ ...baseInput, flex: '1 1 120px' }}
-        />
-        <button
-          type="submit"
-          className={btnClassName}
-          disabled={submitting}
-          style={{ flexShrink: 0 }}
-        >
-          {submitting ? labels.sending : labels.addSong}
-        </button>
+      {disabled && (
+        <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px' }}>
+          Preview only — songs can be requested from your live page.
+        </p>
+      )}
+      <form onSubmit={handleSubmit} style={{ marginBottom: 28 }}>
+        {/* A native fieldset disables every control inside it (including via
+            keyboard) — more robust than disabling each input individually. */}
+        <fieldset disabled={disabled} style={{ display: 'flex', gap: 10, flexWrap: 'wrap', border: 0, margin: 0, padding: 0 }}>
+          <input
+            type="text"
+            placeholder={labels.yourName}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+            style={{ ...baseInput, flex: '2 1 160px' }}
+          />
+          <input
+            type="text"
+            placeholder={labels.songTitle}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            style={{ ...baseInput, flex: '2 1 160px' }}
+          />
+          <input
+            type="text"
+            placeholder={labels.artistLabel}
+            value={artist}
+            onChange={(e) => setArtist(e.target.value)}
+            required
+            style={{ ...baseInput, flex: '1 1 120px' }}
+          />
+          <button
+            type="submit"
+            className={btnClassName}
+            disabled={submitting}
+            style={{ flexShrink: 0 }}
+          >
+            {submitting ? labels.sending : labels.addSong}
+          </button>
+        </fieldset>
       </form>
 
       {/* Toast */}

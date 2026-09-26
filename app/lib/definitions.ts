@@ -107,3 +107,13 @@ export type GuestSong = {
   ip_address: string | null;
   created_at: string;
 };
+
+export type EventProgramItem = {
+  id: string;
+  user_page_id: number;
+  event_date: string;
+  name: string;
+  start_time: string | null;
+  end_time: string | null;
+  location: string | null;
+};

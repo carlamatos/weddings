@@ -4,6 +4,7 @@ import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -93,6 +94,13 @@ const css = `
   .tc .map-card iframe { border: 0; display: block; width: 100%; height: 100%; min-height: 200px; }
   .tc .directions-link { text-align: center; margin-top: 22px; }
   .tc .directions-link a { font-size: 14px; color: var(--rust); font-weight: 600; text-decoration: none; }
+  .tc .schedule-day { margin-bottom: 36px; }
+  .tc .schedule-day:last-child { margin-bottom: 0; }
+  .tc .schedule-day-title { font-family: var(--font-serif); font-size: 18px; color: var(--rust); margin: 0 0 16px; text-align: center; }
+  .tc .schedule-row { display: flex; gap: 20px; align-items: baseline; border-bottom: 1px solid var(--linen); padding: 14px 0; text-align: left; }
+  .tc .schedule-time { font-family: var(--font-serif); font-size: 17px; color: var(--rust); min-width: 130px; flex-shrink: 0; }
+  .tc .schedule-info .name { font-size: 15px; font-weight: 600; color: var(--ink); margin: 0 0 2px; }
+  .tc .schedule-info .loc { font-size: 13px; color: var(--ink-soft); margin: 0; }
   .tc .registry-wrap { position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
   .tc .registry-overlay { background: rgba(61, 43, 31, 0.6); padding: 48px 64px; text-align: center; border-radius: 4px; }
   .tc .registry-title { font-size: 12px; letter-spacing: 3px; text-transform: uppercase; color: var(--peach); margin: 0 0 14px; font-weight: 600; }
@@ -188,8 +196,16 @@ export default function TerracottaHarvest({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  eventProgram,
+  showEventProgram,
+  showSongRequests,
+  showGuestPhotos,
+  showRsvp,
 }: ThemeProps) {
   const t = getTranslations(language);
+  // editSlots is only ever passed by the dashboard's live preview — reuse it
+  // as the single signal that guest-facing forms must render read-only.
+  const isPreview = !!editSlots;
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
   const formattedTime = eventTime
@@ -299,13 +315,40 @@ export default function TerracottaHarvest({
         </>
       )}
 
+      {/* EVENT PROGRAM */}
+      {isPaid && showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
+        <>
+          <div className="section-wide">
+            <p className="section-label">{t.theSchedule}</p>
+            <h2 className="section-title">{t.eventProgram}</h2>
+            <div style={{ maxWidth: 620, margin: '0 auto' }}>
+              {groupEventProgramByDate(eventProgram).map((group) => (
+                <div className="schedule-day" key={group.date}>
+                  <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
+                  {group.items.map((item) => (
+                    <div className="schedule-row" key={item.id}>
+                      <div className="schedule-time">{formatProgramTime(item, t.dateLocale) || '—'}</div>
+                      <div className="schedule-info">
+                        <p className="name">{item.name}</p>
+                        {item.location && <p className="loc">{item.location}</p>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+          <BandDivider thin />
+        </>
+      )}
+
       {/* RSVP */}
-      {!editSlots && (
+      {showRsvp !== false && (
         <>
           <div id="rsvp" className="section-tinted">
             <p className="section-label">{t.kindlyRespond}</p>
             <h2 className="section-title">{t.rsvp}</h2>
-            <RsvpForm userPageId={userPageId} translations={t} />
+            <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
           </div>
           <BandDivider thin />
         </>
@@ -348,7 +391,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="section-wide">
           <p className="section-label">{t.guestPhotos}</p>
           <h2 className="section-title">{t.shareYourPhoto}</h2>
@@ -365,12 +408,13 @@ export default function TerracottaHarvest({
               uploading: t.sending,
             }}
             btnClassName="btn"
+            disabled={isPreview}
           />
         </div>
       )}
 
       {/* SONG REQUESTS */}
-      {isPaid && galleryToken && (
+      {isPaid && galleryToken && showSongRequests !== false && (
         <>
           <BandDivider thin />
           <div className="section-tinted">
@@ -383,6 +427,7 @@ export default function TerracottaHarvest({
                 initialHasMore={guestSongsHasMore ?? false}
                 labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
                 btnClassName="btn"
+                disabled={isPreview}
               />
             </div>
           </div>

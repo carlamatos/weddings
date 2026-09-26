@@ -1,8 +1,18 @@
-// The hero image each theme shows when the owner hasn't uploaded a banner.
-// Shared by the public themes and the dashboard editor so they can't drift
-// apart. Terracotta Harvest has no image: it draws an illustration instead.
+// The hero image (or video) each theme shows when the owner hasn't uploaded
+// a banner. Shared by the public themes and the dashboard editor so they
+// can't drift apart. Terracotta Harvest has no default: it draws an
+// illustration instead (see its DefaultHero export).
 export const HERO_DEFAULTS = {
   'quiet-coastal': '/images/themes/quiet-coastal/coastal.png',
   'midnight-botanical': '/images/themes/midnight-botanical/woods.png',
   vilma: '/images/themes/vilma/hero-bg.jpg',
+  alegria: '/videos/alegria-hero.mp4',
+  'fun-party': '/images/themes/fun-party/hero.png',
+  summit: '/images/themes/summit/hero.jpeg',
+  nexus: '/images/themes/nexus/hero.jpeg',
+  'dinner-gala': '/images/themes/dinner-gala/gala-banner.svg',
+  community: '/images/themes/community/hero.jpeg',
+  // Balloons has no default cover photo — its hero is a gradient with a
+  // decorative balloon graphic (see hero-balloons.png), not a full-bleed
+  // background image, so it's intentionally absent here (like Terracotta).
 } as const;

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -29,13 +29,18 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   if (data.status === 'inactive') return <PageUnavailable />;
 
   const isPaid = data.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
     fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchPageSettings(data.id),
+    fetchEventProgram(data.id),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
+  const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
+  const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
+  const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -74,6 +79,11 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       guestSongs={guestSongsResult.songs}
       guestSongsHasMore={guestSongsResult.hasMore}
       heroObjectFit={heroObjectFit}
+      eventProgram={eventProgram}
+      showEventProgram={showEventProgram}
+      showSongRequests={showSongRequests}
+      showGuestPhotos={showGuestPhotos}
+      showRsvp={showRsvp}
     />
   );
 }

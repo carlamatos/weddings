@@ -11,6 +11,13 @@ export const authConfig = {
     signIn: '/login',
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      // Default callbackUrl is "/" — send to dashboard instead
+      if (url === baseUrl || url === `${baseUrl}/`) return `${baseUrl}/dashboard`;
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
+      return `${baseUrl}/dashboard`;
+    },
     async authorized({
       auth,
       request,

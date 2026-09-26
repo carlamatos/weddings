@@ -1,3 +1,5 @@
+export type EventCategory = 'wedding' | 'birthdays' | 'business' | 'community';
+
 export interface ThemePreviewProps {
   heading: string;
   eventDate?: string;
@@ -51,4 +53,10 @@ export interface ThemeProps {
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
   userPhone?: string;
+  eventProgram?: import('@/app/lib/definitions').EventProgramItem[];
+  showEventProgram?: boolean;
+  showSongRequests?: boolean;
+  showGuestPhotos?: boolean;
+  showRsvp?: boolean;
+  isLoggedIn?: boolean;
 }

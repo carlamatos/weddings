@@ -11,9 +11,9 @@ import { headers } from 'next/headers';
 import { signIn } from '@/auth';
 import { isRateLimited, recordFailedAttempt, clearLoginAttempts } from './rate-limit';
 
-import { DBUser } from './definitions';
+import { DBUser, EventProgramItem } from './definitions';
 import { auth } from '@/auth';
-import { fetchUserPage, parsePageId, fetchPageQuota } from './data';
+import { fetchUserPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
   const UserSchema = z.object({
     id: z.string(),
@@ -38,7 +38,7 @@ import { AuthError } from 'next-auth';
     description: z.string(),
     event_date: z.string(),
     event_time: z.string().min(1, { message: 'Event time is required.' }),
-    event_type: z.enum(['wedding', 'event'], { invalid_type_error: 'Please select an event type.' }),
+    event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
     theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
     location: z.string(),
     slug: z.string({
@@ -158,7 +158,7 @@ export type UserPageState = {
       const planRow = await sql`SELECT plan_type FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
       const plan_type = planRow.rows[0]?.plan_type ?? 'free';
 
-      await sql`
+      const inserted = await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
@@ -168,7 +168,19 @@ export type UserPageState = {
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}
         )
+        RETURNING id
       `;
+
+      // New pages start with the Event Program section hidden until the
+      // owner adds phases and turns it on; every other section defaults on.
+      const newPageId = inserted.rows[0]?.id;
+      if (newPageId) {
+        await sql`
+          INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+          VALUES (${newPageId}, 'show_event_program', 'false')
+          ON CONFLICT (user_page_id, setting_name) DO NOTHING
+        `;
+      }
     } catch (error) {
       console.error('Database Error:', error);
       return {
@@ -296,6 +308,90 @@ export async function updatePageSetting(pageId: number, settingName: string, set
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update page setting:', error);
+  }
+}
+
+export type EventProgramItemInput = {
+  eventDate: string;
+  name: string;
+  startTime?: string | null;
+  endTime?: string | null;
+  location?: string | null;
+};
+
+// HTML time/text inputs send "" when left blank, not null — and Postgres
+// rejects "" for a TIME column ("invalid input syntax for type time").
+// Treat any blank string as "no value" everywhere we touch these columns.
+function emptyToNull(value?: string | null): string | null {
+  return value && value.trim() !== '' ? value : null;
+}
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function addEventProgramItem(pageId: number, data: EventProgramItemInput): Promise<EventProgramItem | null> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  const name = data.name?.trim();
+  // Validate at the trust boundary — this is a server action, reachable
+  // directly by any authenticated client, not just our own form.
+  if (!userId || pid === null || !name || !ISO_DATE_RE.test(data.eventDate)) return null;
+  try {
+    // The SELECT only returns a row when the page belongs to this user.
+    const result = await sql<EventProgramItem>`
+      INSERT INTO event_program (user_page_id, event_date, name, start_time, end_time, location)
+      SELECT id, ${data.eventDate}::date, ${name}, ${emptyToNull(data.startTime)}, ${emptyToNull(data.endTime)}, ${emptyToNull(data.location)}
+      FROM user_page WHERE id = ${pid} AND user_id = ${userId}
+      RETURNING *
+    `;
+    revalidatePath('/', 'layout');
+    return result.rows[0] ? normalizeEventProgramItem(result.rows[0]) : null;
+  } catch (error) {
+    console.error('Failed to add event program item:', error);
+    return null;
+  }
+}
+
+export async function updateEventProgramItem(id: number, pageId: number, data: EventProgramItemInput): Promise<EventProgramItem | null> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  const name = data.name?.trim();
+  if (!userId || pid === null || !name || !ISO_DATE_RE.test(data.eventDate)) return null;
+  try {
+    const result = await sql<EventProgramItem>`
+      UPDATE event_program SET
+        event_date = ${data.eventDate}::date,
+        name       = ${name},
+        start_time = ${emptyToNull(data.startTime)},
+        end_time   = ${emptyToNull(data.endTime)},
+        location   = ${emptyToNull(data.location)}
+      WHERE id = ${id} AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+      RETURNING *
+    `;
+    revalidatePath('/', 'layout');
+    return result.rows[0] ? normalizeEventProgramItem(result.rows[0]) : null;
+  } catch (error) {
+    console.error('Failed to update event program item:', error);
+    return null;
+  }
+}
+
+export async function deleteEventProgramItem(id: number, pageId: number): Promise<boolean> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    const result = await sql`
+      DELETE FROM event_program
+      WHERE id = ${id} AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+    `;
+    revalidatePath('/', 'layout');
+    return (result.rowCount ?? 0) > 0;
+  } catch (error) {
+    console.error('Failed to delete event program item:', error);
+    return false;
   }
 }
 
