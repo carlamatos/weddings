@@ -5,11 +5,18 @@ import type { NextRequest } from 'next/server';
 
 const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
 
+// Staging-only, temporary: let the front page through unauthenticated so it
+// can be shared/reviewed without the construction password. Everything else
+// on staging (and all of production) stays gated as before. Vercel sets
+// VERCEL_GIT_COMMIT_REF to the branch name being deployed.
+const isStagingDeploy = process.env.VERCEL_GIT_COMMIT_REF === 'staging';
+
 const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   const constructionPassword = process.env.CONSTRUCTION_PASSWORD;
   const { pathname } = req.nextUrl;
   const isAppRoute = pathname === '/login' || pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
-  if (constructionPassword && pathname !== '/construction' && !isAppRoute) {
+  const isStagingFrontPage = isStagingDeploy && pathname === '/';
+  if (constructionPassword && pathname !== '/construction' && !isAppRoute && !isStagingFrontPage) {
     const bypass = req.cookies.get('site_bypass')?.value;
     if (bypass !== constructionPassword) {
       return NextResponse.rewrite(new URL('/construction', req.url));
