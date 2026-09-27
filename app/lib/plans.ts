@@ -5,6 +5,13 @@
 
 export type Tier = 'free' | 'plus' | 'multi';
 
+// The single-page paid plan is a one-time payment, not a recurring
+// subscription: it unlocks Domain / Guest Photos / Song Requests for a
+// fixed term, then the page drops back to the free tier (it stays live —
+// just without the paid-only features) until the owner extends it.
+export const PLAN_ONE_TIME_PRICE_USD = 49.99;
+export const PLAN_TERM_MONTHS = 15;
+
 const DEFAULT_MULTI_PAGE_LIMIT = 5;
 
 function multiPageLimit(): number {
@@ -29,4 +36,19 @@ export function effectiveTier(planType: string | null | undefined, tier: string 
 export function tierForPriceId(priceId: string | null | undefined): Tier {
   const multi = process.env.STRIPE_PRICE_ID_MULTI;
   return multi && priceId === multi ? 'multi' : 'plus';
+}
+
+// expireIfPast (app/lib/plan-expiry) flips plan_type back to 'free' the
+// moment a one-time-payment term runs out, so plan_type === 'paid' alone is
+// always an accurate, current answer to "does this page have paid features
+// unlocked right now" — no separate "and not expired" check needed.
+export function isPagePaidAndLive(page: { plan_type?: string | null }): boolean {
+  return page.plan_type === 'paid';
+}
+
+// True when this page was paid before but its term has lapsed (now free) —
+// used to show "extend" messaging instead of a plain "upgrade" pitch.
+export function hasExpiredPlan(page: { plan_type?: string | null; plan_expires_at?: string | Date | null }): boolean {
+  if (page.plan_type === 'paid' || !page.plan_expires_at) return false;
+  return new Date(page.plan_expires_at).getTime() <= Date.now();
 }

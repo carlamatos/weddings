@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { saveDomain, removeDomain } from '@/app/lib/actions';
+import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 const VERCEL_IP = '216.150.1.1';
 const VERCEL_CNAME = '842c52a8e96459ec.vercel-dns-017.com';
@@ -67,11 +68,15 @@ function StatusBadge({ isActive }: { isActive: boolean }) {
   );
 }
 
-async function redirectToStripe(endpoint: string, setError: (e: string) => void, setLoading: (l: boolean) => void) {
+async function redirectToStripe(endpoint: string, body: Record<string, unknown> | undefined, setError: (e: string) => void, setLoading: (l: boolean) => void) {
   setLoading(true);
   setError('');
   try {
-    const res = await fetch(endpoint, { method: 'POST' });
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
     const data = await res.json();
     if (data.url) {
       window.location.href = data.url;
@@ -90,13 +95,14 @@ export default function DomainForm({
   initialDomain,
   initialStatus,
   isPaid,
-  hasCustomer,
+  expired = false,
 }: {
   pageId: number;
   initialDomain: string | null;
   initialStatus: string;
   isPaid: boolean;
-  hasCustomer: boolean;
+  // Previously paid, term lapsed — show "extend" instead of "upgrade".
+  expired?: boolean;
 }) {
   const [domain, setDomain] = useState<string | null>(initialDomain);
   const [status, setStatus] = useState(initialStatus);
@@ -181,7 +187,7 @@ export default function DomainForm({
         <DnsInstructions domain="" />
         {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '12px 0 0' }}>{error}</p>}
         <button
-          onClick={() => redirectToStripe('/api/stripe/checkout', setError, setStripeLoading)}
+          onClick={() => redirectToStripe('/api/stripe/checkout', { pageId }, setError, setStripeLoading)}
           disabled={stripeLoading}
           style={{
             marginTop: 20, padding: '11px 28px', borderRadius: 8, border: 'none',
@@ -190,7 +196,7 @@ export default function DomainForm({
             opacity: stripeLoading ? 0.7 : 1,
           }}
         >
-          {stripeLoading ? 'Redirecting…' : 'Upgrade to add your domain'}
+          {stripeLoading ? 'Redirecting…' : expired ? `Extend for $${PLAN_ONE_TIME_PRICE_USD} — ${PLAN_TERM_MONTHS} months` : `Upgrade for $${PLAN_ONE_TIME_PRICE_USD} — ${PLAN_TERM_MONTHS} months`}
         </button>
       </>
     );
@@ -240,23 +246,6 @@ export default function DomainForm({
         )}
 
         <DnsInstructions domain={domain} />
-
-        {hasCustomer && (
-          <>
-            {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '16px 0 0' }}>{error}</p>}
-            <button
-              onClick={() => redirectToStripe('/api/stripe/portal', setError, setStripeLoading)}
-              disabled={stripeLoading}
-              style={{
-                marginTop: 20, padding: '9px 20px', borderRadius: 8,
-                border: '1px solid #D8D3CE', background: '#fff', color: '#241F2B',
-                fontSize: 13, fontWeight: 500, cursor: stripeLoading ? 'not-allowed' : 'pointer',
-              }}
-            >
-              {stripeLoading ? 'Redirecting…' : 'Manage Subscription'}
-            </button>
-          </>
-        )}
       </>
     );
   }
@@ -296,22 +285,6 @@ export default function DomainForm({
         </p>
       </form>
       <DnsInstructions domain="" />
-      {hasCustomer && (
-        <>
-          {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '16px 0 0' }}>{error}</p>}
-          <button
-            onClick={() => redirectToStripe('/api/stripe/portal', setError, setStripeLoading)}
-            disabled={stripeLoading}
-            style={{
-              marginTop: 20, padding: '9px 20px', borderRadius: 8,
-              border: '1px solid #D8D3CE', background: '#fff', color: '#241F2B',
-              fontSize: 13, fontWeight: 500, cursor: stripeLoading ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {stripeLoading ? 'Redirecting…' : 'Manage Subscription'}
-          </button>
-        </>
-      )}
     </>
   );
 }

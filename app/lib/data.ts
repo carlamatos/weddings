@@ -1,5 +1,6 @@
 import { sql } from '@vercel/postgres';
 import { effectiveTier, maxPagesFor } from './plans';
+import { expireIfPast } from './plan-expiry';
 import {
   Revenue,
   Slugs,
@@ -101,7 +102,9 @@ export async function fetchUserPage(slug: string){
 
 
       if (!data.rows[0]) { return undefined; }
-      return normalizePage(data.rows[0]);
+      const page = normalizePage(data.rows[0]);
+      await expireIfPast(page);
+      return page;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch single user page.');
@@ -215,7 +218,10 @@ export async function fetchUserPageByDomain(domain: string): Promise<UserPage | 
       FROM user_page up
       LEFT JOIN event_themes et ON et.theme_id = up.theme_id
       WHERE up.custom_domain = ${domain}`;
-    return data.rows[0] ? normalizePage(data.rows[0]) : undefined;
+    if (!data.rows[0]) return undefined;
+    const page = normalizePage(data.rows[0]);
+    await expireIfPast(page);
+    return page;
   } catch (error) {
     console.error('Database Error:', error);
     return undefined;
@@ -255,7 +261,10 @@ export async function fetchOwnedPage(userId: string, pageId: number): Promise<Us
       FROM user_page up
       LEFT JOIN event_themes et ON et.theme_id = up.theme_id
       WHERE up.id = ${pageId} AND up.user_id = ${userId}`;
-    return data.rows[0] ? normalizePage(data.rows[0]) : undefined;
+    if (!data.rows[0]) return undefined;
+    const page = normalizePage(data.rows[0]);
+    await expireIfPast(page);
+    return page;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch page.');
@@ -282,7 +291,9 @@ export async function listOwnedPages(userId: string): Promise<UserPage[]> {
       LEFT JOIN event_themes et ON et.theme_id = up.theme_id
       WHERE up.user_id = ${userId}
       ORDER BY up.created_at ASC, up.id ASC`;
-    return data.rows.map(normalizePage);
+    const pages = data.rows.map(normalizePage);
+    await Promise.all(pages.map(expireIfPast));
+    return pages;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch pages.');
@@ -300,10 +311,10 @@ export async function fetchPageQuota(userId: string): Promise<{ count: number; l
   return { count, limit: maxPagesFor(effectiveTier(plan?.plan_type, null)) };
 }
 
-export async function fetchUserPlan(user_id: string): Promise<{ plan_type: string; stripe_customer_id: string | null } | null> {
+export async function fetchUserPlan(user_id: string): Promise<{ plan_type: string; stripe_customer_id: string | null; plan_expires_at: string | null } | null> {
   try {
-    const data = await sql`SELECT plan_type, stripe_customer_id FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
-    return (data.rows[0] as { plan_type: string; stripe_customer_id: string | null } | undefined) ?? null;
+    const data = await sql`SELECT plan_type, stripe_customer_id, plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
+    return (data.rows[0] as { plan_type: string; stripe_customer_id: string | null; plan_expires_at: string | null } | undefined) ?? null;
   } catch {
     return null;
   }

@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useTransition } from 'react';
 import { signOut } from 'next-auth/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
+import { setPageStatus } from '@/app/lib/actions';
 
 interface Profile {
   given_name: string;
@@ -99,11 +100,22 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
   );
 }
 
-export default function UserMenu({ name, isPaid }: { name: string; isPaid: boolean }) {
+export default function UserMenu({
+  name,
+  pageId,
+  pageStatus,
+}: {
+  name: string;
+  // Deactivate/reactivate applies to the page currently open in the
+  // dashboard, so this is undefined outside a page context (setup, page list).
+  pageId?: number;
+  pageStatus?: string;
+}) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [displayName, setDisplayName] = useState(name);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -116,16 +128,23 @@ export default function UserMenu({ name, isPaid }: { name: string; isPaid: boole
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
-  async function handleCancelSubscription() {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/stripe/portal', { method: 'POST' });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else setLoading(false);
-    } catch {
-      setLoading(false);
+  const pageInactive = pageStatus === 'inactive';
+
+  function handleToggleStatus() {
+    if (pageId === undefined) return;
+    const next = pageInactive ? 'active' : 'inactive';
+    if (
+      next === 'inactive' &&
+      !window.confirm('Deactivate your page?\n\nGuests will see a "page unavailable" message until you reactivate it. You can turn it back on any time.')
+    ) {
+      return;
     }
+    setOpen(false);
+    setStatusError(null);
+    startTransition(async () => {
+      const result = await setPageStatus(pageId, next);
+      if (result.error) setStatusError(result.error);
+    });
   }
 
   return (
@@ -144,13 +163,13 @@ export default function UserMenu({ name, isPaid }: { name: string; isPaid: boole
             >
               Edit Profile
             </button>
-            {isPaid && (
+            {pageId !== undefined && (
               <button
-                onClick={handleCancelSubscription}
-                disabled={loading}
+                onClick={handleToggleStatus}
+                disabled={isPending}
                 className="dash-user-menu-item dash-user-menu-item--danger"
               >
-                {loading ? 'Redirecting…' : 'Cancel Subscription'}
+                {isPending ? 'Saving…' : pageInactive ? 'Reactivate my page' : 'Deactivate my page'}
               </button>
             )}
             <button
@@ -162,6 +181,12 @@ export default function UserMenu({ name, isPaid }: { name: string; isPaid: boole
           </div>
         )}
       </div>
+
+      {statusError && (
+        <div role="alert" style={{ position: 'absolute', top: '100%', right: 0, marginTop: 8, background: '#fff', border: '1px solid #E0D5D0', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#8B3A2A', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', zIndex: 20, whiteSpace: 'nowrap' }}>
+          {statusError}
+        </div>
+      )}
 
       {showProfile && (
         <ProfileModal

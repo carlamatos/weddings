@@ -155,18 +155,19 @@ export type UserPageState = {
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
 
       // Inherit plan from user_plans if the user already paid before creating their page
-      const planRow = await sql`SELECT plan_type FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
+      const planRow = await sql`SELECT plan_type, plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
       const plan_type = planRow.rows[0]?.plan_type ?? 'free';
+      const plan_expires_at = planRow.rows[0]?.plan_expires_at ?? null;
 
       const inserted = await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address, venue_name, plan_type
+          place_id, formatted_address, venue_name, plan_type, plan_expires_at
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}
         )
         RETURNING id
       `;
@@ -514,6 +515,26 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
   }
 
   revalidatePath('/dashboard/domain');
+  return {};
+}
+
+// Owner-facing deactivate/reactivate — separate from the admin version
+// (api/admin/pages/[id]/status), which any super admin can use on any page.
+// This one only ever touches a page the signed-in user owns.
+export async function setPageStatus(pageId: number, status: 'active' | 'inactive'): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+  const pid = parsePageId(pageId);
+  if (pid === null) return { error: 'Invalid page.' };
+
+  const result = await sql`
+    UPDATE user_page SET status = ${status}, status_changed_at = NOW()
+    WHERE id = ${pid} AND user_id = ${userId}
+    RETURNING id
+  `;
+  if (!result.rows[0]) return { error: 'Page not found.' };
+  revalidatePath(`/dashboard/pages/${pid}`);
   return {};
 }
 

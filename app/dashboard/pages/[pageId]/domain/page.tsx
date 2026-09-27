@@ -1,4 +1,5 @@
 import { requireOwnedPage } from '@/app/lib/dashboard';
+import { hasExpiredPlan } from '@/app/lib/plans';
 import DomainForm from './DomainForm';
 
 export default async function DomainPage({
@@ -32,7 +33,7 @@ export default async function DomainPage({
         initialDomain={userPage.custom_domain ?? null}
         initialStatus={userPage.domain_status ?? 'pending'}
         isPaid={isPaid}
-        hasCustomer={!!userPage.stripe_customer_id}
+        expired={hasExpiredPlan(userPage)}
       />
 
       <div style={{ marginTop: 36, padding: '16px 20px', background: '#F5F3F0', borderRadius: 10, fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>

@@ -1,6 +1,7 @@
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
 import { fetchEventThemes } from '@/app/lib/data';
+import { isPagePaidAndLive } from '@/app/lib/plans';
 import type { UserPage } from '@/app/lib/definitions';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
@@ -13,13 +14,13 @@ export default async function TopNav({ page: userPage }: { page?: UserPage }) {
   const themes = await fetchEventThemes();
   const pageId = userPage ? Number(userPage.id) : undefined;
 
-  const isPaid = userPage?.plan_type === 'paid';
+  const isPaid = !!userPage && isPagePaidAndLive(userPage);
 
   return (
     <header className="dash-topnav">
       <MobileMenu pageId={pageId} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
-      {userPage && !isPaid && <UpgradeButton />}
+      {userPage && !isPaid && <UpgradeButton pageId={pageId} />}
       {pageId !== undefined && userPage && themes.length > 0 && (
         <ThemeSwitcher
           pageId={pageId}
@@ -47,7 +48,11 @@ export default async function TopNav({ page: userPage }: { page?: UserPage }) {
         </a>
       )}
 
-      <UserMenu name={session?.user?.name || 'Guest'} isPaid={isPaid} />
+      <UserMenu
+        name={session?.user?.name || 'Guest'}
+        pageId={pageId}
+        pageStatus={userPage?.status}
+      />
     </header>
   );
 }

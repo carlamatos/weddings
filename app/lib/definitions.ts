@@ -36,6 +36,7 @@ export type UserPage = {
   custom_domain?: string;
   domain_status?: string;
   plan_type?: string;
+  plan_expires_at?: string; // one-time-payment paid pages: 15 months from purchase; null = no expiry (legacy/multi-page)
   status?: string; // 'active' | 'inactive' — inactive pages are hidden from guests
   status_changed_at?: string; // when status last changed (starts the offline-retention clock)
   stripe_customer_id?: string;

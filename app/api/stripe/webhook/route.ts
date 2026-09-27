@@ -3,6 +3,7 @@ import Stripe from 'stripe';
 import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
 import { isDeadSubscription, subscriptionPeriodEnd } from '@/app/lib/subscriptions';
+import { PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -23,21 +24,30 @@ export async function POST(req: NextRequest) {
   try {
     switch (event.type) {
       case 'checkout.session.completed': {
+        // One-time payment: mode is 'payment', not 'subscription', so this
+        // fires once per purchase and there's no renewal to track. Grants
+        // PLAN_TERM_MONTHS from now, whether this is a first purchase or an
+        // extension of a lapsed (dropped-to-free) page. Deliberately doesn't
+        // touch status — deactivation is a separate, manual choice.
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
+        const pageId = session.metadata?.pageId ? Number(session.metadata.pageId) : null;
         const customerId = session.customer as string | null;
         if (userId) {
+          const expiresAt = new Date(Date.now() + PLAN_TERM_MONTHS * 30 * 24 * 60 * 60 * 1000).toISOString();
           await sql`
-            INSERT INTO user_plans (user_id, plan_type, stripe_customer_id, updated_at)
-            VALUES (${userId}, 'paid', ${customerId}, NOW())
+            INSERT INTO user_plans (user_id, plan_type, plan_expires_at, stripe_customer_id, updated_at)
+            VALUES (${userId}, 'paid', ${expiresAt}, ${customerId}, NOW())
             ON CONFLICT (user_id) DO UPDATE
-              SET plan_type = 'paid', stripe_customer_id = ${customerId}, updated_at = NOW()
+              SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}, updated_at = NOW()
           `;
-          await sql`
-            UPDATE user_page
-            SET plan_type = 'paid', stripe_customer_id = ${customerId}
-            WHERE user_id = ${userId}
-          `;
+          if (pageId) {
+            await sql`
+              UPDATE user_page
+              SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}
+              WHERE id = ${pageId} AND user_id = ${userId}
+            `;
+          }
         }
         break;
       }
@@ -73,14 +83,27 @@ export async function POST(req: NextRequest) {
           : new Date().toISOString();
 
         if (userId) {
-          await sql`
-            INSERT INTO user_plans (user_id, plan_type, updated_at)
-            VALUES (${userId}, 'free', NOW())
-            ON CONFLICT (user_id) DO UPDATE SET plan_type = 'free', updated_at = NOW()
+          // A subscription can be deleted for a reason unrelated to access —
+          // notably, converting a legacy subscriber to the one-time-payment
+          // plan cancels their old subscription on purpose while granting
+          // them a fresh plan_expires_at. Only downgrade to free when
+          // nothing (account or any page) still has a live term.
+          const stillLive = await sql`
+            SELECT 1 FROM user_plans WHERE user_id = ${userId} AND plan_expires_at > NOW()
+            UNION ALL
+            SELECT 1 FROM user_page WHERE user_id = ${userId} AND plan_expires_at > NOW()
+            LIMIT 1
           `;
-          await sql`
-            UPDATE user_page SET plan_type = 'free' WHERE user_id = ${userId}
-          `;
+          if (!stillLive.rows.length) {
+            await sql`
+              INSERT INTO user_plans (user_id, plan_type, updated_at)
+              VALUES (${userId}, 'free', NOW())
+              ON CONFLICT (user_id) DO UPDATE SET plan_type = 'free', updated_at = NOW()
+            `;
+            await sql`
+              UPDATE user_page SET plan_type = 'free' WHERE user_id = ${userId}
+            `;
+          }
           await sql`
             INSERT INTO user_cancellations
               (user_id, stripe_customer_id, stripe_subscription_id, cancelled_at, reason, feedback, comment)

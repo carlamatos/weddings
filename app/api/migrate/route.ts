@@ -14,6 +14,12 @@ export async function POST(request: Request) {
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 
+  // One-time-payment paid plans expire 15 months after purchase instead of
+  // renewing — tracked per page, and mirrored on user_plans for purchases
+  // made before a page exists yet (see createUserPage).
+  await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMP`;
+  await sql`ALTER TABLE user_plans ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMP`;
+
   // Create page settings table
   await sql`
     CREATE TABLE IF NOT EXISTS user_page_settings (

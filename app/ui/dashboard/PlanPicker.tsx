@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 export default function PlanPicker() {
   const [loading, setLoading] = useState(false);
@@ -64,8 +65,8 @@ export default function PlanPicker() {
             Most popular
           </span>
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#6b808f', margin: '0 0 8px' }}>Premium</p>
-          <p style={{ fontSize: 32, fontWeight: 700, color: '#241F2B', margin: '0 0 4px' }}>Premium</p>
-          <p style={{ fontSize: 13, color: '#9A8F8C', margin: '0 0 24px' }}>Everything you need for a perfect day</p>
+          <p style={{ fontSize: 32, fontWeight: 700, color: '#241F2B', margin: '0 0 4px' }}>${PLAN_ONE_TIME_PRICE_USD}<span style={{ fontSize: 15, fontWeight: 500 }}> one-time</span></p>
+          <p style={{ fontSize: 13, color: '#9A8F8C', margin: '0 0 24px' }}>Every feature, unlocked for {PLAN_TERM_MONTHS} months — no subscription</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 10 }}>
             {[
               'Everything in Free',

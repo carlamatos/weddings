@@ -1,6 +1,7 @@
 import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
+import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import {
   EditableHeroEyebrow,
@@ -16,7 +17,7 @@ import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
-  const isPaid = userPage.plan_type === 'paid';
+  const isPaid = isPagePaidAndLive(userPage);
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
     fetchGalleryImages(pageId),
     isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
@@ -93,7 +94,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
       />
     ),
-    gallery: <EditableGallery pageId={pageId} initialImages={galleryImages} isPaid={userPage.plan_type === 'paid'} />,
+    gallery: <EditableGallery pageId={pageId} initialImages={galleryImages} isPaid={isPaid} />,
     footerContact: (
       <EditableContactInfo
         pageId={pageId}
