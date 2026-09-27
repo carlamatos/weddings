@@ -215,7 +215,7 @@ export default async function Page() {
             <div className="theme-category" id="theme-business">
               <h3 className="theme-category-title reveal">Business Events</h3>
               <div className="theme-grid">
-                <a href="/annual-summit-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                <a href="/themes/summit.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#14171C' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="summit" heading="Annual Leadership Summit" eventDate="2027-04-14" city="Austin" country="TX" />
@@ -226,7 +226,7 @@ export default async function Page() {
                     <p className="theme-desc">Cobalt and ink with a confident, modern edge — built for conferences, galas, and company celebrations.</p>
                   </div>
                 </a>
-                <a href="/nexus-team-offsite-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                <a href="/themes/nexus.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#1D2124' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="nexus" heading="Nexus Team Offsite 2027" eventDate="2027-05-20" city="Seattle" country="WA" />
@@ -237,7 +237,7 @@ export default async function Page() {
                     <p className="theme-desc">Charcoal and amber with a teal accent. Professional and innovative — built for team offsites and summits.</p>
                   </div>
                 </a>
-                <a href="/annual-gala-dinner-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                <a href="/themes/dinner-gala.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#0a1420' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="dinner-gala" heading="The Annual Gala Dinner" eventDate="2027-03-20" city="Toronto" country="CA" />
@@ -254,7 +254,7 @@ export default async function Page() {
             <div className="theme-category" id="theme-birthdays">
               <h3 className="theme-category-title reveal">Birthdays</h3>
               <div className="theme-grid">
-                <a href="/sofias-quinceanera-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                <a href="/themes/alegria.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera Party" eventDate="2027-06-12" city="San Antonio" country="TX" />
@@ -265,7 +265,7 @@ export default async function Page() {
                     <p className="theme-desc">Blush, lilac, and gold. Romantic and joyful — built for quinceañeras and sweet 16 celebrations.</p>
                   </div>
                 </a>
-                <a href="/sweet16-fun-party-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                <a href="/themes/fun-party.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#1A0B2E' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="fun-party" heading="The Big Sweet 16" eventDate="2027-08-08" city="Miami" country="FL" />
@@ -276,7 +276,7 @@ export default async function Page() {
                     <p className="theme-desc">Hot pink, cyan, and neon yellow on a graffiti backdrop. Bold and rebellious — built for sweet 16s and quinceañeras that want to stand out.</p>
                   </div>
                 </a>
-                <a href="/noahs-7th-birthday-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                <a href="/themes/balloons.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="balloons" heading="Kids Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
@@ -293,7 +293,7 @@ export default async function Page() {
             <div className="theme-category" id="theme-community">
               <h3 className="theme-category-title reveal">Community</h3>
               <div className="theme-grid">
-                <a href="/maple-street-block-party-preview" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                <a href="/themes/community.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#F6E0BD' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
                       <ThemeHeroPreview themeSlug="community" heading="Maple Street Block Party" eventDate="2027-06-19" city="Portland" country="OR" />
@@ -316,7 +316,7 @@ export default async function Page() {
           <div className="reveal" style={{ textAlign: 'center', maxWidth: '600px', margin: '0 auto 10px' }}>
             <p className="eyebrow" style={{ textAlign: 'center' }}>Simple pricing</p>
             <h2 className="section-title">Start free. Upgrade when you&apos;re ready.</h2>
-            <p className="section-sub" style={{ margin: '0 auto' }}>No hidden fees, no surprise charges as your wedding gets closer.</p>
+            <p className="section-sub" style={{ margin: '0 auto' }}>One payment, no recurring charges, no surprises as your event gets closer.</p>
           </div>
           <div className="pricing-grid">
             <div className="price-card reveal">
@@ -324,23 +324,23 @@ export default async function Page() {
               <p className="price-amount">$0</p>
               <p className="price-desc">Everything you need to get started.</p>
               <ul className="price-features">
-                <li>1 wedding page</li>
-                <li>All 3 themes</li>
+                <li>1 Event page</li>
+                <li>All themes</li>
                 <li>RSVP &amp; guest count</li>
                 <li>Countdown &amp; event details</li>
-                <li>Up to 20 guest photo uploads</li>
-                <li>Gala subdomain (yourname.mygala.ca)</li>
+                <li>Event Program</li>
+                <li>Gala URL (mygala.ca/yourname)</li>
               </ul>
               <Link href="/login" className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
             </div>
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
               <p className="price-tier">Plus</p>
-              <p className="price-amount">$29.99<span className="per"> / month</span></p>
-              <p className="price-desc">For couples who want it all, exactly their way.</p>
+              <p className="price-amount">$49.99<span className="per"> one-time</span></p>
+              <p className="price-desc">Get all the perks from mygala.</p>
               <ul className="price-features">
                 <li>Everything in Free</li>
-                <li>Unlimited photo uploads</li>
+                <li>Photo uploads</li>
                 <li>Livestream link &amp; song requests</li>
                 <li>Custom domain support</li>
                 <li>Remove Gala branding</li>
@@ -370,11 +370,11 @@ export default async function Page() {
             </div>
             <div className="faq-item">
               <p className="faq-q">What happens to my page after the wedding?</p>
-              <p className="faq-a">It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages keep every feature active for as long as you&apos;re subscribed.</p>
+              <p className="faq-a">It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages stay fully featured for 15 months from your purchase, then you can extend for another 15 with a single payment.</p>
             </div>
             <div className="faq-item">
-              <p className="faq-q">Can I cancel anytime?</p>
-              <p className="faq-a">Yes, with no long-term contract. Cancel whenever you like and your page reverts to the Free plan limits.</p>
+              <p className="faq-q">Is Plus a subscription?</p>
+              <p className="faq-a">No — it&apos;s a single one-time payment of $49.99 that unlocks every feature for 15 months. No recurring charge, and no card kept on file.</p>
             </div>
           </div>
         </div>
