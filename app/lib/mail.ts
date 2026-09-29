@@ -66,11 +66,14 @@ export function verificationEmailHtml(link: string, name?: string): string {
   `);
 }
 
-export function resetEmailHtml(link: string): string {
+export function resetEmailHtml(link: string, name?: string): string {
+  const greeting = name ? `Hi ${escHtml(name)},` : 'Hi there,';
   return wrap(`
     <h2 style="margin: 0 0 16px; font-size: 20px;">Reset your password</h2>
+    <p style="margin: 0 0 16px; line-height: 1.6;">${greeting}</p>
     <p style="margin: 0 0 24px; line-height: 1.6;">We received a request to reset your MyGala password. Click below to choose a new one.</p>
     ${button(link, 'Reset password')}
-    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted};">This link expires in 45 minutes. If you didn't request this, you can ignore this email — your password won't change.</p>
+    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted}; line-height: 1.6;">If the button doesn't work, copy and paste this link into your browser:<br /><a href="${link}" style="color: ${BRAND.muted}; word-break: break-all;">${link}</a></p>
+    <p style="margin: 16px 0 0; font-size: 13px; color: ${BRAND.muted};">This link expires in 45 minutes. If you didn't request this, you can safely ignore this email — your password won't change.</p>
   `);
 }

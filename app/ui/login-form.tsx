@@ -38,7 +38,12 @@ export default function LoginForm() {
         </div>
 
         <div className="auth-field">
-          <label className="auth-label" htmlFor="password">Password</label>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <label className="auth-label" htmlFor="password">Password</label>
+            <Link href="/forgot-password" style={{ fontSize: 12, color: 'var(--rose)', fontWeight: 600 }}>
+              Forgot password?
+            </Link>
+          </div>
           <div className="auth-input-wrap">
             <input
               className="auth-input"

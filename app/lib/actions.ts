@@ -18,6 +18,7 @@ import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
 import { siteUrl } from './site-url';
+import { passwordRule } from './password-schema';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -754,7 +755,7 @@ const RegisterSchema = z.object({
   family_name: z.string().min(1, { message: 'Please enter your last name.' }),
   phone: z.string().optional(),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
+  password: passwordRule,
   confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: 'Passwords do not match.',
