@@ -261,6 +261,9 @@ export default function FunParty({
 
   return (
     <div className="fp">
+      {/* Each theme needs its own distinct Google Font, loaded only when that theme is rendered —
+          a shared root layout would force-load every theme's fonts on every page. */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Poppins:wght@400;500;600;700&display=swap" />
       <style>{css}</style>
       {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}

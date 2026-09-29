@@ -284,7 +284,7 @@ export default async function Page() {
                   </div>
                   <div className="theme-info">
                     <p className="theme-name">Balloons</p>
-                    <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids' celebrations.</p>
+                    <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids&apos; celebrations.</p>
                   </div>
                 </a>
               </div>

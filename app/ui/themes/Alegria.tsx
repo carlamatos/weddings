@@ -265,6 +265,9 @@ export default function Alegria({
 
   return (
     <div className="al">
+      {/* Each theme needs its own distinct Google Font, loaded only when that theme is rendered —
+          a shared root layout would force-load every theme's fonts on every page. */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Parisienne&family=Playfair+Display:ital,wght@0,500;1,500&display=swap" />
       <style>{css}</style>
       {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}

@@ -32,6 +32,7 @@ export function Countdown({
   const [diff, setDiff] = useState<number | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: Date.now() must not run during SSR render
     setDiff(Math.max(target - Date.now(), 0));
     const id = setInterval(() => setDiff(Math.max(target - Date.now(), 0)), 1000);
     return () => clearInterval(id);

@@ -7,7 +7,6 @@ import RsvpForm from './RsvpForm';
 import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
-import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, localizeDate } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
@@ -24,8 +23,6 @@ const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
   { id: 'dg-default-7', user_page_id: 0, image_path: '/images/themes/dinner-gala/celebration-7.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
   { id: 'dg-default-8', user_page_id: 0, image_path: '/images/themes/dinner-gala/celebration-8.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
 ];
-
-const PALETTE: [string, string, string] = ['#0a1420', '#d8b35a', '#101f30'];
 
 const GalaDivider = () => <div className="dg-divider" aria-hidden="true" />;
 
@@ -262,6 +259,9 @@ export default function DinnerGala({
 
   return (
     <div className="dg">
+      {/* Each theme needs its own distinct Google Font, loaded only when that theme is rendered —
+          a shared root layout would force-load every theme's fonts on every page. */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Jost:wght@400;500;600&display=swap" />
       <style>{css}</style>
       {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}

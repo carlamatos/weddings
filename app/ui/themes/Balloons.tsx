@@ -284,6 +284,9 @@ export default function Balloons({
 
   return (
     <div className="bl">
+      {/* Each theme needs its own distinct Google Font, loaded only when that theme is rendered —
+          a shared root layout would force-load every theme's fonts on every page. */}
+      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" />
       <style>{css}</style>
       {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}
