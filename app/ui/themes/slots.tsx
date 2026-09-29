@@ -459,27 +459,31 @@ export function EditableBannerBg({
         onChange={handleFile}
       />
 
-      {(hovered || uploading) && (
-        <div className="theme-banner-overlay" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploading}
-            title="Replace photo"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: uploading ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
-          >
-            <CameraIcon />
-            <span>{uploading ? 'Uploading…' : 'Replace media'}</span>
-          </button>
-          <span style={{ opacity: 0.4, fontSize: 13 }}>|</span>
-          <button
-            onClick={toggleObjectFit}
-            title={objectFit === 'cover' ? 'Switch to Contain' : 'Switch to Cover'}
-            style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 6, cursor: 'pointer', color: 'inherit', font: 'inherit', fontSize: 12, padding: '4px 10px', fontWeight: 600, letterSpacing: 0.5 }}
-          >
-            {objectFit === 'cover' ? 'Cover ✓' : 'Contain ✓'}
-          </button>
-        </div>
-      )}
+      {/* Always visible — matches every other editable field's "Edit" badge.
+          Hover-only would hide the only way to replace the banner on touch
+          devices, and from anyone who doesn't happen to hover over it. */}
+      <div
+        className="theme-banner-overlay"
+        style={{ display: 'flex', gap: 10, alignItems: 'center', opacity: hovered || uploading ? 1 : 0.85 }}
+      >
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          title="Replace photo"
+          style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: uploading ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+        >
+          <CameraIcon />
+          <span>{uploading ? 'Uploading…' : 'Replace media'}</span>
+        </button>
+        <span style={{ opacity: 0.4, fontSize: 13 }}>|</span>
+        <button
+          onClick={toggleObjectFit}
+          title={objectFit === 'cover' ? 'Switch to Contain' : 'Switch to Cover'}
+          style={{ background: 'rgba(255,255,255,0.2)', border: '1px solid rgba(255,255,255,0.4)', borderRadius: 6, cursor: 'pointer', color: 'inherit', font: 'inherit', fontSize: 12, padding: '4px 10px', fontWeight: 600, letterSpacing: 0.5 }}
+        >
+          {objectFit === 'cover' ? 'Cover ✓' : 'Contain ✓'}
+        </button>
+      </div>
 
       {uploadError && (
         <div style={{
