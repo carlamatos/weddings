@@ -37,6 +37,12 @@ export const authConfig = {
         // wedding page to /dashboard/setup — a super admin may not have one.
         // Whether the user is actually an admin is checked in app/admin/layout.tsx.
         return isLoggedIn;
+      } else if (nextUrl.pathname.startsWith('/verify-2fa')) {
+        // Must also come before the branch below — a user mid-2FA-challenge
+        // needs to reach this page regardless of page count, and the
+        // "no page yet" redirect would otherwise divert them straight into
+        // /dashboard/setup without ever completing the challenge.
+        return true;
       } else if (isLoggedIn) {
 
 

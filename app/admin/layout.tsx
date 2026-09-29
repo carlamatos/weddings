@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { auth } from '@/auth';
 import { isSuperAdmin } from '@/app/lib/admin';
+import { needsTotpChallenge } from '@/app/lib/require-verified';
 import AdminNav from '@/app/ui/admin/admin-nav';
 import { c } from '@/app/ui/admin/styles';
 
@@ -18,6 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const email = session?.user?.email;
   if (!email) redirect('/login');
   if (!isSuperAdmin(email)) notFound();
+  if (needsTotpChallenge(session)) redirect('/verify-2fa');
 
   return (
     <div style={{ minHeight: '100vh', background: c.paper, color: c.ink, fontFamily: 'system-ui, sans-serif' }}>

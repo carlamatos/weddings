@@ -100,6 +100,241 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
   );
 }
 
+type SecurityStep = 'status' | 'confirm-password' | 'scan-qr' | 'backup-codes' | 'disable';
+
+function SecurityModal({ onClose }: { onClose: () => void }) {
+  const [loading, setLoading] = useState(true);
+  const [hasPassword, setHasPassword] = useState(true);
+  const [totpEnabled, setTotpEnabled] = useState(false);
+  const [step, setStep] = useState<SecurityStep>('status');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const [password, setPassword] = useState('');
+  const [qrCode, setQrCode] = useState('');
+  const [secret, setSecret] = useState('');
+  const [code, setCode] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [disableCode, setDisableCode] = useState('');
+
+  useEffect(() => {
+    fetch('/api/user/profile')
+      .then((r) => r.json())
+      .then((data) => {
+        setHasPassword(!!data.has_password);
+        setTotpEnabled(!!data.totp_enabled);
+        setLoading(false);
+      })
+      .catch(() => { setError('Failed to load account status.'); setLoading(false); });
+  }, []);
+
+  async function startSetup() {
+    setError('');
+    if (hasPassword) {
+      setStep('confirm-password');
+      return;
+    }
+    await runSetup();
+  }
+
+  async function runSetup(pwd?: string) {
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/user/2fa/setup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pwd ? { password: pwd } : {}),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      setQrCode(data.qrCode);
+      setSecret(data.secret);
+      setStep('scan-qr');
+    } catch {
+      setError('Something went wrong.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function confirmPassword(e: React.FormEvent) {
+    e.preventDefault();
+    await runSetup(password);
+    setPassword('');
+  }
+
+  async function enable(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/user/2fa/enable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: code }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      setBackupCodes(data.backupCodes);
+      setTotpEnabled(true);
+      setStep('backup-codes');
+    } catch {
+      setError('Something went wrong.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function disable(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setError('');
+    try {
+      const res = await fetch('/api/user/2fa/disable', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: disableCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      setTotpEnabled(false);
+      setDisableCode('');
+      setStep('status');
+    } catch {
+      setError('Something went wrong.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="profile-modal-backdrop" onClick={onClose}>
+      <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
+        <button className="profile-modal-close" onClick={onClose} aria-label="Close">×</button>
+        <h2>Security</h2>
+
+        {loading ? (
+          <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>Loading…</p>
+        ) : (
+          <>
+            {error && <p className="profile-modal-error">{error}</p>}
+
+            {step === 'status' && (
+              <>
+                <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 16px' }}>
+                  Two-factor authentication is currently{' '}
+                  <strong style={{ color: totpEnabled ? '#2E7D4F' : 'var(--ink)' }}>
+                    {totpEnabled ? 'on' : 'off'}
+                  </strong>.
+                  {!totpEnabled && ' Add an authenticator app for an extra layer of protection on your account.'}
+                </p>
+                <div className="profile-modal-actions">
+                  <button type="button" className="dash-btn-secondary" onClick={onClose}>Close</button>
+                  {totpEnabled ? (
+                    <button type="button" className="dash-btn" onClick={() => setStep('disable')}>
+                      Disable 2FA
+                    </button>
+                  ) : (
+                    <button type="button" className="dash-btn" onClick={startSetup} disabled={busy}>
+                      {busy ? 'Starting…' : 'Enable 2FA'}
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {step === 'confirm-password' && (
+              <form onSubmit={confirmPassword}>
+                <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
+                  Confirm your password to continue.
+                </p>
+                <div className="profile-field">
+                  <label>Password</label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" autoFocus />
+                </div>
+                <div className="profile-modal-actions">
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Checking…' : 'Continue'}</button>
+                </div>
+              </form>
+            )}
+
+            {step === 'scan-qr' && (
+              <form onSubmit={enable}>
+                <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
+                  Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.), then enter the 6-digit code it shows.
+                </p>
+                {qrCode && (
+                  // eslint-disable-next-line @next/next/no-img-element -- data: URI, not a servable/optimizable asset
+                  <img src={qrCode} alt="Scan with your authenticator app" style={{ display: 'block', margin: '0 auto 12px', width: 180, height: 180 }} />
+                )}
+                <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 16px', textAlign: 'center', wordBreak: 'break-all' }}>
+                  Can&apos;t scan it? Enter this code manually: <code>{secret}</code>
+                </p>
+                <div className="profile-field">
+                  <label>6-digit code</label>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value)}
+                    required
+                    autoFocus
+                    placeholder="123456"
+                  />
+                </div>
+                <div className="profile-modal-actions">
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Verifying…' : 'Enable'}</button>
+                </div>
+              </form>
+            )}
+
+            {step === 'backup-codes' && (
+              <>
+                <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
+                  Two-factor authentication is on. Save these backup codes somewhere safe — each one can be used
+                  once to sign in if you lose access to your authenticator app. They won&apos;t be shown again.
+                </p>
+                <div style={{ background: '#F7F4F1', borderRadius: 8, padding: '12px 16px', margin: '0 0 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontFamily: 'monospace', fontSize: 13 }}>
+                  {backupCodes.map((c) => <span key={c}>{c}</span>)}
+                </div>
+                <div className="profile-modal-actions">
+                  <button type="button" className="dash-btn" onClick={onClose}>Done</button>
+                </div>
+              </>
+            )}
+
+            {step === 'disable' && (
+              <form onSubmit={disable}>
+                <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
+                  Enter a code from your authenticator app, or one of your backup codes, to turn off two-factor authentication.
+                </p>
+                <div className="profile-field">
+                  <label>Code</label>
+                  <input
+                    type="text"
+                    value={disableCode}
+                    onChange={(e) => setDisableCode(e.target.value)}
+                    required
+                    autoFocus
+                    placeholder="123456 or xxxxx-xxxxx"
+                  />
+                </div>
+                <div className="profile-modal-actions">
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Checking…' : 'Disable'}</button>
+                </div>
+              </form>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function UserMenu({
   name,
   pageId,
@@ -113,6 +348,7 @@ export default function UserMenu({
 }) {
   const [open, setOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
   const [displayName, setDisplayName] = useState(name);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -163,6 +399,12 @@ export default function UserMenu({
             >
               Edit Profile
             </button>
+            <button
+              onClick={() => { setOpen(false); setShowSecurity(true); }}
+              className="dash-user-menu-item"
+            >
+              Security
+            </button>
             {pageId !== undefined && (
               <button
                 onClick={handleToggleStatus}
@@ -194,6 +436,8 @@ export default function UserMenu({
           onSaved={(newName) => setDisplayName(newName)}
         />
       )}
+
+      {showSecurity && <SecurityModal onClose={() => setShowSecurity(false)} />}
     </>
   );
 }

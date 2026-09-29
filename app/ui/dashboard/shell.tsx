@@ -3,7 +3,7 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { listOwnedPages } from '@/app/lib/data';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
-import { verificationGracePeriodOver } from '@/app/lib/require-verified';
+import { verificationGracePeriodOver, needsTotpChallenge } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
@@ -25,6 +25,13 @@ export default async function DashboardShell({
   const session = await auth();
   const userId = session?.user?.id;
   if (pageId !== undefined && !userId) redirect('/login');
+
+  // No grace period for 2FA — an account that opted in is never allowed
+  // partial access without completing the challenge. Checked ahead of email
+  // verification below.
+  if (userId && needsTotpChallenge(session)) {
+    redirect('/verify-2fa');
+  }
 
   // Soft at first (banner below), hard block after a grace period — this is
   // a UX nudge, not the security boundary. Sensitive API routes must call

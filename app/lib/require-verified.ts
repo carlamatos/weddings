@@ -1,5 +1,6 @@
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
+import type { Session } from 'next-auth';
 
 // Mirrors getSuperAdmin()'s pattern (app/lib/admin.ts): a parent layout check
 // doesn't protect API routes, so any sensitive route calls this itself.
@@ -24,4 +25,12 @@ export async function verificationGracePeriodOver(userId: string): Promise<boole
   const value = result.rows[0]?.created_at;
   if (!value) return false;
   return Date.now() - new Date(value).getTime() > VERIFICATION_GRACE_MS;
+}
+
+// True once the account has 2FA enabled but hasn't completed the challenge
+// for this session (or it's stale — see auth.ts's TOTP_VERIFIED_TTL_MS).
+// Unlike email verification there's no soft/grace period: an account that
+// opted into 2FA is never allowed partial access without it.
+export function needsTotpChallenge(session: Session | null): boolean {
+  return !!session?.user?.totpEnabled && !session?.user?.totpVerified;
 }

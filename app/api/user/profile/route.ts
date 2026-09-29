@@ -8,7 +8,10 @@ export async function GET() {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const result = await sql`
-    SELECT given_name, family_name, email, phone FROM users WHERE id = ${userId} LIMIT 1
+    SELECT given_name, family_name, email, phone,
+           (password IS NOT NULL AND password != '') AS has_password,
+           (totp_enabled_at IS NOT NULL) AS totp_enabled
+    FROM users WHERE id = ${userId} LIMIT 1
   `;
   if (!result.rows[0]) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   return NextResponse.json(result.rows[0]);

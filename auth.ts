@@ -16,6 +16,7 @@ import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 5;
+const TOTP_VERIFIED_TTL_MS = 24 * 60 * 60 * 1000;
 
 async function getUser(email: string): Promise<DBUser | undefined> {
   try {
@@ -34,7 +35,7 @@ async function getUser(email: string): Promise<DBUser | undefined> {
 // response-time difference lets an attacker enumerate registered addresses.
 const DUMMY_PASSWORD_HASH = '$2b$10$riu05Pya1ylj.Ct6.p1sP.Z3G1qTBav1g3/In1RKoZsj3B5/hVZzy';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   ...authConfig,
   trustHost: true,
   providers: [
@@ -87,9 +88,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({token, user, account, profile } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null }) {
+    async jwt({token, user, account, profile, trigger, session } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null; trigger?: 'signIn' | 'signUp' | 'update'; session?: { user?: { totpVerified?: boolean } } }) {
+      // Re-invoked via unstable_update({ user: { totpVerified: true } }) from
+      // /api/auth/2fa/verify — writes straight into this token, no DB write
+      // needed for this per-session (not per-account) flag.
+      if (trigger === 'update' && session?.user?.totpVerified) {
+        token.totpVerified = true;
+        token.totpVerifiedAt = Date.now();
+      }
+
       // Add user info to the token when logging in
-      
+
       const oauthProviders = ['google', 'apple', 'facebook'];
       if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub && token?.id) {
         const providerName = account.provider.charAt(0).toUpperCase() + account.provider.slice(1);
@@ -130,6 +139,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.email = token.email as string;
         session.user.image = token.picture as string;
         session.user.verifiedEmail = !!localuser?.email_verified_at;
+        session.user.totpEnabled = !!localuser?.totp_enabled_at;
+        const verifiedRecently = !!token.totpVerified && !!token.totpVerifiedAt
+          && Date.now() - token.totpVerifiedAt < TOTP_VERIFIED_TTL_MS;
+        session.user.totpVerified = verifiedRecently;
       }
 
       return session;
