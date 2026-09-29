@@ -65,7 +65,7 @@ export default function RegisterForm() {
         <div className="auth-field">
           <label className="auth-label" htmlFor="password">Password</label>
           <div className="auth-input-wrap">
-            <input className="auth-input" id="password" type="password" name="password" placeholder="At least 6 characters" required minLength={6} />
+            <input className="auth-input" id="password" type="password" name="password" placeholder="At least 8 characters" required minLength={8} />
             <KeyIcon className="auth-input-icon" />
           </div>
           {state.errors?.password && <p className="auth-field-error">{state.errors.password[0]}</p>}
@@ -74,7 +74,7 @@ export default function RegisterForm() {
         <div className="auth-field">
           <label className="auth-label" htmlFor="confirmPassword">Confirm Password</label>
           <div className="auth-input-wrap">
-            <input className="auth-input" id="confirmPassword" type="password" name="confirmPassword" placeholder="Re-enter your password" required minLength={6} />
+            <input className="auth-input" id="confirmPassword" type="password" name="confirmPassword" placeholder="Re-enter your password" required minLength={8} />
             <KeyIcon className="auth-input-icon" />
           </div>
           {state.errors?.confirmPassword && <p className="auth-field-error">{state.errors.confirmPassword[0]}</p>}

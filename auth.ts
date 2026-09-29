@@ -12,9 +12,10 @@ import type { DBUser } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
 import { createExtendedUser } from './app/lib/actions';
 import {JWT} from 'next-auth/jwt'
+import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 
-
-
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const MAX_LOGIN_ATTEMPTS = 5;
 
 async function getUser(email: string): Promise<DBUser | undefined> {
   try {
@@ -33,28 +34,6 @@ async function getUser(email: string): Promise<DBUser | undefined> {
 // response-time difference lets an attacker enumerate registered addresses.
 const DUMMY_PASSWORD_HASH = '$2b$10$riu05Pya1ylj.Ct6.p1sP.Z3G1qTBav1g3/In1RKoZsj3B5/hVZzy';
 
-// Simple in-memory rate limiter: max 10 login attempts per IP per 15 minutes
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const MAX_LOGIN_ATTEMPTS_PER_IP = 10;
-
-function isLoginRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const rec = loginAttempts.get(ip);
-  if (!rec || now > rec.resetAt) return false;
-  return rec.count >= MAX_LOGIN_ATTEMPTS_PER_IP;
-}
-
-function recordLoginAttempt(ip: string): void {
-  const now = Date.now();
-  const rec = loginAttempts.get(ip);
-  if (!rec || now > rec.resetAt) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
-  } else {
-    rec.count++;
-  }
-}
-
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
@@ -66,10 +45,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           request.headers.get('x-real-ip') ??
           'unknown';
 
-        if (isLoginRateLimited(ip)) {
+        const rateLimitKey = `login:${ip}`;
+        if (await isRateLimited(rateLimitKey, MAX_LOGIN_ATTEMPTS)) {
           return null;
         }
-        recordLoginAttempt(ip);
+        await recordAttempt(rateLimitKey, LOGIN_WINDOW_MS);
 
         const parsedCredentials = z
           .object({ email: z.string().email(), password: z.string().min(6) })
@@ -149,6 +129,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.name = token.name as string;
         session.user.email = token.email as string;
         session.user.image = token.picture as string;
+        session.user.verifiedEmail = !!localuser?.email_verified_at;
       }
 
       return session;

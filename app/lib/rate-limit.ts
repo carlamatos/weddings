@@ -1,25 +1,49 @@
-const store = new Map<string, { count: number; resetAt: number }>();
+import { sql } from '@vercel/postgres';
 
-const WINDOW_MS = 15 * 60 * 1000; // 15-minute window
-const MAX_ATTEMPTS = 5;
+// Single Postgres-backed limiter, replacing the two separate in-memory Maps
+// that used to live here and in auth.ts. In-memory state doesn't survive
+// serverless cold starts (close to useless under real traffic), and this
+// file is now shared by every security-sensitive endpoint — login, resend
+// verification, forgot password, 2FA verify — not just the login form.
+//
+// Callers own their own key namespace (e.g. `login:${ip}`,
+// `verify-email:${email}`, `2fa:${userId}`) so different features never
+// collide or share a budget.
 
-export function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const record = store.get(ip);
-  if (!record || now > record.resetAt) return false;
-  return record.count >= MAX_ATTEMPTS;
+// Read-only: does NOT increment. Callers that want a friendly early message
+// (e.g. "too many attempts") check this before doing any work; the actual
+// increment happens once, at the real enforcement point (see recordAttempt).
+export async function isRateLimited(key: string, limit: number): Promise<boolean> {
+  const result = await sql`
+    SELECT count FROM rate_limits WHERE rl_key = ${key} AND reset_at > NOW()
+  `;
+  const count = result.rows[0]?.count ?? 0;
+  return count >= limit;
 }
 
-export function recordFailedAttempt(ip: string): void {
-  const now = Date.now();
-  const record = store.get(ip);
-  if (!record || now > record.resetAt) {
-    store.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-  } else {
-    record.count++;
-  }
+// Increments the counter for `key`, starting a fresh window if the previous
+// one (or none) has expired. Safe to call without a prior isRateLimited
+// check — expiry is re-evaluated here too, so a stale row always resets
+// correctly rather than accumulating forever.
+export async function recordAttempt(key: string, windowMs: number): Promise<void> {
+  const resetAt = new Date(Date.now() + windowMs).toISOString();
+  await sql.query(
+    `INSERT INTO rate_limits (rl_key, count, reset_at)
+     VALUES ($1, 1, $2)
+     ON CONFLICT (rl_key) DO UPDATE SET
+       count = CASE WHEN rate_limits.reset_at < NOW() THEN 1 ELSE rate_limits.count + 1 END,
+       reset_at = CASE WHEN rate_limits.reset_at < NOW() THEN $2::timestamptz ELSE rate_limits.reset_at END`,
+    [key, resetAt],
+  );
+  await pruneExpiredRateLimits();
 }
 
-export function clearLoginAttempts(ip: string): void {
-  store.delete(ip);
+export async function clearRateLimit(key: string): Promise<void> {
+  await sql`DELETE FROM rate_limits WHERE rl_key = ${key}`;
+}
+
+// Table hygiene, not correctness — long-expired rows are harmless but there's
+// no cron job in this app, so sweep them opportunistically instead.
+async function pruneExpiredRateLimits(): Promise<void> {
+  await sql`DELETE FROM rate_limits WHERE reset_at < NOW() - INTERVAL '1 day'`;
 }

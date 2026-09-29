@@ -3,9 +3,11 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { listOwnedPages } from '@/app/lib/data';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
+import { verificationGracePeriodOver } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
+import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
 
 // The dashboard chrome (sidebar, top bar, deactivation/lapsed-plan notices).
@@ -23,6 +25,15 @@ export default async function DashboardShell({
   const session = await auth();
   const userId = session?.user?.id;
   if (pageId !== undefined && !userId) redirect('/login');
+
+  // Soft at first (banner below), hard block after a grace period — this is
+  // a UX nudge, not the security boundary. Sensitive API routes must call
+  // requireEmailVerified() themselves (app/lib/require-verified.ts).
+  const verifiedEmail = session?.user?.verifiedEmail ?? true;
+  if (userId && !verifiedEmail && (await verificationGracePeriodOver(userId))) {
+    redirect('/verify-email-pending');
+  }
+
   const pages = userId && pageId !== undefined ? await listOwnedPages(userId) : [];
   const page = pageId !== undefined ? pages.find((p) => Number(p.id) === pageId) : undefined;
   if (pageId !== undefined && !page) notFound();
@@ -39,6 +50,21 @@ export default async function DashboardShell({
       <div className="dash-main">
         <TopNav page={page} />
         <div className="dash-content">
+          {userId && !verifiedEmail && (
+            <div
+              role="alert"
+              style={{
+                background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800',
+                borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+              }}
+            >
+              <span>
+                <strong>Please verify your email address.</strong> Check your inbox for the link we sent when you signed up.
+              </span>
+              <ResendVerificationButton />
+            </div>
+          )}
           {deactivated && (
             <div
               role="alert"

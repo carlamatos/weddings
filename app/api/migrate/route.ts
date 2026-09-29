@@ -14,6 +14,69 @@ export async function POST(request: Request) {
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 
+  // Email verification / password reset / 2FA. This endpoint accumulates
+  // statements and gets re-run for later, unrelated migrations, so the
+  // one-time backfill below is guarded on whether the column already existed
+  // *before* this ALTER — an unconditional `WHERE email_verified_at IS NULL`
+  // would silently re-verify every future not-yet-verified user the next
+  // time this endpoint is invoked for something else.
+  const hadEmailVerifiedColumn = await sql`
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'users' AND column_name = 'email_verified_at'
+  `;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ`;
+  if (hadEmailVerifiedColumn.rows.length === 0) {
+    // Existing accounts pre-date the verification requirement — grandfather
+    // them in rather than locking everyone out on deploy.
+    await sql`UPDATE users SET email_verified_at = NOW() WHERE email_verified_at IS NULL`;
+  }
+
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret TEXT`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled_at TIMESTAMPTZ`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS email_verification_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_evt_user ON email_verification_tokens(user_id)`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id SERIAL PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      token_hash TEXT NOT NULL UNIQUE,
+      expires_at TIMESTAMPTZ NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_prt_user ON password_reset_tokens(user_id)`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS totp_backup_codes (
+      id SERIAL PRIMARY KEY,
+      user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      code_hash TEXT NOT NULL,
+      used_at TIMESTAMPTZ,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_backup_user ON totp_backup_codes(user_id)`;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS rate_limits (
+      rl_key TEXT PRIMARY KEY,
+      count INTEGER NOT NULL,
+      reset_at TIMESTAMPTZ NOT NULL
+    )
+  `;
+
   // One-time-payment paid plans expire 15 months after purchase instead of
   // renewing — tracked per page, and mirrored on user_plans for purchases
   // made before a page exists yet (see createUserPage).

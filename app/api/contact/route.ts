@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function POST(req: Request) {
   const { name, email, subject, message } = await req.json();
 
@@ -16,6 +14,10 @@ export async function POST(req: Request) {
   }
 
   try {
+    // Constructed lazily, not at module scope — `new Resend(undefined)`
+    // throws immediately, which breaks the build/dev server whenever
+    // RESEND_API_KEY is unset (e.g. local dev).
+    const resend = new Resend(process.env.RESEND_API_KEY);
     await resend.emails.send({
       from: 'MyGala Contact <no-reply@mygala.ca>',
       to: 'info@mygala.ca',

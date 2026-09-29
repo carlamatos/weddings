@@ -9,12 +9,18 @@ import bcrypt from 'bcrypt';
 
 import { headers } from 'next/headers';
 import { signIn } from '@/auth';
-import { isRateLimited, recordFailedAttempt, clearLoginAttempts } from './rate-limit';
+import { isRateLimited, clearRateLimit } from './rate-limit';
 
 import { DBUser, EventProgramItem } from './definitions';
 import { auth } from '@/auth';
 import { fetchUserPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
+import { createToken } from './tokens';
+import { sendMail, verificationEmailHtml } from './mail';
+import { siteUrl } from './site-url';
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
   const UserSchema = z.object({
     id: z.string(),
     name: z.string({
@@ -617,8 +623,13 @@ export async function authenticate(
     headersList.get('x-forwarded-for')?.split(',')[0].trim() ??
     headersList.get('x-real-ip') ??
     '127.0.0.1';
+  const rateLimitKey = `login:${ip}`;
 
-  if (isRateLimited(ip)) {
+  // Read-only here — the real increment happens once, inside auth.ts's
+  // authorize(), which is also reachable directly via the NextAuth API route
+  // and so is the actual enforcement point. This check only gives a nicer
+  // message for the form path without double-counting the attempt.
+  if (await isRateLimited(rateLimitKey, MAX_LOGIN_ATTEMPTS)) {
     return 'Too many login attempts. Please try again in 15 minutes.';
   }
 
@@ -626,7 +637,6 @@ export async function authenticate(
     await signIn('credentials', { ...Object.fromEntries(formData), redirectTo: '/dashboard' });
   } catch (error) {
     if (error instanceof AuthError) {
-      recordFailedAttempt(ip);
       switch (error.type) {
         case 'CredentialsSignin':
           return 'Invalid credentials.';
@@ -634,8 +644,8 @@ export async function authenticate(
           return 'Something went wrong.';
       }
     }
-    // Successful login triggers a redirect — clear failed attempts
-    clearLoginAttempts(ip);
+    // Successful login triggers a redirect — clear the attempt counter
+    await clearRateLimit(rateLimitKey);
     throw error;
   }
 }
@@ -682,11 +692,13 @@ export async function createExtendedUser(user: DBUser) {
     const {name, email, given_name, family_name, provider, provider_id, picture } = validatedFields.data;
     const date = new Date().toISOString().split('T')[0];
   try {
+      // OAuth providers already prove control of the email address, so these
+      // accounts are verified immediately — unlike credentials signups.
       await sql`
-  INSERT INTO users (name, email, date, given_name,family_name,provider,provider_id,picture)
-  VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture})
+  INSERT INTO users (name, email, date, given_name,family_name,provider,provider_id,picture,email_verified_at)
+  VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
 `;
-    
+
   } catch (error) {
       
       return {
@@ -796,15 +808,30 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   const name = `${given_name} ${family_name}`;
   const date = new Date().toISOString().split('T')[0];
 
+  let newUserId: string | undefined;
   try {
-    await sql`
+    const result = await sql`
       INSERT INTO users (name, email, password, date, given_name, family_name, provider, provider_id, picture, phone)
       VALUES (${name}, ${email}, ${hashedPassword}, ${date}, ${given_name}, ${family_name}, 'credentials', '', '', ${phone || ''})
+      RETURNING id
     `;
+    newUserId = result.rows[0]?.id;
   } catch (error) {
     return {
       message: `Database Error: Failed to create account. ${error instanceof Error ? error.message : String(error)}`,
     };
+  }
+
+  if (newUserId) {
+    try {
+      const token = await createToken('email_verification_tokens', newUserId, EMAIL_VERIFICATION_TTL_MS);
+      const link = `${siteUrl()}/api/verify-email?token=${token}`;
+      await sendMail({ to: email, subject: 'Confirm your email address', html: verificationEmailHtml(link) });
+    } catch (error) {
+      // Don't block account creation on a mail failure — the dashboard
+      // banner's resend button covers this.
+      console.error('Failed to send verification email:', error);
+    }
   }
 
   redirect('/login');

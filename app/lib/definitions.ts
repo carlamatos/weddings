@@ -57,6 +57,7 @@ export type DBUser = {
   provider_id: string;
   picture: string;
   phone?: string;
+  email_verified_at?: string | null;
 };
 
 export type GalleryImage = {
