@@ -25,12 +25,12 @@ export async function POST() {
   await recordAttempt(key, WINDOW_MS);
 
   try {
-    const result = await sql`SELECT id, email_verified_at FROM users WHERE email = ${email}`;
+    const result = await sql`SELECT id, email_verified_at, given_name FROM users WHERE email = ${email}`;
     const user = result.rows[0];
     if (user && !user.email_verified_at) {
       const token = await createToken('email_verification_tokens', user.id, TTL_MS);
       const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address', html: verificationEmailHtml(link) });
+      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link, user.given_name) });
     }
   } catch (error) {
     console.error('Failed to resend verification email:', error);

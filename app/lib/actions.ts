@@ -826,7 +826,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     try {
       const token = await createToken('email_verification_tokens', newUserId, EMAIL_VERIFICATION_TTL_MS);
       const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address', html: verificationEmailHtml(link) });
+      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link, given_name) });
     } catch (error) {
       // Don't block account creation on a mail failure — the dashboard
       // banner's resend button covers this.

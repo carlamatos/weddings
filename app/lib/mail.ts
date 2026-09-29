@@ -39,12 +39,20 @@ function button(link: string, label: string): string {
   return `<a href="${link}" style="display: inline-block; padding: 12px 24px; background: ${BRAND.text}; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">${label}</a>`;
 }
 
-export function verificationEmailHtml(link: string): string {
+function escHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+export function verificationEmailHtml(link: string, name?: string): string {
+  const greeting = name ? `Hi ${escHtml(name)},` : 'Hi there,';
   return wrap(`
-    <h2 style="margin: 0 0 16px; font-size: 20px;">Confirm your email address</h2>
-    <p style="margin: 0 0 24px; line-height: 1.6;">Welcome to MyGala! Please confirm this is your email address to finish setting up your account.</p>
+    <h2 style="margin: 0 0 16px; font-size: 20px;">Welcome to MyGala!</h2>
+    <p style="margin: 0 0 16px; line-height: 1.6;">${greeting}</p>
+    <p style="margin: 0 0 16px; line-height: 1.6;">Thanks for creating your MyGala account. Before you get started building your wedding page, please confirm this is your email address — we'll also use it to send you important updates, like new RSVPs and guest messages, so it's worth double-checking.</p>
+    <p style="margin: 0 0 24px; line-height: 1.6;">Click the button below to verify your address:</p>
     ${button(link, 'Verify email address')}
-    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted};">This link expires in 48 hours. If you didn't create an account, you can ignore this email.</p>
+    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted}; line-height: 1.6;">If the button doesn't work, copy and paste this link into your browser:<br /><a href="${link}" style="color: ${BRAND.muted}; word-break: break-all;">${link}</a></p>
+    <p style="margin: 16px 0 0; font-size: 13px; color: ${BRAND.muted};">This link expires in 48 hours. If you didn't create an account, you can safely ignore this email.</p>
   `);
 }
 
