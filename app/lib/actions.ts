@@ -834,5 +834,5 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     }
   }
 
-  redirect('/login');
+  redirect(`/check-email?email=${encodeURIComponent(email)}`);
 }

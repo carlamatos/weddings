@@ -12,5 +12,5 @@ export async function GET(request: Request) {
   }
 
   await sql`UPDATE users SET email_verified_at = NOW() WHERE id = ${userId} AND email_verified_at IS NULL`;
-  return NextResponse.redirect(new URL('/dashboard?verified=1', origin));
+  return NextResponse.redirect(new URL('/email-verified', origin));
 }
