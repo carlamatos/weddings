@@ -1,9 +1,11 @@
 import { Resend } from 'resend';
+import { siteUrl } from './site-url';
 
 const BRAND = {
   text: '#241F2B',
   muted: '#9A8F8C',
   border: '#EDE8E3',
+  cream: '#F7F4F1',
 };
 
 // Shared with app/api/contact/route.ts's style, extracted so every
@@ -27,10 +29,18 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
 }
 
 function wrap(bodyHtml: string): string {
+  const logoUrl = `${siteUrl()}/images/logo_1.png`;
   return `
-    <div style="font-family: system-ui, sans-serif; max-width: 600px; color: ${BRAND.text};">
-      ${bodyHtml}
-      <p style="margin: 32px 0 0; font-size: 12px; color: ${BRAND.muted}; border-top: 1px solid ${BRAND.border}; padding-top: 16px;">MyGala &middot; mygala.ca</p>
+    <div style="background: ${BRAND.cream}; padding: 40px 16px; font-family: system-ui, sans-serif;">
+      <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 40px 40px 32px; box-shadow: 0 1px 3px rgba(36,31,43,0.08);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <img src="${logoUrl}" alt="MyGala" width="160" style="display: inline-block; width: 160px; height: auto;" />
+        </div>
+        <div style="color: ${BRAND.text};">
+          ${bodyHtml}
+        </div>
+      </div>
+      <p style="max-width: 560px; margin: 24px auto 0; text-align: center; font-size: 12px; color: ${BRAND.muted};">MyGala &middot; mygala.ca</p>
     </div>
   `;
 }
