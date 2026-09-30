@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import type { Translations } from '@/app/lib/translations';
+import { SectionText, type SectionTextContext } from './section-text';
 
 type Props = {
   url: string;
@@ -17,6 +18,7 @@ type Props = {
   eyebrowClassName?: string;
   buttonClassName?: string;
   lowercase?: boolean; // Quiet Coastal writes all its labels in lowercase
+  sectionText?: SectionTextContext;
 };
 
 const enc = encodeURIComponent;
@@ -29,6 +31,7 @@ export default function ShareSection({
   eyebrowClassName = 'eyebrow',
   buttonClassName = 'btn btn-outline',
   lowercase,
+  sectionText,
 }: Props) {
   const [copied, setCopied] = useState(false);
   const fmt = (s: string) => (lowercase ? s.toLowerCase() : s);
@@ -59,8 +62,10 @@ export default function ShareSection({
 
   return (
     <div className="share-band">
-      {hashtag && <p className={eyebrowClassName}>{fmt(t.tagYourPosts)}</p>}
-      <h2 className="share-hashtag">{hashtag ? tagText : fmt(t.shareThisEvent)}</h2>
+      {hashtag && <SectionText ctx={sectionText} k="share.eyebrow" className={eyebrowClassName} fallback={fmt(t.tagYourPosts)} />}
+      {hashtag
+        ? <h2 className="share-hashtag">{tagText}</h2>
+        : <SectionText ctx={sectionText} k="share.title" as="h2" className="share-hashtag" fallback={fmt(t.shareThisEvent)} />}
       <div className="share-row">
         {links.map((l) => (
           <a key={l.label} className={buttonClassName} href={l.href} target="_blank" rel="noopener noreferrer">

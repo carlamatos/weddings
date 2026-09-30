@@ -864,3 +864,38 @@ body:has(.dash-shell) {
 }
 .theme-date-popover input:focus { border-color: #B6584A; }
 .theme-date-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* date & location dialog (EditableHeroDate) — fixed and centered, kept under
+   Google's address suggestions list (.pac-container, z-index 1000) */
+.theme-edit-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  background: rgba(36, 31, 43, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.theme-date-popover.theme-date-dialog {
+  position: relative;
+  bottom: auto;
+  left: auto;
+  transform: none;
+  width: 460px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  text-align: left;
+}
+.theme-date-heading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #241F2B;
+  font-family: system-ui, sans-serif;
+}
+.theme-date-heading:not(:first-child) { margin-top: 6px; }
+.theme-date-2col--wide { grid-template-columns: 2fr 1fr; }
+@media (max-width: 480px) {
+  .theme-date-2col--wide { grid-template-columns: 1fr; }
+}

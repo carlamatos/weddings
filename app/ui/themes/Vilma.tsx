@@ -8,6 +8,7 @@ import VilmaCountdown from './VilmaCountdown';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -232,11 +233,14 @@ export default function Vilma({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -312,8 +316,8 @@ export default function Vilma({
       {(description || editSlots?.description) && (
         <div id="story" className="section section-center">
           <div className="wrap">
-            <p className="eyebrow">{t.ourStoryLabel}</p>
-            <h2 className="section-title">{t.howWeGotHere}</h2>
+            <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
+            <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             <hr className="vl-rule" />
             {editSlots?.description ?? (
               <p style={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)', maxWidth: 580, margin: '0 auto' }}>
@@ -333,8 +337,8 @@ export default function Vilma({
       {(showVenue || showVirtual) && (
         <div className="section section-center">
           <div className="wrap-wide">
-            <p className="eyebrow">{t.theDetails}</p>
-            <h2 className="section-title">{t.dateAndLocation}</h2>
+            <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow" fallback={t.theDetails} />
+            <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="section-title" fallback={t.dateAndLocation} />
             <hr className="vl-rule" />
             <div className="details-grid">
               <div className="details-card">
@@ -372,8 +376,8 @@ export default function Vilma({
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="section section-center">
           <div className="wrap">
-            <p className="eyebrow">{t.theSchedule}</p>
-            <h2 className="section-title">{t.eventProgram}</h2>
+            <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow" fallback={t.theSchedule} />
+            <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="section-title" fallback={t.eventProgram} />
             <hr className="vl-rule" />
             {groupEventProgramByDate(eventProgram).map((group) => (
               <div className="schedule-day" key={group.date}>
@@ -398,8 +402,8 @@ export default function Vilma({
       {/* RSVP */}
       {showRsvp !== false && (
         <div id="rsvp" className="rsvp-section">
-          <p className="eyebrow">{t.kindlyRespond}</p>
-          <h2 className="section-title on-butter">{t.rsvp}</h2>
+          <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond} />
+          <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title on-butter" fallback={t.rsvp} />
           <hr className="vl-rule" />
           <div className="rsvp-card">
             <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
@@ -413,8 +417,8 @@ export default function Vilma({
         return content ? (
           <div className="section section-center">
             <div className="wrap-wide">
-              <p className="eyebrow">{t.memoriesSoFar}</p>
-              <h2 className="section-title">{t.ourMoments}</h2>
+              <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+              <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
               <hr className="vl-rule" />
               {content}
             </div>
@@ -444,8 +448,8 @@ export default function Vilma({
       {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="section section-center">
           <div className="wrap">
-            <p className="eyebrow">{t.guestPhotos}</p>
-            <h2 className="section-title">{t.shareYourPhoto}</h2>
+            <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" fallback={t.guestPhotos} />
+            <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />
             <hr className="vl-rule" />
             <GuestPhotoSection
               userPageId={galleryToken}
@@ -463,8 +467,8 @@ export default function Vilma({
       {isPaid && galleryToken && showSongRequests !== false && (
         <div className="song-section">
           <div className="wrap">
-            <p className="eyebrow on-dark">{t.buildOurPlaylist}</p>
-            <h2 className="section-title on-dark">{t.songRequests}</h2>
+            <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="eyebrow on-dark" fallback={t.buildOurPlaylist} />
+            <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title on-dark" fallback={t.songRequests} />
             <hr className="vl-rule" />
             <SongRequestSection
               userPageId={galleryToken}
@@ -481,13 +485,13 @@ export default function Vilma({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
-        <h2 className="section-title on-dark" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
+        <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" style={{ marginBottom: 14 }} fallback={t.questions} />
+        <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 14 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}

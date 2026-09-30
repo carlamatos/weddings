@@ -6,6 +6,7 @@ import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fe
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
@@ -122,6 +123,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
+  const sectionText = sectionTextFromSettings(pageSettings);
   if (!data) notFound();
 
   const isOwner = session?.user?.id === data.user_id;
@@ -184,6 +186,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         showRsvp={showRsvp}
         showShare={showShare}
         shareHashtag={shareHashtag}
+        sectionText={sectionText}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

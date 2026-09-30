@@ -12,6 +12,7 @@ import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -330,11 +331,14 @@ export default function Community({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -394,8 +398,8 @@ export default function Community({
         <Reveal>
           <div id="story" className="section section-center">
             <div className="wrap">
-              <p className="eyebrow">{t.ourStoryLabel}</p>
-              <h2 className="section-title">{t.howWeGotHere}</h2>
+              <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
+              <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
               {editSlots?.description ?? (
                 <p style={{ fontFamily: 'var(--cm-font-sans)', fontSize: 17, lineHeight: 1.9, color: 'var(--cm-navy-soft)', maxWidth: 560, margin: '0 auto' }}>
                   {description}
@@ -425,8 +429,8 @@ export default function Community({
         <Reveal from="right">
           <div className="section section-alt section-center">
             <div className="wrap-wide">
-              <p className="eyebrow">{t.theDetails}</p>
-              <h2 className="section-title">{t.dateAndLocation}</h2>
+              <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow" fallback={t.theDetails} />
+              <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="section-title" fallback={t.dateAndLocation} />
               <div className="details-grid">
                 <div className="details-card">
                   <p className="label">{t.ceremony}</p>
@@ -465,8 +469,8 @@ export default function Community({
         <Reveal>
           <div className="section section-center">
             <div className="wrap">
-              <p className="eyebrow">{t.theSchedule}</p>
-              <h2 className="section-title">{t.eventProgram}</h2>
+              <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow" fallback={t.theSchedule} />
+              <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="section-title" fallback={t.eventProgram} />
               {groupEventProgramByDate(eventProgram).map((group) => (
                 <div className="schedule-day" key={group.date}>
                   <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
@@ -492,8 +496,8 @@ export default function Community({
       {showRsvp !== false && (
         <Reveal>
           <div id="rsvp" className="rsvp-section">
-            <p className="eyebrow on-dark">{t.kindlyRespond}</p>
-            <h2 className="section-title on-dark">{t.rsvp}</h2>
+            <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow on-dark" fallback={t.kindlyRespond} />
+            <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title on-dark" fallback={t.rsvp} />
             <div className="rsvp-card">
               <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
             </div>
@@ -508,8 +512,8 @@ export default function Community({
       <Reveal>
         <div className="section section-alt section-center">
           <div className="wrap-wide">
-            <p className="eyebrow">{t.memoriesSoFar}</p>
-            <h2 className="section-title">{t.ourMoments}</h2>
+            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
             {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
           </div>
         </div>
@@ -540,8 +544,8 @@ export default function Community({
         <Reveal>
           <div id="photos" className="section section-center">
             <div className="wrap">
-              <p className="eyebrow">{t.guestPhotos}</p>
-              <h2 className="section-title">{t.shareYourPhoto}</h2>
+              <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" fallback={t.guestPhotos} />
+              <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />
               <GuestPhotoSection
                 userPageId={galleryToken}
                 initialPhotos={guestPhotos ?? []}
@@ -560,8 +564,8 @@ export default function Community({
         <Reveal>
           <div className="song-section">
             <div className="wrap">
-              <p className="eyebrow">{t.buildOurPlaylist}</p>
-              <h2 className="section-title">{t.songRequests}</h2>
+              <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="eyebrow" fallback={t.buildOurPlaylist} />
+              <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title" fallback={t.songRequests} />
               <SongRequestSection
                 userPageId={galleryToken}
                 initialSongs={guestSongs ?? []}
@@ -577,15 +581,15 @@ export default function Community({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
         <CommunityBunting stringColor="#FFFFFF" />
         <div className="footer-inner">
-          <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
-          <h2 className="section-title on-dark" style={{ marginBottom: 0 }}>{t.getInTouch}</h2>
+          <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" style={{ marginBottom: 14 }} fallback={t.questions} />
+          <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 0 }} fallback={t.getInTouch} />
           {editSlots?.footerContact ?? (
             <>
               {heading && <p style={{ marginTop: 18 }}>{heading}</p>}

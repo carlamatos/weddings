@@ -63,6 +63,8 @@ export interface ThemeProps {
   showShare?: boolean;
   shareHashtag?: string; // normalized, no leading '#'
   shareUrl?: string; // public URL the share buttons send
+  sectionText?: import('@/app/lib/section-text').SectionText; // owner's custom section eyebrows/titles
+  sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;
 }

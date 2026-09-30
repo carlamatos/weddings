@@ -7,6 +7,7 @@ import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -164,11 +165,14 @@ export default function QuietCoastal({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -224,8 +228,8 @@ export default function QuietCoastal({
         <div id="story" className="wrap">
           <div className="section split">
             <div className="col-wide">
-              <p className="eyebrow">{t.ourStoryLabel.toLowerCase()}</p>
-              <h2 className="title">{t.howWeGotHere.toLowerCase()}</h2>
+              <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="title" fallback={t.howWeGotHere.toLowerCase()} />
               {editSlots?.description ?? (
                 <p style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)', margin: 0, maxWidth: 520 }}>
                   {description}
@@ -243,8 +247,8 @@ export default function QuietCoastal({
         <div className="wrap">
           <div className="section split reverse">
             <div className="col-narrow">
-              <p className="eyebrow">{t.theDetails.toLowerCase()}</p>
-              <h2 className="title">{t.dateAndLocation.toLowerCase()}</h2>
+              <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow" fallback={t.theDetails.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="title" fallback={t.dateAndLocation.toLowerCase()} />
               {mapsUrl && (
                 <div className="directions-link">
                   <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections.toLowerCase()}</a>
@@ -300,8 +304,8 @@ export default function QuietCoastal({
         <>
           <div className="wrap">
             <div className="section">
-              <p className="eyebrow">{t.theSchedule.toLowerCase()}</p>
-              <h2 className="title">{t.eventProgram.toLowerCase()}</h2>
+              <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow" fallback={t.theSchedule.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="title" fallback={t.eventProgram.toLowerCase()} />
               {groupEventProgramByDate(eventProgram).map((group) => (
                 <div className="schedule-day" key={group.date}>
                   <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale).toLowerCase()}</p>
@@ -328,8 +332,8 @@ export default function QuietCoastal({
           <hr className="hairline" />
           <div id="rsvp" className="wrap">
             <div className="section">
-              <p className="eyebrow">{t.kindlyRespond.toLowerCase()}</p>
-              <h2 className="title">{t.rsvp.toLowerCase()}</h2>
+              <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp.toLowerCase()} />
               <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
             </div>
           </div>
@@ -344,8 +348,8 @@ export default function QuietCoastal({
             <hr className="hairline" />
             <div className="wrap">
               <div className="section">
-                <p className="eyebrow">{t.gallery.toLowerCase()}</p>
-                <h2 className="title">{t.ourMoments.toLowerCase()}</h2>
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.gallery.toLowerCase()} />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="title" fallback={t.ourMoments.toLowerCase()} />
                 {content}
               </div>
             </div>
@@ -377,8 +381,8 @@ export default function QuietCoastal({
       {/* GUEST PHOTOS */}
       {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="wrap" style={{ padding: '80px 32px' }}>
-          <p className="eyebrow" style={{ marginBottom: 8 }}>{t.guestPhotos.toLowerCase()}</p>
-          <h2 className="section-title" style={{ marginBottom: 28 }}>{t.shareYourPhoto.toLowerCase()}</h2>
+          <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" style={{ marginBottom: 8 }} fallback={t.guestPhotos.toLowerCase()} />
+          <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" style={{ marginBottom: 28 }} fallback={t.shareYourPhoto.toLowerCase()} />
           <GuestPhotoSection
             userPageId={galleryToken}
             initialPhotos={guestPhotos ?? []}
@@ -395,8 +399,8 @@ export default function QuietCoastal({
         <>
           <hr className="hairline" />
           <div className="wrap" style={{ padding: '80px 32px' }}>
-            <p className="eyebrow" style={{ marginBottom: 8 }}>{t.buildOurPlaylist.toLowerCase()}</p>
-            <h2 className="section-title" style={{ marginBottom: 28 }}>{t.songRequests.toLowerCase()}</h2>
+            <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="eyebrow" style={{ marginBottom: 8 }} fallback={t.buildOurPlaylist.toLowerCase()} />
+            <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title" style={{ marginBottom: 28 }} fallback={t.songRequests.toLowerCase()} />
             <SongRequestSection
               userPageId={galleryToken}
               initialSongs={guestSongs ?? []}
@@ -411,15 +415,15 @@ export default function QuietCoastal({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" lowercase />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" lowercase sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer wrap" style={{ padding: '80px 32px' }}>
         <div className="footer-grid">
           <div>
-            <p className="eyebrow" style={{ marginBottom: 14 }}>{t.questions}</p>
-            <h2 className="title" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
+            <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow" style={{ marginBottom: 14 }} fallback={t.questions} />
+            <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="title" style={{ marginBottom: 14 }} fallback={t.getInTouch} />
             {editSlots?.footerContact ?? (
               <>
                 {heading && <p>{heading}</p>}

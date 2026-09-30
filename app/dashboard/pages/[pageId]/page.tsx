@@ -3,6 +3,7 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { publicPageUrl } from '@/app/lib/share';
 import {
@@ -35,6 +36,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
+  const sectionText = sectionTextFromSettings(pageSettings);
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -91,6 +93,14 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         eventEndTime={userPage.event_end_time || undefined}
         city={userPage.city || undefined}
         country={userPage.country || undefined}
+        address={userPage.location === 'virtual' ? undefined : {
+          venueName: userPage.venue_name || undefined,
+          streetAddress: userPage.street_address || undefined,
+          unitNumber: userPage.unit_number || undefined,
+          postalCode: userPage.postal_code || undefined,
+          placeId: userPage.place_id || undefined,
+          formattedAddress: userPage.formatted_address || undefined,
+        }}
       />
     ) : undefined,
     description: (
@@ -160,6 +170,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         showRsvp={showRsvp}
         showShare={showShare}
         shareHashtag={shareHashtag}
+        sectionText={sectionText}
+        sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}
       />

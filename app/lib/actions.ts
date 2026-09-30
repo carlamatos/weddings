@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
+import { isSectionTextKey, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
 import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
@@ -359,6 +360,40 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
   }
 }
 
+// Saves the owner's own text for one section heading (see section-text.ts).
+// An empty value removes it so the theme's default shows again. Returns what
+// was saved, or null when nothing was.
+export async function updateSectionText(pageId: number, key: string, raw: string): Promise<string | null> {
+  if (!isSectionTextKey(key)) return null;
+  const value = raw.replace(/\s+/g, ' ').trim().slice(0, SECTION_TEXT_MAX_LENGTH);
+  const settingName = sectionTextSettingName(key);
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return null;
+  try {
+    if (value) {
+      const res = await sql`
+        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+        SELECT id, ${settingName}::text, ${value}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
+        ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+      `;
+      if (!res.rowCount) return null;
+    } else {
+      await sql`
+        DELETE FROM user_page_settings
+        WHERE setting_name = ${settingName}
+          AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+      `;
+    }
+    revalidatePath('/', 'layout');
+    return value;
+  } catch (error) {
+    console.error('Failed to update section text:', error);
+    return null;
+  }
+}
+
 // Event Reminders (Plus). Saves which lead times are ticked and the owner's
 // personal note; the daily cron job (app/lib/reminder-send.ts) does the sending.
 export async function saveReminderSettings(
@@ -523,6 +558,16 @@ export async function updateEventDateTime(pageId: number, data: {
   // '' = remove, otherwise the new value.
   endDate?: string;
   endTime?: string;
+  // The venue's full address from the editor. When present it replaces all of
+  // these fields (a blank one is cleared); undefined leaves the address alone.
+  address?: {
+    venueName: string;
+    streetAddress: string;
+    unitNumber: string;
+    postalCode: string;
+    placeId: string;
+    formattedAddress: string;
+  };
 }) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -534,6 +579,8 @@ export async function updateEventDateTime(pageId: number, data: {
   const setEndTime = data.endTime !== undefined;
   const endDate = data.endDate || null;
   const endTime = data.endTime || null;
+  const setAddress = data.address !== undefined;
+  const addr = (v: string | undefined) => v?.trim() || null;
   try {
     // The end-date check sits in WHERE so an end before the (new or existing)
     // start date rejects the whole save rather than storing a bad range.
@@ -544,7 +591,13 @@ export async function updateEventDateTime(pageId: number, data: {
         city           = COALESCE(${data.city ?? null}, city),
         country        = COALESCE(${data.country ?? null}, country),
         event_end_date = CASE WHEN ${setEndDate} THEN ${endDate}::date ELSE event_end_date END,
-        event_end_time = CASE WHEN ${setEndTime} THEN ${endTime} ELSE event_end_time END
+        event_end_time = CASE WHEN ${setEndTime} THEN ${endTime} ELSE event_end_time END,
+        venue_name        = CASE WHEN ${setAddress} THEN ${addr(data.address?.venueName)} ELSE venue_name END,
+        street_address    = CASE WHEN ${setAddress} THEN ${addr(data.address?.streetAddress)} ELSE street_address END,
+        unit_number       = CASE WHEN ${setAddress} THEN ${addr(data.address?.unitNumber)} ELSE unit_number END,
+        postal_code       = CASE WHEN ${setAddress} THEN ${addr(data.address?.postalCode)} ELSE postal_code END,
+        place_id          = CASE WHEN ${setAddress} THEN ${addr(data.address?.placeId)} ELSE place_id END,
+        formatted_address = CASE WHEN ${setAddress} THEN ${addr(data.address?.formattedAddress)} ELSE formatted_address END
       WHERE id = ${pid} AND user_id = ${userId}
         AND (${endDate}::date IS NULL OR ${endDate}::date >= COALESCE(${data.date ?? null}::date, event_date))
     `;

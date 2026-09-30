@@ -11,6 +11,7 @@ import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -277,6 +278,8 @@ export default function FunParty({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -284,6 +287,7 @@ export default function FunParty({
   // copy that's inherently bride/groom-flavored is overridden here.
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -343,8 +347,8 @@ export default function FunParty({
           <div id="story" className="section section-center">
             <div className="wrap">
               <Confetti center />
-              <p className="eyebrow">{t.ourStoryLabel}</p>
-              <h2 className="section-title">{t.howWeGotHere}</h2>
+              <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
+              <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
               {editSlots?.description ?? (
                 <p style={{ fontFamily: 'var(--fp-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'var(--fp-ink-soft)', maxWidth: 580, margin: '0 auto' }}>
                   {description}
@@ -372,8 +376,8 @@ export default function FunParty({
         <Reveal>
           <div className="section section-center">
             <div className="wrap-wide">
-              <p className="eyebrow">{t.theDetails}</p>
-              <h2 className="section-title">{t.dateAndLocation}</h2>
+              <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow" fallback={t.theDetails} />
+              <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="section-title" fallback={t.dateAndLocation} />
               <div className="details-grid">
                 <div className="details-card">
                   <p className="label">{t.ceremony}</p>
@@ -412,8 +416,8 @@ export default function FunParty({
         <Reveal>
           <div className="section section-center section-dark">
             <div className="wrap">
-              <p className="eyebrow on-dark">{t.theSchedule}</p>
-              <h2 className="section-title on-dark">{t.eventProgram}</h2>
+              <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow on-dark" fallback={t.theSchedule} />
+              <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="section-title on-dark" fallback={t.eventProgram} />
               {groupEventProgramByDate(eventProgram).map((group) => (
                 <div className="schedule-day" key={group.date}>
                   <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
@@ -440,8 +444,8 @@ export default function FunParty({
         <Reveal>
           <div id="rsvp" className="section section-center">
             <div className="wrap">
-              <p className="eyebrow">{t.kindlyRespond}</p>
-              <h2 className="section-title">{t.rsvp}</h2>
+              <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond} />
+              <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               <div className="rsvp-card">
                 <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
               </div>
@@ -455,8 +459,8 @@ export default function FunParty({
       <Reveal>
         <div className="section section-center">
           <div className="wrap-wide">
-            <p className="eyebrow">{t.gallery}</p>
-            <h2 className="section-title">{t.memoriesSoFar}</h2>
+            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.gallery} />
+            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.memoriesSoFar} />
             {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
           </div>
         </div>
@@ -487,8 +491,8 @@ export default function FunParty({
         <Reveal>
           <div id="photos" className="section section-center">
             <div className="wrap">
-              <p className="eyebrow">{t.guestPhotos}</p>
-              <h2 className="section-title">{t.shareYourPhoto}</h2>
+              <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" fallback={t.guestPhotos} />
+              <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />
               <GuestPhotoSection
                 userPageId={galleryToken}
                 initialPhotos={guestPhotos ?? []}
@@ -507,8 +511,8 @@ export default function FunParty({
         <Reveal>
           <div className="section section-center section-dark song-section">
             <div className="wrap">
-              <p className="eyebrow on-dark">{t.buildOurPlaylist}</p>
-              <h2 className="section-title on-dark">{t.songRequests}</h2>
+              <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="eyebrow on-dark" fallback={t.buildOurPlaylist} />
+              <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title on-dark" fallback={t.songRequests} />
               <SongRequestSection
                 userPageId={galleryToken}
                 initialSongs={guestSongs ?? []}
@@ -524,13 +528,13 @@ export default function FunParty({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="eyebrow on-dark" style={{ marginBottom: 14 }}>{t.questions}</p>
-        <h2 className="section-title on-dark" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
+        <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" style={{ marginBottom: 14 }} fallback={t.questions} />
+        <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 14 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}

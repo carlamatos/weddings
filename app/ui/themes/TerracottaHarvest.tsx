@@ -6,6 +6,7 @@ import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -212,11 +213,14 @@ export default function TerracottaHarvest({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -273,8 +277,8 @@ export default function TerracottaHarvest({
       {(description || editSlots?.description) && (
         <>
           <div id="story" className="section">
-            <p className="section-label">{t.ourStoryLabel}</p>
-            <h2 className="section-title">{t.howWeGotHere}</h2>
+            <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="section-label" fallback={t.ourStoryLabel} />
+            <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             {editSlots?.description ?? <p className="story-text">{description}</p>}
           </div>
           <BandDivider thin />
@@ -285,8 +289,8 @@ export default function TerracottaHarvest({
       {(showVenue || showVirtual) && (
         <>
           <div className="section-wide">
-            <p className="section-label">{t.theDetails}</p>
-            <h2 className="section-title">{t.dateAndLocation}</h2>
+            <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="section-label" fallback={t.theDetails} />
+            <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="section-title" fallback={t.dateAndLocation} />
             <div className="details-grid">
               <div>
                 <div className="details-card">
@@ -329,8 +333,8 @@ export default function TerracottaHarvest({
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
           <div className="section-wide">
-            <p className="section-label">{t.theSchedule}</p>
-            <h2 className="section-title">{t.eventProgram}</h2>
+            <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="section-label" fallback={t.theSchedule} />
+            <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="section-title" fallback={t.eventProgram} />
             <div style={{ maxWidth: 620, margin: '0 auto' }}>
               {groupEventProgramByDate(eventProgram).map((group) => (
                 <div className="schedule-day" key={group.date}>
@@ -356,8 +360,8 @@ export default function TerracottaHarvest({
       {showRsvp !== false && (
         <>
           <div id="rsvp" className="section-tinted">
-            <p className="section-label">{t.kindlyRespond}</p>
-            <h2 className="section-title">{t.rsvp}</h2>
+            <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="section-label" fallback={t.kindlyRespond} />
+            <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
             <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
           </div>
           <BandDivider thin />
@@ -370,8 +374,8 @@ export default function TerracottaHarvest({
         return content ? (
           <>
             <div className="section-wide">
-              <p className="section-label">{t.gallery}</p>
-              <h2 className="section-title">{t.ourMoments}</h2>
+              <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="section-label" fallback={t.gallery} />
+              <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
               {content}
             </div>
             <BandDivider thin />
@@ -403,8 +407,8 @@ export default function TerracottaHarvest({
       {/* GUEST PHOTOS */}
       {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="section-wide">
-          <p className="section-label">{t.guestPhotos}</p>
-          <h2 className="section-title">{t.shareYourPhoto}</h2>
+          <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="section-label" fallback={t.guestPhotos} />
+          <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />
           <GuestPhotoSection
             userPageId={galleryToken}
             initialPhotos={guestPhotos ?? []}
@@ -428,8 +432,8 @@ export default function TerracottaHarvest({
         <>
           <BandDivider thin />
           <div className="section-tinted">
-            <p className="section-label">{t.buildOurPlaylist}</p>
-            <h2 className="section-title">{t.songRequests}</h2>
+            <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="section-label" fallback={t.buildOurPlaylist} />
+            <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title" fallback={t.songRequests} />
             <div style={{ maxWidth: 560, margin: '0 auto' }}>
               <SongRequestSection
                 userPageId={galleryToken}
@@ -447,13 +451,13 @@ export default function TerracottaHarvest({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="section-label" buttonClassName="btn btn-outline" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="section-label" buttonClassName="btn btn-outline" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="section-label">{t.questions}</p>
-        <h2 className="section-title">{t.getInTouch}</h2>
+        <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="section-label" fallback={t.questions} />
+        <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title" fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}

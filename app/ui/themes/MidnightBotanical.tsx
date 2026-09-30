@@ -7,6 +7,7 @@ import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -180,11 +181,14 @@ export default function MidnightBotanical({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -239,8 +243,8 @@ export default function MidnightBotanical({
       {/* STORY */}
       {(description || editSlots?.description) && (
         <div id="story" className="spine-section">
-          <p className="eyebrow">{t.ourStoryLabel}</p>
-          <h2 className="title">{t.howWeGotHere}</h2>
+          <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
+          <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="title" fallback={t.howWeGotHere} />
           {editSlots?.description ?? (
             <p style={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)', margin: 0 }}>
               {description}
@@ -252,8 +256,8 @@ export default function MidnightBotanical({
       {/* DATE / LOCATION */}
       {(showVenue || showVirtual) && (
         <div className="spine-section align-right wide">
-          <p className="eyebrow">{t.theDetails}</p>
-          <h2 className="title">{t.dateAndLocation}</h2>
+          <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow" fallback={t.theDetails} />
+          <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="title" fallback={t.dateAndLocation} />
           <div className="details-row">
             {eventDate && (
               <div className="details-card">
@@ -295,8 +299,8 @@ export default function MidnightBotanical({
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="spine-section wide">
-          <p className="eyebrow">{t.theSchedule}</p>
-          <h2 className="title">{t.eventProgram}</h2>
+          <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow" fallback={t.theSchedule} />
+          <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="title" fallback={t.eventProgram} />
           {groupEventProgramByDate(eventProgram).map((group) => (
             <div className="schedule-day" key={group.date}>
               <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
@@ -319,8 +323,8 @@ export default function MidnightBotanical({
       {/* RSVP */}
       {showRsvp !== false && (
         <div id="rsvp" className="spine-section">
-          <p className="eyebrow">{t.kindlyRespond}</p>
-          <h2 className="title">{t.rsvp}</h2>
+          <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond} />
+          <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp} />
           <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
         </div>
       )}
@@ -330,8 +334,8 @@ export default function MidnightBotanical({
         const content = editSlots?.gallery ?? (galleryImages?.length ? <GalleryGrid images={galleryImages} /> : null);
         return content ? (
           <div className="spine-section wide">
-            <p className="eyebrow">{t.gallery}</p>
-            <h2 className="title">{t.ourMoments}</h2>
+            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.gallery} />
+            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="title" fallback={t.ourMoments} />
             {content}
           </div>
         ) : null;
@@ -358,8 +362,8 @@ export default function MidnightBotanical({
       {/* GUEST PHOTOS */}
       {isPaid && galleryToken && showGuestPhotos !== false && (
         <div id="photos" style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
-          <p className="section-label" style={{ textAlign: 'center' }}>{t.guestPhotos}</p>
-          <h2 className="section-title" style={{ textAlign: 'center' }}>{t.shareYourPhoto}</h2>
+          <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="section-label" style={{ textAlign: 'center' }} fallback={t.guestPhotos} />
+          <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" style={{ textAlign: 'center' }} fallback={t.shareYourPhoto} />
           <GuestPhotoSection
             userPageId={galleryToken}
             initialPhotos={guestPhotos ?? []}
@@ -374,8 +378,8 @@ export default function MidnightBotanical({
       {/* SONG REQUESTS */}
       {isPaid && galleryToken && showSongRequests !== false && (
         <div style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
-          <p className="section-label" style={{ textAlign: 'center' }}>{t.buildOurPlaylist}</p>
-          <h2 className="section-title" style={{ textAlign: 'center' }}>{t.songRequests}</h2>
+          <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="section-label" style={{ textAlign: 'center' }} fallback={t.buildOurPlaylist} />
+          <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title" style={{ textAlign: 'center' }} fallback={t.songRequests} />
           <div style={{ maxWidth: 560, margin: '0 auto' }}>
             <SongRequestSection
               userPageId={galleryToken}
@@ -391,13 +395,13 @@ export default function MidnightBotanical({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="eyebrow on-dark" style={{ marginBottom: 16 }}>{t.questions}</p>
-        <h2 className="title on-dark" style={{ marginBottom: 16 }}>{t.getInTouch}</h2>
+        <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" style={{ marginBottom: 16 }} fallback={t.questions} />
+        <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="title on-dark" style={{ marginBottom: 16 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}

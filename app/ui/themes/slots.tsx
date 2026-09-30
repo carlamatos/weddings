@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useRef, useTransition } from 'react';
-import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo } from '@/app/lib/actions';
+import { createPortal } from 'react-dom';
+import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
+import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
+import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
 import { formatDateRange } from './event-when';
 import { compressImageFile } from '@/app/lib/compress-image';
 
@@ -92,6 +95,96 @@ export function EditableHeroEyebrow({
   );
 }
 
+// ─── EditableSectionText ──────────────────────────────────
+// A section eyebrow or h2 title (rendered through <SectionText> in the
+// themes). Saving an empty value, or the default itself, goes back to the
+// theme's default text.
+export function EditableSectionText({
+  pageId,
+  k,
+  as: Tag,
+  value,
+  fallback,
+  className,
+  style,
+  icon,
+}: {
+  pageId: number;
+  k: SectionTextKey;
+  as: 'p' | 'h2';
+  value: string;
+  fallback: string;
+  className?: string;
+  style?: React.CSSProperties;
+  icon?: React.ReactNode;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [current, setCurrent] = useState(value);
+  const [draft, setDraft] = useState(value || fallback);
+  const [, startTransition] = useTransition();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const startEdit = () => {
+    setDraft(current || fallback);
+    setEditing(true);
+    setTimeout(() => inputRef.current?.select(), 0);
+  };
+
+  const saveValue = (raw: string) => {
+    const trimmed = raw.trim();
+    const v = trimmed === fallback ? '' : trimmed;
+    setCurrent(v);
+    setEditing(false);
+    startTransition(async () => {
+      const saved = await updateSectionText(pageId, k, v);
+      if (saved !== null) setCurrent(saved);
+    });
+  };
+
+  const cancel = () => {
+    setDraft(current || fallback);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <span style={{ display: 'block', position: 'relative' }}>
+        <input
+          ref={inputRef}
+          value={draft}
+          maxLength={SECTION_TEXT_MAX_LENGTH}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') saveValue(draft);
+            if (e.key === 'Escape') cancel();
+          }}
+          className={`${className ?? ''} theme-edit-input`}
+          style={style}
+          autoFocus
+        />
+        <span className="theme-edit-controls" style={{ justifyContent: 'center' }}>
+          <button className="theme-edit-save" onClick={() => saveValue(draft)}>Save</button>
+          <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
+          {current && (
+            <button className="theme-edit-cancel" onClick={() => saveValue('')} title={`Back to "${fallback}"`}>
+              Reset to default
+            </button>
+          )}
+        </span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="theme-editable" style={{ display: 'block' }}>
+      <Tag className={className} style={style}>{icon}{current || fallback}</Tag>
+      <button className="theme-edit-badge" onClick={startEdit} title={Tag === 'h2' ? 'Edit section title' : 'Edit section label'}>
+        <PencilIcon /> Edit
+      </button>
+    </span>
+  );
+}
+
 // ─── EditableHeroName ─────────────────────────────────────
 // Replaces: <h1 className="hero-name">{heading}</h1>
 export function EditableHeroName({
@@ -162,7 +255,18 @@ export function EditableHeroName({
 
 // ─── EditableHeroDate ─────────────────────────────────────
 // Replaces: <p className="hero-date">{formatted date}</p>
-// Shows a popover with date / time / city / country inputs.
+// Opens a dialog with the date / time and the venue's address. Picking an
+// address fills in the city and country; both stay editable. The dialog is
+// portaled to <body> because every theme's hero clips its overflow.
+export type HeroDateAddress = {
+  venueName?: string;
+  streetAddress?: string;
+  unitNumber?: string;
+  postalCode?: string;
+  placeId?: string;
+  formattedAddress?: string;
+};
+
 export function EditableHeroDate({
   pageId,
   className = 'hero-date',
@@ -173,6 +277,7 @@ export function EditableHeroDate({
   eventEndTime,
   city,
   country,
+  address,
 }: {
   pageId: number;
   className?: string;
@@ -183,6 +288,8 @@ export function EditableHeroDate({
   eventEndTime?: string;
   city?: string;
   country?: string;
+  // Only for pages held at an address (not virtual events).
+  address?: HeroDateAddress;
 }) {
   const [open, setOpen] = useState(false);
   const [currentText, setCurrentText] = useState(displayText);
@@ -195,6 +302,26 @@ export function EditableHeroDate({
   const endBeforeStart = !!dEndDate && !!dDate && dEndDate < dDate;
   const [dCity, setDCity] = useState(city ?? '');
   const [dCountry, setDCountry] = useState(country ?? '');
+  const [dAddress, setDAddress] = useState<Required<HeroDateAddress>>(() => ({
+    venueName: address?.venueName ?? '',
+    streetAddress: address?.streetAddress ?? '',
+    unitNumber: address?.unitNumber ?? '',
+    postalCode: address?.postalCode ?? '',
+    placeId: address?.placeId ?? '',
+    formattedAddress: address?.formattedAddress ?? '',
+  }));
+
+  const handlePlaceSelect = (c: AddressComponents) => {
+    setDAddress((prev) => ({
+      ...prev,
+      streetAddress: c.streetAddress,
+      postalCode: c.postalCode,
+      placeId: c.placeId,
+      formattedAddress: c.formattedAddress,
+    }));
+    if (c.city) setDCity(c.city);
+    if (c.country) setDCountry(c.country);
+  };
 
   const save = () => {
     if (endBeforeStart) return;
@@ -211,6 +338,7 @@ export function EditableHeroDate({
       updateEventDateTime(pageId, {
         date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined,
         endDate: dEndDate, endTime: dEndTime,
+        address: address ? dAddress : undefined,
       })
     );
   };
@@ -224,52 +352,82 @@ export function EditableHeroDate({
     >
       <p className={className}>{currentText}</p>
 
-      {!open && (
-        <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit date & location">
-          <PencilIcon /> Edit
-        </button>
-      )}
+      <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit date & location">
+        <PencilIcon /> Edit
+      </button>
 
-      {open && (
-        <div className="theme-date-popover">
-          <div className="theme-date-2col">
-            <div>
-              <label>Date</label>
-              <input type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
+      {open && createPortal(
+        <div className="theme-edit-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) cancel(); }}>
+          <div
+            className="theme-date-popover theme-date-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Edit date & location"
+            onKeyDown={(e) => { if (e.key === 'Escape') cancel(); }}
+          >
+            <p className="theme-date-heading">Date &amp; time</p>
+            <div className="theme-date-2col">
+              <div>
+                <label htmlFor="hd-date">Date</label>
+                <input id="hd-date" type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="hd-time">Time</label>
+                <input id="hd-time" type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
+              </div>
             </div>
-            <div>
-              <label>Time</label>
-              <input type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
+            <div className="theme-date-2col">
+              <div>
+                <label htmlFor="hd-end-date">End date <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+                <input id="hd-end-date" type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
+              </div>
+              <div>
+                <label htmlFor="hd-end-time">End time <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+                <input id="hd-end-time" type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />
+              </div>
+            </div>
+            {endBeforeStart && (
+              <p style={{ color: '#B91C1C', fontSize: 12, margin: 0 }}>The end date can’t be before the start date.</p>
+            )}
+
+            <p className="theme-date-heading">Location</p>
+            {address && (
+              <>
+                <div>
+                  <label htmlFor="hd-venue">Venue name <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+                  <input id="hd-venue" type="text" value={dAddress.venueName} placeholder="e.g. Hycroft Manor"
+                    onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
+                </div>
+                <div className="theme-date-2col theme-date-2col--wide">
+                  <div>
+                    <label>Address</label>
+                    <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
+                  </div>
+                  <div>
+                    <label htmlFor="hd-unit">Unit</label>
+                    <input id="hd-unit" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
+                      onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
+                  </div>
+                </div>
+              </>
+            )}
+            <div className="theme-date-2col">
+              <div>
+                <label htmlFor="hd-city">City</label>
+                <input id="hd-city" type="text" value={dCity} onChange={(e) => setDCity(e.target.value)} placeholder="e.g. Tofino" />
+              </div>
+              <div>
+                <label htmlFor="hd-country">Country / Province</label>
+                <input id="hd-country" type="text" value={dCountry} onChange={(e) => setDCountry(e.target.value)} placeholder="e.g. BC" />
+              </div>
+            </div>
+            <div className="theme-edit-controls" style={{ marginTop: 4 }}>
+              <button className="theme-edit-save" onClick={save} disabled={endBeforeStart}>Save</button>
+              <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
             </div>
           </div>
-          <div className="theme-date-2col">
-            <div>
-              <label>End date <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
-              <input type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
-            </div>
-            <div>
-              <label>End time <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
-              <input type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />
-            </div>
-          </div>
-          {endBeforeStart && (
-            <p style={{ color: '#B91C1C', fontSize: 12, margin: 0 }}>The end date can’t be before the start date.</p>
-          )}
-          <div className="theme-date-2col">
-            <div>
-              <label>City</label>
-              <input type="text" value={dCity} onChange={(e) => setDCity(e.target.value)} placeholder="e.g. Tofino" />
-            </div>
-            <div>
-              <label>Country / Province</label>
-              <input type="text" value={dCountry} onChange={(e) => setDCountry(e.target.value)} placeholder="e.g. BC" />
-            </div>
-          </div>
-          <div className="theme-edit-controls" style={{ marginTop: 4 }}>
-            <button className="theme-edit-save" onClick={save} disabled={endBeforeStart}>Save</button>
-            <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
-          </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </span>
   );

@@ -10,6 +10,7 @@ import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
+import { SectionText } from './section-text';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -367,6 +368,8 @@ export default function Nexus({
   showShare,
   shareHashtag,
   shareUrl,
+  sectionText,
+  sectionTextPageId,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -374,6 +377,7 @@ export default function Nexus({
   // that's inherently bride/groom-flavored is overridden here.
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
+  const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
@@ -434,8 +438,8 @@ export default function Nexus({
           <Reveal>
             <div id="story" className="section section-center">
               <div className="wrap">
-                <p className="eyebrow"><Icon name="link" />{t.ourStoryLabel}</p>
-                <h2 className="section-title">{t.howWeGotHere}</h2>
+                <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" icon={<Icon name="link" />} fallback={t.ourStoryLabel} />
+                <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
                 {editSlots?.description ?? (
                   <p style={{ fontFamily: 'var(--nx-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'var(--nx-text-soft)', maxWidth: 600, margin: '0 auto' }}>
                     {description}
@@ -454,8 +458,8 @@ export default function Nexus({
           <Reveal from="right">
             <div className="section section-center section-soft">
               <div className="wrap-wide">
-                <p className="eyebrow teal"><Icon name="calendar" />{t.theDetails}</p>
-                <h2 className="section-title">{t.dateAndLocation}</h2>
+                <SectionText ctx={sectionTextCtx} k="details.eyebrow" className="eyebrow teal" icon={<Icon name="calendar" />} fallback={t.theDetails} />
+                <SectionText ctx={sectionTextCtx} k="details.title" as="h2" className="section-title" fallback={t.dateAndLocation} />
                 <div className="details-grid">
                   <div className="details-card">
                     <p className="label">{t.ceremony}</p>
@@ -497,8 +501,8 @@ export default function Nexus({
           <Reveal>
             <div className="section section-center">
               <div className="wrap">
-                <p className="eyebrow"><Icon name="list" />{t.theSchedule}</p>
-                <h2 className="section-title">{t.eventProgram}</h2>
+                <SectionText ctx={sectionTextCtx} k="program.eyebrow" className="eyebrow" icon={<Icon name="list" />} fallback={t.theSchedule} />
+                <SectionText ctx={sectionTextCtx} k="program.title" as="h2" className="section-title" fallback={t.eventProgram} />
                 {groupEventProgramByDate(eventProgram).map((group) => (
                   <div className="schedule-day" key={group.date}>
                     <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
@@ -528,8 +532,8 @@ export default function Nexus({
           <Reveal>
             <div id="rsvp" className="section section-center section-soft">
               <div className="wrap">
-                <p className="eyebrow teal"><Icon name="users" />{t.kindlyRespond}</p>
-                <h2 className="section-title">{t.rsvp}</h2>
+                <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow teal" icon={<Icon name="users" />} fallback={t.kindlyRespond} />
+                <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
                 <div className="rsvp-card">
                   <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
                 </div>
@@ -545,8 +549,8 @@ export default function Nexus({
       <Reveal>
         <div className="section section-center">
           <div className="wrap-wide">
-            <p className="eyebrow"><Icon name="image" />{t.gallery}</p>
-            <h2 className="section-title">{t.memoriesSoFar}</h2>
+            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" icon={<Icon name="image" />} fallback={t.gallery} />
+            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.memoriesSoFar} />
             {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
           </div>
         </div>
@@ -582,8 +586,8 @@ export default function Nexus({
           <Reveal>
             <div id="photos" className="section section-center">
               <div className="wrap">
-                <p className="eyebrow"><Icon name="camera" />{t.guestPhotos}</p>
-                <h2 className="section-title">{t.shareYourPhoto}</h2>
+                <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" icon={<Icon name="camera" />} fallback={t.guestPhotos} />
+                <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />
                 <GuestPhotoSection
                   userPageId={galleryToken}
                   initialPhotos={guestPhotos ?? []}
@@ -605,8 +609,8 @@ export default function Nexus({
           <Reveal>
             <div className="section section-center section-soft song-section">
               <div className="wrap">
-                <p className="eyebrow teal"><Icon name="music" />{t.buildOurPlaylist}</p>
-                <h2 className="section-title">{t.songRequests}</h2>
+                <SectionText ctx={sectionTextCtx} k="songs.eyebrow" className="eyebrow teal" icon={<Icon name="music" />} fallback={t.buildOurPlaylist} />
+                <SectionText ctx={sectionTextCtx} k="songs.title" as="h2" className="section-title" fallback={t.songRequests} />
                 <SongRequestSection
                   userPageId={galleryToken}
                   initialSongs={guestSongs ?? []}
@@ -623,13 +627,13 @@ export default function Nexus({
 
       {/* SHARE / HASHTAG */}
       {showShare !== false && shareUrl && (
-        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow teal" buttonClassName="btn btn-outline" />
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow teal" buttonClassName="btn btn-outline" sectionText={sectionTextCtx} />
       )}
 
       {/* FOOTER */}
       <footer className="footer">
-        <p className="eyebrow" style={{ justifyContent: 'center' }}><Icon name="mail" />{t.questions}</p>
-        <h2 className="section-title" style={{ marginBottom: 14 }}>{t.getInTouch}</h2>
+        <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow" style={{ justifyContent: 'center' }} icon={<Icon name="mail" />} fallback={t.questions} />
+        <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title" style={{ marginBottom: 14 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p>{heading}</p>}
