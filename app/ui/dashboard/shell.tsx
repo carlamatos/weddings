@@ -98,7 +98,7 @@ export default async function DashboardShell({
               }}
             >
               <span>
-                <strong>Your Plus term has ended.</strong> Your page is still live, but Domain, Guest Photos, and Song Requests are back on the free tier. Extend to restore them.
+                <strong>Your Plus term has ended.</strong> Your page is still live, but Domain, Guest Photos, Song Requests, and Event Reminders are back on the free tier. Extend to restore them.
               </span>
               <ExtendButton pageId={Number(page.id)} />
             </div>

@@ -19,6 +19,22 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS event_end_date DATE`;
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS event_end_time VARCHAR(5)`;
 
+  // Event Reminders: one row per guest per reminder per event date, written
+  // before the email is sent so a guest can never get the same one twice.
+  // Keyed on event_date so moving the event re-arms the reminders.
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_reminder_deliveries (
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      guest_id UUID NOT NULL REFERENCES event_guests(id) ON DELETE CASCADE,
+      email TEXT NOT NULL,
+      reminder_key TEXT NOT NULL,
+      event_date DATE NOT NULL,
+      sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_page_id, guest_id, reminder_key, event_date)
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_reminder_deliveries_email ON event_reminder_deliveries (user_page_id, lower(email), reminder_key, event_date)`;
+
   // Email verification / password reset / 2FA. This endpoint accumulates
   // statements and gets re-run for later, unrelated migrations, so the
   // one-time backfill below is guarded on whether the column already existed

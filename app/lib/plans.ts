@@ -12,6 +12,28 @@ export type Tier = 'free' | 'plus' | 'multi';
 export const PLAN_ONE_TIME_PRICE_USD = 49.99;
 export const PLAN_TERM_MONTHS = 15;
 
+// Feature bullets for the two plans — one list shared by the homepage
+// pricing cards and the dashboard plan picker so they can't drift apart.
+export const PLAN_FEATURES = {
+  free: [
+    '1 Event page',
+    'All themes',
+    'RSVP & guest count',
+    'Countdown & event details',
+    'Event Program',
+    'Gala URL (mygala.ca/yourname)',
+  ],
+  plus: [
+    'Everything in Free',
+    'Photo uploads',
+    'Livestream link & song requests',
+    'Automatic reminder emails to guests',
+    'Custom domain support',
+    'Remove Gala branding',
+    'Priority support',
+  ],
+} as const;
+
 const DEFAULT_MULTI_PAGE_LIMIT = 5;
 
 function multiPageLimit(): number {

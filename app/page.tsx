@@ -4,6 +4,7 @@ import '@/app/ui/marketing.css';
 import MarketingReveal from '@/app/ui/marketing-reveal';
 import { auth } from '@/auth';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
+import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
@@ -324,27 +325,17 @@ export default async function Page() {
               <p className="price-amount">$0</p>
               <p className="price-desc">Everything you need to get started.</p>
               <ul className="price-features">
-                <li>1 Event page</li>
-                <li>All themes</li>
-                <li>RSVP &amp; guest count</li>
-                <li>Countdown &amp; event details</li>
-                <li>Event Program</li>
-                <li>Gala URL (mygala.ca/yourname)</li>
+                {PLAN_FEATURES.free.map((f) => <li key={f}>{f}</li>)}
               </ul>
               <Link href="/login" className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
             </div>
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
               <p className="price-tier">Plus</p>
-              <p className="price-amount">$49.99<span className="per"> one-time</span></p>
+              <p className="price-amount">${PLAN_ONE_TIME_PRICE_USD}<span className="per"> one-time</span></p>
               <p className="price-desc">Get all the perks from mygala.</p>
               <ul className="price-features">
-                <li>Everything in Free</li>
-                <li>Photo uploads</li>
-                <li>Livestream link &amp; song requests</li>
-                <li>Custom domain support</li>
-                <li>Remove Gala branding</li>
-                <li>Priority support</li>
+                {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
               </ul>
               <Link href="/login" className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>

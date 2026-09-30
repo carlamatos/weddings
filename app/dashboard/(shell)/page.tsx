@@ -21,9 +21,9 @@ export default async function DashboardIndex() {
       return (
         <div style={{ padding: '60px 24px', maxWidth: 480, margin: '0 auto', fontFamily: 'system-ui, sans-serif', textAlign: 'center' }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EAF2EC', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: 24 }}>✓</div>
-          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>Premium plan active</h1>
+          <h1 style={{ fontSize: 20, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>Plus plan active</h1>
           <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 28px', lineHeight: 1.6 }}>
-            Your payment was confirmed. Now let&apos;s create your wedding website.
+            Your payment was confirmed. Now let&apos;s create your event page.
           </p>
           <Link
             href="/dashboard/setup"

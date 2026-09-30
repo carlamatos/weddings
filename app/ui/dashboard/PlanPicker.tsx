@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 export default function PlanPicker() {
   const [loading, setLoading] = useState(false);
@@ -34,13 +34,7 @@ export default function PlanPicker() {
           <p style={{ fontSize: 32, fontWeight: 700, color: '#241F2B', margin: '0 0 4px' }}>$0</p>
           <p style={{ fontSize: 13, color: '#9A8F8C', margin: '0 0 24px' }}>No credit card needed</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              'Beautiful wedding website',
-              'Custom shareable URL',
-              'All themes',
-              'RSVP management',
-              'Photo gallery (up to 8 photos)',
-            ].map((f) => (
+            {PLAN_FEATURES.free.map((f) => (
               <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#3F3A45' }}>
                 <span style={{ color: '#5C6B61', fontWeight: 700, flexShrink: 0 }}>✓</span> {f}
               </li>
@@ -64,17 +58,11 @@ export default function PlanPicker() {
           <span style={{ position: 'absolute', top: -13, left: 28, background: '#8c9eac', color: '#fff', fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', padding: '3px 12px', borderRadius: 999 }}>
             Most popular
           </span>
-          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#6b808f', margin: '0 0 8px' }}>Premium</p>
+          <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#6b808f', margin: '0 0 8px' }}>Plus</p>
           <p style={{ fontSize: 32, fontWeight: 700, color: '#241F2B', margin: '0 0 4px' }}>${PLAN_ONE_TIME_PRICE_USD}<span style={{ fontSize: 15, fontWeight: 500 }}> one-time</span></p>
           <p style={{ fontSize: 13, color: '#9A8F8C', margin: '0 0 24px' }}>Every feature, unlocked for {PLAN_TERM_MONTHS} months — no subscription</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {[
-              'Everything in Free',
-              'Unlimited gallery photos',
-              'Custom domain',
-              'Guest photo uploads',
-              'Song requests',
-            ].map((f) => (
+            {PLAN_FEATURES.plus.map((f) => (
               <li key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#3F3A45' }}>
                 <span style={{ color: '#8c9eac', fontWeight: 700, flexShrink: 0 }}>✓</span> {f}
               </li>
@@ -85,7 +73,7 @@ export default function PlanPicker() {
             disabled={loading}
             style={{ marginTop: 'auto', display: 'block', width: '100%', padding: '12px 24px', borderRadius: 999, border: 'none', background: '#8c9eac', color: '#fff', fontWeight: 600, fontSize: 14, cursor: loading ? 'default' : 'pointer', opacity: loading ? 0.7 : 1 }}
           >
-            {loading ? 'Redirecting…' : 'Get Premium'}
+            {loading ? 'Redirecting…' : 'Get Plus'}
           </button>
         </div>
 

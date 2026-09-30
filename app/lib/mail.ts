@@ -28,7 +28,25 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
   });
 }
 
-function wrap(bodyHtml: string): string {
+export type MailMessage = { to: string; subject: string; html: string; headers?: Record<string, string> };
+
+// Many personalized emails at once (Resend caps a batch at 100). Throws on
+// failure so callers can release whatever they had claimed for this batch.
+export async function sendMailBatch(messages: MailMessage[]): Promise<void> {
+  if (!messages.length) return;
+  if (!process.env.RESEND_API_KEY) {
+    for (const m of messages) console.log(`[mail] RESEND_API_KEY not set — would send to ${m.to}: ${m.subject}`);
+    return;
+  }
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  for (let i = 0; i < messages.length; i += 100) {
+    const chunk = messages.slice(i, i + 100).map((m) => ({ from: 'MyGala <no-reply@mygala.ca>', ...m }));
+    const { error } = await resend.batch.send(chunk);
+    if (error) throw new Error(`Resend batch failed: ${error.message}`);
+  }
+}
+
+export function wrap(bodyHtml: string): string {
   const logoUrl = `${siteUrl()}/images/logo_1.png`;
   return `
     <div style="background: ${BRAND.cream}; padding: 40px 16px; font-family: system-ui, sans-serif;">
@@ -45,11 +63,11 @@ function wrap(bodyHtml: string): string {
   `;
 }
 
-function button(link: string, label: string): string {
+export function button(link: string, label: string): string {
   return `<a href="${link}" style="display: inline-block; padding: 12px 24px; background: ${BRAND.text}; color: #fff; text-decoration: none; border-radius: 8px; font-weight: 600;">${label}</a>`;
 }
 
-function escHtml(str: string): string {
+export function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 

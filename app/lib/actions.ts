@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
+import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
+import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
 
 import { sql } from '@vercel/postgres';
@@ -11,11 +13,11 @@ import bcrypt from 'bcrypt';
 
 import { headers } from 'next/headers';
 import { signIn } from '@/auth';
-import { isRateLimited, clearRateLimit } from './rate-limit';
+import { isRateLimited, clearRateLimit, recordAttempt } from './rate-limit';
 
 import { DBUser, EventProgramItem } from './definitions';
 import { auth } from '@/auth';
-import { fetchUserPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -354,6 +356,64 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
   } catch (error) {
     console.error('Failed to update share hashtag:', error);
     return null;
+  }
+}
+
+// Event Reminders (Plus). Saves which lead times are ticked and the owner's
+// personal note; the daily cron job (app/lib/reminder-send.ts) does the sending.
+export async function saveReminderSettings(
+  pageId: number,
+  data: { schedule: string[]; message: string },
+): Promise<{ ok: boolean; error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  const schedule = parseReminderSchedule(data.schedule.join(',')).join(',');
+  const message = (data.message ?? '').trim().slice(0, REMINDER_MESSAGE_MAX_LENGTH);
+  try {
+    const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    if (!page.rows[0]) return { ok: false, error: 'Page not found.' };
+    if (page.rows[0].plan_type !== 'paid') return { ok: false, error: 'Event Reminders are a Plus feature.' };
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()
+    `;
+    return { ok: true };
+  } catch (error) {
+    console.error('Failed to save reminder settings:', error);
+    return { ok: false, error: 'Couldn’t save. Please try again.' };
+  }
+}
+
+// Sends one sample reminder to the signed-in owner, using the unsaved note
+// from the form so they can check it before saving. Limited to 5 an hour.
+export async function sendTestReminder(pageId: number, message: string): Promise<{ ok: boolean; message: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const email = session?.user?.email;
+  const pid = parsePageId(pageId);
+  if (!userId || !email || pid === null) return { ok: false, message: 'Not signed in.' };
+  const limitKey = `reminder-test:${userId}`;
+  if (await isRateLimited(limitKey, 5)) return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
+  const page = await fetchOwnedPage(userId, pid);
+  if (!page) return { ok: false, message: 'Page not found.' };
+  if (page.plan_type !== 'paid') return { ok: false, message: 'Event Reminders are a Plus feature.' };
+  await recordAttempt(limitKey, 60 * 60 * 1000);
+  const { subject, html } = reminderEmail({
+    page,
+    reminderKey: '1w',
+    message: message.slice(0, REMINDER_MESSAGE_MAX_LENGTH),
+    guestName: session.user?.name?.split(/\s+/)[0],
+    unsubscribeLink: `${siteUrl()}/unsubscribe`,
+  });
+  try {
+    await sendMail({ to: email, subject: `[Test] ${subject}`, html });
+    return { ok: true, message: `Test sent to ${email}.` };
+  } catch (error) {
+    console.error('Failed to send test reminder:', error);
+    return { ok: false, message: 'Couldn’t send the test. Please try again.' };
   }
 }
 
