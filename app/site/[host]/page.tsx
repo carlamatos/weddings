@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { eventPageMetadata } from '@/app/lib/share';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -12,14 +13,7 @@ export async function generateMetadata(
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) return {};
-  if (data.status === 'inactive') return { robots: { index: false, follow: false } };
-  const description = data.description
-    ? data.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
-    : undefined;
-  return {
-    title: { absolute: data.heading || 'MyGala' },
-    description: description || undefined,
-  };
+  return eventPageMetadata(data);
 }
 
 export default async function CustomDomainPage({ params }: { params: Promise<{ host: string }> }) {

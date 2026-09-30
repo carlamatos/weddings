@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
+import { eventPageMetadata } from '@/app/lib/share';
 import Link from 'next/link';
 import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '../lib/data';
 import { auth } from '@/auth';
@@ -86,15 +87,7 @@ export async function generateMetadata(
   const slug = (await params).slug;
   const page = await fetchUserPage(slug);
   if (!page) return {};
-  // Don't advertise (or let search engines keep) a deactivated page.
-  if (page.status === 'inactive') return { robots: { index: false, follow: false } };
-  const description = page.description
-    ? page.description.replace(/<[^>]*>/g, '').trim().slice(0, 140)
-    : undefined;
-  return {
-    title: { absolute: page.heading || 'MyGala' },
-    description: description || undefined,
-  };
+  return eventPageMetadata(page);
 }
 
 export async function generateStaticParams() {

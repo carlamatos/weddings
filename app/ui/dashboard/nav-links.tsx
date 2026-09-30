@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -14,6 +14,7 @@ const links = [
   { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
   // Free tier now, same as everything else.
   { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
 ];
 
 // Links only appear when a page is selected (pageId set), and point at that page.

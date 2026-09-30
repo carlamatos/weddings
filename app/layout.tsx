@@ -2,8 +2,10 @@ import '@/app/ui/global.css';
 import { inter } from '@/app/ui/fonts';
 import Script from 'next/script';
 import type { Metadata } from 'next';
+import { siteUrl } from '@/app/lib/site-url';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: {
     default: 'MyGala',
     template: '%s | MyGala',
