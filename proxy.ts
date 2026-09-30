@@ -26,6 +26,10 @@ export default function proxy(req: NextRequest) {
   return authMiddleware(req);
 }
 
+// Static files in public/ must skip the proxy: the auth callback redirects
+// signed-in users with no page yet to /dashboard/setup (which would turn every
+// image request on the setup screen into an HTML redirect), and custom-domain
+// requests would otherwise rewrite /images/... to /site/<host>.
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|.*\\.png$).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|.*\\.(?:png|jpe?g|gif|webp|avif|svg|ico|mp4|webm|mov|m4v|woff2?|ttf|otf|txt|xml|webmanifest)$).*)'],
 };
