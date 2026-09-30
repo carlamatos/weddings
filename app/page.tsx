@@ -27,8 +27,8 @@ export default async function Page() {
               <div className="nav-dropdown">
                 <a href="#theme-wedding">Weddings</a>
                 <a href="#theme-business">Business Events</a>
-                <a href="#theme-birthdays">Birthdays</a>
-                <a href="#theme-community">Community Celebrations</a>
+                <a href="#theme-birthdays">Celebrations</a>
+                <a href="#theme-community">General Events</a>
               </div>
             </div>
             <Link href="/about" className="nav-link">About Us</Link>
@@ -253,7 +253,7 @@ export default async function Page() {
             </div>
 
             <div className="theme-category" id="theme-birthdays">
-              <h3 className="theme-category-title reveal">Birthdays</h3>
+              <h3 className="theme-category-title reveal">Celebrations</h3>
               <div className="theme-grid">
                 <a href="/themes/alegria.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
@@ -292,7 +292,7 @@ export default async function Page() {
             </div>
 
             <div className="theme-category" id="theme-community">
-              <h3 className="theme-category-title reveal">Community</h3>
+              <h3 className="theme-category-title reveal">General Events</h3>
               <div className="theme-grid">
                 <a href="/themes/community.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#F6E0BD' }}>
