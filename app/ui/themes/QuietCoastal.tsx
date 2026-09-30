@@ -102,6 +102,8 @@ const css = `
   .qc .attend-options { display: flex; gap: 24px; margin-top: 8px; flex-wrap: wrap; }
   .qc .radio-label, .qc .check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); cursor: pointer; }
   .qc .radio-label input, .qc .check-label input { width: auto; border: none; border-bottom: none; padding: 0; accent-color: var(--ink); }
+  /* the generic input rule sets appearance: none, which would hide these */
+  .qc .radio-label input, .qc .check-label input { appearance: auto; -webkit-appearance: auto; width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
   .qc .check-hint { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
   .qc .rsvp-error { color: #A0524A; font-size: 13px; margin: 0; }
   .qc .rsvp-success { padding: 12px 0; }

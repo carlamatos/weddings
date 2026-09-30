@@ -117,6 +117,8 @@ const css = `
   .mb .attend-options { display: flex; gap: 24px; margin-top: 8px; flex-wrap: wrap; }
   .mb .radio-label, .mb .check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); cursor: pointer; }
   .mb .radio-label input, .mb .check-label input { width: auto; border: none; border-bottom: none; padding: 0; accent-color: var(--gold); }
+  /* the generic input rule sets appearance: none, which would hide these */
+  .mb .radio-label input, .mb .check-label input { appearance: auto; -webkit-appearance: auto; width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
   .mb .check-hint { font-size: 12px; color: var(--moss); margin: 4px 0 0; }
   .mb .rsvp-error { color: #B25A4A; font-size: 13px; margin: 0; }
   .mb .rsvp-success { padding: 12px 0; }
