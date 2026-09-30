@@ -8,7 +8,7 @@ import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -168,6 +168,56 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryLabel: 'The vibe',
+    howWeGotHere: "What's the party about",
+    eventProgram: 'Party Lineup',
+    theSchedule: "Don't miss a thing",
+    kindlyRespond: 'Are you in?',
+    registry: 'Wishlist',
+    viewRegistry: 'View wishlist',
+    noteForCouple: 'A note for the birthday crew',
+    noteForCouplePlaceholder: 'Hype, requests, anything we should know…',
+    buildOurPlaylist: 'Hype up the playlist',
+    untilWeSayIDo: 'Until we party',
+    withLove: 'See you on the dance floor,',
+    theCouple: 'the birthday crew',
+  },
+  fr: {
+    ourStoryLabel: "L'ambiance",
+    howWeGotHere: 'De quoi parle la fête',
+    eventProgram: 'Programme de la fête',
+    theSchedule: 'À ne pas manquer',
+    kindlyRespond: 'Tu viens?',
+    registry: 'Liste de souhaits',
+    viewRegistry: 'Voir la liste',
+    noteForCouple: "Un mot pour l'équipe d'anniversaire",
+    noteForCouplePlaceholder: 'Hype, demandes, autre chose à savoir…',
+    buildOurPlaylist: 'Boostez la playlist',
+    untilWeSayIDo: 'Avant la fête',
+    withLove: 'On se retrouve sur la piste de danse,',
+    theCouple: "l'équipe d'anniversaire",
+  },
+  es: {
+    ourStoryLabel: 'El ambiente',
+    howWeGotHere: 'De qué se trata la fiesta',
+    eventProgram: 'Programa de la fiesta',
+    theSchedule: 'No te lo pierdas',
+    kindlyRespond: '¿Vienes?',
+    registry: 'Lista de deseos',
+    viewRegistry: 'Ver la lista',
+    noteForCouple: 'Una nota para el equipo de cumpleaños',
+    noteForCouplePlaceholder: 'Ánimo, peticiones, algo más que debamos saber…',
+    buildOurPlaylist: 'Anima la playlist',
+    untilWeSayIDo: 'Hasta que empiece la fiesta',
+    withLove: 'Nos vemos en la pista de baile,',
+    theCouple: 'el equipo de cumpleaños',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "Let's get this party started", fr: 'La fête commence!', es: '¡Que empiece la fiesta!' };
+
 const Confetti = ({ center }: { center?: boolean }) => (
   <div className={`confetti${center ? ' center' : ''}`} aria-hidden="true">
     <span style={{ background: '#FF2E93' }} />
@@ -221,22 +271,7 @@ export default function FunParty({
   const base = getTranslations(language);
   // Fun Party reuses every shared form/section component as-is — only the
   // copy that's inherently bride/groom-flavored is overridden here.
-  const t: Translations = {
-    ...base,
-    ourStoryLabel: 'The vibe',
-    howWeGotHere: "What's the party about",
-    eventProgram: 'Party Lineup',
-    theSchedule: "Don't miss a thing",
-    kindlyRespond: 'Are you in?',
-    registry: 'Wishlist',
-    viewRegistry: 'View wishlist',
-    noteForCouple: 'A note for the birthday crew',
-    noteForCouplePlaceholder: 'Hype, requests, anything we should know…',
-    buildOurPlaylist: 'Hype up the playlist',
-    untilWeSayIDo: "Until we party",
-    withLove: 'See you on the dance floor,',
-    theCouple: 'the birthday crew',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -281,7 +316,7 @@ export default function FunParty({
         <div className="hero-overlay" />
         <div className="hero-content">
           <Confetti />
-          {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "Let's get this party started"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">

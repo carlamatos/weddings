@@ -9,7 +9,7 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -188,6 +188,41 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryLabel: 'A little about her',
+    howWeGotHere: 'Her story',
+    eventProgram: 'Celebration schedule',
+    noteForCouple: 'A note for the quinceañera',
+    noteForCouplePlaceholder: 'Share your wishes for her big day…',
+    registry: 'Gifts',
+    viewRegistry: 'View gifts',
+    untilWeSayIDo: 'Until the celebration begins',
+  },
+  fr: {
+    ourStoryLabel: 'Un peu sur elle',
+    howWeGotHere: 'Son histoire',
+    eventProgram: 'Programme de la célébration',
+    noteForCouple: 'Un mot pour la quinceañera',
+    noteForCouplePlaceholder: 'Partagez vos voeux pour son grand jour…',
+    registry: 'Cadeaux',
+    viewRegistry: 'Voir les cadeaux',
+    untilWeSayIDo: 'Avant le début de la célébration',
+  },
+  es: {
+    ourStoryLabel: 'Un poco sobre ella',
+    howWeGotHere: 'Su historia',
+    eventProgram: 'Programa de la celebración',
+    noteForCouple: 'Una nota para la quinceañera',
+    noteForCouplePlaceholder: 'Comparte tus deseos para su gran día…',
+    registry: 'Regalos',
+    viewRegistry: 'Ver regalos',
+    untilWeSayIDo: 'Hasta que comience la celebración',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: 'Join us in celebrating', fr: 'Rejoignez-nous pour célébrer', es: 'Únete a la celebración' };
+
 export default function Alegria({
   heading,
   description,
@@ -230,17 +265,7 @@ export default function Alegria({
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
-  const t: Translations = {
-    ...base,
-    ourStoryLabel: 'A little about her',
-    howWeGotHere: 'Her story',
-    eventProgram: 'Celebration schedule',
-    noteForCouple: 'A note for the quinceañera',
-    noteForCouplePlaceholder: 'Share your wishes for her big day…',
-    registry: 'Gifts',
-    viewRegistry: 'View gifts',
-    untilWeSayIDo: 'Until the celebration begins',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -285,7 +310,7 @@ export default function Alegria({
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="al-ring al-ring-right"><div className="al-ring-inner" /></div>
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Join us in celebrating'}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           <hr className="al-rule al-rule-right" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}

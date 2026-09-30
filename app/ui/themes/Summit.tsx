@@ -7,7 +7,7 @@ import RsvpForm from './RsvpForm';
 import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -170,6 +170,60 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+// Summit reuses every shared form/section component (RsvpForm, GuestPhotoSection,
+// SongRequestSection) as-is — only the copy that's inherently bride/groom-flavored
+// is overridden here, everything else (RSVP, Gallery, error/success strings) stays
+// exactly what translations.ts already provides.
+const OVERRIDES = {
+  en: {
+    ourStoryBtn: 'About the Event',
+    ourStoryLabel: 'About',
+    howWeGotHere: 'About the event',
+    eventProgram: 'Agenda',
+    kindlyRespond: "Let us know you're coming",
+    registry: 'Partners & Sponsors',
+    viewRegistry: 'Learn more',
+    noteForCouple: 'A note for the hosts',
+    noteForCouplePlaceholder: 'Dietary needs, questions, anything else we should know…',
+    songRequests: 'Music Requests',
+    buildOurPlaylist: 'Set the soundtrack',
+    withLove: 'See you there,',
+    theCouple: 'the team',
+  },
+  fr: {
+    ourStoryBtn: "À propos de l'événement",
+    ourStoryLabel: 'À propos',
+    howWeGotHere: "À propos de l'événement",
+    eventProgram: 'Programme',
+    kindlyRespond: 'Confirmez votre présence',
+    registry: 'Partenaires et sponsors',
+    viewRegistry: 'En savoir plus',
+    noteForCouple: 'Un mot pour les organisateurs',
+    noteForCouplePlaceholder: 'Besoins alimentaires, questions, autre chose à savoir…',
+    songRequests: 'Demandes musicales',
+    buildOurPlaylist: "Composez l'ambiance",
+    withLove: 'À bientôt,',
+    theCouple: "l'équipe",
+  },
+  es: {
+    ourStoryBtn: 'Sobre el evento',
+    ourStoryLabel: 'Sobre',
+    howWeGotHere: 'Sobre el evento',
+    eventProgram: 'Agenda',
+    kindlyRespond: 'Confirma tu asistencia',
+    registry: 'Socios y patrocinadores',
+    viewRegistry: 'Más información',
+    noteForCouple: 'Una nota para los organizadores',
+    noteForCouplePlaceholder: 'Necesidades alimentarias, preguntas, algo más que debamos saber…',
+    songRequests: 'Solicitudes de música',
+    buildOurPlaylist: 'Elige el ambiente',
+    withLove: 'Nos vemos allí,',
+    theCouple: 'el equipo',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "You're invited", fr: 'Vous êtes invités', es: 'Estás invitado' };
+
 const SummitDivider = () => (
   <div className="divider" aria-hidden="true">
     <span className="line" />
@@ -220,26 +274,7 @@ export default function Summit({
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
-  // Summit reuses every shared form/section component (RsvpForm, GuestPhotoSection,
-  // SongRequestSection) as-is — only the copy that's inherently bride/groom-flavored
-  // is overridden here, everything else (RSVP, Gallery, error/success strings) stays
-  // exactly what translations.ts already provides.
-  const t: Translations = {
-    ...base,
-    ourStoryBtn: 'About the Event',
-    ourStoryLabel: 'About',
-    howWeGotHere: 'About the event',
-    eventProgram: 'Agenda',
-    kindlyRespond: "Let us know you're coming",
-    registry: 'Partners & Sponsors',
-    viewRegistry: 'Learn more',
-    noteForCouple: 'A note for the hosts',
-    noteForCouplePlaceholder: 'Dietary needs, questions, anything else we should know…',
-    songRequests: 'Music Requests',
-    buildOurPlaylist: 'Set the soundtrack',
-    withLove: 'See you there,',
-    theCouple: 'the team',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -283,7 +318,7 @@ export default function Summit({
         )}
         <div className="hero-overlay" />
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "You're invited"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           <div className="hero-rule-top" />
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}

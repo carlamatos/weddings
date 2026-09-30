@@ -9,7 +9,7 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -212,6 +212,74 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryBtn: 'The Gathering',
+    ourStoryLabel: 'About',
+    howWeGotHere: 'Why we come together',
+    theDetails: 'The details',
+    dateAndLocation: 'Date & location',
+    theSchedule: "What's happening",
+    eventProgram: 'Program',
+    kindlyRespond: "Let us know you're coming",
+    memoriesSoFar: 'Together so far',
+    ourMoments: 'Community moments',
+    registry: 'Ways to help',
+    viewRegistry: 'Get involved',
+    countingDown: 'Counting down to',
+    untilWeSayIDo: 'Until we gather',
+    noteForCouple: 'A note for the organizers',
+    noteForCouplePlaceholder: 'Questions, ideas, anything we should know…',
+    buildOurPlaylist: 'Set the mood',
+    withLove: 'See you there,',
+    theCouple: 'the organizers',
+  },
+  fr: {
+    ourStoryBtn: 'Le rassemblement',
+    ourStoryLabel: 'À propos',
+    howWeGotHere: 'Pourquoi nous nous réunissons',
+    theDetails: 'Les détails',
+    dateAndLocation: 'Date et lieu',
+    theSchedule: 'Au programme',
+    eventProgram: 'Programme',
+    kindlyRespond: 'Confirmez votre présence',
+    memoriesSoFar: 'Déjà de beaux moments',
+    ourMoments: 'Moments communautaires',
+    registry: 'Comment aider',
+    viewRegistry: "S'impliquer",
+    countingDown: "Compte à rebours jusqu'à",
+    untilWeSayIDo: 'Avant le rassemblement',
+    noteForCouple: 'Un mot pour les organisateurs',
+    noteForCouplePlaceholder: 'Questions, idées, autre chose à savoir…',
+    buildOurPlaylist: "Composez l'ambiance",
+    withLove: 'À bientôt,',
+    theCouple: 'les organisateurs',
+  },
+  es: {
+    ourStoryBtn: 'La reunión',
+    ourStoryLabel: 'Sobre',
+    howWeGotHere: 'Por qué nos reunimos',
+    theDetails: 'Los detalles',
+    dateAndLocation: 'Fecha y lugar',
+    theSchedule: 'Qué está pasando',
+    eventProgram: 'Programa',
+    kindlyRespond: 'Confirma tu asistencia',
+    memoriesSoFar: 'Momentos hasta ahora',
+    ourMoments: 'Momentos comunitarios',
+    registry: 'Cómo ayudar',
+    viewRegistry: 'Participar',
+    countingDown: 'Cuenta regresiva hasta',
+    untilWeSayIDo: 'Hasta que nos reunamos',
+    noteForCouple: 'Una nota para los organizadores',
+    noteForCouplePlaceholder: 'Preguntas, ideas, algo más que debamos saber…',
+    buildOurPlaylist: 'Elige el ambiente',
+    withLove: 'Nos vemos allí,',
+    theCouple: 'los organizadores',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "You're part of it", fr: 'Vous en faites partie', es: 'Eres parte de esto' };
+
 export default function Community({
   heading,
   description,
@@ -254,28 +322,7 @@ export default function Community({
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
-  const t: Translations = {
-    ...base,
-    ourStoryBtn: 'The Gathering',
-    ourStoryLabel: 'About',
-    howWeGotHere: 'Why we come together',
-    theDetails: 'The details',
-    dateAndLocation: 'Date & location',
-    theSchedule: "What's happening",
-    eventProgram: 'Program',
-    kindlyRespond: "Let us know you're coming",
-    memoriesSoFar: 'Together so far',
-    ourMoments: 'Community moments',
-    registry: 'Ways to help',
-    viewRegistry: 'Get involved',
-    countingDown: 'Counting down to',
-    untilWeSayIDo: 'Until we gather',
-    noteForCouple: 'A note for the organizers',
-    noteForCouplePlaceholder: 'Questions, ideas, anything we should know…',
-    buildOurPlaylist: 'Set the mood',
-    withLove: 'See you there,',
-    theCouple: 'the organizers',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -321,7 +368,7 @@ export default function Community({
         <div className="hero-bunting-top"><CommunityBunting /></div>
         <div className="hero-content">
           <CommunityMark />
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "You're part of it"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">

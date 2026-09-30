@@ -314,6 +314,14 @@ export function getTranslations(language?: string): Translations {
   return map[language ?? 'en'] ?? en;
 }
 
+// For theme-specific copy overrides (and other small per-language literals,
+// like a hero eyebrow default) that aren't part of the shared Translations
+// shape above. `getTranslations` handles the generic strings; this handles
+// the bespoke ones each theme defines for itself.
+export function pickByLanguage<T>(dict: { en: T; fr: T; es: T }, language?: string): T {
+  return dict[(language as Language) ?? 'en'] ?? dict.en;
+}
+
 // Capitalizes day/month names in locales that output them lowercase (e.g. es-ES).
 // Skips short connector words like "de", "del", "du", "de la".
 export function localizeDate(dateStr: string, locale: string, options: Intl.DateTimeFormatOptions): string {

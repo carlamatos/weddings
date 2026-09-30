@@ -8,7 +8,7 @@ import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -170,6 +170,77 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryBtn: 'The Evening',
+    ourStoryLabel: 'About',
+    howWeGotHere: 'A night to remember',
+    theDetails: 'The details',
+    dateAndLocation: 'Date & venue',
+    theSchedule: 'Order of the evening',
+    eventProgram: 'Program',
+    kindlyRespond: 'Kindly RSVP',
+    memoriesSoFar: 'A glimpse inside',
+    ourMoments: 'The gallery',
+    registry: 'Partners & Sponsors',
+    viewRegistry: 'Learn more',
+    countingDown: 'Counting down to',
+    untilWeSayIDo: 'Until the evening begins',
+    noteForCouple: 'A note for the hosts',
+    noteForCouplePlaceholder: 'Dietary needs, questions, anything else we should know…',
+    songRequests: 'Music Requests',
+    buildOurPlaylist: 'Set the soundtrack',
+    withLove: 'With gratitude,',
+    theCouple: 'the hosts',
+  },
+  fr: {
+    ourStoryBtn: 'La soirée',
+    ourStoryLabel: 'À propos',
+    howWeGotHere: 'Une soirée mémorable',
+    theDetails: 'Les détails',
+    dateAndLocation: 'Date et lieu',
+    theSchedule: 'Déroulement de la soirée',
+    eventProgram: 'Programme',
+    kindlyRespond: 'Merci de confirmer',
+    memoriesSoFar: 'Un aperçu',
+    ourMoments: 'La galerie',
+    registry: 'Partenaires et sponsors',
+    viewRegistry: 'En savoir plus',
+    countingDown: "Compte à rebours jusqu'à",
+    untilWeSayIDo: 'Avant le début de la soirée',
+    noteForCouple: 'Un mot pour les hôtes',
+    noteForCouplePlaceholder: 'Besoins alimentaires, questions, autre chose à savoir…',
+    songRequests: 'Demandes musicales',
+    buildOurPlaylist: "Composez l'ambiance",
+    withLove: 'Avec gratitude,',
+    theCouple: 'les hôtes',
+  },
+  es: {
+    ourStoryBtn: 'La velada',
+    ourStoryLabel: 'Sobre',
+    howWeGotHere: 'Una noche para recordar',
+    theDetails: 'Los detalles',
+    dateAndLocation: 'Fecha y lugar',
+    theSchedule: 'Orden de la velada',
+    eventProgram: 'Programa',
+    kindlyRespond: 'Confirma tu asistencia',
+    memoriesSoFar: 'Un vistazo',
+    ourMoments: 'La galería',
+    registry: 'Socios y patrocinadores',
+    viewRegistry: 'Más información',
+    countingDown: 'Cuenta regresiva hasta',
+    untilWeSayIDo: 'Hasta que comience la velada',
+    noteForCouple: 'Una nota para los anfitriones',
+    noteForCouplePlaceholder: 'Necesidades alimentarias, preguntas, algo más que debamos saber…',
+    songRequests: 'Solicitudes de música',
+    buildOurPlaylist: 'Elige el ambiente',
+    withLove: 'Con gratitud,',
+    theCouple: 'los anfitriones',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "You're cordially invited", fr: 'Vous êtes cordialement invités', es: 'Estás cordialmente invitado' };
+
 export default function DinnerGala({
   heading,
   description,
@@ -212,29 +283,7 @@ export default function DinnerGala({
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
-  const t: Translations = {
-    ...base,
-    ourStoryBtn: 'The Evening',
-    ourStoryLabel: 'About',
-    howWeGotHere: 'A night to remember',
-    theDetails: 'The details',
-    dateAndLocation: 'Date & venue',
-    theSchedule: 'Order of the evening',
-    eventProgram: 'Program',
-    kindlyRespond: 'Kindly RSVP',
-    memoriesSoFar: 'A glimpse inside',
-    ourMoments: 'The gallery',
-    registry: 'Partners & Sponsors',
-    viewRegistry: 'Learn more',
-    countingDown: 'Counting down to',
-    untilWeSayIDo: 'Until the evening begins',
-    noteForCouple: 'A note for the hosts',
-    noteForCouplePlaceholder: 'Dietary needs, questions, anything else we should know…',
-    songRequests: 'Music Requests',
-    buildOurPlaylist: 'Set the soundtrack',
-    withLove: 'With gratitude,',
-    theCouple: 'the hosts',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -279,7 +328,7 @@ export default function DinnerGala({
         <div className="hero-overlay" />
         <div className="hero-content">
           <div className="dg-rule" />
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "You're cordially invited"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">

@@ -7,7 +7,7 @@ import RsvpForm from './RsvpForm';
 import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { HERO_DEFAULTS } from './hero-defaults';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -244,6 +244,65 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryBtn: 'The Mission',
+    ourStoryLabel: 'The mission',
+    howWeGotHere: "Why we're gathering",
+    theDetails: 'The details',
+    dateAndLocation: 'When & where',
+    eventProgram: 'Agenda',
+    theSchedule: "What's on deck",
+    kindlyRespond: 'Confirm your spot',
+    registry: 'Resources',
+    viewRegistry: 'View resource',
+    noteForCouple: 'A note for the organizers',
+    noteForCouplePlaceholder: 'Dietary needs, accessibility, questions…',
+    songRequests: 'Music Requests',
+    buildOurPlaylist: 'Set the mood',
+    withLove: 'See you there,',
+    theCouple: 'the team',
+  },
+  fr: {
+    ourStoryBtn: 'La mission',
+    ourStoryLabel: 'La mission',
+    howWeGotHere: 'Pourquoi nous nous réunissons',
+    theDetails: 'Les détails',
+    dateAndLocation: 'Quand et où',
+    eventProgram: 'Programme',
+    theSchedule: 'Au programme',
+    kindlyRespond: 'Confirmez votre présence',
+    registry: 'Ressources',
+    viewRegistry: 'Voir la ressource',
+    noteForCouple: 'Un mot pour les organisateurs',
+    noteForCouplePlaceholder: 'Besoins alimentaires, accessibilité, questions…',
+    songRequests: 'Demandes musicales',
+    buildOurPlaylist: "Composez l'ambiance",
+    withLove: 'À bientôt,',
+    theCouple: "l'équipe",
+  },
+  es: {
+    ourStoryBtn: 'La misión',
+    ourStoryLabel: 'La misión',
+    howWeGotHere: 'Por qué nos reunimos',
+    theDetails: 'Los detalles',
+    dateAndLocation: 'Cuándo y dónde',
+    eventProgram: 'Agenda',
+    theSchedule: 'Qué esperar',
+    kindlyRespond: 'Confirma tu lugar',
+    registry: 'Recursos',
+    viewRegistry: 'Ver recurso',
+    noteForCouple: 'Una nota para los organizadores',
+    noteForCouplePlaceholder: 'Necesidades alimentarias, accesibilidad, preguntas…',
+    songRequests: 'Solicitudes de música',
+    buildOurPlaylist: 'Elige el ambiente',
+    withLove: 'Nos vemos allí,',
+    theCouple: 'el equipo',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "You're invited", fr: 'Vous êtes invités', es: 'Estás invitado' };
+
 const NexusDivider = () => (
   <div className="nx-divider" aria-hidden="true">
     <span className="nx-divider-node">
@@ -302,25 +361,7 @@ export default function Nexus({
   const base = getTranslations(language);
   // Nexus reuses every shared form/section component as-is — only the copy
   // that's inherently bride/groom-flavored is overridden here.
-  const t: Translations = {
-    ...base,
-    ourStoryBtn: 'The Mission',
-    ourStoryLabel: 'The mission',
-    howWeGotHere: "Why we're gathering",
-    theDetails: 'The details',
-    dateAndLocation: 'When & where',
-    eventProgram: 'Agenda',
-    theSchedule: "What's on deck",
-    kindlyRespond: 'Confirm your spot',
-    registry: 'Resources',
-    viewRegistry: 'View resource',
-    noteForCouple: 'A note for the organizers',
-    noteForCouplePlaceholder: 'Dietary needs, accessibility, questions…',
-    songRequests: 'Music Requests',
-    buildOurPlaylist: 'Set the mood',
-    withLove: 'See you there,',
-    theCouple: 'the team',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -366,7 +407,7 @@ export default function Nexus({
         )}
         <div className="hero-overlay" />
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "You're invited"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">

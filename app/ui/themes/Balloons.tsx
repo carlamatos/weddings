@@ -9,7 +9,7 @@ import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -191,6 +191,89 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
+const OVERRIDES = {
+  en: {
+    ourStoryLabel: 'The guest of honor',
+    howWeGotHere: 'A little bit about them',
+    theDetails: 'Party info',
+    dateAndLocation: 'Date & location',
+    ceremony: 'Party time',
+    reception: 'Location',
+    theSchedule: 'What to expect',
+    eventProgram: 'Party schedule',
+    kindlyRespond: "Don't miss out",
+    rsvp: 'RSVP',
+    memoriesSoFar: 'Fun so far',
+    ourMoments: 'Party moments',
+    registry: 'Wish list',
+    viewRegistry: 'View wish list',
+    countingDown: 'Counting down to',
+    untilWeSayIDo: 'Until the party starts',
+    guestPhotos: 'Photo booth',
+    shareYourPhoto: 'Share a photo',
+    songRequests: 'Song requests',
+    buildOurPlaylist: 'Build the playlist',
+    noteForCouple: 'A wish for the celebration (optional)',
+    noteForCouplePlaceholder: 'Can’t wait to celebrate with you!',
+    getInTouch: 'Get in touch',
+    questions: 'Questions?',
+  },
+  fr: {
+    ourStoryLabel: "L'invité(e) d'honneur",
+    howWeGotHere: 'Un peu à leur sujet',
+    theDetails: 'Infos de la fête',
+    dateAndLocation: 'Date et lieu',
+    ceremony: "L'heure de la fête",
+    reception: 'Lieu',
+    theSchedule: "À quoi s'attendre",
+    eventProgram: 'Programme de la fête',
+    kindlyRespond: 'Ne manquez pas ça',
+    rsvp: 'RSVP',
+    memoriesSoFar: "Déjà de l'amusement",
+    ourMoments: 'Moments de fête',
+    registry: 'Liste de souhaits',
+    viewRegistry: 'Voir la liste',
+    countingDown: "Compte à rebours jusqu'à",
+    untilWeSayIDo: 'Avant le début de la fête',
+    guestPhotos: 'Photobooth',
+    shareYourPhoto: 'Partager une photo',
+    songRequests: 'Demandes de chansons',
+    buildOurPlaylist: 'Composez la playlist',
+    noteForCouple: 'Un voeu pour la célébration (facultatif)',
+    noteForCouplePlaceholder: "J'ai hâte de célébrer avec vous!",
+    getInTouch: 'Nous contacter',
+    questions: 'Des questions?',
+  },
+  es: {
+    ourStoryLabel: 'El homenajeado',
+    howWeGotHere: 'Un poco sobre él/ella',
+    theDetails: 'Información de la fiesta',
+    dateAndLocation: 'Fecha y lugar',
+    ceremony: 'Hora de la fiesta',
+    reception: 'Ubicación',
+    theSchedule: 'Qué esperar',
+    eventProgram: 'Programa de la fiesta',
+    kindlyRespond: 'No te lo pierdas',
+    rsvp: 'RSVP',
+    memoriesSoFar: 'La diversión hasta ahora',
+    ourMoments: 'Momentos de la fiesta',
+    registry: 'Lista de deseos',
+    viewRegistry: 'Ver la lista',
+    countingDown: 'Cuenta regresiva hasta',
+    untilWeSayIDo: 'Hasta que comience la fiesta',
+    guestPhotos: 'Photo booth',
+    shareYourPhoto: 'Compartir una foto',
+    songRequests: 'Solicitudes de canciones',
+    buildOurPlaylist: 'Armar la playlist',
+    noteForCouple: 'Un deseo para la celebración (opcional)',
+    noteForCouplePlaceholder: '¡No puedo esperar para celebrar contigo!',
+    getInTouch: 'Contacto',
+    questions: '¿Preguntas?',
+  },
+} satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
+
+const HERO_EYEBROW_DEFAULT = { en: "It's party time", fr: "C'est l'heure de la fête", es: 'Es hora de la fiesta' };
+
 export default function Balloons({
   heading,
   description,
@@ -233,33 +316,7 @@ export default function Balloons({
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
-  const t: Translations = {
-    ...base,
-    ourStoryLabel: 'The guest of honor',
-    howWeGotHere: 'A little bit about them',
-    theDetails: 'Party info',
-    dateAndLocation: 'Date & location',
-    ceremony: 'Party time',
-    reception: 'Location',
-    theSchedule: 'What to expect',
-    eventProgram: 'Party schedule',
-    kindlyRespond: "Don't miss out",
-    rsvp: 'RSVP',
-    memoriesSoFar: 'Fun so far',
-    ourMoments: 'Party moments',
-    registry: 'Wish list',
-    viewRegistry: 'View wish list',
-    countingDown: 'Counting down to',
-    untilWeSayIDo: 'Until the party starts',
-    guestPhotos: 'Photo booth',
-    shareYourPhoto: 'Share a photo',
-    songRequests: 'Song requests',
-    buildOurPlaylist: 'Build the playlist',
-    noteForCouple: 'A wish for the celebration (optional)',
-    noteForCouplePlaceholder: 'Can’t wait to celebrate with you!',
-    getInTouch: 'Get in touch',
-    questions: 'Questions?',
-  };
+  const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
 
@@ -307,7 +364,7 @@ export default function Balloons({
         <img className="hero-balloons" src="/images/themes/balloons/hero-balloons.png" alt="" />
         <div className="hero-content">
           <Confetti style={{ justifyContent: 'center', display: 'flex' }} />
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || "It's party time"}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
           <div className="hero-actions">
