@@ -122,3 +122,22 @@ export type EventProgramItem = {
   end_time: string | null;
   location: string | null;
 };
+
+// Plus: owner-written sections (see app/lib/custom-sections.ts).
+export type CustomSectionBlock =
+  | { type: 'text'; text: string }
+  | { type: 'image'; url: string; alt?: string };
+
+export type CustomSection = {
+  position: number; // 1..3, the order on the page
+  title: string; // optional; '' hides the heading
+  blocks: CustomSectionBlock[];
+};
+
+export type Sponsor = {
+  id: string;
+  user_page_id: number;
+  image_url: string | null;
+  description: string | null;
+  position: number;
+};

@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -125,6 +125,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
   if (!data) notFound();
+  const plusContent = await fetchPlusContent(data.id, isPaid, pageSettings);
 
   const isOwner = session?.user?.id === data.user_id;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -187,6 +188,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        customSections={plusContent.customSections}
+        sponsors={plusContent.sponsors}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

@@ -11,6 +11,7 @@ import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -370,6 +371,8 @@ export default function Nexus({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -495,6 +498,17 @@ export default function Nexus({
         </>
       )}
 
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <Reveal key={`custom-${section.position}`}>
+          <div className="section section-center">
+            <div className="wrap">
+              <CustomSectionContent section={section} titleClassName="section-title" textStyle={{ fontFamily: 'var(--nx-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'var(--nx-text-soft)' }} />
+            </div>
+          </div>
+        </Reveal>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
@@ -577,6 +591,19 @@ export default function Nexus({
             </div>
           </Reveal>
         </>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <Reveal>
+          <div className="section section-center">
+            <div className="wrap-wide">
+              <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" icon={<Icon name="users" />} fallback={t.sponsorsLabel} />
+              <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="section-title" fallback={t.ourSponsors} />
+              <SponsorGrid sponsors={sponsors} cardStyle={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.14)' }} textStyle={{ color: 'var(--nx-text-soft)' }} />
+            </div>
+          </div>
+        </Reveal>
       )}
 
       {/* GUEST PHOTOS */}

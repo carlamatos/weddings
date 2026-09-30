@@ -1,4 +1,4 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -38,6 +38,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
 
+  const plusContent = await fetchPlusContent(pageId, isPaid, pageSettings);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   // Build the date display string the same way each theme would
@@ -173,6 +174,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        customSections={plusContent.customSections}
+        sponsors={plusContent.sponsors}
         sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}

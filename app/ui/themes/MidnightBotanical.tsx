@@ -8,6 +8,7 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -185,6 +186,8 @@ export default function MidnightBotanical({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -298,6 +301,13 @@ export default function MidnightBotanical({
         </div>
       )}
 
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="spine-section" key={`custom-${section.position}`}>
+          <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)' }} />
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="spine-section wide">
@@ -358,6 +368,15 @@ export default function MidnightBotanical({
               </a>
             )}
           </div>
+        </div>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="spine-section wide">
+          <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel} />
+          <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="title" fallback={t.ourSponsors} />
+          <SponsorGrid sponsors={sponsors} align="left" textStyle={{ color: 'var(--moss)' }} />
         </div>
       )}
 

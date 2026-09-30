@@ -16,7 +16,11 @@ import { headers } from 'next/headers';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt } from './rate-limit';
 
-import { DBUser, EventProgramItem } from './definitions';
+import { DBUser, EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
+import {
+  CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
+  isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
+} from './custom-sections';
 import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
@@ -357,6 +361,153 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
   } catch (error) {
     console.error('Failed to update share hashtag:', error);
     return null;
+  }
+}
+
+// ─── Custom sections & sponsors (Plus) ─────────────────────
+// Every action checks, in the same query, that the page belongs to the
+// signed-in user and is on a paid plan.
+
+type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
+
+const PLUS_ONLY_ERROR = 'Custom sections and sponsors are a Plus feature.';
+const GENERIC_PLUS_ERROR = 'Couldn’t save. Please try again.';
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// The page id when the signed-in user owns this page and it's paid, else an error.
+async function ownedPlusPageId(pageId: number): Promise<PlusResult<number>> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+  if (!page.rows[0]) return { ok: false, error: 'Page not found.' };
+  if (page.rows[0].plan_type !== 'paid') return { ok: false, error: PLUS_ONLY_ERROR };
+  return { ok: true, value: pid };
+}
+
+// Saves one of the three custom sections. Saving it empty (no title, no
+// blocks) removes it, which hides it from the page.
+export async function saveCustomSection(
+  pageId: number,
+  position: number,
+  data: { title: string; blocks: CustomSectionBlock[] },
+): Promise<PlusResult<CustomSection>> {
+  if (!isValidSectionPosition(position)) return { ok: false, error: 'Unknown section.' };
+  const title = (typeof data?.title === 'string' ? data.title : '').replace(/\s+/g, ' ').trim().slice(0, CUSTOM_SECTION_TITLE_MAX);
+  const blocks = normalizeBlocks(data?.blocks);
+  if (!blocks) return { ok: false, error: 'Some of the content couldn’t be saved. Please check it and try again.' };
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    if (!title && !blocks.length) {
+      await sql`DELETE FROM page_custom_sections WHERE user_page_id = ${owned.value} AND position = ${position}`;
+    } else {
+      await sql`
+        INSERT INTO page_custom_sections (user_page_id, position, title, blocks)
+        VALUES (${owned.value}, ${position}, ${title}, ${JSON.stringify(blocks)}::jsonb)
+        ON CONFLICT (user_page_id, position)
+        DO UPDATE SET title = EXCLUDED.title, blocks = EXCLUDED.blocks, updated_at = NOW()
+      `;
+    }
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { position, title, blocks } };
+  } catch (error) {
+    console.error('Failed to save custom section:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+function cleanSponsorInput(data: { imageUrl?: string | null; description?: string | null }): PlusResult<{ imageUrl: string | null; description: string | null }> {
+  const imageUrl = data?.imageUrl || null;
+  if (imageUrl !== null && !isUploadedImageUrl(imageUrl)) return { ok: false, error: 'That image couldn’t be used. Please upload it again.' };
+  const description = (typeof data?.description === 'string' ? data.description : '').replace(/\r\n/g, '\n').trim().slice(0, SPONSOR_DESCRIPTION_MAX) || null;
+  if (!imageUrl && !description) return { ok: false, error: 'Add an image or a short description.' };
+  return { ok: true, value: { imageUrl, description } };
+}
+
+export async function addSponsor(
+  pageId: number,
+  data: { imageUrl?: string | null; description?: string | null },
+): Promise<PlusResult<Sponsor>> {
+  const input = cleanSponsorInput(data);
+  if (!input.ok) return input;
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const count = await sql`SELECT COUNT(*)::int AS n, COALESCE(MAX(position), 0)::int AS last FROM page_sponsors WHERE user_page_id = ${owned.value}`;
+    if (count.rows[0].n >= SPONSOR_MAX_COUNT) return { ok: false, error: `You can add up to ${SPONSOR_MAX_COUNT} sponsors.` };
+    const result = await sql<Sponsor>`
+      INSERT INTO page_sponsors (user_page_id, image_url, description, position)
+      VALUES (${owned.value}, ${input.value.imageUrl}, ${input.value.description}, ${count.rows[0].last + 1})
+      RETURNING id, user_page_id, image_url, description, position
+    `;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: result.rows[0] };
+  } catch (error) {
+    console.error('Failed to add sponsor:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+export async function updateSponsor(
+  pageId: number,
+  sponsorId: string,
+  data: { imageUrl?: string | null; description?: string | null },
+): Promise<PlusResult<Sponsor>> {
+  if (typeof sponsorId !== 'string' || !UUID_RE.test(sponsorId)) return { ok: false, error: 'Sponsor not found.' };
+  const input = cleanSponsorInput(data);
+  if (!input.ok) return input;
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const result = await sql<Sponsor>`
+      UPDATE page_sponsors SET image_url = ${input.value.imageUrl}, description = ${input.value.description}
+      WHERE id = ${sponsorId} AND user_page_id = ${owned.value}
+      RETURNING id, user_page_id, image_url, description, position
+    `;
+    if (!result.rows[0]) return { ok: false, error: 'Sponsor not found.' };
+    revalidatePath('/', 'layout');
+    return { ok: true, value: result.rows[0] };
+  } catch (error) {
+    console.error('Failed to update sponsor:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+export async function deleteSponsor(pageId: number, sponsorId: string): Promise<PlusResult<null>> {
+  if (typeof sponsorId !== 'string' || !UUID_RE.test(sponsorId)) return { ok: false, error: 'Sponsor not found.' };
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`DELETE FROM page_sponsors WHERE id = ${sponsorId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to delete sponsor:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Saves a new sponsor order: `orderedIds` is every sponsor id, first to last.
+export async function reorderSponsors(pageId: number, orderedIds: string[]): Promise<PlusResult<null>> {
+  if (!Array.isArray(orderedIds) || orderedIds.length > SPONSOR_MAX_COUNT || !orderedIds.every((id) => typeof id === 'string' && UUID_RE.test(id))) {
+    return { ok: false, error: 'Couldn’t reorder the sponsors.' };
+  }
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql.query(
+      `UPDATE page_sponsors s SET position = o.ord
+       FROM unnest($1::uuid[]) WITH ORDINALITY AS o(id, ord)
+       WHERE s.id = o.id AND s.user_page_id = $2`,
+      [orderedIds, owned.value],
+    );
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to reorder sponsors:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }
 

@@ -72,13 +72,31 @@ export async function findPurgeCandidates(
   return r.rows as unknown as PurgeCandidate[];
 }
 
+// Tables holding a page's own rows. Listed explicitly (rather than relying on
+// ON DELETE CASCADE) so their contents are captured first: that's how the
+// purge finds the page's storage files, such as sponsor and section images.
+const PAGE_TABLES = [
+  'user_page_settings', 'event_gallery', 'event_guests', 'guests_photos', 'guests_songs',
+  'event_program', 'page_custom_sections', 'page_sponsors',
+];
+
+// Tables added by /api/migrate may not exist yet in every environment.
+async function tableExists(client: DbClient, table: string): Promise<boolean> {
+  const r = await client.query('SELECT to_regclass($1::text) IS NOT NULL AS ok', [table]);
+  return r.rows[0]?.ok === true;
+}
+
 // Everything the page owns, as JSON — used to find its storage files and to
 // record what was removed.
 export async function loadPageContents(client: DbClient, pageId: number): Promise<Record<string, Row[]>> {
   const out: Record<string, Row[]> = {};
   const page = await client.query('SELECT to_jsonb(t) AS j FROM user_page t WHERE id = $1', [pageId]);
   out.user_page = page.rows.map((row) => row.j as Row);
-  for (const table of ['user_page_settings', 'event_gallery', 'event_guests', 'guests_photos', 'guests_songs']) {
+  for (const table of PAGE_TABLES) {
+    if (!(await tableExists(client, table))) {
+      out[table] = [];
+      continue;
+    }
     const r = await client.query(`SELECT to_jsonb(t) AS j FROM ${table} t WHERE user_page_id = $1`, [pageId]);
     out[table] = r.rows.map((row) => row.j as Row);
   }
@@ -88,7 +106,8 @@ export async function loadPageContents(client: DbClient, pageId: number): Promis
 // Removes the page and everything hanging off it. The user's account and any
 // other pages they own are untouched.
 export async function deletePageRows(client: DbClient, pageId: number): Promise<void> {
-  for (const table of ['guests_photos', 'guests_songs', 'event_guests', 'event_gallery', 'user_page_settings']) {
+  for (const table of [...PAGE_TABLES].reverse()) {
+    if (!(await tableExists(client, table))) continue;
     await client.query(`DELETE FROM ${table} WHERE user_page_id = $1`, [pageId]);
   }
   const gone = await client.query('DELETE FROM user_page WHERE id = $1 RETURNING id', [pageId]);

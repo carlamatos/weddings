@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -15,6 +15,8 @@ const links = [
   { name: 'Reminders', section: '/reminders', icon: BellAlertIcon, paidOnly: false, greyOutIfFree: true },
   // Free tier now, same as everything else.
   { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Sponsors', section: '/sponsors', icon: TrophyIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
 ];
 

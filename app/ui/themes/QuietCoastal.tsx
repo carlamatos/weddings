@@ -8,6 +8,7 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -169,6 +170,8 @@ export default function QuietCoastal({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -301,6 +304,15 @@ export default function QuietCoastal({
 
       <hr className="hairline" />
 
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="wrap" key={`custom-${section.position}`}>
+          <div className="section">
+            <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
@@ -378,6 +390,17 @@ export default function QuietCoastal({
           </div>
           <hr className="hairline" />
         </>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="wrap">
+          <div className="section">
+            <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel.toLowerCase()} />
+            <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="title" fallback={t.ourSponsors.toLowerCase()} />
+            <SponsorGrid sponsors={sponsors} align="left" textStyle={{ color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
       )}
 
       {/* GUEST PHOTOS */}

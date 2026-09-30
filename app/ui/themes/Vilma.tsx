@@ -9,6 +9,7 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -235,6 +236,8 @@ export default function Vilma({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -372,6 +375,15 @@ export default function Vilma({
         </div>
       )}
 
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="section section-center" key={`custom-${section.position}`}>
+          <div className="wrap">
+            <CustomSectionContent section={section} titleClassName="section-title" textStyle={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)' }} />
+          </div>
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="section section-center">
@@ -440,6 +452,17 @@ export default function Vilma({
                 {registryButtonText || t.viewRegistry}
               </a>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="section section-center">
+          <div className="wrap-wide">
+            <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel} />
+            <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="section-title" fallback={t.ourSponsors} />
+            <SponsorGrid sponsors={sponsors} textStyle={{ color: 'var(--vl-ink-soft)' }} />
           </div>
         </div>
       )}

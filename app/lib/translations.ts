@@ -30,6 +30,9 @@ export interface Translations {
   // Registry section
   registry: string;
   viewRegistry: string;
+  // Sponsors section (Plus)
+  sponsorsLabel: string;
+  ourSponsors: string;
   // Footer
   getInTouch: string;
   questions: string;
@@ -114,6 +117,8 @@ const en: Translations = {
   ourMoments: 'Our moments',
   registry: 'Registry',
   viewRegistry: 'View Registry',
+  sponsorsLabel: 'With thanks to',
+  ourSponsors: 'Our sponsors',
   getInTouch: 'Get in touch',
   questions: 'Questions?',
   theCouple: 'the couple',
@@ -192,6 +197,8 @@ const fr: Translations = {
   ourMoments: 'Nos moments',
   registry: 'Liste de mariage',
   viewRegistry: 'Voir la liste',
+  sponsorsLabel: 'Merci à',
+  ourSponsors: 'Nos commanditaires',
   getInTouch: 'Nous contacter',
   questions: 'Des questions?',
   theCouple: 'les mariés',
@@ -270,6 +277,8 @@ const es: Translations = {
   ourMoments: 'Nuestros momentos',
   registry: 'Lista de bodas',
   viewRegistry: 'Ver la lista',
+  sponsorsLabel: 'Gracias a',
+  ourSponsors: 'Nuestros patrocinadores',
   getInTouch: 'Contactos',
   questions: '¿Preguntas?',
   theCouple: 'los novios',

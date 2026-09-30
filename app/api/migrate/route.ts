@@ -21,6 +21,30 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'antique-cars')
   `;
 
+  // Plus: up to three owner-written sections per page (optional title plus a
+  // JSON list of text/image blocks) and a sponsors list.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_custom_sections (
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      position SMALLINT NOT NULL CHECK (position BETWEEN 1 AND 3),
+      title TEXT NOT NULL DEFAULT '',
+      blocks JSONB NOT NULL DEFAULT '[]'::jsonb,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_page_id, position)
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_sponsors (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      image_url TEXT,
+      description TEXT,
+      position INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_sponsors_page ON page_sponsors (user_page_id, position)`;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 

@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -7,6 +8,7 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -215,6 +217,8 @@ export default function TerracottaHarvest({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -329,6 +333,16 @@ export default function TerracottaHarvest({
         </>
       )}
 
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <Fragment key={`custom-${section.position}`}>
+          <div className="section">
+            <CustomSectionContent section={section} titleClassName="section-title" textClassName="story-text" />
+          </div>
+          <BandDivider thin />
+        </Fragment>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
@@ -399,6 +413,18 @@ export default function TerracottaHarvest({
                 </a>
               )}
             </div>
+          </div>
+          <BandDivider thin />
+        </>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <>
+          <div className="section-wide">
+            <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="section-label" fallback={t.sponsorsLabel} />
+            <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="section-title" fallback={t.ourSponsors} />
+            <SponsorGrid sponsors={sponsors} textStyle={{ color: 'var(--ink-soft)' }} />
           </div>
           <BandDivider thin />
         </>
