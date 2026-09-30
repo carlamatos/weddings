@@ -5,6 +5,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
 import { createUserPage, UserPageState } from '../lib/actions';
 import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
+import { DatePicker, TimePicker } from './date-time-pickers';
 import { themesByCategory } from './themes/registry';
 import type { EventCategory } from './themes/types';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
@@ -178,16 +179,16 @@ export default function Form() {
           <div className="auth-field">
             <label className="auth-label" htmlFor="eventDate">Event Date</label>
             <div className="auth-input-wrap">
-              <input className="auth-input" id="eventDate" type="date" name="eventDate"
-                value={formData.eventDate} onChange={handleChange} required />
+              <DatePicker id="eventDate" name="eventDate" value={formData.eventDate}
+                onChange={(v) => setFormData(prev => ({ ...prev, eventDate: v }))} required />
             </div>
             {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
           </div>
           <div className="auth-field">
             <label className="auth-label" htmlFor="eventTime">Event Time</label>
             <div className="auth-input-wrap">
-              <input className="auth-input" id="eventTime" type="time" name="eventTime"
-                value={formData.eventTime} onChange={handleChange} required />
+              <TimePicker id="eventTime" name="eventTime" value={formData.eventTime}
+                onChange={(v) => setFormData(prev => ({ ...prev, eventTime: v }))} required />
             </div>
           </div>
         </div>
