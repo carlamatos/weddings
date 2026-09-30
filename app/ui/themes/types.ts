@@ -60,5 +60,9 @@ export interface ThemeProps {
   showSongRequests?: boolean;
   showGuestPhotos?: boolean;
   showRsvp?: boolean;
+  showShare?: boolean;
+  shareHashtag?: string; // normalized, no leading '#'
+  shareUrl?: string; // public URL the share buttons send
+
   isLoggedIn?: boolean;
 }

@@ -6,6 +6,7 @@ import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -120,6 +121,12 @@ const css = `
   .mb .rsvp-success { padding: 12px 0; }
   .mb .rsvp-headline { font-family: var(--font-serif); font-style: italic; font-size: 20px; color: var(--ink); margin: 0 0 8px; }
   .mb .rsvp-sub { font-size: 14px; color: var(--moss); margin: 0; }
+  /* share / hashtag band (ShareSection) */
+  .mb .share-band { padding: 80px 24px; background: var(--forest); text-align: center; }
+  .mb .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .mb .share-hashtag { font-family: var(--font-serif); font-size: clamp(24px, 4vw, 30px); color: var(--gold); margin: 0 0 28px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; overflow-wrap: anywhere; }
+  .mb .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
+  .mb .share-band .btn-outline { border-color: rgba(201,167,93,0.6); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -171,6 +178,9 @@ export default function MidnightBotanical({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -378,6 +388,11 @@ export default function MidnightBotanical({
             />
           </div>
         </div>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

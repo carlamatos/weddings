@@ -9,6 +9,7 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -235,6 +236,11 @@ const css = `
   .nx .footer-rule { width: 40px; height: 1px; background: var(--nx-accent); margin: 24px auto; border: none; }
   .nx .footer-signoff { font-family: var(--nx-font-display); font-size: 18px; font-weight: 700; color: var(--nx-accent); margin: 0; }
   .nx .footer-credit { font-family: var(--nx-font-sans); font-size: 11px; color: var(--nx-text-soft); opacity: 0.7; margin-top: 24px; letter-spacing: 0.3px; }
+  /* share / hashtag band (ShareSection) */
+  .nx .share-band { padding: 88px 24px; background: var(--nx-bg-softer); text-align: center; }
+  .nx .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .nx .share-hashtag { font-family: var(--nx-font-display); font-size: clamp(26px, 4vw, 36px); color: var(--nx-accent); margin: 0 0 28px; font-weight: 600; letter-spacing: -0.3px; overflow-wrap: anywhere; }
+  .nx .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -359,6 +365,9 @@ export default function Nexus({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -611,6 +620,11 @@ export default function Nexus({
             </div>
           </Reveal>
         </>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow teal" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

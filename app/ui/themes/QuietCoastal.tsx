@@ -6,6 +6,7 @@ import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -105,6 +106,11 @@ const css = `
   .qc .rsvp-success { padding: 12px 0; }
   .qc .rsvp-headline { font-size: 20px; color: var(--ink); margin: 0 0 8px; letter-spacing: -0.3px; }
   .qc .rsvp-sub { font-size: 14px; color: var(--ink-soft); margin: 0; }
+  /* share / hashtag band (ShareSection) */
+  .qc .share-band { padding: 80px 24px; background: var(--chalk); text-align: center; }
+  .qc .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .qc .share-hashtag { font-family: var(--font-sans); font-size: clamp(24px, 4vw, 32px); color: var(--sage-deep); margin: 0 0 28px; font-weight: 400; letter-spacing: 1px; overflow-wrap: anywhere; }
+  .qc .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -156,6 +162,9 @@ export default function QuietCoastal({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -399,6 +408,11 @@ export default function QuietCoastal({
             />
           </div>
         </>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" lowercase />
       )}
 
       {/* FOOTER */}

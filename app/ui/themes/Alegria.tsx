@@ -11,6 +11,7 @@ import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -179,6 +180,14 @@ const css = `
   .al .footer-rule { width: 40px; height: 1px; background: var(--al-gold); margin: 22px auto; border: none; }
   .al .footer-signoff { font-family: var(--al-font-script); font-size: 42px !important; font-weight: 400; color: #FFFFFF; margin: 0; }
   .al .footer-credit { font-family: var(--al-font-sans); font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 24px; letter-spacing: 0.5px; }
+  /* share / hashtag band (ShareSection) */
+  .al .share-band { padding: 84px 24px; background: var(--al-lilac); text-align: center; }
+  .al .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .al .share-hashtag { font-family: var(--al-font-script); font-size: clamp(34px, 5vw, 44px); color: var(--al-ink); margin: 0 0 28px; font-weight: 400; overflow-wrap: anywhere; }
+  .al .share-band .eyebrow { color: var(--al-ink-soft); }
+  .al .share-band .btn-outline { color: var(--al-ink); border-color: var(--al-lilac-deep); }
+  .al .share-band .btn-outline:hover { background: rgba(255,255,255,0.45); }
+  .al .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); font-family: var(--al-font-serif); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -265,6 +274,9 @@ export default function Alegria({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -511,6 +523,11 @@ export default function Alegria({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

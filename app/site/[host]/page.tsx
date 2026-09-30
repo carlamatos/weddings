@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { eventPageMetadata } from '@/app/lib/share';
+import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 
@@ -35,6 +36,8 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
+  const showShare = isSectionOn(pageSettings, 'show_share');
+  const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -80,6 +83,9 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       showSongRequests={showSongRequests}
       showGuestPhotos={showGuestPhotos}
       showRsvp={showRsvp}
+        showShare={showShare}
+        shareHashtag={shareHashtag}
+        shareUrl={publicPageUrl(data)}
     />
   );
 }

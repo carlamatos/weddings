@@ -1,11 +1,12 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { eventPageMetadata } from '@/app/lib/share';
+import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
 import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 
@@ -43,6 +44,7 @@ interface EventData {
   plan_type?: string;
   status?: string;
   user_phone?: string;
+  share_url: string;
 }
 
 async function fetchEventData(slug: string): Promise<EventData | null> {
@@ -82,6 +84,7 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     plan_type: res.plan_type || undefined,
     status: res.status || 'active',
     user_phone: res.user_phone || undefined,
+    share_url: publicPageUrl(res),
   };
 }
 
@@ -117,6 +120,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
+  const showShare = isSectionOn(pageSettings, 'show_share');
+  const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   if (!data) notFound();
 
   const isOwner = session?.user?.id === data.user_id;
@@ -177,6 +182,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         showSongRequests={showSongRequests}
         showGuestPhotos={showGuestPhotos}
         showRsvp={showRsvp}
+        showShare={showShare}
+        shareHashtag={shareHashtag}
+        shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />
     </>

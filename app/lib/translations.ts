@@ -73,6 +73,11 @@ export interface Translations {
   beFirstToShare: string;
   photoUploaded: string;
   photoUploadError: string;
+  // Share / hashtag section
+  tagYourPosts: string;
+  shareThisEvent: string;
+  copyLink: string;
+  linkCopied: string;
   // Song requests
   songRequests: string;
   buildOurPlaylist: string;
@@ -146,6 +151,10 @@ const en: Translations = {
   shareYourPhoto: 'Upload Photos',
   loadMore: 'Load more',
   beFirstToShare: 'Be the first to share a photo!',
+  tagYourPosts: 'Tag your posts',
+  shareThisEvent: 'Share this event',
+  copyLink: 'Copy link',
+  linkCopied: 'Link copied',
   photoUploaded: 'Photo shared — thank you!',
   photoUploadError: 'Upload failed. Please try again.',
   songRequests: 'Song Requests',
@@ -220,6 +229,10 @@ const fr: Translations = {
   shareYourPhoto: 'Télécharger une photo',
   loadMore: 'Charger plus',
   beFirstToShare: 'Soyez le premier à partager une photo!',
+  tagYourPosts: 'Identifiez vos publications',
+  shareThisEvent: 'Partagez cet événement',
+  copyLink: 'Copier le lien',
+  linkCopied: 'Lien copié',
   photoUploaded: 'Photo partagée — merci!',
   photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
   songRequests: 'Demandes de chansons',
@@ -294,6 +307,10 @@ const es: Translations = {
   shareYourPhoto: 'Subir Fotos',
   loadMore: 'Cargar más',
   beFirstToShare: '¡Sé el primero en compartir una foto!',
+  tagYourPosts: 'Etiqueta tus publicaciones',
+  shareThisEvent: 'Comparte este evento',
+  copyLink: 'Copiar enlace',
+  linkCopied: 'Enlace copiado',
   photoUploaded: 'Foto compartida — ¡gracias!',
   photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
   songRequests: 'Solicitudes de canciones',

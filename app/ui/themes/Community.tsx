@@ -11,6 +11,7 @@ import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -203,6 +204,11 @@ const css = `
   .cm .footer-inner { padding-top: 64px; }
   .cm .footer-signoff { font-family: var(--cm-font-display); font-size: 38px !important; font-weight: 600; color: #FFFFFF; margin: 22px 0 0; }
   .cm .footer-credit { font-family: var(--cm-font-sans); font-size: 11px; color: rgba(255,255,255,0.55); margin-top: 24px; letter-spacing: 0.5px; }
+  /* share / hashtag band (ShareSection) */
+  .cm .share-band { padding: 84px 24px; background: var(--cm-teal); text-align: center; }
+  .cm .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .cm .share-hashtag { font-family: var(--cm-font-display); font-size: clamp(28px, 4vw, 38px); color: var(--cm-cream); margin: 0 0 28px; font-weight: 600; overflow-wrap: anywhere; }
+  .cm .share-hashtag--url { font-size: clamp(18px, 3vw, 24px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -322,6 +328,9 @@ export default function Community({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -565,6 +574,11 @@ export default function Community({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" />
       )}
 
       {/* FOOTER */}

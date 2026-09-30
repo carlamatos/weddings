@@ -10,6 +10,7 @@ import { Countdown } from './Countdown';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -161,6 +162,11 @@ const css = `
   .dg .footer p { font-size: 14px; color: rgba(243,236,221,0.75); margin: 0 0 4px; }
   .dg .footer-signoff { font-family: var(--dg-font-display); font-size: 36px !important; font-weight: 600; color: var(--dg-cream); margin: 26px 0 0; }
   .dg .footer-credit { font-family: var(--dg-font-sans); font-size: 11px; color: rgba(243,236,221,0.4); margin-top: 26px; letter-spacing: 0.5px; }
+  /* share / hashtag band (ShareSection) */
+  .dg .share-band { padding: 90px 24px; background: var(--dg-bg-alt); text-align: center; }
+  .dg .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .dg .share-hashtag { font-family: var(--dg-font-display); font-size: clamp(28px, 4vw, 40px); color: var(--dg-gold); margin: 0 0 28px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; overflow-wrap: anywhere; }
+  .dg .share-hashtag--url { font-size: clamp(20px, 3vw, 26px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -283,6 +289,9 @@ export default function DinnerGala({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -532,6 +541,11 @@ export default function DinnerGala({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

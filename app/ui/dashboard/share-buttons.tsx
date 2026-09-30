@@ -6,7 +6,7 @@ import { EnvelopeIcon, ChatBubbleLeftIcon, LinkIcon, CheckIcon, ArrowUpOnSquareI
 type Network = {
   name: string;
   color: string;
-  href: (p: { url: string; title: string; text: string; image: string }) => string;
+  href: (p: { url: string; title: string; text: string; shareImage: string; hashtag?: string }) => string;
 };
 
 const enc = encodeURIComponent;
@@ -15,12 +15,12 @@ const enc = encodeURIComponent;
 // (banner image, title, description) from the page's Open Graph tags;
 // Pinterest is the exception and takes the image explicitly.
 const NETWORKS: Network[] = [
-  { name: 'Facebook', color: '#1877F2', href: ({ url }) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
-  { name: 'X', color: '#000000', href: ({ url, title }) => `https://x.com/intent/post?url=${enc(url)}&text=${enc(title)}` },
+  { name: 'Facebook', color: '#1877F2', href: ({ url, hashtag }) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}${hashtag ? `&hashtag=${enc(`#${hashtag}`)}` : ''}` },
+  { name: 'X', color: '#000000', href: ({ url, title, hashtag }) => `https://x.com/intent/post?url=${enc(url)}&text=${enc(title)}${hashtag ? `&hashtags=${enc(hashtag)}` : ''}` },
   { name: 'WhatsApp', color: '#25D366', href: ({ text }) => `https://wa.me/?text=${enc(text)}` },
   { name: 'Messenger', color: '#0084FF', href: ({ url }) => `fb-messenger://share/?link=${enc(url)}` },
   { name: 'LinkedIn', color: '#0A66C2', href: ({ url }) => `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}` },
-  { name: 'Pinterest', color: '#E60023', href: ({ url, title, image }) => `https://pinterest.com/pin/create/button/?url=${enc(url)}&media=${enc(image)}&description=${enc(title)}` },
+  { name: 'Pinterest', color: '#E60023', href: ({ url, title, shareImage: image }) => `https://pinterest.com/pin/create/button/?url=${enc(url)}&media=${enc(image)}&description=${enc(title)}` },
   { name: 'Reddit', color: '#FF4500', href: ({ url, title }) => `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(title)}` },
   { name: 'Telegram', color: '#26A5E4', href: ({ url, title }) => `https://t.me/share/url?url=${enc(url)}&text=${enc(title)}` },
   { name: 'Threads', color: '#000000', href: ({ text }) => `https://www.threads.net/intent/post?text=${enc(text)}` },
@@ -35,17 +35,19 @@ const btn: React.CSSProperties = {
 const outlineBtn: React.CSSProperties = { ...btn, background: '#fff', color: '#241F2B', border: '1px solid #DDD5CE' };
 const iconSize = { width: 18, height: 18 };
 
-export function ShareButtons({ url, title, description, image }: {
+export function ShareButtons({ url, title, description, image, shareImage, hashtag }: {
   url: string;
   title: string;
   description?: string;
-  image: string;
+  image: string; // shown in the preview card (may be a site path)
+  shareImage: string; // absolute URL, for networks that take the image directly
+  hashtag?: string; // no leading '#'
 }) {
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const text = `${title} ${url}`;
-  const params = { url, title, text, image };
+  const text = [title, hashtag && `#${hashtag}`, url].filter(Boolean).join(' ');
+  const params = { url, title, text, shareImage, hashtag };
 
   useEffect(() => {
     // Read after mount so the server render and first client render match.

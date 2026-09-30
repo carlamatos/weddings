@@ -11,6 +11,7 @@ import { Countdown } from './Countdown';
 import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -182,6 +183,11 @@ const css = `
   .bl .footer p { font-size: 14px; color: rgba(255,255,255,0.9); margin: 0 0 4px; }
   .bl .footer-signoff { font-family: var(--bl-font-display); font-size: 38px !important; font-weight: 700; color: #FFFFFF; margin: 24px 0 0; }
   .bl .footer-credit { font-family: var(--bl-font-sans); font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 24px; letter-spacing: 0.5px; }
+  /* share / hashtag band (ShareSection) */
+  .bl .share-band { padding: 84px 24px; background: var(--bl-sky); text-align: center; }
+  .bl .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .bl .share-hashtag { font-family: var(--bl-font-display); font-size: clamp(28px, 4vw, 40px); color: var(--bl-blue); margin: 0 0 28px; font-weight: 800; overflow-wrap: anywhere; }
+  .bl .share-hashtag--url { font-size: clamp(18px, 3vw, 24px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -316,6 +322,9 @@ export default function Balloons({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -566,6 +575,11 @@ export default function Balloons({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

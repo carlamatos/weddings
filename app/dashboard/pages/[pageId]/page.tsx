@@ -3,6 +3,8 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { normalizeHashtag } from '@/app/lib/hashtag';
+import { publicPageUrl } from '@/app/lib/share';
 import {
   EditableHeroEyebrow,
   EditableHeroName,
@@ -31,6 +33,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
+  const showShare = isSectionOn(pageSettings, 'show_share');
+  const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
 
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -154,6 +158,9 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         showSongRequests={showSongRequests}
         showGuestPhotos={showGuestPhotos}
         showRsvp={showRsvp}
+        showShare={showShare}
+        shareHashtag={shareHashtag}
+        shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}
       />
     </div>

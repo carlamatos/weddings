@@ -14,13 +14,18 @@ function absolute(url: string): string {
 }
 
 // The image a link to this page shows on social media: the owner's top banner,
-// else the theme's default banner, else the MyGala card.
-export function socialImageFor(page: Pick<UserPage, 'banner_image' | 'theme_slug'>): string {
+// else the theme's default banner, else the MyGala card. Theme defaults come
+// back as site paths ("/images/..."), for use on this site's own pages.
+export function socialImagePathFor(page: Pick<UserPage, 'banner_image' | 'theme_slug'>): string {
   const themeDefault = page.theme_slug
     ? (HERO_DEFAULTS as Record<string, string>)[page.theme_slug]
     : undefined;
-  const candidate = [page.banner_image, themeDefault].find(isCardImage) ?? '/opengraph-image.png';
-  return absolute(candidate);
+  return [page.banner_image, themeDefault].find(isCardImage) ?? '/opengraph-image.png';
+}
+
+// Absolute version for Open Graph tags, which crawlers fetch from outside.
+export function socialImageFor(page: Pick<UserPage, 'banner_image' | 'theme_slug'>): string {
+  return absolute(socialImagePathFor(page));
 }
 
 // The public URL guests should be sent to. A paid page with a verified custom

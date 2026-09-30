@@ -5,6 +5,7 @@ import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -126,6 +127,11 @@ const css = `
   .tc .rsvp-success { text-align: center; padding: 20px 0; }
   .tc .rsvp-headline { font-family: var(--font-serif); font-size: 22px; color: var(--ink); margin: 0 0 8px; }
   .tc .rsvp-sub { font-size: 15px; color: var(--ink-soft); margin: 0; }
+  /* share / hashtag band (ShareSection) */
+  .tc .share-band { padding: 70px 24px; background: transparent; text-align: center; }
+  .tc .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .tc .share-hashtag { font-family: var(--font-serif); font-size: clamp(26px, 4vw, 32px); color: var(--rust); margin: 0 0 28px; font-weight: 500; overflow-wrap: anywhere; }
+  .tc .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 const BandDivider = ({ thin }: { thin?: boolean }) => (
@@ -204,6 +210,9 @@ export default function TerracottaHarvest({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -435,6 +444,11 @@ export default function TerracottaHarvest({
           </div>
           <BandDivider thin />
         </>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="section-label" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

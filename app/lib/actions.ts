@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
+import { normalizeHashtag } from './hashtag';
 import { redirect } from 'next/navigation';
 
 import { sql } from '@vercel/postgres';
@@ -329,6 +330,30 @@ export async function updatePageSetting(pageId: number, settingName: string, set
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update page setting:', error);
+  }
+}
+
+// Saves the hashtag shown in the page's "Tag your posts" section. Stored
+// normalized (no '#', no spaces); an empty value means "feature the page link
+// instead". Returns what was saved so the form can show the cleaned-up tag.
+export async function updateShareHashtag(pageId: number, raw: string): Promise<string | null> {
+  const hashtag = normalizeHashtag(raw);
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return null;
+  try {
+    const res = await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      SELECT id, 'share_hashtag', ${hashtag}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${hashtag}, updated_at = NOW()
+    `;
+    if (!res.rowCount) return null;
+    revalidatePath('/', 'layout');
+    return hashtag;
+  } catch (error) {
+    console.error('Failed to update share hashtag:', error);
+    return null;
   }
 }
 

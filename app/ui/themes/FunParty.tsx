@@ -10,6 +10,7 @@ import { Countdown } from './Countdown';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -159,6 +160,11 @@ const css = `
   .fp .footer-rule { width: 60px; height: 3px; background: var(--fp-yellow); margin: 24px auto; border: none; border-radius: 2px; }
   .fp .footer-signoff { font-family: var(--fp-font-display); font-size: 20px; font-weight: 400; color: var(--fp-pink); margin: 0; }
   .fp .footer-credit { font-family: var(--fp-font-sans); font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 24px; letter-spacing: 0.3px; }
+  /* share / hashtag band (ShareSection) */
+  .fp .share-band { padding: 84px 24px; background: var(--fp-purple); text-align: center; }
+  .fp .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .fp .share-hashtag { font-family: var(--fp-font-display); font-size: clamp(24px, 4vw, 36px); color: var(--fp-yellow); margin: 0 0 28px; font-weight: 400; overflow-wrap: anywhere; }
+  .fp .share-hashtag--url { font-size: clamp(16px, 3vw, 22px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -269,6 +275,9 @@ export default function FunParty({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -512,6 +521,11 @@ export default function FunParty({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}

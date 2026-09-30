@@ -9,6 +9,7 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -161,6 +162,11 @@ const css = `
   .sm .footer-rule { width: 40px; height: 1px; background: var(--sm-line); margin: 24px auto; border: none; }
   .sm .footer-signoff { font-family: var(--sm-font-display); font-size: 18px; font-weight: 700; color: var(--sm-ink); margin: 0; }
   .sm .footer-credit { font-family: var(--sm-font-sans); font-size: 11px; color: var(--sm-ink-soft); opacity: 0.6; margin-top: 24px; letter-spacing: 0.3px; }
+  /* share / hashtag band (ShareSection) */
+  .sm .share-band { padding: 88px 24px; background: var(--sm-ink); text-align: center; }
+  .sm .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .sm .share-hashtag { font-family: var(--sm-font-display); font-size: clamp(26px, 4vw, 36px); color: #fff; margin: 0 0 28px; font-weight: 700; letter-spacing: -0.5px; overflow-wrap: anywhere; }
+  .sm .share-hashtag--url { font-size: clamp(18px, 3vw, 24px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -274,6 +280,9 @@ export default function Summit({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
   isLoggedIn,
 }: ThemeProps) {
   const base = getTranslations(language);
@@ -504,6 +513,11 @@ export default function Summit({
             </div>
           </div>
         </Reveal>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" />
       )}
 
       {/* FOOTER */}

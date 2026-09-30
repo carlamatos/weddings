@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     default: 'MyGala',
     template: '%s | MyGala',
   },
-  description: 'Beautiful wedding websites made easy.',
+  description: 'Beautiful event websites made easy.',
 };
 
 export default function RootLayout({

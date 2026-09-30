@@ -7,6 +7,7 @@ import RsvpForm from './RsvpForm';
 import VilmaCountdown from './VilmaCountdown';
 import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
+import ShareSection from './ShareSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -168,6 +169,13 @@ const css = `
   .vl .footer-rule { width: 40px; height: 1px; background: var(--vl-butter); margin: 22px auto; border: none; }
   .vl .footer-signoff { font-family: var(--vl-script); font-size: 44px !important; font-weight: 400; color: var(--vl-butter); margin: 0; letter-spacing: 0.5px; }
   .vl .footer-credit { font-family: var(--vl-sans); font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 24px; letter-spacing: 0.5px; }
+  /* share / hashtag band (ShareSection) */
+  .vl .share-band { padding: 88px 24px; background: var(--vl-olive); text-align: center; }
+  .vl .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .vl .share-hashtag { font-family: var(--vl-script); font-size: clamp(32px, 5vw, 39px); color: #fff; margin: 0 0 28px; font-weight: 400; letter-spacing: 0.5px; overflow-wrap: anywhere; }
+  .vl .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); font-family: var(--vl-serif); }
+  .vl .share-band .btn-outline { color: #fff; border-color: rgba(255,255,255,0.6); }
+  .vl .share-band .btn-outline:hover { background: rgba(255,255,255,0.12); }
 `;
 
 function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US', endDateStr?: string): string {
@@ -222,6 +230,9 @@ export default function Vilma({
   showSongRequests,
   showGuestPhotos,
   showRsvp,
+  showShare,
+  shareHashtag,
+  shareUrl,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
@@ -467,6 +478,11 @@ export default function Vilma({
             />
           </div>
         </div>
+      )}
+
+      {/* SHARE / HASHTAG */}
+      {showShare !== false && shareUrl && (
+        <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline" />
       )}
 
       {/* FOOTER */}
