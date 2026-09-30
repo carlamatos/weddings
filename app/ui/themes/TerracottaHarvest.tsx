@@ -3,7 +3,8 @@ import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
 import { SongRequestSection } from './SongRequestSection';
 import RsvpForm from './RsvpForm';
-import { getTranslations, localizeDate } from '@/app/lib/translations';
+import { getTranslations } from '@/app/lib/translations';
+import { eventWhen, formatDateRange } from './event-when';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -140,8 +141,8 @@ const BandDivider = ({ thin }: { thin?: boolean }) => (
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
 
-function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
-  const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
+function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US', endDateStr?: string): string {
+  const formatted = formatDateRange(dateStr, endDateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
   const loc = [city, country].filter(Boolean).join(', ');
   return loc ? `${formatted} · ${loc}` : formatted;
 }
@@ -167,6 +168,8 @@ export default function TerracottaHarvest({
   description,
   eventDate,
   eventTime,
+  eventEndDate,
+  eventEndTime,
   location,
   city,
   country,
@@ -206,11 +209,10 @@ export default function TerracottaHarvest({
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
-  const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
+  const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
-  const formattedTime = eventTime
-    ? new Date(`1970-01-01T${eventTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    : '';
+  const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
+  const formattedTime = when.time;
 
   const mapSrc = placeId && mapsKey
     ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${placeId}`
@@ -282,7 +284,7 @@ export default function TerracottaHarvest({
                 <div className="details-card">
                   <p className="label">{t.ceremony}</p>
                   {formattedTime && <p className="time">{formattedTime}</p>}
-                  {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                  {eventDate && <p>{when.date}</p>}
                   {venueName && <p style={{ fontWeight: 500 }}>{venueName}</p>}
                   {streetAddress && <p>{streetAddress}</p>}
                   {city && <p style={{ fontSize: 14, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}

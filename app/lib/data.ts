@@ -14,13 +14,16 @@ import {
   EventProgramItem,
 } from './definitions';
 
+function isoDay(d: unknown): string | undefined {
+  if (d instanceof Date) return d.toISOString().split('T')[0];
+  if (typeof d === 'string') return d.includes('T') ? d.split('T')[0] : d;
+  return undefined;
+}
+
 function normalizePage(page: UserPage): UserPage {
-  const d = page.event_date as unknown;
-  if (d instanceof Date) {
-    page.event_date = d.toISOString().split('T')[0];
-  } else if (typeof d === 'string' && d.includes('T')) {
-    page.event_date = d.split('T')[0];
-  }
+  page.event_date = isoDay(page.event_date) ?? page.event_date;
+  page.event_end_date = isoDay(page.event_end_date) || undefined;
+  page.event_end_time = page.event_end_time || undefined;
   return page;
 }
 

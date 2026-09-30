@@ -27,6 +27,8 @@ export interface ThemeProps {
   description?: string;
   eventDate?: string;
   eventTime?: string;
+  eventEndDate?: string;
+  eventEndTime?: string;
   location?: string;
   city?: string;
   country?: string;

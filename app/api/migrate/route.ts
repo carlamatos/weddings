@@ -14,6 +14,11 @@ export async function POST(request: Request) {
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 
+  // Optional end of the event (multi-day events, or an end time on the day).
+  // Same types as event_date / event_time.
+  await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS event_end_date DATE`;
+  await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS event_end_time VARCHAR(5)`;
+
   // Email verification / password reset / 2FA. This endpoint accumulates
   // statements and gets re-run for later, unrelated migrations, so the
   // one-time backfill below is guarded on whether the column already existed

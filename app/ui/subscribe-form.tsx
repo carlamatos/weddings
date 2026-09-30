@@ -66,6 +66,8 @@ export default function Form() {
     eventName: '',
     eventDate: '',
     eventTime: '',
+    eventEndDate: '',
+    eventEndTime: '',
     themeSlug: 'quiet-coastal',
     location: 'address',
     email: '',
@@ -104,6 +106,8 @@ export default function Form() {
   // Auto-select first option when options change (e.g. user starts typing name)
   // but only if no manual selection has been made yet
   const activeSlug = selectedSlug || slugOptions[0].value;
+
+  const endBeforeStart = !!formData.eventEndDate && !!formData.eventDate && formData.eventEndDate < formData.eventDate;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -190,6 +194,30 @@ export default function Form() {
               <TimePicker id="eventTime" name="eventTime" value={formData.eventTime}
                 onChange={(v) => setFormData(prev => ({ ...prev, eventTime: v }))} required />
             </div>
+          </div>
+        </div>
+
+        <div className="auth-grid-2">
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="eventEndDate">
+              Event End Date <span className="auth-label-optional">(optional)</span>
+            </label>
+            <div className="auth-input-wrap">
+              <DatePicker id="eventEndDate" name="eventEndDate" value={formData.eventEndDate} min={formData.eventDate || undefined}
+                placeholder="Same day" onChange={(v) => setFormData(prev => ({ ...prev, eventEndDate: v }))} />
+            </div>
+            {endBeforeStart && <p className="auth-field-error">The end date can’t be before the start date.</p>}
+            {state.errors?.event_end_date && <p className="auth-field-error">{state.errors.event_end_date[0]}</p>}
+          </div>
+          <div className="auth-field">
+            <label className="auth-label" htmlFor="eventEndTime">
+              Event End Time <span className="auth-label-optional">(optional)</span>
+            </label>
+            <div className="auth-input-wrap">
+              <TimePicker id="eventEndTime" name="eventEndTime" value={formData.eventEndTime}
+                placeholder="No end time" onChange={(v) => setFormData(prev => ({ ...prev, eventEndTime: v }))} />
+            </div>
+            {state.errors?.event_end_time && <p className="auth-field-error">{state.errors.event_end_time[0]}</p>}
           </div>
         </div>
 
@@ -348,7 +376,7 @@ export default function Form() {
           {state.errors?.description && <p className="auth-field-error">{state.errors.description[0]}</p>}
         </div>
 
-        <button className="auth-btn" type="submit" disabled={isPending}>
+        <button className="auth-btn" type="submit" disabled={isPending || endBeforeStart}>
           Create Event <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>
       </form>

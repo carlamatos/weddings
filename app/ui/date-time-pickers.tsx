@@ -18,6 +18,11 @@ type FieldProps = {
   placeholder?: string;
 };
 
+type DateFieldProps = FieldProps & {
+  // Earliest selectable day (YYYY-MM-DD); earlier days are shown disabled.
+  min?: string;
+};
+
 // Closes the popover on outside click or Escape.
 function usePopover() {
   const [open, setOpen] = useState(false);
@@ -59,7 +64,7 @@ function fromIso(iso: string): Date | null {
 }
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
-export function DatePicker({ id, name, value, onChange, required, placeholder = 'Select a date' }: FieldProps) {
+export function DatePicker({ id, name, value, onChange, required, min, placeholder = 'Select a date' }: DateFieldProps) {
   const { open, setOpen, rootRef } = usePopover();
   const selected = fromIso(value);
   const [view, setView] = useState(() => selected ?? new Date());
@@ -68,7 +73,7 @@ export function DatePicker({ id, name, value, onChange, required, placeholder = 
   const labelId = useId();
 
   function openCalendar() {
-    const start = selected ?? new Date();
+    const start = selected ?? fromIso(min ?? '') ?? new Date();
     setView(start);
     setFocusIso(toIso(start));
     setOpen(true);
@@ -153,6 +158,7 @@ export function DatePicker({ id, name, value, onChange, required, placeholder = 
               if (!d) return <span key={`blank-${i}`} />;
               const iso = toIso(d);
               const isSelected = iso === value;
+              const disabled = !!min && iso < min;
               return (
                 <button
                   key={iso}
@@ -162,6 +168,7 @@ export function DatePicker({ id, name, value, onChange, required, placeholder = 
                   aria-selected={isSelected}
                   tabIndex={iso === focusIso ? 0 : -1}
                   className={`dtp-day${isSelected ? ' dtp-day--selected' : ''}${iso === todayIso ? ' dtp-day--today' : ''}`}
+                  disabled={disabled}
                   onClick={() => pick(d)}
                 >
                   {d.getDate()}
@@ -170,7 +177,7 @@ export function DatePicker({ id, name, value, onChange, required, placeholder = 
             })}
           </div>
           <div className="dtp-cal-foot">
-            <button type="button" className="dtp-link" onClick={() => pick(new Date())}>Today</button>
+            <button type="button" className="dtp-link" onClick={() => pick(new Date())} disabled={!!min && todayIso < min}>Today</button>
             {value && <button type="button" className="dtp-link" onClick={() => { onChange(''); setOpen(false); }}>Clear</button>}
           </div>
         </div>
@@ -199,8 +206,10 @@ export function TimePicker({ id, name, value, onChange, required, placeholder = 
   const [active, setActive] = useState(value || DEFAULT_SCROLL_TIME);
   const listRef = useRef<HTMLUListElement>(null);
   const listId = useId();
-  // Keep a previously saved off-step value (e.g. 16:10) selectable.
-  const options = value && !TIMES.includes(value) ? [...TIMES, value].sort() : TIMES;
+  // Keep a previously saved off-step value (e.g. 16:10) selectable. Optional
+  // fields get a leading '' entry so a chosen time can be removed again.
+  const times = value && !TIMES.includes(value) ? [...TIMES, value].sort() : TIMES;
+  const options = required ? times : ['', ...times];
 
   // Scrolls only the list (scrollIntoView would also scroll the page).
   function reveal(t: string, center = false) {
@@ -278,21 +287,21 @@ export function TimePicker({ id, name, value, onChange, required, placeholder = 
           className="dtp-popover dtp-times"
           role="listbox"
           tabIndex={-1}
-          aria-activedescendant={`${listId}-${active}`}
+          aria-activedescendant={`${listId}-${active || 'none'}`}
           onKeyDown={onListKey}
         >
           {options.map((t) => (
             <li
               key={t}
-              id={`${listId}-${t}`}
+              id={`${listId}-${t || 'none'}`}
               data-time={t}
               role="option"
               aria-selected={t === value}
-              className={`dtp-time${t === value ? ' dtp-time--selected' : ''}${t === active ? ' dtp-time--active' : ''}`}
+              className={`dtp-time${t === value ? ' dtp-time--selected' : ''}${t === active ? ' dtp-time--active' : ''}${t ? '' : ' dtp-time--none'}`}
               onMouseEnter={() => setActive(t)}
               onClick={() => pick(t)}
             >
-              {formatTime(t)}
+              {t ? formatTime(t) : placeholder}
             </li>
           ))}
         </ul>

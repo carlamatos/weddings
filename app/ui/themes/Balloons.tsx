@@ -9,7 +9,8 @@ import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
 import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
-import { getTranslations, localizeDate, pickByLanguage } from '@/app/lib/translations';
+import { getTranslations, pickByLanguage } from '@/app/lib/translations';
+import { eventWhen, formatDateRange } from './event-when';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -185,8 +186,8 @@ const css = `
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
 
-function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US'): string {
-  const formatted = localizeDate(dateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
+function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US', endDateStr?: string): string {
+  const formatted = formatDateRange(dateStr, endDateStr, locale, { month: 'long', day: 'numeric', year: 'numeric' });
   const loc = [city, country].filter(Boolean).join(', ');
   return loc ? `${formatted} · ${loc}` : formatted;
 }
@@ -279,6 +280,8 @@ export default function Balloons({
   description,
   eventDate,
   eventTime,
+  eventEndDate,
+  eventEndTime,
   location,
   city,
   country,
@@ -318,11 +321,10 @@ export default function Balloons({
   const base = getTranslations(language);
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
-  const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale) : '';
+  const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
-  const formattedTime = eventTime
-    ? new Date(`1970-01-01T${eventTime}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    : '';
+  const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
+  const formattedTime = when.time;
 
   const mapSrc = placeId && mapsKey
     ? `https://www.google.com/maps/embed/v1/place?key=${mapsKey}&q=place_id:${placeId}`
@@ -419,7 +421,7 @@ export default function Balloons({
                 <div className="details-card">
                   <p className="label">{t.ceremony}</p>
                   {formattedTime && <p className="time">{formattedTime}</p>}
-                  {eventDate && <p>{localizeDate(eventDate, t.dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                  {eventDate && <p>{when.date}</p>}
                   {venueName && <p style={{ fontWeight: 700 }}>{venueName}</p>}
                   {streetAddress && <p>{streetAddress}</p>}
                   {city && <p style={{ fontSize: 13, marginTop: 2 }}>{[city, postalCode, country].filter(Boolean).join(', ')}</p>}

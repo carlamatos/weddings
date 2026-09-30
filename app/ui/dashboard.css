@@ -838,6 +838,8 @@ body:has(.dash-shell) {
   flex-direction: column;
   gap: 12px;
   min-width: 280px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
 }
 .theme-date-popover label {
   display: block;

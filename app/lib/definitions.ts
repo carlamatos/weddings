@@ -26,6 +26,8 @@ export type UserPage = {
   place_id?: string;
   formatted_address?: string;
   event_time?: string;
+  event_end_date?: string; // optional; YYYY-MM-DD
+  event_end_time?: string; // optional; HH:MM
   event_type?: string;
   theme_id?: string;
   theme_slug?: string;

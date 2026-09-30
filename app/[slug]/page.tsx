@@ -18,6 +18,8 @@ interface EventData {
   main_content: string;
   event_date: string;
   event_time?: string;
+  event_end_date?: string;
+  event_end_time?: string;
   location: string;
   user_email: string;
   description: string;
@@ -55,6 +57,8 @@ async function fetchEventData(slug: string): Promise<EventData | null> {
     main_content: res.main_content,
     event_date: res.event_date,
     event_time: res.event_time || undefined,
+    event_end_date: res.event_end_date || undefined,
+    event_end_time: res.event_end_time || undefined,
     location: res.location,
     user_email: res.user_email,
     description: res.description,
@@ -137,6 +141,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         description={data.description || undefined}
         eventDate={data.event_date || undefined}
         eventTime={data.event_time}
+        eventEndDate={data.event_end_date}
+        eventEndTime={data.event_end_time}
         location={data.location}
         city={data.city}
         country={data.country}

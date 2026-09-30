@@ -2,6 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo } from '@/app/lib/actions';
+import { formatDateRange } from './event-when';
 import { compressImageFile } from '@/app/lib/compress-image';
 
 // ─── shared pencil icon ──────────────────────────────────
@@ -168,6 +169,8 @@ export function EditableHeroDate({
   displayText,
   eventDate,
   eventTime,
+  eventEndDate,
+  eventEndTime,
   city,
   country,
 }: {
@@ -176,6 +179,8 @@ export function EditableHeroDate({
   displayText: string;
   eventDate?: string;
   eventTime?: string;
+  eventEndDate?: string;
+  eventEndTime?: string;
   city?: string;
   country?: string;
 }) {
@@ -185,21 +190,28 @@ export function EditableHeroDate({
 
   const [dDate, setDDate] = useState(eventDate ?? '');
   const [dTime, setDTime] = useState(eventTime ?? '');
+  const [dEndDate, setDEndDate] = useState(eventEndDate ?? '');
+  const [dEndTime, setDEndTime] = useState(eventEndTime ?? '');
+  const endBeforeStart = !!dEndDate && !!dDate && dEndDate < dDate;
   const [dCity, setDCity] = useState(city ?? '');
   const [dCountry, setDCountry] = useState(country ?? '');
 
   const save = () => {
+    if (endBeforeStart) return;
     setOpen(false);
     // Build a quick optimistic display string
     const parts: string[] = [];
     if (dDate) {
-      parts.push(new Date(dDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
+      parts.push(formatDateRange(dDate, dEndDate || undefined, 'en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
     }
     const loc = [dCity, dCountry].filter(Boolean).join(', ');
     if (loc) parts.push(loc);
     if (parts.length) setCurrentText(parts.join(' · '));
     startTransition(() =>
-      updateEventDateTime(pageId, { date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined })
+      updateEventDateTime(pageId, {
+        date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined,
+        endDate: dEndDate, endTime: dEndTime,
+      })
     );
   };
 
@@ -220,14 +232,29 @@ export function EditableHeroDate({
 
       {open && (
         <div className="theme-date-popover">
-          <div>
-            <label>Date</label>
-            <input type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
+          <div className="theme-date-2col">
+            <div>
+              <label>Date</label>
+              <input type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
+            </div>
+            <div>
+              <label>Time</label>
+              <input type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
+            </div>
           </div>
-          <div>
-            <label>Time</label>
-            <input type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
+          <div className="theme-date-2col">
+            <div>
+              <label>End date <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+              <input type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
+            </div>
+            <div>
+              <label>End time <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+              <input type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />
+            </div>
           </div>
+          {endBeforeStart && (
+            <p style={{ color: '#B91C1C', fontSize: 12, margin: 0 }}>The end date can’t be before the start date.</p>
+          )}
           <div className="theme-date-2col">
             <div>
               <label>City</label>
@@ -239,7 +266,7 @@ export function EditableHeroDate({
             </div>
           </div>
           <div className="theme-edit-controls" style={{ marginTop: 4 }}>
-            <button className="theme-edit-save" onClick={save}>Save</button>
+            <button className="theme-edit-save" onClick={save} disabled={endBeforeStart}>Save</button>
             <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
           </div>
         </div>

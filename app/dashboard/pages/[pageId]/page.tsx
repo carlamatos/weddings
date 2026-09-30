@@ -13,6 +13,7 @@ import {
 } from '@/app/ui/themes/slots';
 import { EditableGallery } from '@/app/ui/themes/GallerySection';
 import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
+import { formatDateRange } from '@/app/ui/themes/event-when';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -36,8 +37,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   // Build the date display string the same way each theme would
   const heroDateText = userPage.event_date
     ? (() => {
-        const d = new Date(userPage.event_date + 'T00:00:00');
-        const formatted = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const formatted = formatDateRange(userPage.event_date, userPage.event_end_date, 'en-US', { month: 'long', day: 'numeric', year: 'numeric' });
         const loc = [userPage.city, userPage.country].filter(Boolean).join(', ');
         return loc ? `${formatted} · ${loc}` : formatted;
       })()
@@ -83,6 +83,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         displayText={heroDateText}
         eventDate={userPage.event_date || undefined}
         eventTime={userPage.event_time || undefined}
+        eventEndDate={userPage.event_end_date || undefined}
+        eventEndTime={userPage.event_end_time || undefined}
         city={userPage.city || undefined}
         country={userPage.country || undefined}
       />
@@ -117,6 +119,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         description={userPage.description || undefined}
         eventDate={userPage.event_date || undefined}
         eventTime={userPage.event_time || undefined}
+        eventEndDate={userPage.event_end_date || undefined}
+        eventEndTime={userPage.event_end_time || undefined}
         location={userPage.location}
         city={userPage.city || undefined}
         country={userPage.country || undefined}

@@ -397,3 +397,8 @@
 .dtp-time--active { background: var(--paper); }
 .dtp-time--selected { background: var(--rose); color: #fff; font-weight: 600; }
 .dtp-time--selected.dtp-time--active { background: var(--rose-deep); }
+.dtp-day:disabled { color: var(--line); cursor: default; background: transparent; }
+.dtp-link:disabled { opacity: 0.4; cursor: default; text-decoration: none; }
+.dtp-time--none { color: var(--ink-soft); font-style: italic; }
+.dtp-time--none.dtp-time--selected { color: #fff; }
+.auth-label-optional { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: 0.8; }

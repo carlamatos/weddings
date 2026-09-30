@@ -44,6 +44,8 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       description={data.description || undefined}
       eventDate={data.event_date || undefined}
       eventTime={data.event_time || undefined}
+      eventEndDate={data.event_end_date || undefined}
+      eventEndTime={data.event_end_time || undefined}
       location={data.location}
       city={data.city || undefined}
       country={data.country || undefined}

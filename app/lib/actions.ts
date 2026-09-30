@@ -45,6 +45,8 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
     description: z.string(),
     event_date: z.string(),
     event_time: z.string().min(1, { message: 'Event time is required.' }),
+    event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
+    event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
     event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
     theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
     location: z.string(),
@@ -67,7 +69,10 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
   });
 
 
-const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true });
+const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true }).refine(
+  (d) => !d.event_end_date || !d.event_date || d.event_end_date >= d.event_date,
+  { message: 'The end date can’t be before the start date.', path: ['event_end_date'] },
+);
 const CreateUser = UserSchema.omit({id: true, password:true,  given_name: true, family_name: true, provider: true,provider_id:true,picture: true,});
 const CreateExtendedUser = UserSchema.omit({id: true, password:true});
 export type UserPageState = {
@@ -76,6 +81,8 @@ export type UserPageState = {
       description?: string[];
       event_date?: string[];
       event_time?: string[];
+      event_end_date?: string[];
+      event_end_time?: string[];
       event_type?: string[];
       theme_slug?: string[];
       location?: string[];
@@ -127,6 +134,8 @@ export type UserPageState = {
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
       event_time: formData.get('eventTime'),
+      event_end_date: (formData.get('eventEndDate') as string) || undefined,
+      event_end_time: (formData.get('eventEndTime') as string) || undefined,
       event_type: formData.get('eventType'),
       theme_slug: formData.get('themeSlug'),
       location: formData.get('location'),
@@ -150,7 +159,7 @@ export type UserPageState = {
       };
     }
 
-    const { event_name, description, event_date, event_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
     const venue_name = (formData.get('venueName') as string) || null;
     const user_phone = (formData.get('phone') as string)?.trim() || null;
 
@@ -168,11 +177,11 @@ export type UserPageState = {
 
       const inserted = await sql`
         INSERT INTO user_page (
-          user_id, heading, main_content, description, event_date, event_time, event_type, theme_id,
+          user_id, heading, main_content, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
           place_id, formatted_address, venue_name, plan_type, plan_expires_at
         ) VALUES (
-          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_type}, ${theme_id},
+          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}
         )
@@ -421,19 +430,34 @@ export async function updateEventDateTime(pageId: number, data: {
   time?: string;
   city?: string;
   country?: string;
+  // Optional fields the owner can also clear: undefined = leave as is,
+  // '' = remove, otherwise the new value.
+  endDate?: string;
+  endTime?: string;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return;
+  if (data.endDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.endDate)) return;
+  if (data.endTime && !/^\d{2}:\d{2}$/.test(data.endTime)) return;
+  const setEndDate = data.endDate !== undefined;
+  const setEndTime = data.endTime !== undefined;
+  const endDate = data.endDate || null;
+  const endTime = data.endTime || null;
   try {
+    // The end-date check sits in WHERE so an end before the (new or existing)
+    // start date rejects the whole save rather than storing a bad range.
     await sql`
       UPDATE user_page SET
-        event_date = COALESCE(${data.date ?? null}, event_date),
-        event_time = COALESCE(${data.time ?? null}, event_time),
-        city       = COALESCE(${data.city ?? null}, city),
-        country    = COALESCE(${data.country ?? null}, country)
+        event_date     = COALESCE(${data.date ?? null}, event_date),
+        event_time     = COALESCE(${data.time ?? null}, event_time),
+        city           = COALESCE(${data.city ?? null}, city),
+        country        = COALESCE(${data.country ?? null}, country),
+        event_end_date = CASE WHEN ${setEndDate} THEN ${endDate}::date ELSE event_end_date END,
+        event_end_time = CASE WHEN ${setEndTime} THEN ${endTime} ELSE event_end_time END
       WHERE id = ${pid} AND user_id = ${userId}
+        AND (${endDate}::date IS NULL OR ${endDate}::date >= COALESCE(${data.date ?? null}::date, event_date))
     `;
     revalidatePath('/', 'layout');
   } catch (error) {
