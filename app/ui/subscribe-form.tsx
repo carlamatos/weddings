@@ -5,7 +5,6 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
 import { createUserPage, UserPageState } from '../lib/actions';
 import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
-import { DatePicker, TimePicker } from './date-time-pickers';
 import { themesByCategory } from './themes/registry';
 import type { EventCategory } from './themes/types';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
@@ -183,16 +182,16 @@ export default function Form() {
           <div className="auth-field">
             <label className="auth-label" htmlFor="eventDate">Event Date</label>
             <div className="auth-input-wrap">
-              <DatePicker id="eventDate" name="eventDate" value={formData.eventDate}
-                onChange={(v) => setFormData(prev => ({ ...prev, eventDate: v }))} required />
+              <input className="auth-input" id="eventDate" type="date" name="eventDate"
+                value={formData.eventDate} onChange={handleChange} required />
             </div>
             {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
           </div>
           <div className="auth-field">
             <label className="auth-label" htmlFor="eventTime">Event Time</label>
             <div className="auth-input-wrap">
-              <TimePicker id="eventTime" name="eventTime" value={formData.eventTime}
-                onChange={(v) => setFormData(prev => ({ ...prev, eventTime: v }))} required />
+              <input className="auth-input" id="eventTime" type="time" name="eventTime"
+                value={formData.eventTime} onChange={handleChange} required />
             </div>
           </div>
         </div>
@@ -203,8 +202,8 @@ export default function Form() {
               Event End Date <span className="auth-label-optional">(optional)</span>
             </label>
             <div className="auth-input-wrap">
-              <DatePicker id="eventEndDate" name="eventEndDate" value={formData.eventEndDate} min={formData.eventDate || undefined}
-                placeholder="Same day" onChange={(v) => setFormData(prev => ({ ...prev, eventEndDate: v }))} />
+              <input className="auth-input" id="eventEndDate" type="date" name="eventEndDate"
+                value={formData.eventEndDate} min={formData.eventDate || undefined} onChange={handleChange} />
             </div>
             {endBeforeStart && <p className="auth-field-error">The end date can’t be before the start date.</p>}
             {state.errors?.event_end_date && <p className="auth-field-error">{state.errors.event_end_date[0]}</p>}
@@ -214,8 +213,8 @@ export default function Form() {
               Event End Time <span className="auth-label-optional">(optional)</span>
             </label>
             <div className="auth-input-wrap">
-              <TimePicker id="eventEndTime" name="eventEndTime" value={formData.eventEndTime}
-                placeholder="No end time" onChange={(v) => setFormData(prev => ({ ...prev, eventEndTime: v }))} />
+              <input className="auth-input" id="eventEndTime" type="time" name="eventEndTime"
+                value={formData.eventEndTime} onChange={handleChange} />
             </div>
             {state.errors?.event_end_time && <p className="auth-field-error">{state.errors.event_end_time[0]}</p>}
           </div>
