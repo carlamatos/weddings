@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
+import { pagePath } from './dashboard';
 import { redirect } from 'next/navigation';
 
 import { sql } from '@vercel/postgres';
@@ -165,6 +166,7 @@ export type UserPageState = {
 
     const user_id = session?.user?.id;
 
+    let newPageId: number | string | undefined;
     try {
       // Resolve theme slug → theme_id
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
@@ -190,7 +192,7 @@ export type UserPageState = {
 
       // New pages start with the Event Program section hidden until the
       // owner adds phases and turns it on; every other section defaults on.
-      const newPageId = inserted.rows[0]?.id;
+      newPageId = inserted.rows[0]?.id;
       if (newPageId) {
         await sql`
           INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
@@ -206,7 +208,9 @@ export type UserPageState = {
     }
 
     revalidatePath(`/${slug}`);
-    redirect(`/${slug}`);
+    // Straight into the editor for the new page; the dashboard root (which
+    // picks the oldest page) is the fallback if the id somehow didn't come back.
+    redirect(newPageId ? pagePath(newPageId) : '/dashboard');
   }
 
 export async function updateLocation(pageId: number, data: {

@@ -1,9 +1,9 @@
 import Link from 'next/link';
 
-// The same marketing-site chrome (logo, back-to-themes, login/dashboard)
-// added to the static public/themes/*.html mockups for the 4 original
-// themes — reused here since Summit/Alegría/Fun Party don't have a separate
-// static preview page (their live theme page doubles as the preview).
+// MyGala top bar (logo, login/dashboard) on live event pages. No
+// "Back to themes" link here: guests and owners land on a real event page,
+// not the theme showcase — that link lives only on the static
+// public/themes/*.html previews the homepage links to.
 export function PreviewTopBar({ isLoggedIn }: { isLoggedIn?: boolean }) {
   return (
     <div
@@ -28,9 +28,6 @@ export function PreviewTopBar({ isLoggedIn }: { isLoggedIn?: boolean }) {
         My<span style={{ color: '#B6584A' }}>Gala</span>
       </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
-        <Link href="/#themes" style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', textDecoration: 'none', whiteSpace: 'nowrap' }}>
-          &larr; Back to themes
-        </Link>
         {isLoggedIn ? (
           <Link
             href="/dashboard"
