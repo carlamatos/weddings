@@ -12,6 +12,7 @@ export const HERO_DEFAULTS = {
   nexus: '/images/themes/nexus/hero.jpeg',
   'dinner-gala': '/images/themes/dinner-gala/gala-banner.svg',
   community: '/images/themes/community/hero.jpeg',
+  'antique-cars': '/images/themes/antique-cars/hero.jpeg',
   // Balloons has no default cover photo — its hero is a gradient with a
   // decorative balloon graphic (see hero-balloons.png), not a full-bleed
   // background image, so it's intentionally absent here (like Terracotta).

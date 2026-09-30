@@ -305,6 +305,17 @@ export default async function Page() {
                     <p className="theme-desc">Warm cream and navy with a rainbow of festival bunting. Fun and elegant at once — built for block parties, fairs, and neighborhood celebrations.</p>
                   </div>
                 </a>
+                <a href="/themes/antique-cars.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#57C0B9' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="antique-cars" heading="Classic Car Show" eventDate="2027-06-19" city="Maple Ridge" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Antique Cars</p>
+                    <p className="theme-desc">Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page — built for antique and classic car shows.</p>
+                  </div>
+                </a>
               </div>
             </div>
           </div>

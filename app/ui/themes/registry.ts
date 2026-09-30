@@ -12,6 +12,7 @@ import Nexus, { HeroPreview as NexusPreview } from './Nexus';
 import Balloons, { HeroPreview as BalloonsPreview } from './Balloons';
 import DinnerGala, { HeroPreview as DinnerGalaPreview } from './DinnerGala';
 import Community, { HeroPreview as CommunityPreview } from './Community';
+import AntiqueCars, { HeroPreview as AntiqueCarsPreview } from './AntiqueCars';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -44,6 +45,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'balloons':           { Page: Balloons,          Preview: BalloonsPreview, category: 'birthdays', label: 'Balloons' },
   'dinner-gala':        { Page: DinnerGala,        Preview: DinnerGalaPreview, category: 'business', label: 'Dinner Gala' },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
+  'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';

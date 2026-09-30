@@ -52,6 +52,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const themeEyebrowDefault =
     userPage.theme_slug === 'midnight-botanical'
       ? 'Save the date'
+      : userPage.theme_slug === 'antique-cars'
+      ? 'Antique & Classic'
       : 'Together with their families';
 
   const themeEyebrowClass =

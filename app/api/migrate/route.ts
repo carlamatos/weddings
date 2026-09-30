@@ -11,6 +11,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Antique Cars theme (community category). Theme rows are looked up by
+  // slug, so insert it only once.
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Antique Cars',
+           'Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page. Built for antique and classic car shows.',
+           'antique-cars'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'antique-cars')
+  `;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 
