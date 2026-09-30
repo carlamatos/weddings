@@ -355,8 +355,8 @@ export function EditableHeroDate({
     >
       <p className={className}>{currentText}</p>
 
-      <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit date & location">
-        <PencilIcon /> Edit
+      <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit dates and location">
+        <PencilIcon /> Edit dates and location
       </button>
 
       {open && createPortal(
