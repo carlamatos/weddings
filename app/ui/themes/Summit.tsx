@@ -166,7 +166,6 @@ const css = `
   .sm .share-band { padding: 88px 24px; background: var(--sm-ink); text-align: center; }
   .sm .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .sm .share-hashtag { font-family: var(--sm-font-display); font-size: clamp(26px, 4vw, 36px); color: #fff; margin: 0 0 28px; font-weight: 700; letter-spacing: -0.5px; overflow-wrap: anywhere; }
-  .sm .share-hashtag--url { font-size: clamp(18px, 3vw, 24px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

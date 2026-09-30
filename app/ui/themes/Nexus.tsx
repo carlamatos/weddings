@@ -240,7 +240,6 @@ const css = `
   .nx .share-band { padding: 88px 24px; background: var(--nx-bg-softer); text-align: center; }
   .nx .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .nx .share-hashtag { font-family: var(--nx-font-display); font-size: clamp(26px, 4vw, 36px); color: var(--nx-accent); margin: 0 0 28px; font-weight: 600; letter-spacing: -0.3px; overflow-wrap: anywhere; }
-  .nx .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

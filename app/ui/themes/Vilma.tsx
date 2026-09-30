@@ -172,8 +172,7 @@ const css = `
   /* share / hashtag band (ShareSection) */
   .vl .share-band { padding: 88px 24px; background: var(--vl-olive); text-align: center; }
   .vl .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-  .vl .share-hashtag { font-family: var(--vl-script); font-size: clamp(32px, 5vw, 39px); color: #fff; margin: 0 0 28px; font-weight: 400; letter-spacing: 0.5px; overflow-wrap: anywhere; }
-  .vl .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); font-family: var(--vl-serif); }
+  .vl .share-hashtag { font-family: var(--vl-script); font-size: clamp(42px, 4.5vw, 56px); line-height: 1.2; color: #fff; margin: 0 0 28px; font-weight: 400; letter-spacing: 0.5px; overflow-wrap: anywhere; }
   .vl .share-band .btn-outline { color: #fff; border-color: rgba(255,255,255,0.6); }
   .vl .share-band .btn-outline:hover { background: rgba(255,255,255,0.12); }
 `;

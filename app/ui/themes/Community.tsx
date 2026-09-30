@@ -208,7 +208,6 @@ const css = `
   .cm .share-band { padding: 84px 24px; background: var(--cm-teal); text-align: center; }
   .cm .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .cm .share-hashtag { font-family: var(--cm-font-display); font-size: clamp(28px, 4vw, 38px); color: var(--cm-cream); margin: 0 0 28px; font-weight: 600; overflow-wrap: anywhere; }
-  .cm .share-hashtag--url { font-size: clamp(18px, 3vw, 24px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

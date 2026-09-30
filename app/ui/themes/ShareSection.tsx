@@ -1,8 +1,8 @@
 'use client';
 
-// "Tag your posts" band shown near the bottom of every theme. With a hashtag
-// it features the tag; without one it features the page link instead. The
-// buttons always share the page URL (plus the hashtag where the network
+// Share band shown near the bottom of every theme. With a hashtag it reads
+// "Tag your posts / #tag"; without one it's just a "Share this event" title.
+// Either way the buttons share the page URL (plus the hashtag where the network
 // supports it). Each theme styles .share-band / .share-hashtag in its own CSS
 // and passes its own eyebrow and button classes.
 
@@ -59,10 +59,8 @@ export default function ShareSection({
 
   return (
     <div className="share-band">
-      <p className={eyebrowClassName}>{fmt(hashtag ? t.tagYourPosts : t.shareThisEvent)}</p>
-      <h2 className={`share-hashtag${hashtag ? '' : ' share-hashtag--url'}`}>
-        {hashtag ? tagText : url.replace(/^https?:\/\//, '')}
-      </h2>
+      {hashtag && <p className={eyebrowClassName}>{fmt(t.tagYourPosts)}</p>}
+      <h2 className="share-hashtag">{hashtag ? tagText : fmt(t.shareThisEvent)}</h2>
       <div className="share-row">
         {links.map((l) => (
           <a key={l.label} className={buttonClassName} href={l.href} target="_blank" rel="noopener noreferrer">

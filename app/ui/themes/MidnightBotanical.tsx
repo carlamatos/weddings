@@ -125,7 +125,6 @@ const css = `
   .mb .share-band { padding: 80px 24px; background: var(--forest); text-align: center; }
   .mb .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .mb .share-hashtag { font-family: var(--font-serif); font-size: clamp(24px, 4vw, 30px); color: var(--gold); margin: 0 0 28px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; overflow-wrap: anywhere; }
-  .mb .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
   .mb .share-band .btn-outline { border-color: rgba(201,167,93,0.6); }
 `;
 

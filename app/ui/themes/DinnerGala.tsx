@@ -166,7 +166,6 @@ const css = `
   .dg .share-band { padding: 90px 24px; background: var(--dg-bg-alt); text-align: center; }
   .dg .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .dg .share-hashtag { font-family: var(--dg-font-display); font-size: clamp(28px, 4vw, 40px); color: var(--dg-gold); margin: 0 0 28px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; overflow-wrap: anywhere; }
-  .dg .share-hashtag--url { font-size: clamp(20px, 3vw, 26px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

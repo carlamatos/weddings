@@ -110,7 +110,6 @@ const css = `
   .qc .share-band { padding: 80px 24px; background: var(--chalk); text-align: center; }
   .qc .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .qc .share-hashtag { font-family: var(--font-sans); font-size: clamp(24px, 4vw, 32px); color: var(--sage-deep); margin: 0 0 28px; font-weight: 400; letter-spacing: 1px; overflow-wrap: anywhere; }
-  .qc .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

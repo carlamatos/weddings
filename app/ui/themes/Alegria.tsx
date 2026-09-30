@@ -187,7 +187,6 @@ const css = `
   .al .share-band .eyebrow { color: var(--al-ink-soft); }
   .al .share-band .btn-outline { color: var(--al-ink); border-color: var(--al-lilac-deep); }
   .al .share-band .btn-outline:hover { background: rgba(255,255,255,0.45); }
-  .al .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); font-family: var(--al-font-serif); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

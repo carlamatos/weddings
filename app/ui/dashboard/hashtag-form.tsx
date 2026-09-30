@@ -58,10 +58,10 @@ export function HashtagForm({ pageId, initialHashtag, pageUrl }: {
       </div>
       <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
         {cleaned && cleaned !== draft && <>Will be saved as <strong>#{cleaned}</strong> (letters, numbers and _ only). </>}
-        If you leave this empty, the section shows your page link instead:{' '}
-        <strong style={{ overflowWrap: 'anywhere' }}>{pageUrl.replace(/^https?:\/\//, '')}</strong>
+        If you leave this empty, the section just says &ldquo;Share this event&rdquo; above the buttons, which share your page link
+        (<span style={{ overflowWrap: 'anywhere' }}>{pageUrl.replace(/^https?:\/\//, '')}</span>).
       </p>
-      {status === 'saved' && <p role="status" style={{ fontSize: 13, color: '#2F7A4F', margin: '6px 0 0' }}>{saved ? `Saved — guests will see #${saved}.` : 'Saved — your page link will be shown.'}</p>}
+      {status === 'saved' && <p role="status" style={{ fontSize: 13, color: '#2F7A4F', margin: '6px 0 0' }}>{saved ? `Saved — guests will see #${saved}.` : 'Saved — the section will say “Share this event”.'}</p>}
       {status === 'error' && <p role="alert" style={{ fontSize: 13, color: '#B91C1C', margin: '6px 0 0' }}>Couldn’t save the hashtag. Please try again.</p>}
     </form>
   );

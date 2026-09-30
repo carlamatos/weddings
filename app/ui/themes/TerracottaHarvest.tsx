@@ -131,7 +131,6 @@ const css = `
   .tc .share-band { padding: 70px 24px; background: transparent; text-align: center; }
   .tc .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .tc .share-hashtag { font-family: var(--font-serif); font-size: clamp(26px, 4vw, 32px); color: var(--rust); margin: 0 0 28px; font-weight: 500; overflow-wrap: anywhere; }
-  .tc .share-hashtag--url { font-size: clamp(18px, 3vw, 22px); }
 `;
 
 const BandDivider = ({ thin }: { thin?: boolean }) => (

@@ -40,9 +40,9 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
       )}
 
       <section style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginBottom: 28, background: '#fff' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>&ldquo;Tag your posts&rdquo; section</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Share section on your page</h2>
         <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 }}>
-          A band near the bottom of your page with your hashtag and buttons for guests to share on Facebook, X and WhatsApp, or copy the link.
+          A band near the bottom of your page with buttons for guests to share it on Facebook, X and WhatsApp, or copy the link. Add a hashtag to feature it there too.
         </p>
         <SectionToggle pageId={pageId} settingName="show_share" initialOn={isSectionOn(settings, 'show_share')} />
         <HashtagForm pageId={pageId} initialHashtag={hashtag} pageUrl={url} />
