@@ -374,7 +374,7 @@ export default function DinnerGala({
       <GalaDivider />
 
       {/* COUNTDOWN */}
-      {eventDate && !editSlots && (
+      {eventDate && (
         <Countdown
           eventDate={eventDate}
           eventTime={eventTime}
@@ -382,6 +382,7 @@ export default function DinnerGala({
           heading={t.untilWeSayIDo}
           todayHeading={t.todayIsTheDay}
           unitLabels={{ days: t.days, hours: t.hours, mins: t.mins, secs: t.secs }}
+          sectionText={sectionTextCtx}
         />
       )}
 
@@ -563,7 +564,8 @@ export default function DinnerGala({
           </>
         )}
         <p className="footer-signoff">{t.withLove} {heading || t.theCouple}</p>
-        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
+        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
+          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
       </footer>
     </div>
   );

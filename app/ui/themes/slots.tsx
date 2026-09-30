@@ -108,6 +108,7 @@ export function EditableSectionText({
   className,
   style,
   icon,
+  defaultContent,
 }: {
   pageId: number;
   k: SectionTextKey;
@@ -117,6 +118,7 @@ export function EditableSectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
+  defaultContent?: React.ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
@@ -177,8 +179,8 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <Tag className={className} style={style}>{icon}{current || fallback}</Tag>
-      <button className="theme-edit-badge" onClick={startEdit} title={Tag === 'h2' ? 'Edit section title' : 'Edit section label'}>
+      <Tag className={className} style={style}>{icon}{current || (defaultContent ?? fallback)}</Tag>
+      <button className="theme-edit-badge" onClick={startEdit} title="Edit text">
         <PencilIcon /> Edit
       </button>
     </span>
@@ -255,8 +257,8 @@ export function EditableHeroName({
 
 // ─── EditableHeroDate ─────────────────────────────────────
 // Replaces: <p className="hero-date">{formatted date}</p>
-// Opens a dialog with the date / time and the venue's address. Picking an
-// address fills in the city and country; both stay editable. The dialog is
+// Opens a dialog with the date / time and the venue's address. The city and
+// country shown in the hero come from the picked address. The dialog is
 // portaled to <body> because every theme's hero clips its overflow.
 export type HeroDateAddress = {
   venueName?: string;
@@ -300,6 +302,7 @@ export function EditableHeroDate({
   const [dEndDate, setDEndDate] = useState(eventEndDate ?? '');
   const [dEndTime, setDEndTime] = useState(eventEndTime ?? '');
   const endBeforeStart = !!dEndDate && !!dDate && dEndDate < dDate;
+  // Set only by picking an address (the dialog has no city/country fields).
   const [dCity, setDCity] = useState(city ?? '');
   const [dCountry, setDCountry] = useState(country ?? '');
   const [dAddress, setDAddress] = useState<Required<HeroDateAddress>>(() => ({
@@ -390,37 +393,25 @@ export function EditableHeroDate({
               <p style={{ color: '#B91C1C', fontSize: 12, margin: 0 }}>The end date can’t be before the start date.</p>
             )}
 
-            <p className="theme-date-heading">Location</p>
             {address && (
               <>
+                <p className="theme-date-heading">Location</p>
                 <div>
                   <label htmlFor="hd-venue">Venue name <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
                   <input id="hd-venue" type="text" value={dAddress.venueName} placeholder="e.g. Hycroft Manor"
                     onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
                 </div>
-                <div className="theme-date-2col theme-date-2col--wide">
-                  <div>
-                    <label>Address</label>
-                    <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
-                  </div>
-                  <div>
-                    <label htmlFor="hd-unit">Unit</label>
-                    <input id="hd-unit" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
-                      onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
-                  </div>
+                <div>
+                  <label>Address</label>
+                  <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
+                </div>
+                <div>
+                  <label htmlFor="hd-unit">Unit <span style={{ fontWeight: 400, opacity: 0.7 }}>(optional)</span></label>
+                  <input id="hd-unit" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
+                    onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
                 </div>
               </>
             )}
-            <div className="theme-date-2col">
-              <div>
-                <label htmlFor="hd-city">City</label>
-                <input id="hd-city" type="text" value={dCity} onChange={(e) => setDCity(e.target.value)} placeholder="e.g. Tofino" />
-              </div>
-              <div>
-                <label htmlFor="hd-country">Country / Province</label>
-                <input id="hd-country" type="text" value={dCountry} onChange={(e) => setDCountry(e.target.value)} placeholder="e.g. BC" />
-              </div>
-            </div>
             <div className="theme-edit-controls" style={{ marginTop: 4 }}>
               <button className="theme-edit-save" onClick={save} disabled={endBeforeStart}>Save</button>
               <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>

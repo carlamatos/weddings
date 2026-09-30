@@ -895,7 +895,3 @@ body:has(.dash-shell) {
   font-family: system-ui, sans-serif;
 }
 .theme-date-heading:not(:first-child) { margin-top: 6px; }
-.theme-date-2col--wide { grid-template-columns: 2fr 1fr; }
-@media (max-width: 480px) {
-  .theme-date-2col--wide { grid-template-columns: 1fr; }
-}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { SectionText, type SectionTextContext } from './section-text';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
@@ -16,6 +17,7 @@ export function Countdown({
   heading,
   todayHeading,
   unitLabels,
+  sectionText,
 }: {
   eventDate: string;
   eventTime?: string;
@@ -23,6 +25,7 @@ export function Countdown({
   heading: string;
   todayHeading: string;
   unitLabels: { days: string; hours: string; mins: string; secs: string };
+  sectionText?: SectionTextContext;
 }) {
   const target = new Date(eventDate + (eventTime ? `T${eventTime}` : 'T17:00:00')).getTime();
   // Server-render and client-hydration happen at different wall-clock
@@ -45,8 +48,12 @@ export function Countdown({
 
   return (
     <div className="countdown-wrap">
-      <p className="eyebrow on-dark">{eyebrow}</p>
-      <h2 className="countdown-heading">{diff !== null && diff <= 0 ? todayHeading : heading}</h2>
+      <SectionText ctx={sectionText} k="countdown.eyebrow" className="eyebrow on-dark" fallback={eyebrow} />
+      {/* The editor always shows the countdown heading so it can be edited,
+          even for a page whose date has passed. */}
+      {diff !== null && diff <= 0 && !sectionText?.pageId
+        ? <h2 className="countdown-heading">{todayHeading}</h2>
+        : <SectionText ctx={sectionText} k="countdown.title" as="h2" className="countdown-heading" fallback={heading} />}
       <div className="countdown-row">
         {([{ v: days, l: unitLabels.days }, { v: hours, l: unitLabels.hours }, { v: mins, l: unitLabels.mins }, { v: secs, l: unitLabels.secs }]).map(({ v, l }) => (
           <div key={l} className="countdown-block">

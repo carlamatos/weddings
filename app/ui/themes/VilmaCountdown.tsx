@@ -2,15 +2,17 @@
 
 import { useState, useEffect } from 'react';
 import type { Translations } from '@/app/lib/translations';
+import { SectionText, type SectionTextContext } from './section-text';
 
 function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 
-export default function VilmaCountdown({ eventDate, eventTime, translations: t }: {
+export default function VilmaCountdown({ eventDate, eventTime, translations: t, sectionText }: {
   eventDate: string;
   eventTime?: string;
   translations: Translations;
+  sectionText?: SectionTextContext;
 }) {
   const target = new Date(eventDate + (eventTime ? `T${eventTime}` : 'T17:00:00')).getTime();
   const [diff, setDiff] = useState(() => Math.max(target - Date.now(), 0));
@@ -27,8 +29,10 @@ export default function VilmaCountdown({ eventDate, eventTime, translations: t }
 
   return (
     <div className="countdown-wrap">
-      <p className="eyebrow on-dark">{t.countingDown}</p>
-      <h2 className="countdown-heading">{diff <= 0 ? t.todayIsTheDay : t.untilWeSayIDo}</h2>
+      <SectionText ctx={sectionText} k="countdown.eyebrow" className="eyebrow on-dark" fallback={t.countingDown} />
+      {diff <= 0 && !sectionText?.pageId
+        ? <h2 className="countdown-heading">{t.todayIsTheDay}</h2>
+        : <SectionText ctx={sectionText} k="countdown.title" as="h2" className="countdown-heading" fallback={t.untilWeSayIDo} />}
       <div className="countdown-row">
         {([{ v: days, l: t.days }, { v: hours, l: t.hours }, { v: mins, l: t.mins }, { v: secs, l: t.secs }]).map(({ v, l }) => (
           <div key={l} className="countdown-block">

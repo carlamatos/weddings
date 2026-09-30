@@ -467,7 +467,8 @@ export default function TerracottaHarvest({
         )}
         <div className="footer-rule" />
         <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
-        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
+        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
+          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
       </footer>
     </div>
   );

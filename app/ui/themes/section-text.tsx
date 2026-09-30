@@ -9,7 +9,7 @@ export type SectionTextContext = {
   pageId?: number;
 };
 
-// A section eyebrow (<p>) or title (<h2>) that shows the owner's custom text,
+// A section eyebrow (<p>), title (<h2>) or other short line that shows the owner's custom text,
 // or the theme's default when there is none.
 export function SectionText({
   ctx,
@@ -19,6 +19,7 @@ export function SectionText({
   className,
   style,
   icon,
+  defaultContent,
 }: {
   ctx?: SectionTextContext;
   k: SectionTextKey;
@@ -27,6 +28,9 @@ export function SectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode; // Nexus puts a small icon before its eyebrows
+  // Rich default (e.g. text with a link) shown instead of `fallback` while no
+  // custom text is set; `fallback` is still what the editor starts from.
+  defaultContent?: React.ReactNode;
 }) {
   const value = ctx?.values?.[k] ?? '';
   if (ctx?.pageId) {
@@ -40,9 +44,10 @@ export function SectionText({
         className={className}
         style={style}
         icon={icon}
+        defaultContent={defaultContent}
       />
     );
   }
   const Tag = as;
-  return <Tag className={className} style={style}>{icon}{value || fallback}</Tag>;
+  return <Tag className={className} style={style}>{icon}{value || (defaultContent ?? fallback)}</Tag>;
 }
