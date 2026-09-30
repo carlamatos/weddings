@@ -108,7 +108,6 @@ export function EditableSectionText({
   className,
   style,
   icon,
-  defaultContent,
 }: {
   pageId: number;
   k: SectionTextKey;
@@ -118,7 +117,6 @@ export function EditableSectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
-  defaultContent?: React.ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
@@ -179,7 +177,7 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <Tag className={className} style={style}>{icon}{current || (defaultContent ?? fallback)}</Tag>
+      <Tag className={className} style={style}>{icon}{current || fallback}</Tag>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit text">
         <PencilIcon /> Edit
       </button>

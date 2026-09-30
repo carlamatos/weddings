@@ -625,9 +625,8 @@ export default function Community({
               {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'none' }}>{userPhone}</a></p>}
             </>
           )}
-          <p className="footer-signoff">{t.withLove} {heading || t.theCouple}</p>
-          <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+          <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove} ${heading || t.theCouple}`} />
+          <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
         </div>
       </footer>
     </div>

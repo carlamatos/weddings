@@ -15,7 +15,7 @@ export const SECTION_TEXT_KEYS = [
   'share.eyebrow', 'share.title',
   'sponsors.eyebrow', 'sponsors.title',
   'countdown.eyebrow', 'countdown.title',
-  'footer.eyebrow', 'footer.title', 'footer.credit',
+  'footer.eyebrow', 'footer.title', 'footer.signoff',
 ] as const;
 
 export type SectionTextKey = (typeof SECTION_TEXT_KEYS)[number];

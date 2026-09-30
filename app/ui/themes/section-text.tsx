@@ -19,7 +19,6 @@ export function SectionText({
   className,
   style,
   icon,
-  defaultContent,
 }: {
   ctx?: SectionTextContext;
   k: SectionTextKey;
@@ -28,9 +27,6 @@ export function SectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode; // Nexus puts a small icon before its eyebrows
-  // Rich default (e.g. text with a link) shown instead of `fallback` while no
-  // custom text is set; `fallback` is still what the editor starts from.
-  defaultContent?: React.ReactNode;
 }) {
   const value = ctx?.values?.[k] ?? '';
   if (ctx?.pageId) {
@@ -44,10 +40,9 @@ export function SectionText({
         className={className}
         style={style}
         icon={icon}
-        defaultContent={defaultContent}
       />
     );
   }
   const Tag = as;
-  return <Tag className={className} style={style}>{icon}{value || (defaultContent ?? fallback)}</Tag>;
+  return <Tag className={className} style={style}>{icon}{value || fallback}</Tag>;
 }

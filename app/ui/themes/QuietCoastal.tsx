@@ -457,10 +457,9 @@ export default function QuietCoastal({
               </>
             )}
           </div>
-          <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
+          <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove}, ${heading || t.theCouple}`} />
         </div>
-        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );
