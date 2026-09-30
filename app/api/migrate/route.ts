@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  // Antique Cars theme (community category). Theme rows are looked up by
+  // Antique Cars theme (General Events category, key 'community'). Theme rows are looked up by
   // slug, so insert it only once.
   await sql`
     INSERT INTO event_themes (name, description, slug)
@@ -44,6 +44,8 @@ export async function POST(request: Request) {
     )
   `;
   await sql`CREATE INDEX IF NOT EXISTS idx_page_sponsors_page ON page_sponsors (user_page_id, position)`;
+  // Optional '#RRGGBB' shown behind a sponsor's image (transparent logos).
+  await sql`ALTER TABLE page_sponsors ADD COLUMN IF NOT EXISTS image_bg TEXT`;
 
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;

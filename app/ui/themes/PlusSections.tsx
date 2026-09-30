@@ -100,13 +100,16 @@ export function SponsorGrid({
           }}
         >
           {s.image_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={s.image_url}
-              alt=""
-              loading="lazy"
-              style={{ display: 'block', width: '100%', height: 110, objectFit: 'contain' }}
-            />
+            // The owner's background colour sits behind transparent logos.
+            <div style={{ width: '100%', borderRadius: 8, background: s.image_bg ?? undefined, padding: s.image_bg ? 14 : 0 }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={s.image_url}
+                alt=""
+                loading="lazy"
+                style={{ display: 'block', width: '100%', height: 110, objectFit: 'contain' }}
+              />
+            </div>
           )}
           {s.description && (
             <p style={{ fontSize: 14, lineHeight: 1.6, margin: 0, whiteSpace: 'pre-line', ...textStyle }}>

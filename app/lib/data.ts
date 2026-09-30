@@ -192,7 +192,7 @@ export async function fetchCustomSections(pageId: number | string): Promise<Cust
 export async function fetchSponsors(pageId: number | string): Promise<Sponsor[]> {
   try {
     const data = await sql<Sponsor>`
-      SELECT id, user_page_id, image_url, description, position FROM page_sponsors
+      SELECT id, user_page_id, image_url, image_bg, description, position FROM page_sponsors
       WHERE user_page_id = ${pageId}
       ORDER BY position ASC, created_at ASC
     `;

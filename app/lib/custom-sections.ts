@@ -23,6 +23,11 @@ export function isUploadedImageUrl(url: unknown): url is string {
   return typeof url === 'string' && url.length <= 1000 && UPLOADED_IMAGE_RE.test(url);
 }
 
+// A sponsor image's background: a plain '#RRGGBB' colour, nothing else.
+export function isHexColor(value: unknown): value is string {
+  return typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value);
+}
+
 export function isValidSectionPosition(position: unknown): position is number {
   return typeof position === 'number' && Number.isInteger(position) && position >= 1 && position <= CUSTOM_SECTION_COUNT;
 }

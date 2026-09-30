@@ -19,7 +19,7 @@ import { isRateLimited, clearRateLimit, recordAttempt } from './rate-limit';
 import { DBUser, EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
-  isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
+  isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
 } from './custom-sections';
 import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
@@ -418,17 +418,21 @@ export async function saveCustomSection(
   }
 }
 
-function cleanSponsorInput(data: { imageUrl?: string | null; description?: string | null }): PlusResult<{ imageUrl: string | null; description: string | null }> {
+type SponsorInput = { imageUrl?: string | null; imageBg?: string | null; description?: string | null };
+
+function cleanSponsorInput(data: SponsorInput): PlusResult<{ imageUrl: string | null; imageBg: string | null; description: string | null }> {
   const imageUrl = data?.imageUrl || null;
   if (imageUrl !== null && !isUploadedImageUrl(imageUrl)) return { ok: false, error: 'That image couldn’t be used. Please upload it again.' };
+  const imageBg = data?.imageBg || null;
+  if (imageBg !== null && !isHexColor(imageBg)) return { ok: false, error: 'That background colour isn’t valid.' };
   const description = (typeof data?.description === 'string' ? data.description : '').replace(/\r\n/g, '\n').trim().slice(0, SPONSOR_DESCRIPTION_MAX) || null;
   if (!imageUrl && !description) return { ok: false, error: 'Add an image or a short description.' };
-  return { ok: true, value: { imageUrl, description } };
+  return { ok: true, value: { imageUrl, imageBg: imageUrl ? imageBg : null, description } };
 }
 
 export async function addSponsor(
   pageId: number,
-  data: { imageUrl?: string | null; description?: string | null },
+  data: SponsorInput,
 ): Promise<PlusResult<Sponsor>> {
   const input = cleanSponsorInput(data);
   if (!input.ok) return input;
@@ -438,9 +442,9 @@ export async function addSponsor(
     const count = await sql`SELECT COUNT(*)::int AS n, COALESCE(MAX(position), 0)::int AS last FROM page_sponsors WHERE user_page_id = ${owned.value}`;
     if (count.rows[0].n >= SPONSOR_MAX_COUNT) return { ok: false, error: `You can add up to ${SPONSOR_MAX_COUNT} sponsors.` };
     const result = await sql<Sponsor>`
-      INSERT INTO page_sponsors (user_page_id, image_url, description, position)
-      VALUES (${owned.value}, ${input.value.imageUrl}, ${input.value.description}, ${count.rows[0].last + 1})
-      RETURNING id, user_page_id, image_url, description, position
+      INSERT INTO page_sponsors (user_page_id, image_url, image_bg, description, position)
+      VALUES (${owned.value}, ${input.value.imageUrl}, ${input.value.imageBg}, ${input.value.description}, ${count.rows[0].last + 1})
+      RETURNING id, user_page_id, image_url, image_bg, description, position
     `;
     revalidatePath('/', 'layout');
     return { ok: true, value: result.rows[0] };
@@ -453,7 +457,7 @@ export async function addSponsor(
 export async function updateSponsor(
   pageId: number,
   sponsorId: string,
-  data: { imageUrl?: string | null; description?: string | null },
+  data: SponsorInput,
 ): Promise<PlusResult<Sponsor>> {
   if (typeof sponsorId !== 'string' || !UUID_RE.test(sponsorId)) return { ok: false, error: 'Sponsor not found.' };
   const input = cleanSponsorInput(data);
@@ -462,9 +466,9 @@ export async function updateSponsor(
     const owned = await ownedPlusPageId(pageId);
     if (!owned.ok) return owned;
     const result = await sql<Sponsor>`
-      UPDATE page_sponsors SET image_url = ${input.value.imageUrl}, description = ${input.value.description}
+      UPDATE page_sponsors SET image_url = ${input.value.imageUrl}, image_bg = ${input.value.imageBg}, description = ${input.value.description}
       WHERE id = ${sponsorId} AND user_page_id = ${owned.value}
-      RETURNING id, user_page_id, image_url, description, position
+      RETURNING id, user_page_id, image_url, image_bg, description, position
     `;
     if (!result.rows[0]) return { ok: false, error: 'Sponsor not found.' };
     revalidatePath('/', 'layout');

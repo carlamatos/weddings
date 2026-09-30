@@ -35,8 +35,17 @@ function MessageText({ message }: { message: Message }) {
 }
 
 // Image picker with a preview; the upload happens as soon as a file is chosen.
-function ImageField({ url, onChange, onError }: { url: string | null; onChange: (url: string | null) => void; onError: (text: string) => void }) {
+// An optional background colour sits behind the image (for transparent logos).
+function ImageField({ url, bg, onChange, onBgChange, onError }: {
+  url: string | null;
+  bg: string | null;
+  onChange: (url: string | null) => void;
+  onBgChange: (bg: string | null) => void;
+  onError: (text: string) => void;
+}) {
   const [uploading, setUploading] = useState(false);
+  // Remembers the last colour picked, so switching the background off and on keeps it.
+  const [lastBg, setLastBg] = useState(bg ?? '#FFFFFF');
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function pick(e: React.ChangeEvent<HTMLInputElement>) {
@@ -55,7 +64,7 @@ function ImageField({ url, onChange, onError }: { url: string | null; onChange: 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: 160, flexShrink: 0 }}>
-      <div style={{ width: 160, height: 110, borderRadius: 8, border: '1px dashed #D9D2CB', background: '#faf8f6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+      <div style={{ width: 160, height: 110, borderRadius: 8, border: '1px dashed #D9D2CB', background: (url && bg) || '#faf8f6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', padding: url && bg ? 10 : 0, boxSizing: 'border-box' }}>
         {url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
@@ -68,9 +77,25 @@ function ImageField({ url, onChange, onError }: { url: string | null; onChange: 
           {uploading ? 'Uploading…' : url ? 'Replace' : 'Upload image'}
         </button>
         {url && !uploading && (
-          <button type="button" style={{ ...btnGhost, padding: '6px 8px', fontSize: 12 }} onClick={() => onChange(null)}>Remove</button>
+          <button type="button" style={{ ...btnGhost, padding: '6px 8px', fontSize: 12 }} onClick={() => { onChange(null); onBgChange(null); }}>Remove</button>
         )}
       </div>
+      {url && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#241F2B' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+            <input type="checkbox" checked={!!bg} onChange={(e) => onBgChange(e.target.checked ? lastBg : null)} />
+            Background
+          </label>
+          <input
+            type="color"
+            aria-label="Background colour"
+            value={bg ?? lastBg}
+            disabled={!bg}
+            onChange={(e) => { setLastBg(e.target.value); onBgChange(e.target.value); }}
+            style={{ width: 34, height: 24, padding: 0, border: '1px solid #EDE8E3', borderRadius: 4, background: '#fff', cursor: bg ? 'pointer' : 'default', opacity: bg ? 1 : 0.4 }}
+          />
+        </div>
+      )}
       <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={pick} />
     </div>
   );
@@ -163,21 +188,23 @@ function SponsorRow({
   onSaved: (s: Sponsor) => void;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(sponsor.image_url);
+  const [imageBg, setImageBg] = useState<string | null>(sponsor.image_bg);
   const [description, setDescription] = useState(sponsor.description ?? '');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<Message>(null);
-  const dirty = imageUrl !== sponsor.image_url || description.trim() !== (sponsor.description ?? '');
+  const dirty = imageUrl !== sponsor.image_url || imageBg !== sponsor.image_bg || description.trim() !== (sponsor.description ?? '');
 
   async function save() {
     setSaving(true);
     setMessage(null);
-    const result = await updateSponsor(pageId, sponsor.id, { imageUrl, description });
+    const result = await updateSponsor(pageId, sponsor.id, { imageUrl, imageBg, description });
     setSaving(false);
     if (!result.ok) {
       setMessage({ kind: 'error', text: result.error });
       return;
     }
     setDescription(result.value.description ?? '');
+    setImageBg(result.value.image_bg);
     onSaved(result.value);
     setMessage({ kind: 'ok', text: 'Saved.' });
   }
@@ -185,7 +212,13 @@ function SponsorRow({
   return (
     <div style={cardStyle}>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <ImageField url={imageUrl} onChange={(u) => { setImageUrl(u); setMessage(null); }} onError={(text) => setMessage({ kind: 'error', text })} />
+        <ImageField
+          url={imageUrl}
+          bg={imageBg}
+          onChange={(u) => { setImageUrl(u); setMessage(null); }}
+          onBgChange={(b) => { setImageBg(b); setMessage(null); }}
+          onError={(text) => setMessage({ kind: 'error', text })}
+        />
         <DescriptionField id={`sponsor-${sponsor.id}`} value={description} onChange={(v) => { setDescription(v); setMessage(null); }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
           <button type="button" style={iconBtn} onClick={() => onMove(-1)} disabled={isFirst} aria-label="Move up" title="Move up">↑</button>
@@ -209,6 +242,7 @@ function SponsorRow({
 
 function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Sponsor) => void }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageBg, setImageBg] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<Message>(null);
@@ -217,7 +251,7 @@ function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Spon
   async function add() {
     setSaving(true);
     setMessage(null);
-    const result = await addSponsor(pageId, { imageUrl, description });
+    const result = await addSponsor(pageId, { imageUrl, imageBg, description });
     setSaving(false);
     if (!result.ok) {
       setMessage({ kind: 'error', text: result.error });
@@ -225,6 +259,7 @@ function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Spon
     }
     onAdded(result.value);
     setImageUrl(null);
+    setImageBg(null);
     setDescription('');
     setMessage({ kind: 'ok', text: 'Sponsor added.' });
   }
@@ -233,7 +268,13 @@ function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Spon
     <div style={{ ...cardStyle, borderStyle: 'dashed', background: '#faf8f6' }}>
       <h2 style={{ fontSize: 15, fontWeight: 600, color: '#241F2B', margin: '0 0 14px' }}>Add a sponsor</h2>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <ImageField url={imageUrl} onChange={(u) => { setImageUrl(u); setMessage(null); }} onError={(text) => setMessage({ kind: 'error', text })} />
+        <ImageField
+          url={imageUrl}
+          bg={imageBg}
+          onChange={(u) => { setImageUrl(u); setMessage(null); }}
+          onBgChange={(b) => { setImageBg(b); setMessage(null); }}
+          onError={(text) => setMessage({ kind: 'error', text })}
+        />
         <DescriptionField id="sponsor-new" value={description} onChange={(v) => { setDescription(v); setMessage(null); }} />
       </div>
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'flex-end', marginTop: 12 }}>

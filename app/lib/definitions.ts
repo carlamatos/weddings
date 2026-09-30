@@ -138,6 +138,7 @@ export type Sponsor = {
   id: string;
   user_page_id: number;
   image_url: string | null;
+  image_bg: string | null; // '#RRGGBB' behind the image (for transparent logos), or none
   description: string | null;
   position: number;
 };
