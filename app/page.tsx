@@ -384,6 +384,17 @@ export default async function Page() {
                     <p className="theme-desc">Forest green, bauble red and golden light with falling snow, twinkling string lights and a swinging bauble countdown — cozy and cute for holiday parties.</p>
                   </div>
                 </a>
+                <a href="/themes/white-christmas" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#DAE4F0' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="white-christmas" heading="White Christmas" eventDate="2026-12-12" city="Lake Louise" country="AB" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">White Christmas</p>
+                    <p className="theme-desc">Icy winter blues with gold stars, silver and pine, gold-framed cards and gently falling snow — classic and elegant for holiday celebrations.</p>
+                  </div>
+                </a>
               </div>
             </div>
             </ThemeFilter>

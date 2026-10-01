@@ -365,4 +365,22 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['All I Want for Christmas Is You', 'Mariah Carey', 'Holly'], ['Jingle Bell Rock', 'Bobby Helms', 'Nick']]),
     shareHashtag: 'HolidayParty2026',
   }),
+  'white-christmas': demo('white-christmas', {
+    heading: 'A White Christmas',
+    heroEyebrow: "You're invited",
+    description: 'Join us for an elegant evening as the snow falls — candlelight, a fireside supper, carols by the tree and a toast to the year behind us. Dress for a winter wonderland and bring your merriest spirit.',
+    eventDate: '2026-12-12', eventTime: '18:00', eventEndTime: '23:30',
+    venueName: 'The Fairmont Château', streetAddress: '111 Lake Louise Dr', city: 'Lake Louise', country: 'AB',
+    formattedAddress: '111 Lake Louise Dr, Lake Louise, AB',
+    userEmail: 'hosts@whitechristmas.example',
+    registryDescription: 'Bring a wrapped gift (around $30) for our gift exchange beneath the tree.',
+    eventProgram: program([
+      ['2026-12-12', 'Champagne & canapés', '18:00', null, 'The Grand Foyer'],
+      ['2026-12-12', 'Fireside supper', '19:00', null, 'The Mount Victoria Room'],
+      ['2026-12-12', 'Carols & gift exchange', '21:00', null, 'By the tree'],
+      ['2026-12-12', 'Dancing in the snow lights', '22:00', '23:30', 'The Ballroom'],
+    ]),
+    guestSongs: songs([['White Christmas', 'Bing Crosby', 'Eleanor'], ['Let It Snow!', 'Dean Martin', 'Henry']]),
+    shareHashtag: 'WhiteChristmas2026',
+  }),
 };

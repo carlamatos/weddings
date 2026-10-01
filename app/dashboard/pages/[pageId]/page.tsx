@@ -61,7 +61,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'Baby on the way!'
       : userPage.theme_slug === 'baby-shower-boy'
       ? "It's a boy!"
-      : userPage.theme_slug === 'christmas-party'
+      : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas'
       ? "You're invited"
       : 'Together with their families';
 

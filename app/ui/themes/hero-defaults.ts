@@ -19,6 +19,7 @@ export const HERO_DEFAULTS = {
   'the-day': '/images/themes/the-day/hero.jpeg',
   love: '/images/themes/love/hero.jpeg',
   'christmas-party': '/images/themes/christmas-party/hero.jpeg',
+  'white-christmas': '/images/themes/white-christmas/hero.jpeg',
   // Balloons has no default cover photo — its hero is a gradient with a
   // decorative balloon graphic (see hero-balloons.png), not a full-bleed
   // background image, so it's intentionally absent here (like Terracotta).

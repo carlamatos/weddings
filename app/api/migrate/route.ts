@@ -75,6 +75,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'christmas-party')
   `;
 
+  // White Christmas theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'White Christmas',
+           'Icy winter blues with gold stars, silver and pine. Classic serif type, gold-framed cards and gently falling snow for an elegant holiday celebration.',
+           'white-christmas'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'white-christmas')
+  `;
+
   // Plus: up to three owner-written sections per page (optional title plus a
   // JSON list of text/image blocks) and a sponsors list.
   await sql`
