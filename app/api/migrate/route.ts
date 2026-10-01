@@ -84,6 +84,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'white-christmas')
   `;
 
+  // Día de los Muertos theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Día de los Muertos',
+           'Deep plum nights lit with marigold, hot pink and teal. Swaying papel picado, falling cempasúchil petals and dancing sugar skulls for a joyful celebration of remembrance.',
+           'dia-de-los-muertos'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'dia-de-los-muertos')
+  `;
+
   // Plus: up to three owner-written sections per page (optional title plus a
   // JSON list of text/image blocks) and a sponsors list.
   await sql`

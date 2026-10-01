@@ -383,4 +383,22 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['White Christmas', 'Bing Crosby', 'Eleanor'], ['Let It Snow!', 'Dean Martin', 'Henry']]),
     shareHashtag: 'WhiteChristmas2026',
   }),
+  'dia-de-los-muertos': demo('dia-de-los-muertos', {
+    heading: 'Día de los Muertos',
+    heroEyebrow: 'Celebrate with us',
+    description: 'Join us as we honour the ones we love with marigolds, candlelight and music. Bring a photo or a favourite memory for the ofrenda, come in your brightest colours (sugar-skull face paint encouraged!) and stay for tamales, pan de muerto and dancing late into the night.',
+    eventDate: '2026-11-01', eventTime: '18:00', eventEndTime: '23:59',
+    venueName: 'Casa Loma Gardens', streetAddress: '1 Austin Terrace', city: 'Toronto', country: 'ON',
+    formattedAddress: '1 Austin Terrace, Toronto, ON',
+    userEmail: 'hosts@diadelosmuertos.example',
+    registryDescription: 'Bring a photo, a candle or a small offering of your loved one\'s favourite treat to place on our community ofrenda.',
+    eventProgram: program([
+      ['2026-11-01', 'Welcome & agua fresca', '18:00', null, 'The Garden Gate'],
+      ['2026-11-01', 'Lighting the ofrenda', '19:00', null, 'The Courtyard'],
+      ['2026-11-01', 'Tamales & pan de muerto', '19:30', null, 'The Long Table'],
+      ['2026-11-01', 'Mariachi & dancing', '21:00', '23:59', 'The Terrace'],
+    ]),
+    guestSongs: songs([['La Llorona', 'Chavela Vargas', 'Lucía'], ['Remember Me', 'Miguel & Natalia Lafourcade', 'Diego']]),
+    shareHashtag: 'DiaDeLosMuertos2026',
+  }),
 };

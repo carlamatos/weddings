@@ -63,6 +63,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? "It's a boy!"
       : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas'
       ? "You're invited"
+      : userPage.theme_slug === 'dia-de-los-muertos'
+      ? 'Celebrate with us'
       : 'Together with their families';
 
   const themeEyebrowClass =
