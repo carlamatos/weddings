@@ -708,6 +708,22 @@ export async function updateBannerImage(pageId: number, url: string) {
   }
 }
 
+// Clears the uploaded banner so the page shows its theme's default hero again.
+export async function resetBannerImage(pageId: number): Promise<boolean> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    const res = await sql`UPDATE user_page SET banner_image = NULL WHERE id = ${pid} AND user_id = ${userId}`;
+    revalidatePath('/', 'layout');
+    return !!res.rowCount;
+  } catch (error) {
+    console.error('Failed to reset banner image:', error);
+    return false;
+  }
+}
+
 export async function updateEventDateTime(pageId: number, data: {
   date?: string;
   time?: string;
