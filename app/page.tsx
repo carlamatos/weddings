@@ -291,7 +291,7 @@ export default async function Page() {
                 <a href="/themes/baby-shower-girl.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#F5D7DF' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-girl" heading="Emma's Baby Shower" eventDate="2027-04-17" city="Vancouver" country="BC" />
+                      <ThemeHeroPreview themeSlug="baby-shower-girl" heading="Baby Shower" eventDate="2027-04-17" city="Vancouver" country="BC" />
                     </div>
                   </div>
                   <div className="theme-info">
@@ -302,7 +302,7 @@ export default async function Page() {
                 <a href="/themes/baby-shower-neutral.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#E3E5E8' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-neutral" heading="Sam & Alex's Baby Shower" eventDate="2027-05-22" city="Victoria" country="BC" />
+                      <ThemeHeroPreview themeSlug="baby-shower-neutral" heading="Baby Shower" eventDate="2027-05-22" city="Victoria" country="BC" />
                     </div>
                   </div>
                   <div className="theme-info">
@@ -313,7 +313,7 @@ export default async function Page() {
                 <a href="/themes/baby-shower-boy.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#8DC8F0' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-boy" heading="Baby Noah's Shower" eventDate="2027-06-12" city="Calgary" country="AB" />
+                      <ThemeHeroPreview themeSlug="baby-shower-boy" heading="Baby Shower" eventDate="2027-06-12" city="Calgary" country="AB" />
                     </div>
                   </div>
                   <div className="theme-info">
