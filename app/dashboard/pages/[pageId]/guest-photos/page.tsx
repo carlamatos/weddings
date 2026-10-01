@@ -1,8 +1,10 @@
 import { fetchGuestPhotos, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { hasExpiredPlan } from '@/app/lib/plans';
+import { publicPageUrl } from '@/app/lib/share';
 import { DashboardGuestPhotos } from '@/app/ui/themes/GuestPhotoSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
+import { PhotoQrCard } from '@/app/ui/dashboard/photo-qr-card';
 import Link from 'next/link';
 
 export default async function GuestPhotosPage({ params }: { params: Promise<{ pageId: string }> }) {
@@ -44,6 +46,12 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
         pageId={Number(userPage.id)}
         settingName="show_guest_photos"
         initialOn={isSectionOn(settings, 'show_guest_photos')}
+      />
+
+      <PhotoQrCard
+        uploadUrl={`${publicPageUrl(userPage)}#photos`}
+        heading={userPage.heading || ''}
+        sectionOn={isSectionOn(settings, 'show_guest_photos')}
       />
 
       <DashboardGuestPhotos

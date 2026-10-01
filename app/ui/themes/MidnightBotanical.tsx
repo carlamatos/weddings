@@ -8,6 +8,9 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -117,6 +120,8 @@ const css = `
   .mb .attend-options { display: flex; gap: 24px; margin-top: 8px; flex-wrap: wrap; }
   .mb .radio-label, .mb .check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); cursor: pointer; }
   .mb .radio-label input, .mb .check-label input { width: auto; border: none; border-bottom: none; padding: 0; accent-color: var(--gold); }
+  /* the generic input rule sets appearance: none, which would hide these */
+  .mb .radio-label input, .mb .check-label input { appearance: auto; -webkit-appearance: auto; width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
   .mb .check-hint { font-size: 12px; color: var(--moss); margin: 4px 0 0; }
   .mb .rsvp-error { color: #B25A4A; font-size: 13px; margin: 0; }
   .mb .rsvp-success { padding: 12px 0; }
@@ -183,11 +188,18 @@ export default function MidnightBotanical({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
+  livestream,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -214,6 +226,8 @@ export default function MidnightBotanical({
   return (
     <div className="mb">
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -296,6 +310,22 @@ export default function MidnightBotanical({
         </div>
       )}
 
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <div id="livestream" className="spine-section wide">
+          <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel} />
+          <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="title" fallback={t.watchLive} />
+          <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" align="left" textStyle={{ color: 'var(--moss)' }} />
+        </div>
+      )}
+
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="spine-section" key={`custom-${section.position}`}>
+          <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)' }} />
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="spine-section wide">
@@ -325,7 +355,7 @@ export default function MidnightBotanical({
         <div id="rsvp" className="spine-section">
           <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond} />
           <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp} />
-          <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+          <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
         </div>
       )}
 
@@ -342,20 +372,29 @@ export default function MidnightBotanical({
       })()}
 
       {/* REGISTRY */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <div
           className="registry-wrap"
           style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
         >
           <div className="registry-overlay">
             <p className="registry-title">{t.registry}</p>
-            {registryDescription && <p className="registry-description">{registryDescription}</p>}
+            {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
             {registryButtonLink && (
               <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                 {registryButtonText || t.viewRegistry}
               </a>
             )}
           </div>
+        </div>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="spine-section wide">
+          <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel} />
+          <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="title" fallback={t.ourSponsors} />
+          <SponsorGrid sponsors={sponsors} align="left" textStyle={{ color: 'var(--moss)' }} />
         </div>
       )}
 
@@ -370,7 +409,7 @@ export default function MidnightBotanical({
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
             btnClassName="btn"
-            disabled={isPreview}
+            disabled={formsDisabled}
           />
         </div>
       )}
@@ -387,7 +426,7 @@ export default function MidnightBotanical({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn"
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </div>
@@ -410,9 +449,8 @@ export default function MidnightBotanical({
           </>
         )}
         <div className="footer-rule" />
-        <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
-        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+        <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove}, ${heading || t.theCouple}`} />
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

@@ -8,6 +8,7 @@ import SubscriptionBadge from '@/app/ui/admin/subscription-badge';
 import TrashUserButton from '@/app/ui/admin/trash-user-button';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
+import { siteHref } from '@/app/lib/app-url';
 
 export default async function AdminUsersPage({
   searchParams,
@@ -65,7 +66,7 @@ export default async function AdminUsersPage({
                   <td style={td}>
                     {u.page_slug ? (
                       <>
-                        <Link href={`/${u.page_slug}`} target="_blank" style={{ color: c.ink }}>
+                        <Link href={siteHref(`/${u.page_slug}`)} target="_blank" style={{ color: c.ink }}>
                           /{u.page_slug}
                         </Link>
                         {u.page_count > 1 && (

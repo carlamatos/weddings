@@ -2,14 +2,16 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
+import { appHref } from '@/app/lib/app-url';
 
 interface EventData {
   id: string;
@@ -125,6 +127,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
   if (!data) notFound();
+  const plusContent = await fetchPlusContent(data.id, isPaid, pageSettings);
 
   const isOwner = session?.user?.id === data.user_id;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
@@ -133,7 +136,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     <>
       {/* Edit button — visible to page owner only */}
       {isOwner && (
-        <Link href="/dashboard" className="edit-page-btn">
+        <Link href={appHref('/dashboard')} className="edit-page-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
@@ -165,10 +168,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         userEmail={data.user_email || undefined}
         userPhone={data.user_phone || undefined}
         mapsKey={mapsKey}
-        registryImage={data.section_2_image}
-        registryDescription={data.section_2_description}
-        registryButtonText={data.section_2_button_text}
-        registryButtonLink={data.section_2_button_link}
+        {...registryProps(data, isPaid, pageSettings)}
         heroEyebrow={data.hero_eyebrow}
         venueName={data.venue_name}
         language={data.language}
@@ -187,6 +187,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        customSections={plusContent.customSections}
+        sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

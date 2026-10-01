@@ -12,7 +12,10 @@ import {
   GuestPhoto,
   GuestSong,
   EventProgramItem,
+  CustomSection,
+  Sponsor,
 } from './definitions';
+import { CUSTOM_SECTION_COUNT, emptyCustomSection, hasCustomSectionContent, normalizeBlocks } from './custom-sections';
 
 function isoDay(d: unknown): string | undefined {
   if (d instanceof Date) return d.toISOString().split('T')[0];
@@ -166,6 +169,70 @@ export async function fetchEventProgram(pageId: number | string): Promise<EventP
     console.error('Failed to fetch event program:', error);
     return [];
   }
+}
+
+// The page's three custom sections, always in slot order 1..3 (unsaved slots
+// come back empty).
+export async function fetchCustomSections(pageId: number | string): Promise<CustomSection[]> {
+  const sections = Array.from({ length: CUSTOM_SECTION_COUNT }, (_, i) => emptyCustomSection(i + 1));
+  try {
+    const data = await sql<{ position: number; title: string; blocks: unknown }>`
+      SELECT position, title, blocks FROM page_custom_sections WHERE user_page_id = ${pageId}
+    `;
+    for (const row of data.rows) {
+      const i = Number(row.position) - 1;
+      if (sections[i]) sections[i] = { position: i + 1, title: row.title ?? '', blocks: normalizeBlocks(row.blocks) ?? [] };
+    }
+  } catch (error) {
+    console.error('Failed to fetch custom sections:', error);
+  }
+  return sections;
+}
+
+export async function fetchSponsors(pageId: number | string): Promise<Sponsor[]> {
+  try {
+    const data = await sql<Sponsor>`
+      SELECT id, user_page_id, image_url, image_bg, description, position FROM page_sponsors
+      WHERE user_page_id = ${pageId}
+      ORDER BY position ASC, created_at ASC
+    `;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch sponsors:', error);
+    return [];
+  }
+}
+
+// The registry section's theme props (Plus): empty unless the page is paid
+// and the section is switched on.
+export function registryProps(
+  page: Pick<UserPage, 'section_2_image' | 'section_2_description' | 'section_2_button_text' | 'section_2_button_link'>,
+  isPaid: boolean,
+  settings: Record<string, string>,
+): { registryImage?: string; registryDescription?: string; registryButtonText?: string; registryButtonLink?: string } {
+  if (!isPaid || !isSectionOn(settings, 'show_registry')) return {};
+  return {
+    registryImage: page.section_2_image || undefined,
+    registryDescription: page.section_2_description || undefined,
+    registryButtonText: page.section_2_button_text || undefined,
+    registryButtonLink: page.section_2_button_link || undefined,
+  };
+}
+
+// What a public page (or the editor preview) shows: nothing unless the page
+// is paid and the section is switched on, and only custom sections that have
+// something in them.
+export async function fetchPlusContent(
+  pageId: number | string,
+  isPaid: boolean,
+  settings: Record<string, string>,
+): Promise<{ customSections: CustomSection[]; sponsors: Sponsor[] }> {
+  if (!isPaid) return { customSections: [], sponsors: [] };
+  const [customSections, sponsors] = await Promise.all([
+    isSectionOn(settings, 'show_custom_sections') ? fetchCustomSections(pageId) : Promise.resolve([]),
+    isSectionOn(settings, 'show_sponsors') ? fetchSponsors(pageId) : Promise.resolve([]),
+  ]);
+  return { customSections: customSections.filter(hasCustomSectionContent), sponsors };
 }
 
 const GUEST_PHOTOS_PAGE_SIZE = 20;

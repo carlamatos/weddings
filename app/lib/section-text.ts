@@ -13,8 +13,10 @@ export const SECTION_TEXT_KEYS = [
   'photos.eyebrow', 'photos.title',
   'songs.eyebrow', 'songs.title',
   'share.eyebrow', 'share.title',
+  'sponsors.eyebrow', 'sponsors.title',
+  'livestream.eyebrow', 'livestream.title',
   'countdown.eyebrow', 'countdown.title',
-  'footer.eyebrow', 'footer.title', 'footer.credit',
+  'footer.eyebrow', 'footer.title', 'footer.signoff',
 ] as const;
 
 export type SectionTextKey = (typeof SECTION_TEXT_KEYS)[number];

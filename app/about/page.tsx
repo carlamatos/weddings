@@ -12,7 +12,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>What is MyGala?</h2>
       <p>
-        MyGala is a Canadian web platform that lets you create a beautiful, personalised page for any event in minutes — no coding, no design experience, and no expensive agencies required. Weddings, birthdays, business events, community celebrations — pick a theme built for your kind of event, fill in your details, and share one clean link with everyone you&apos;ve invited.
+        MyGala is a Canadian web platform that lets you create a beautiful, personalised page for any event in minutes — no coding, no design experience, and no expensive agencies required. Weddings, celebrations, business events, general events — pick a theme built for your kind of event, fill in your details, and share one clean link with everyone you&apos;ve invited.
       </p>
       <p>
         Every page includes everything an event website needs: your story, the event details, an RSVP form, a photo gallery, an event program, a registry or resources section, a countdown, and more — all in one place your guests will actually find easy to use.
@@ -20,7 +20,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>Why we built it</h2>
       <p>
-        Planning an event is already a full-time job, whatever the occasion. We found that most hosts were either spending too much on custom websites they barely used, or settling for generic platforms that didn&apos;t reflect their event at all. MyGala sits in between: thoughtfully designed themes with real personality for weddings, birthdays, business events, and community gatherings alike — paired with tools that do the heavy lifting.
+        Planning an event is already a full-time job, whatever the occasion. We found that most hosts were either spending too much on custom websites they barely used, or settling for generic platforms that didn&apos;t reflect their event at all. MyGala sits in between: thoughtfully designed themes with real personality for weddings, celebrations, business events, and general events alike — paired with tools that do the heavy lifting.
       </p>
       <p>
         We believe your event page should be as considered as the event itself — not an afterthought, and not a chore.
@@ -28,7 +28,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>What you can do with MyGala</h2>
       <ul style={ul}>
-        <li><strong>Choose a theme</strong> — Handcrafted themes across weddings, birthdays, business events, and community celebrations, with more on the way. Switching is instant and never loses your content.</li>
+        <li><strong>Choose a theme</strong> — Handcrafted themes across weddings, celebrations, business events, and general events, with more on the way. Switching is instant and never loses your content.</li>
         <li><strong>Collect RSVPs</strong> — Guests RSVP directly on your page. No account required for them, no spreadsheet management for you.</li>
         <li><strong>Publish an event program</strong> — Lay out your schedule, however many days or sessions it runs, right on the page.</li>
         <li><strong>Share a photo gallery</strong> — Upload up to 8 photos on the free plan; unlimited on Plus. Guests can browse them all in a lightbox.</li>

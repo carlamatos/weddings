@@ -64,7 +64,14 @@ export interface ThemeProps {
   shareHashtag?: string; // normalized, no leading '#'
   shareUrl?: string; // public URL the share buttons send
   sectionText?: import('@/app/lib/section-text').SectionText; // owner's custom section eyebrows/titles
+  // Plus only, already filtered by the page: switched on and non-empty.
+  customSections?: import('@/app/lib/definitions').CustomSection[];
+  sponsors?: import('@/app/lib/definitions').Sponsor[];
+  livestream?: import('@/app/lib/livestream').Livestream;
   sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;
+  // Showcase preview (/themes/<slug>): sample content, forms shown but not
+  // submittable, and a "Back to themes" link in the top bar.
+  demo?: boolean;
 }

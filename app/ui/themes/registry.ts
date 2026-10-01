@@ -12,6 +12,16 @@ import Nexus, { HeroPreview as NexusPreview } from './Nexus';
 import Balloons, { HeroPreview as BalloonsPreview } from './Balloons';
 import DinnerGala, { HeroPreview as DinnerGalaPreview } from './DinnerGala';
 import Community, { HeroPreview as CommunityPreview } from './Community';
+import AntiqueCars, { HeroPreview as AntiqueCarsPreview } from './AntiqueCars';
+import BabyShowerGirl, { HeroPreview as BabyShowerGirlPreview } from './BabyShowerGirl';
+import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './BabyShowerNeutral';
+import BabyShowerBoy, { HeroPreview as BabyShowerBoyPreview } from './BabyShowerBoy';
+import TheDay, { HeroPreview as TheDayPreview } from './TheDay';
+import Love, { HeroPreview as LovePreview } from './Love';
+import ChristmasParty, { HeroPreview as ChristmasPartyPreview } from './ChristmasParty';
+import WhiteChristmas, { HeroPreview as WhiteChristmasPreview } from './WhiteChristmas';
+import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
+import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -37,6 +47,8 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'midnight-botanical': { Page: MidnightBotanical, Preview: MBPreview,      category: 'wedding',     label: 'Midnight Botanical' },
   'terracotta-harvest': { Page: TerracottaHarvest, Preview: TCPreview,      category: 'wedding',     label: 'Terracotta Harvest', FallbackHero: TerracottaDefaultHero },
   'vilma':              { Page: Vilma,             Preview: VLPreview,     category: 'wedding',     label: 'Vilma' },
+  'the-day':            { Page: TheDay,            Preview: TheDayPreview, category: 'wedding',     label: 'The Day' },
+  'love':               { Page: Love,              Preview: LovePreview,   category: 'wedding',     label: 'Love' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },
   'fun-party':          { Page: FunParty,          Preview: FunPartyPreview, category: 'birthdays',  label: 'Fun Party' },
@@ -44,6 +56,14 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'balloons':           { Page: Balloons,          Preview: BalloonsPreview, category: 'birthdays', label: 'Balloons' },
   'dinner-gala':        { Page: DinnerGala,        Preview: DinnerGalaPreview, category: 'business', label: 'Dinner Gala' },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
+  'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
+  'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', label: 'Christmas Party' },
+  'white-christmas':    { Page: WhiteChristmas,    Preview: WhiteChristmasPreview, category: 'community', label: 'White Christmas' },
+  'dia-de-los-muertos': { Page: DiaDeLosMuertos,   Preview: DiaDeLosMuertosPreview, category: 'community', label: 'Día de los Muertos' },
+  'halloween-party':    { Page: HalloweenParty,    Preview: HalloweenPartyPreview, category: 'community', label: 'Halloween Party' },
+  'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
+  'baby-shower-neutral': { Page: BabyShowerNeutral, Preview: BabyShowerNeutralPreview, category: 'birthdays', label: 'Neutral Baby Shower' },
+  'baby-shower-boy':    { Page: BabyShowerBoy,     Preview: BabyShowerBoyPreview, category: 'birthdays', label: 'Boy Baby Shower' },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';

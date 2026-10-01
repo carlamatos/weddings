@@ -11,16 +11,16 @@ import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   wedding: 'Wedding',
-  birthdays: 'Birthdays',
+  birthdays: 'Celebrations',
   business: 'Business',
-  community: 'Community',
+  community: 'General Events',
 };
 
 const EVENT_NAME_PLACEHOLDER: Record<EventCategory, string> = {
   wedding: 'e.g. Sofia & James Wedding',
   birthdays: "e.g. Sofia's Quinceañera or Sweet 16",
   business: 'e.g. Annual Leadership Summit',
-  community: 'e.g. Neighborhood Block Party',
+  community: 'e.g. Classic Car Show or Neighborhood Block Party',
 };
 
 // Every theme card shows the theme's own real HeroPreview, scaled down to

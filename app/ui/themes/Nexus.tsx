@@ -11,6 +11,8 @@ import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -370,13 +372,19 @@ export default function Nexus({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
+  livestream,
   isLoggedIn,
+  demo,
 }: ThemeProps) {
   const base = getTranslations(language);
   // Nexus reuses every shared form/section component as-is — only the copy
   // that's inherently bride/groom-flavored is overridden here.
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -407,7 +415,7 @@ export default function Nexus({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}
+      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
 
       {/* HERO */}
       <div className="hero">
@@ -495,6 +503,30 @@ export default function Nexus({
         </>
       )}
 
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <Reveal>
+          <div id="livestream" className="section section-center">
+            <div className="wrap-wide">
+              <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" icon={<Icon name="users" />} fallback={t.livestreamLabel} />
+              <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="section-title" fallback={t.watchLive} />
+              <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" textStyle={{ color: 'var(--nx-text-soft)' }} />
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <Reveal key={`custom-${section.position}`}>
+          <div className="section section-center">
+            <div className="wrap">
+              <CustomSectionContent section={section} titleClassName="section-title" textStyle={{ fontFamily: 'var(--nx-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'var(--nx-text-soft)' }} />
+            </div>
+          </div>
+        </Reveal>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
@@ -535,7 +567,7 @@ export default function Nexus({
                 <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow teal" icon={<Icon name="users" />} fallback={t.kindlyRespond} />
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
                 <div className="rsvp-card">
-                  <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+                  <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
                 </div>
               </div>
             </div>
@@ -557,7 +589,7 @@ export default function Nexus({
       </Reveal>
 
       {/* RESOURCES (registry section, reframed) */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <>
           <NexusDivider />
           <Reveal>
@@ -567,7 +599,7 @@ export default function Nexus({
             >
               <div className="registry-overlay">
                 <p className="registry-title"><Icon name="external" size={14} />{' '}{t.registry}</p>
-                {registryDescription && <p className="registry-description">{registryDescription}</p>}
+                {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
                 {registryButtonLink && (
                   <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                     {registryButtonText || t.viewRegistry}
@@ -577,6 +609,19 @@ export default function Nexus({
             </div>
           </Reveal>
         </>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <Reveal>
+          <div className="section section-center">
+            <div className="wrap-wide">
+              <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" icon={<Icon name="users" />} fallback={t.sponsorsLabel} />
+              <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="section-title" fallback={t.ourSponsors} />
+              <SponsorGrid sponsors={sponsors} cardStyle={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.14)' }} textStyle={{ color: 'var(--nx-text-soft)' }} />
+            </div>
+          </div>
+        </Reveal>
       )}
 
       {/* GUEST PHOTOS */}
@@ -594,7 +639,7 @@ export default function Nexus({
                   initialHasMore={guestPhotosHasMore ?? false}
                   labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
                   btnClassName="btn"
-                  disabled={isPreview}
+                  disabled={formsDisabled}
                 />
               </div>
             </div>
@@ -617,7 +662,7 @@ export default function Nexus({
                   initialHasMore={guestSongsHasMore ?? false}
                   labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
                   btnClassName="btn"
-                  disabled={isPreview}
+                  disabled={formsDisabled}
                 />
               </div>
             </div>
@@ -642,9 +687,8 @@ export default function Nexus({
           </>
         )}
         <hr className="footer-rule" />
-        <p className="footer-signoff">{t.withLove} {heading || t.theCouple}</p>
-        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+        <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove} ${heading || t.theCouple}`} />
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

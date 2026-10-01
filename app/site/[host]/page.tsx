@@ -1,9 +1,10 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -40,6 +41,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
+  const plusContent = await fetchPlusContent(data.id, isPaid, pageSettings);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -66,10 +68,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       userEmail={data.user_email || undefined}
       userPhone={data.user_phone || undefined}
       mapsKey={mapsKey}
-      registryImage={data.section_2_image}
-      registryDescription={data.section_2_description}
-      registryButtonText={data.section_2_button_text}
-      registryButtonLink={data.section_2_button_link}
+      {...registryProps(data, isPaid, pageSettings)}
       heroEyebrow={data.hero_eyebrow || undefined}
       venueName={data.venue_name || undefined}
       language={data.language || 'en'}
@@ -88,6 +87,9 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        customSections={plusContent.customSections}
+        sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         shareUrl={publicPageUrl(data)}
     />
   );

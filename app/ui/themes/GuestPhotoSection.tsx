@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import type { GuestPhoto } from '@/app/lib/definitions';
 import { compressImageFile } from '@/app/lib/compress-image';
@@ -37,6 +37,20 @@ export function GuestPhotoSection({
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const [lightbox, setLightbox] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // The table QR code links to <page>#photos. Images above the section load
+  // after the browser's own jump and push it down, so land on it again once
+  // the page has settled.
+  useEffect(() => {
+    if (disabled || window.location.hash !== '#photos') return;
+    const land = () => document.getElementById('photos')?.scrollIntoView({ block: 'start' });
+    const timer = setTimeout(land, 400);
+    if (document.readyState !== 'complete') window.addEventListener('load', land, { once: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('load', land);
+    };
+  }, [disabled]);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -112,7 +126,7 @@ export function GuestPhotoSection({
       {/* Upload button */}
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         {disabled && (
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px', display: 'inline-block' }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px', display: 'block' }}>
             Preview only — photos can be shared from your live page.
           </p>
         )}

@@ -11,6 +11,123 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Antique Cars theme (General Events category, key 'community'). Theme rows are looked up by
+  // slug, so insert it only once.
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Antique Cars',
+           'Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page. Built for antique and classic car shows.',
+           'antique-cars'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'antique-cars')
+  `;
+
+  // Girl Baby Shower theme (Celebrations category, key 'birthdays').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Girl Baby Shower',
+           'Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts. Built for baby showers welcoming a little girl.',
+           'baby-shower-girl'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-girl')
+  `;
+
+  // Neutral Baby Shower theme (Celebrations category, key 'birthdays').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Neutral Baby Shower',
+           'Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile, hopping ABC blocks and little footprints. Built for baby showers before the big reveal.',
+           'baby-shower-neutral'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-neutral')
+  `;
+
+  // Boy Baby Shower theme (Celebrations category, key 'birthdays').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Boy Baby Shower',
+           'Sky blues and warm caramel with a swimming whale, rising balloons, a flying bird, rocking sailboats and rolling waves. Built for baby showers welcoming a little boy.',
+           'baby-shower-boy'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-boy')
+  `;
+
+  // The Day theme (Wedding category).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'The Day',
+           'Ivory peonies, linen and a white bouquet with sage-to-evergreen greenery and buttery gold accents. Classic invitation framing, fine botanical line art and drifting petals.',
+           'the-day'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'the-day')
+  `;
+
+  // Love theme (Wedding category).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Love',
+           'Blush, rose and raspberry with peach, cream and olive greens. Romantic script names, arched cards, interlocking rings and softly rising hearts.',
+           'love'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'love')
+  `;
+
+  // Christmas Party theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Christmas Party',
+           'Forest green, bauble red and warm golden light with falling snow, twinkling string lights, swinging bauble countdown and kraft gift-tag cards. Cozy and cute for holiday parties.',
+           'christmas-party'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'christmas-party')
+  `;
+
+  // White Christmas theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'White Christmas',
+           'Icy winter blues with gold stars, silver and pine. Classic serif type, gold-framed cards and gently falling snow for an elegant holiday celebration.',
+           'white-christmas'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'white-christmas')
+  `;
+
+  // Día de los Muertos theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Día de los Muertos',
+           'Deep plum nights lit with marigold, hot pink and teal. Swaying papel picado, falling cempasúchil petals and dancing sugar skulls for a joyful celebration of remembrance.',
+           'dia-de-los-muertos'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'dia-de-los-muertos')
+  `;
+
+  // Halloween Party theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Halloween Party',
+           'Midnight charcoal and pumpkin orange with witch green and blood red. Flying bats, dangling spiders, drifting fog and a creeping witch''s hand — scary, but fun.',
+           'halloween-party'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'halloween-party')
+  `;
+
+  // Plus: up to three owner-written sections per page (optional title plus a
+  // JSON list of text/image blocks) and a sponsors list.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_custom_sections (
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      position SMALLINT NOT NULL CHECK (position BETWEEN 1 AND 3),
+      title TEXT NOT NULL DEFAULT '',
+      blocks JSONB NOT NULL DEFAULT '[]'::jsonb,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_page_id, position)
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_sponsors (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      image_url TEXT,
+      description TEXT,
+      position INTEGER NOT NULL DEFAULT 0,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_sponsors_page ON page_sponsors (user_page_id, position)`;
+  // Optional '#RRGGBB' shown behind a sponsor's image (transparent logos).
+  await sql`ALTER TABLE page_sponsors ADD COLUMN IF NOT EXISTS image_bg TEXT`;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 

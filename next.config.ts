@@ -61,6 +61,17 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      // Theme previews used to be standalone HTML files; they're now rendered
+      // from the real theme components at /themes/<slug>.
+      {
+        source: '/themes/:slug([a-z-]+)\\.html',
+        destination: '/themes/:slug',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

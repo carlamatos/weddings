@@ -26,7 +26,8 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   const [status, setStatus] = useState<'attending' | 'not_attending'>('attending');
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
-  const [receiveUpdates, setReceiveUpdates] = useState(false);
+  // Ticked by default; guests can untick it, and every email links to /unsubscribe.
+  const [receiveUpdates, setReceiveUpdates] = useState(true);
   const [honeypot, setHoneypot] = useState('');
   const [cfToken, setCfToken] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -183,7 +184,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           style={{ resize: 'vertical' }}
         />
       </div>
-      <div style={{ display: 'none' }}>
+      <div>
         <label className="check-label">
           <input type="checkbox" checked={receiveUpdates}
             onChange={(e) => setReceiveUpdates(e.target.checked)} />

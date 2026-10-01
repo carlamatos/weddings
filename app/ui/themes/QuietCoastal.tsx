@@ -8,6 +8,9 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -102,6 +105,8 @@ const css = `
   .qc .attend-options { display: flex; gap: 24px; margin-top: 8px; flex-wrap: wrap; }
   .qc .radio-label, .qc .check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); cursor: pointer; }
   .qc .radio-label input, .qc .check-label input { width: auto; border: none; border-bottom: none; padding: 0; accent-color: var(--ink); }
+  /* the generic input rule sets appearance: none, which would hide these */
+  .qc .radio-label input, .qc .check-label input { appearance: auto; -webkit-appearance: auto; width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
   .qc .check-hint { font-size: 12px; color: var(--ink-soft); margin: 4px 0 0; }
   .qc .rsvp-error { color: #A0524A; font-size: 13px; margin: 0; }
   .qc .rsvp-success { padding: 12px 0; }
@@ -167,11 +172,18 @@ export default function QuietCoastal({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
+  livestream,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -198,6 +210,8 @@ export default function QuietCoastal({
   return (
     <div className="qc">
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -299,6 +313,26 @@ export default function QuietCoastal({
 
       <hr className="hairline" />
 
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <div id="livestream" className="wrap">
+          <div className="section">
+            <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel.toLowerCase()} />
+            <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="title" fallback={t.watchLive.toLowerCase()} />
+            <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" align="left" textStyle={{ color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="wrap" key={`custom-${section.position}`}>
+          <div className="section">
+            <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <>
@@ -334,7 +368,7 @@ export default function QuietCoastal({
             <div className="section">
               <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond.toLowerCase()} />
               <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp.toLowerCase()} />
-              <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+              <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </>
@@ -358,7 +392,7 @@ export default function QuietCoastal({
       })()}
 
       {/* REGISTRY */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <>
           <div
             className="registry-wrap"
@@ -366,7 +400,7 @@ export default function QuietCoastal({
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry.toLowerCase()}</p>
-              {registryDescription && <p className="registry-description">{registryDescription}</p>}
+              {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
               {registryButtonLink && (
                 <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                   {registryButtonText || t.viewRegistry.toLowerCase()}
@@ -376,6 +410,17 @@ export default function QuietCoastal({
           </div>
           <hr className="hairline" />
         </>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="wrap">
+          <div className="section">
+            <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel.toLowerCase()} />
+            <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="title" fallback={t.ourSponsors.toLowerCase()} />
+            <SponsorGrid sponsors={sponsors} align="left" textStyle={{ color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
       )}
 
       {/* GUEST PHOTOS */}
@@ -389,7 +434,7 @@ export default function QuietCoastal({
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
             btnClassName="btn"
-            disabled={isPreview}
+            disabled={formsDisabled}
           />
         </div>
       )}
@@ -407,7 +452,7 @@ export default function QuietCoastal({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName.toLowerCase(), songTitle: t.songTitle.toLowerCase(), artistLabel: t.artistLabel.toLowerCase(), addSong: t.addSong.toLowerCase(), songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet.toLowerCase(), requestedBy: t.requestedBy.toLowerCase(), loadMore: t.loadMore.toLowerCase(), sending: t.sending.toLowerCase() }}
               btnClassName="btn"
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </>
@@ -432,10 +477,9 @@ export default function QuietCoastal({
               </>
             )}
           </div>
-          <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
+          <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove}, ${heading || t.theCouple}`} />
         </div>
-        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { greatVibes } from '@/app/ui/fonts';
 import { auth } from '@/auth';
+import SiteTopbar from '@/app/ui/site-topbar';
 import '@/app/ui/marketing.css';
 
 export default async function LegalLayout({ children, title }: { children: React.ReactNode; title: string }) {
@@ -9,19 +10,7 @@ export default async function LegalLayout({ children, title }: { children: React
 
   return (
     <div className={`marketing-page ${greatVibes.variable}`}>
-      <div className="topbar">
-        <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
-        <div className="topbar-actions">
-          {isLoggedIn ? (
-            <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
-          ) : (
-            <>
-              <Link href="/login" className="topbar-login">Log in</Link>
-              <Link href="/register" className="topbar-signup">Sign up</Link>
-            </>
-          )}
-        </div>
-      </div>
+      <SiteTopbar isLoggedIn={isLoggedIn} />
 
       <div className="wrap">
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '64px 0 96px' }}>

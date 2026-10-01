@@ -2,7 +2,7 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { createPortal } from 'react-dom';
-import { updateHeading, updateDescription, updateBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
+import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
 import { formatDateRange } from './event-when';
@@ -108,7 +108,6 @@ export function EditableSectionText({
   className,
   style,
   icon,
-  defaultContent,
 }: {
   pageId: number;
   k: SectionTextKey;
@@ -118,7 +117,6 @@ export function EditableSectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
-  defaultContent?: React.ReactNode;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
@@ -179,7 +177,7 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <Tag className={className} style={style}>{icon}{current || (defaultContent ?? fallback)}</Tag>
+      <Tag className={className} style={style}>{icon}{current || fallback}</Tag>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit text">
         <PencilIcon /> Edit
       </button>
@@ -524,6 +522,22 @@ export function EditableBannerBg({
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Back to the theme's own default hero (only offered while a custom banner is set).
+  const [restoring, setRestoring] = useState(false);
+  const restoreDefault = async () => {
+    if (!window.confirm('Restore the theme’s default background? Your uploaded banner will be removed from this page.')) return;
+    setRestoring(true);
+    setUploadError('');
+    const ok = await resetBannerImage(pageId);
+    setRestoring(false);
+    if (!ok) {
+      setUploadError('Couldn’t restore the default background. Please try again.');
+      return;
+    }
+    setCurrent('');
+    setIsVideo(isVideoUrl(defaultSrc || ''));
+  };
+
   const toggleObjectFit = () => {
     const next = objectFit === 'cover' ? 'contain' : 'cover';
     setObjectFit(next);
@@ -640,7 +654,7 @@ export function EditableBannerBg({
           devices, and from anyone who doesn't happen to hover over it. */}
       <div
         className="theme-banner-overlay"
-        style={{ display: 'flex', gap: 10, alignItems: 'center', opacity: hovered || uploading ? 1 : 0.85 }}
+        style={{ display: 'flex', flexWrap: 'wrap', gap: 10, rowGap: 6, alignItems: 'center', justifyContent: 'flex-end', maxWidth: 'calc(100% - 28px)', borderRadius: 18, whiteSpace: 'nowrap', opacity: hovered || uploading ? 1 : 0.85 }}
       >
         <button
           onClick={() => fileInputRef.current?.click()}
@@ -659,6 +673,16 @@ export function EditableBannerBg({
         >
           {objectFit === 'cover' ? 'Cover ✓' : 'Contain ✓'}
         </button>
+        {current && !uploading && (
+          <button
+            onClick={restoreDefault}
+            disabled={restoring}
+            title="Remove your banner and use the theme's default background"
+            style={{ background: 'none', border: 'none', cursor: restoring ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+          >
+            <span>{restoring ? 'Restoring…' : 'Restore default background'}</span>
+          </button>
+        )}
       </div>
 
       {uploadError && (

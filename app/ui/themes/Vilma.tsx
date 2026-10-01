@@ -9,6 +9,9 @@ import { getTranslations } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
+import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -235,11 +238,18 @@ export default function Vilma({
   shareUrl,
   sectionText,
   sectionTextPageId,
+  customSections,
+  sponsors,
+  livestream,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -266,6 +276,8 @@ export default function Vilma({
       {/* Typekit fonts */}
       <link rel="stylesheet" href="https://use.typekit.net/ufj0hfm.css" />
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -372,6 +384,26 @@ export default function Vilma({
         </div>
       )}
 
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <div id="livestream" className="section section-center">
+          <div className="wrap-wide">
+            <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel} />
+            <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="section-title" fallback={t.watchLive} />
+            <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" textStyle={{ color: 'var(--vl-ink-soft)' }} />
+          </div>
+        </div>
+      )}
+
+      {/* CUSTOM SECTIONS (Plus) */}
+      {isPaid && customSections?.map((section) => (
+        <div className="section section-center" key={`custom-${section.position}`}>
+          <div className="wrap">
+            <CustomSectionContent section={section} titleClassName="section-title" textStyle={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)' }} />
+          </div>
+        </div>
+      ))}
+
       {/* EVENT PROGRAM */}
       {showEventProgram !== false && eventProgram && eventProgram.length > 0 && (
         <div className="section section-center">
@@ -406,7 +438,7 @@ export default function Vilma({
           <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title on-butter" fallback={t.rsvp} />
           <hr className="vl-rule" />
           <div className="rsvp-card">
-            <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+            <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
           </div>
         </div>
       )}
@@ -427,19 +459,30 @@ export default function Vilma({
       })()}
 
       {/* REGISTRY */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <div
           className="registry-wrap"
           style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
         >
           <div className="registry-overlay">
             <p className="registry-title">{t.registry}</p>
-            {registryDescription && <p className="registry-description">{registryDescription}</p>}
+            {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
             {registryButtonLink && (
               <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                 {registryButtonText || t.viewRegistry}
               </a>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* SPONSORS (Plus) */}
+      {isPaid && sponsors && sponsors.length > 0 && (
+        <div className="section section-center">
+          <div className="wrap-wide">
+            <SectionText ctx={sectionTextCtx} k="sponsors.eyebrow" className="eyebrow" fallback={t.sponsorsLabel} />
+            <SectionText ctx={sectionTextCtx} k="sponsors.title" as="h2" className="section-title" fallback={t.ourSponsors} />
+            <SponsorGrid sponsors={sponsors} textStyle={{ color: 'var(--vl-ink-soft)' }} />
           </div>
         </div>
       )}
@@ -457,7 +500,7 @@ export default function Vilma({
               initialHasMore={guestPhotosHasMore ?? false}
               labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
               btnClassName="btn"
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </div>
@@ -477,7 +520,7 @@ export default function Vilma({
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn btn-amber"
               inputStyle={{ flex: '2 1 160px', padding: '10px 14px 6px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </div>
@@ -500,9 +543,8 @@ export default function Vilma({
           </>
         )}
         <hr className="footer-rule" />
-        <p className="footer-signoff">{t.withLove}, {heading || t.theCouple}</p>
-        <SectionText ctx={sectionTextCtx} k="footer.credit" className="footer-credit" fallback={t.madeWithMygala}
-          defaultContent={<>{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></>} />
+        <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove}, ${heading || t.theCouple}`} />
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

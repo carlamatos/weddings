@@ -1,8 +1,9 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { publicPageUrl } from '@/app/lib/share';
@@ -38,6 +39,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
 
+  const plusContent = await fetchPlusContent(pageId, isPaid, pageSettings);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   // Build the date display string the same way each theme would
@@ -52,6 +54,20 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const themeEyebrowDefault =
     userPage.theme_slug === 'midnight-botanical'
       ? 'Save the date'
+      : userPage.theme_slug === 'antique-cars'
+      ? 'Antique & Classic'
+      : userPage.theme_slug === 'baby-shower-girl'
+      ? "It's a girl!"
+      : userPage.theme_slug === 'baby-shower-neutral'
+      ? 'Baby on the way!'
+      : userPage.theme_slug === 'baby-shower-boy'
+      ? "It's a boy!"
+      : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas'
+      ? "You're invited"
+      : userPage.theme_slug === 'dia-de-los-muertos'
+      ? 'Celebrate with us'
+      : userPage.theme_slug === 'halloween-party'
+      ? 'You’re invited… if you dare'
       : 'Together with their families';
 
   const themeEyebrowClass =
@@ -149,10 +165,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         userPhone={userPage.user_phone || undefined}
         mapsKey={mapsKey}
         galleryToken={isPaid ? signPageId(pageId) : undefined}
-        registryImage={userPage.section_2_image || undefined}
-        registryDescription={userPage.section_2_description || undefined}
-        registryButtonText={userPage.section_2_button_text || undefined}
-        registryButtonLink={userPage.section_2_button_link || undefined}
+        {...registryProps(userPage, isPaid, pageSettings)}
         galleryImages={galleryImages}
         heroEyebrow={userPage.hero_eyebrow || undefined}
         venueName={userPage.venue_name || undefined}
@@ -171,6 +184,9 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        customSections={plusContent.customSections}
+        sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}

@@ -28,6 +28,8 @@ export const PLAN_FEATURES = {
     'Photo uploads',
     'Livestream link & song requests',
     'Automatic reminder emails to guests',
+    'Custom sections & sponsors',
+    'Gift registry section',
     'Custom domain support',
     'Remove Gala branding',
     'Priority support',
