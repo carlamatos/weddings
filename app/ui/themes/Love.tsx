@@ -358,9 +358,12 @@ export default function Love({
   customSections,
   sponsors,
   isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t: Translations = getTranslations(language);
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
   const heroSrc = bannerImage || HERO_DEFAULTS.love;
@@ -391,7 +394,7 @@ export default function Love({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Raleway:wght@400;500;600&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}
+      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
 
       {/* HERO */}
       <div className="hero">
@@ -550,7 +553,7 @@ export default function Love({
                 <HeartRule />
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               </div>
-              <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+              <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>
@@ -614,7 +617,7 @@ export default function Love({
                 initialHasMore={guestPhotosHasMore ?? false}
                 labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
                 btnClassName="btn"
-                disabled={isPreview}
+                disabled={formsDisabled}
               />
             </div>
           </div>
@@ -635,7 +638,7 @@ export default function Love({
                 initialHasMore={guestSongsHasMore ?? false}
                 labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
                 btnClassName="btn"
-                disabled={isPreview}
+                disabled={formsDisabled}
               />
             </div>
           </div>

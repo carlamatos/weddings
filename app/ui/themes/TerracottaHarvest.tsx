@@ -9,6 +9,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -219,11 +220,15 @@ export default function TerracottaHarvest({
   sectionTextPageId,
   customSections,
   sponsors,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -248,6 +253,8 @@ export default function TerracottaHarvest({
   return (
     <div className="tc">
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -376,7 +383,7 @@ export default function TerracottaHarvest({
           <div id="rsvp" className="section-tinted">
             <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="section-label" fallback={t.kindlyRespond} />
             <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
-            <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+            <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
           </div>
           <BandDivider thin />
         </>
@@ -448,7 +455,7 @@ export default function TerracottaHarvest({
               uploading: t.sending,
             }}
             btnClassName="btn"
-            disabled={isPreview}
+            disabled={formsDisabled}
           />
         </div>
       )}
@@ -467,7 +474,7 @@ export default function TerracottaHarvest({
                 initialHasMore={guestSongsHasMore ?? false}
                 labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
                 btnClassName="btn"
-                disabled={isPreview}
+                disabled={formsDisabled}
               />
             </div>
           </div>

@@ -9,6 +9,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -172,11 +173,15 @@ export default function QuietCoastal({
   sectionTextPageId,
   customSections,
   sponsors,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDate = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -203,6 +208,8 @@ export default function QuietCoastal({
   return (
     <div className="qc">
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -348,7 +355,7 @@ export default function QuietCoastal({
             <div className="section">
               <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond.toLowerCase()} />
               <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp.toLowerCase()} />
-              <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+              <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </>
@@ -414,7 +421,7 @@ export default function QuietCoastal({
             initialHasMore={guestPhotosHasMore ?? false}
             labels={{ shareYourPhoto: t.shareYourPhoto.toLowerCase(), loadMore: t.loadMore.toLowerCase(), beFirstToShare: t.beFirstToShare.toLowerCase(), photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending.toLowerCase() }}
             btnClassName="btn"
-            disabled={isPreview}
+            disabled={formsDisabled}
           />
         </div>
       )}
@@ -432,7 +439,7 @@ export default function QuietCoastal({
               initialHasMore={guestSongsHasMore ?? false}
               labels={{ yourName: t.yourName.toLowerCase(), songTitle: t.songTitle.toLowerCase(), artistLabel: t.artistLabel.toLowerCase(), addSong: t.addSong.toLowerCase(), songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet.toLowerCase(), requestedBy: t.requestedBy.toLowerCase(), loadMore: t.loadMore.toLowerCase(), sending: t.sending.toLowerCase() }}
               btnClassName="btn"
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </>

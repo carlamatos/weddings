@@ -1,10 +1,9 @@
 import Link from 'next/link';
 
-// MyGala top bar (logo, login/dashboard) on live event pages. No
-// "Back to themes" link here: guests and owners land on a real event page,
-// not the theme showcase — that link lives only on the static
-// public/themes/*.html previews the homepage links to.
-export function PreviewTopBar({ isLoggedIn }: { isLoggedIn?: boolean }) {
+// MyGala top bar (logo, login/dashboard). Live event pages show it without
+// the "Back to themes" link — guests land on a real event page, not the
+// showcase; theme previews (/themes/<slug>) pass backToThemes.
+export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boolean; backToThemes?: boolean }) {
   return (
     <div
       style={{
@@ -28,6 +27,19 @@ export function PreviewTopBar({ isLoggedIn }: { isLoggedIn?: boolean }) {
         My<span style={{ color: '#B6584A' }}>Gala</span>
       </Link>
       <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        {backToThemes && (
+          <>
+            {/* Hidden on phones, where the bar has no room for it */}
+            <style>{'@media (max-width: 480px) { .mg-back-to-themes { display: none !important; } }'}</style>
+            <Link
+              href="/#themes"
+              className="mg-back-to-themes"
+              style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', textDecoration: 'none', whiteSpace: 'nowrap' }}
+            >
+              &larr; Back to themes
+            </Link>
+          </>
+        )}
         {isLoggedIn ? (
           <Link
             href="/dashboard"

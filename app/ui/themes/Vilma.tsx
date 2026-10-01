@@ -10,6 +10,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
@@ -238,11 +239,15 @@ export default function Vilma({
   sectionTextPageId,
   customSections,
   sponsors,
+  isLoggedIn,
+  demo,
 }: ThemeProps) {
   const t = getTranslations(language);
   // editSlots is only ever passed by the dashboard's live preview — reuse it
   // as the single signal that guest-facing forms must render read-only.
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
 
@@ -269,6 +274,8 @@ export default function Vilma({
       {/* Typekit fonts */}
       <link rel="stylesheet" href="https://use.typekit.net/ufj0hfm.css" />
       <style>{css}</style>
+      {/* Live pages of this theme have no top bar; the showcase preview gets one */}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
@@ -418,7 +425,7 @@ export default function Vilma({
           <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title on-butter" fallback={t.rsvp} />
           <hr className="vl-rule" />
           <div className="rsvp-card">
-            <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+            <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
           </div>
         </div>
       )}
@@ -480,7 +487,7 @@ export default function Vilma({
               initialHasMore={guestPhotosHasMore ?? false}
               labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
               btnClassName="btn"
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </div>
@@ -500,7 +507,7 @@ export default function Vilma({
               labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
               btnClassName="btn btn-amber"
               inputStyle={{ flex: '2 1 160px', padding: '10px 14px 6px', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', background: 'var(--vl-steel)', color: '#FFFFFF', outline: 'none' }}
-              disabled={isPreview}
+              disabled={formsDisabled}
             />
           </div>
         </div>

@@ -520,10 +520,13 @@ export default function ChristmasParty({
   customSections,
   sponsors,
   isLoggedIn,
+  demo,
 }: ThemeProps) {
   const base = getTranslations(language);
   const t: Translations = { ...base, ...pickByLanguage(OVERRIDES, language) };
   const isPreview = !!editSlots;
+  // Forms are shown but can't be submitted in the editor or a showcase preview.
+  const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
   const heroSrc = bannerImage || HERO_DEFAULTS['christmas-party'];
@@ -554,7 +557,7 @@ export default function ChristmasParty({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} />}
+      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
 
       {/* HERO */}
       <div className="hero">
@@ -717,7 +720,7 @@ export default function ChristmasParty({
                 <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond} />
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               </div>
-              <RsvpForm userPageId={userPageId} translations={t} disabled={isPreview} />
+              <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>
@@ -781,7 +784,7 @@ export default function ChristmasParty({
                 initialHasMore={guestPhotosHasMore ?? false}
                 labels={{ shareYourPhoto: t.shareYourPhoto, loadMore: t.loadMore, beFirstToShare: t.beFirstToShare, photoUploaded: t.photoUploaded, photoUploadError: t.photoUploadError, uploading: t.sending }}
                 btnClassName="btn"
-                disabled={isPreview}
+                disabled={formsDisabled}
               />
             </div>
           </div>
@@ -802,7 +805,7 @@ export default function ChristmasParty({
                 initialHasMore={guestSongsHasMore ?? false}
                 labels={{ yourName: t.yourName, songTitle: t.songTitle, artistLabel: t.artistLabel, addSong: t.addSong, songAdded: t.songAdded, songAddError: t.songAddError, noSongsYet: t.noSongsYet, requestedBy: t.requestedBy, loadMore: t.loadMore, sending: t.sending }}
                 btnClassName="btn"
-                disabled={isPreview}
+                disabled={formsDisabled}
               />
             </div>
           </div>

@@ -70,4 +70,7 @@ export interface ThemeProps {
   sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;
+  // Showcase preview (/themes/<slug>): sample content, forms shown but not
+  // submittable, and a "Back to themes" link in the top bar.
+  demo?: boolean;
 }
