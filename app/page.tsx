@@ -2,6 +2,7 @@ import { greatVibes } from '@/app/ui/fonts';
 import Link from 'next/link';
 import '@/app/ui/marketing.css';
 import MarketingReveal from '@/app/ui/marketing-reveal';
+import ThemeFilter from '@/app/ui/theme-filter';
 import { auth } from '@/auth';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
@@ -25,9 +26,9 @@ export default async function Page() {
             <div className="nav-item">
               <a href="#themes" className="nav-link">Events</a>
               <div className="nav-dropdown">
-                <a href="#theme-wedding">Weddings</a>
-                <a href="#theme-business">Business Events</a>
                 <a href="#theme-birthdays">Celebrations</a>
+                <a href="#theme-business">Business Events</a>
+                <a href="#theme-wedding">Weddings</a>
                 <a href="#theme-community">General Events</a>
               </div>
             </div>
@@ -135,12 +136,124 @@ export default async function Page() {
         <div className="wrap">
           <div className="section">
             <div className="reveal" style={{ maxWidth: '600px' }}>
-              <p className="eyebrow">Eight ways to set the mood</p>
+              <p className="eyebrow">A theme for every occasion</p>
               <h2 className="section-title">Pick the theme that feels like your day.</h2>
               <p className="section-sub">Every theme includes the same full set of tools — RSVP, countdown, gallery, livestream, and more. Only the mood changes.</p>
             </div>
-            <div className="theme-category" id="theme-wedding">
-              <h3 className="theme-category-title reveal">Wedding</h3>
+            <ThemeFilter>
+            <div className="theme-category" id="theme-birthdays" data-category="birthdays">
+              <h3 className="theme-category-title reveal">Celebrations</h3>
+              <div className="theme-grid">
+                <a href="/themes/alegria.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera Party" eventDate="2027-06-12" city="San Antonio" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Alegría</p>
+                    <p className="theme-desc">Blush, lilac, and gold. Romantic and joyful — built for quinceañeras and sweet 16 celebrations.</p>
+                  </div>
+                </a>
+                <a href="/themes/fun-party.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1A0B2E' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="fun-party" heading="The Big Sweet 16" eventDate="2027-08-08" city="Miami" country="FL" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Fun Party</p>
+                    <p className="theme-desc">Hot pink, cyan, and neon yellow on a graffiti backdrop. Bold and rebellious — built for sweet 16s and quinceañeras that want to stand out.</p>
+                  </div>
+                </a>
+                <a href="/themes/balloons.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="balloons" heading="Kids Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Balloons</p>
+                    <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids&apos; celebrations.</p>
+                  </div>
+                </a>
+                <a href="/themes/baby-shower-girl.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F5D7DF' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-girl" heading="Baby Shower" eventDate="2027-04-17" city="Vancouver" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Girl Baby Shower</p>
+                    <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
+                  </div>
+                </a>
+                <a href="/themes/baby-shower-neutral.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#E3E5E8' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-neutral" heading="Baby Shower" eventDate="2027-05-22" city="Victoria" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Neutral Baby Shower</p>
+                    <p className="theme-desc">Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile and little footprints — built for baby showers before the big reveal.</p>
+                  </div>
+                </a>
+                <a href="/themes/baby-shower-boy.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#8DC8F0' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-boy" heading="Baby Shower" eventDate="2027-06-12" city="Calgary" country="AB" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Boy Baby Shower</p>
+                    <p className="theme-desc">Sky blues and warm caramel with a swimming whale, rising balloons and rolling waves — built for baby showers welcoming a little boy.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div className="theme-category" id="theme-business" data-category="business">
+              <h3 className="theme-category-title reveal">Business Events</h3>
+              <div className="theme-grid">
+                <a href="/themes/summit.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#14171C' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="summit" heading="Annual Leadership Summit" eventDate="2027-04-14" city="Austin" country="TX" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Summit</p>
+                    <p className="theme-desc">Cobalt and ink with a confident, modern edge — built for conferences, galas, and company celebrations.</p>
+                  </div>
+                </a>
+                <a href="/themes/nexus.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1D2124' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="nexus" heading="Nexus Team Offsite 2027" eventDate="2027-05-20" city="Seattle" country="WA" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Nexus</p>
+                    <p className="theme-desc">Charcoal and amber with a teal accent. Professional and innovative — built for team offsites and summits.</p>
+                  </div>
+                </a>
+                <a href="/themes/dinner-gala.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#0a1420' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="dinner-gala" heading="The Annual Gala Dinner" eventDate="2027-03-20" city="Toronto" country="CA" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Dinner Gala</p>
+                    <p className="theme-desc">Deep navy and warm gold, sober and refined — built for galas, fundraisers, and formal corporate dinners.</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+            <div className="theme-category" id="theme-wedding" data-category="wedding">
+              <h3 className="theme-category-title reveal">Weddings</h3>
               <div className="theme-grid">
               <a href="/themes/terracotta-harvest.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
@@ -213,118 +326,7 @@ export default async function Page() {
               </div>
             </div>
 
-            <div className="theme-category" id="theme-business">
-              <h3 className="theme-category-title reveal">Business Events</h3>
-              <div className="theme-grid">
-                <a href="/themes/summit.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#14171C' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="summit" heading="Annual Leadership Summit" eventDate="2027-04-14" city="Austin" country="TX" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Summit</p>
-                    <p className="theme-desc">Cobalt and ink with a confident, modern edge — built for conferences, galas, and company celebrations.</p>
-                  </div>
-                </a>
-                <a href="/themes/nexus.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1D2124' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="nexus" heading="Nexus Team Offsite 2027" eventDate="2027-05-20" city="Seattle" country="WA" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Nexus</p>
-                    <p className="theme-desc">Charcoal and amber with a teal accent. Professional and innovative — built for team offsites and summits.</p>
-                  </div>
-                </a>
-                <a href="/themes/dinner-gala.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#0a1420' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="dinner-gala" heading="The Annual Gala Dinner" eventDate="2027-03-20" city="Toronto" country="CA" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Dinner Gala</p>
-                    <p className="theme-desc">Deep navy and warm gold, sober and refined — built for galas, fundraisers, and formal corporate dinners.</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <div className="theme-category" id="theme-birthdays">
-              <h3 className="theme-category-title reveal">Celebrations</h3>
-              <div className="theme-grid">
-                <a href="/themes/alegria.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera Party" eventDate="2027-06-12" city="San Antonio" country="TX" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Alegría</p>
-                    <p className="theme-desc">Blush, lilac, and gold. Romantic and joyful — built for quinceañeras and sweet 16 celebrations.</p>
-                  </div>
-                </a>
-                <a href="/themes/fun-party.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1A0B2E' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="fun-party" heading="The Big Sweet 16" eventDate="2027-08-08" city="Miami" country="FL" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Fun Party</p>
-                    <p className="theme-desc">Hot pink, cyan, and neon yellow on a graffiti backdrop. Bold and rebellious — built for sweet 16s and quinceañeras that want to stand out.</p>
-                  </div>
-                </a>
-                <a href="/themes/balloons.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="balloons" heading="Kids Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Balloons</p>
-                    <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids&apos; celebrations.</p>
-                  </div>
-                </a>
-                <a href="/themes/baby-shower-girl.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F5D7DF' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-girl" heading="Baby Shower" eventDate="2027-04-17" city="Vancouver" country="BC" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Girl Baby Shower</p>
-                    <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
-                  </div>
-                </a>
-                <a href="/themes/baby-shower-neutral.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#E3E5E8' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-neutral" heading="Baby Shower" eventDate="2027-05-22" city="Victoria" country="BC" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Neutral Baby Shower</p>
-                    <p className="theme-desc">Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile and little footprints — built for baby showers before the big reveal.</p>
-                  </div>
-                </a>
-                <a href="/themes/baby-shower-boy.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#8DC8F0' }}>
-                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="baby-shower-boy" heading="Baby Shower" eventDate="2027-06-12" city="Calgary" country="AB" />
-                    </div>
-                  </div>
-                  <div className="theme-info">
-                    <p className="theme-name">Boy Baby Shower</p>
-                    <p className="theme-desc">Sky blues and warm caramel with a swimming whale, rising balloons and rolling waves — built for baby showers welcoming a little boy.</p>
-                  </div>
-                </a>
-              </div>
-            </div>
-
-            <div className="theme-category" id="theme-community">
+            <div className="theme-category" id="theme-community" data-category="community">
               <h3 className="theme-category-title reveal">General Events</h3>
               <div className="theme-grid">
                 <a href="/themes/community.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
@@ -351,6 +353,7 @@ export default async function Page() {
                 </a>
               </div>
             </div>
+            </ThemeFilter>
           </div>
         </div>
       </div>

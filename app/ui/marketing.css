@@ -381,6 +381,15 @@
   margin: 0 0 18px;
 }
 .marketing-page .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+.marketing-page .theme-filter { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+.marketing-page .theme-filter-btn { font-family: var(--font-sans); font-size: 14px; font-weight: 600; padding: 9px 18px; border-radius: 999px; border: 1.5px solid var(--line); background: #FFFFFF; color: var(--ink); cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease; }
+.marketing-page .theme-filter-btn:hover { border-color: var(--rose); color: var(--rose); }
+.marketing-page .theme-filter-btn--active, .marketing-page .theme-filter-btn--active:hover { background: var(--rose); border-color: var(--rose); color: #FFFFFF; }
+.marketing-page .theme-filter-scope:not([data-filter="all"]) .theme-category { display: none; }
+.marketing-page .theme-filter-scope[data-filter="birthdays"] .theme-category[data-category="birthdays"],
+.marketing-page .theme-filter-scope[data-filter="business"] .theme-category[data-category="business"],
+.marketing-page .theme-filter-scope[data-filter="wedding"] .theme-category[data-category="wedding"],
+.marketing-page .theme-filter-scope[data-filter="community"] .theme-category[data-category="community"] { display: block; }
 @media (max-width: 800px) { .marketing-page .theme-grid { grid-template-columns: 1fr; } }
 
 .marketing-page .theme-card {
