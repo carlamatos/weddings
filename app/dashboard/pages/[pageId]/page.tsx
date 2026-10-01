@@ -1,4 +1,4 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -154,10 +154,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         userPhone={userPage.user_phone || undefined}
         mapsKey={mapsKey}
         galleryToken={isPaid ? signPageId(pageId) : undefined}
-        registryImage={userPage.section_2_image || undefined}
-        registryDescription={userPage.section_2_description || undefined}
-        registryButtonText={userPage.section_2_button_text || undefined}
-        registryButtonLink={userPage.section_2_button_link || undefined}
+        {...registryProps(userPage, isPaid, pageSettings)}
         galleryImages={galleryImages}
         heroEyebrow={userPage.hero_eyebrow || undefined}
         venueName={userPage.venue_name || undefined}

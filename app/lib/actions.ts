@@ -21,6 +21,7 @@ import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
 } from './custom-sections';
+import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
@@ -297,31 +298,6 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
-export async function updateSection2(pageId: number, data: {
-  image?: string;
-  description?: string;
-  buttonText?: string;
-  buttonLink?: string;
-}) {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const pid = parsePageId(pageId);
-  if (!userId || pid === null) return;
-  try {
-    await sql`
-      UPDATE user_page SET
-        section_2_image       = ${data.image ?? null},
-        section_2_description = ${data.description ?? null},
-        section_2_button_text = ${data.buttonText ?? null},
-        section_2_button_link = ${data.buttonLink ?? null}
-      WHERE id = ${pid} AND user_id = ${userId}
-    `;
-    revalidatePath('/', 'layout');
-  } catch (error) {
-    console.error('Failed to update section 2:', error);
-  }
-}
-
 export async function updatePageSetting(pageId: number, settingName: string, settingValue: string) {
   const session = await auth();
   const userId = session?.user?.id;
@@ -370,7 +346,7 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
 
 type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
-const PLUS_ONLY_ERROR = 'Custom sections and sponsors are a Plus feature.';
+const PLUS_ONLY_ERROR = 'This is a Plus feature.';
 const GENERIC_PLUS_ERROR = 'Couldn’t save. Please try again.';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -511,6 +487,34 @@ export async function reorderSponsors(pageId: number, orderedIds: string[]): Pro
     return { ok: true, value: null };
   } catch (error) {
     console.error('Failed to reorder sponsors:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Saves the registry section (Plus): the registry link, an optional button
+// label and a free-text message. Empty fields are cleared.
+export async function saveRegistry(
+  pageId: number,
+  data: { link: string; buttonText: string; message: string },
+): Promise<PlusResult<{ link: string; buttonText: string; message: string }>> {
+  const link = normalizeRegistryLink(typeof data?.link === 'string' ? data.link : '');
+  if (link && !isRegistryLink(link)) return { ok: false, error: 'Please enter a valid link, starting with https://' };
+  const buttonText = (typeof data?.buttonText === 'string' ? data.buttonText : '').replace(/\s+/g, ' ').trim().slice(0, REGISTRY_BUTTON_TEXT_MAX);
+  const message = (typeof data?.message === 'string' ? data.message : '').replace(/\r\n/g, '\n').trim().slice(0, REGISTRY_MESSAGE_MAX);
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`
+      UPDATE user_page SET
+        section_2_button_link = ${link || null},
+        section_2_button_text = ${buttonText || null},
+        section_2_description = ${message || null}
+      WHERE id = ${owned.value}
+    `;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { link, buttonText, message } };
+  } catch (error) {
+    console.error('Failed to save registry:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }

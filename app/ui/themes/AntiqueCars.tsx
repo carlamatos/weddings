@@ -666,7 +666,7 @@ export default function AntiqueCars({
       </Reveal>
 
       {/* SPONSORS (registry section, reframed) */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <Reveal>
           <div
             className="registry-wrap"
@@ -674,7 +674,7 @@ export default function AntiqueCars({
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
-              {registryDescription && <p className="registry-description">{registryDescription}</p>}
+              {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
               {registryButtonLink && (
                 <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                   {registryButtonText || t.viewRegistry}

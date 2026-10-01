@@ -203,6 +203,22 @@ export async function fetchSponsors(pageId: number | string): Promise<Sponsor[]>
   }
 }
 
+// The registry section's theme props (Plus): empty unless the page is paid
+// and the section is switched on.
+export function registryProps(
+  page: Pick<UserPage, 'section_2_image' | 'section_2_description' | 'section_2_button_text' | 'section_2_button_link'>,
+  isPaid: boolean,
+  settings: Record<string, string>,
+): { registryImage?: string; registryDescription?: string; registryButtonText?: string; registryButtonLink?: string } {
+  if (!isPaid || !isSectionOn(settings, 'show_registry')) return {};
+  return {
+    registryImage: page.section_2_image || undefined,
+    registryDescription: page.section_2_description || undefined,
+    registryButtonText: page.section_2_button_text || undefined,
+    registryButtonLink: page.section_2_button_link || undefined,
+  };
+}
+
 // What a public page (or the editor preview) shows: nothing unless the page
 // is paid and the section is switched on, and only custom sections that have
 // something in them.

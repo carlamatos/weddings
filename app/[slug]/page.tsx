@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -166,10 +166,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         userEmail={data.user_email || undefined}
         userPhone={data.user_phone || undefined}
         mapsKey={mapsKey}
-        registryImage={data.section_2_image}
-        registryDescription={data.section_2_description}
-        registryButtonText={data.section_2_button_text}
-        registryButtonLink={data.section_2_button_link}
+        {...registryProps(data, isPaid, pageSettings)}
         heroEyebrow={data.hero_eyebrow}
         venueName={data.venue_name}
         language={data.language}

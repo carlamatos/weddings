@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
@@ -67,10 +67,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       userEmail={data.user_email || undefined}
       userPhone={data.user_phone || undefined}
       mapsKey={mapsKey}
-      registryImage={data.section_2_image}
-      registryDescription={data.section_2_description}
-      registryButtonText={data.section_2_button_text}
-      registryButtonLink={data.section_2_button_link}
+      {...registryProps(data, isPaid, pageSettings)}
       heroEyebrow={data.hero_eyebrow || undefined}
       venueName={data.venue_name || undefined}
       language={data.language || 'en'}

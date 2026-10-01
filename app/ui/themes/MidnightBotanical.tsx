@@ -354,14 +354,14 @@ export default function MidnightBotanical({
       })()}
 
       {/* REGISTRY */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <div
           className="registry-wrap"
           style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
         >
           <div className="registry-overlay">
             <p className="registry-title">{t.registry}</p>
-            {registryDescription && <p className="registry-description">{registryDescription}</p>}
+            {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
             {registryButtonLink && (
               <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                 {registryButtonText || t.viewRegistry}

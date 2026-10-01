@@ -18,7 +18,7 @@ import type { GalleryImage } from '@/app/lib/definitions';
 
 const IMG = '/images/themes/baby-shower-girl';
 
-// Exclusive to Baby Shower Girl — do not reuse these on other themes.
+// Exclusive to Girl Baby Shower — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = Array.from({ length: 4 }, (_, i) => ({
   id: `bsg-default-${i + 1}`,
   user_page_id: 0,
@@ -673,7 +673,7 @@ export default function BabyShowerGirl({
       </Reveal>
 
       {/* REGISTRY */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <Reveal>
           <div
             className="registry-wrap"
@@ -681,7 +681,7 @@ export default function BabyShowerGirl({
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
-              {registryDescription && <p className="registry-description">{registryDescription}</p>}
+              {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
               {registryButtonLink && (
                 <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                   {registryButtonText || t.viewRegistry}

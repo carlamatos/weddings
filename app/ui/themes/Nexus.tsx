@@ -571,7 +571,7 @@ export default function Nexus({
       </Reveal>
 
       {/* RESOURCES (registry section, reframed) */}
-      {(registryImage || registryDescription) && (
+      {(registryDescription || registryButtonLink) && (
         <>
           <NexusDivider />
           <Reveal>
@@ -581,7 +581,7 @@ export default function Nexus({
             >
               <div className="registry-overlay">
                 <p className="registry-title"><Icon name="external" size={14} />{' '}{t.registry}</p>
-                {registryDescription && <p className="registry-description">{registryDescription}</p>}
+                {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
                 {registryButtonLink && (
                   <a href={registryButtonLink} target="_blank" rel="noopener noreferrer" className="registry-button">
                     {registryButtonText || t.viewRegistry}
