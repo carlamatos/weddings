@@ -61,6 +61,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'Baby on the way!'
       : userPage.theme_slug === 'baby-shower-boy'
       ? "It's a boy!"
+      : userPage.theme_slug === 'christmas-party'
+      ? "You're invited"
       : 'Together with their families';
 
   const themeEyebrowClass =

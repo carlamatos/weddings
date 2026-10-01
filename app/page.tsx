@@ -373,6 +373,17 @@ export default async function Page() {
                     <p className="theme-desc">Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page — built for antique and classic car shows.</p>
                   </div>
                 </a>
+                <a href="/themes/christmas-party.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#2C3138' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="christmas-party" heading="Christmas Party" eventDate="2026-12-19" city="Banff" country="AB" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Christmas Party</p>
+                    <p className="theme-desc">Forest green, bauble red and golden light with falling snow, twinkling string lights and a swinging bauble countdown — cozy and cute for holiday parties.</p>
+                  </div>
+                </a>
               </div>
             </div>
             </ThemeFilter>
