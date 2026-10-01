@@ -30,6 +30,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-girl')
   `;
 
+  // Neutral Baby Shower theme (Celebrations category, key 'birthdays').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Neutral Baby Shower',
+           'Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile, hopping ABC blocks and little footprints. Built for baby showers before the big reveal.',
+           'baby-shower-neutral'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-neutral')
+  `;
+
   // Plus: up to three owner-written sections per page (optional title plus a
   // JSON list of text/image blocks) and a sponsors list.
   await sql`

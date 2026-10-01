@@ -14,6 +14,7 @@ import DinnerGala, { HeroPreview as DinnerGalaPreview } from './DinnerGala';
 import Community, { HeroPreview as CommunityPreview } from './Community';
 import AntiqueCars, { HeroPreview as AntiqueCarsPreview } from './AntiqueCars';
 import BabyShowerGirl, { HeroPreview as BabyShowerGirlPreview } from './BabyShowerGirl';
+import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './BabyShowerNeutral';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -48,6 +49,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
+  'baby-shower-neutral': { Page: BabyShowerNeutral, Preview: BabyShowerNeutralPreview, category: 'birthdays', label: 'Neutral Baby Shower' },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';

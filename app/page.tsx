@@ -299,6 +299,17 @@ export default async function Page() {
                     <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
                   </div>
                 </a>
+                <a href="/themes/baby-shower-neutral.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#E3E5E8' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-neutral" heading="Sam & Alex's Baby Shower" eventDate="2027-05-22" city="Victoria" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Neutral Baby Shower</p>
+                    <p className="theme-desc">Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile and little footprints — built for baby showers before the big reveal.</p>
+                  </div>
+                </a>
               </div>
             </div>
 

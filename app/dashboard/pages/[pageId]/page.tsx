@@ -57,6 +57,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'Antique & Classic'
       : userPage.theme_slug === 'baby-shower-girl'
       ? "It's a girl!"
+      : userPage.theme_slug === 'baby-shower-neutral'
+      ? 'Baby on the way!'
       : 'Together with their families';
 
   const themeEyebrowClass =
