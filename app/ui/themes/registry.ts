@@ -47,7 +47,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'dinner-gala':        { Page: DinnerGala,        Preview: DinnerGalaPreview, category: 'business', label: 'Dinner Gala' },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
-  'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Baby Shower Girl' },
+  'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';

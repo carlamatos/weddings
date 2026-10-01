@@ -295,7 +295,7 @@ export default async function Page() {
                     </div>
                   </div>
                   <div className="theme-info">
-                    <p className="theme-name">Baby Shower Girl</p>
+                    <p className="theme-name">Girl Baby Shower</p>
                     <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
                   </div>
                 </a>

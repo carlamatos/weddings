@@ -21,10 +21,10 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'antique-cars')
   `;
 
-  // Baby Shower Girl theme (Celebrations category, key 'birthdays').
+  // Girl Baby Shower theme (Celebrations category, key 'birthdays').
   await sql`
     INSERT INTO event_themes (name, description, slug)
-    SELECT 'Baby Shower Girl',
+    SELECT 'Girl Baby Shower',
            'Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts. Built for baby showers welcoming a little girl.',
            'baby-shower-girl'
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'baby-shower-girl')
