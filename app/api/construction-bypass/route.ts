@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
+import { sharedCookieDomain } from '@/app/lib/app-url';
 
 export async function POST(req: Request) {
   const { password } = await req.json();
@@ -16,6 +17,8 @@ export async function POST(req: Request) {
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 30, // 30 days
     path: '/',
+    // Shared with app.mygala.ca so the password is only asked once.
+    domain: sharedCookieDomain(),
   });
   return res;
 }
