@@ -112,7 +112,7 @@ export function GuestPhotoSection({
       {/* Upload button */}
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
         {disabled && (
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px', display: 'inline-block' }}>
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', background: 'rgba(0,0,0,0.05)', border: '1px dashed rgba(0,0,0,0.2)', borderRadius: 6, padding: '10px 14px', margin: '0 0 14px', display: 'block' }}>
             Preview only — photos can be shared from your live page.
           </p>
         )}
