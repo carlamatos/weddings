@@ -57,6 +57,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'the-day')
   `;
 
+  // Love theme (Wedding category).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Love',
+           'Blush, rose and raspberry with peach, cream and olive greens. Romantic script names, arched cards, interlocking rings and softly rising hearts.',
+           'love'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'love')
+  `;
+
   // Plus: up to three owner-written sections per page (optional title plus a
   // JSON list of text/image blocks) and a sponsors list.
   await sql`

@@ -266,6 +266,17 @@ export default async function Page() {
                     <p className="theme-desc">Ivory peonies and a white bouquet with sage-to-evergreen greenery and gold accents. Timeless and refined — built for classic, elegant weddings.</p>
                   </div>
                 </a>
+                <a href="/themes/love.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F6C4C3' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="love" heading="Isabella & Mateo" eventDate="2027-06-05" city="Kelowna" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Love</p>
+                    <p className="theme-desc">Blush, rose and raspberry with peach and soft greens. Romantic script, arched cards and rising hearts — built for warm, heartfelt weddings.</p>
+                  </div>
+                </a>
               <a href="/themes/terracotta-harvest.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
                   <div style={{ textAlign: 'center', padding: '0 20px' }}>

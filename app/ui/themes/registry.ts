@@ -17,6 +17,7 @@ import BabyShowerGirl, { HeroPreview as BabyShowerGirlPreview } from './BabyShow
 import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './BabyShowerNeutral';
 import BabyShowerBoy, { HeroPreview as BabyShowerBoyPreview } from './BabyShowerBoy';
 import TheDay, { HeroPreview as TheDayPreview } from './TheDay';
+import Love, { HeroPreview as LovePreview } from './Love';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -43,6 +44,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'terracotta-harvest': { Page: TerracottaHarvest, Preview: TCPreview,      category: 'wedding',     label: 'Terracotta Harvest', FallbackHero: TerracottaDefaultHero },
   'vilma':              { Page: Vilma,             Preview: VLPreview,     category: 'wedding',     label: 'Vilma' },
   'the-day':            { Page: TheDay,            Preview: TheDayPreview, category: 'wedding',     label: 'The Day' },
+  'love':               { Page: Love,              Preview: LovePreview,   category: 'wedding',     label: 'Love' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },
   'fun-party':          { Page: FunParty,          Preview: FunPartyPreview, category: 'birthdays',  label: 'Fun Party' },
