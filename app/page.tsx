@@ -310,6 +310,17 @@ export default async function Page() {
                     <p className="theme-desc">Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile and little footprints — built for baby showers before the big reveal.</p>
                   </div>
                 </a>
+                <a href="/themes/baby-shower-boy.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#8DC8F0' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-boy" heading="Baby Noah's Shower" eventDate="2027-06-12" city="Calgary" country="AB" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Boy Baby Shower</p>
+                    <p className="theme-desc">Sky blues and warm caramel with a swimming whale, rising balloons and rolling waves — built for baby showers welcoming a little boy.</p>
+                  </div>
+                </a>
               </div>
             </div>
 

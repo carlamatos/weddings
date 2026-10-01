@@ -15,6 +15,7 @@ import Community, { HeroPreview as CommunityPreview } from './Community';
 import AntiqueCars, { HeroPreview as AntiqueCarsPreview } from './AntiqueCars';
 import BabyShowerGirl, { HeroPreview as BabyShowerGirlPreview } from './BabyShowerGirl';
 import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './BabyShowerNeutral';
+import BabyShowerBoy, { HeroPreview as BabyShowerBoyPreview } from './BabyShowerBoy';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -50,6 +51,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
   'baby-shower-neutral': { Page: BabyShowerNeutral, Preview: BabyShowerNeutralPreview, category: 'birthdays', label: 'Neutral Baby Shower' },
+  'baby-shower-boy':    { Page: BabyShowerBoy,     Preview: BabyShowerBoyPreview, category: 'birthdays', label: 'Boy Baby Shower' },
 };
 
 export const DEFAULT_THEME = 'quiet-coastal';
