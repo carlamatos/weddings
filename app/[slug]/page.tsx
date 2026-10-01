@@ -6,6 +6,7 @@ import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fe
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -187,6 +188,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         sectionText={sectionText}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

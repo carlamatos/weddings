@@ -10,6 +10,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
@@ -239,6 +240,7 @@ export default function Vilma({
   sectionTextPageId,
   customSections,
   sponsors,
+  livestream,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -378,6 +380,17 @@ export default function Vilma({
                 <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections}</a>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <div id="livestream" className="section section-center">
+          <div className="wrap-wide">
+            <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel} />
+            <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="section-title" fallback={t.watchLive} />
+            <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" textStyle={{ color: 'var(--vl-ink-soft)' }} />
           </div>
         </div>
       )}

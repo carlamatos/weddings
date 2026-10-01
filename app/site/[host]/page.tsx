@@ -4,6 +4,7 @@ import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -88,6 +89,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         sectionText={sectionText}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         shareUrl={publicPageUrl(data)}
     />
   );

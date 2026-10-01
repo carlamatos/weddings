@@ -9,6 +9,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
@@ -173,6 +174,7 @@ export default function QuietCoastal({
   sectionTextPageId,
   customSections,
   sponsors,
+  livestream,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -310,6 +312,17 @@ export default function QuietCoastal({
       )}
 
       <hr className="hairline" />
+
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <div id="livestream" className="wrap">
+          <div className="section">
+            <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel.toLowerCase()} />
+            <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="title" fallback={t.watchLive.toLowerCase()} />
+            <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" align="left" textStyle={{ color: 'var(--ink-soft)' }} />
+          </div>
+        </div>
+      )}
 
       {/* CUSTOM SECTIONS (Plus) */}
       {isPaid && customSections?.map((section) => (

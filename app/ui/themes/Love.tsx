@@ -13,6 +13,7 @@ import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
+import { LivestreamContent } from './LivestreamSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -357,6 +358,7 @@ export default function Love({
   sectionTextPageId,
   customSections,
   sponsors,
+  livestream,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -495,6 +497,20 @@ export default function Love({
                   <a href={mapsUrl} target="_blank" rel="noopener noreferrer">{t.getDirections}</a>
                 </div>
               )}
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* LIVE STREAM (Plus) */}
+      {isPaid && livestream && (
+        <Reveal>
+          <div id="livestream" className="section section-blush section-center">
+            <div className="wrap-wide">
+              <SectionText ctx={sectionTextCtx} k="livestream.eyebrow" className="eyebrow" fallback={t.livestreamLabel} />
+              <HeartRule />
+              <SectionText ctx={sectionTextCtx} k="livestream.title" as="h2" className="section-title" fallback={t.watchLive} />
+              <LivestreamContent livestream={livestream} labels={{ watchLive: t.watchLive, openStream: t.openStream }} buttonClassName="registry-button" textStyle={{ color: 'var(--lv-dark-leaf)' }} />
             </div>
           </div>
         </Reveal>

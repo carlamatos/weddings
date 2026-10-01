@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -11,6 +11,7 @@ const links = [
   // reaches the upgrade prompt on each section's own page.
   { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Reminders', section: '/reminders', icon: BellAlertIcon, paidOnly: false, greyOutIfFree: true },
   // Free tier now, same as everything else.

@@ -67,6 +67,7 @@ export interface ThemeProps {
   // Plus only, already filtered by the page: switched on and non-empty.
   customSections?: import('@/app/lib/definitions').CustomSection[];
   sponsors?: import('@/app/lib/definitions').Sponsor[];
+  livestream?: import('@/app/lib/livestream').Livestream;
   sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;

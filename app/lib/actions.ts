@@ -22,6 +22,7 @@ import {
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
 } from './custom-sections';
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
+import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
 import { AuthError } from 'next-auth';
@@ -515,6 +516,46 @@ export async function saveRegistry(
     return { ok: true, value: { link, buttonText, message } };
   } catch (error) {
     console.error('Failed to save registry:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Plus: the live stream section. The link (or embed code, of which only the
+// iframe src is kept), how to show it, an optional button label and message —
+// each stored as a page setting. Empty values remove the setting.
+export async function saveLivestream(
+  pageId: number,
+  data: { url: string; display: LivestreamDisplay; buttonText: string; message: string },
+): Promise<PlusResult<{ url: string; display: LivestreamDisplay; buttonText: string; message: string }>> {
+  const url = normalizeLivestreamInput(typeof data?.url === 'string' ? data.url : '');
+  if (url && !isLivestreamLink(url)) return { ok: false, error: 'Please enter a valid link, starting with https://' };
+  const display: LivestreamDisplay = data?.display === 'link' ? 'link' : 'embed';
+  const buttonText = (typeof data?.buttonText === 'string' ? data.buttonText : '').replace(/\s+/g, ' ').trim().slice(0, LIVESTREAM_BUTTON_TEXT_MAX);
+  const message = (typeof data?.message === 'string' ? data.message : '').replace(/\r\n/g, '\n').trim().slice(0, LIVESTREAM_MESSAGE_MAX);
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const values: [string, string][] = [
+      [LIVESTREAM_SETTINGS.url, url],
+      [LIVESTREAM_SETTINGS.display, display],
+      [LIVESTREAM_SETTINGS.buttonText, buttonText],
+      [LIVESTREAM_SETTINGS.message, message],
+    ];
+    for (const [name, value] of values) {
+      if (value) {
+        await sql`
+          INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+          VALUES (${owned.value}, ${name}, ${value})
+          ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+        `;
+      } else {
+        await sql`DELETE FROM user_page_settings WHERE user_page_id = ${owned.value} AND setting_name = ${name}`;
+      }
+    }
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { url, display, buttonText, message } };
+  } catch (error) {
+    console.error('Failed to save live stream:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }

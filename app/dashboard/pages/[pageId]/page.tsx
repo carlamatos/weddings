@@ -3,6 +3,7 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { publicPageUrl } from '@/app/lib/share';
@@ -185,6 +186,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         sectionText={sectionText}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
+        livestream={livestreamFromSettings(pageSettings, isPaid)}
         sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}
