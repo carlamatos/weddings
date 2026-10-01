@@ -255,6 +255,17 @@ export default async function Page() {
             <div className="theme-category" id="theme-wedding" data-category="wedding">
               <h3 className="theme-category-title reveal">Weddings</h3>
               <div className="theme-grid">
+                <a href="/themes/the-day.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F6F2E9' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="the-day" heading="Charlotte & James" eventDate="2027-09-18" city="Niagara-on-the-Lake" country="ON" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">The Day</p>
+                    <p className="theme-desc">Ivory peonies and a white bouquet with sage-to-evergreen greenery and gold accents. Timeless and refined — built for classic, elegant weddings.</p>
+                  </div>
+                </a>
               <a href="/themes/terracotta-harvest.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
                   <div style={{ textAlign: 'center', padding: '0 20px' }}>

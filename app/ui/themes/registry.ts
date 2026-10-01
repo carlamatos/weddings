@@ -16,6 +16,7 @@ import AntiqueCars, { HeroPreview as AntiqueCarsPreview } from './AntiqueCars';
 import BabyShowerGirl, { HeroPreview as BabyShowerGirlPreview } from './BabyShowerGirl';
 import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './BabyShowerNeutral';
 import BabyShowerBoy, { HeroPreview as BabyShowerBoyPreview } from './BabyShowerBoy';
+import TheDay, { HeroPreview as TheDayPreview } from './TheDay';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -41,6 +42,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'midnight-botanical': { Page: MidnightBotanical, Preview: MBPreview,      category: 'wedding',     label: 'Midnight Botanical' },
   'terracotta-harvest': { Page: TerracottaHarvest, Preview: TCPreview,      category: 'wedding',     label: 'Terracotta Harvest', FallbackHero: TerracottaDefaultHero },
   'vilma':              { Page: Vilma,             Preview: VLPreview,     category: 'wedding',     label: 'Vilma' },
+  'the-day':            { Page: TheDay,            Preview: TheDayPreview, category: 'wedding',     label: 'The Day' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },
   'fun-party':          { Page: FunParty,          Preview: FunPartyPreview, category: 'birthdays',  label: 'Fun Party' },
