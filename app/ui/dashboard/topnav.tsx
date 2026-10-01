@@ -8,6 +8,7 @@ import LanguageSwitcher from './language-switcher';
 import UpgradeButton from './upgrade-button';
 import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
+import { siteHref } from '@/app/lib/app-url';
 
 export default async function TopNav({ page: userPage }: { page?: UserPage }) {
   const session = await auth();
@@ -37,7 +38,7 @@ export default async function TopNav({ page: userPage }: { page?: UserPage }) {
           href={
             isPaid && userPage.custom_domain
               ? `https://${userPage.custom_domain}`
-              : `/${userPage.slug}`
+              : siteHref(`/${userPage.slug}`)
           }
           target="_blank"
           rel="noopener noreferrer"

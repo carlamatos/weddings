@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { appHref } from '@/app/lib/app-url';
 
 // MyGala top bar (logo, login/dashboard). Live event pages show it without
 // the "Back to themes" link — guests land on a real event page, not the
@@ -43,7 +44,7 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
         )}
         {isLoggedIn ? (
           <Link
-            href="/dashboard"
+            href={appHref('/dashboard')}
             style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             Dashboard
@@ -51,20 +52,20 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
         ) : (
           <>
             <Link
-              href="/login"
+              href={appHref('/login')}
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: '1.5px solid #241F2B', background: 'transparent', color: '#241F2B', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Log in
             </Link>
             <Link
-              href="/login"
+              href={appHref('/login')}
               className="mg-start-page"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Start your event page
             </Link>
             <Link
-              href="/register"
+              href={appHref('/register')}
               className="mg-sign-up"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >

@@ -7,6 +7,7 @@ import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
+import { appHref } from '@/app/lib/app-url';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
@@ -37,7 +38,7 @@ export default async function Page() {
         <h1 className="hero-headline reveal delay-1">A page as considered as the celebration itself.</h1>
         <p className="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions reveal delay-2">
-          <Link href="/login" className="btn-primary">Start your event page</Link>
+          <Link href={appHref('/login')} className="btn-primary">Start your event page</Link>
           <a href="#themes" className="btn-secondary">See the themes</a>
         </div>
 
@@ -415,7 +416,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.free.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href="/login" className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
+              <Link href={appHref('/login')} className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
             </div>
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
@@ -425,7 +426,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href="/login" className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
+              <Link href={appHref('/login')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>
           </div>
         </div>
@@ -463,7 +464,7 @@ export default async function Page() {
       <div className="final-cta reveal">
         <h2 className="section-title">Your story deserves a beautiful home.</h2>
         <p className="hero-sub">Start free today. Upgrade only if you need to.</p>
-        <Link href="/login" className="btn-primary">Start your event page</Link>
+        <Link href={appHref('/login')} className="btn-primary">Start your event page</Link>
       </div>
 
       {/* FOOTER */}

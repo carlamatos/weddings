@@ -13,6 +13,7 @@ import SubscriptionBadge from '@/app/ui/admin/subscription-badge';
 import PageStatusToggle from '@/app/ui/admin/page-status-toggle';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, buttonBase, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
+import { siteHref } from '@/app/lib/app-url';
 
 // Live admin data: never run these queries at build time.
 export const dynamic = 'force-dynamic';
@@ -116,7 +117,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
               <tr key={p.id}>
                 <td style={td}>
                   <div style={{ fontWeight: 600 }}>{p.heading || 'Untitled'}</div>
-                  <Link href={`/${p.slug}`} target="_blank" style={{ color: c.soft }}>
+                  <Link href={siteHref(`/${p.slug}`)} target="_blank" style={{ color: c.soft }}>
                     /{p.slug}
                   </Link>
                   {p.custom_domain && <div style={{ color: c.muted, fontSize: 11 }}>{p.custom_domain}</div>}

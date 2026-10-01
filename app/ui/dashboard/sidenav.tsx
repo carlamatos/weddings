@@ -2,11 +2,12 @@ import Link from 'next/link';
 import NavLinks from '@/app/ui/dashboard/nav-links';
 import { PowerIcon } from '@heroicons/react/24/outline';
 import { signOut } from '@/auth';
+import { siteHref } from '@/app/lib/app-url';
 
 export default function SideNav({ pageId, isPaid }: { pageId?: number; isPaid?: boolean }) {
   return (
     <aside className="dash-sidebar">
-      <Link href="/" className="dash-sidebar-logo">
+      <Link href={siteHref('/')} className="dash-sidebar-logo">
         <span className="dash-sidebar-wordmark">
           My<span className="accent">Gala</span>
         </span>

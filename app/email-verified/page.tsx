@@ -2,11 +2,12 @@ import { greatVibes } from '@/app/ui/fonts';
 import Link from 'next/link';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import '@/app/ui/auth.css';
+import { siteHref } from '@/app/lib/app-url';
 
 export default function EmailVerifiedPage() {
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
-      <Link href="/" className="auth-wordmark">
+      <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
       <div className="auth-card">

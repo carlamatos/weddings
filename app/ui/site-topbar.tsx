@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { appHref } from '@/app/lib/app-url';
 
 // Homepage theme categories. Absolute (/#…) so they work from every page.
 const EVENT_LINKS = [
@@ -47,11 +48,11 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
         </nav>
         <div className="topbar-actions">
           {isLoggedIn ? (
-            <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
+            <Link href={appHref('/dashboard')} className="topbar-signup">Dashboard</Link>
           ) : (
             <>
-              <Link href="/login" className="topbar-login">Log in</Link>
-              <Link href="/register" className="topbar-signup">Sign up</Link>
+              <Link href={appHref('/login')} className="topbar-login">Log in</Link>
+              <Link href={appHref('/register')} className="topbar-signup">Sign up</Link>
             </>
           )}
           <button

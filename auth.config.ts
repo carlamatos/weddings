@@ -6,10 +6,28 @@ import { countUserPages, fetchUser } from './app/lib/data';
 import type { Session } from "next-auth";
 import type { NextRequest  } from "next/server";
 import type { NextAuthConfig } from 'next-auth';
+import { sharedCookieDomain } from './app/lib/app-url';
+
+// With the dashboard on app.mygala.ca and event pages on mygala.ca, the
+// session cookie is set for the whole domain so both hosts see who is signed
+// in (the "Edit page" / "Dashboard" buttons on public pages). It gets a new
+// name so older host-only cookies from before the split are simply ignored —
+// everyone signs in once. Off (Auth.js defaults) when the split is off.
+const cookieDomain = sharedCookieDomain();
+const sharedSessionCookie = cookieDomain
+  ? {
+      sessionToken: {
+        name: '__Secure-mygala.session-token',
+        options: { domain: cookieDomain, httpOnly: true, sameSite: 'lax' as const, path: '/', secure: true },
+      },
+    }
+  : undefined;
+
 export const authConfig = {
   pages: {
     signIn: '/login',
   },
+  ...(sharedSessionCookie ? { cookies: sharedSessionCookie } : {}),
   callbacks: {
     async redirect({ url, baseUrl }) {
       // Default callbackUrl is "/" — send to dashboard instead

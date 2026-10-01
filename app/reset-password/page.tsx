@@ -2,6 +2,7 @@ import { greatVibes } from '@/app/ui/fonts';
 import ResetPasswordForm from '@/app/ui/reset-password-form';
 import Link from 'next/link';
 import '@/app/ui/auth.css';
+import { siteHref } from '@/app/lib/app-url';
 
 export default async function ResetPasswordPage({
   searchParams,
@@ -12,7 +13,7 @@ export default async function ResetPasswordPage({
 
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
-      <Link href="/" className="auth-wordmark">
+      <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
       {token ? (

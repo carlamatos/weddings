@@ -8,6 +8,7 @@ import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import { Bars3Icon, XMarkIcon, PowerIcon } from '@heroicons/react/24/outline';
 import type { EventTheme } from '@/app/lib/definitions';
+import { siteHref } from '@/app/lib/app-url';
 
 interface Props {
   pageId?: number;
@@ -31,7 +32,7 @@ export default function MobileMenu({ pageId, isPaid, themes, currentThemeId, cur
           <div className="mobile-menu-overlay" onClick={() => setOpen(false)} />
           <aside className="mobile-menu-drawer">
             <div className="mobile-menu-header">
-              <Link href="/" className="dash-sidebar-logo" onClick={() => setOpen(false)}>
+              <Link href={siteHref('/')} className="dash-sidebar-logo" onClick={() => setOpen(false)}>
                 <span className="dash-sidebar-wordmark">
                   My<span className="accent">Gala</span>
                 </span>

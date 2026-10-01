@@ -9,6 +9,7 @@ import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
+import { siteHref } from '@/app/lib/app-url';
 
 // The dashboard chrome (sidebar, top bar, deactivation/lapsed-plan notices).
 // pageId: undefined = no page in the URL (setup, page list); a number = that
@@ -82,7 +83,7 @@ export default async function DashboardShell({
             >
               <strong>Your page has been deactivated.</strong> Guests currently see a &ldquo;page
               unavailable&rdquo; message. Reactivate it from the account menu, or{' '}
-              <Link href="/contact" style={{ color: 'inherit', textDecoration: 'underline' }}>
+              <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>
                 contact us
               </Link>{' '}
               with questions.
