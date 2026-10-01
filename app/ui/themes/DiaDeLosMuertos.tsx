@@ -205,7 +205,7 @@ const css = `
   @keyframes dm-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) {
     .dm .dm-petals { display: none; }
-    .dm .dm-flag, .dm .dm-spin, .dm .dm-parade-skull, .dm .dm-dancer, .dm .dm-peek, .dm .countdown-block, .dm .hero-content > * { animation: none !important; }
+    .dm .dm-flag, .dm .dm-spin, .dm .dm-parade-skull, .dm .dm-peek, .dm .countdown-block, .dm .hero-content > * { animation: none !important; }
     .dm .dm-peek { transform: translateY(18%); }
   }
 
@@ -262,13 +262,10 @@ const css = `
   .dm .hero-name { animation: dm-in 1s ease 0.15s both; font-family: var(--dm-font-display); font-size: clamp(54px, 8.6vw, 116px); font-weight: 400; color: var(--dm-plum); margin: 0 0 16px; line-height: 0.98; text-shadow: 0 4px 0 rgba(246,146,34,0.6); }
   .dm .hero-date { animation: dm-in 1s ease 0.3s both; font-family: var(--dm-font-sans); font-size: 15px; letter-spacing: 3px; text-transform: uppercase; color: var(--dm-plum); font-weight: 800; margin: 0 0 30px; }
   .dm .hero-actions { animation: dm-in 1s ease 0.45s both; display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
-  /* the sugar skull dancing in the hero's bottom-right corner */
-  .dm .dm-dancer { position: absolute; right: 3vw; bottom: 4vh; width: clamp(90px, 12vw, 170px); z-index: 1; filter: drop-shadow(0 12px 14px rgba(0,0,0,0.3)); animation: dm-dance 2.8s ease-in-out infinite; }
   @media (max-width: 760px) {
     .dm .hero { align-items: flex-end; padding: 72px 20px 80px; }
     .dm .hero-bg { object-position: 22% center; }
     .dm .hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(251,184,19,0.95) 0%, rgba(251,184,19,0.7) 45%, rgba(251,184,19,0) 75%); z-index: 1; }
-    .dm .dm-dancer { width: 80px; right: 12px; bottom: auto; top: 70px; }
   }
 
   /* countdown: over the flowered skull on orange, under a plum veil on the left */
@@ -544,8 +541,6 @@ export default function DiaDeLosMuertos({
             <img className="hero-bg" src={heroSrc} alt="" style={{ objectFit: heroObjectFit }} />
           )
         )}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="dm-dancer" src={SKULL} alt="" />
         <div className="hero-content">
           {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
