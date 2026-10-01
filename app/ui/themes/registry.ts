@@ -21,6 +21,7 @@ import Love, { HeroPreview as LovePreview } from './Love';
 import ChristmasParty, { HeroPreview as ChristmasPartyPreview } from './ChristmasParty';
 import WhiteChristmas, { HeroPreview as WhiteChristmasPreview } from './WhiteChristmas';
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
+import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -59,6 +60,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', label: 'Christmas Party' },
   'white-christmas':    { Page: WhiteChristmas,    Preview: WhiteChristmasPreview, category: 'community', label: 'White Christmas' },
   'dia-de-los-muertos': { Page: DiaDeLosMuertos,   Preview: DiaDeLosMuertosPreview, category: 'community', label: 'Día de los Muertos' },
+  'halloween-party':    { Page: HalloweenParty,    Preview: HalloweenPartyPreview, category: 'community', label: 'Halloween Party' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
   'baby-shower-neutral': { Page: BabyShowerNeutral, Preview: BabyShowerNeutralPreview, category: 'birthdays', label: 'Neutral Baby Shower' },
   'baby-shower-boy':    { Page: BabyShowerBoy,     Preview: BabyShowerBoyPreview, category: 'birthdays', label: 'Boy Baby Shower' },

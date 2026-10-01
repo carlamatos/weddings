@@ -406,6 +406,17 @@ export default async function Page() {
                     <p className="theme-desc">Deep plum and marigold with hot pink and teal, swaying papel picado, falling petals and dancing sugar skulls — joyful and colourful for remembrance celebrations.</p>
                   </div>
                 </a>
+                <a href="/themes/halloween-party" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#1F1D1E' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="halloween-party" heading="Halloween Party" eventDate="2026-10-31" city="Niagara-on-the-Lake" country="ON" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Halloween Party</p>
+                    <p className="theme-desc">Midnight charcoal and pumpkin orange with flying bats, dangling spiders, rolling fog and a creeping witch&rsquo;s hand — scary, but fun.</p>
+                  </div>
+                </a>
               </div>
             </div>
             </ThemeFilter>

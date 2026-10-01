@@ -93,6 +93,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'dia-de-los-muertos')
   `;
 
+  // Halloween Party theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Halloween Party',
+           'Midnight charcoal and pumpkin orange with witch green and blood red. Flying bats, dangling spiders, drifting fog and a creeping witch''s hand — scary, but fun.',
+           'halloween-party'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'halloween-party')
+  `;
+
   // Plus: up to three owner-written sections per page (optional title plus a
   // JSON list of text/image blocks) and a sponsors list.
   await sql`

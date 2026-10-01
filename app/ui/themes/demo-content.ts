@@ -401,4 +401,22 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['La Llorona', 'Chavela Vargas', 'Lucía'], ['Remember Me', 'Miguel & Natalia Lafourcade', 'Diego']]),
     shareHashtag: 'DiaDeLosMuertos2026',
   }),
+  'halloween-party': demo('halloween-party', {
+    heading: 'Halloween Party',
+    heroEyebrow: 'You’re invited… if you dare',
+    description: 'The veil is thin and the manor doors are open. Join us for a night of witches’ brew, haunted corners, a costume contest with prizes for the scariest, funniest and best group look, and dancing until the clock strikes midnight. Costumes are mandatory — come as you aren’t!',
+    eventDate: '2026-10-31', eventTime: '20:00', eventEndTime: '23:59',
+    venueName: 'Ravenwood Manor', streetAddress: '13 Hollow Lane', city: 'Niagara-on-the-Lake', country: 'ON',
+    formattedAddress: '13 Hollow Lane, Niagara-on-the-Lake, ON',
+    userEmail: 'hosts@hauntedmanor.example',
+    registryDescription: 'Costumes are mandatory! Prizes for the scariest, funniest and best group costume. Bring a treat to share for the candy table.',
+    eventProgram: program([
+      ['2026-10-31', 'Arrivals & witches’ brew', '20:00', null, 'The Crypt Bar'],
+      ['2026-10-31', 'Costume contest', '21:00', null, 'The Grand Hall'],
+      ['2026-10-31', 'Haunted cellar tour', '22:00', null, 'Below stairs… if you dare'],
+      ['2026-10-31', 'Monster mash dance party', '23:00', '23:59', 'The Ballroom'],
+    ]),
+    guestSongs: songs([['Thriller', 'Michael Jackson', 'Zoe'], ['Monster Mash', 'Bobby "Boris" Pickett', 'Liam']]),
+    shareHashtag: 'HauntedHalloween2026',
+  }),
 };
