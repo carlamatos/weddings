@@ -29,12 +29,21 @@ export async function compressImageFile(
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
+  // Formats that can be transparent (logos, illustrations) are re-encoded as
+  // WebP, which keeps the alpha channel; JPEG has none, so transparent areas
+  // would turn black. Photos stay JPEG. Browsers that can't encode WebP fall
+  // back to PNG, which is transparent too.
+  const keepAlpha = /^image\/(png|webp|gif|avif)$/i.test(file.type);
+  const outType = keepAlpha ? 'image/webp' : 'image/jpeg';
+
   let currentQuality = quality;
   for (let attempt = 0; attempt < 4; attempt++) {
-    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', currentQuality));
+    const blob: Blob | null = await new Promise((resolve) => canvas.toBlob(resolve, outType, currentQuality));
     if (!blob) return file;
     if (blob.size <= maxBytes || currentQuality <= 0.4) {
-      return new File([blob], file.name.replace(/\.\w+$/, '.jpg'), { type: 'image/jpeg' });
+      const type = blob.type || outType;
+      const ext = type === 'image/webp' ? '.webp' : type === 'image/png' ? '.png' : '.jpg';
+      return new File([blob], file.name.replace(/\.\w+$/, ext), { type });
     }
     currentQuality -= 0.15;
   }
