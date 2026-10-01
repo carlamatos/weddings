@@ -288,6 +288,17 @@ export default async function Page() {
                     <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids&apos; celebrations.</p>
                   </div>
                 </a>
+                <a href="/themes/baby-shower-girl.html" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F5D7DF' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="baby-shower-girl" heading="Emma's Baby Shower" eventDate="2027-04-17" city="Vancouver" country="BC" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Baby Shower Girl</p>
+                    <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
+                  </div>
+                </a>
               </div>
             </div>
 

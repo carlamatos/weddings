@@ -55,6 +55,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'Save the date'
       : userPage.theme_slug === 'antique-cars'
       ? 'Antique & Classic'
+      : userPage.theme_slug === 'baby-shower-girl'
+      ? "It's a girl!"
       : 'Together with their families';
 
   const themeEyebrowClass =
