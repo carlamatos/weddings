@@ -4,6 +4,7 @@ import '@/app/ui/marketing.css';
 import MarketingReveal from '@/app/ui/marketing-reveal';
 import ThemeFilter from '@/app/ui/theme-filter';
 import { auth } from '@/auth';
+import SiteTopbar from '@/app/ui/site-topbar';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
 
@@ -19,33 +20,7 @@ export default async function Page() {
     <div className={`marketing-page ${greatVibes.variable}`}>
 
       {/* TOP BAR */}
-      <div className="topbar">
-        <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
-        <div className="topbar-right">
-          <nav className="topbar-nav">
-            <div className="nav-item">
-              <a href="#themes" className="nav-link">Events</a>
-              <div className="nav-dropdown">
-                <a href="#theme-birthdays">Celebrations</a>
-                <a href="#theme-business">Business Events</a>
-                <a href="#theme-wedding">Weddings</a>
-                <a href="#theme-community">General Events</a>
-              </div>
-            </div>
-            <Link href="/about" className="nav-link">About Us</Link>
-          </nav>
-          <div className="topbar-actions">
-            {isLoggedIn ? (
-              <Link href="/dashboard" className="topbar-signup">Dashboard</Link>
-            ) : (
-              <>
-                <Link href="/login" className="topbar-login">Log in</Link>
-                <Link href="/register" className="topbar-signup">Sign up</Link>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
+      <SiteTopbar isLoggedIn={isLoggedIn} />
 
       {/* HERO */}
       <div className="hero">
