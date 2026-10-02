@@ -17,7 +17,7 @@ import {
   CustomSection,
   Sponsor,
 } from './definitions';
-import { CUSTOM_SECTION_COUNT, emptyCustomSection, hasCustomSectionContent, normalizeBlocks } from './custom-sections';
+import { areSponsorsOn, CUSTOM_SECTION_COUNT, emptyCustomSection, hasCustomSectionContent, normalizeBlocks } from './custom-sections';
 
 function isoDay(d: unknown): string | undefined {
   if (d instanceof Date) return d.toISOString().split('T')[0];
@@ -232,7 +232,7 @@ export async function fetchPlusContent(
   if (!isPaid) return { customSections: [], sponsors: [] };
   const [customSections, sponsors] = await Promise.all([
     isSectionOn(settings, 'show_custom_sections') ? fetchCustomSections(pageId) : Promise.resolve([]),
-    isSectionOn(settings, 'show_sponsors') ? fetchSponsors(pageId) : Promise.resolve([]),
+    areSponsorsOn(settings) ? fetchSponsors(pageId) : Promise.resolve([]),
   ]);
   return { customSections: customSections.filter(hasCustomSectionContent), sponsors };
 }

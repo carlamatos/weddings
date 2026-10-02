@@ -10,7 +10,7 @@ import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
 import { siteHref } from '@/app/lib/app-url';
 
-export default async function TopNav({ page: userPage }: { page?: UserPage }) {
+export default async function TopNav({ page: userPage, status }: { page?: UserPage; status?: Record<string, boolean> }) {
   const session = await auth();
   const themes = await fetchEventThemes();
   const pageId = userPage ? Number(userPage.id) : undefined;
@@ -19,7 +19,7 @@ export default async function TopNav({ page: userPage }: { page?: UserPage }) {
 
   return (
     <header className="dash-topnav">
-      <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
+      <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} status={status} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {userPage && !isPaid && <UpgradeButton pageId={pageId} />}
       {pageId !== undefined && userPage && themes.length > 0 && (
