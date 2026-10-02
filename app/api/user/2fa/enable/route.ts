@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import { auth } from '@/auth';
+import { auth, unstable_update } from '@/auth';
+import { createTotpProof } from '@/app/lib/totp-proof';
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 import { decryptSecret, verifyTotp, generateBackupCodes, hashBackupCode } from '@/app/lib/totp';
 
@@ -44,6 +45,9 @@ export async function POST(request: Request) {
   for (const code of backupCodes) {
     await sql`INSERT INTO totp_backup_codes (user_id, code_hash) VALUES (${userId}, ${hashBackupCode(code)})`;
   }
+
+  // The code just entered proves 2FA for this session too.
+  if (session?.user?.email) await unstable_update({ user: { totpProof: createTotpProof(session.user.email, 'verified') } });
 
   return NextResponse.json({ ok: true, backupCodes });
 }

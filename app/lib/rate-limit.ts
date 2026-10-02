@@ -47,3 +47,17 @@ export async function clearRateLimit(key: string): Promise<void> {
 async function pruneExpiredRateLimits(): Promise<void> {
   await sql`DELETE FROM rate_limits WHERE reset_at < NOW() - INTERVAL '1 day'`;
 }
+
+// Count one attempt against `key` and say whether the caller is over the
+// limit — for public forms where every request counts (RSVP, contact, …).
+export async function overRateLimit(key: string, limit: number, windowMs: number): Promise<boolean> {
+  if (await isRateLimited(key, limit)) return true;
+  await recordAttempt(key, windowMs);
+  return false;
+}
+
+// The visitor's IP. On Vercel the first x-forwarded-for entry is set by the
+// platform, not the client.
+export function clientIp(headers: Headers): string {
+  return headers.get('x-forwarded-for')?.split(',')[0].trim() || headers.get('x-real-ip') || 'unknown';
+}

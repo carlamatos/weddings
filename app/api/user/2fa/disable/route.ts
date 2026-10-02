@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import { auth } from '@/auth';
+import { auth, unstable_update } from '@/auth';
+import { createTotpProof } from '@/app/lib/totp-proof';
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 import { decryptSecret, verifyTotp, hashBackupCode } from '@/app/lib/totp';
 
@@ -48,6 +49,8 @@ export async function POST(request: Request) {
 
   await sql`UPDATE users SET totp_secret = NULL, totp_enabled_at = NULL WHERE id = ${userId}`;
   await sql`DELETE FROM totp_backup_codes WHERE user_id = ${userId}`;
+
+  if (session?.user?.email) await unstable_update({ user: { totpProof: createTotpProof(session.user.email, 'disabled') } });
 
   return NextResponse.json({ ok: true });
 }

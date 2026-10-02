@@ -14,9 +14,9 @@ import bcrypt from 'bcrypt';
 
 import { headers } from 'next/headers';
 import { signIn } from '@/auth';
-import { isRateLimited, clearRateLimit, recordAttempt } from './rate-limit';
+import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { DBUser, EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -26,6 +26,7 @@ import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVEST
 import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
 import { createPlusCheckout } from './plus-checkout';
+import { safeHttpUrl } from './safe-url';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -34,21 +35,6 @@ import { passwordRule } from './password-schema';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
-  const UserSchema = z.object({
-    id: z.string(),
-    name: z.string({
-      invalid_type_error: 'Please specify a name.',
-    }),
-    email: z.string()
-      .email({ message: 'Invalid email address. Please enter a valid email.'}),
-   
-    password: z.string(),
-    given_name:  z.string(),
-    family_name:  z.string(),
-    provider:  z.string(),
-    provider_id:  z.string(),
-    picture:  z.string(),
-  });
 
 
   const UserPageSchema = z.object({
@@ -85,8 +71,6 @@ const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true }).refine
   (d) => !d.event_end_date || !d.event_date || d.event_end_date >= d.event_date,
   { message: 'The end date can’t be before the start date.', path: ['event_end_date'] },
 );
-const CreateUser = UserSchema.omit({id: true, password:true,  given_name: true, family_name: true, provider: true,provider_id:true,picture: true,});
-const CreateExtendedUser = UserSchema.omit({id: true, password:true});
 export type UserPageState = {
     errors?: {
       event_name?: string[];
@@ -118,7 +102,8 @@ export type UserPageState = {
     // Enforce the plan's page limit on the server. (The setup page also
     // redirects, but that is only a UI courtesy — this action can be called directly.)
     const limitUserId = session?.user?.id;
-    if (limitUserId) {
+    if (!limitUserId) return { message: 'Please sign in to create an event page.' };
+    {
       const quota = await fetchPageQuota(limitUserId);
       if (quota.count >= quota.limit) {
         return { message: `You've reached the maximum of ${quota.limit} event pages for one account. Contact us if you need more.` };
@@ -180,7 +165,8 @@ export type UserPageState = {
       };
     }
 
-    const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url: rawUrl, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const url = safeHttpUrl(rawUrl);
     const venue_name = (formData.get('venueName') as string) || null;
     const user_phone = (formData.get('phone') as string)?.trim() || null;
 
@@ -228,7 +214,7 @@ export type UserPageState = {
     } catch (error) {
       console.error('Database Error:', error);
       return {
-        message: `Database Error: ${error instanceof Error ? error.message : String(error)}`,
+        message: 'Something went wrong creating your page. Please try again.',
       };
     }
 
@@ -280,7 +266,7 @@ export async function updateLocation(pageId: number, data: {
         country           = ${data.country ?? null},
         place_id          = ${data.placeId ?? null},
         formatted_address = ${data.formattedAddress ?? null},
-        url               = ${data.url ?? null},
+        url               = ${safeHttpUrl(data.url) || null},
         venue_name        = ${data.venueName ?? null}
       WHERE id = ${pid} AND user_id = ${userId}
     `;
@@ -329,7 +315,17 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
+// What updatePageSetting may write: the show/hide switches and the banner fit.
+// Everything else (livestream, reminders, hashtag, headings…) has its own
+// validating action, so a crafted call can't store arbitrary settings.
+function isWritableSetting(name: string, value: string): boolean {
+  if (/^show_[a-z_]{1,40}$/.test(name)) return value === 'true' || value === 'false';
+  if (name === 'hero_object_fit') return value === 'cover' || value === 'contain';
+  return false;
+}
+
 export async function updatePageSetting(pageId: number, settingName: string, settingValue: string) {
+  if (typeof settingName !== 'string' || typeof settingValue !== 'string' || !isWritableSetting(settingName, settingValue)) return;
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
@@ -937,7 +933,8 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
       WHERE id = ${pid} AND user_id = ${userId}
     `;
   } catch (error) {
-    return { error: `Database error: ${error instanceof Error ? error.message : String(error)}` };
+    console.error('Failed to save domain:', error);
+    return { error: 'Could not save the domain. Please try again.' };
   }
 
   revalidatePath('/dashboard/domain');
@@ -1084,90 +1081,8 @@ export async function FacebookSignIn() {
 }
 
 
-export async function createExtendedUser(user: DBUser) {
-  
- /* console.log("UserID: " + user.id);
-  console.log("UserNAME: " + user.name);
-  console.log("UserEMAIL: " + user.email);
-  */
-  const validatedFields = CreateExtendedUser.safeParse({
-      
-      name: user.name,
-      email: user.email,
-      given_name: user.given_name,
-      family_name: user.family_name,
-      provider: user.provider,
-      provider_id: user.provider_id,
-      picture: user.picture,
-      
-  });
-  if (!validatedFields.success) {
-    
-    return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create User.',
-      };
-      
-    }
-    const {name, email, given_name, family_name, provider, provider_id, picture } = validatedFields.data;
-    const date = new Date().toISOString().split('T')[0];
-  try {
-      // OAuth providers already prove control of the email address, so these
-      // accounts are verified immediately — unlike credentials signups.
-      await sql`
-  INSERT INTO users (name, email, date, given_name,family_name,provider,provider_id,picture,email_verified_at)
-  VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
-`;
-
-  } catch (error) {
-      
-      return {
-          message:`Database Error: Failed to Create user. ${error instanceof Error ? error.message : String(error)}`,
-      };
-  }
-
-  //revalidatePath('/dashboard/invoices');
-  //redirect('/dashboard/invoices');
-
-}
 
 
-export async function createUser(user: DBUser) {
-  
-  
-  const validatedFields = CreateUser.safeParse({
-      
-      name: user.name,
-      email: user.email,
-  });
-  if (!validatedFields.success) {
-    
-    return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create User.',
-      };
-      
-    }
-    const {name, email } = validatedFields.data;
-    const date = new Date().toISOString().split('T')[0];
-  try {
-      await sql`
-  INSERT INTO users (name, email, date)
-  VALUES (${name}, ${email}, ${date})
-`;
-
-  } catch (error) {
-    console.log("error inserting User");
-      return {
-          message:`Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
-
-      };
-  }
-
-  //revalidatePath('/dashboard/invoices');
-  //redirect('/dashboard/invoices');
-
-}
 
 const RegisterSchema = z.object({
   given_name: z.string().min(1, { message: 'Please enter your first name.' }),
@@ -1194,6 +1109,10 @@ export type RegisterState = {
 };
 
 export async function registerUser(prevState: RegisterState, formData: FormData) {
+  // Mass sign-ups (and the verification emails they send) are capped per IP.
+  if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
+    return { message: 'Too many sign-ups from this connection. Please try again later.' };
+  }
   const validatedFields = RegisterSchema.safeParse({
     given_name: formData.get('given_name'),
     family_name: formData.get('family_name'),
@@ -1221,7 +1140,8 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
       };
     }
   } catch (error) {
-    return { message: `Database Error: ${error instanceof Error ? error.message : String(error)}` };
+    console.error('Sign-up lookup failed:', error);
+    return { message: 'Something went wrong. Please try again.' };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -1237,9 +1157,8 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     `;
     newUserId = result.rows[0]?.id;
   } catch (error) {
-    return {
-      message: `Database Error: Failed to create account. ${error instanceof Error ? error.message : String(error)}`,
-    };
+    console.error('Failed to create account:', error);
+    return { message: 'Something went wrong creating your account. Please try again.' };
   }
 
   if (newUserId) {

@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
+import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
+
+const HOUR_MS = 60 * 60 * 1000;
+const MAX_GUESTS = 50;
+const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 export async function POST(request: Request) {
   try {
@@ -28,7 +33,12 @@ export async function POST(request: Request) {
       }
     }
 
-    if (!name?.trim() || !email?.trim() || !status || !userPageId) {
+    // Spam guard: per visitor, and per page so one page can't be flooded.
+    if (await overRateLimit(`rsvp:${clientIp(request.headers)}`, 30, HOUR_MS)) {
+      return NextResponse.json({ error: 'Too many replies from this connection. Please try again later.' }, { status: 429 });
+    }
+
+    if (typeof name !== 'string' || typeof email !== 'string' || !name.trim() || !email.trim() || !status || !userPageId) {
       return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
     if (!['attending', 'not_attending'].includes(status)) {
@@ -38,17 +48,31 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email address.' }, { status: 400 });
     }
 
-    const page = await sql`SELECT id FROM user_page WHERE id = ${Number(userPageId)} LIMIT 1`;
-    if (!page.rows[0]) {
+    if (name.trim().length > 120 || email.trim().length > 254) {
+      return NextResponse.json({ error: 'Name or email is too long.' }, { status: 400 });
+    }
+    const pageId = Number(userPageId);
+    if (!Number.isInteger(pageId) || pageId <= 0) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
 
-    const guestCount = status === 'attending' ? (Number(guests) || 1) : 1;
+    const page = await sql`SELECT id FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') <> 'inactive' LIMIT 1`;
+    if (!page.rows[0]) {
+      return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
+    }
+    if (await overRateLimit(`rsvp-page:${pageId}`, 500, HOUR_MS)) {
+      return NextResponse.json({ error: 'This page is receiving a lot of replies. Please try again shortly.' }, { status: 429 });
+    }
+
+    const requested = Math.floor(Number(guests));
+    const guestCount = status === 'attending' ? Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), MAX_GUESTS) : 1;
+    const cleanPhone = str(phone, 40) || null;
+    const cleanMessage = str(message, 2000) || null;
 
     // If the guest was already invited, update their record; otherwise insert fresh
     const existing = await sql`
       SELECT id FROM event_guests
-      WHERE user_page_id = ${Number(userPageId)} AND email = ${email.trim()}
+      WHERE user_page_id = ${pageId} AND email = ${email.trim()}
       LIMIT 1
     `;
 
@@ -56,10 +80,10 @@ export async function POST(request: Request) {
       await sql`
         UPDATE event_guests SET
           name = ${name.trim()},
-          phone = ${phone?.trim() || null},
+          phone = ${cleanPhone},
           status = ${status},
           guests = ${guestCount},
-          message = ${message?.trim() || null},
+          message = ${cleanMessage},
           receive_updates = ${!!receiveUpdates},
           responded_at = NOW()
         WHERE id = ${existing.rows[0].id}
@@ -68,13 +92,13 @@ export async function POST(request: Request) {
       await sql`
         INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, message, receive_updates, responded_at)
         VALUES (
-          ${Number(userPageId)},
+          ${pageId},
           ${name.trim()},
           ${email.trim()},
-          ${phone?.trim() || null},
+          ${cleanPhone},
           ${status},
           ${guestCount},
-          ${message?.trim() || null},
+          ${cleanMessage},
           ${!!receiveUpdates},
           NOW()
         )

@@ -10,13 +10,15 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { DBUser } from '@/app/lib/definitions';
 import bcrypt from 'bcrypt';
-import { createExtendedUser } from './app/lib/actions';
+import { createOAuthUser, claimUnverifiedAccount } from './app/lib/users';
+import { verifyTotpProof } from './app/lib/totp-proof';
+import { isTotpPending } from './app/lib/totp-session';
 import {JWT} from 'next-auth/jwt'
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 5;
-const TOTP_VERIFIED_TTL_MS = 24 * 60 * 60 * 1000;
+const MAX_ACCOUNT_LOGIN_ATTEMPTS = 10;
 
 async function getUser(email: string): Promise<DBUser | undefined> {
   try {
@@ -35,7 +37,7 @@ async function getUser(email: string): Promise<DBUser | undefined> {
 // response-time difference lets an attacker enumerate registered addresses.
 const DUMMY_PASSWORD_HASH = '$2b$10$riu05Pya1ylj.Ct6.p1sP.Z3G1qTBav1g3/In1RKoZsj3B5/hVZzy';
 
-export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
+const nextAuth = NextAuth({
   ...authConfig,
   trustHost: true,
   providers: [
@@ -58,12 +60,20 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
-          const user = await getUser(email);
-          // Always run bcrypt.compare, even when the user doesn't exist, so
-          // the response time doesn't reveal whether the email is registered.
-          const passwordsMatch = await bcrypt.compare(password, user?.password ?? DUMMY_PASSWORD_HASH);
 
-          if (user && passwordsMatch) return user;
+          // Per-account limit too, so guesses spread over many IPs still stop.
+          const accountKey = `login-account:${email.toLowerCase()}`;
+          if (await isRateLimited(accountKey, MAX_ACCOUNT_LOGIN_ATTEMPTS)) return null;
+          await recordAttempt(accountKey, LOGIN_WINDOW_MS);
+
+          const user = await getUser(email);
+          // Always run bcrypt.compare, even when the user doesn't exist (or
+          // has no password — Google/Apple/Facebook accounts), so the
+          // response time doesn't reveal whether the email is registered.
+          const hash = user?.password || DUMMY_PASSWORD_HASH;
+          const passwordsMatch = await bcrypt.compare(password, hash);
+
+          if (user && user.password && passwordsMatch) return user;
         }
 
         return null;
@@ -88,16 +98,20 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({token, user, account, profile, trigger, session } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null; trigger?: 'signIn' | 'signUp' | 'update'; session?: { user?: { totpVerified?: boolean } } }) {
-      // Re-invoked via unstable_update({ user: { totpVerified: true } }) from
-      // /api/auth/2fa/verify — writes straight into this token, no DB write
-      // needed for this per-session (not per-account) flag.
-      if (trigger === 'update' && session?.user?.totpVerified) {
-        token.totpVerified = true;
-        token.totpVerifiedAt = Date.now();
+    async jwt({token, user, account, profile, trigger, session } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null; trigger?: 'signIn' | 'signUp' | 'update'; session?: { user?: { totpProof?: string } } }) {
+      // Session updates can come from the browser (POST /api/auth/session),
+      // so a 2FA state change is only accepted with a server-signed proof
+      // from /api/auth/2fa/verify, /enable or /disable (app/lib/totp-proof.ts).
+      if (trigger === 'update') {
+        const proof = session?.user?.totpProof;
+        if (verifyTotpProof(token.email, proof, 'verified')) {
+          token.totpRequired = true;
+          token.totpVerified = true;
+          token.totpVerifiedAt = Date.now();
+        } else if (verifyTotpProof(token.email, proof, 'disabled')) {
+          token.totpRequired = false;
+        }
       }
-
-      // Add user info to the token when logging in
 
       const oauthProviders = ['google', 'apple', 'facebook'];
       if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub && token?.id) {
@@ -107,20 +121,21 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
         const localuser = await getUser(profile.email);
         if (!localuser) {
-          const userdata: DBUser = { id: '0', name: profile.name as string, email: profile.email, password: '', given_name, family_name, provider: providerName, provider_id: profile.sub, picture: profile.picture as string };
-          const result = await createExtendedUser(userdata);
-
-          if (result && result.errors) {
-            console.log('Error:', result.errors);
-            console.log('Message:', result.message);
-          } else if (result && result.message) {
-            console.log('Success:', result.message);
-          }
+          await createOAuthUser({ name: profile.name as string, email: profile.email, given_name, family_name, provider: providerName, provider_id: profile.sub, picture: (profile.picture as string) ?? '' });
+        } else if (!localuser.email_verified_at) {
+          await claimUnverifiedAccount(profile.email);
         }
       }
 
       if (user && token) {
         token.id = user.id;
+        // Whether this sign-in still owes a 2FA code. Recorded in the token
+        // so the proxy can hold the session at /verify-2fa without a DB call.
+        const signInEmail = (profile?.email as string | undefined) ?? user.email ?? token.email;
+        const account2fa = signInEmail ? await getUser(signInEmail) : undefined;
+        token.totpRequired = !!account2fa?.totp_enabled_at;
+        token.totpVerified = false;
+        token.totpVerifiedAt = undefined;
       }
 
       return token;
@@ -140,12 +155,27 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
         session.user.image = token.picture as string;
         session.user.verifiedEmail = !!localuser?.email_verified_at;
         session.user.totpEnabled = !!localuser?.totp_enabled_at;
-        const verifiedRecently = !!token.totpVerified && !!token.totpVerifiedAt
-          && Date.now() - token.totpVerifiedAt < TOTP_VERIFIED_TTL_MS;
-        session.user.totpVerified = verifiedRecently;
+        // Tokens issued before totpRequired existed fall back to the account setting.
+        const totpRequired = token.totpRequired ?? !!localuser?.totp_enabled_at;
+        session.user.totpPending = isTotpPending({ ...token, totpRequired });
+        session.user.totpVerified = !session.user.totpPending && totpRequired;
       }
 
       return session;
     },
   },
 });
+
+export const { handlers, signIn, signOut, unstable_update } = nextAuth;
+
+// The session as seen by the 2FA screen and its API only: includes sessions
+// that signed in with a password but haven't entered their 2FA code yet.
+export const authIncludingPending2fa = () => nextAuth.auth();
+
+// Everywhere else, a session that still owes its 2FA code counts as signed
+// out — so a stolen password alone can't use any API route, server action
+// or page. (The proxy also holds such sessions at /verify-2fa.)
+export async function auth(): Promise<Session | null> {
+  const session = await nextAuth.auth();
+  return session?.user?.totpPending ? null : session;
+}

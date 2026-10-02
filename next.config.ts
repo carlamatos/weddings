@@ -7,6 +7,8 @@ const isPreviewDeploy =
 const vercelLive = (sources: string) => (isPreviewDeploy ? ` ${sources}` : '');
 
 const securityHeaders = [
+  // frame-src also lists the livestream players the Live Stream section embeds
+  // (app/lib/livestream.ts); Facebook's is already allowed for sign-in.
   {
     key: 'Content-Security-Policy',
     value: [
@@ -17,7 +19,7 @@ const securityHeaders = [
       `img-src 'self' data: blob: https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
       `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://vercel.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
-      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com${vercelLive('https://vercel.live')}`,
+      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com",

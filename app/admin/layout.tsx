@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await auth();
   const email = session?.user?.email;
   if (!email) redirect('/login');
-  if (!isSuperAdmin(email)) notFound();
+  if (!isSuperAdmin(email) || !session?.user?.verifiedEmail) notFound();
   if (needsTotpChallenge(session)) redirect('/verify-2fa');
 
   return (
