@@ -58,9 +58,10 @@ export async function POST(request: Request) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret: turnstileSecret, response: cfToken, remoteip: clientIp(request.headers) }),
       });
-      const verifyData = await verifyRes.json().catch(() => ({ success: false })) as { success: boolean; hostname?: string };
+      const verifyData = await verifyRes.json().catch(() => ({ success: false })) as { success: boolean; hostname?: string; action?: string };
       const solvedHost = (verifyData.hostname ?? '').toLowerCase();
-      if (!verifyData.success || !(solvedHost === ROOT_DOMAIN || solvedHost.endsWith(`.${ROOT_DOMAIN}`))) {
+      // The widget is tagged action 'rsvp', so a token minted for any other form is refused.
+      if (!verifyData.success || verifyData.action !== 'rsvp' || !(solvedHost === ROOT_DOMAIN || solvedHost.endsWith(`.${ROOT_DOMAIN}`))) {
         return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
       }
     }

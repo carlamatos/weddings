@@ -8,6 +8,7 @@ declare global {
     turnstile?: {
       render: (element: HTMLElement, options: {
         sitekey: string;
+        action?: string;
         callback: (token: string) => void;
         'expired-callback': () => void;
         'error-callback': () => void;
@@ -85,6 +86,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       if (turnstileRef.current && window.turnstile) {
         widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
           sitekey: SITE_KEY!,
+          action: 'rsvp',
           callback: (token) => setCfToken(token),
           'expired-callback': () => setCfToken(''),
           'error-callback': () => setCfToken(''),

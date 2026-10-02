@@ -53,6 +53,7 @@ export async function GET(request: Request) {
   window.onTurnstileLoad = function () {
     turnstile.render('#cf', {
       sitekey: ${JSON.stringify(SITE_KEY)},
+      action: 'rsvp',
       callback: function (t) { send(t); },
       'expired-callback': function () { send(''); },
       'error-callback': function () { send(''); }
