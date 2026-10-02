@@ -24,12 +24,15 @@ export async function GET(request: Request) {
   // the CSP header or the postMessage origin below.
   if (!SITE_KEY || !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(parent)) return notFound();
 
+  // Any domain that serves an event page (app/site/[host] doesn't check the
+  // plan or DNS status either), so every page that shows an RSVP form can
+  // complete the check.
   const bare = parent.replace(/^www\./, '');
   try {
     const page = await sql`
       SELECT 1 FROM user_page
       WHERE lower(regexp_replace(custom_domain, '^www\\.', '')) = ${bare}
-        AND domain_status = 'active' AND plan_type = 'paid' AND COALESCE(status, 'active') <> 'inactive'
+        AND COALESCE(status, 'active') <> 'inactive'
       LIMIT 1`;
     if (!page.rows.length) return notFound();
   } catch {
