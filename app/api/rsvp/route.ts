@@ -82,7 +82,7 @@ export async function POST(request: Request) {
     // If the guest was already invited, update their record; otherwise insert fresh
     const existing = await sql`
       SELECT id FROM event_guests
-      WHERE user_page_id = ${pageId} AND email = ${email.trim()}
+      WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()})
       LIMIT 1
     `;
 

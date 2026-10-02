@@ -1,19 +1,10 @@
 import { fetchGuests, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { RsvpActions } from './RsvpActions';
+import { GuestStatusSelect } from './GuestStatusSelect';
+import Link from 'next/link';
+import { pagePath } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-
-const statusLabel: Record<string, string> = {
-  attending: 'Attending',
-  not_attending: 'Declining',
-  invited: 'Invited',
-};
-
-const statusStyle: Record<string, React.CSSProperties> = {
-  attending:     { background: '#EAF2EC', color: '#3D6B46' },
-  not_attending: { background: '#F5EDEA', color: '#8B3A2A' },
-  invited:       { background: '#EEF0F8', color: '#4A5296' },
-};
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -50,7 +41,8 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
       {guests.length === 0 ? (
         <div style={{ padding: '48px 0', textAlign: 'center', color: '#9A8F8C', fontFamily: 'system-ui', fontSize: 15 }}>
-          No guests yet — share your event page or import contacts to get started.
+          No guests yet — share your event page, or add your guest list in{' '}
+          <Link href={pagePath(pageId, '/invitations')} style={{ color: '#B6584A' }}>Invitations</Link>.
         </div>
       ) : (
         <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #EDE8E3', background: '#fff' }}>
@@ -69,12 +61,10 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
                   <td style={{ padding: '14px 16px', color: '#6B6470' }}>{g.email || '—'}</td>
                   <td style={{ padding: '14px 16px', color: '#6B6470' }}>{g.phone || '—'}</td>
                   <td style={{ padding: '14px 16px' }}>
-                    <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, ...statusStyle[g.status] }}>
-                      {statusLabel[g.status]}
-                    </span>
+                    <GuestStatusSelect pageId={pageId} guestId={g.id} guestName={g.name} initial={g.status} />
                   </td>
                   <td style={{ padding: '14px 16px', textAlign: 'center', color: '#241F2B' }}>
-                    {g.status === 'attending' ? g.guests : '—'}
+                    {g.status === 'not_attending' ? '—' : g.guests || 1}
                   </td>
                   <td style={{ padding: '14px 16px', textAlign: 'center', color: g.receive_updates ? '#3D6B46' : '#9A8F8C' }}>
                     {g.status !== 'invited' ? (g.receive_updates ? '✓' : '—') : '—'}

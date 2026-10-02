@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, MinusCircleIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 const links = [
   { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'RSVPs', section: '/rsvp', icon: UsersIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Invitations', section: '/invitations', icon: EnvelopeIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Potluck', section: '/potluck', icon: CakeIcon, paidOnly: false, greyOutIfFree: true },
   // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
   // reaches the upgrade prompt on each section's own page.
