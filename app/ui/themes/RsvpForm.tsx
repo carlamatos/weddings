@@ -19,10 +19,12 @@ declare global {
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
+const SITE_ORIGIN = (process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '');
 
-// The Cloudflare bot check only works on hostnames listed for the site key,
-// so it runs on MyGala's own domain; event pages on a host's custom domain
-// skip it (the RSVP API agrees — see app/api/rsvp/route.ts).
+// The Cloudflare bot check only works on hostnames listed for the site key
+// (MyGala's own domain). There the widget renders directly; on a host's
+// custom domain it runs inside MyGala's bridge page (app/api/turnstile/frame),
+// which posts the token back here.
 function onRootDomain(hostname: string): boolean {
   return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`);
 }
@@ -44,12 +46,34 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
 
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
-  const [useTurnstile, setUseTurnstile] = useState(false);
+  const [turnstileMode, setTurnstileMode] = useState<'none' | 'direct' | 'bridge'>('none');
+  const [bridgeSrc, setBridgeSrc] = useState('');
+  const bridgeRef = useRef<HTMLIFrameElement>(null);
+  const useTurnstile = turnstileMode === 'direct';
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hostname is only known in the browser
-    setUseTurnstile(!!SITE_KEY && !disabled && onRootDomain(window.location.hostname));
+    if (!SITE_KEY || disabled) return;
+    const { hostname, host } = window.location;
+    if (onRootDomain(hostname)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- the hostname is only known in the browser
+      setTurnstileMode('direct');
+    } else if (SITE_ORIGIN) {
+      setBridgeSrc(`${SITE_ORIGIN}/api/turnstile/frame?parent=${encodeURIComponent(host)}`);
+      setTurnstileMode('bridge');
+    }
   }, [disabled]);
+
+  // Tokens from the bridge: only from that frame, only of the expected shape.
+  useEffect(() => {
+    if (turnstileMode !== 'bridge') return;
+    const onMessage = (e: MessageEvent) => {
+      if (e.source !== bridgeRef.current?.contentWindow) return;
+      const data = e.data as { type?: unknown; token?: unknown } | null;
+      if (data?.type === 'mygala-turnstile' && typeof data.token === 'string') setCfToken(data.token);
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [turnstileMode]);
 
   useEffect(() => {
     if (!SITE_KEY || !useTurnstile) return;
@@ -80,7 +104,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError(t.errorEmail); return;
     }
-    if (SITE_KEY && !cfToken) {
+    if (turnstileMode !== 'none' && !cfToken) {
       setError('Please complete the security check.');
       return;
     }
@@ -95,8 +119,12 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setError(data.error ?? t.errorGeneral);
+        // Tokens are single-use: get a fresh one for the next attempt.
         if (widgetIdRef.current && window.turnstile) {
           window.turnstile.reset(widgetIdRef.current);
+          setCfToken('');
+        } else if (turnstileMode === 'bridge') {
+          bridgeRef.current?.contentWindow?.postMessage({ type: 'mygala-turnstile-reset' }, '*');
           setCfToken('');
         }
       } else {
@@ -208,6 +236,14 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       </div>
 
       {useTurnstile && <div ref={turnstileRef} style={{ margin: '8px 0' }} />}
+      {turnstileMode === 'bridge' && bridgeSrc && (
+        <iframe
+          ref={bridgeRef}
+          src={bridgeSrc}
+          title="Security check"
+          style={{ display: 'block', width: 300, maxWidth: '100%', height: 70, border: 0, margin: '8px 0', background: 'transparent' }}
+        />
+      )}
 
       {error && <p className="rsvp-error">{error}</p>}
       <button type="submit" className="btn" disabled={submitting || (!!SITE_KEY && !cfToken)} style={{ width: 'fit-content' }}>

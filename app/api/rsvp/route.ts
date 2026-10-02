@@ -4,6 +4,7 @@ import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_GUESTS = 50;
+const ROOT_DOMAIN = (process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca').toLowerCase();
 const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 export async function POST(request: Request) {
@@ -39,19 +40,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
 
-    const page = await sql`SELECT id, custom_domain, domain_status FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') <> 'inactive' LIMIT 1`;
+    const page = await sql`SELECT id FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') <> 'inactive' LIMIT 1`;
     if (!page.rows[0]) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
     // Cloudflare Turnstile bot check (when TURNSTILE_SECRET_KEY is set). It
-    // only works on MyGala's own domain, so a page answered through its own
-    // verified custom domain skips it; the rate limits above still apply.
+    // always runs on MyGala's own domain — directly on mygala.ca pages, or in
+    // the bridge frame (app/api/turnstile/frame) on custom-domain pages — so
+    // a token solved anywhere else is rejected.
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
-    const host = (request.headers.get('host') ?? '').toLowerCase().replace(/^www\./, '');
-    const viaCustomDomain = !!page.rows[0].custom_domain && page.rows[0].domain_status === 'active'
-      && host === String(page.rows[0].custom_domain).toLowerCase().replace(/^www\./, '');
-    if (turnstileSecret && !viaCustomDomain) {
-      if (typeof cfToken !== 'string' || !cfToken) {
+    if (turnstileSecret) {
+      if (typeof cfToken !== 'string' || !cfToken || cfToken.length > 4096) {
         return NextResponse.json({ error: 'Security check required.' }, { status: 400 });
       }
       const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
@@ -59,8 +58,9 @@ export async function POST(request: Request) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ secret: turnstileSecret, response: cfToken, remoteip: clientIp(request.headers) }),
       });
-      const verifyData = await verifyRes.json() as { success: boolean };
-      if (!verifyData.success) {
+      const verifyData = await verifyRes.json().catch(() => ({ success: false })) as { success: boolean; hostname?: string };
+      const solvedHost = (verifyData.hostname ?? '').toLowerCase();
+      if (!verifyData.success || !(solvedHost === ROOT_DOMAIN || solvedHost.endsWith(`.${ROOT_DOMAIN}`))) {
         return NextResponse.json({ error: 'Security check failed. Please try again.' }, { status: 400 });
       }
     }
