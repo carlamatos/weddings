@@ -22,12 +22,15 @@ export async function requireOwnedPage(params: Promise<{ pageId: string }>): Pro
   return page;
 }
 
-// Old dashboard URLs (/dashboard/rsvp etc.) forward to the user's oldest page.
+// Shortcut URLs (/dashboard/rsvp, /dashboard/livestream, …) open that screen
+// for the user's only page, or the event pages list to pick one from.
 export async function redirectToDefaultPage(section: string, search = ''): Promise<never> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) redirect('/login');
   const pages = await listOwnedPages(userId);
   if (!pages.length) redirect('/dashboard/setup');
+  // Several events: let the user pick which one (the list links to `section`).
+  if (pages.length > 1) redirect(section ? `/dashboard?section=${encodeURIComponent(section)}` : '/dashboard');
   redirect(`${pagePath(pages[0].id, section)}${search}`);
 }

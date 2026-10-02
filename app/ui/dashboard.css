@@ -895,3 +895,16 @@ body:has(.dash-shell) {
   font-family: system-ui, sans-serif;
 }
 .theme-date-heading:not(:first-child) { margin-top: 6px; }
+
+/* Event name above the per-page links in the sidebar */
+.dash-nav-group {
+  margin: 16px 12px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9A8F8C;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -24,7 +24,8 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
+import { createPlusCheckout } from './plus-checkout';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -120,7 +121,7 @@ export type UserPageState = {
     if (limitUserId) {
       const quota = await fetchPageQuota(limitUserId);
       if (quota.count >= quota.limit) {
-        return { message: `You've reached the maximum number of pages for your plan (${quota.limit}).` };
+        return { message: `You've reached the maximum of ${quota.limit} event pages for one account. Contact us if you need more.` };
       }
     }
 
@@ -185,16 +186,21 @@ export type UserPageState = {
 
     const user_id = session?.user?.id;
 
+    const wantsPlus = formData.get('plan') === 'plus';
+    let prepaid = false;
     let newPageId: number | string | undefined;
     try {
       // Resolve theme slug → theme_id
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
 
-      // Inherit plan from user_plans if the user already paid before creating their page
-      const planRow = await sql`SELECT plan_type, plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
-      const plan_type = planRow.rows[0]?.plan_type ?? 'free';
-      const plan_expires_at = planRow.rows[0]?.plan_expires_at ?? null;
+      // Plus is bought per page after it's created (below). The one exception
+      // is a purchase made before the account had any page, which carries
+      // over to this first page.
+      prepaid = user_id ? await hasPrepaidPlus(user_id) : false;
+      const planRow = prepaid ? await sql`SELECT plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1` : null;
+      const plan_type = prepaid ? 'paid' : 'free';
+      const plan_expires_at = planRow?.rows[0]?.plan_expires_at ?? null;
 
       const inserted = await sql`
         INSERT INTO user_page (
@@ -227,8 +233,23 @@ export type UserPageState = {
     }
 
     revalidatePath(`/${slug}`);
-    // Straight into the editor for the new page; the dashboard root (which
-    // picks the oldest page) is the fallback if the id somehow didn't come back.
+
+    // Chose Plus for this event: the page exists (free) now, so pay for it.
+    // Cancelling checkout leaves it free, upgradeable from the dashboard.
+    if (wantsPlus && !prepaid && newPageId && user_id) {
+      let checkoutUrl: string | null = null;
+      try {
+        const h = await headers();
+        const origin = h.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+        checkoutUrl = await createPlusCheckout({ userId: user_id, email: session?.user?.email ?? undefined, pageId: Number(newPageId), origin });
+      } catch (error) {
+        console.error('Failed to start Plus checkout for new page:', error);
+      }
+      if (checkoutUrl) redirect(checkoutUrl);
+    }
+
+    // Straight into the editor for the new page; the event pages list is
+    // the fallback if the id somehow didn't come back.
     redirect(newPageId ? pagePath(newPageId) : '/dashboard');
   }
 

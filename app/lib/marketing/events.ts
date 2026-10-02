@@ -59,7 +59,7 @@ export const EVENT_TYPES: EventType[] = [
     ],
     featureSlugs: ['guest-photo-qr-code', 'livestream', 'event-reminder-emails', 'event-page-translations', 'custom-sections', 'custom-domain'],
     faqs: [
-      { q: 'Is a MyGala wedding website free?', a: 'Yes. The free plan includes one event page with every theme, RSVPs, the countdown, event details and the event program. Plus is a one-time payment that adds premium features like guest photos, livestream, registry and a custom domain.' },
+      { q: 'Is a MyGala wedding website free?', a: 'Yes. Free event pages include every theme, RSVPs, the countdown, event details and the event program. Plus is a one-time payment per event that adds premium features like guest photos, livestream, registry and a custom domain.' },
       { q: 'Can guests RSVP for their partner or family?', a: 'Yes. The RSVP form asks how many guests are coming, so one person can reply for their whole party.' },
       { q: 'Can I put our registry on the wedding website?', a: 'Yes. With Plus, add a registry section linking to any store or registry site, with your own message.' },
       { q: 'Can I keep the website after the wedding?', a: 'Yes. Your page stays online as a keepsake. Free pages stay viewable; Plus features stay on for 15 months from purchase and can be extended.' },

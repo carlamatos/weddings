@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-import { effectiveTier, maxPagesFor } from './plans';
+import { maxPagesPerAccount } from './plans';
 import { expireIfPast } from './plan-expiry';
 import {
   Revenue,
@@ -375,10 +375,25 @@ export async function countUserPages(userId: string): Promise<number> {
   return data.rows[0]?.n ?? 0;
 }
 
-// How many pages the user has and how many their plan allows.
+// How many pages the user has and how many an account may have.
 export async function fetchPageQuota(userId: string): Promise<{ count: number; limit: number }> {
-  const [count, plan] = await Promise.all([countUserPages(userId), fetchUserPlan(userId)]);
-  return { count, limit: maxPagesFor(effectiveTier(plan?.plan_type, null)) };
+  return { count: await countUserPages(userId), limit: maxPagesPerAccount() };
+}
+
+// A Plus purchase made before any page existed (the old plan picker) is
+// still waiting to be applied: it carries over to the account's first page
+// only. Every other page is bought on its own.
+export async function hasPrepaidPlus(userId: string): Promise<boolean> {
+  try {
+    const data = await sql`
+      SELECT 1 FROM user_plans
+      WHERE user_id = ${userId} AND plan_type = 'paid' AND (plan_expires_at IS NULL OR plan_expires_at > NOW())
+        AND NOT EXISTS (SELECT 1 FROM user_page WHERE user_id = ${userId})
+      LIMIT 1`;
+    return data.rows.length > 0;
+  } catch {
+    return false;
+  }
 }
 
 export async function fetchUserPlan(user_id: string): Promise<{ plan_type: string; stripe_customer_id: string | null; plan_expires_at: string | null } | null> {

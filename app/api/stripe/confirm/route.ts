@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
 import { PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { pagePath } from '@/app/lib/dashboard';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -15,6 +16,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
+  // Back to the page that was bought (its editor), else the event pages list.
+  let landing = '/dashboard';
   try {
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -38,11 +41,12 @@ export async function GET(req: NextRequest) {
           SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}
           WHERE id = ${pageId} AND user_id = ${session.user.id}
         `;
+        landing = pagePath(pageId);
       }
     }
   } catch (err) {
     console.error('Stripe confirm error:', err);
   }
 
-  return NextResponse.redirect(new URL('/dashboard', req.url));
+  return NextResponse.redirect(new URL(landing, req.url));
 }

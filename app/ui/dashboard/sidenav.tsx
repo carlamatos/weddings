@@ -4,7 +4,7 @@ import { PowerIcon } from '@heroicons/react/24/outline';
 import { signOut } from '@/auth';
 import { siteHref } from '@/app/lib/app-url';
 
-export default function SideNav({ pageId, isPaid }: { pageId?: number; isPaid?: boolean }) {
+export default function SideNav({ pageId, pageName, isPaid }: { pageId?: number; pageName?: string; isPaid?: boolean }) {
   return (
     <aside className="dash-sidebar">
       <Link href={siteHref('/')} className="dash-sidebar-logo">
@@ -14,7 +14,7 @@ export default function SideNav({ pageId, isPaid }: { pageId?: number; isPaid?: 
       </Link>
 
       <nav className="dash-sidebar-nav">
-        <NavLinks pageId={pageId} isPaid={isPaid} />
+        <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} />
       </nav>
 
       <div className="dash-sidebar-footer">
