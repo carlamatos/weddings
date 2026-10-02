@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { greatVibes } from '@/app/ui/fonts';
 import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
+import SiteFooter from '@/app/ui/marketing/site-footer';
 import '@/app/ui/marketing.css';
 
 export default async function LegalLayout({ children, title }: { children: React.ReactNode; title: string }) {
@@ -30,16 +31,7 @@ export default async function LegalLayout({ children, title }: { children: React
         </div>
       </div>
 
-      <div className="footer">
-        <p className="footer-wordmark">My<span className="accent">Gala</span></p>
-        <p style={{ marginTop: 6, fontSize: 13 }}>
-          <Link href="/about" style={{ color: 'inherit', marginRight: 20 }}>About</Link>
-          <Link href="/contact" style={{ color: 'inherit', marginRight: 20 }}>Contact</Link>
-          <Link href="/privacy" style={{ color: 'inherit', marginRight: 20 }}>Privacy Policy</Link>
-          <Link href="/terms" style={{ color: 'inherit' }}>Terms of Service</Link>
-        </p>
-        <p style={{ marginTop: 6 }}>mygala.ca</p>
-      </div>
+      <SiteFooter />
     </div>
   );
 }

@@ -19,7 +19,7 @@ export default async function TopNav({ page: userPage }: { page?: UserPage }) {
 
   return (
     <header className="dash-topnav">
-      <MobileMenu pageId={pageId} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
+      <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {userPage && !isPaid && <UpgradeButton pageId={pageId} />}
       {pageId !== undefined && userPage && themes.length > 0 && (

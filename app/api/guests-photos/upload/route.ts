@@ -2,29 +2,13 @@ import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
 import { verifyPageToken } from '@/app/lib/page-token';
+import { overRateLimit } from '@/app/lib/rate-limit';
 
-// Simple in-memory rate limiter: max 10 uploads per IP per hour
-const ipStore = new Map<string, { count: number; resetAt: number }>();
+// Per-visitor limit, stored in Postgres (app/lib/rate-limit) so it holds across serverless instances.
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_IP = 50;
 const MAX_PHOTOS_PAID = 500;
 
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const rec = ipStore.get(ip);
-  if (!rec || now > rec.resetAt) return false;
-  return rec.count >= MAX_PER_IP;
-}
-
-function recordUpload(ip: string): void {
-  const now = Date.now();
-  const rec = ipStore.get(ip);
-  if (!rec || now > rec.resetAt) {
-    ipStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-  } else {
-    rec.count++;
-  }
-}
 
 export async function POST(request: Request) {
   const ip =
@@ -32,7 +16,7 @@ export async function POST(request: Request) {
     request.headers.get('x-real-ip') ??
     'unknown';
 
-  if (isRateLimited(ip)) {
+  if (await overRateLimit(`guest-photo:${ip}`, MAX_PER_IP, WINDOW_MS)) {
     return NextResponse.json({ error: 'Too many uploads. Please try again later.' }, { status: 429 });
   }
 
@@ -94,11 +78,9 @@ export async function POST(request: Request) {
       RETURNING id, uploaded_at
     `;
 
-    recordUpload(ip);
-
     return NextResponse.json({ url, id: result.rows[0].id, uploaded_at: result.rows[0].uploaded_at });
   } catch (err) {
     console.error('Guest photo upload error:', err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: 'Upload failed. Please try again.' }, { status: 500 });
   }
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import { auth, unstable_update } from '@/auth';
+import { authIncludingPending2fa, unstable_update } from '@/auth';
+import { createTotpProof } from '@/app/lib/totp-proof';
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 import { decryptSecret, verifyTotp, hashBackupCode } from '@/app/lib/totp';
 
@@ -8,8 +9,11 @@ const WINDOW_MS = 15 * 60 * 1000;
 const MAX_ATTEMPTS = 8;
 
 export async function POST(request: Request) {
-  const session = await auth();
+  // This route is how a pending-2FA session finishes signing in, so it must
+  // see that session (plain auth() treats it as signed out).
+  const session = await authIncludingPending2fa();
   const userId = session?.user?.id;
+  const email = session?.user?.email;
   if (!userId) return NextResponse.json({ error: 'Not signed in.' }, { status: 401 });
 
   // Shared bucket with the setup/disable code-guessing surfaces.
@@ -45,8 +49,8 @@ export async function POST(request: Request) {
   }
 
   // Writes straight into the JWT via auth.ts's jwt() callback (trigger ===
-  // 'update') — no DB write needed for this per-session flag.
-  await unstable_update({ user: { totpVerified: true } });
+  // 'update'), which only accepts this server-signed proof.
+  if (email) await unstable_update({ user: { totpProof: createTotpProof(email, 'verified') } });
 
   return NextResponse.json({ ok: true });
 }

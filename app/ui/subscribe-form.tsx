@@ -8,6 +8,7 @@ import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
 import { themesByCategory } from './themes/registry';
 import type { EventCategory } from './themes/types';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
+import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '../lib/plans';
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   wedding: 'Wedding',
@@ -50,7 +51,14 @@ function slugify(text: string): string {
     .replace(/-+/g, '-');
 }
 
-export default function Form() {
+// Short lists for the plan choice; the full comparison lives on the pricing page.
+const FREE_POINTS = ['Every theme', 'RSVPs & guest count', 'Countdown, details & event program'];
+const PLUS_POINTS = ['Guest photo uploads & QR code', 'Livestream, reminders & song requests', 'Custom sections, sponsors & registry', 'Custom domain, no MyGala branding'];
+
+// prepaid: Plus was already bought before this account had a page, so this
+// page gets it without another payment.
+export default function Form({ prepaid = false }: { prepaid?: boolean }) {
+  const [plan, setPlan] = useState<'free' | 'plus'>(prepaid ? 'plus' : 'free');
   const [eventType, setEventType] = useState<EventCategory>('wedding');
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
   const [selectedSlug, setSelectedSlug] = useState<string>('');
@@ -147,6 +155,7 @@ export default function Form() {
         <input type="hidden" name="eventType" value={eventType} />
         <input type="hidden" name="themeSlug" value={formData.themeSlug} />
         <input type="hidden" name="slug" value={activeSlug} />
+        <input type="hidden" name="plan" value={plan} />
 
         {/* Event Type */}
         <div className="auth-field">
@@ -375,8 +384,39 @@ export default function Form() {
           {state.errors?.description && <p className="auth-field-error">{state.errors.description[0]}</p>}
         </div>
 
+        {/* Plan — chosen per event */}
+        <div className="auth-field">
+          <label className="auth-label">Plan for this event</label>
+          {prepaid ? (
+            <p className="auth-address-hint" style={{ marginTop: 0 }}>
+              <strong>Plus is already paid</strong> — this event page includes every Plus feature for {PLAN_TERM_MONTHS} months.
+            </p>
+          ) : (
+            <>
+              <div className="setup-plan-options">
+                {([
+                  ['free', 'Free', '$0', FREE_POINTS],
+                  ['plus', 'Plus', `$${PLAN_ONE_TIME_PRICE_USD} one-time`, PLUS_POINTS],
+                ] as const).map(([value, name, price, points]) => (
+                  <label key={value} className={`setup-plan-option${plan === value ? ' setup-plan-option--active' : ''}`}>
+                    <input type="radio" name="planRadio" value={value} checked={plan === value} onChange={() => setPlan(value)} />
+                    <span className="setup-plan-option__name">{name}</span>
+                    <span className="setup-plan-option__price">{price}</span>
+                    <ul>{points.map((p) => <li key={p}>{p}</li>)}</ul>
+                  </label>
+                ))}
+              </div>
+              <p className="auth-address-hint" style={{ marginTop: 8 }}>
+                {plan === 'plus'
+                  ? `You'll pay for this event next. Plus covers this page for ${PLAN_TERM_MONTHS} months — no subscription.`
+                  : 'You can upgrade this event to Plus at any time from your dashboard.'}
+              </p>
+            </>
+          )}
+        </div>
+
         <button className="auth-btn" type="submit" disabled={isPending || endBeforeStart}>
-          Create Event <ArrowRightIcon style={{ width: 16, height: 16 }} />
+          {plan === 'plus' && !prepaid ? 'Create event & continue to payment' : 'Create Event'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>
       </form>
     </div>

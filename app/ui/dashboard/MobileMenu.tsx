@@ -12,13 +12,14 @@ import { siteHref } from '@/app/lib/app-url';
 
 interface Props {
   pageId?: number;
+  pageName?: string;
   isPaid?: boolean;
   themes: EventTheme[];
   currentThemeId: string | null;
   currentLanguage?: string;
 }
 
-export default function MobileMenu({ pageId, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+export default function MobileMenu({ pageId, pageName, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -43,7 +44,7 @@ export default function MobileMenu({ pageId, isPaid, themes, currentThemeId, cur
             </div>
 
             <nav className="dash-sidebar-nav" onClick={() => setOpen(false)}>
-              <NavLinks pageId={pageId} isPaid={isPaid} />
+              <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} />
             </nav>
 
             {pageId !== undefined && themes.length > 0 && (

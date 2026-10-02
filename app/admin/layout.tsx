@@ -18,8 +18,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const session = await auth();
   const email = session?.user?.email;
   if (!email) redirect('/login');
-  if (!isSuperAdmin(email)) notFound();
+  if (!isSuperAdmin(email) || !session?.user?.verifiedEmail) notFound();
   if (needsTotpChallenge(session)) redirect('/verify-2fa');
+
+  // 2FA is required for the admin area (getSuperAdmin enforces it for every
+  // admin API route too). Admins without it are asked to turn it on first.
+  if (!session.user?.totpEnabled || !session.user?.totpVerified) {
+    return (
+      <div style={{ minHeight: '100vh', background: c.paper, color: c.ink, fontFamily: 'system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ maxWidth: 460, background: '#fff', border: `1px solid ${c.line}`, borderRadius: 12, padding: '28px 26px', textAlign: 'center' }}>
+          <p style={{ fontSize: 18, fontWeight: 600, margin: '0 0 10px' }}>Turn on two-factor authentication</p>
+          <p style={{ fontSize: 14, color: c.soft, lineHeight: 1.6, margin: '0 0 22px' }}>
+            The admin area requires 2FA. Open your dashboard, choose your name in the top-right corner, and turn on two-factor
+            authentication with an authenticator app. Then come back here.
+          </p>
+          <Link href="/dashboard" style={{ display: 'inline-block', padding: '10px 22px', background: '#B6584A', color: '#fff', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
+            Go to the dashboard
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: c.paper, color: c.ink, fontFamily: 'system-ui, sans-serif' }}>

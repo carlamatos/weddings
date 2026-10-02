@@ -1,14 +1,10 @@
-// Plan tiers and their limits. Kept free of server-only imports so client
-// components can share it. Change a limit here (or via MULTI_PAGE_LIMIT) and
-// it applies to every existing subscriber immediately, because the database
-// stores the tier, not the number.
+// Plans and their limits. Kept free of server-only imports so client
+// components can share it.
 
-export type Tier = 'free' | 'plus' | 'multi';
-
-// The single-page paid plan is a one-time payment, not a recurring
-// subscription: it unlocks Domain / Guest Photos / Song Requests for a
-// fixed term, then the page drops back to the free tier (it stays live —
-// just without the paid-only features) until the owner extends it.
+// Plus is a one-time payment per event page, not a recurring subscription:
+// it unlocks that page's paid features for a fixed term, then the page drops
+// back to the free tier (it stays live — just without the paid-only
+// features) until the owner extends it.
 export const PLAN_ONE_TIME_PRICE_USD = 49.99;
 export const PLAN_TERM_MONTHS = 15;
 
@@ -16,7 +12,7 @@ export const PLAN_TERM_MONTHS = 15;
 // pricing cards and the dashboard plan picker so they can't drift apart.
 export const PLAN_FEATURES = {
   free: [
-    '1 Event page',
+    'As many event pages as you need',
     'All themes',
     'RSVP & guest count',
     'Countdown & event details',
@@ -36,30 +32,14 @@ export const PLAN_FEATURES = {
   ],
 } as const;
 
-const DEFAULT_MULTI_PAGE_LIMIT = 5;
+// Every account can create as many event pages as it needs; each page is
+// free or Plus on its own (Plus is bought per event). The cap only guards
+// against abuse — raise it with MAX_PAGES_PER_ACCOUNT.
+const DEFAULT_MAX_PAGES_PER_ACCOUNT = 50;
 
-function multiPageLimit(): number {
-  const fromEnv = Number(process.env.MULTI_PAGE_LIMIT);
-  return Number.isInteger(fromEnv) && fromEnv >= 1 ? fromEnv : DEFAULT_MULTI_PAGE_LIMIT;
-}
-
-export function maxPagesFor(tier: Tier): number {
-  return tier === 'multi' ? multiPageLimit() : 1;
-}
-
-// user_plans.plan_type is 'free' | 'paid'; user_plans.tier only says which paid
-// plan. A paid user with no tier recorded is an existing single-page
-// subscriber ('plus'), so no data migration is needed.
-export function effectiveTier(planType: string | null | undefined, tier: string | null | undefined): Tier {
-  if (planType !== 'paid') return 'free';
-  return tier === 'multi' ? 'multi' : 'plus';
-}
-
-// Only the exact configured multi-page price grants the multi-page tier;
-// any other paid price is the regular single-page plan.
-export function tierForPriceId(priceId: string | null | undefined): Tier {
-  const multi = process.env.STRIPE_PRICE_ID_MULTI;
-  return multi && priceId === multi ? 'multi' : 'plus';
+export function maxPagesPerAccount(): number {
+  const fromEnv = Number(process.env.MAX_PAGES_PER_ACCOUNT);
+  return Number.isInteger(fromEnv) && fromEnv >= 1 ? fromEnv : DEFAULT_MAX_PAGES_PER_ACCOUNT;
 }
 
 // expireIfPast (app/lib/plan-expiry) flips plan_type back to 'free' the

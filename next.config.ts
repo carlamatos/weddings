@@ -6,7 +6,14 @@ const isPreviewDeploy =
   process.env.VERCEL_ENV === 'preview' || process.env.VERCEL_GIT_COMMIT_REF === 'staging';
 const vercelLive = (sources: string) => (isPreviewDeploy ? ` ${sources}` : '');
 
+// Custom-domain event pages embed MyGala's Turnstile bridge
+// (/api/turnstile/frame) from the main domain.
+const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
+const turnstileBridge = `https://${rootDomain} https://www.${rootDomain}`;
+
 const securityHeaders = [
+  // frame-src also lists the livestream players the Live Stream section embeds
+  // (app/lib/livestream.ts); Facebook's is already allowed for sign-in.
   {
     key: 'Content-Security-Policy',
     value: [
@@ -17,7 +24,7 @@ const securityHeaders = [
       `img-src 'self' data: blob: https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
       `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://vercel.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
-      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com${vercelLive('https://vercel.live')}`,
+      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv ${turnstileBridge}${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com",
@@ -56,7 +63,9 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        // Everything except the Turnstile bridge, which sets its own headers
+        // so verified custom domains can frame it (app/api/turnstile/frame).
+        source: '/((?!api/turnstile/frame$).*)',
         headers: securityHeaders,
       },
     ];

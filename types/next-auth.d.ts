@@ -9,16 +9,25 @@ declare module 'next-auth' {
     // totpEnabled: persistent per-account flag, refreshed from the DB on
     // every request (session callback). totpVerified: per-session flag —
     // populated from the JWT (see next-auth/jwt below) in the session
-    // callback, and set via unstable_update({ user: { totpVerified: true } })
-    // after a successful /verify-2fa challenge (this shape, nested under
-    // `user`, is what unstable_update's type actually supports well).
+    // callback. /verify-2fa sets it via unstable_update({ user: { totpProof } })
+    // with a server-signed proof (app/lib/totp-proof.ts); the flag alone is
+    // never trusted, because browsers can send session updates too.
     totpEnabled?: boolean;
     totpVerified?: boolean;
+    totpProof?: string;
+    // Set (on the proxy's session only) while 2FA is still owed.
+    totpPending?: boolean;
+    // Proxy session only: when this session signed in (for revocation).
+    signedInAt?: number;
+    // The password changed after this session signed in.
+    revoked?: boolean;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
+    totpRequired?: boolean; // account had 2FA on when this session signed in
+    signedInAt?: number; // ms; set once at sign-in
     totpVerified?: boolean;
     totpVerifiedAt?: number;
   }

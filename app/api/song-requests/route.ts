@@ -2,29 +2,12 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
 import { verifyPageToken } from '@/app/lib/page-token';
+import { overRateLimit } from '@/app/lib/rate-limit';
 import { ownsPage, parsePageId } from '@/app/lib/data';
 
-// Simple in-memory rate limiter: max 20 submissions per IP per hour
-const ipStore = new Map<string, { count: number; resetAt: number }>();
+// Per-visitor limit, stored in Postgres (app/lib/rate-limit) so it holds across serverless instances.
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_IP = 20;
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now();
-  const rec = ipStore.get(ip);
-  if (!rec || now > rec.resetAt) return false;
-  return rec.count >= MAX_PER_IP;
-}
-
-function recordSubmission(ip: string): void {
-  const now = Date.now();
-  const rec = ipStore.get(ip);
-  if (!rec || now > rec.resetAt) {
-    ipStore.set(ip, { count: 1, resetAt: now + WINDOW_MS });
-  } else {
-    rec.count++;
-  }
-}
 
 const PAGE_SIZE = 20;
 
@@ -69,14 +52,15 @@ export async function POST(request: Request) {
     request.headers.get('x-real-ip') ??
     'unknown';
 
-  if (isRateLimited(ip)) {
+  if (await overRateLimit(`song-request:${ip}`, MAX_PER_IP, WINDOW_MS)) {
     return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
   const body = await request.json().catch(() => null);
   const { userPageId, requesterName, songTitle, artist } = body ?? {};
 
-  if (!userPageId || !requesterName?.trim() || !songTitle?.trim() || !artist?.trim()) {
+  const field = (v: unknown) => (typeof v === 'string' ? v.trim().slice(0, 120) : '');
+  if (typeof userPageId !== 'string' || !field(requesterName) || !field(songTitle) || !field(artist)) {
     return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
   }
 
@@ -96,14 +80,13 @@ export async function POST(request: Request) {
   try {
     const result = await sql`
       INSERT INTO guests_songs (user_page_id, requester_name, song_title, artist, ip_address)
-      VALUES (${pageId}, ${requesterName.trim()}, ${songTitle.trim()}, ${artist.trim()}, ${ip})
+      VALUES (${pageId}, ${field(requesterName)}, ${field(songTitle)}, ${field(artist)}, ${ip})
       RETURNING id, requester_name, song_title, artist, created_at
     `;
-    recordSubmission(ip);
     return NextResponse.json({ song: result.rows[0] });
   } catch (err) {
     console.error('Failed to save song request:', err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    return NextResponse.json({ error: 'Could not save your request. Please try again.' }, { status: 500 });
   }
 }
 

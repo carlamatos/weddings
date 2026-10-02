@@ -54,7 +54,7 @@ export default async function DashboardShell({
 
   return (
     <div className={`dash dash-shell ${greatVibes.variable}`}>
-      <SideNav pageId={page ? Number(page.id) : undefined} isPaid={page ? isPagePaidAndLive(page) : false} />
+      <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} />
       <div className="dash-main">
         <TopNav page={page} />
         <div className="dash-content">

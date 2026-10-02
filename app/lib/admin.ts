@@ -15,8 +15,12 @@ export function isSuperAdmin(email?: string | null): boolean {
 // current session isn't a super admin. Every admin route calls this itself —
 // a parent layout check doesn't protect API routes.
 export async function getSuperAdmin(): Promise<{ id: string | undefined; email: string } | null> {
+  // Admins must have a verified email and 2FA turned on, and this session
+  // must have passed the 2FA challenge — a stolen admin password alone (or
+  // an unproven signup using an admin's address) can never pass.
   const session = await auth();
   const email = session?.user?.email;
-  if (!email || !isSuperAdmin(email)) return null;
+  if (!email || !session?.user?.verifiedEmail || !isSuperAdmin(email)) return null;
+  if (!session.user.totpEnabled || !session.user.totpVerified) return null;
   return { id: session.user?.id, email };
 }

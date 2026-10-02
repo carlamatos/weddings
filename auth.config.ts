@@ -6,7 +6,9 @@ import { countUserPages, fetchUser } from './app/lib/data';
 import type { Session } from "next-auth";
 import type { NextRequest  } from "next/server";
 import type { NextAuthConfig } from 'next-auth';
-import { sharedCookieDomain } from './app/lib/app-url';
+import { isAppPath, sharedCookieDomain } from './app/lib/app-url';
+import { isTotpPending } from './app/lib/totp-session';
+import { isSessionRevoked } from './app/lib/session-revocation';
 
 // With the dashboard on app.mygala.ca and event pages on mygala.ca, the
 // session cookie is set for the whole domain so both hosts see who is signed
@@ -29,6 +31,15 @@ export const authConfig = {
   },
   ...(sharedSessionCookie ? { cookies: sharedSessionCookie } : {}),
   callbacks: {
+    // The proxy's view of the session: only what authorized() needs, from
+    // the token alone (no DB). auth.ts defines the full session callback.
+    session({ session, token }) {
+      if (session.user) {
+        session.user.totpPending = isTotpPending(token);
+        session.user.signedInAt = token.signedInAt;
+      }
+      return session;
+    },
     async redirect({ url, baseUrl }) {
       // Default callbackUrl is "/" — send to dashboard instead
       if (url === baseUrl || url === `${baseUrl}/`) return `${baseUrl}/dashboard`;
@@ -45,6 +56,27 @@ export const authConfig = {
     }) {
       const nextUrl = request.nextUrl;
       const isLoggedIn = !!auth?.user;
+
+      // Signed in before the account's password last changed (on this or
+      // another device): counts as signed out. Account screens go to the
+      // login page; everything else renders signed out (auth() in auth.ts
+      // agrees), so there's no redirect loop and no cookie juggling.
+      if (isLoggedIn && (await isSessionRevoked(auth?.user?.email, auth?.user?.signedInAt))) {
+        const p = nextUrl.pathname;
+        if (p.startsWith('/dashboard') || p.startsWith('/admin') || p.startsWith('/verify-2fa')) {
+          return Response.redirect(new URL('/login', nextUrl));
+        }
+        return true;
+      }
+
+      // Signed in with a password but the 2FA code is still owed: app
+      // screens wait at /verify-2fa. Public pages render as signed out
+      // (auth() in auth.ts hides pending sessions everywhere else).
+      if (isLoggedIn && auth?.user?.totpPending) {
+        if (nextUrl.pathname.startsWith('/verify-2fa')) return true;
+        if (isAppPath(nextUrl.pathname)) return Response.redirect(new URL('/verify-2fa', nextUrl));
+        return true;
+      }
       const isOnDashboard = nextUrl.pathname.startsWith('/dashboard');
       const isOnAdmin = nextUrl.pathname.startsWith('/admin');
       if (isOnDashboard) {

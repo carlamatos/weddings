@@ -4,18 +4,16 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
+import { FEATURES } from '@/app/lib/marketing/features';
+import { EVENT_TYPES } from '@/app/lib/marketing/events';
 
-// Homepage theme categories. Absolute (/#…) so they work from every page.
-const EVENT_LINKS = [
-  { href: '/#theme-birthdays', label: 'Celebrations' },
-  { href: '/#theme-business', label: 'Business Events' },
-  { href: '/#theme-wedding', label: 'Weddings' },
-  { href: '/#theme-community', label: 'General Events' },
-];
+const EVENT_LINKS = EVENT_TYPES.map((e) => ({ href: `/events/${e.slug}`, label: e.name }));
+const FEATURE_LINKS = FEATURES.map((f) => ({ href: `/features/${f.slug}`, label: f.navLabel }));
 
-// The marketing pages' top bar (homepage, About, Contact, Privacy, Terms).
-// Desktop shows the nav inline with a hover dropdown; phones get a menu
-// button that opens the same links as a panel, since touch has no hover.
+// The marketing pages' top bar (homepage, About, Contact, Privacy, Terms,
+// features, event types, FAQ). Desktop shows the nav inline with hover
+// dropdowns; narrower screens get a menu button that opens the same links
+// as a panel, since touch has no hover.
 export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -32,6 +30,8 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
+  const close = () => setOpen(false);
+
   return (
     <div className="topbar">
       <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
@@ -43,6 +43,14 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               {EVENT_LINKS.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
             </div>
           </div>
+          <div className="nav-item">
+            <Link href="/features" className="nav-link">Features</Link>
+            <div className="nav-dropdown">
+              {FEATURE_LINKS.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
+              <Link href="/features" className="nav-dropdown-all">All features →</Link>
+            </div>
+          </div>
+          <Link href="/faq" className="nav-link">FAQ</Link>
           <Link href="/about" className="nav-link">About Us</Link>
           <Link href="/contact" className="nav-link">Contact</Link>
         </nav>
@@ -72,12 +80,17 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       {open && (
         <nav id="mobile-nav" className="mobile-nav" aria-label="Main">
-          <Link href="/#themes" className="mobile-nav-link" onClick={() => setOpen(false)}>Events</Link>
+          <Link href="/#themes" className="mobile-nav-link" onClick={close}>Events</Link>
           {EVENT_LINKS.map((l) => (
-            <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={() => setOpen(false)}>{l.label}</Link>
+            <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={close}>{l.label}</Link>
           ))}
-          <Link href="/about" className="mobile-nav-link" onClick={() => setOpen(false)}>About Us</Link>
-          <Link href="/contact" className="mobile-nav-link" onClick={() => setOpen(false)}>Contact</Link>
+          <Link href="/features" className="mobile-nav-link" onClick={close}>Features</Link>
+          {FEATURE_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={close}>{l.label}</Link>
+          ))}
+          <Link href="/faq" className="mobile-nav-link" onClick={close}>FAQ</Link>
+          <Link href="/about" className="mobile-nav-link" onClick={close}>About Us</Link>
+          <Link href="/contact" className="mobile-nav-link" onClick={close}>Contact</Link>
         </nav>
       )}
     </div>

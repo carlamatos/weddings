@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -22,13 +22,21 @@ const links = [
   { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
 ];
 
-// Links only appear when a page is selected (pageId set), and point at that page.
-export default function NavLinks({ pageId, isPaid }: { pageId?: number; isPaid?: boolean }) {
+// "Event pages" (the dashboard landing) is always there; the per-page links
+// appear when a page is selected (pageId set), under that event's name, and
+// point at that page.
+export default function NavLinks({ pageId, pageName, isPaid }: { pageId?: number; pageName?: string; isPaid?: boolean }) {
   const pathname = usePathname();
-  if (pageId === undefined) return null;
   return (
     <>
-      {links
+      <Link href="/dashboard" className={`dash-nav-link${pathname === '/dashboard' ? ' dash-nav-link--active' : ''}`}>
+        <Squares2X2Icon />
+        Event pages
+      </Link>
+      {pageId !== undefined && (
+        <p className="dash-nav-group" title={pageName}>{pageName || 'Untitled event'}</p>
+      )}
+      {pageId !== undefined && links
         .filter((link) => !link.paidOnly || isPaid)
         .map((link) => {
           const Icon = link.icon;

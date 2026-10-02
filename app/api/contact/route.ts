@@ -1,10 +1,21 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
 export async function POST(req: Request) {
-  const { name, email, subject, message } = await req.json();
+  // Each message lands in the team inbox: a few per visitor per hour.
+  if (await overRateLimit(`contact:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Too many messages. Please try again later or email info@mygala.ca.' }, { status: 429 });
+  }
 
-  if (!name?.trim() || !email?.trim() || !message?.trim()) {
+  const body = await req.json().catch(() => ({}));
+  const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const name = field(body?.name, 120);
+  const email = field(body?.email, 254);
+  const subject = field(body?.subject, 200);
+  const message = field(body?.message, 5000);
+
+  if (!name || !email || !message) {
     return NextResponse.json({ error: 'Please fill in all required fields.' }, { status: 400 });
   }
 

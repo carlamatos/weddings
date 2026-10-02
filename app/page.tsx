@@ -8,10 +8,14 @@ import SiteTopbar from '@/app/ui/site-topbar';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
 import { appHref } from '@/app/lib/app-url';
+import { getEventType } from '@/app/lib/marketing/events';
+import SiteFooter from '@/app/ui/marketing/site-footer';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
 const NEW_THEME_PREVIEW_SCALE = 220 / 280;
+
+const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn more';
 
 export default async function Page() {
   const session = await auth();
@@ -187,6 +191,7 @@ export default async function Page() {
                   </div>
                 </a>
               </div>
+              <Link href="/events/celebrations" className="learn-more-link">{learnMore('celebrations')} →</Link>
             </div>
 
             <div className="theme-category" id="theme-business" data-category="business">
@@ -226,6 +231,7 @@ export default async function Page() {
                   </div>
                 </a>
               </div>
+              <Link href="/events/business-events" className="learn-more-link">{learnMore('business-events')} →</Link>
             </div>
 
             <div className="theme-category" id="theme-wedding" data-category="wedding">
@@ -322,6 +328,7 @@ export default async function Page() {
                 </div>
               </a>
               </div>
+              <Link href="/events/weddings" className="learn-more-link">{learnMore('weddings')} →</Link>
             </div>
 
             <div className="theme-category" id="theme-community" data-category="community">
@@ -394,6 +401,7 @@ export default async function Page() {
                   </div>
                 </a>
               </div>
+              <Link href="/events/general-events" className="learn-more-link">{learnMore('general-events')} →</Link>
             </div>
             </ThemeFilter>
           </div>
@@ -421,7 +429,7 @@ export default async function Page() {
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
               <p className="price-tier">Plus</p>
-              <p className="price-amount">${PLAN_ONE_TIME_PRICE_USD}<span className="per"> one-time</span></p>
+              <p className="price-amount">${PLAN_ONE_TIME_PRICE_USD}<span className="per"> one-time, per event</span></p>
               <p className="price-desc">Get all the perks from mygala.</p>
               <ul className="price-features">
                 {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
@@ -454,7 +462,7 @@ export default async function Page() {
             </div>
             <div className="faq-item">
               <p className="faq-q">Is Plus a subscription?</p>
-              <p className="faq-a">No — it&apos;s a single one-time payment of $49.99 that unlocks every feature for 15 months. No recurring charge, and no card kept on file.</p>
+              <p className="faq-a">No — it&apos;s a single one-time payment of $49.99 per event that unlocks every feature for that event for 15 months. No recurring charge, and no card kept on file.</p>
             </div>
           </div>
         </div>
@@ -468,16 +476,7 @@ export default async function Page() {
       </div>
 
       {/* FOOTER */}
-      <div className="footer">
-        <p className="footer-wordmark">My<span className="accent">Gala</span></p>
-        <p style={{ marginTop: 8, fontSize: 13 }}>
-          <Link href="/about" style={{ color: 'inherit', marginRight: 20 }}>About</Link>
-          <Link href="/contact" style={{ color: 'inherit', marginRight: 20 }}>Contact</Link>
-          <Link href="/privacy" style={{ color: 'inherit', marginRight: 20 }}>Privacy Policy</Link>
-          <Link href="/terms" style={{ color: 'inherit' }}>Terms of Service</Link>
-        </p>
-        <p style={{ marginTop: '6px' }}>mygala.ca</p>
-      </div>
+      <SiteFooter />
 
       <MarketingReveal />
     </div>

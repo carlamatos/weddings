@@ -14,9 +14,9 @@ import bcrypt from 'bcrypt';
 
 import { headers } from 'next/headers';
 import { signIn } from '@/auth';
-import { isRateLimited, clearRateLimit, recordAttempt } from './rate-limit';
+import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { DBUser, EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -24,7 +24,9 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, normalizeEventProgramItem } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
+import { createPlusCheckout } from './plus-checkout';
+import { safeHttpUrl } from './safe-url';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -33,21 +35,6 @@ import { passwordRule } from './password-schema';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
-  const UserSchema = z.object({
-    id: z.string(),
-    name: z.string({
-      invalid_type_error: 'Please specify a name.',
-    }),
-    email: z.string()
-      .email({ message: 'Invalid email address. Please enter a valid email.'}),
-   
-    password: z.string(),
-    given_name:  z.string(),
-    family_name:  z.string(),
-    provider:  z.string(),
-    provider_id:  z.string(),
-    picture:  z.string(),
-  });
 
 
   const UserPageSchema = z.object({
@@ -84,8 +71,6 @@ const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true }).refine
   (d) => !d.event_end_date || !d.event_date || d.event_end_date >= d.event_date,
   { message: 'The end date can’t be before the start date.', path: ['event_end_date'] },
 );
-const CreateUser = UserSchema.omit({id: true, password:true,  given_name: true, family_name: true, provider: true,provider_id:true,picture: true,});
-const CreateExtendedUser = UserSchema.omit({id: true, password:true});
 export type UserPageState = {
     errors?: {
       event_name?: string[];
@@ -117,14 +102,24 @@ export type UserPageState = {
     // Enforce the plan's page limit on the server. (The setup page also
     // redirects, but that is only a UI courtesy — this action can be called directly.)
     const limitUserId = session?.user?.id;
-    if (limitUserId) {
+    if (!limitUserId) return { message: 'Please sign in to create an event page.' };
+    {
       const quota = await fetchPageQuota(limitUserId);
       if (quota.count >= quota.limit) {
-        return { message: `You've reached the maximum number of pages for your plan (${quota.limit}).` };
+        return { message: `You've reached the maximum of ${quota.limit} event pages for one account. Contact us if you need more.` };
       }
     }
 
     const formSlug = formData.get('slug');
+
+    // Addresses used by the site's own pages (mygala.ca/faq, /features, …)
+    // would hide the event page, so they can't be claimed.
+    if (typeof formSlug === 'string' && RESERVED_SLUGS.has(formSlug.trim().toLowerCase())) {
+      return {
+        errors: { slug: [`The URL '${formSlug}' is reserved, please choose another`] },
+        message: `The URL '${formSlug}' is reserved, please choose another`,
+      };
+    }
 
     // Check if slug is already taken — guarded so a DB error doesn't crash the action
     if (typeof formSlug === 'string' && formSlug.trim() !== '') {
@@ -170,22 +165,28 @@ export type UserPageState = {
       };
     }
 
-    const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url: rawUrl, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
+    const url = safeHttpUrl(rawUrl);
     const venue_name = (formData.get('venueName') as string) || null;
     const user_phone = (formData.get('phone') as string)?.trim() || null;
 
     const user_id = session?.user?.id;
 
+    const wantsPlus = formData.get('plan') === 'plus';
+    let prepaid = false;
     let newPageId: number | string | undefined;
     try {
       // Resolve theme slug → theme_id
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
 
-      // Inherit plan from user_plans if the user already paid before creating their page
-      const planRow = await sql`SELECT plan_type, plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1`;
-      const plan_type = planRow.rows[0]?.plan_type ?? 'free';
-      const plan_expires_at = planRow.rows[0]?.plan_expires_at ?? null;
+      // Plus is bought per page after it's created (below). The one exception
+      // is a purchase made before the account had any page, which carries
+      // over to this first page.
+      prepaid = user_id ? await hasPrepaidPlus(user_id) : false;
+      const planRow = prepaid ? await sql`SELECT plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1` : null;
+      const plan_type = prepaid ? 'paid' : 'free';
+      const plan_expires_at = planRow?.rows[0]?.plan_expires_at ?? null;
 
       const inserted = await sql`
         INSERT INTO user_page (
@@ -213,13 +214,28 @@ export type UserPageState = {
     } catch (error) {
       console.error('Database Error:', error);
       return {
-        message: `Database Error: ${error instanceof Error ? error.message : String(error)}`,
+        message: 'Something went wrong creating your page. Please try again.',
       };
     }
 
     revalidatePath(`/${slug}`);
-    // Straight into the editor for the new page; the dashboard root (which
-    // picks the oldest page) is the fallback if the id somehow didn't come back.
+
+    // Chose Plus for this event: the page exists (free) now, so pay for it.
+    // Cancelling checkout leaves it free, upgradeable from the dashboard.
+    if (wantsPlus && !prepaid && newPageId && user_id) {
+      let checkoutUrl: string | null = null;
+      try {
+        const h = await headers();
+        const origin = h.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
+        checkoutUrl = await createPlusCheckout({ userId: user_id, email: session?.user?.email ?? undefined, pageId: Number(newPageId), origin });
+      } catch (error) {
+        console.error('Failed to start Plus checkout for new page:', error);
+      }
+      if (checkoutUrl) redirect(checkoutUrl);
+    }
+
+    // Straight into the editor for the new page; the event pages list is
+    // the fallback if the id somehow didn't come back.
     redirect(newPageId ? pagePath(newPageId) : '/dashboard');
   }
 
@@ -250,7 +266,7 @@ export async function updateLocation(pageId: number, data: {
         country           = ${data.country ?? null},
         place_id          = ${data.placeId ?? null},
         formatted_address = ${data.formattedAddress ?? null},
-        url               = ${data.url ?? null},
+        url               = ${safeHttpUrl(data.url) || null},
         venue_name        = ${data.venueName ?? null}
       WHERE id = ${pid} AND user_id = ${userId}
     `;
@@ -299,7 +315,17 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
+// What updatePageSetting may write: the show/hide switches and the banner fit.
+// Everything else (livestream, reminders, hashtag, headings…) has its own
+// validating action, so a crafted call can't store arbitrary settings.
+function isWritableSetting(name: string, value: string): boolean {
+  if (/^show_[a-z_]{1,40}$/.test(name)) return value === 'true' || value === 'false';
+  if (name === 'hero_object_fit') return value === 'cover' || value === 'contain';
+  return false;
+}
+
 export async function updatePageSetting(pageId: number, settingName: string, settingValue: string) {
+  if (typeof settingName !== 'string' || typeof settingValue !== 'string' || !isWritableSetting(settingName, settingValue)) return;
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
@@ -344,6 +370,13 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
 // ─── Custom sections & sponsors (Plus) ─────────────────────
 // Every action checks, in the same query, that the page belongs to the
 // signed-in user and is on a paid plan.
+
+// Top-level paths the site uses itself; event pages can't take these slugs.
+const RESERVED_SLUGS = new Set([
+  'about', 'admin', 'api', 'check-email', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
+  'faq', 'features', 'forgot-password', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
+  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending',
+]);
 
 type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
@@ -900,7 +933,8 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
       WHERE id = ${pid} AND user_id = ${userId}
     `;
   } catch (error) {
-    return { error: `Database error: ${error instanceof Error ? error.message : String(error)}` };
+    console.error('Failed to save domain:', error);
+    return { error: 'Could not save the domain. Please try again.' };
   }
 
   revalidatePath('/dashboard/domain');
@@ -1047,90 +1081,8 @@ export async function FacebookSignIn() {
 }
 
 
-export async function createExtendedUser(user: DBUser) {
-  
- /* console.log("UserID: " + user.id);
-  console.log("UserNAME: " + user.name);
-  console.log("UserEMAIL: " + user.email);
-  */
-  const validatedFields = CreateExtendedUser.safeParse({
-      
-      name: user.name,
-      email: user.email,
-      given_name: user.given_name,
-      family_name: user.family_name,
-      provider: user.provider,
-      provider_id: user.provider_id,
-      picture: user.picture,
-      
-  });
-  if (!validatedFields.success) {
-    
-    return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create User.',
-      };
-      
-    }
-    const {name, email, given_name, family_name, provider, provider_id, picture } = validatedFields.data;
-    const date = new Date().toISOString().split('T')[0];
-  try {
-      // OAuth providers already prove control of the email address, so these
-      // accounts are verified immediately — unlike credentials signups.
-      await sql`
-  INSERT INTO users (name, email, date, given_name,family_name,provider,provider_id,picture,email_verified_at)
-  VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
-`;
-
-  } catch (error) {
-      
-      return {
-          message:`Database Error: Failed to Create user. ${error instanceof Error ? error.message : String(error)}`,
-      };
-  }
-
-  //revalidatePath('/dashboard/invoices');
-  //redirect('/dashboard/invoices');
-
-}
 
 
-export async function createUser(user: DBUser) {
-  
-  
-  const validatedFields = CreateUser.safeParse({
-      
-      name: user.name,
-      email: user.email,
-  });
-  if (!validatedFields.success) {
-    
-    return {
-        errors: validatedFields.error.flatten().fieldErrors,
-        message: 'Missing Fields. Failed to Create User.',
-      };
-      
-    }
-    const {name, email } = validatedFields.data;
-    const date = new Date().toISOString().split('T')[0];
-  try {
-      await sql`
-  INSERT INTO users (name, email, date)
-  VALUES (${name}, ${email}, ${date})
-`;
-
-  } catch (error) {
-    console.log("error inserting User");
-      return {
-          message:`Database Error: Failed to Create Invoice. ${error instanceof Error ? error.message : String(error)}`,
-
-      };
-  }
-
-  //revalidatePath('/dashboard/invoices');
-  //redirect('/dashboard/invoices');
-
-}
 
 const RegisterSchema = z.object({
   given_name: z.string().min(1, { message: 'Please enter your first name.' }),
@@ -1157,6 +1109,10 @@ export type RegisterState = {
 };
 
 export async function registerUser(prevState: RegisterState, formData: FormData) {
+  // Mass sign-ups (and the verification emails they send) are capped per IP.
+  if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
+    return { message: 'Too many sign-ups from this connection. Please try again later.' };
+  }
   const validatedFields = RegisterSchema.safeParse({
     given_name: formData.get('given_name'),
     family_name: formData.get('family_name'),
@@ -1184,7 +1140,8 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
       };
     }
   } catch (error) {
-    return { message: `Database Error: ${error instanceof Error ? error.message : String(error)}` };
+    console.error('Sign-up lookup failed:', error);
+    return { message: 'Something went wrong. Please try again.' };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -1200,9 +1157,8 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     `;
     newUserId = result.rows[0]?.id;
   } catch (error) {
-    return {
-      message: `Database Error: Failed to create account. ${error instanceof Error ? error.message : String(error)}`,
-    };
+    console.error('Failed to create account:', error);
+    return { message: 'Something went wrong creating your account. Please try again.' };
   }
 
   if (newUserId) {

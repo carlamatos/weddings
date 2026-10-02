@@ -31,7 +31,7 @@ export default function AboutPage() {
         <li><strong>Choose a theme</strong> — Handcrafted themes across weddings, celebrations, business events, and general events, with more on the way. Switching is instant and never loses your content.</li>
         <li><strong>Collect RSVPs</strong> — Guests RSVP directly on your page. No account required for them, no spreadsheet management for you.</li>
         <li><strong>Publish an event program</strong> — Lay out your schedule, however many days or sessions it runs, right on the page.</li>
-        <li><strong>Share a photo gallery</strong> — Upload up to 8 photos on the free plan; unlimited on Plus. Guests can browse them all in a lightbox.</li>
+        <li><strong>Share a photo gallery</strong> — Upload up to 8 photos on the free plan and up to 100 on Plus. Guests can browse them all in a lightbox.</li>
         <li><strong>Add a registry, resources, or a livestream link</strong> — Everything in one place so guests aren&apos;t hunting through five different tabs.</li>
         <li><strong>Use your own domain</strong> — Plus members can point a custom domain (e.g. sarah-and-john.com) directly to their event page, so the link in your invitation looks exactly right.</li>
         <li><strong>Keep it after the event</strong> — Your page stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages keep every feature active for 15 months, with the option to extend.</li>
@@ -39,7 +39,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>Pricing</h2>
       <p>
-        MyGala is free to start. The free plan gives you a full-featured event page at <em>mygala.ca/yourname</em>. The <strong>Plus plan</strong> ($49.99, one-time) adds unlimited photo uploads, a custom domain, no Gala branding, priority support, and more — for 15 months, no subscription or recurring charge.
+        MyGala is free to start. The free plan gives you full-featured event pages at <em>mygala.ca/yourname</em> — as many events as you need. The <strong>Plus plan</strong> ($49.99, one-time, per event) adds unlimited photo uploads, a custom domain, no Gala branding, priority support, and more — for 15 months, no subscription or recurring charge.
       </p>
 
       <h2 style={h2}>Privacy and your data</h2>

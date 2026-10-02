@@ -15,7 +15,8 @@ const isStagingDeploy = process.env.VERCEL_GIT_COMMIT_REF === 'staging';
 const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   const constructionPassword = process.env.CONSTRUCTION_PASSWORD;
   const { pathname } = req.nextUrl;
-  const isAppRoute = pathname === '/login' || pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
+  // /verify-2fa completes a login (2FA is required for admins), so it's as open as /login.
+  const isAppRoute = pathname === '/login' || pathname === '/verify-2fa' || pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
   // Guests reach this from reminder emails without the bypass cookie.
   const isUnsubscribe = pathname === '/unsubscribe';
   const isStagingFrontPage = isStagingDeploy && pathname === '/';
