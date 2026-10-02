@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
-import { listOwnedPages } from '@/app/lib/data';
+import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
+import { sectionStatus } from '@/app/lib/section-status';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
 import { verificationGracePeriodOver, needsTotpChallenge } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
@@ -49,14 +50,17 @@ export default async function DashboardShell({
   // Always a deliberate choice now (owner or admin) — expireIfPast drops a
   // lapsed paid page to the free tier instead of deactivating it, so it
   // stays live at its URL.
+  // On/off state of each section, shown beside it in the sidebar.
+  const status = page ? sectionStatus(page, await fetchPageSettings(page.id)) : undefined;
+
   const deactivated = page?.status === 'inactive';
   const expired = !!page && hasExpiredPlan(page);
 
   return (
     <div className={`dash dash-shell ${greatVibes.variable}`}>
-      <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} />
+      <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} status={status} />
       <div className="dash-main">
-        <TopNav page={page} />
+        <TopNav page={page} status={status} />
         <div className="dash-content">
           {userId && !verifiedEmail && (
             <div

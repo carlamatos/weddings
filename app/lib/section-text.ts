@@ -15,6 +15,7 @@ export const SECTION_TEXT_KEYS = [
   'share.eyebrow', 'share.title',
   'sponsors.eyebrow', 'sponsors.title',
   'livestream.eyebrow', 'livestream.title',
+  'potluck.eyebrow', 'potluck.title',
   'countdown.eyebrow', 'countdown.title',
   'footer.eyebrow', 'footer.title', 'footer.signoff',
 ] as const;

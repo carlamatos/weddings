@@ -37,6 +37,26 @@ export interface Translations {
   livestreamLabel: string;
   watchLive: string;
   openStream: string;
+  // Potluck section (Plus)
+  potluckLabel: string;
+  potluckTitle: string;
+  potluckItems: string;
+  potluckItemsPlaceholder: string;
+  potluckNote: string;
+  potluckEmailHint: string;
+  potluckSend: string;
+  potluckThanks: string;
+  potluckUpdated: string;
+  potluckListTitle: string;
+  potluckEmpty: string;
+  potluckAnother: string;
+  // Password-protected page (Plus)
+  privateTitle: string;
+  privateText: string;
+  privatePassword: string;
+  privateEnter: string;
+  privateWrong: string;
+  privateTooMany: string;
   // Footer
   getInTouch: string;
   questions: string;
@@ -126,6 +146,24 @@ const en: Translations = {
   livestreamLabel: 'Join us online',
   watchLive: 'Watch live',
   openStream: 'Open the stream in a new tab',
+  potluckLabel: 'Potluck',
+  potluckTitle: 'What are you bringing?',
+  potluckItems: 'What will you bring?',
+  potluckItemsPlaceholder: 'e.g. A green salad for 10 and lemonade',
+  potluckNote: 'Note (optional)',
+  potluckEmailHint: 'Use the same email to change what you’re bringing later.',
+  potluckSend: 'Share what I’m bringing',
+  potluckThanks: 'Thank you! We’ve noted what you’re bringing.',
+  potluckUpdated: 'Updated — thanks for letting us know.',
+  potluckListTitle: 'What people are bringing',
+  potluckEmpty: 'Nobody has signed up yet — be the first!',
+  potluckAnother: 'Change my answer',
+  privateTitle: 'This event is private',
+  privateText: 'Enter the password the host shared with you to see the event page.',
+  privatePassword: 'Password',
+  privateEnter: 'Enter',
+  privateWrong: 'That password isn’t right. Please try again.',
+  privateTooMany: 'Too many attempts. Please wait a few minutes and try again.',
   getInTouch: 'Get in touch',
   questions: 'Questions?',
   theCouple: 'the couple',
@@ -209,6 +247,24 @@ const fr: Translations = {
   livestreamLabel: 'Rejoignez-nous en ligne',
   watchLive: 'Regarder en direct',
   openStream: 'Ouvrir la diffusion dans un nouvel onglet',
+  potluckLabel: 'Repas partagé',
+  potluckTitle: 'Qu’apportez-vous ?',
+  potluckItems: 'Qu’allez-vous apporter ?',
+  potluckItemsPlaceholder: 'ex. Une salade verte pour 10 et de la limonade',
+  potluckNote: 'Note (facultatif)',
+  potluckEmailHint: 'Utilisez le même courriel pour modifier votre réponse plus tard.',
+  potluckSend: 'Indiquer ce que j’apporte',
+  potluckThanks: 'Merci ! Nous avons noté ce que vous apportez.',
+  potluckUpdated: 'Mis à jour — merci de nous avoir prévenus.',
+  potluckListTitle: 'Ce que les invités apportent',
+  potluckEmpty: 'Personne ne s’est encore inscrit — soyez le premier !',
+  potluckAnother: 'Modifier ma réponse',
+  privateTitle: 'Cet événement est privé',
+  privateText: 'Entrez le mot de passe que l’hôte vous a communiqué pour voir la page.',
+  privatePassword: 'Mot de passe',
+  privateEnter: 'Entrer',
+  privateWrong: 'Ce mot de passe est incorrect. Veuillez réessayer.',
+  privateTooMany: 'Trop de tentatives. Veuillez patienter quelques minutes.',
   getInTouch: 'Nous contacter',
   questions: 'Des questions?',
   theCouple: 'les mariés',
@@ -292,6 +348,24 @@ const es: Translations = {
   livestreamLabel: 'Acompáñanos en línea',
   watchLive: 'Ver en vivo',
   openStream: 'Abrir la transmisión en una pestaña nueva',
+  potluckLabel: 'Comida compartida',
+  potluckTitle: '¿Qué vas a traer?',
+  potluckItems: '¿Qué vas a traer?',
+  potluckItemsPlaceholder: 'p. ej. Una ensalada para 10 y limonada',
+  potluckNote: 'Nota (opcional)',
+  potluckEmailHint: 'Usa el mismo correo para cambiar tu respuesta más tarde.',
+  potluckSend: 'Compartir lo que traigo',
+  potluckThanks: '¡Gracias! Hemos anotado lo que vas a traer.',
+  potluckUpdated: 'Actualizado — gracias por avisarnos.',
+  potluckListTitle: 'Lo que traen los invitados',
+  potluckEmpty: 'Nadie se ha apuntado todavía — ¡sé el primero!',
+  potluckAnother: 'Cambiar mi respuesta',
+  privateTitle: 'Este evento es privado',
+  privateText: 'Escribe la contraseña que te dio el anfitrión para ver la página del evento.',
+  privatePassword: 'Contraseña',
+  privateEnter: 'Entrar',
+  privateWrong: 'La contraseña no es correcta. Inténtalo de nuevo.',
+  privateTooMany: 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo.',
   getInTouch: 'Contactos',
   questions: '¿Preguntas?',
   theCouple: 'los novios',

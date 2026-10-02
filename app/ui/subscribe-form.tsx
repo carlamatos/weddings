@@ -64,10 +64,14 @@ export default function Form({ prepaid = false }: { prepaid?: boolean }) {
   const [selectedSlug, setSelectedSlug] = useState<string>('');
   // Random suffix for option 4 — set after mount only to avoid SSR/client mismatch
   const [randomSuffix, setRandomSuffix] = useState<number | null>(null);
+  const [randomSuffix2, setRandomSuffix2] = useState<number | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: Math.random() must not run during SSR render
     setRandomSuffix(Math.floor(1000 + Math.random() * 9000));
+    setRandomSuffix2(Math.floor(10000 + Math.random() * 90000));
   }, []);
+  // Suggested addresses already used by another page (or reserved).
+  const [takenSlugs, setTakenSlugs] = useState<Set<string>>(new Set());
 
   const [formData, setFormData] = useState({
     eventName: '',
@@ -96,23 +100,56 @@ export default function Form({ prepaid = false }: { prepaid?: boolean }) {
 
   const themes = themesByCategory(eventType);
 
-  // Generate 4 slug options live from current form values
-  const slugOptions = useMemo(() => {
+  // Address suggestions, live from the form: more than the 4 shown, so
+  // taken ones can be skipped.
+  const slugCandidates = useMemo(() => {
     const base = slugify(formData.eventName) || 'your-event';
     const year = formData.eventDate ? formData.eventDate.slice(0, 4) : '';
     const city = slugify(formData.city) || 'your-city';
 
-    return [
-      { id: 'name',   value: base,                                    label: 'Event name only' },
-      { id: 'date',   value: year ? `${base}-${year}` : `${base}-year`, label: 'Event name + year' },
-      { id: 'city',   value: `${base}-${city}`,                       label: 'Event name + city' },
-      { id: 'random', value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`, label: 'Event name + unique number' },
+    const all = [
+      { id: 'name',      value: base,                                    label: 'Event name only' },
+      { id: 'date',      value: year ? `${base}-${year}` : `${base}-year`, label: 'Event name + year' },
+      { id: 'city',      value: `${base}-${city}`,                       label: 'Event name + city' },
+      { id: 'random',    value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`, label: 'Event name + unique number' },
+      { id: 'date-city', value: year ? `${base}-${city}-${year}` : `${base}-${city}-year`, label: 'Event name + city + year' },
+      { id: 'random2',   value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: 'Event name + unique number' },
     ];
-  }, [formData.eventName, formData.eventDate, formData.city, randomSuffix]);
+    return all.filter((o, i) => all.findIndex((x) => x.value === o.value) === i);
+  }, [formData.eventName, formData.eventDate, formData.city, randomSuffix, randomSuffix2]);
 
-  // Auto-select first option when options change (e.g. user starts typing name)
-  // but only if no manual selection has been made yet
-  const activeSlug = selectedSlug || slugOptions[0].value;
+  // Ask which suggestions are taken, once typing pauses.
+  useEffect(() => {
+    const slugs = slugCandidates.map((o) => o.value).filter((v) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v));
+    if (!slugs.length) return;
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/slug-availability', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ slugs }),
+          signal: controller.signal,
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { taken?: string[] };
+        setTakenSlugs(new Set(data.taken ?? []));
+      } catch {
+        // Offline or aborted: keep showing suggestions; creating the page re-checks.
+      }
+    }, 350);
+    return () => { clearTimeout(timer); controller.abort(); };
+  }, [slugCandidates]);
+
+  // The first 4 suggestions that are free.
+  const slugOptions = useMemo(() => {
+    const free = slugCandidates.filter((o) => !takenSlugs.has(o.value));
+    return (free.length ? free : slugCandidates).slice(0, 4);
+  }, [slugCandidates, takenSlugs]);
+
+  // The chosen address, or the first free one if nothing is chosen yet (or
+  // the chosen one turned out to be taken).
+  const activeSlug = slugOptions.some((o) => o.value === selectedSlug) ? selectedSlug : slugOptions[0].value;
 
   const endBeforeStart = !!formData.eventEndDate && !!formData.eventDate && formData.eventEndDate < formData.eventDate;
 

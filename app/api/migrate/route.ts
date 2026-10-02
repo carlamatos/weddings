@@ -128,6 +128,32 @@ export async function POST(request: Request) {
   // Optional '#RRGGBB' shown behind a sponsor's image (transparent logos).
   await sql`ALTER TABLE page_sponsors ADD COLUMN IF NOT EXISTS image_bg TEXT`;
 
+  // Plus: Potluck — what each guest is bringing, one entry per email per page.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_potluck (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      items TEXT NOT NULL,
+      note TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_page_potluck_email ON page_potluck (user_page_id, (lower(email)))`;
+
+  // Sponsors became off-by-default on 2026-10-02: keep them showing on pages
+  // that already had sponsors then and never touched the switch. Limited to
+  // sponsors added before that date, so re-running this never switches on
+  // sponsors a host added later but left hidden.
+  await sql`
+    INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+    SELECT DISTINCT user_page_id, 'show_sponsors', 'true' FROM page_sponsors
+    WHERE created_at < '2026-10-03'
+    ON CONFLICT (user_page_id, setting_name) DO NOTHING
+  `;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 

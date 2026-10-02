@@ -14,6 +14,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -493,6 +494,7 @@ export default function DiaDeLosMuertos({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -708,6 +710,27 @@ export default function DiaDeLosMuertos({
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               </div>
               <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <div id="potluck" className="rsvp-section">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="rsvp-art" src={`${IMG}/rsvp.jpeg`} alt="" />
+          <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>
+            <div className="rsvp-card">
+              <div className="dm-peek-wrap" aria-hidden="true">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img className="dm-peek" src={SKULL} alt="" />
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
+                <FlowerRule />
+                <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
+              </div>
+              <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>

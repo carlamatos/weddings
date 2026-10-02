@@ -12,6 +12,13 @@ export const CUSTOM_SECTION_TEXT_MAX = 4000;
 export const IMAGE_ALT_MAX = 200;
 
 export const SPONSOR_MAX_COUNT = 30;
+
+// Sponsors (Plus) are off unless the host switches them on — unlike most
+// sections, which are on by default. Pages that had sponsors before this
+// default changed were switched on by POST /api/migrate.
+export function areSponsorsOn(settings: Record<string, string>): boolean {
+  return settings['show_sponsors'] === 'true';
+}
 export const SPONSOR_DESCRIPTION_MAX = 280;
 
 // Only images uploaded through /api/upload: Vercel Blob in production, or

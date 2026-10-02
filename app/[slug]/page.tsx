@@ -2,11 +2,15 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { livestreamFromSettings } from '@/app/lib/livestream';
+import { isPageLocked } from '@/app/lib/page-password';
+import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate';
+import { getTranslations } from '@/app/lib/translations';
+import PagePasswordGate from '@/app/ui/page-password-gate';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -97,6 +101,7 @@ export async function generateMetadata(
   const slug = (await params).slug;
   const page = await fetchUserPage(slug);
   if (!page) return {};
+  if (isPageLocked(await fetchPageSettings(page.id), page.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
   return eventPageMetadata(page);
 }
 
@@ -109,14 +114,24 @@ export async function generateStaticParams() {
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
-  if (data?.status === 'inactive') return <PageUnavailable />;
-  const isPaid = data?.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
-    data ? fetchGalleryImages(data.id) : Promise.resolve([]),
-    data && isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
-    data && isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
-    data ? fetchPageSettings(data.id) : Promise.resolve({} as Record<string, string>),
-    data ? fetchEventProgram(data.id) : Promise.resolve([]),
+  if (!data) notFound();
+  if (data.status === 'inactive') return <PageUnavailable />;
+  const isPaid = data.plan_type === 'paid';
+  const isOwner = session?.user?.id === data.user_id;
+  const pageSettings = await fetchPageSettings(data.id);
+
+  // Password protected (Plus): nothing about the event until the guest
+  // enters the password. The owner always sees the page.
+  if (await mustShowPasswordGate(data.id, pageSettings, isPaid, isOwner)) {
+    return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
+  }
+
+  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck] = await Promise.all([
+    fetchGalleryImages(data.id),
+    isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+    isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
+    fetchEventProgram(data.id),
+    potluckProps(data.id, isPaid, pageSettings),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
@@ -126,10 +141,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
-  if (!data) notFound();
   const plusContent = await fetchPlusContent(data.id, isPaid, pageSettings);
 
-  const isOwner = session?.user?.id === data.user_id;
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
@@ -190,6 +203,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
+        potluck={potluck}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

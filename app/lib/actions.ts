@@ -27,6 +27,9 @@ import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
+import { isReservedSlug } from './reserved-slugs';
+import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
+import { INVITATION_SETTING, normalizeInvitation, type InvitationDesign } from './invitation';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -114,7 +117,7 @@ export type UserPageState = {
 
     // Addresses used by the site's own pages (mygala.ca/faq, /features, …)
     // would hide the event page, so they can't be claimed.
-    if (typeof formSlug === 'string' && RESERVED_SLUGS.has(formSlug.trim().toLowerCase())) {
+    if (typeof formSlug === 'string' && isReservedSlug(formSlug)) {
       return {
         errors: { slug: [`The URL '${formSlug}' is reserved, please choose another`] },
         message: `The URL '${formSlug}' is reserved, please choose another`,
@@ -371,13 +374,6 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
 // Every action checks, in the same query, that the page belongs to the
 // signed-in user and is on a paid plan.
 
-// Top-level paths the site uses itself; event pages can't take these slugs.
-const RESERVED_SLUGS = new Set([
-  'about', 'admin', 'api', 'check-email', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
-  'faq', 'features', 'forgot-password', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
-  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending',
-]);
-
 type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
 const PLUS_ONLY_ERROR = 'This is a Plus feature.';
@@ -589,6 +585,122 @@ export async function saveLivestream(
     return { ok: true, value: { url, display, buttonText, message } };
   } catch (error) {
     console.error('Failed to save live stream:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Plus: password protection for an event page. Turning it on needs a
+// password (a new one, or one saved before); changing the password signs
+// every guest out of the page (their access cookie is tied to the hash).
+export async function savePagePassword(
+  pageId: number,
+  data: { enabled: boolean; password?: string },
+): Promise<PlusResult<{ enabled: boolean; hasPassword: boolean }>> {
+  const password = typeof data?.password === 'string' ? data.password : '';
+  if (password && (password.length < PAGE_PASSWORD_MIN || password.length > PAGE_PASSWORD_MAX)) {
+    return { ok: false, error: `Use a password of ${PAGE_PASSWORD_MIN} to ${PAGE_PASSWORD_MAX} characters.` };
+  }
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const upsert = (name: string, value: string) => sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${name}, ${value})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+    `;
+    if (password) await upsert('page_password_hash', await bcrypt.hash(password, 10));
+    const existing = await sql`SELECT 1 FROM user_page_settings WHERE user_page_id = ${owned.value} AND setting_name = 'page_password_hash' AND setting_value <> ''`;
+    const hasPassword = existing.rows.length > 0;
+    if (data?.enabled && !hasPassword) return { ok: false, error: 'Set a password to turn protection on.' };
+    await upsert('password_protect', data?.enabled ? 'true' : 'false');
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { enabled: !!data?.enabled, hasPassword } };
+  } catch (error) {
+    console.error('Failed to save page password:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Plus: the host removes one potluck entry.
+export async function deletePotluckEntry(pageId: number, entryId: number): Promise<PlusResult<null>> {
+  if (!Number.isInteger(entryId) || entryId <= 0) return { ok: false, error: 'Entry not found.' };
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`DELETE FROM page_potluck WHERE id = ${entryId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to delete potluck entry:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// The host changes a guest's status on the RSVPs screen (e.g. Attending ->
+// Declining). Any plan. A guest marked attending counts as a party of at
+// least one.
+export async function updateGuestStatus(
+  pageId: number,
+  guestId: string,
+  status: 'invited' | 'attending' | 'not_attending',
+): Promise<{ ok: boolean }> {
+  if (!['invited', 'attending', 'not_attending'].includes(status) || !UUID_RE.test(guestId)) return { ok: false };
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return { ok: false };
+  try {
+    const res = await sql`
+      UPDATE event_guests SET status = ${status}, guests = GREATEST(COALESCE(guests, 1), 1)
+      WHERE id = ${guestId}::uuid
+        AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to update guest status:', error);
+    return { ok: false };
+  }
+}
+
+// The host removes a guest from the list (Invitations screen).
+export async function removeGuest(pageId: number, guestId: string): Promise<{ ok: boolean }> {
+  if (!UUID_RE.test(guestId)) return { ok: false };
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return { ok: false };
+  try {
+    const res = await sql`
+      DELETE FROM event_guests
+      WHERE id = ${guestId}::uuid
+        AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to remove guest:', error);
+    return { ok: false };
+  }
+}
+
+// Plus: saves the invitation design. Cleaned by normalizeInvitation, so only
+// known fonts, #RRGGBB colours, bounded text and MyGala-hosted images are kept.
+export async function saveInvitationDesign(pageId: number, design: unknown): Promise<PlusResult<InvitationDesign>> {
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const theme = await sql`SELECT et.slug FROM user_page up LEFT JOIN event_themes et ON et.theme_id = up.theme_id WHERE up.id = ${owned.value}`;
+    const clean = normalizeInvitation(design, theme.rows[0]?.slug);
+    const value = JSON.stringify(clean);
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${INVITATION_SETTING}, ${value})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+    `;
+    return { ok: true, value: clean };
+  } catch (error) {
+    console.error('Failed to save invitation:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }

@@ -14,12 +14,13 @@ interface Props {
   pageId?: number;
   pageName?: string;
   isPaid?: boolean;
+  status?: Record<string, boolean>;
   themes: EventTheme[];
   currentThemeId: string | null;
   currentLanguage?: string;
 }
 
-export default function MobileMenu({ pageId, pageName, isPaid, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+export default function MobileMenu({ pageId, pageName, isPaid, status, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -44,7 +45,7 @@ export default function MobileMenu({ pageId, pageName, isPaid, themes, currentTh
             </div>
 
             <nav className="dash-sidebar-nav" onClick={() => setOpen(false)}>
-              <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} />
+              <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} status={status} />
             </nav>
 
             {pageId !== undefined && themes.length > 0 && (

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { guestAccessDenied } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
 import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
 import { verifyPageToken } from '@/app/lib/page-token';
@@ -26,6 +27,9 @@ export async function POST(request: Request) {
 
   if (pageId === null) {
     return NextResponse.json({ error: 'Invalid page' }, { status: 401 });
+  }
+  if (await guestAccessDenied(request, pageId)) {
+    return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
   }
   if (!file || !file.type.startsWith('image/')) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });

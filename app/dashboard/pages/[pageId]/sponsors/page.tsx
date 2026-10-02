@@ -1,4 +1,5 @@
-import { fetchPageSettings, fetchSponsors, isSectionOn } from '@/app/lib/data';
+import { fetchPageSettings, fetchSponsors } from '@/app/lib/data';
+import { areSponsorsOn } from '@/app/lib/custom-sections';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
@@ -33,7 +34,7 @@ export default async function SponsorsPage({ params }: { params: Promise<{ pageI
       <SectionToggle
         pageId={pageId}
         settingName="show_sponsors"
-        initialOn={isSectionOn(settings, 'show_sponsors')}
+        initialOn={areSponsorsOn(settings)}
       />
 
       <SponsorsManager pageId={pageId} initialSponsors={sponsors} />

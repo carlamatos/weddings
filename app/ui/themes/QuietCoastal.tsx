@@ -10,6 +10,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
@@ -175,6 +176,7 @@ export default function QuietCoastal({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -369,6 +371,19 @@ export default function QuietCoastal({
               <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="eyebrow" fallback={t.kindlyRespond.toLowerCase()} />
               <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="title" fallback={t.rsvp.toLowerCase()} />
               <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+            </div>
+          </div>
+        </>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <>
+          <hr className="hairline" />
+          <div id="potluck" className="wrap">
+            <div className="section">
+              <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="title" fallback={t.potluckTitle.toLowerCase()} />
+              <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </>

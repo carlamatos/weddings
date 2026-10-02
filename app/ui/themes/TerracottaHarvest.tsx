@@ -10,6 +10,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
@@ -222,6 +223,7 @@ export default function TerracottaHarvest({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -398,6 +400,17 @@ export default function TerracottaHarvest({
             <SectionText ctx={sectionTextCtx} k="rsvp.eyebrow" className="section-label" fallback={t.kindlyRespond} />
             <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
             <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+          </div>
+          <BandDivider thin />
+        </>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <>
+          <div id="potluck" className="section-tinted">
+            <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="section-label" fallback={t.potluckLabel} />
+            <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
+            <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
           </div>
           <BandDivider thin />
         </>

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { guestAccessDenied } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
       }
     }
 
+    if (await guestAccessDenied(request, pageId)) {
+      return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
+    }
     if (await overRateLimit(`rsvp-page:${pageId}`, 500, HOUR_MS)) {
       return NextResponse.json({ error: 'This page is receiving a lot of replies. Please try again shortly.' }, { status: 429 });
     }
@@ -78,7 +82,7 @@ export async function POST(request: Request) {
     // If the guest was already invited, update their record; otherwise insert fresh
     const existing = await sql`
       SELECT id FROM event_guests
-      WHERE user_page_id = ${pageId} AND email = ${email.trim()}
+      WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()})
       LIMIT 1
     `;
 

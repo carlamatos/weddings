@@ -11,6 +11,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 
@@ -241,6 +242,7 @@ export default function Vilma({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -439,6 +441,17 @@ export default function Vilma({
           <hr className="vl-rule" />
           <div className="rsvp-card">
             <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+          </div>
+        </div>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <div id="potluck" className="rsvp-section">
+          <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
+          <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title on-butter" fallback={t.potluckTitle} />
+          <hr className="vl-rule" />
+          <div className="rsvp-card">
+            <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
           </div>
         </div>
       )}

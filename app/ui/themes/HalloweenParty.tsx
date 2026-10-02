@@ -14,6 +14,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -565,6 +566,7 @@ export default function HalloweenParty({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -781,6 +783,22 @@ export default function HalloweenParty({
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               </div>
               <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <div id="potluck" className="rsvp-section">
+          <BatFlight color="#141215" count={3} />
+          <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>
+            <div className="rsvp-card">
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
+                <PumpkinRule />
+                <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
+              </div>
+              <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>

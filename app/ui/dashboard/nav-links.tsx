@@ -1,15 +1,19 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon } from '@heroicons/react/24/outline';
+import { DocumentIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { CheckCircleIcon, MinusCircleIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const links = [
   { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'RSVPs', section: '/rsvp', icon: UsersIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Invitations', section: '/invitations', icon: EnvelopeIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Potluck', section: '/potluck', icon: CakeIcon, paidOnly: false, greyOutIfFree: true },
   // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
   // reaches the upgrade prompt on each section's own page.
   { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Password', section: '/password', icon: LockClosedIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
@@ -25,7 +29,9 @@ const links = [
 // "Event pages" (the dashboard landing) is always there; the per-page links
 // appear when a page is selected (pageId set), under that event's name, and
 // point at that page.
-export default function NavLinks({ pageId, pageName, isPaid }: { pageId?: number; pageName?: string; isPaid?: boolean }) {
+// status: whether each section is on for this page (app/lib/section-status.ts),
+// shown as a small icon beside it.
+export default function NavLinks({ pageId, pageName, isPaid, status }: { pageId?: number; pageName?: string; isPaid?: boolean; status?: Record<string, boolean> }) {
   const pathname = usePathname();
   return (
     <>
@@ -57,9 +63,21 @@ export default function NavLinks({ pageId, pageName, isPaid }: { pageId?: number
                   Plus
                 </span>
               )}
+              {!greyedOut && status && link.section in status && <SectionState on={status[link.section]} name={link.name} />}
             </Link>
           );
         })}
     </>
+  );
+}
+
+function SectionState({ on, name }: { on: boolean; name: string }) {
+  const label = on ? `${name} is on` : `${name} is off`;
+  const Icon = on ? CheckCircleIcon : MinusCircleIcon;
+  return (
+    <span className="dash-nav-state" title={label} style={{ marginLeft: 'auto', display: 'inline-flex', color: on ? '#3D6B46' : '#B8B0A8' }}>
+      <Icon aria-hidden="true" style={{ width: 16, height: 16 }} />
+      <span className="sr-only">{on ? 'On' : 'Off'}</span>
+    </span>
   );
 }

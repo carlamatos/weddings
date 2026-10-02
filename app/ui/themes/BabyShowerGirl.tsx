@@ -14,6 +14,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -447,6 +448,7 @@ export default function BabyShowerGirl({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -672,6 +674,23 @@ export default function BabyShowerGirl({
               <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               <div className="rsvp-card">
                 <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <Reveal>
+          <div id="potluck" className="rsvp-section">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="bs-elephant bs-float" src={`${IMG}/elephant.webp`} alt="" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <Rattle />
+              <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
+              <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
+              <div className="rsvp-card">
+                <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
               </div>
             </div>
           </div>
