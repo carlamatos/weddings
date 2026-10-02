@@ -3,7 +3,7 @@
 import { AtSymbolIcon, KeyIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useActionState } from 'react';
-import { authenticate, GoogleSignIn, AppleSignIn, FacebookSignIn } from '@/app/lib/actions';
+import { authenticate, GoogleSignIn, FacebookSignIn } from '@/app/lib/actions';
 import Link from 'next/link';
 
 export default function LoginForm() {
@@ -76,12 +76,6 @@ export default function LoginForm() {
         Continue with Google
       </button>
 
-      <button onClick={() => AppleSignIn()} className="auth-social-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 814 1000" style={{ width: 16, height: 16 }}>
-          <path fill="#000000" d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 382.8-.2 266.6 0 154.8 0 68.5 54.8 2.4 128.2 2.4c36.2 0 81.9 24.4 106.2 58.4 23.1 32.3 50.4 78.4 100.3 78.4h.6c-5.1-26.1-6.3-53.6 3.2-80.8 18.1-52.1 63.8-90.5 119.1-90.5 36.2 0 75.6 18.2 101.3 52.1 25.7 34 42.8 85.4 42.8 140.3z"/>
-        </svg>
-        Continue with Apple
-      </button>
 
       <button onClick={() => FacebookSignIn()} className="auth-social-btn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: 18, height: 18 }}>
