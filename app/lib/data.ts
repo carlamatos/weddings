@@ -1,5 +1,7 @@
 import { sql } from '@vercel/postgres';
 import { maxPagesPerAccount } from './plans';
+import { arePotluckEntriesPublic, isPotluckOn, publicName, POTLUCK_MAX_ENTRIES, type PotluckEntry, type PotluckProps } from './potluck';
+import { signPageId } from './page-token';
 import { expireIfPast } from './plan-expiry';
 import {
   Revenue,
@@ -233,6 +235,34 @@ export async function fetchPlusContent(
     isSectionOn(settings, 'show_sponsors') ? fetchSponsors(pageId) : Promise.resolve([]),
   ]);
   return { customSections: customSections.filter(hasCustomSectionContent), sponsors };
+}
+
+// Potluck entries for the dashboard (everything) — newest change first.
+export async function fetchPotluckEntries(pageId: number | string): Promise<PotluckEntry[]> {
+  try {
+    const data = await sql<PotluckEntry>`
+      SELECT id, name, email, items, note, created_at, updated_at FROM page_potluck
+      WHERE user_page_id = ${pageId}
+      ORDER BY updated_at DESC
+      LIMIT ${POTLUCK_MAX_ENTRIES}`;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch potluck entries:', error);
+    return [];
+  }
+}
+
+// The Potluck section's theme prop (Plus): undefined unless the page is paid
+// and the host switched it on (it's off by default). Entries are included
+// only when the host chose to show them publicly — as first name + initial,
+// never emails.
+export async function potluckProps(pageId: number | string, isPaid: boolean, settings: Record<string, string>): Promise<PotluckProps | undefined> {
+  if (!isPaid || !isPotluckOn(settings)) return undefined;
+  const showEntries = arePotluckEntriesPublic(settings);
+  const entries = showEntries
+    ? (await fetchPotluckEntries(pageId)).map((e) => ({ name: publicName(e.name), items: e.items }))
+    : [];
+  return { token: signPageId(pageId), showEntries, entries };
 }
 
 const GUEST_PHOTOS_PAGE_SIZE = 20;

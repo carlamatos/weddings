@@ -14,6 +14,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -359,6 +360,7 @@ export default function Love({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -570,6 +572,23 @@ export default function Love({
                 <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title" fallback={t.rsvp} />
               </div>
               <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <div id="potluck" className="rsvp-section">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="lv-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
+          <Reveal className="rsvp-panel">
+            <div className="rsvp-card">
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
+                <HeartRule />
+                <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
+              </div>
+              <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>

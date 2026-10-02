@@ -27,6 +27,7 @@ import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
+import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, verificationEmailHtml } from './mail';
@@ -589,6 +590,53 @@ export async function saveLivestream(
     return { ok: true, value: { url, display, buttonText, message } };
   } catch (error) {
     console.error('Failed to save live stream:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Plus: password protection for an event page. Turning it on needs a
+// password (a new one, or one saved before); changing the password signs
+// every guest out of the page (their access cookie is tied to the hash).
+export async function savePagePassword(
+  pageId: number,
+  data: { enabled: boolean; password?: string },
+): Promise<PlusResult<{ enabled: boolean; hasPassword: boolean }>> {
+  const password = typeof data?.password === 'string' ? data.password : '';
+  if (password && (password.length < PAGE_PASSWORD_MIN || password.length > PAGE_PASSWORD_MAX)) {
+    return { ok: false, error: `Use a password of ${PAGE_PASSWORD_MIN} to ${PAGE_PASSWORD_MAX} characters.` };
+  }
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const upsert = (name: string, value: string) => sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${name}, ${value})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+    `;
+    if (password) await upsert('page_password_hash', await bcrypt.hash(password, 10));
+    const existing = await sql`SELECT 1 FROM user_page_settings WHERE user_page_id = ${owned.value} AND setting_name = 'page_password_hash' AND setting_value <> ''`;
+    const hasPassword = existing.rows.length > 0;
+    if (data?.enabled && !hasPassword) return { ok: false, error: 'Set a password to turn protection on.' };
+    await upsert('password_protect', data?.enabled ? 'true' : 'false');
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { enabled: !!data?.enabled, hasPassword } };
+  } catch (error) {
+    console.error('Failed to save page password:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Plus: the host removes one potluck entry.
+export async function deletePotluckEntry(pageId: number, entryId: number): Promise<PlusResult<null>> {
+  if (!Number.isInteger(entryId) || entryId <= 0) return { ok: false, error: 'Entry not found.' };
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`DELETE FROM page_potluck WHERE id = ${entryId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to delete potluck entry:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }

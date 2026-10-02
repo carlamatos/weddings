@@ -1,10 +1,14 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { livestreamFromSettings } from '@/app/lib/livestream';
+import { isPageLocked } from '@/app/lib/page-password';
+import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate';
+import { getTranslations } from '@/app/lib/translations';
+import PagePasswordGate from '@/app/ui/page-password-gate';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -16,6 +20,7 @@ export async function generateMetadata(
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) return {};
+  if (isPageLocked(await fetchPageSettings(data.id), data.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
   return eventPageMetadata(data);
 }
 
@@ -26,12 +31,20 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   if (data.status === 'inactive') return <PageUnavailable />;
 
   const isPaid = data.plan_type === 'paid';
-  const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
+  const pageSettings = await fetchPageSettings(data.id);
+
+  // Password protected (Plus): the guest enters the password on this domain,
+  // so the access cookie is this domain's own.
+  if (await mustShowPasswordGate(data.id, pageSettings, isPaid)) {
+    return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
+  }
+
+  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck] = await Promise.all([
     fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
-    fetchPageSettings(data.id),
     fetchEventProgram(data.id),
+    potluckProps(data.id, isPaid, pageSettings),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
@@ -90,6 +103,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
+        potluck={potluck}
         shareUrl={publicPageUrl(data)}
     />
   );

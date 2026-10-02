@@ -128,6 +128,21 @@ export async function POST(request: Request) {
   // Optional '#RRGGBB' shown behind a sponsor's image (transparent logos).
   await sql`ALTER TABLE page_sponsors ADD COLUMN IF NOT EXISTS image_bg TEXT`;
 
+  // Plus: Potluck — what each guest is bringing, one entry per email per page.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_potluck (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      items TEXT NOT NULL,
+      note TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_page_potluck_email ON page_potluck (user_page_id, (lower(email)))`;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 

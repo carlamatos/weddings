@@ -1,4 +1,4 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -39,7 +39,10 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
 
-  const plusContent = await fetchPlusContent(pageId, isPaid, pageSettings);
+  const [plusContent, potluck] = await Promise.all([
+    fetchPlusContent(pageId, isPaid, pageSettings),
+    potluckProps(pageId, isPaid, pageSettings),
+  ]);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   // Build the date display string the same way each theme would
@@ -187,6 +190,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
+        potluck={potluck}
         sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}

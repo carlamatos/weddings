@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { guestAccessDenied } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
@@ -66,6 +67,9 @@ export async function POST(request: Request) {
       }
     }
 
+    if (await guestAccessDenied(request, pageId)) {
+      return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
+    }
     if (await overRateLimit(`rsvp-page:${pageId}`, 500, HOUR_MS)) {
       return NextResponse.json({ error: 'This page is receiving a lot of replies. Please try again shortly.' }, { status: 429 });
     }

@@ -15,6 +15,7 @@ import ShareSection from './ShareSection';
 import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
+import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 
@@ -338,6 +339,7 @@ export default function Community({
   customSections,
   sponsors,
   livestream,
+  potluck,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -533,6 +535,18 @@ export default function Community({
             <SectionText ctx={sectionTextCtx} k="rsvp.title" as="h2" className="section-title on-dark" fallback={t.rsvp} />
             <div className="rsvp-card">
               <RsvpForm userPageId={userPageId} translations={t} disabled={formsDisabled} />
+            </div>
+          </div>
+        </Reveal>
+      )}
+      {/* POTLUCK (Plus, off by default) */}
+      {isPaid && potluck && (
+        <Reveal>
+          <div id="potluck" className="rsvp-section">
+            <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow on-dark" fallback={t.potluckLabel} />
+            <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title on-dark" fallback={t.potluckTitle} />
+            <div className="rsvp-card">
+              <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </Reveal>
