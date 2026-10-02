@@ -171,6 +171,8 @@ export async function POST(request: Request) {
 
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_secret TEXT`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled_at TIMESTAMPTZ`;
+  // Sessions that signed in before this are signed out (app/lib/session-revocation.ts).
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS email_verification_tokens (

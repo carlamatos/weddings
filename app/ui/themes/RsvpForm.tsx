@@ -18,6 +18,14 @@ declare global {
 }
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+const ROOT_DOMAIN = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
+
+// The Cloudflare bot check only works on hostnames listed for the site key,
+// so it runs on MyGala's own domain; event pages on a host's custom domain
+// skip it (the RSVP API agrees — see app/api/rsvp/route.ts).
+function onRootDomain(hostname: string): boolean {
+  return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`);
+}
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
   const [name, setName] = useState('');
@@ -36,9 +44,15 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
 
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const [useTurnstile, setUseTurnstile] = useState(false);
 
   useEffect(() => {
-    if (!SITE_KEY) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the hostname is only known in the browser
+    setUseTurnstile(!!SITE_KEY && !disabled && onRootDomain(window.location.hostname));
+  }, [disabled]);
+
+  useEffect(() => {
+    if (!SITE_KEY || !useTurnstile) return;
 
     const script = document.createElement('script');
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
@@ -46,7 +60,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     script.onload = () => {
       if (turnstileRef.current && window.turnstile) {
         widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
-          sitekey: SITE_KEY,
+          sitekey: SITE_KEY!,
           callback: (token) => setCfToken(token),
           'expired-callback': () => setCfToken(''),
           'error-callback': () => setCfToken(''),
@@ -55,7 +69,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     };
     document.head.appendChild(script);
     return () => { document.head.removeChild(script); };
-  }, []);
+  }, [useTurnstile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -193,7 +207,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
         <p className="check-hint">{t.unsubscribeHint}</p>
       </div>
 
-      {SITE_KEY && <div ref={turnstileRef} style={{ margin: '8px 0' }} />}
+      {useTurnstile && <div ref={turnstileRef} style={{ margin: '8px 0' }} />}
 
       {error && <p className="rsvp-error">{error}</p>}
       <button type="submit" className="btn" disabled={submitting || (!!SITE_KEY && !cfToken)} style={{ width: 'fit-content' }}>

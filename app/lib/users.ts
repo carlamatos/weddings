@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { DBUser } from './definitions';
+import { markPasswordChanged } from './session-revocation';
 
 // Server-only helpers for user rows. Deliberately NOT in actions.ts: every
 // export of a 'use server' file is callable from the browser, and creating
@@ -42,8 +43,10 @@ export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Pr
 // verify the account and drop the unproven password — otherwise whoever set
 // it could keep signing in alongside the owner.
 export async function claimUnverifiedAccount(email: string): Promise<void> {
-  await sql`
+  const result = await sql`
     UPDATE users SET password = '', email_verified_at = NOW()
     WHERE email = ${email} AND email_verified_at IS NULL
   `;
+  // ...and sign out whoever was using that password.
+  if (result.rowCount) await markPasswordChanged({ email });
 }

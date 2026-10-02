@@ -13,6 +13,7 @@ import bcrypt from 'bcrypt';
 import { createOAuthUser, claimUnverifiedAccount } from './app/lib/users';
 import { verifyTotpProof } from './app/lib/totp-proof';
 import { isTotpPending } from './app/lib/totp-session';
+import { signedInBefore } from './app/lib/session-revocation';
 import {JWT} from 'next-auth/jwt'
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 
@@ -136,6 +137,7 @@ const nextAuth = NextAuth({
         token.totpRequired = !!account2fa?.totp_enabled_at;
         token.totpVerified = false;
         token.totpVerifiedAt = undefined;
+        token.signedInAt = Date.now();
       }
 
       return token;
@@ -159,6 +161,7 @@ const nextAuth = NextAuth({
         const totpRequired = token.totpRequired ?? !!localuser?.totp_enabled_at;
         session.user.totpPending = isTotpPending({ ...token, totpRequired });
         session.user.totpVerified = !session.user.totpPending && totpRequired;
+        session.user.revoked = signedInBefore(token.signedInAt, localuser?.password_changed_at);
       }
 
       return session;
@@ -174,8 +177,9 @@ export const authIncludingPending2fa = () => nextAuth.auth();
 
 // Everywhere else, a session that still owes its 2FA code counts as signed
 // out — so a stolen password alone can't use any API route, server action
-// or page. (The proxy also holds such sessions at /verify-2fa.)
+// or page (the proxy also holds such sessions at /verify-2fa) — and so does
+// one that signed in before the account's password last changed.
 export async function auth(): Promise<Session | null> {
   const session = await nextAuth.auth();
-  return session?.user?.totpPending ? null : session;
+  return session?.user?.totpPending || session?.user?.revoked ? null : session;
 }

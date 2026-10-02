@@ -17,12 +17,17 @@ declare module 'next-auth' {
     totpProof?: string;
     // Set (on the proxy's session only) while 2FA is still owed.
     totpPending?: boolean;
+    // Proxy session only: when this session signed in (for revocation).
+    signedInAt?: number;
+    // The password changed after this session signed in.
+    revoked?: boolean;
   }
 }
 
 declare module 'next-auth/jwt' {
   interface JWT {
     totpRequired?: boolean; // account had 2FA on when this session signed in
+    signedInAt?: number; // ms; set once at sign-in
     totpVerified?: boolean;
     totpVerifiedAt?: number;
   }

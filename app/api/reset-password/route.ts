@@ -3,6 +3,7 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 import { consumeToken, invalidateTokens } from '@/app/lib/tokens';
 import { ResetPasswordSchema } from '@/app/lib/password-schema';
+import { markPasswordChanged } from '@/app/lib/session-revocation';
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -36,6 +37,8 @@ export async function POST(request: Request) {
   // invalidate any other outstanding reset tokens for this account so an
   // older, still-valid link can't be used after the password has changed.
   await invalidateTokens('password_reset_tokens', userId);
+  // Sign out every device that was using the old password.
+  await markPasswordChanged({ userId });
 
   return NextResponse.json({ ok: true });
 }
