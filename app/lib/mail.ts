@@ -47,12 +47,14 @@ export async function sendMailBatch(messages: MailMessage[]): Promise<void> {
 }
 
 export function wrap(bodyHtml: string): string {
-  const logoUrl = `${siteUrl()}/images/logo_1.png`;
+  // The MyGala wordmark, as a PNG: most email apps (Gmail, Outlook) don't
+  // show SVG. Made from public/images/mygala-logo.svg at 3x for sharp screens.
+  const logoUrl = `${siteUrl()}/images/mygala-logo-email.png`;
   return `
     <div style="background: ${BRAND.cream}; padding: 40px 16px; font-family: system-ui, sans-serif;">
       <div style="max-width: 560px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 40px 40px 32px; box-shadow: 0 1px 3px rgba(36,31,43,0.08);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="${logoUrl}" alt="MyGala" width="160" style="display: inline-block; width: 160px; height: auto;" />
+          <img src="${logoUrl}" alt="MyGala" width="150" height="54" style="display: inline-block; width: 150px; height: 54px; border: 0;" />
         </div>
         <div style="color: ${BRAND.text};">
           ${bodyHtml}

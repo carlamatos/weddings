@@ -74,6 +74,6 @@ export function webPageJsonLd(seo: SeoMeta, path: string) {
     url: absoluteUrl(path),
     inLanguage: 'en',
     isPartOf: { '@type': 'WebSite', name: 'MyGala', url: absoluteUrl('/') },
-    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/logo_1.png') },
+    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
   };
 }

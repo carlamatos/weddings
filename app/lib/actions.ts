@@ -27,6 +27,7 @@ import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
+import { isReservedSlug } from './reserved-slugs';
 import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
@@ -115,7 +116,7 @@ export type UserPageState = {
 
     // Addresses used by the site's own pages (mygala.ca/faq, /features, …)
     // would hide the event page, so they can't be claimed.
-    if (typeof formSlug === 'string' && RESERVED_SLUGS.has(formSlug.trim().toLowerCase())) {
+    if (typeof formSlug === 'string' && isReservedSlug(formSlug)) {
       return {
         errors: { slug: [`The URL '${formSlug}' is reserved, please choose another`] },
         message: `The URL '${formSlug}' is reserved, please choose another`,
@@ -371,13 +372,6 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
 // ─── Custom sections & sponsors (Plus) ─────────────────────
 // Every action checks, in the same query, that the page belongs to the
 // signed-in user and is on a paid plan.
-
-// Top-level paths the site uses itself; event pages can't take these slugs.
-const RESERVED_SLUGS = new Set([
-  'about', 'admin', 'api', 'check-email', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
-  'faq', 'features', 'forgot-password', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
-  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending',
-]);
 
 type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
 

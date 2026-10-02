@@ -297,6 +297,9 @@
   gap: 8px;
 }
 .setup-slug-option {
+  /* Contains its visually hidden radio — otherwise clicking an option
+     focuses a radio positioned near the top of the page and the page jumps. */
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
