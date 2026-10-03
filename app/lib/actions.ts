@@ -16,7 +16,7 @@ import { headers } from 'next/headers';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -29,10 +29,13 @@ import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isReservedSlug } from './reserved-slugs';
 import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
-import { INVITATION_SETTING, normalizeInvitation, type InvitationDesign } from './invitation';
+import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign } from './invitation';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
-import { sendMail, verificationEmailHtml } from './mail';
+import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
+import { invitationEmail } from './invitation-email';
+import { invitationDetails } from './invitation-details';
+import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 
@@ -702,6 +705,185 @@ export async function saveInvitationDesign(pageId: number, design: unknown): Pro
   } catch (error) {
     console.error('Failed to save invitation:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// ─── Invitations: emailing the guest list ───────────────
+
+// Most guests one send can reach; the guest list import is capped the same way.
+const MAX_INVITATION_RECIPIENTS = 1000;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: string; hostEmail: string | null };
+
+// The signed-in owner's Plus page, its saved invitation design and the host's
+// name/email (for the From name and Reply-To).
+async function invitationContext(pageId: number): Promise<PlusResult<InvitationContext>> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  const page = await fetchOwnedPage(userId, pid);
+  if (!page) return { ok: false, error: 'Page not found.' };
+  if (page.plan_type !== 'paid') return { ok: false, error: 'Invitations are a Plus feature.' };
+  const [settings, user] = await Promise.all([
+    sql<{ setting_value: string }>`SELECT setting_value FROM user_page_settings WHERE user_page_id = ${pid} AND setting_name = ${INVITATION_SETTING}`,
+    sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
+  ]);
+  let saved: unknown = null;
+  try { saved = JSON.parse(settings.rows[0]?.setting_value ?? 'null'); } catch { saved = null; }
+  const hostEmail = user.rows[0]?.email ?? session?.user?.email ?? null;
+  return {
+    ok: true,
+    value: {
+      page,
+      design: normalizeInvitation(saved, page.theme_slug),
+      hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
+      hostEmail,
+    },
+  };
+}
+
+// Emails the saved invitation to the chosen guests. Guests without an email,
+// or who unsubscribed from this event, are skipped; each address gets one
+// email even if it's on the list twice. Records invited_at for those sent.
+export async function sendInvitations(
+  pageId: number,
+  guestIds: string[],
+): Promise<{ ok: true; sent: number; skipped: number } | { ok: false; error: string }> {
+  try {
+    const ids = [...new Set(Array.isArray(guestIds) ? guestIds.filter((id) => typeof id === 'string' && UUID_RE.test(id)) : [])];
+    if (!ids.length) return { ok: false, error: 'Choose at least one guest.' };
+    if (ids.length > MAX_INVITATION_RECIPIENTS) return { ok: false, error: `You can send to up to ${MAX_INVITATION_RECIPIENTS} guests at a time.` };
+
+    const ctx = await invitationContext(pageId);
+    if (!ctx.ok) return ctx;
+    const { page, design, hostName, hostEmail } = ctx.value;
+    if (await overRateLimit(`invitations:${page.id}`, 10, 60 * 60 * 1000)) {
+      return { ok: false, error: 'You’ve sent invitations 10 times in the last hour. Please try again later.' };
+    }
+
+    const guests = await sql<{ id: string; name: string; email: string; invitation_note: string | null }>`
+      SELECT DISTINCT ON (lower(g.email)) g.id, g.name, g.email, g.invitation_note
+      FROM event_guests g
+      WHERE g.user_page_id = ${page.id}
+        AND g.id = ANY(string_to_array(${ids.join(',')}, ',')::uuid[])
+        AND g.email IS NOT NULL AND NOT g.email_opt_out
+      ORDER BY lower(g.email), g.created_at
+    `;
+    const recipients = guests.rows.filter((g) => EMAIL_RE.test(g.email.trim()));
+    if (!recipients.length) return { ok: false, error: 'None of the chosen guests have an email address you can send to.' };
+
+    const details = invitationDetails(page);
+    const messages: MailMessage[] = recipients.map((g) => {
+      const { subject, html } = invitationEmail({
+        design,
+        details,
+        language: page.language,
+        hostName,
+        guestName: g.name?.trim() || '',
+        note: g.invitation_note,
+        unsubscribeLink: unsubscribeUrl(g.id),
+        siteBase: siteUrl(),
+      });
+      return {
+        to: g.email.trim(),
+        subject,
+        html,
+        from: fromName(hostName),
+        ...(hostEmail ? { replyTo: hostEmail } : {}),
+        headers: { 'List-Unsubscribe': `<${oneClickUnsubscribeUrl(g.id)}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
+      };
+    });
+
+    // In batches of 100 (Resend's limit), marking each batch as invited once
+    // it's accepted, so a failure part-way never re-sends to earlier batches.
+    let sent = 0;
+    try {
+      for (let i = 0; i < messages.length; i += 100) {
+        await sendMailBatch(messages.slice(i, i + 100));
+        const batchIds = recipients.slice(i, i + 100).map((g) => g.id);
+        await sql`
+          UPDATE event_guests SET invited_at = NOW()
+          WHERE user_page_id = ${page.id} AND id = ANY(string_to_array(${batchIds.join(',')}, ',')::uuid[])
+        `;
+        sent += batchIds.length;
+      }
+    } finally {
+      if (sent) revalidatePath('/dashboard', 'layout');
+    }
+    return { ok: true, sent, skipped: ids.length - recipients.length };
+  } catch (error) {
+    console.error('Failed to send invitations:', error);
+    return { ok: false, error: 'Couldn’t send all the invitations. Guests marked “Sent” got theirs — please try again for the rest.' };
+  }
+}
+
+// Sends the saved invitation to the signed-in owner, so they can see it in
+// their own inbox first. Limited to 5 an hour.
+export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean; message: string }> {
+  try {
+    const ctx = await invitationContext(pageId);
+    if (!ctx.ok) return { ok: false, message: ctx.error };
+    const { page, design, hostName, hostEmail } = ctx.value;
+    if (!hostEmail) return { ok: false, message: 'Your account has no email address.' };
+    if (await overRateLimit(`invitation-test:${page.id}`, 5, 60 * 60 * 1000)) {
+      return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
+    }
+    const { subject, html } = invitationEmail({
+      design,
+      details: invitationDetails(page),
+      language: page.language,
+      hostName,
+      guestName: hostName,
+      siteBase: siteUrl(),
+    });
+    await sendMailBatch([{ to: hostEmail, subject: `[Test] ${subject}`, html, from: fromName(hostName), replyTo: hostEmail }]);
+    return { ok: true, message: `Test sent to ${hostEmail}.` };
+  } catch (error) {
+    console.error('Failed to send test invitation:', error);
+    return { ok: false, message: 'Couldn’t send the test. Please try again.' };
+  }
+}
+
+// The host's personal note for one guest, added to that guest's invitation
+// email. Saving it empty removes it.
+export async function saveInvitationNote(pageId: number, guestId: string, raw: string): Promise<PlusResult<string>> {
+  try {
+    if (!UUID_RE.test(guestId)) return { ok: false, error: 'Guest not found.' };
+    const note = String(raw ?? '').replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX);
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const res = await sql`
+      UPDATE event_guests SET invitation_note = ${note || null}
+      WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+    `;
+    if (!res.rowCount) return { ok: false, error: 'Guest not found.' };
+    revalidatePath('/dashboard', 'layout');
+    return { ok: true, value: note };
+  } catch (error) {
+    console.error('Failed to save invitation note:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Records that the host opened a pre-filled invitation text (SMS or WhatsApp)
+// to this guest from the guest list. The message goes from their own phone,
+// so this marks the tap, not delivery.
+export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
+  try {
+    if (!UUID_RE.test(guestId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return { ok: false };
+    const res = await sql`
+      UPDATE event_guests SET texted_at = NOW(), texted_via = ${via}
+      WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to mark guest texted:', error);
+    return { ok: false };
   }
 }
 

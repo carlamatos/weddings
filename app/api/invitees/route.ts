@@ -3,6 +3,7 @@ import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { parsePageId } from '@/app/lib/data';
 import { MAX_IMPORT, partySize } from '@/app/lib/guest-import';
+import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -42,12 +43,13 @@ export async function POST(request: Request) {
     const email = EMAIL_RE.test(emailRaw) ? emailRaw : null;
     const phone = field(raw?.phone, 40) || null;
     const guests = partySize(raw?.guests);
+    const note = typeof raw?.note === 'string' ? raw.note.replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX) || null : null;
     const key = `${name.toLowerCase()}|${phone ?? ''}`;
     if (!name || (email ? emails.has(email) : namePhones.has(key))) { skipped++; continue; }
 
     await sql`
-      INSERT INTO event_guests (user_page_id, name, email, phone, status, guests)
-      VALUES (${pageId}, ${name}, ${email}, ${phone}, 'invited', ${guests})
+      INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, invitation_note)
+      VALUES (${pageId}, ${name}, ${email}, ${phone}, 'invited', ${guests}, ${note})
     `;
     if (email) emails.add(email);
     namePhones.add(key);

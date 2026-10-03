@@ -28,7 +28,20 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
   });
 }
 
-export type MailMessage = { to: string; subject: string; html: string; headers?: Record<string, string> };
+export type MailMessage = {
+  to: string;
+  subject: string;
+  html: string;
+  headers?: Record<string, string>;
+  from?: string; // defaults to MyGala's no-reply address
+  replyTo?: string;
+};
+
+// A display name that's safe inside a From header: "Ana Silva via MyGala".
+export function fromName(name: string): string {
+  const clean = name.replace(/["<>\\\r\n]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60);
+  return clean ? `"${clean} via MyGala" <no-reply@mygala.ca>` : 'MyGala <no-reply@mygala.ca>';
+}
 
 // Many personalized emails at once (Resend caps a batch at 100). Throws on
 // failure so callers can release whatever they had claimed for this batch.

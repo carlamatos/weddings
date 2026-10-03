@@ -85,6 +85,11 @@ export type Guest = {
   message: string | null;
   created_at: string;
   responded_at: string | null;
+  invited_at: string | null; // last time the invitation email was sent
+  email_opt_out: boolean; // unsubscribed from this event's emails
+  invitation_note: string | null; // the host's personal note in this guest's invitation email
+  texted_at: string | null; // last time the host opened a pre-filled text to this guest
+  texted_via: 'sms' | 'whatsapp' | null;
 };
 
 export type Revenue = {
