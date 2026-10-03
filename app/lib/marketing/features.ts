@@ -23,6 +23,80 @@ export type Feature = {
 
 export const FEATURES: Feature[] = [
   {
+    slug: 'invitations',
+    navLabel: 'Invitations',
+    plan: 'Plus',
+    seo: {
+      title: 'Online Invitations by Email, Text & WhatsApp',
+      description:
+        'Design an invitation that matches your event page, then send it to your guest list by email, text message or WhatsApp — with a personal note for each guest.',
+      keywords: ['online invitations', 'send invitations by email', 'text message invitations', 'whatsapp invitations', 'digital party invitations', 'printable invitations'],
+    },
+    eyebrow: 'Invitations',
+    h1: 'Design your invitation, then send it to every guest',
+    lead:
+      'Create an invitation that matches your event page’s theme — fonts, wording, colours and a background photo — then print it, save it as a PDF, or send it straight to your guest list by email, text message or WhatsApp. Every invitation links to your page, so guests RSVP in one tap.',
+    summary: 'Design a matching invitation and send it by email, text or WhatsApp.',
+    highlights: [
+      { title: 'Matches your page', text: 'The first design uses your theme’s colours and fonts. Change anything, or reset to the theme style in one click.' },
+      { title: 'Email, text or WhatsApp', text: 'Email the designed invitation to the guests you tick, or send a ready-made text from your own phone.' },
+      { title: 'A note for each guest', text: 'Add a personal message for one guest — it appears only in their invitation.' },
+    ],
+    blocks: [
+      {
+        heading: 'Design it in minutes',
+        paragraphs: [
+          'The invitation designer shows a live 5×7 preview as you work. Your event’s name, date, time and place come straight from your page, so they’re always correct.',
+        ],
+        bullets: [
+          'Choose from 14 fonts for the event name and the text.',
+          'Write your own wording: the line above the name, your message and the closing.',
+          'Pick text and accent colours, a background colour, or upload a photo with an optional colour wash.',
+          'Add a QR code that opens your event page, for printed invitations.',
+          'Print it or save it as a PDF at 5×7 inches.',
+        ],
+      },
+      {
+        heading: 'Send it by email',
+        paragraphs: [
+          'Tick the guests you want to invite — everyone, or just the ones who haven’t been invited yet — and MyGala emails each of them your invitation as you designed it, with an RSVP button that opens your page. Send yourself a test first to see it in your own inbox.',
+          'Each email greets the guest by name, comes from “Your name via MyGala”, and replies go straight to your own email address. Guests can unsubscribe from your event’s emails with one click.',
+        ],
+      },
+      {
+        heading: 'Or send it from your phone',
+        paragraphs: [
+          'Next to each guest’s phone number, tap Text or WhatsApp: your phone opens a ready-made message with their name, your event details, their personal note and your RSVP link. Press send, and it comes from your own number, so guests know it’s you. Copy puts the same message on your clipboard for any other app.',
+          'Your guest list shows who was emailed or texted, and when.',
+        ],
+      },
+      {
+        heading: 'Start with your guest list',
+        paragraphs: [
+          'The guest list is free on every plan: import guests from a spreadsheet (CSV), your phone’s contacts or a contacts file (.vcf), or add them one by one. Guests appear as Invited on your RSVP screen and switch to Attending or Declining when they reply.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Build your guest list', text: 'In your dashboard, open Guests → Guest List and import or add your guests.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
+      { title: 'Design your invitation', text: 'Open Guests → Invitations and adjust the fonts, wording, colours and background. Save your design.', dashboard: '/dashboard/invitations', linkLabel: 'Open Invitations' },
+      { title: 'Send yourself a test', text: 'Click “Send me a test” to see the email in your own inbox.' },
+      { title: 'Send it to your guests', text: 'Tick guests and click Email, or tap Text or WhatsApp next to a guest’s phone number.' },
+      { title: 'Watch the RSVPs come in', text: 'Replies appear on your RSVP screen as guests answer on your page.' },
+    ],
+    faqs: [
+      { q: 'Is the guest list free?', a: 'Yes. Building and importing your guest list is free on every plan. Designing and sending invitations is part of MyGala Plus.' },
+      { q: 'Who do the invitation emails come from?', a: 'From “Your name via MyGala”. When a guest replies, the reply goes to your own email address.' },
+      { q: 'Does MyGala send text messages for me?', a: 'No — text and WhatsApp invitations open a ready-made message on your own phone, and you press send. They come from your number, so there’s no cost per message and guests recognise you.' },
+      { q: 'How many guests can I email at once?', a: 'Up to 1,000 guests per send. Guests without an email address, or who unsubscribed, are skipped.' },
+      { q: 'Can I print the invitation?', a: 'Yes. Print it or save it as a PDF at 5×7 inches, with an optional QR code that opens your event page.' },
+      { q: 'What languages are the emails in?', a: 'The email’s greeting and buttons follow your page’s language — English, Spanish or French. Your own wording appears exactly as you wrote it.' },
+    ],
+    cta: { title: 'Invite everyone in one afternoon', text: 'Create your event page, add your guest list, and send invitations that match your page.' },
+    related: ['event-reminder-emails', 'event-templates', 'guest-photo-qr-code'],
+  },
+
+  {
     slug: 'guest-photo-qr-code',
     navLabel: 'Guest Photo QR Code',
     plan: 'Plus',
@@ -437,6 +511,131 @@ export const FEATURES: Feature[] = [
     ],
     cta: { title: 'Answer guests’ questions before they ask', text: 'Create your event page and add the sections your event needs.' },
     related: ['event-templates', 'guest-photo-qr-code', 'custom-domain'],
+  },
+
+  {
+    slug: 'potluck',
+    navLabel: 'Potluck Sign-up',
+    plan: 'Plus',
+    seo: {
+      title: 'Potluck Sign-up Sheet on Your Event Page',
+      description:
+        'Let guests sign up for what they’re bringing right on your event page. See every dish in one list, show it to guests if you like, and export it to CSV.',
+      keywords: ['potluck sign up sheet', 'online potluck sign up', 'potluck organizer', 'what to bring list party', 'potluck form for event'],
+    },
+    eyebrow: 'Potluck',
+    h1: 'A potluck sign-up right on your event page',
+    lead:
+      'No more ten desserts and no salad. Add a Potluck section to your event page and guests tell you what they’re bringing when they visit. You see every entry in your dashboard — and you can choose to show the list to guests so they can fill the gaps.',
+    summary: 'Guests sign up for what they’re bringing, right on your page.',
+    highlights: [
+      { title: 'Right after the RSVP', text: 'The sign-up sits on your event page, so guests reply and pick a dish in one visit.' },
+      { title: 'Show the list, or keep it private', text: 'Let guests see what others are bringing, or keep the entries for your eyes only.' },
+      { title: 'Easy changes', text: 'Guests update their entry by sending the form again with the same email.' },
+    ],
+    blocks: [
+      {
+        heading: 'How it works',
+        paragraphs: [
+          'Guests enter their name, email and what they’re bringing, with an optional note — “gluten-free”, “needs an oven”, “bringing serving spoons”. If they change their mind, they send the form again with the same email and their entry is updated instead of duplicated.',
+          'The section appears on your page right after the RSVP form, in your theme’s style and your page’s language.',
+        ],
+      },
+      {
+        heading: 'Share the list — or don’t',
+        paragraphs: [
+          'Turn on “Show everyone’s entries on your page” and guests see a list of what others are bringing, so they can choose something different. Only first names and last initials are shown — never email addresses.',
+          'Leave it off and only you see the entries, in your dashboard.',
+        ],
+      },
+      {
+        heading: 'Great for',
+        bullets: [
+          'Thanksgiving, Friendsgiving and holiday dinners',
+          'Baby showers, birthday parties and family reunions',
+          'Office lunches, school events and community gatherings',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Upgrade your page to Plus', text: 'The Potluck section is part of MyGala Plus — a one-time payment, no subscription.' },
+      { title: 'Open Potluck', text: 'In your dashboard, choose Potluck in the left menu and switch the section on.', dashboard: '/dashboard/potluck', linkLabel: 'Open Potluck' },
+      { title: 'Decide who sees the list', text: 'Turn on “Show everyone’s entries on your page” if guests should see what others are bringing.' },
+      { title: 'Share your page', text: 'Guests sign up when they RSVP. Entries appear in your dashboard as they come in.' },
+      { title: 'Export the list', text: 'Download every entry as a CSV for your shopping list or seating plan.' },
+    ],
+    faqs: [
+      { q: 'Do guests need an account?', a: 'No. Guests just fill in the form on your event page with their name, email and what they’re bringing.' },
+      { q: 'Can guests change what they’re bringing?', a: 'Yes. Sending the form again with the same email updates their entry.' },
+      { q: 'Will other guests see email addresses?', a: 'Never. If you show the list on your page, it shows first names and last initials only.' },
+      { q: 'Can I remove an entry?', a: 'Yes. Remove any entry from the Potluck screen in your dashboard.' },
+      { q: 'Is the potluck section on by default?', a: 'No. It stays off until you switch it on, so it only appears on events that need it.' },
+    ],
+    cta: { title: 'Plan the menu without the group chat', text: 'Create your event page, upgrade to Plus, and switch on the Potluck section.' },
+    related: ['invitations', 'custom-sections', 'event-reminder-emails'],
+  },
+
+  {
+    slug: 'password-protection',
+    navLabel: 'Password Protection',
+    plan: 'Plus',
+    seo: {
+      title: 'Password-Protected Event Website',
+      description:
+        'Make your event page private: guests enter a password you share to open it, RSVP or share photos. Hidden from search engines while it’s locked.',
+      keywords: ['password protected event website', 'private wedding website', 'private event page', 'password protect party page', 'private RSVP page'],
+    },
+    eyebrow: 'Password protection',
+    h1: 'Keep your event page private',
+    lead:
+      'Turn on password protection and your event page asks for a password before it shows anything. Share the password with your guests along with the link — only they can see the details, RSVP, share photos or join the potluck.',
+    summary: 'Only guests with the password can open your page.',
+    highlights: [
+      { title: 'One password for everyone', text: 'Set a password, share it with your link, and guests enter it once on each device.' },
+      { title: 'Hidden from search', text: 'A locked page is kept out of search engines, and link previews show only “Private event”.' },
+      { title: 'Change it anytime', text: 'A new password asks everyone to enter it again. Turn protection off whenever you like.' },
+    ],
+    blocks: [
+      {
+        heading: 'What guests see',
+        paragraphs: [
+          'Visitors see a simple password screen in your page’s language instead of your event. After entering the right password, the page opens and stays open on that device for 30 days.',
+          'Everything on the page is protected — not just the view. RSVPs, guest photo uploads, song requests and potluck entries also need the password.',
+        ],
+      },
+      {
+        heading: 'Private by design',
+        bullets: [
+          'Locked pages are marked “no index”, so search engines don’t list them.',
+          'Link previews on social apps show “Private event” instead of your details and photo.',
+          'Changing the password signs every guest out, so old passwords stop working right away.',
+          'You always see your own page when you’re signed in.',
+        ],
+      },
+      {
+        heading: 'When to use it',
+        bullets: [
+          'Weddings and family events you don’t want strangers to find.',
+          'Events at a private home address.',
+          'Company and members-only events.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Upgrade your page to Plus', text: 'Password protection is part of MyGala Plus — a one-time payment, no subscription.' },
+      { title: 'Open Password', text: 'In your dashboard, choose Password in the left menu.', dashboard: '/dashboard/password', linkLabel: 'Open Password' },
+      { title: 'Set a password', text: 'Choose a password that’s easy to share and type — at least 4 characters — and switch protection on.' },
+      { title: 'Share it with your link', text: 'Add the password to your invitations, next to your page’s link.' },
+    ],
+    faqs: [
+      { q: 'Do guests need an account?', a: 'No. Guests only enter the password you shared — no sign-up, no email.' },
+      { q: 'Do guests have to enter the password every time?', a: 'No. Once entered, the page stays open on that device for 30 days, unless you change the password.' },
+      { q: 'Can people find my page on Google?', a: 'Not while it’s locked. Password-protected pages are marked so search engines don’t list them.' },
+      { q: 'What happens if I change the password?', a: 'Everyone is asked for the new password the next time they open your page.' },
+      { q: 'Does it work with my custom domain?', a: 'Yes. Protection applies to your page at its mygala.ca address and on your own domain.' },
+    ],
+    cta: { title: 'Share your event only with your guests', text: 'Create your event page, upgrade to Plus, and switch on password protection.' },
+    related: ['custom-domain', 'invitations', 'guest-photo-qr-code'],
   },
 
   {
