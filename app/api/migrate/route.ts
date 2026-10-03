@@ -176,6 +176,14 @@ export async function POST(request: Request) {
       PRIMARY KEY (user_page_id, guest_id, reminder_key, event_date)
     )
   `;
+  // Invitations (Plus): when each guest was last emailed their invitation,
+  // and whether they've unsubscribed from this event's emails (which also
+  // stops further invitations).
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS invited_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS email_opt_out BOOLEAN NOT NULL DEFAULT FALSE`;
+  // The host's personal note for one guest, added to that guest's invitation email.
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS invitation_note TEXT`;
+
   await sql`CREATE INDEX IF NOT EXISTS idx_reminder_deliveries_email ON event_reminder_deliveries (user_page_id, lower(email), reminder_key, event_date)`;
 
   // Email verification / password reset / 2FA. This endpoint accumulates

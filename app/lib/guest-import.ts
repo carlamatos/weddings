@@ -2,15 +2,15 @@
 // files exported from a phone or address book, and the phone's own contact
 // picker. Runs in the browser; /api/invitees validates again on the server.
 
-export type ImportedGuest = { name: string; email?: string; phone?: string; guests: number };
+export type ImportedGuest = { name: string; email?: string; phone?: string; guests: number; note?: string };
 
 export const MAX_PARTY_SIZE = 50;
 export const MAX_IMPORT = 1000;
 
 export const SAMPLE_CSV = [
-  'Name,Email,Guests,Phone',
-  'Jane Doe,jane@example.com,2,+1 555 010 0001',
-  'John Smith,john@example.com,,+1 555 010 0002',
+  'Name,Email,Guests,Phone,Invitation Notes',
+  'Jane Doe,jane@example.com,2,+1 555 010 0001,"Can\'t wait to see you both — the kids are welcome too!"',
+  'John Smith,john@example.com,,+1 555 010 0002,',
 ].join('\n');
 
 export function partySize(raw: unknown): number {
@@ -50,10 +50,12 @@ const HEADERS: Record<keyof ImportedGuest, RegExp> = {
   email: /^e-?mail(\s*address)?$/i,
   guests: /^(amount\s*of\s*)?guests?$|^party(\s*size)?$|^(number\s*of\s*)?(people|guests|seats)$/i,
   phone: /^(phone|mobile|cell)(\s*(number|#))?$|^tel(ephone)?$/i,
+  note: /^(invitation\s*)?notes?$|^(personal\s*)?message$/i,
 };
 
 // Maps CSV rows to guests by their header names (any order, any case). A
-// file without a recognisable header is read as Name, Email, Guests, Phone.
+// file without a recognisable header is read as Name, Email, Guests, Phone,
+// Invitation Notes.
 export function guestsFromCsv(text: string): ImportedGuest[] {
   const rows = parseCsv(text);
   if (!rows.length) return [];
@@ -61,14 +63,15 @@ export function guestsFromCsv(text: string): ImportedGuest[] {
   const col = (key: keyof ImportedGuest) => header.findIndex((h) => HEADERS[key].test(h));
   const hasHeader = col('name') !== -1;
   const idx = hasHeader
-    ? { name: col('name'), email: col('email'), guests: col('guests'), phone: col('phone') }
-    : { name: 0, email: 1, guests: 2, phone: 3 };
+    ? { name: col('name'), email: col('email'), guests: col('guests'), phone: col('phone'), note: col('note') }
+    : { name: 0, email: 1, guests: 2, phone: 3, note: 4 };
   return (hasHeader ? rows.slice(1) : rows)
     .map((r) => ({
       name: (r[idx.name] ?? '').trim(),
       email: idx.email >= 0 ? (r[idx.email] ?? '').trim() || undefined : undefined,
       guests: partySize(idx.guests >= 0 ? r[idx.guests] : ''),
       phone: idx.phone >= 0 ? (r[idx.phone] ?? '').trim() || undefined : undefined,
+      note: idx.note >= 0 ? (r[idx.note] ?? '').trim() || undefined : undefined,
     }))
     .filter((g) => g.name);
 }

@@ -1,9 +1,7 @@
 import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { INVITATION_SETTING, normalizeInvitation, type InvitationDetails } from '@/app/lib/invitation';
-import { getTranslations } from '@/app/lib/translations';
-import { publicPageUrl } from '@/app/lib/share';
-import { eventWhen } from '@/app/ui/themes/event-when';
+import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
+import { invitationDetails } from '@/app/lib/invitation-details';
 import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
@@ -28,24 +26,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
   const design = normalizeInvitation(saved, page.theme_slug);
 
-  // The event's own facts, in the page's language — read-only here.
-  const t = getTranslations(page.language);
-  const when = eventWhen(
-    { eventDate: page.event_date, eventTime: page.event_time, eventEndDate: page.event_end_date, eventEndTime: page.event_end_time },
-    t.dateLocale,
-  );
-  const virtual = page.location === 'virtual';
-  const address = virtual
-    ? ''
-    : page.formatted_address || [page.street_address, page.city, page.country].filter(Boolean).join(', ');
-  const details: InvitationDetails = {
-    name: page.heading || 'Your event',
-    date: when.date,
-    time: when.time,
-    venue: virtual ? t.virtualEvent : page.venue_name || '',
-    address,
-    url: publicPageUrl(page),
-  };
+  const details = invitationDetails(page);
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>

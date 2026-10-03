@@ -85,6 +85,9 @@ export type Guest = {
   message: string | null;
   created_at: string;
   responded_at: string | null;
+  invited_at: string | null; // last time the invitation email was sent
+  email_opt_out: boolean; // unsubscribed from this event's emails
+  invitation_note: string | null; // the host's personal note in this guest's invitation email
 };
 
 export type Revenue = {

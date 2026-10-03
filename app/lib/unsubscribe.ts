@@ -1,11 +1,12 @@
 import { sql } from '@vercel/postgres';
 
-// Turns off event emails for one guest (the RSVP "receive updates" opt-in).
+// Turns off event emails for one guest: updates and reminders (the RSVP
+// "receive updates" opt-in) and any further invitation emails.
 // Returns the event name for the confirmation screen, or null if the guest
 // no longer exists.
 export async function unsubscribeGuest(guestId: string): Promise<string | null> {
   const res = await sql<{ heading: string }>`
-    UPDATE event_guests g SET receive_updates = FALSE
+    UPDATE event_guests g SET receive_updates = FALSE, email_opt_out = TRUE
     FROM user_page up
     WHERE g.id = ${guestId} AND up.id = g.user_page_id
     RETURNING up.heading
