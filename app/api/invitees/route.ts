@@ -8,7 +8,7 @@ import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
-// Adds guests to a page's guest list (Invitations screen, Plus) as
+// Adds guests to a page's guest list (Guests → Guest List, every plan) as
 // "invited": from a CSV, a .vcf file, the phone's contact picker or the
 // add-a-guest form. Guests whose email (or, without one, name + phone) is
 // already on the list are skipped.
@@ -22,7 +22,8 @@ export async function POST(request: Request) {
 
   const page = await sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND user_id = ${session.user.id}`;
   if (!page.rows[0]) return NextResponse.json({ error: 'Page not found' }, { status: 404 });
-  if (page.rows[0].plan_type !== 'paid') return NextResponse.json({ error: 'The guest list is a Plus feature.' }, { status: 403 });
+  // Invitation notes belong to Invitations (Plus); free pages keep the list only.
+  const isPaid = page.rows[0].plan_type === 'paid';
 
   if (!Array.isArray(body.contacts) || body.contacts.length === 0) {
     return NextResponse.json({ error: 'No guests to add.' }, { status: 400 });
@@ -43,7 +44,7 @@ export async function POST(request: Request) {
     const email = EMAIL_RE.test(emailRaw) ? emailRaw : null;
     const phone = field(raw?.phone, 40) || null;
     const guests = partySize(raw?.guests);
-    const note = typeof raw?.note === 'string' ? raw.note.replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX) || null : null;
+    const note = isPaid && typeof raw?.note === 'string' ? raw.note.replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX) || null : null;
     const key = `${name.toLowerCase()}|${phone ?? ''}`;
     if (!name || (email ? emails.has(email) : namePhones.has(key))) { skipped++; continue; }
 

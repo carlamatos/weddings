@@ -15,7 +15,7 @@ import ExtendButton from '@/app/ui/dashboard/extend-button';
 // Dashboard screens a "shortcut" link (/dashboard/livestream, …) can ask for
 // when the user has several events and has to pick one first.
 const SECTIONS: Record<string, string> = {
-  '/rsvp': 'RSVPs', '/guest-photos': 'Guest Photos', '/livestream': 'Live Stream', '/song-requests': 'Song Requests',
+  '/guest-list': 'Guest List', '/rsvp': 'RSVP', '/guest-photos': 'Guest Photos', '/livestream': 'Live Stream', '/song-requests': 'Song Requests',
   '/reminders': 'Reminders', '/custom-sections': 'Custom Sections', '/sponsors': 'Sponsors', '/registry': 'Registry',
   '/domain': 'Domain', '/share': 'Share', '/event-program': 'Event Program', '/potluck': 'Potluck', '/password': 'Password Protection', '/invitations': 'Invitations',
 };

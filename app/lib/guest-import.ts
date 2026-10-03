@@ -1,4 +1,4 @@
-// Guest list import for the Invitations screen: CSV files, vCard (.vcf)
+// Guest list import for Guests → Guest List: CSV files, vCard (.vcf)
 // files exported from a phone or address book, and the phone's own contact
 // picker. Runs in the browser; /api/invitees validates again on the server.
 

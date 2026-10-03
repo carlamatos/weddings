@@ -666,7 +666,7 @@ export async function updateGuestStatus(
   }
 }
 
-// The host removes a guest from the list (Invitations screen).
+// The host removes a guest from the list (Guests → Guest List).
 export async function removeGuest(pageId: number, guestId: string): Promise<{ ok: boolean }> {
   if (!UUID_RE.test(guestId)) return { ok: false };
   const session = await auth();

@@ -46,7 +46,7 @@ export type InvitationDesign = {
 
 export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160 } as const;
 
-// The host's personal note for one guest (Invitations → guest list).
+// The host's personal note for one guest (Guests → Invitations).
 export const INVITATION_NOTE_MAX = 500;
 
 // Event facts shown on the invitation, read-only (from the page).
