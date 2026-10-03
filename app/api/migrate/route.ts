@@ -183,6 +183,11 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS email_opt_out BOOLEAN NOT NULL DEFAULT FALSE`;
   // The host's personal note for one guest, added to that guest's invitation email.
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS invitation_note TEXT`;
+  // When the host last opened a pre-filled text to this guest from the guest
+  // list, and with what ('sms' or 'whatsapp'). The text itself goes from the
+  // host's own phone, so this records the tap, not delivery.
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_via TEXT`;
 
   await sql`CREATE INDEX IF NOT EXISTS idx_reminder_deliveries_email ON event_reminder_deliveries (user_page_id, lower(email), reminder_key, event_date)`;
 

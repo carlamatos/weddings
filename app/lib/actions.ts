@@ -867,6 +867,26 @@ export async function saveInvitationNote(pageId: number, guestId: string, raw: s
   }
 }
 
+// Records that the host opened a pre-filled invitation text (SMS or WhatsApp)
+// to this guest from the guest list. The message goes from their own phone,
+// so this marks the tap, not delivery.
+export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
+  try {
+    if (!UUID_RE.test(guestId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return { ok: false };
+    const res = await sql`
+      UPDATE event_guests SET texted_at = NOW(), texted_via = ${via}
+      WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to mark guest texted:', error);
+    return { ok: false };
+  }
+}
+
 // Saves the owner's own text for one section heading (see section-text.ts).
 // An empty value removes it so the theme's default shows again. Returns what
 // was saved, or null when nothing was.

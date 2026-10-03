@@ -2,8 +2,9 @@
 
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { removeGuest, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
-import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
+import { markGuestTexted, removeGuest, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
+import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
+import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import type { Guest } from '@/app/lib/definitions';
 import {
   MAX_IMPORT,
@@ -32,7 +33,23 @@ const STATUS: Record<string, [string, React.CSSProperties]> = {
   invited: ['Invited', { background: '#EEF0F8', color: '#4A5296' }],
 };
 
-export function GuestListManager({ pageId, guests }: { pageId: number; guests: Guest[] }) {
+const phoneBtn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 999, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 600, textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
+
+export function GuestListManager({
+  pageId,
+  guests,
+  design,
+  details,
+  language,
+  hostName,
+}: {
+  pageId: number;
+  guests: Guest[];
+  design: InvitationDesign;
+  details: InvitationDetails;
+  language?: string | null;
+  hostName?: string;
+}) {
   const router = useRouter();
   const csvRef = useRef<HTMLInputElement>(null);
   const vcfRef = useRef<HTMLInputElement>(null);
@@ -47,6 +64,26 @@ export function GuestListManager({ pageId, guests }: { pageId: number; guests: G
   const [sendNotice, setSendNotice] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const allBoxRef = useRef<HTMLInputElement>(null);
   const [noteFor, setNoteFor] = useState<string | null>(null); // guest whose note is open
+  // Texts opened this session, shown before the server refresh comes back.
+  const [textedNow, setTextedNow] = useState<Record<string, 'sms' | 'whatsapp'>>({});
+  const [copied, setCopied] = useState<string | null>(null);
+
+  const messageFor = (g: Guest) => invitationText({ design, details, language, guestName: g.name, note: g.invitation_note, hostName });
+
+  function onTexted(g: Guest, via: 'sms' | 'whatsapp') {
+    setTextedNow((prev) => ({ ...prev, [g.id]: via }));
+    markGuestTexted(pageId, g.id, via).then((r) => { if (r.ok) router.refresh(); }).catch(() => {});
+  }
+
+  async function copyMessage(g: Guest) {
+    try {
+      await navigator.clipboard.writeText(messageFor(g));
+      setCopied(g.id);
+      setTimeout(() => setCopied((c) => (c === g.id ? null : c)), 2000);
+    } catch {
+      window.prompt('Copy this message:', messageFor(g));
+    }
+  }
   const [noteDraft, setNoteDraft] = useState('');
   const [noteError, setNoteError] = useState('');
   const [savingNote, setSavingNote] = useState(false);
@@ -78,7 +115,7 @@ export function GuestListManager({ pageId, guests }: { pageId: number; guests: G
   // Only guests still on the list and still emailable count as chosen.
   const emailable = guests.filter(canEmail);
   const chosen = emailable.filter((g) => selected.has(g.id));
-  const notInvited = emailable.filter((g) => !g.invited_at);
+  const notInvited = emailable.filter((g) => !g.invited_at && !g.texted_at && !textedNow[g.id]);
   const allChosen = emailable.length > 0 && chosen.length === emailable.length;
 
   useEffect(() => {
@@ -289,9 +326,13 @@ export function GuestListManager({ pageId, guests }: { pageId: number; guests: G
       ) : (
         <>
         <div style={{ border: '1px solid #EDE8E3', background: '#FBF9F7', borderRadius: 10, padding: '14px 16px', marginBottom: 14 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#241F2B' }}>Send invitations by email</p>
+          <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#241F2B' }}>Send invitations</p>
           <p style={{ margin: '0 0 12px', fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
-            Tick the guests to invite. Each one gets your invitation as designed above (your last <strong>saved</strong> design) with an
+            <strong>By text:</strong> tap <strong>Text</strong> or <strong>WhatsApp</strong> next to a guest&rsquo;s phone number to open a
+            ready-made invitation message on your phone — just press send. It comes from your own number, so guests know it&rsquo;s you.
+            <strong> Copy</strong> puts the message on your clipboard for any other app.
+            <br />
+            <strong>By email:</strong> tick the guests to invite. Each one gets your invitation as designed above (your last <strong>saved</strong> design) with an
             RSVP button to your page. Replies to the email go to you. Guests without an email address can&rsquo;t be selected.
           </p>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -307,7 +348,7 @@ export function GuestListManager({ pageId, guests }: { pageId: number; guests: G
           {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
         </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 980 }}>
             <thead>
               <tr>
                 <th style={{ ...cell, width: 36, paddingRight: 0 }}>
@@ -345,15 +386,31 @@ export function GuestListManager({ pageId, guests }: { pageId: number; guests: G
                     </td>
                     <td style={{ ...cell, fontWeight: 500 }}>{g.name}</td>
                     <td style={{ ...cell, color: '#6B6470', overflowWrap: 'anywhere' }}>{g.email || '—'}</td>
-                    <td style={{ ...cell, color: '#6B6470' }}>{g.phone || '—'}</td>
+                    <td style={{ ...cell, color: '#6B6470', minWidth: 150 }}>
+                      <div style={{ marginBottom: 6, whiteSpace: 'nowrap' }}>{g.phone || '—'}</div>
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                        {g.phone && (
+                          <>
+                            <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
+                            <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
+                          </>
+                        )}
+                        <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>
+                      </div>
+                    </td>
                     <td style={{ ...cell, textAlign: 'center' }}>{g.guests || 1}</td>
                     <td style={cell}><span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, ...style }}>{text}</span></td>
                     <td style={{ ...cell, fontSize: 13, color: '#6B6470', whiteSpace: 'nowrap' }}>
                       {g.email_opt_out ? 'Unsubscribed'
                         : !g.email ? 'No email'
                         : !emailOk ? 'Invalid email'
-                        : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }} suppressHydrationWarning>✓ Sent {sentOn(g.invited_at)}</span>
-                        : 'Not sent'}
+                        : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }} suppressHydrationWarning>✓ Emailed {sentOn(g.invited_at)}</span>
+                        : 'Not emailed'}
+                      {(textedNow[g.id] || g.texted_at) && (
+                        <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }} suppressHydrationWarning>
+                          ✓ {(textedNow[g.id] ?? g.texted_via) === 'whatsapp' ? 'WhatsApp' : 'Texted'} {sentOn(textedNow[g.id] ? new Date().toISOString() : g.texted_at!)}
+                        </div>
+                      )}
                     </td>
                     <td style={{ ...cell, maxWidth: 220 }}>
                       {g.invitation_note && (

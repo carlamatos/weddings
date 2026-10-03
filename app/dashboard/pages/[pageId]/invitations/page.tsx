@@ -5,6 +5,7 @@ import { invitationDetails } from '@/app/lib/invitation-details';
 import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
+import { auth } from '@/auth';
 
 export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -27,6 +28,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   const design = normalizeInvitation(saved, page.theme_slug);
 
   const details = invitationDetails(page);
+  const hostName = (await auth())?.user?.name?.trim() || '';
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
@@ -47,7 +49,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
       />
 
       <div style={{ marginTop: 32 }}>
-        <GuestListManager pageId={pageId} guests={guests} />
+        <GuestListManager pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} />
       </div>
     </div>
   );
