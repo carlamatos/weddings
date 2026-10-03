@@ -1,10 +1,10 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { markGuestTexted, removeGuest, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
-import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
-import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
+import { removeGuest } from '@/app/lib/actions';
+import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 import type { Guest } from '@/app/lib/definitions';
 import {
   MAX_IMPORT,
@@ -17,39 +17,12 @@ import {
   pickContacts,
   type ImportedGuest,
 } from '@/app/lib/guest-import';
+import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 
-const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
-const primary: React.CSSProperties = { ...btn, border: 'none', background: '#B6584A', color: '#fff' };
-const input: React.CSSProperties = { padding: '8px 10px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14, fontFamily: 'inherit', color: '#241F2B', minWidth: 0 };
-const cell: React.CSSProperties = { padding: '11px 14px', borderBottom: '1px solid #F0ECE8', fontSize: 14, color: '#241F2B', textAlign: 'left', verticalAlign: 'top' };
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-// Guests the invitation can be emailed to.
-const canEmail = (g: Guest) => !!g.email && EMAIL_RE.test(g.email.trim()) && !g.email_opt_out;
-const sentOn = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-const STATUS: Record<string, [string, React.CSSProperties]> = {
-  attending: ['Attending', { background: '#EAF2EC', color: '#3D6B46' }],
-  not_attending: ['Declining', { background: '#F5EDEA', color: '#8B3A2A' }],
-  invited: ['Invited', { background: '#EEF0F8', color: '#4A5296' }],
-};
-
-const phoneBtn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 999, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 600, textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
-
-export function GuestListManager({
-  pageId,
-  guests,
-  design,
-  details,
-  language,
-  hostName,
-}: {
-  pageId: number;
-  guests: Guest[];
-  design: InvitationDesign;
-  details: InvitationDetails;
-  language?: string | null;
-  hostName?: string;
-}) {
+// Guests → Guest List (every plan): build the list from a spreadsheet, a
+// contacts file, the phone's contacts or by hand, and remove guests. Sending
+// invitations to them is on the Invitations screen (Plus).
+export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string }) {
   const router = useRouter();
   const csvRef = useRef<HTMLInputElement>(null);
   const vcfRef = useRef<HTMLInputElement>(null);
@@ -59,117 +32,6 @@ export function GuestListManager({
   const [notice, setNotice] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [form, setForm] = useState({ name: '', email: '', guests: '1', phone: '', note: '' });
   const [removing, setRemoving] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [sending, setSending] = useState<'guests' | 'test' | null>(null);
-  const [sendNotice, setSendNotice] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
-  const allBoxRef = useRef<HTMLInputElement>(null);
-  const [noteFor, setNoteFor] = useState<string | null>(null); // guest whose note is open
-  // Texts opened this session, shown before the server refresh comes back.
-  const [textedNow, setTextedNow] = useState<Record<string, 'sms' | 'whatsapp'>>({});
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const messageFor = (g: Guest) => invitationText({ design, details, language, guestName: g.name, note: g.invitation_note, hostName });
-
-  function onTexted(g: Guest, via: 'sms' | 'whatsapp') {
-    setTextedNow((prev) => ({ ...prev, [g.id]: via }));
-    markGuestTexted(pageId, g.id, via).then((r) => { if (r.ok) router.refresh(); }).catch(() => {});
-  }
-
-  async function copyMessage(g: Guest) {
-    try {
-      await navigator.clipboard.writeText(messageFor(g));
-      setCopied(g.id);
-      setTimeout(() => setCopied((c) => (c === g.id ? null : c)), 2000);
-    } catch {
-      window.prompt('Copy this message:', messageFor(g));
-    }
-  }
-  const [noteDraft, setNoteDraft] = useState('');
-  const [noteError, setNoteError] = useState('');
-  const [savingNote, setSavingNote] = useState(false);
-
-  function openNote(g: Guest) {
-    setNoteFor(noteFor === g.id ? null : g.id);
-    setNoteDraft(g.invitation_note ?? '');
-    setNoteError('');
-  }
-
-  async function saveNote(guestId: string, value: string) {
-    setSavingNote(true);
-    setNoteError('');
-    let result: Awaited<ReturnType<typeof saveInvitationNote>>;
-    try {
-      result = await saveInvitationNote(pageId, guestId, value);
-    } catch {
-      result = { ok: false, error: 'Couldn’t save the note. Please check your connection.' };
-    }
-    setSavingNote(false);
-    if (!result.ok) {
-      setNoteError(result.error);
-      return;
-    }
-    setNoteFor(null);
-    router.refresh();
-  }
-
-  // Only guests still on the list and still emailable count as chosen.
-  const emailable = guests.filter(canEmail);
-  const chosen = emailable.filter((g) => selected.has(g.id));
-  const notInvited = emailable.filter((g) => !g.invited_at && !g.texted_at && !textedNow[g.id]);
-  const allChosen = emailable.length > 0 && chosen.length === emailable.length;
-
-  useEffect(() => {
-    if (allBoxRef.current) allBoxRef.current.indeterminate = chosen.length > 0 && !allChosen;
-  }, [chosen.length, allChosen]);
-
-  function toggle(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-
-  async function sendToChosen() {
-    if (!chosen.length) return;
-    const again = chosen.filter((g) => g.invited_at).length;
-    const confirmText =
-      `Email your invitation to ${chosen.length} guest${chosen.length === 1 ? '' : 's'}?` +
-      (again ? `\n\n${again} of them already received it and will get it again.` : '');
-    if (!window.confirm(confirmText)) return;
-    setSending('guests');
-    setSendNotice(null);
-    let result: Awaited<ReturnType<typeof sendInvitations>>;
-    try {
-      result = await sendInvitations(pageId, chosen.map((g) => g.id));
-    } catch {
-      result = { ok: false, error: 'Couldn’t send the invitations. Please check your connection and try again.' };
-    }
-    setSending(null);
-    if (!result.ok) {
-      setSendNotice({ kind: 'error', text: result.error });
-      router.refresh();
-      return;
-    }
-    const skipped = result.skipped ? ` ${result.skipped} skipped (no email address, or the same email twice).` : '';
-    setSendNotice({ kind: 'ok', text: `Invitation sent to ${result.sent} guest${result.sent === 1 ? '' : 's'}.${skipped}` });
-    setSelected(new Set());
-    router.refresh();
-  }
-
-  async function sendTest() {
-    setSending('test');
-    setSendNotice(null);
-    let result: { ok: boolean; message: string };
-    try {
-      result = await sendTestInvitation(pageId);
-    } catch {
-      result = { ok: false, message: 'Couldn’t send the test. Please check your connection and try again.' };
-    }
-    setSending(null);
-    setSendNotice({ kind: result.ok ? 'ok' : 'error', text: result.message });
-  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- browser capability, only known after mount
@@ -241,24 +103,32 @@ export function GuestListManager({
   async function addOne(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim()) return;
-    const ok = await send([{ name: form.name, email: form.email || undefined, phone: form.phone || undefined, guests: partySize(form.guests), note: form.note.trim() || undefined }]);
+    const note = isPaid ? form.note.trim() || undefined : undefined;
+    const ok = await send([{ name: form.name, email: form.email || undefined, phone: form.phone || undefined, guests: partySize(form.guests), note }]);
     if (ok) setForm({ name: '', email: '', guests: '1', phone: '', note: '' });
   }
 
   async function remove(g: Guest) {
     if (!window.confirm(`Remove ${g.name} from your guest list? Their RSVP, if any, is removed too.`)) return;
     setRemoving(g.id);
-    const result = await removeGuest(pageId, g.id);
+    let ok = false;
+    try {
+      ok = (await removeGuest(pageId, g.id)).ok;
+    } catch {
+      ok = false;
+    }
     setRemoving(null);
-    if (result.ok) router.refresh();
+    if (ok) router.refresh();
     else setNotice({ kind: 'error', text: 'Could not remove that guest.' });
   }
 
+  const totalPeople = guests.reduce((sum, g) => sum + (g.guests || 1), 0);
+
   return (
-    <section style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: 22 }}>
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Guest list</h2>
+    <section style={card}>
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Add guests</h2>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
-        Add the people you&rsquo;re inviting. They appear as <strong>Invited</strong> on your RSVPs screen and switch to Attending or
+        Add the people you&rsquo;re inviting. They appear as <strong>Invited</strong> on your RSVP screen and switch to Attending or
         Declining when they reply on your page with the same email.
       </p>
 
@@ -277,7 +147,7 @@ export function GuestListManager({
           <li><strong>Android (Chrome):</strong> open this page on your phone and tap “Choose from my phone’s contacts”.</li>
           <li><strong>iPhone:</strong> in the Contacts app, tap <em>Lists</em>, touch and hold a list (for example one you made for this event) and choose <em>Export</em> → <em>Save to Files</em>. For one person, open the contact and tap <em>Share Contact</em>. Then tap “Upload contacts (.vcf)” here and pick the file.</li>
           <li><strong>Google Contacts:</strong> select people → <em>Export</em> → vCard or Google CSV, then upload the file.</li>
-          <li><strong>Outlook / Excel:</strong> save as CSV with the columns Name, Email, Guests, Phone and, optionally, Invitation Notes (see the sample). Guests left blank count as 1.</li>
+          <li><strong>Outlook / Excel:</strong> save as CSV with the columns Name, Email, Guests, Phone{isPaid ? ' and, optionally, Invitation Notes' : ''} (see the sample). Guests left blank count as 1.</li>
         </ul>
       </details>
 
@@ -288,7 +158,7 @@ export function GuestListManager({
           </p>
           <ul style={{ margin: '0 0 12px', paddingLeft: 20, fontSize: 13, color: '#6B6470' }}>
             {pending.guests.slice(0, 5).map((g, i) => (
-              <li key={i}>{g.name}{g.email ? ` · ${g.email}` : ''}{g.guests > 1 ? ` · party of ${g.guests}` : ''}{g.phone ? ` · ${g.phone}` : ''}{g.note ? ' · 📝 note' : ''}</li>
+              <li key={i}>{g.name}{g.email ? ` · ${g.email}` : ''}{g.guests > 1 ? ` · party of ${g.guests}` : ''}{g.phone ? ` · ${g.phone}` : ''}{isPaid && g.note ? ' · 📝 note' : ''}</li>
             ))}
             {pending.guests.length > 5 && <li>…and {pending.guests.length - 5} more</li>}
           </ul>
@@ -303,168 +173,68 @@ export function GuestListManager({
 
       {notice && <p role="status" style={{ fontSize: 14, margin: '0 0 14px', color: notice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{notice.text}</p>}
 
-      <form onSubmit={addOne} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 2fr) minmax(140px, 2fr) 80px minmax(110px, 1.5fr) auto', gap: 8, marginBottom: 18 }} className="guest-add-form">
+      <form onSubmit={addOne} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 2fr) minmax(140px, 2fr) 80px minmax(110px, 1.5fr) auto', gap: 8, marginBottom: 22 }} className="guest-add-form">
         <input aria-label="Name" placeholder="Name" style={input} value={form.name} maxLength={120} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
         <input aria-label="Email" placeholder="Email" type="email" style={input} value={form.email} maxLength={254} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         <input aria-label="Number of guests" title="Number of guests" type="number" min={1} max={MAX_PARTY_SIZE} style={input} value={form.guests} onChange={(e) => setForm({ ...form, guests: e.target.value })} />
         <input aria-label="Phone" placeholder="Phone" type="tel" style={input} value={form.phone} maxLength={40} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
         <button type="submit" style={btn} disabled={busy || !form.name.trim()}>+ Add guest</button>
-        <textarea
-          aria-label="Invitation notes"
-          placeholder="Invitation notes (optional) — a personal message added to this guest's invitation email"
-          rows={2}
-          maxLength={INVITATION_NOTE_MAX}
-          style={{ ...input, gridColumn: '1 / -1', resize: 'vertical', lineHeight: 1.5 }}
-          value={form.note}
-          onChange={(e) => setForm({ ...form, note: e.target.value })}
-        />
+        {isPaid && (
+          <textarea
+            aria-label="Invitation notes"
+            placeholder="Invitation notes (optional) — a personal message added to this guest's invitation"
+            rows={2}
+            maxLength={INVITATION_NOTE_MAX}
+            style={{ ...input, gridColumn: '1 / -1', resize: 'vertical', lineHeight: 1.5 }}
+            value={form.note}
+            onChange={(e) => setForm({ ...form, note: e.target.value })}
+          />
+        )}
       </form>
       <style>{`@media (max-width: 700px) { .guest-add-form { grid-template-columns: 1fr 1fr !important; } }`}</style>
+
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 10 }}>
+        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>
+          Your guests {guests.length > 0 && <span style={{ fontSize: 14, fontWeight: 500, color: '#6B6470' }}>· {guests.length} {guests.length === 1 ? 'entry' : 'entries'}, {totalPeople} {totalPeople === 1 ? 'person' : 'people'}</span>}
+        </h2>
+        {guests.length > 0 && (
+          <Link href={invitationsHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>
+            {isPaid ? 'Send invitations →' : 'Send invitations by email, text or WhatsApp with Plus →'}
+          </Link>
+        )}
+      </div>
 
       {guests.length === 0 ? (
         <p style={{ fontSize: 14, color: '#9A8F8C', margin: 0 }}>Your guest list is empty.</p>
       ) : (
-        <>
-        <div style={{ border: '1px solid #EDE8E3', background: '#FBF9F7', borderRadius: 10, padding: '14px 16px', marginBottom: 14 }}>
-          <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#241F2B' }}>Send invitations</p>
-          <p style={{ margin: '0 0 12px', fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
-            <strong>By text:</strong> tap <strong>Text</strong> or <strong>WhatsApp</strong> next to a guest&rsquo;s phone number to open a
-            ready-made invitation message on your phone — just press send. It comes from your own number, so guests know it&rsquo;s you.
-            <strong> Copy</strong> puts the message on your clipboard for any other app.
-            <br />
-            <strong>By email:</strong> tick the guests to invite. Each one gets your invitation as designed above (your last <strong>saved</strong> design) with an
-            RSVP button to your page. Replies to the email go to you. Guests without an email address can&rsquo;t be selected.
-          </p>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!emailable.length} onClick={() => setSelected(new Set(emailable.map((g) => g.id)))}>Select all ({emailable.length})</button>
-            <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>Select not yet invited ({notInvited.length})</button>
-            {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>Clear</button>}
-            <span style={{ flex: '1 1 auto' }} />
-            <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
-            <button type="button" style={{ ...primary, opacity: chosen.length ? 1 : 0.5 }} disabled={!chosen.length || sending !== null} onClick={sendToChosen}>
-              {sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Send to ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Send invitations'}
-            </button>
-          </div>
-          {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
-        </div>
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 980 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
             <thead>
               <tr>
-                <th style={{ ...cell, width: 36, paddingRight: 0 }}>
-                  <input
-                    ref={allBoxRef}
-                    type="checkbox"
-                    aria-label="Select all guests with an email"
-                    checked={allChosen}
-                    disabled={!emailable.length}
-                    onChange={() => setSelected(allChosen ? new Set() : new Set(emailable.map((g) => g.id)))}
-                    style={{ width: 16, height: 16, accentColor: '#B6584A', cursor: 'pointer' }}
-                  />
-                </th>
-                {['Name', 'Email', 'Phone', 'Guests', 'Status', 'Invitation', 'Invitation notes', ''].map((h) => (
-                  <th key={h} style={{ ...cell, fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B6470' }}>{h}</th>
-                ))}
+                {['Name', 'Email', 'Phone', 'Guests', 'Status', ''].map((h) => <th key={h} style={headCell}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
               {guests.map((g) => {
                 const [text, style] = STATUS[g.status] ?? STATUS.invited;
-                const emailOk = canEmail(g);
                 return (
-                  <Fragment key={g.id}>
-                  <tr style={{ background: emailOk && selected.has(g.id) ? '#FBF3F1' : undefined }}>
-                    <td style={{ ...cell, paddingRight: 0 }}>
-                      <input
-                        type="checkbox"
-                        aria-label={`Select ${g.name}`}
-                        checked={emailOk && selected.has(g.id)}
-                        disabled={!emailOk}
-                        onChange={() => toggle(g.id)}
-                        style={{ width: 16, height: 16, accentColor: '#B6584A', cursor: emailOk ? 'pointer' : 'not-allowed' }}
-                      />
-                    </td>
+                  <tr key={g.id}>
                     <td style={{ ...cell, fontWeight: 500 }}>{g.name}</td>
                     <td style={{ ...cell, color: '#6B6470', overflowWrap: 'anywhere' }}>{g.email || '—'}</td>
-                    <td style={{ ...cell, color: '#6B6470', minWidth: 150 }}>
-                      <div style={{ marginBottom: 6, whiteSpace: 'nowrap' }}>{g.phone || '—'}</div>
-                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                        {g.phone && (
-                          <>
-                            <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
-                            <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
-                          </>
-                        )}
-                        <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>
-                      </div>
-                    </td>
+                    <td style={{ ...cell, color: '#6B6470', whiteSpace: 'nowrap' }}>{g.phone || '—'}</td>
                     <td style={{ ...cell, textAlign: 'center' }}>{g.guests || 1}</td>
-                    <td style={cell}><span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 999, fontSize: 12, fontWeight: 600, ...style }}>{text}</span></td>
-                    <td style={{ ...cell, fontSize: 13, color: '#6B6470', whiteSpace: 'nowrap' }}>
-                      {g.email_opt_out ? 'Unsubscribed'
-                        : !g.email ? 'No email'
-                        : !emailOk ? 'Invalid email'
-                        : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }} suppressHydrationWarning>✓ Emailed {sentOn(g.invited_at)}</span>
-                        : 'Not emailed'}
-                      {(textedNow[g.id] || g.texted_at) && (
-                        <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }} suppressHydrationWarning>
-                          ✓ {(textedNow[g.id] ?? g.texted_via) === 'whatsapp' ? 'WhatsApp' : 'Texted'} {sentOn(textedNow[g.id] ? new Date().toISOString() : g.texted_at!)}
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ ...cell, maxWidth: 220 }}>
-                      {g.invitation_note && (
-                        <p title={g.invitation_note} style={{ margin: '0 0 4px', fontSize: 13, color: '#6B6470', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{g.invitation_note}</p>
-                      )}
-                      <button type="button" onClick={() => openNote(g)} aria-expanded={noteFor === g.id} style={{ background: 'none', border: 'none', padding: 0, fontSize: 13, fontWeight: 600, color: '#B6584A', cursor: 'pointer', fontFamily: 'inherit' }}>
-                        {g.invitation_note ? '✎ Edit note' : '+ Add note'}
-                      </button>
-                    </td>
+                    <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>
                     <td style={{ ...cell, textAlign: 'right' }}>
                       <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => remove(g)}>
                         {removing === g.id ? 'Removing…' : 'Remove'}
                       </button>
                     </td>
                   </tr>
-                  {noteFor === g.id && (
-                    <tr>
-                      <td colSpan={9} style={{ ...cell, background: '#FBF9F7' }}>
-                        <label htmlFor={`note-${g.id}`} style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 6 }}>
-                          Invitation notes for {g.name}
-                        </label>
-                        <textarea
-                          id={`note-${g.id}`}
-                          rows={3}
-                          maxLength={INVITATION_NOTE_MAX}
-                          autoFocus
-                          value={noteDraft}
-                          onChange={(e) => setNoteDraft(e.target.value)}
-                          placeholder="e.g. Kids are very welcome — we'll have a play corner!"
-                          style={{ ...input, width: '100%', boxSizing: 'border-box', resize: 'vertical', lineHeight: 1.5 }}
-                        />
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 8 }}>
-                          <button type="button" style={{ ...primary, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => saveNote(g.id, noteDraft)}>
-                            {savingNote ? 'Saving…' : 'Save note'}
-                          </button>
-                          <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => setNoteFor(null)}>Cancel</button>
-                          {g.invitation_note && (
-                            <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => saveNote(g.id, '')}>Remove note</button>
-                          )}
-                          <span style={{ fontSize: 12, color: '#9A8F8C', marginLeft: 'auto' }}>
-                            Shown only in {g.name}&rsquo;s invitation email · {noteDraft.length}/{INVITATION_NOTE_MAX}
-                          </span>
-                        </div>
-                        {noteError && <p role="alert" style={{ margin: '8px 0 0', fontSize: 13, color: '#B91C1C' }}>{noteError}</p>}
-                      </td>
-                    </tr>
-                  )}
-                  </Fragment>
                 );
               })}
             </tbody>
           </table>
         </div>
-        </>
       )}
     </section>
   );

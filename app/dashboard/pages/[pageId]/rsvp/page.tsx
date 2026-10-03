@@ -21,7 +21,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 20px', fontFamily: 'system-ui' }}>Guests</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 20px', fontFamily: 'system-ui' }}>RSVP</h1>
 
       <SectionToggle
         pageId={pageId}
@@ -41,8 +41,8 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
       {guests.length === 0 ? (
         <div style={{ padding: '48px 0', textAlign: 'center', color: '#9A8F8C', fontFamily: 'system-ui', fontSize: 15 }}>
-          No guests yet — share your event page, or add your guest list in{' '}
-          <Link href={pagePath(pageId, '/invitations')} style={{ color: '#B6584A' }}>Invitations</Link>.
+          No guests yet — share your event page, or add your guests in{' '}
+          <Link href={pagePath(pageId, '/guest-list')} style={{ color: '#B6584A' }}>Guest List</Link>.
         </div>
       ) : (
         <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #EDE8E3', background: '#fff' }}>

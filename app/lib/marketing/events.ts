@@ -150,7 +150,7 @@ export const EVENT_TYPES: EventType[] = [
     featureSlugs: ['custom-sections', 'livestream', 'event-reminder-emails', 'custom-domain', 'guest-photo-qr-code', 'event-page-translations'],
     faqs: [
       { q: 'Can I list sponsors on my event website?', a: 'Yes. With Plus, add up to 30 sponsors with a logo or photo and a short description each.' },
-      { q: 'Can I export the attendee list?', a: 'Yes. Download your guest list as a CSV file from the RSVPs screen at any time.' },
+      { q: 'Can I export the attendee list?', a: 'Yes. Download your guest list as a CSV file from the RSVP screen (under Guests) at any time.' },
       { q: 'Can attendees watch remotely?', a: 'Yes. Add a YouTube, Vimeo, Twitch or Facebook stream to play on your page, or link to Zoom, Teams or Google Meet.' },
       { q: 'Can we use our company’s domain?', a: 'Yes, with Plus. Point a domain you own at your event page; SSL is set up automatically.' },
       { q: 'Is there a monthly fee?', a: 'No. MyGala Plus is a one-time payment that unlocks every premium feature for 15 months.' },

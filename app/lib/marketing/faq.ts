@@ -46,7 +46,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
       { q: 'How do guests RSVP?', a: 'They fill in the RSVP form on your page with their name, email, whether they’re attending, how many guests are coming and an optional note. Replies appear instantly in your dashboard.' },
       { q: 'Can one guest RSVP for a group or family?', a: 'Yes. The form asks how many guests are coming, so one person can reply for their whole party.' },
       { q: 'What if a guest needs to change their RSVP?', a: 'They can submit the form again with the same email address — their previous answer is updated rather than counted twice.' },
-      { q: 'Can I download my guest list?', a: 'Yes. Export all RSVPs to a CSV file from the RSVPs screen, ready for a spreadsheet, seating plan or check-in list.' },
+      { q: 'Can I download my guest list?', a: 'Yes. Export all RSVPs to a CSV file from the RSVP screen (under Guests), ready for a spreadsheet, seating plan or check-in list.' },
       { q: 'How do I set an RSVP deadline?', a: 'Mention your deadline in your page description or a custom section. Automatic reminder emails (Plus) are a good way to nudge guests before it.' },
     ],
   },
