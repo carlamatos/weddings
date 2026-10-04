@@ -30,7 +30,7 @@ export default async function Page() {
                     </p>
                 </div>
             ) : (
-                <SubscribeForm prepaid={prepaid} />
+                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} />
             )}
         </div>
     );

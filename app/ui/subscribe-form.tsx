@@ -55,9 +55,11 @@ function slugify(text: string): string {
 const FREE_POINTS = ['Every theme', 'RSVPs, guest list & guest count', 'Countdown, details & event program'];
 const PLUS_POINTS = ['Invitations by email, text & WhatsApp', 'Guest photo uploads & QR code', 'Livestream, reminders & song requests', 'Potluck, custom sections, sponsors & registry', 'Password protection & custom domain', 'No MyGala branding, priority support'];
 
+// accountEmail: the signed-in account's email — the contact email starts as
+// this, and the user can change it.
 // prepaid: Plus was already bought before this account had a page, so this
 // page gets it without another payment.
-export default function Form({ prepaid = false }: { prepaid?: boolean }) {
+export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?: boolean; accountEmail?: string }) {
   const [plan, setPlan] = useState<'free' | 'plus'>(prepaid ? 'plus' : 'free');
   const [eventType, setEventType] = useState<EventCategory>('wedding');
   const [location, setLocation] = useState<'address' | 'virtual'>('address');
@@ -81,7 +83,7 @@ export default function Form({ prepaid = false }: { prepaid?: boolean }) {
     eventEndTime: '',
     themeSlug: 'quiet-coastal',
     location: 'address',
-    email: '',
+    email: accountEmail,
     phone: '',
     description: '',
     url: '',
