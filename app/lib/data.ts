@@ -2,7 +2,7 @@ import { sql } from '@vercel/postgres';
 import { maxPagesPerAccount } from './plans';
 import { arePotluckEntriesPublic, isPotluckOn, publicName, POTLUCK_MAX_ENTRIES, type PotluckEntry, type PotluckProps } from './potluck';
 import { signPageId } from './page-token';
-import { giftExchangeDetails, isGiftExchangeOn, GIFT_MAX_PARTICIPANTS, type GiftExchangeProps, type GiftParticipant } from './gift-exchange';
+import { giftExchangeDetails, isGiftExchangeOn, GIFT_MAX_PARTICIPANTS, type GiftExchangeProps, type GiftExclusion, type GiftParticipant } from './gift-exchange';
 import { expireIfPast } from './plan-expiry';
 import {
   Revenue,
@@ -277,6 +277,16 @@ export async function fetchGiftParticipants(pageId: number | string): Promise<Gi
     return data.rows;
   } catch (error) {
     console.error('Failed to fetch gift exchange participants:', error);
+    return [];
+  }
+}
+
+export async function fetchGiftExclusions(pageId: number | string): Promise<GiftExclusion[]> {
+  try {
+    const data = await sql<GiftExclusion>`SELECT id, a_id, b_id FROM page_gift_exclusions WHERE user_page_id = ${pageId} ORDER BY id`;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch gift exchange exclusions:', error);
     return [];
   }
 }

@@ -164,6 +164,19 @@ export async function POST(request: Request) {
   `;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_page_gift_exchange_email ON page_gift_exchange (user_page_id, (lower(email))) WHERE email IS NOT NULL`;
   await sql`CREATE INDEX IF NOT EXISTS idx_page_gift_exchange_page ON page_gift_exchange (user_page_id)`;
+  // Pairs who must not draw each other (couples, family…), either way round.
+  // Stored with a_id < b_id so each pair is listed once.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_gift_exclusions (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      a_id INTEGER NOT NULL REFERENCES page_gift_exchange(id) ON DELETE CASCADE,
+      b_id INTEGER NOT NULL REFERENCES page_gift_exchange(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CHECK (a_id < b_id),
+      UNIQUE (user_page_id, a_id, b_id)
+    )
+  `;
 
   // Sponsors became off-by-default on 2026-10-02: keep them showing on pages
   // that already had sponsors then and never touched the switch. Limited to

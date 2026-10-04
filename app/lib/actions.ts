@@ -24,7 +24,7 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchPageSettings } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isReservedSlug } from './reserved-slugs';
@@ -1029,7 +1029,11 @@ export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count:
       const rows = await sql<{ id: number }>`SELECT id FROM page_gift_exchange WHERE user_page_id = ${owned.value} ORDER BY id`;
       const ids = rows.rows.map((r) => r.id);
       if (ids.length < GIFT_MIN_TO_DRAW) return { ok: false, error: `At least ${GIFT_MIN_TO_DRAW} people are needed to draw names.` };
-      const pairs = drawCycle(ids, randomInt);
+      const exclusions = (await fetchGiftExclusions(owned.value)).map((e) => [e.a_id, e.b_id] as [number, number]);
+      const pairs = drawCycle(ids, randomInt, exclusions);
+      if (!pairs) {
+        return { ok: false, error: 'No draw can keep every “don’t pair” couple apart. Remove a pair, or add more people to the gift exchange.' };
+      }
       const givers = [...pairs.keys()];
       const giftees = givers.map((g) => pairs.get(g)!);
       await sql`
@@ -1048,6 +1052,45 @@ export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count:
     return { ok: false, error: 'People were joining while names were drawn. Please draw again.' };
   } catch (error) {
     console.error('Failed to draw gift exchange names:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Two participants who must not draw each other (a couple, family…). Allowed
+// at any time; after a draw, the host is told to draw again for it to apply.
+export async function addGiftExclusion(pageId: number, aId: number, bId: number): Promise<PlusResult<{ redrawNeeded: boolean }>> {
+  try {
+    if (!Number.isInteger(aId) || !Number.isInteger(bId) || aId === bId) return { ok: false, error: 'Choose two different people.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const [a, b] = aId < bId ? [aId, bId] : [bId, aId];
+    const people = await sql<{ id: number; giftee_id: number | null }>`
+      SELECT id, giftee_id FROM page_gift_exchange WHERE user_page_id = ${owned.value} AND id IN (${a}, ${b})`;
+    if (people.rows.length !== 2) return { ok: false, error: 'Those people aren’t in this gift exchange.' };
+    const res = await sql`
+      INSERT INTO page_gift_exclusions (user_page_id, a_id, b_id) VALUES (${owned.value}, ${a}, ${b})
+      ON CONFLICT (user_page_id, a_id, b_id) DO NOTHING`;
+    if (!res.rowCount) return { ok: false, error: 'Those two are already kept apart.' };
+    // Does the current draw (if any) put them together?
+    const redrawNeeded = people.rows.some((p) => p.giftee_id === a || p.giftee_id === b);
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { redrawNeeded } };
+  } catch (error) {
+    console.error('Failed to add gift exchange exclusion:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+export async function removeGiftExclusion(pageId: number, exclusionId: number): Promise<PlusResult<null>> {
+  try {
+    if (!Number.isInteger(exclusionId)) return { ok: false, error: 'Not found.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`DELETE FROM page_gift_exclusions WHERE id = ${exclusionId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to remove gift exchange exclusion:', error);
     return { ok: false, error: GENERIC_PLUS_ERROR };
   }
 }

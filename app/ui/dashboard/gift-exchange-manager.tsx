@@ -3,11 +3,13 @@
 import { Fragment, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  addGiftExclusion,
   addGiftParticipant,
   addGiftParticipantsFromGuests,
   clearGiftDraw,
   drawGiftNames,
   markGiftTexted,
+  removeGiftExclusion,
   removeGiftParticipant,
   saveGiftExchangeDetails,
   sendGiftExchangeEmails,
@@ -58,6 +60,7 @@ export function GiftExchangeManager({
   participants,
   guests,
   drawn,
+  exclusions,
   eventName,
   language,
   hostName,
@@ -67,6 +70,7 @@ export function GiftExchangeManager({
   participants: GiftRow[];
   guests: { id: string; name: string; email: string | null; inExchange: boolean }[];
   drawn: boolean;
+  exclusions: { id: number; a: number; b: number }[]; // pairs kept apart in the draw
   eventName: string;
   language?: string | null;
   hostName?: string;
@@ -85,6 +89,33 @@ export function GiftExchangeManager({
   const [chosenGuests, setChosenGuests] = useState<Set<string>>(new Set());
   const [busy, setBusy] = useState<string | null>(null);
   const [listNotice, setListNotice] = useState<Notice>(null);
+
+  // Pairs kept apart (couples, family)
+  const [apart, setApart] = useState<{ a: string; b: string }>({ a: '', b: '' });
+  const [apartNotice, setApartNotice] = useState<Notice>(null);
+  const nameOf = (id: number) => participants.find((p) => p.id === id)?.name ?? 'Someone';
+
+  async function keepApart(e: React.FormEvent) {
+    e.preventDefault();
+    const a = Number(apart.a), b = Number(apart.b);
+    if (!a || !b || a === b) { setApartNotice({ kind: 'error', text: 'Choose two different people.' }); return; }
+    setApartNotice(null);
+    const result = await run('apart', () => addGiftExclusion(pageId, a, b));
+    if (result?.ok) {
+      setApart({ a: '', b: '' });
+      setApartNotice(result.value.redrawNeeded
+        ? { kind: 'error', text: `${nameOf(a)} and ${nameOf(b)} drew each other in the current draw — draw again so they’re kept apart.` }
+        : { kind: 'ok', text: `${nameOf(a)} and ${nameOf(b)} won’t draw each other.${drawn ? ' The current draw already keeps them apart.' : ''}` });
+      router.refresh();
+    } else setApartNotice({ kind: 'error', text: result && !result.ok ? result.error : 'Couldn’t save. Please try again.' });
+  }
+
+  async function unpair(id: number) {
+    setApartNotice(null);
+    const result = await run(`unpair-${id}`, () => removeGiftExclusion(pageId, id));
+    if (result?.ok) router.refresh();
+    else setApartNotice({ kind: 'error', text: result && !result.ok ? result.error : 'Couldn’t remove. Please try again.' });
+  }
 
   // Draw + sending
   const [drawNotice, setDrawNotice] = useState<Notice>(null);
@@ -267,6 +298,42 @@ export function GiftExchangeManager({
           </>
         )}
         <NoticeLine notice={listNotice} />
+
+        {/* Couples and others who shouldn't draw each other */}
+        {participants.length >= 2 && (
+          <div style={{ border: '1px solid #EDE8E3', borderRadius: 10, padding: '12px 14px', margin: '16px 0 0' }}>
+            <p style={{ margin: '0 0 4px', fontSize: 15, fontWeight: 600, color: '#241F2B' }}>Keep apart</p>
+            <p style={{ margin: '0 0 10px', fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
+              Couples (or anyone else) you add here won&rsquo;t draw each other, either way round. For a family of three, add each pair.
+            </p>
+            <form onSubmit={keepApart} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+              <select aria-label="First person" style={{ ...input, minWidth: 170 }} value={apart.a} onChange={(e) => setApart({ ...apart, a: e.target.value })}>
+                <option value="">Choose someone…</option>
+                {participants.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <span style={{ fontSize: 13, color: '#6B6470' }}>and</span>
+              <select aria-label="Second person" style={{ ...input, minWidth: 170 }} value={apart.b} onChange={(e) => setApart({ ...apart, b: e.target.value })}>
+                <option value="">Choose someone…</option>
+                {participants.filter((p) => String(p.id) !== apart.a).map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              <button type="submit" style={{ ...btn, opacity: apart.a && apart.b ? 1 : 0.5 }} disabled={!apart.a || !apart.b || busy === 'apart'}>
+                {busy === 'apart' ? 'Saving…' : 'Keep these two apart'}
+              </button>
+            </form>
+            {exclusions.length > 0 && (
+              <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {exclusions.map((x) => (
+                  <li key={x.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 6px 4px 12px', borderRadius: 999, background: '#F5EDEA', color: '#8B3A2A', fontSize: 13, fontWeight: 600 }}>
+                    {nameOf(x.a)} &amp; {nameOf(x.b)}
+                    <button type="button" onClick={() => unpair(x.id)} disabled={busy === `unpair-${x.id}`} aria-label={`Let ${nameOf(x.a)} and ${nameOf(x.b)} draw each other`} title="Remove — they may draw each other again"
+                      style={{ border: 'none', background: 'rgba(139,58,42,0.12)', color: 'inherit', borderRadius: 999, width: 20, height: 20, cursor: 'pointer', fontSize: 13, lineHeight: 1, padding: 0 }}>×</button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <NoticeLine notice={apartNotice} />
+          </div>
+        )}
 
         {/* The draw and telling everyone */}
         <div style={{ border: '1px solid #EDE8E3', background: '#FBF9F7', borderRadius: 10, padding: '12px 14px', margin: '16px 0 14px' }}>

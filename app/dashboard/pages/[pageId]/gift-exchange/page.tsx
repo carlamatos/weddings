@@ -1,5 +1,5 @@
 import { auth } from '@/auth';
-import { fetchGiftParticipants, fetchGuests, fetchPageSettings } from '@/app/lib/data';
+import { fetchGiftExclusions, fetchGiftParticipants, fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { giftExchangeDetails, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { giftRevealUrl } from '@/app/lib/gift-token';
@@ -21,7 +21,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
     );
   }
 
-  const [settings, participants, guests] = await Promise.all([fetchPageSettings(pageId), fetchGiftParticipants(pageId), fetchGuests(pageId)]);
+  const [settings, participants, guests, exclusions] = await Promise.all([fetchPageSettings(pageId), fetchGiftParticipants(pageId), fetchGuests(pageId), fetchGiftExclusions(pageId)]);
   const byId = new Map(participants.map((p) => [p.id, p]));
   const drawn = participants.some((p) => p.giftee_id);
   const inExchange = new Set(participants.map((p) => p.guest_id).filter(Boolean));
@@ -56,6 +56,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
         participants={rows}
         guests={guests.map((g) => ({ id: g.id, name: g.name, email: g.email, inExchange: inExchange.has(g.id) || (!!g.email && emails.has(g.email.toLowerCase())) }))}
         drawn={drawn}
+        exclusions={exclusions.map((e) => ({ id: e.id, a: e.a_id, b: e.b_id }))}
         eventName={page.heading || 'the event'}
         language={page.language}
         hostName={(await auth())?.user?.name?.trim() || ''}
