@@ -14,6 +14,7 @@ import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 import { isPageOffline } from '@/app/lib/page-status';
+import { areSongRequestsOn } from '@/app/lib/song-requests';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -49,7 +50,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
-  const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
+  const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');

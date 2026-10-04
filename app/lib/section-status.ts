@@ -6,11 +6,12 @@ import { livestreamFromSettings } from './livestream';
 import { isPotluckOn } from './potluck';
 import { isPageLocked } from './page-password';
 import { parseReminderSchedule } from './reminders';
+import { areSongRequestsOn } from './song-requests';
 
 // Whether each dashboard section is currently ON for this page, keyed by the
 // section's path in the sidebar (see nav-links.tsx). Follows the same rules
 // the public page uses: most sections default on, Plus ones need the page
-// to be paid, and Potluck, Sponsors and Password are off until switched on.
+// to be paid, and Potluck, Sponsors, Song Requests and Password are off until switched on.
 export function sectionStatus(page: UserPage, settings: Record<string, string>): Record<string, boolean> {
   const paid = isPagePaidAndLive(page);
   return {
@@ -18,7 +19,7 @@ export function sectionStatus(page: UserPage, settings: Record<string, string>):
     '/potluck': paid && isPotluckOn(settings),
     '/guest-photos': paid && isSectionOn(settings, 'show_guest_photos'),
     '/livestream': paid && !!livestreamFromSettings(settings, paid),
-    '/song-requests': paid && isSectionOn(settings, 'show_song_requests'),
+    '/song-requests': paid && areSongRequestsOn(settings),
     '/reminders': paid && parseReminderSchedule(settings['reminder_schedule']).length > 0,
     '/event-program': isSectionOn(settings, 'show_event_program'),
     '/custom-sections': paid && isSectionOn(settings, 'show_custom_sections'),

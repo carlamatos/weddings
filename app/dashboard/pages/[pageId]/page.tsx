@@ -18,6 +18,7 @@ import {
 import { EditableGallery } from '@/app/ui/themes/GallerySection';
 import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 import { formatDateRange } from '@/app/ui/themes/event-when';
+import { areSongRequestsOn } from '@/app/lib/song-requests';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -32,7 +33,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
-  const showSongRequests = isSectionOn(pageSettings, 'show_song_requests');
+  const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');

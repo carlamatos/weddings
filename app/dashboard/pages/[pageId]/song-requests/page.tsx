@@ -1,9 +1,10 @@
-import { fetchGuestSongs, fetchPageSettings, isSectionOn } from '@/app/lib/data';
+import { fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { hasExpiredPlan } from '@/app/lib/plans';
 import { DashboardSongRequests } from '@/app/ui/themes/SongRequestSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import Link from 'next/link';
+import { areSongRequestsOn } from '@/app/lib/song-requests';
 
 export default async function SongRequestsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -43,7 +44,7 @@ export default async function SongRequestsPage({ params }: { params: Promise<{ p
       <SectionToggle
         pageId={Number(userPage.id)}
         settingName="show_song_requests"
-        initialOn={isSectionOn(settings, 'show_song_requests')}
+        initialOn={areSongRequestsOn(settings)}
       />
 
       <DashboardSongRequests
