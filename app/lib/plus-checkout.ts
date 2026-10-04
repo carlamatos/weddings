@@ -1,5 +1,5 @@
 import { stripe } from '@/app/lib/stripe';
-import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_CURRENCY, PLAN_ONE_TIME_PRICE, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 // Stripe Checkout for one event page's Plus term: a one-time payment, not a
 // subscription. Completion is recorded by /api/stripe/confirm (the success
@@ -25,8 +25,8 @@ export async function createPlusCheckout({
     line_items: [
       {
         price_data: {
-          currency: 'usd',
-          unit_amount: Math.round(PLAN_ONE_TIME_PRICE_USD * 100),
+          currency: PLAN_CURRENCY.toLowerCase(),
+          unit_amount: Math.round(PLAN_ONE_TIME_PRICE * 100),
           product_data: { name: `MyGala Plus — ${PLAN_TERM_MONTHS} months (one event page)` },
         },
         quantity: 1,

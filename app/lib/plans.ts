@@ -5,7 +5,11 @@
 // it unlocks that page's paid features for a fixed term, then the page drops
 // back to the free tier (it stays live — just without the paid-only
 // features) until the owner extends it.
-export const PLAN_ONE_TIME_PRICE_USD = 49.99;
+export const PLAN_ONE_TIME_PRICE = 49.99;
+// Charged in Canadian dollars (Stripe Checkout uses PLAN_CURRENCY too).
+export const PLAN_CURRENCY = 'CAD';
+// How the price is written everywhere it's shown: "$49.99 CAD".
+export const PLAN_PRICE_LABEL = `$${PLAN_ONE_TIME_PRICE} ${PLAN_CURRENCY}`;
 export const PLAN_TERM_MONTHS = 15;
 
 // Feature bullets for the two plans — one list shared by the homepage

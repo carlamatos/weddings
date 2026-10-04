@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { appHref } from '@/app/lib/app-url';
 import { FEATURES, getFeature } from '@/app/lib/marketing/features';
 import { breadcrumbJsonLd, faqPageJsonLd, marketingMetadata, webPageJsonLd } from '@/app/lib/marketing/seo';
-import { PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
+import { PLAN_PRICE_LABEL } from '@/app/lib/plans';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { Blocks, FeatureCards, FinalCta, Steps } from '@/app/ui/marketing/content-blocks';
@@ -74,7 +74,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
             <Steps steps={feature.steps} />
             {feature.plan === 'Plus' && (
               <p className="mk-note">
-                {feature.navLabel} is part of MyGala Plus: a one-time payment of ${PLAN_ONE_TIME_PRICE_USD} per event page that unlocks every
+                {feature.navLabel} is part of MyGala Plus: a one-time payment of {PLAN_PRICE_LABEL} per event page that unlocks every
                 premium feature for 15 months. No subscription. <Link href="/#pricing">Compare plans</Link>.
               </p>
             )}

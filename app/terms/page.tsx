@@ -2,7 +2,7 @@ import LegalLayout from '@/app/ui/legal-layout';
 import Link from 'next/link';
 import CompanyDetails from '@/app/ui/marketing/company-details';
 import { COMPANY } from '@/app/lib/company';
-import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 export const metadata = {
   title: 'Terms of Service — MyGala',
@@ -82,10 +82,10 @@ export default function TermsPage() {
 
       <h2 id="billing" style={h2}>8. MyGala Plus: price, payment and refunds</h2>
       <p>
-        MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of US${PLAN_ONE_TIME_PRICE_USD} per event page</strong>, charged in <strong>US dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
+        MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
       </p>
       <ul style={ul}>
-        <li><strong>Payment:</strong> Payments are processed securely by <strong>Stripe</strong>. We never see or store your full card details. Your card issuer may charge a currency conversion fee if your card is not in US dollars.</li>
+        <li><strong>Payment:</strong> Payments are processed securely by <strong>Stripe</strong>. We never see or store your full card details. Your card issuer may charge a currency conversion fee if your card is not in Canadian dollars.</li>
         <li><strong>Receipt:</strong> After your payment, a receipt is emailed to the address you used at checkout. Keep it as your record of the purchase.</li>
         <li><strong>When Plus ends:</strong> After {PLAN_TERM_MONTHS} months, your event page stays live on the free plan, without the Plus-only features. You can extend Plus for another {PLAN_TERM_MONTHS} months with another one-time payment at any time.</li>
         <li><strong>Refunds:</strong> Because Plus features are available as soon as payment is complete, payments are non-refundable, except where required by law. If you believe you were charged in error, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> within 14 days of the charge and we will review it.</li>

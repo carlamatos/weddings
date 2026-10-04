@@ -6,7 +6,7 @@ import ThemeFilter from '@/app/ui/theme-filter';
 import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
-import { PLAN_FEATURES, PLAN_ONE_TIME_PRICE_USD } from '@/app/lib/plans';
+import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_LABEL } from '@/app/lib/plans';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
@@ -429,7 +429,7 @@ export default async function Page() {
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
               <p className="price-tier">Plus</p>
-              <p className="price-amount">${PLAN_ONE_TIME_PRICE_USD}<span className="per"> one-time, per event</span></p>
+              <p className="price-amount">${PLAN_ONE_TIME_PRICE}<span className="per"> {PLAN_CURRENCY}, one-time, per event</span></p>
               <p className="price-desc">Get all the perks from mygala.</p>
               <ul className="price-features">
                 {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
@@ -462,7 +462,7 @@ export default async function Page() {
             </div>
             <div className="faq-item">
               <p className="faq-q">Is Plus a subscription?</p>
-              <p className="faq-a">No — it&apos;s a single one-time payment of $49.99 per event that unlocks every feature for that event for 15 months. No recurring charge, and no card kept on file.</p>
+              <p className="faq-a">No — it&apos;s a single one-time payment of {PLAN_PRICE_LABEL} per event that unlocks every feature for that event for 15 months. No recurring charge, and no card kept on file.</p>
             </div>
           </div>
         </div>
