@@ -2,6 +2,7 @@ import { sql } from '@vercel/postgres';
 import { maxPagesPerAccount } from './plans';
 import { arePotluckEntriesPublic, isPotluckOn, publicName, POTLUCK_MAX_ENTRIES, type PotluckEntry, type PotluckProps } from './potluck';
 import { signPageId } from './page-token';
+import { giftExchangeDetails, isGiftExchangeOn, GIFT_MAX_PARTICIPANTS, type GiftExchangeProps, type GiftExclusion, type GiftParticipant } from './gift-exchange';
 import { expireIfPast } from './plan-expiry';
 import {
   Revenue,
@@ -263,6 +264,48 @@ export async function potluckProps(pageId: number | string, isPaid: boolean, set
     ? (await fetchPotluckEntries(pageId)).map((e) => ({ name: publicName(e.name), items: e.items }))
     : [];
   return { token: signPageId(pageId), showEntries, entries };
+}
+
+export async function fetchGiftParticipants(pageId: number | string): Promise<GiftParticipant[]> {
+  try {
+    const data = await sql<GiftParticipant>`
+      SELECT id, name, email, phone, wishlist, guest_id, giftee_id, notified_at, notified_via, created_at
+      FROM page_gift_exchange
+      WHERE user_page_id = ${pageId}
+      ORDER BY created_at ASC, id ASC
+      LIMIT ${GIFT_MAX_PARTICIPANTS}`;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch gift exchange participants:', error);
+    return [];
+  }
+}
+
+export async function fetchGiftExclusions(pageId: number | string): Promise<GiftExclusion[]> {
+  try {
+    const data = await sql<GiftExclusion>`SELECT id, a_id, b_id FROM page_gift_exclusions WHERE user_page_id = ${pageId} ORDER BY id`;
+    return data.rows;
+  } catch (error) {
+    console.error('Failed to fetch gift exchange exclusions:', error);
+    return [];
+  }
+}
+
+// The Gift Exchange section's theme prop (Plus): undefined unless the page is
+// paid and the host switched the section on. Never includes who drew whom.
+export async function giftExchangeProps(pageId: number | string, isPaid: boolean, settings: Record<string, string>): Promise<GiftExchangeProps | undefined> {
+  if (!isPaid || !isGiftExchangeOn(settings)) return undefined;
+  let participantCount = 0;
+  let drawn = false;
+  try {
+    const r = await sql<{ n: number; drawn: boolean }>`
+      SELECT COUNT(*)::int AS n, bool_or(giftee_id IS NOT NULL) AS drawn FROM page_gift_exchange WHERE user_page_id = ${pageId}`;
+    participantCount = r.rows[0]?.n ?? 0;
+    drawn = !!r.rows[0]?.drawn;
+  } catch (error) {
+    console.error('Failed to count gift exchange participants:', error);
+  }
+  return { token: signPageId(pageId), details: giftExchangeDetails(settings), participantCount, drawn };
 }
 
 const GUEST_PHOTOS_PAGE_SIZE = 20;

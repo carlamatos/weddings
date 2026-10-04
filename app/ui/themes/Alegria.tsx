@@ -16,8 +16,10 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
+import { heroMediaStyle } from './hero-media';
 
 // Exclusive to Alegría — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -272,6 +274,7 @@ export default function Alegria({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -286,6 +289,7 @@ export default function Alegria({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -328,10 +332,10 @@ export default function Alegria({
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(bannerImage || HERO_DEFAULTS.alegria) ? (
-            <video className="hero-bg" src={bannerImage || HERO_DEFAULTS.alegria} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={bannerImage || HERO_DEFAULTS.alegria} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={bannerImage || HERO_DEFAULTS.alegria} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={bannerImage || HERO_DEFAULTS.alegria} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
         <div className="hero-overlay" />
@@ -496,6 +500,20 @@ export default function Alegria({
             <hr className="al-rule" />
             <div className="rsvp-card">
               <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <Reveal>
+          <div id="gift-exchange" className="rsvp-section">
+            <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+            <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+            <hr className="al-rule" />
+            <div className="rsvp-card">
+              <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </Reveal>

@@ -1,6 +1,6 @@
 'use client';
 
-import { DocumentIcon, UsersIcon, UserGroupIcon, ClipboardDocumentListIcon, ChevronDownIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, GiftTopIcon, UsersIcon, UserGroupIcon, ClipboardDocumentListIcon, ChevronDownIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, MinusCircleIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -19,6 +19,7 @@ const guestLinks: NavItem[] = [
 const links: NavItem[] = [
   { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'Potluck', section: '/potluck', icon: CakeIcon, paidOnly: false, greyOutIfFree: true },
+  { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon, paidOnly: false, greyOutIfFree: true },
   // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
   // reaches the upgrade prompt on each section's own page.
   { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: true },

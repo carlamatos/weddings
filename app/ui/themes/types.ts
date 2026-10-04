@@ -54,6 +54,7 @@ export interface ThemeProps {
   guestSongs?: import('@/app/lib/definitions').GuestSong[];
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
+  heroObjectPosition?: 'top' | 'center' | 'bottom'; // banner's vertical alignment; unset = theme default
   userPhone?: string;
   eventProgram?: import('@/app/lib/definitions').EventProgramItem[];
   showEventProgram?: boolean;
@@ -69,6 +70,7 @@ export interface ThemeProps {
   sponsors?: import('@/app/lib/definitions').Sponsor[];
   livestream?: import('@/app/lib/livestream').Livestream;
   potluck?: import('@/app/lib/potluck').PotluckProps; // Plus, off by default
+  giftExchange?: import('@/app/lib/gift-exchange').GiftExchangeProps; // Plus, off by default
   sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;

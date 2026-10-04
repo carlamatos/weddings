@@ -1,4 +1,4 @@
-import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '@/app/lib/data';
+import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -19,6 +19,7 @@ import { EditableGallery } from '@/app/ui/themes/GallerySection';
 import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 import { formatDateRange } from '@/app/ui/themes/event-when';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
+import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -32,6 +33,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
     fetchEventProgram(pageId),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
@@ -40,9 +42,10 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
 
-  const [plusContent, potluck] = await Promise.all([
+  const [plusContent, potluck, giftExchange] = await Promise.all([
     fetchPlusContent(pageId, isPaid, pageSettings),
     potluckProps(pageId, isPaid, pageSettings),
+    giftExchangeProps(pageId, isPaid, pageSettings),
   ]);
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -88,6 +91,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         {...heroFallbackFor(userPage.theme_slug)}
         src={userPage.banner_image || ''}
         initialObjectFit={heroObjectFit}
+        initialObjectPosition={heroObjectPosition}
       />
     ),
     heroEyebrow: (
@@ -180,6 +184,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
         heroObjectFit={heroObjectFit}
+        heroObjectPosition={heroObjectPosition}
         eventProgram={eventProgram}
         showEventProgram={showEventProgram}
         showSongRequests={showSongRequests}
@@ -192,6 +197,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
         potluck={potluck}
+        giftExchange={giftExchange}
         sectionTextPageId={pageId}
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}

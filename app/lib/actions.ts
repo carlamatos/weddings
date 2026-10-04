@@ -24,7 +24,7 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isReservedSlug } from './reserved-slugs';
@@ -33,12 +33,18 @@ import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type Invi
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
+import { randomInt } from 'crypto';
+import { drawCycle, giftExchangeDetails, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
+import { giftExchangeEmail } from './gift-exchange-email';
+import { giftRevealUrl } from './gift-token';
+import { publicPageUrl } from './share';
 import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
+import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -325,12 +331,14 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
-// What updatePageSetting may write: the show/hide switches and the banner fit.
+// What updatePageSetting may write: the show/hide switches, the banner fit and
+// the banner's vertical alignment ('' = back to the theme's default).
 // Everything else (livestream, reminders, hashtag, headings…) has its own
 // validating action, so a crafted call can't store arbitrary settings.
 function isWritableSetting(name: string, value: string): boolean {
   if (/^show_[a-z_]{1,40}$/.test(name)) return value === 'true' || value === 'false';
   if (name === 'hero_object_fit') return value === 'cover' || value === 'contain';
+  if (name === 'hero_object_position') return value === '' || isHeroObjectPosition(value);
   return false;
 }
 
@@ -887,6 +895,302 @@ export async function markGuestTexted(pageId: number, guestId: string, via: 'sms
     return { ok: (res.rowCount ?? 0) > 0 };
   } catch (error) {
     console.error('Failed to mark guest texted:', error);
+    return { ok: false };
+  }
+}
+
+// ─── Gift Exchange (Secret Santa, Plus) ──────────────────
+
+// The host's details shown to participants: budget, exchange date, note.
+export async function saveGiftExchangeDetails(
+  pageId: number,
+  input: { budget?: string; exchangeDate?: string; note?: string },
+): Promise<PlusResult<GiftExchangeDetails>> {
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\r\n/g, '\n').trim().slice(0, max) : '');
+    const details: GiftExchangeDetails = {
+      budget: clean(input?.budget, GIFT_BUDGET_MAX),
+      exchangeDate: clean(input?.exchangeDate, GIFT_DATE_MAX),
+      note: clean(input?.note, GIFT_NOTE_MAX),
+    };
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${GIFT_SETTINGS.budget}, ${details.budget}),
+             (${owned.value}, ${GIFT_SETTINGS.exchangeDate}, ${details.exchangeDate}),
+             (${owned.value}, ${GIFT_SETTINGS.note}, ${details.note})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()
+    `;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: details };
+  } catch (error) {
+    console.error('Failed to save gift exchange details:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+async function giftExchangeDrawn(pid: number): Promise<boolean> {
+  const r = await sql<{ drawn: boolean }>`SELECT bool_or(giftee_id IS NOT NULL) AS drawn FROM page_gift_exchange WHERE user_page_id = ${pid}`;
+  return !!r.rows[0]?.drawn;
+}
+
+const DRAWN_ERROR = 'Names have already been drawn. Clear the draw first to change who’s taking part.';
+
+// Adds people from the guest list. Guests whose email is already taking part
+// are skipped.
+export async function addGiftParticipantsFromGuests(pageId: number, guestIds: string[]): Promise<PlusResult<{ added: number; skipped: number }>> {
+  try {
+    const ids = [...new Set((Array.isArray(guestIds) ? guestIds : []).filter((id) => typeof id === 'string' && UUID_RE.test(id)))];
+    if (!ids.length) return { ok: false, error: 'Choose at least one guest.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
+    const res = await sql`
+      INSERT INTO page_gift_exchange (user_page_id, name, email, phone, guest_id)
+      SELECT g.user_page_id, g.name, NULLIF(lower(trim(g.email)), ''), NULLIF(trim(g.phone), ''), g.id
+      FROM event_guests g
+      WHERE g.user_page_id = ${owned.value}
+        AND g.id = ANY(string_to_array(${ids.join(',')}, ',')::uuid[])
+        AND NOT EXISTS (SELECT 1 FROM page_gift_exchange p WHERE p.user_page_id = g.user_page_id AND (p.guest_id = g.id OR (g.email IS NOT NULL AND lower(p.email) = lower(trim(g.email)))))
+        AND (SELECT COUNT(*) FROM page_gift_exchange WHERE user_page_id = ${owned.value}) < ${GIFT_MAX_PARTICIPANTS}
+      ON CONFLICT DO NOTHING
+    `;
+    const added = res.rowCount ?? 0;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { added, skipped: ids.length - added } };
+  } catch (error) {
+    console.error('Failed to add gift exchange participants:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Adds one person by hand. Email and phone are optional (the host can share
+// the private link any way they like), but each email can only take part once.
+export async function addGiftParticipant(
+  pageId: number,
+  input: { name: string; email?: string; phone?: string; wishlist?: string },
+): Promise<PlusResult<null>> {
+  try {
+    const name = String(input?.name ?? '').trim().slice(0, GIFT_NAME_MAX);
+    const email = String(input?.email ?? '').trim().toLowerCase().slice(0, 254);
+    const phone = String(input?.phone ?? '').trim();
+    const wishlist = String(input?.wishlist ?? '').trim().slice(0, GIFT_WISHLIST_MAX) || null;
+    if (!name) return { ok: false, error: 'Please add a name.' };
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Please enter a valid email address.' };
+    if (!isValidOptionalPhone(phone)) return { ok: false, error: PHONE_INVALID_MESSAGE };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
+    const count = await sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM page_gift_exchange WHERE user_page_id = ${owned.value}`;
+    if ((count.rows[0]?.n ?? 0) >= GIFT_MAX_PARTICIPANTS) return { ok: false, error: `The gift exchange is limited to ${GIFT_MAX_PARTICIPANTS} people.` };
+    const res = await sql`
+      INSERT INTO page_gift_exchange (user_page_id, name, email, phone, wishlist)
+      VALUES (${owned.value}, ${name}, ${email || null}, ${cleanPhone(phone)}, ${wishlist})
+      ON CONFLICT DO NOTHING
+    `;
+    if (!res.rowCount) return { ok: false, error: 'Someone with that email is already taking part.' };
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to add gift exchange participant:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+export async function removeGiftParticipant(pageId: number, participantId: number): Promise<PlusResult<null>> {
+  try {
+    if (!Number.isInteger(participantId) || participantId <= 0) return { ok: false, error: 'Participant not found.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    // Removing someone after the draw would leave a gap in the circle.
+    if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
+    await sql`DELETE FROM page_gift_exchange WHERE id = ${participantId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to remove gift exchange participant:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Draws names: everyone in one random circle (see drawCycle), so nobody gets
+// themselves. Drawing again replaces the previous draw, and everyone has to be
+// told again. Written in one statement, then re-run if someone joined from
+// the page at the same moment and was left out.
+export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count: number }>> {
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    if (await overRateLimit(`gift-draw:${owned.value}`, 20, 60 * 60 * 1000)) {
+      return { ok: false, error: 'You’ve drawn names many times in the last hour. Please try again later.' };
+    }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const rows = await sql<{ id: number }>`SELECT id FROM page_gift_exchange WHERE user_page_id = ${owned.value} ORDER BY id`;
+      const ids = rows.rows.map((r) => r.id);
+      if (ids.length < GIFT_MIN_TO_DRAW) return { ok: false, error: `At least ${GIFT_MIN_TO_DRAW} people are needed to draw names.` };
+      const exclusions = (await fetchGiftExclusions(owned.value)).map((e) => [e.a_id, e.b_id] as [number, number]);
+      const pairs = drawCycle(ids, randomInt, exclusions);
+      if (!pairs) {
+        return { ok: false, error: 'No draw can keep every “don’t pair” couple apart. Remove a pair, or add more people to the gift exchange.' };
+      }
+      const givers = [...pairs.keys()];
+      const giftees = givers.map((g) => pairs.get(g)!);
+      await sql`
+        UPDATE page_gift_exchange p
+        SET giftee_id = v.giftee, notified_at = NULL, notified_via = NULL, updated_at = NOW()
+        FROM (SELECT unnest(string_to_array(${givers.join(',')}, ',')::int[]) AS id,
+                     unnest(string_to_array(${giftees.join(',')}, ',')::int[]) AS giftee) v
+        WHERE p.id = v.id AND p.user_page_id = ${owned.value}
+      `;
+      const left = await sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM page_gift_exchange WHERE user_page_id = ${owned.value} AND giftee_id IS NULL`;
+      if ((left.rows[0]?.n ?? 0) === 0) {
+        revalidatePath('/', 'layout');
+        return { ok: true, value: { count: ids.length } };
+      }
+    }
+    return { ok: false, error: 'People were joining while names were drawn. Please draw again.' };
+  } catch (error) {
+    console.error('Failed to draw gift exchange names:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Two participants who must not draw each other (a couple, family…). Allowed
+// at any time; after a draw, the host is told to draw again for it to apply.
+export async function addGiftExclusion(pageId: number, aId: number, bId: number): Promise<PlusResult<{ redrawNeeded: boolean }>> {
+  try {
+    if (!Number.isInteger(aId) || !Number.isInteger(bId) || aId === bId) return { ok: false, error: 'Choose two different people.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const [a, b] = aId < bId ? [aId, bId] : [bId, aId];
+    const people = await sql<{ id: number; giftee_id: number | null }>`
+      SELECT id, giftee_id FROM page_gift_exchange WHERE user_page_id = ${owned.value} AND id IN (${a}, ${b})`;
+    if (people.rows.length !== 2) return { ok: false, error: 'Those people aren’t in this gift exchange.' };
+    const res = await sql`
+      INSERT INTO page_gift_exclusions (user_page_id, a_id, b_id) VALUES (${owned.value}, ${a}, ${b})
+      ON CONFLICT (user_page_id, a_id, b_id) DO NOTHING`;
+    if (!res.rowCount) return { ok: false, error: 'Those two are already kept apart.' };
+    // Does the current draw (if any) put them together?
+    const redrawNeeded = people.rows.some((p) => p.giftee_id === a || p.giftee_id === b);
+    revalidatePath('/', 'layout');
+    return { ok: true, value: { redrawNeeded } };
+  } catch (error) {
+    console.error('Failed to add gift exchange exclusion:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+export async function removeGiftExclusion(pageId: number, exclusionId: number): Promise<PlusResult<null>> {
+  try {
+    if (!Number.isInteger(exclusionId)) return { ok: false, error: 'Not found.' };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`DELETE FROM page_gift_exclusions WHERE id = ${exclusionId} AND user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to remove gift exchange exclusion:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Undoes the draw, reopening sign-ups and letting the host change who's in.
+export async function clearGiftDraw(pageId: number): Promise<PlusResult<null>> {
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    await sql`UPDATE page_gift_exchange SET giftee_id = NULL, notified_at = NULL, notified_via = NULL, updated_at = NOW() WHERE user_page_id = ${owned.value}`;
+    revalidatePath('/', 'layout');
+    return { ok: true, value: null };
+  } catch (error) {
+    console.error('Failed to clear the gift exchange draw:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Emails each participant (all with an email, or the ones chosen) who they're
+// the Secret Santa for, with a private link to see it again. Sent in batches,
+// marking each batch as told once it's accepted.
+export async function sendGiftExchangeEmails(pageId: number, participantIds?: number[]): Promise<PlusResult<{ sent: number; skipped: number }>> {
+  try {
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return owned;
+    const session = await auth();
+    const userId = session?.user?.id;
+    const page = userId ? await fetchOwnedPage(userId, owned.value) : undefined;
+    if (!page) return { ok: false, error: 'Page not found.' };
+    if (await overRateLimit(`gift-email:${owned.value}`, 10, 60 * 60 * 1000)) {
+      return { ok: false, error: 'You’ve sent the gift exchange emails many times in the last hour. Please try again later.' };
+    }
+    const [participants, settings, user] = await Promise.all([
+      fetchGiftParticipants(owned.value),
+      fetchPageSettings(owned.value),
+      sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
+    ]);
+    if (!participants.some((p) => p.giftee_id)) return { ok: false, error: 'Draw names first.' };
+    const byId = new Map(participants.map((p) => [p.id, p]));
+    const wanted = Array.isArray(participantIds) && participantIds.length ? new Set(participantIds.filter((n) => Number.isInteger(n))) : null;
+    const chosen = participants.filter((p) => (wanted ? wanted.has(p.id) : true));
+    const recipients = chosen.filter((p) => p.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(p.email) && p.giftee_id && byId.get(p.giftee_id));
+    if (!recipients.length) return { ok: false, error: 'None of these participants have an email address.' };
+
+    const hostName = user.rows[0]?.name?.trim() || page.heading || 'Your host';
+    const hostEmail = user.rows[0]?.email ?? null;
+    const details = giftExchangeDetails(settings);
+    const eventName = page.heading || 'the event';
+    const eventUrl = publicPageUrl(page);
+    const messages: MailMessage[] = recipients.map((p) => {
+      const giftee = byId.get(p.giftee_id!)!;
+      const { subject, html } = giftExchangeEmail({
+        language: page.language,
+        eventName,
+        eventUrl,
+        participantName: p.name,
+        gifteeName: giftee.name,
+        gifteeWishlist: giftee.wishlist,
+        details,
+        revealLink: giftRevealUrl(p.id),
+      });
+      return { to: p.email!, subject, html, from: fromName(hostName), ...(hostEmail ? { replyTo: hostEmail } : {}) };
+    });
+
+    let sent = 0;
+    try {
+      for (let i = 0; i < messages.length; i += 100) {
+        await sendMailBatch(messages.slice(i, i + 100));
+        const batchIds = recipients.slice(i, i + 100).map((p) => p.id);
+        await sql`
+          UPDATE page_gift_exchange SET notified_at = NOW(), notified_via = 'email'
+          WHERE user_page_id = ${owned.value} AND id = ANY(string_to_array(${batchIds.join(',')}, ',')::int[])
+        `;
+        sent += batchIds.length;
+      }
+    } finally {
+      if (sent) revalidatePath('/', 'layout');
+    }
+    return { ok: true, value: { sent, skipped: chosen.length - recipients.length } };
+  } catch (error) {
+    console.error('Failed to send gift exchange emails:', error);
+    return { ok: false, error: 'Couldn’t send all the emails. Participants marked “Emailed” got theirs — please try again for the rest.' };
+  }
+}
+
+// Records that the host opened a pre-filled text/WhatsApp message with a
+// participant's private link (it goes from the host's own phone).
+export async function markGiftTexted(pageId: number, participantId: number, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
+  try {
+    if (!Number.isInteger(participantId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
+    const owned = await ownedPlusPageId(pageId);
+    if (!owned.ok) return { ok: false };
+    await sql`
+      UPDATE page_gift_exchange SET notified_at = NOW(), notified_via = ${via}
+      WHERE id = ${participantId} AND user_page_id = ${owned.value} AND giftee_id IS NOT NULL
+    `;
+    revalidatePath('/', 'layout');
+    return { ok: true };
+  } catch (error) {
+    console.error('Failed to mark gift exchange participant texted:', error);
     return { ok: false };
   }
 }

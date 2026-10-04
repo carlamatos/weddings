@@ -143,6 +143,41 @@ export async function POST(request: Request) {
   `;
   await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_page_potluck_email ON page_potluck (user_page_id, (lower(email)))`;
 
+  // Plus: Gift Exchange (Secret Santa) — one row per participant. giftee_id is
+  // who they give to once names are drawn (NULL before the draw); notified_*
+  // records when they were told. One entry per email per page.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_gift_exchange (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      wishlist TEXT,
+      guest_id UUID REFERENCES event_guests(id) ON DELETE SET NULL,
+      giftee_id INTEGER REFERENCES page_gift_exchange(id) ON DELETE SET NULL,
+      notified_at TIMESTAMPTZ,
+      notified_via TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE UNIQUE INDEX IF NOT EXISTS idx_page_gift_exchange_email ON page_gift_exchange (user_page_id, (lower(email))) WHERE email IS NOT NULL`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_page_gift_exchange_page ON page_gift_exchange (user_page_id)`;
+  // Pairs who must not draw each other (couples, family…), either way round.
+  // Stored with a_id < b_id so each pair is listed once.
+  await sql`
+    CREATE TABLE IF NOT EXISTS page_gift_exclusions (
+      id SERIAL PRIMARY KEY,
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      a_id INTEGER NOT NULL REFERENCES page_gift_exchange(id) ON DELETE CASCADE,
+      b_id INTEGER NOT NULL REFERENCES page_gift_exchange(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      CHECK (a_id < b_id),
+      UNIQUE (user_page_id, a_id, b_id)
+    )
+  `;
+
   // Sponsors became off-by-default on 2026-10-02: keep them showing on pages
   // that already had sponsors then and never touched the switch. Limited to
   // sponsors added before that date, so re-running this never switches on

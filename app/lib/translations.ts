@@ -50,6 +50,21 @@ export interface Translations {
   potluckListTitle: string;
   potluckEmpty: string;
   potluckAnother: string;
+  giftLabel: string;
+  giftTitle: string;
+  giftIntro: string;
+  giftBudget: string;
+  giftDate: string;
+  giftWishlist: string;
+  giftWishlistPlaceholder: string;
+  giftEmailHint: string;
+  giftJoin: string;
+  giftJoined: string;
+  giftUpdated: string;
+  giftCount: string; // {n} = number of people
+  giftDrawn: string;
+  giftUpdateIdeas: string;
+  giftAnother: string;
   // Password-protected page (Plus)
   privateTitle: string;
   privateText: string;
@@ -158,6 +173,21 @@ const en: Translations = {
   potluckListTitle: 'What people are bringing',
   potluckEmpty: 'Nobody has signed up yet — be the first!',
   potluckAnother: 'Change my answer',
+  giftLabel: 'Gift exchange',
+  giftTitle: 'Join the Secret Santa',
+  giftIntro: 'Sign up and, once names are drawn, we’ll tell you who you’re buying a gift for — it’s a secret!',
+  giftBudget: 'Budget',
+  giftDate: 'Gift exchange',
+  giftWishlist: 'Gift ideas for your Secret Santa (optional)',
+  giftWishlistPlaceholder: 'e.g. Books, cozy socks, anything chocolate',
+  giftEmailHint: 'We’ll email you your Secret Santa. Use the same email to update your gift ideas later.',
+  giftJoin: 'Join the gift exchange',
+  giftJoined: 'You’re in! We’ll let you know who you’re buying for once names are drawn.',
+  giftUpdated: 'Updated — thanks!',
+  giftCount: '{n} joined so far',
+  giftDrawn: 'Names have been drawn! Check your email or messages to see who you’re buying for.',
+  giftUpdateIdeas: 'Already taking part? Enter the same email to update your gift ideas.',
+  giftAnother: 'Change my answer',
   privateTitle: 'This event is private',
   privateText: 'Enter the password the host shared with you to see the event page.',
   privatePassword: 'Password',
@@ -259,6 +289,21 @@ const fr: Translations = {
   potluckListTitle: 'Ce que les invités apportent',
   potluckEmpty: 'Personne ne s’est encore inscrit — soyez le premier !',
   potluckAnother: 'Modifier ma réponse',
+  giftLabel: 'Échange de cadeaux',
+  giftTitle: 'Participez au Père Noël secret',
+  giftIntro: 'Inscrivez-vous et, une fois le tirage fait, nous vous dirons à qui offrir un cadeau — c’est un secret !',
+  giftBudget: 'Budget',
+  giftDate: 'Échange de cadeaux',
+  giftWishlist: 'Idées de cadeaux pour votre Père Noël secret (facultatif)',
+  giftWishlistPlaceholder: 'ex. Des livres, des chaussettes douillettes, du chocolat',
+  giftEmailHint: 'Nous vous enverrons votre Père Noël secret par courriel. Utilisez le même courriel pour modifier vos idées plus tard.',
+  giftJoin: 'Participer à l’échange',
+  giftJoined: 'C’est noté ! Nous vous dirons à qui offrir un cadeau une fois le tirage fait.',
+  giftUpdated: 'Mis à jour — merci !',
+  giftCount: '{n} inscrits pour l’instant',
+  giftDrawn: 'Le tirage a eu lieu ! Consultez vos courriels ou messages pour savoir à qui offrir un cadeau.',
+  giftUpdateIdeas: 'Déjà inscrit ? Entrez le même courriel pour modifier vos idées de cadeaux.',
+  giftAnother: 'Modifier ma réponse',
   privateTitle: 'Cet événement est privé',
   privateText: 'Entrez le mot de passe que l’hôte vous a communiqué pour voir la page.',
   privatePassword: 'Mot de passe',
@@ -360,6 +405,21 @@ const es: Translations = {
   potluckListTitle: 'Lo que traen los invitados',
   potluckEmpty: 'Nadie se ha apuntado todavía — ¡sé el primero!',
   potluckAnother: 'Cambiar mi respuesta',
+  giftLabel: 'Intercambio de regalos',
+  giftTitle: 'Únete al amigo secreto',
+  giftIntro: 'Apúntate y, cuando se haga el sorteo, te diremos a quién le haces el regalo — ¡es un secreto!',
+  giftBudget: 'Presupuesto',
+  giftDate: 'Intercambio de regalos',
+  giftWishlist: 'Ideas de regalo para tu amigo secreto (opcional)',
+  giftWishlistPlaceholder: 'p. ej. Libros, calcetines cómodos, cualquier cosa con chocolate',
+  giftEmailHint: 'Te enviaremos tu amigo secreto por correo. Usa el mismo correo para cambiar tus ideas más tarde.',
+  giftJoin: 'Unirme al intercambio',
+  giftJoined: '¡Ya estás dentro! Te diremos a quién le haces el regalo cuando se haga el sorteo.',
+  giftUpdated: 'Actualizado — ¡gracias!',
+  giftCount: '{n} apuntados hasta ahora',
+  giftDrawn: '¡Ya se hizo el sorteo! Revisa tu correo o tus mensajes para ver a quién le haces el regalo.',
+  giftUpdateIdeas: '¿Ya participas? Escribe el mismo correo para cambiar tus ideas de regalo.',
+  giftAnother: 'Cambiar mi respuesta',
   privateTitle: 'Este evento es privado',
   privateText: 'Escribe la contraseña que te dio el anfitrión para ver la página del evento.',
   privatePassword: 'Contraseña',

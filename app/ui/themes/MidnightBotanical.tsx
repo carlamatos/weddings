@@ -11,8 +11,10 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
+import { heroMediaStyle } from './hero-media';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -179,6 +181,7 @@ export default function MidnightBotanical({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -193,6 +196,7 @@ export default function MidnightBotanical({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -235,10 +239,10 @@ export default function MidnightBotanical({
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(heroImg) ? (
-            <video className="hero-bg" src={heroImg} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={heroImg} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={heroImg} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={heroImg} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
         <div className="hero-content">
@@ -366,6 +370,15 @@ export default function MidnightBotanical({
           <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
           <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="title" fallback={t.potluckTitle} />
           <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+        </div>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <div id="gift-exchange" className="spine-section">
+          <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+          <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="title" fallback={t.giftTitle} />
+          <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
         </div>
       )}
 

@@ -50,9 +50,10 @@ export default function PrivacyPage() {
         We store information about the guests of each event on behalf of the event&rsquo;s host:
       </p>
       <ul style={ul}>
-        <li><strong>Information guests submit</strong> on an event page — for example their name, email, phone, attendance, party size, notes, potluck entries, song requests and photos.</li>
+        <li><strong>Information guests submit</strong> on an event page — for example their name, email, phone, attendance, party size, notes, potluck entries, gift exchange sign-ups and gift ideas, song requests and photos.</li>
         <li><strong>Guest lists that hosts add</strong> — names, emails, phone numbers, party sizes and personal notes the host enters by hand or imports from a spreadsheet or their contacts.</li>
         <li><strong>Invitation and reminder history</strong> — when an invitation or reminder was emailed or texted, and whether a guest has unsubscribed.</li>
+        <li><strong>Gift exchange draws</strong> — who each participant gives a gift to, kept private: each participant only sees their own match, through a private link.</li>
       </ul>
       <p>
         Guest information is visible to the event&rsquo;s host in their dashboard. Hosts are responsible for having the right to add and contact the people on their guest list. If you are a guest and want your information removed, you can ask the host or contact us.

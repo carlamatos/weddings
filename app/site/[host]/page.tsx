@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { livestreamFromSettings } from '@/app/lib/livestream';
@@ -15,6 +15,7 @@ import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 import { isPageOffline } from '@/app/lib/page-status';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
+import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -41,14 +42,16 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
     return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
   }
 
-  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck, giftExchange] = await Promise.all([
     fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchEventProgram(data.id),
     potluckProps(data.id, isPaid, pageSettings),
+    giftExchangeProps(data.id, isPaid, pageSettings),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
@@ -94,6 +97,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       guestSongs={guestSongsResult.songs}
       guestSongsHasMore={guestSongsResult.hasMore}
       heroObjectFit={heroObjectFit}
+      heroObjectPosition={heroObjectPosition}
       eventProgram={eventProgram}
       showEventProgram={showEventProgram}
       showSongRequests={showSongRequests}
@@ -106,6 +110,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
         potluck={potluck}
+        giftExchange={giftExchange}
         shareUrl={publicPageUrl(data)}
     />
   );

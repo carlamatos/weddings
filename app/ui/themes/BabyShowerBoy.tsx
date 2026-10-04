@@ -15,8 +15,10 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
+import { heroMediaStyle } from './hero-media';
 
 const IMG = '/images/themes/baby-shower-boy';
 
@@ -481,6 +483,7 @@ export default function BabyShowerBoy({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -495,6 +498,7 @@ export default function BabyShowerBoy({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -539,10 +543,10 @@ export default function BabyShowerBoy({
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(heroSrc) ? (
-            <video className="hero-bg" src={heroSrc} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={heroSrc} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={heroSrc} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
         <div className="hero-overlay" />
@@ -743,6 +747,27 @@ export default function BabyShowerBoy({
               <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
               <div className="rsvp-card">
                 <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <Reveal>
+          <div id="gift-exchange" className="rsvp-section">
+            {BUBBLES.map((b) => (
+              <Bubble key={b.right} className="bb-bubble" size={b.size} style={{ right: b.right, animationDelay: b.delay }} />
+            ))}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="bb-whale" src={`${IMG}/whale.webp`} alt="" />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <Boat />
+              <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+              <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+              <div className="rsvp-card">
+                <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
               </div>
             </div>
           </div>

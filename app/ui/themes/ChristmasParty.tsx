@@ -15,8 +15,10 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
+import { heroMediaStyle } from './hero-media';
 
 const IMG = '/images/themes/christmas-party';
 
@@ -509,6 +511,7 @@ export default function ChristmasParty({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -523,6 +526,7 @@ export default function ChristmasParty({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -567,10 +571,10 @@ export default function ChristmasParty({
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(heroSrc) ? (
-            <video className="hero-bg" src={heroSrc} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={heroSrc} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={heroSrc} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
         <div className="hero-overlay" />
@@ -762,6 +766,30 @@ export default function ChristmasParty({
                 <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
               </div>
               <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <div id="gift-exchange" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp.jpeg)` }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="rsvp-photo" src={`${IMG}/rsvp.jpeg`} alt="" />
+          <Reveal className="rsvp-panel">
+            <div className="rsvp-card">
+              <svg className="rsvp-bow" width="80" height="44" viewBox="0 0 80 44" aria-hidden="true">
+                <path d="M40 22 C 26 4, 4 6, 8 20 C 10 30, 28 30, 40 22 Z" fill={BAUBLE_RED} />
+                <path d="M40 22 C 54 4, 76 6, 72 20 C 70 30, 52 30, 40 22 Z" fill={BAUBLE_RED} />
+                <path d="M36 24 L28 44 L36 40 L40 26 Z M44 24 L52 44 L44 40 L40 26 Z" fill={RIBBON_RED} />
+                <ellipse cx="40" cy="22" rx="7" ry="6" fill={OXBLOOD} />
+                <path d="M16 16 C 20 12, 28 14, 32 18" stroke={SHINE} strokeWidth="1.4" fill="none" opacity="0.6" />
+              </svg>
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+                <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+              </div>
+              <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>
