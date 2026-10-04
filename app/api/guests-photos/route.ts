@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { guestAccessDenied } from '@/app/lib/page-access';
+import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
 import { verifyPageToken } from '@/app/lib/page-token';
@@ -16,6 +16,9 @@ export async function GET(request: Request) {
   // may instead pass the raw id of a page they own.
   const param = searchParams.get('userPageId');
   let pageId = verifyPageToken(param);
+  if (pageId !== null && (await guestPageOffline(pageId))) {
+    return NextResponse.json({ error: PAGE_UNAVAILABLE_ERROR }, { status: 404 });
+  }
   if (pageId !== null && (await guestAccessDenied(request, pageId))) {
     return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
   }

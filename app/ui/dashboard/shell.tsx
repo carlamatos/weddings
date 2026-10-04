@@ -54,6 +54,7 @@ export default async function DashboardShell({
   const status = page ? sectionStatus(page, await fetchPageSettings(page.id)) : undefined;
 
   const deactivated = page?.status === 'inactive';
+  const suspended = page?.status === 'suspended';
   const expired = !!page && hasExpiredPlan(page);
 
   return (
@@ -91,6 +92,22 @@ export default async function DashboardShell({
                 contact us
               </Link>{' '}
               with questions.
+            </div>
+          )}
+          {suspended && (
+            <div
+              role="alert"
+              style={{
+                background: '#FDECEC', border: '1px solid #F2C4C4', color: '#8B1D1D',
+                borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
+              }}
+            >
+              <strong>Your page has been suspended by MyGala.</strong> Guests currently see a &ldquo;page unavailable&rdquo;
+              message, and only MyGala can reactivate it. If you think this is a mistake, please{' '}
+              <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>
+                contact us
+              </Link>{' '}
+              to have it reviewed.
             </div>
           )}
           {expired && page && (

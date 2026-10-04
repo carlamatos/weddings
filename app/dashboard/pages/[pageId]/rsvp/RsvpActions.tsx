@@ -1,6 +1,7 @@
 'use client';
 
 import type { Guest } from '@/app/lib/definitions';
+import { csvBlob } from '@/app/lib/guest-import';
 
 const btn: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
@@ -28,7 +29,7 @@ export function RsvpActions({ guests }: { pageId: number; guests: Guest[] }) {
       .join('\n');
 
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.href = URL.createObjectURL(csvBlob(csv));
     a.download = 'guests.csv';
     a.click();
   }

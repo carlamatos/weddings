@@ -154,6 +154,17 @@ export async function POST(request: Request) {
     ON CONFLICT (user_page_id, setting_name) DO NOTHING
   `;
 
+  // Song Requests (Plus) became off by default on 2026-10-04 (see
+  // app/lib/song-requests.ts). Pages created before then keep the section they
+  // had: switch it on wherever the host never touched the switch. Limited to
+  // older pages so re-running never turns it on for a newer page.
+  await sql`
+    INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+    SELECT id, 'show_song_requests', 'true' FROM user_page
+    WHERE created_at < '2026-10-04 12:00'
+    ON CONFLICT (user_page_id, setting_name) DO NOTHING
+  `;
+
   // Add user_phone to user_page
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS user_phone TEXT`;
 

@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { getSuperAdmin } from '@/app/lib/admin';
+import { isPageStatus } from '@/app/lib/page-status';
 
-// Deactivate / reactivate a page. Inactive pages show "unavailable" to guests.
+// Set a page's status: active, inactive (deactivated — the owner can turn it
+// back on) or suspended (only an admin can lift it). Inactive and suspended
+// pages show "unavailable" to guests.
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const admin = await getSuperAdmin();
   if (!admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -13,8 +16,8 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   const body = (await req.json().catch(() => null)) as { status?: unknown } | null;
-  if (body?.status !== 'active' && body?.status !== 'inactive') {
-    return NextResponse.json({ error: "status must be 'active' or 'inactive'." }, { status: 400 });
+  if (!isPageStatus(body?.status)) {
+    return NextResponse.json({ error: "status must be 'active', 'inactive' or 'suspended'." }, { status: 400 });
   }
 
   try {

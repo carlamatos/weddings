@@ -365,9 +365,11 @@ export default function UserMenu({
   }, []);
 
   const pageInactive = pageStatus === 'inactive';
+  // Only an admin can lift a suspension, so the owner gets no toggle.
+  const pageSuspended = pageStatus === 'suspended';
 
   function handleToggleStatus() {
-    if (pageId === undefined) return;
+    if (pageId === undefined || pageSuspended) return;
     const next = pageInactive ? 'active' : 'inactive';
     if (
       next === 'inactive' &&
@@ -408,10 +410,12 @@ export default function UserMenu({
             {pageId !== undefined && (
               <button
                 onClick={handleToggleStatus}
-                disabled={isPending}
+                disabled={isPending || pageSuspended}
                 className="dash-user-menu-item dash-user-menu-item--danger"
+                title={pageSuspended ? 'Suspended by MyGala — contact us to have it reviewed' : undefined}
+                style={pageSuspended ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
               >
-                {isPending ? 'Saving…' : pageInactive ? 'Reactivate my page' : 'Deactivate my page'}
+                {pageSuspended ? 'Page suspended' : isPending ? 'Saving…' : pageInactive ? 'Reactivate my page' : 'Deactivate my page'}
               </button>
             )}
             <button

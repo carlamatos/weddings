@@ -38,6 +38,7 @@ import { invitationDetails } from './invitation-details';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
+import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -59,6 +60,7 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
     }),
     email: z.string()
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
+    phone: z.string().optional().refine((v) => isValidOptionalPhone(v), { message: PHONE_INVALID_MESSAGE }),
 
     url: z.string(),
     street_address: z.string(),
@@ -90,6 +92,7 @@ export type UserPageState = {
       location?: string[];
       slug?: string[];
       email?: string[];
+      phone?: string[];
       url?: string[];
       unit_number?: string[];
       street_address?: string[];
@@ -152,6 +155,7 @@ export type UserPageState = {
       theme_slug: formData.get('themeSlug'),
       location: formData.get('location'),
       email: formData.get('email'),
+      phone: (formData.get('phone') as string) ?? '',
       slug: formData.get('slug'),
       description: formData.get('description'),
       url: (formData.get('url') as string) ?? '',
@@ -174,7 +178,7 @@ export type UserPageState = {
     const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url: rawUrl, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
     const url = safeHttpUrl(rawUrl);
     const venue_name = (formData.get('venueName') as string) || null;
-    const user_phone = (formData.get('phone') as string)?.trim() || null;
+    const user_phone = cleanPhone(validatedFields.data.phone);
 
     const user_id = session?.user?.id;
 
@@ -1237,20 +1241,28 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
 
 // Owner-facing deactivate/reactivate — separate from the admin version
 // (api/admin/pages/[id]/status), which any super admin can use on any page.
-// This one only ever touches a page the signed-in user owns.
+// This one only ever touches a page the signed-in user owns, and never a
+// suspended one: only an admin can lift a suspension.
 export async function setPageStatus(pageId: number, status: 'active' | 'inactive'): Promise<{ error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: 'Not authenticated.' };
   const pid = parsePageId(pageId);
   if (pid === null) return { error: 'Invalid page.' };
+  if (status !== 'active' && status !== 'inactive') return { error: 'Invalid status.' };
 
   const result = await sql`
     UPDATE user_page SET status = ${status}, status_changed_at = NOW()
-    WHERE id = ${pid} AND user_id = ${userId}
+    WHERE id = ${pid} AND user_id = ${userId} AND COALESCE(status, 'active') <> 'suspended'
     RETURNING id
   `;
-  if (!result.rows[0]) return { error: 'Page not found.' };
+  if (!result.rows[0]) {
+    const owned = await sql`SELECT status FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    if (owned.rows[0]?.status === 'suspended') {
+      return { error: 'This page has been suspended by MyGala. Please contact us to have it reviewed.' };
+    }
+    return { error: 'Page not found.' };
+  }
   revalidatePath(`/dashboard/pages/${pid}`);
   return {};
 }
@@ -1295,20 +1307,23 @@ export async function updateHeroEyebrow(pageId: number, eyebrow: string) {
   }
 }
 
-export async function updateContactInfo(pageId: number, email: string, phone: string) {
+export async function updateContactInfo(pageId: number, email: string, phone: string): Promise<{ error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
-  if (!userId || pid === null) return;
+  if (!userId || pid === null) return { error: 'Not signed in.' };
+  if (!isValidOptionalPhone(phone)) return { error: PHONE_INVALID_MESSAGE };
   try {
     await sql`
       UPDATE user_page
-      SET user_email = ${email.trim() || null}, user_phone = ${phone.trim() || null}
+      SET user_email = ${email.trim() || null}, user_phone = ${cleanPhone(phone)}
       WHERE id = ${pid} AND user_id = ${userId}
     `;
     revalidatePath('/', 'layout');
+    return {};
   } catch (error) {
     console.error('Failed to update contact info:', error);
+    return { error: 'Couldn’t save. Please try again.' };
   }
 }
 

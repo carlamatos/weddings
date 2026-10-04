@@ -103,6 +103,7 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
                     ? <span style={badge('#F6E6E3', '#9A4738')} title={plusUntil ? `Plus until ${plusUntil}` : undefined}>PLUS</span>
                     : <span style={badge(expired ? '#FFF8E7' : '#F1EEEA', expired ? '#8A6800' : '#6B6470')}>{expired ? 'PLUS ENDED' : 'FREE'}</span>}
                   {p.status === 'inactive' && <span style={badge('#FDECEC', '#B91C1C')}>DEACTIVATED</span>}
+                  {p.status === 'suspended' && <span style={badge('#FDECEC', '#8B1D1D')} title="Suspended by MyGala — contact us to have it reviewed">SUSPENDED</span>}
                   {past && <span style={badge('#F1EEEA', '#6B6470')}>PAST</span>}
                 </div>
                 <div style={{ fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>

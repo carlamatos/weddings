@@ -36,7 +36,7 @@ const select = {
 export default async function AdminPagesPage({ searchParams }: { searchParams: Promise<Search> }) {
   const sp = await searchParams;
   const plan: PlanFilter = pick(sp.plan, ['all', 'free', 'paid'] as const, 'all');
-  const status: StatusFilter = pick(sp.status, ['all', 'active', 'inactive'] as const, 'all');
+  const status: StatusFilter = pick(sp.status, ['all', 'active', 'inactive', 'suspended'] as const, 'all');
   const sort: SortOrder = pick(sp.sort, ['newest', 'oldest'] as const, 'newest');
   const offset = parseOffset(sp.offset);
 
@@ -52,8 +52,10 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
     <>
       <h1 style={{ fontSize: 22, margin: '0 0 6px' }}>Pages</h1>
       <p style={{ margin: '0 0 20px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
-        Deactivating a page shows guests a &ldquo;page unavailable&rdquo; message. The owner can still
-        sign in and sees a notice in their dashboard.
+        Deactivating or suspending a page shows guests a &ldquo;page unavailable&rdquo; message and closes its
+        forms and uploads. The owner can still sign in and sees a notice in their dashboard. A <strong>deactivated</strong> page
+        can be reactivated by its owner; a <strong>suspended</strong> page (for example, for inappropriate content) can only be
+        reactivated by an admin.
       </p>
 
       <form
@@ -74,6 +76,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
             <option value="all">All</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
+            <option value="suspended">Suspended</option>
           </select>
         </label>
         <label style={{ fontSize: 12, color: c.soft, display: 'grid', gap: 4 }}>
@@ -138,11 +141,11 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
                       borderRadius: 999,
                       fontSize: 12,
                       fontWeight: 600,
-                      background: p.status === 'inactive' ? c.amberBg : c.greenBg,
-                      color: p.status === 'inactive' ? c.amber : c.green,
+                      background: p.status === 'suspended' ? c.redBg : p.status === 'inactive' ? c.amberBg : c.greenBg,
+                      color: p.status === 'suspended' ? c.red : p.status === 'inactive' ? c.amber : c.green,
                     }}
                   >
-                    {p.status === 'inactive' ? 'Inactive' : 'Active'}
+                    {p.status === 'suspended' ? 'Suspended' : p.status === 'inactive' ? 'Inactive' : 'Active'}
                   </span>
                 </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{formatDate(p.created_at)}</td>

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { deletePotluckEntry } from '@/app/lib/actions';
 import type { PotluckEntry } from '@/app/lib/potluck';
+import { csvBlob } from '@/app/lib/guest-import';
 
 const cell: React.CSSProperties = { padding: '10px 12px', borderBottom: '1px solid #EDE8E3', fontSize: 14, color: '#241F2B', verticalAlign: 'top', textAlign: 'left' };
 const btn: React.CSSProperties = { padding: '7px 14px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#241F2B' };
@@ -28,7 +29,7 @@ export function PotluckEntries({ pageId, initialEntries }: { pageId: number; ini
     const rows = [['Name', 'Email', 'Bringing', 'Note', 'Updated'], ...entries.map((e) => [e.name, e.email, e.items, e.note ?? '', new Date(e.updated_at).toISOString()])];
     const csv = rows.map((r) => r.map(csvCell).join(',')).join('\n');
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.href = URL.createObjectURL(csvBlob(csv));
     a.download = 'potluck.csv';
     a.click();
   }

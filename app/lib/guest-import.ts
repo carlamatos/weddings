@@ -13,6 +13,12 @@ export const SAMPLE_CSV = [
   'John Smith,john@example.com,,+1 555 010 0002,',
 ].join('\n');
 
+// A CSV file for download. Starts with a byte-order mark so Excel reads it
+// as UTF-8 — without it, accents and dashes show as "Ã©" or "â€”".
+export function csvBlob(csv: string): Blob {
+  return new Blob(['\uFEFF', csv], { type: 'text/csv;charset=utf-8' });
+}
+
 export function partySize(raw: unknown): number {
   const n = Math.floor(Number(String(raw ?? '').trim()));
   return Number.isFinite(n) && n >= 1 ? Math.min(n, MAX_PARTY_SIZE) : 1;

@@ -75,6 +75,9 @@ export default async function AdminUsersPage({
                         {u.page_status === 'inactive' && (
                           <div style={{ color: c.amber, fontSize: 11, fontWeight: 600 }}>Deactivated</div>
                         )}
+                        {u.page_status === 'suspended' && (
+                          <div style={{ color: c.red, fontSize: 11, fontWeight: 600 }}>Suspended</div>
+                        )}
                       </>
                     ) : (
                       <span style={{ color: c.muted }}>No page yet</span>

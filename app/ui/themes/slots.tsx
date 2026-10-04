@@ -7,6 +7,7 @@ import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
 import { formatDateRange } from './event-when';
 import { compressImageFile } from '@/app/lib/compress-image';
+import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -720,12 +721,24 @@ export function EditableContactInfo({
   const [editing, setEditing] = useState(false);
   const [emailVal, setEmailVal] = useState(email ?? '');
   const [phoneVal, setPhoneVal] = useState(phone ?? '');
-  const [, startTransition] = useTransition();
+  const [error, setError] = useState('');
+  const [saving, startTransition] = useTransition();
 
   function handleSave() {
+    if (!isValidOptionalPhone(phoneVal)) {
+      setError(PHONE_INVALID_MESSAGE);
+      return;
+    }
+    setError('');
     startTransition(async () => {
-      await updateContactInfo(pageId, emailVal, phoneVal);
-      setEditing(false);
+      let result: { error?: string };
+      try {
+        result = await updateContactInfo(pageId, emailVal, phoneVal);
+      } catch {
+        result = { error: 'Couldn’t save. Please try again.' };
+      }
+      if (result.error) setError(result.error);
+      else setEditing(false);
     });
   }
 
@@ -744,16 +757,19 @@ export function EditableContactInfo({
           placeholder="Contact email" style={inputStyle}
         />
         <input
-          type="tel" value={phoneVal} onChange={e => setPhoneVal(e.target.value)}
+          type="tel" value={phoneVal} onChange={e => { setPhoneVal(e.target.value); setError(''); }}
           placeholder="Phone (optional)" style={inputStyle}
+          maxLength={PHONE_MAX_LENGTH} inputMode="tel" aria-invalid={!!error}
         />
+        {error && <p role="alert" style={{ margin: '0 0 6px', fontSize: 12, lineHeight: 1.4, color: '#fff', background: 'rgba(185,28,28,0.9)', padding: '5px 8px', borderRadius: 6 }}>{error}</p>}
         <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
           <button
             onClick={handleSave}
+            disabled={saving}
             style={{ padding: '5px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', background: 'rgba(255,255,255,0.9)', color: '#333', fontSize: 12, fontWeight: 600 }}
           >Save</button>
           <button
-            onClick={() => { setEmailVal(email ?? ''); setPhoneVal(phone ?? ''); setEditing(false); }}
+            onClick={() => { setEmailVal(email ?? ''); setPhoneVal(phone ?? ''); setError(''); setEditing(false); }}
             style={{ padding: '5px 14px', borderRadius: 6, border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', background: 'transparent', color: 'inherit', fontSize: 12 }}
           >Cancel</button>
         </div>

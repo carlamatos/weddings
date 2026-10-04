@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import type { UserPage } from './definitions';
 import { siteUrl } from './site-url';
 import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
+import { isPageOffline } from './page-status';
 
 // Social networks can't render a video or an SVG as a link-preview card, so
 // those fall through to the next candidate.
@@ -46,7 +47,7 @@ export function plainDescription(page: Pick<UserPage, 'description'>): string | 
 
 // Metadata for a public event page (slug route and custom-domain route alike).
 export function eventPageMetadata(page: UserPage): Metadata {
-  if (page.status === 'inactive') return { robots: { index: false, follow: false } };
+  if (isPageOffline(page.status)) return { robots: { index: false, follow: false } };
   const title = page.heading || 'MyGala';
   const description = plainDescription(page)?.slice(0, 140);
   const url = publicPageUrl(page);
