@@ -1,5 +1,6 @@
 import LegalLayout from '@/app/ui/legal-layout';
 import Link from 'next/link';
+import { COMPANY } from '@/app/lib/company';
 
 export const metadata = {
   title: 'About — MyGala',
@@ -52,6 +53,12 @@ export default function AboutPage() {
         Questions, feedback, or partnership inquiries — reach us at{' '}
         <a href="mailto:info@mygala.ca" style={{ color: 'var(--rose)' }}>info@mygala.ca</a>.
         We&apos;re a small team and we read every message.
+      </p>
+
+      <h2 style={h2}>Who we are</h2>
+      <p>
+        MyGala is owned and operated by <strong>{COMPANY.legalName}</strong>, a Canadian company. See our{' '}
+        <Link href="/company" style={{ color: 'var(--rose)' }}>Company Information</Link> page for our full details.
       </p>
 
     </LegalLayout>

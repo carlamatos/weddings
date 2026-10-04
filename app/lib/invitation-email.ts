@@ -1,5 +1,6 @@
 import { escHtml } from './mail';
 import { googleFontsHref, INVITATION_FONTS, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
+import { companyMailingLine } from './company';
 
 // The invitation email a guest receives (Invitations → Send). It carries the
 // host's saved design — colours, wording, fonts, background — rebuilt with
@@ -165,6 +166,7 @@ export function invitationEmail({
       <p style="max-width: 520px; margin: 20px auto 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 12px; line-height: 1.6; color: #8A8086; text-align: center;">
         ${escHtml(t.footer(hostName))}
         ${unsubscribeLink ? `<br /><a href="${escHtml(unsubscribeLink)}" style="color: #8A8086;">${t.unsubscribe}</a>` : ''}
+        <br />${escHtml(companyMailingLine())}
       </p>
     </td></tr>
   </table>
