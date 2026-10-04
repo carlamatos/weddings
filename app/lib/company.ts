@@ -23,7 +23,7 @@ export const COMPANY: Company = {
   // e.g. 'the Canada Business Corporations Act' or 'the Business Corporations Act (British Columbia)'
   incorporatedUnder: 'the Canada Business Corporations Act',
   // Registered office / business address, one line per array item.
-  address: ['1975 McCallum Rd Unit 115', 'Abbotsford, BC V2S 3N3', 'Canada'],
+  address: ['1975 McCallum Road Unit 115 Abbotsford, BC - 1048', 'Abbotsford, BC V2S 3N3', 'Canada'],
   // Customer phone number, e.g. '+1 604 555 0100'.
   phone: '+1 778-822-3685',
   // Corporation number and/or CRA business number, if you want them shown.
