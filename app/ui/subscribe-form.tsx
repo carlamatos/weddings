@@ -9,6 +9,7 @@ import { themesByCategory } from './themes/registry';
 import type { EventCategory } from './themes/types';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
 import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '../lib/plans';
+import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
   wedding: 'Wedding',
@@ -155,8 +156,16 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
 
   const endBeforeStart = !!formData.eventEndDate && !!formData.eventDate && formData.eventEndDate < formData.eventDate;
 
+  // Phone: checked as you type (the browser blocks submitting an invalid
+  // number); the message shows once you leave the field.
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const phoneInvalid = !isValidOptionalPhone(formData.phone);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    if (name === 'phone' && e.target instanceof HTMLInputElement) {
+      e.target.setCustomValidity(isValidOptionalPhone(value) ? '' : PHONE_INVALID_MESSAGE);
+    }
     setFormData(prev => ({ ...prev, [name]: value }));
     if (name === 'location') setLocation(value as 'address' | 'virtual');
   };
@@ -382,8 +391,16 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
             <div className="auth-input-wrap">
               <input className="auth-input" id="phone" type="tel" name="phone"
                 value={formData.phone} onChange={handleChange}
+                onBlur={() => setPhoneTouched(true)}
+                onInvalid={() => setPhoneTouched(true)}
+                maxLength={PHONE_MAX_LENGTH} autoComplete="tel" inputMode="tel"
+                aria-invalid={phoneTouched && phoneInvalid}
+                aria-describedby={phoneTouched && phoneInvalid ? 'phone-error' : undefined}
                 placeholder="+1 (555) 000-0000" />
             </div>
+            {phoneTouched && phoneInvalid
+              ? <p className="auth-field-error" id="phone-error">{PHONE_INVALID_MESSAGE}</p>
+              : state.errors?.phone && <p className="auth-field-error">{state.errors.phone[0]}</p>}
           </div>
         </div>
 
