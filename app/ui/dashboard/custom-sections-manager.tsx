@@ -193,7 +193,7 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
         <button type="button" style={btnGhost} onClick={() => fileRef.current?.click()} disabled={atLimit || uploading}>
           {uploading ? 'Uploading…' : '+ Image'}
         </button>
-        <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: 'none' }} onChange={addImages} />
+        <input ref={fileRef} type="file" accept="image/*,.heic,.heif" multiple style={{ display: 'none' }} onChange={addImages} />
         <span style={{ flex: 1 }} />
         {message && (
           <span role="status" style={{ fontSize: 13, color: message.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{message.text}</span>

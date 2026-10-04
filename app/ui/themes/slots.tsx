@@ -6,7 +6,7 @@ import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, 
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
 import { formatDateRange } from './event-when';
-import { compressImageFile } from '@/app/lib/compress-image';
+import { compressImageFile, isHeicFile } from '@/app/lib/compress-image';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
 // ─── shared pencil icon ──────────────────────────────────
@@ -551,10 +551,13 @@ export function EditableBannerBg({
 
     const fileIsVideo = file.type.startsWith('video/');
 
-    // Optimistic preview
-    const objectUrl = URL.createObjectURL(file);
-    setCurrent(objectUrl);
-    setIsVideo(fileIsVideo);
+    // Optimistic preview — except HEIC, which most browsers can't display;
+    // that one appears once it's converted and uploaded.
+    if (!isHeicFile(file)) {
+      const objectUrl = URL.createObjectURL(file);
+      setCurrent(objectUrl);
+      setIsVideo(fileIsVideo);
+    }
     setUploading(true);
     setUploadError('');
 
@@ -645,7 +648,7 @@ export function EditableBannerBg({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,video/mp4,video/quicktime,video/webm"
+        accept="image/*,.heic,.heif,video/mp4,video/quicktime,video/webm"
         style={{ display: 'none' }}
         onChange={handleFile}
       />

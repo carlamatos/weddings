@@ -144,7 +144,7 @@ export function GuestPhotoSection({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/*,.heic,.heif"
           multiple
           disabled={disabled}
           style={{ display: 'none' }}

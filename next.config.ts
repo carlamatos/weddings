@@ -23,6 +23,10 @@ const securityHeaders = [
       `font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live https://assets.vercel.com')}`,
       `img-src 'self' data: blob: https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
+      // The HEIC photo decoder (heic-to, app/lib/compress-image.ts) runs in a
+      // Web Worker it creates from a blob: URL — only scripts already on the
+      // page can create those.
+      "worker-src 'self' blob:",
       `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://vercel.com https://*.blob.vercel-storage.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
       `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv ${turnstileBridge}${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
