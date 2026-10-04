@@ -195,7 +195,7 @@ export function InvitationDesigner({
             {design.background.imageUrl && (
               <button type="button" style={btn} onClick={() => setDesign((d) => ({ ...d, background: { ...d.background, kind: 'color', imageUrl: '' } }))}>Remove image</button>
             )}
-            <input ref={fileRef} type="file" accept="image/*" onChange={onImage} style={{ display: 'none' }} />
+            <input ref={fileRef} type="file" accept="image/*,.heic,.heif" onChange={onImage} style={{ display: 'none' }} />
           </div>
           {design.background.kind === 'image' && design.background.imageUrl && (
             <div style={{ marginTop: 12 }}>

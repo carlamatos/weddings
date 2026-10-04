@@ -96,7 +96,7 @@ function ImageField({ url, bg, onChange, onBgChange, onError }: {
           />
         </div>
       )}
-      <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={pick} />
+      <input ref={fileRef} type="file" accept="image/*,.heic,.heif" style={{ display: 'none' }} onChange={pick} />
     </div>
   );
 }

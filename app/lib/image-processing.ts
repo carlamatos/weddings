@@ -63,3 +63,13 @@ export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
     .webp({ quality: 82 })
     .toBuffer();
 }
+
+// The server's image library can't read HEIC, so the browser converts HEIC
+// photos to WebP before uploading (app/lib/compress-image.ts). One that still
+// arrives as HEIC couldn't be converted there — say so clearly.
+export const HEIC_NOT_CONVERTED_ERROR =
+  'We couldn’t convert this HEIC photo. Please try again, or upload it as a JPEG or PNG.';
+
+export function isHeicUpload(file: File): boolean {
+  return /^image\/hei[cf](-sequence)?$/i.test(file.type) || /\.hei[cf]$/i.test(file.name);
+}

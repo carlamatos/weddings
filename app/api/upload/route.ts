@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
-import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
+import { isSafeImage, optimizeImage, isHeicUpload, HEIC_NOT_CONVERTED_ERROR } from '@/app/lib/image-processing';
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -11,6 +11,9 @@ export async function POST(request: Request) {
   const formData = await request.formData();
   const file = formData.get('file') as File | null;
 
+  if (file && isHeicUpload(file)) {
+    return NextResponse.json({ error: HEIC_NOT_CONVERTED_ERROR }, { status: 415 });
+  }
   if (!file || !file.type.startsWith('image/')) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
   }

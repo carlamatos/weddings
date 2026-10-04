@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
-import { isSafeImage, optimizeImage } from '@/app/lib/image-processing';
+import { isSafeImage, optimizeImage, isHeicUpload, HEIC_NOT_CONVERTED_ERROR } from '@/app/lib/image-processing';
 import { verifyPageToken } from '@/app/lib/page-token';
 import { overRateLimit } from '@/app/lib/rate-limit';
 
@@ -33,6 +33,9 @@ export async function POST(request: Request) {
   }
   if (await guestAccessDenied(request, pageId)) {
     return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
+  }
+  if (file && isHeicUpload(file)) {
+    return NextResponse.json({ error: HEIC_NOT_CONVERTED_ERROR }, { status: 415 });
   }
   if (!file || !file.type.startsWith('image/')) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });

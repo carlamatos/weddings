@@ -159,19 +159,21 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
 
     for (const file of allowed) {
       const tempId = `temp-${Date.now()}-${Math.random()}`;
-      const objectUrl = URL.createObjectURL(file);
+      // Converted first, so the preview also works for HEIC photos, which
+      // most browsers can't display.
+      const compressed = await compressImageFile(file);
+      const objectUrl = URL.createObjectURL(compressed);
       const tempImage: GalleryImage = {
         id: tempId,
         user_page_id: 0,
         image_path: objectUrl,
         image_name: file.name,
-        image_type: file.type,
+        image_type: compressed.type,
         created_at: new Date().toISOString(),
       };
       setImages((prev) => [...prev, tempImage]);
 
       try {
-        const compressed = await compressImageFile(file);
         const formData = new FormData();
         formData.append('file', compressed);
         formData.append('pageId', String(pageId));
@@ -243,7 +245,7 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,.heic,.heif"
         multiple
         style={{ display: 'none' }}
         onChange={handleFiles}
