@@ -32,7 +32,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     faqs: [
       { q: 'Is MyGala free?', a: 'Yes. Create as many event pages as you need for free, each with every theme, RSVPs with guest counts, the countdown, event details, the event program and a gallery of up to 8 photos.' },
       { q: 'What does Plus add?', a: 'Plus adds guest photo uploads with printable QR codes, the livestream section, song requests, automatic reminder emails, custom sections, sponsors, a registry section, a custom domain, a gallery of up to 100 photos, no MyGala branding and priority support.' },
-      { q: 'How much is Plus, and is it a subscription?', a: 'Plus is a one-time payment of $49.99 per event page, so you only pay for the events that need it. It is not a subscription: there are no recurring charges and no card kept on file.' },
+      { q: 'How much is Plus, and is it a subscription?', a: 'Plus is a one-time payment of $49.99 CAD per event page, so you only pay for the events that need it. It is not a subscription: there are no recurring charges and no card kept on file.' },
       { q: 'What happens when my 15 months of Plus end?', a: 'Your page stays online. The Plus features switch off and the page continues on the free plan until you extend Plus with another one-time payment.' },
       { q: 'Can I start free and upgrade later?', a: 'Yes. When you create an event you choose Free or Plus, and you can upgrade a free event at any time from Event pages. Everything you set up stays, and Plus features become available immediately.' },
       { q: 'How do I pay?', a: 'Payments are processed securely by Stripe. MyGala never sees or stores your card number.' },

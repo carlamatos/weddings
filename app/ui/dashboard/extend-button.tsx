@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PLAN_ONE_TIME_PRICE_USD, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 export default function ExtendButton({ pageId }: { pageId: number }) {
   const [loading, setLoading] = useState(false);
@@ -33,7 +33,7 @@ export default function ExtendButton({ pageId }: { pageId: number }) {
         whiteSpace: 'nowrap',
       }}
     >
-      {loading ? 'Redirecting…' : `Extend — $${PLAN_ONE_TIME_PRICE_USD} / ${PLAN_TERM_MONTHS} mo`}
+      {loading ? 'Redirecting…' : `Extend — ${PLAN_PRICE_LABEL} / ${PLAN_TERM_MONTHS} mo`}
     </button>
   );
 }
