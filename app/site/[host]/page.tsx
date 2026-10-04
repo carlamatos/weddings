@@ -13,6 +13,7 @@ import { sectionTextFromSettings } from '@/app/lib/section-text';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
+import { isPageOffline } from '@/app/lib/page-status';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -28,7 +29,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) notFound();
-  if (data.status === 'inactive') return <PageUnavailable />;
+  if (isPageOffline(data.status)) return <PageUnavailable />;
 
   const isPaid = data.plan_type === 'paid';
   const pageSettings = await fetchPageSettings(data.id);

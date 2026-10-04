@@ -33,7 +33,7 @@ export async function POST() {
     )
   `;
 
-  // Admin: page deactivation ('active' | 'inactive')
+  // Admin: page status ('active' | 'inactive' | 'suspended' — see app/lib/page-status.ts)
   await sql`ALTER TABLE user_page ADD COLUMN IF NOT EXISTS status TEXT NOT NULL DEFAULT 'active'`;
 
   // Admin: when a page last changed status. Starts the 3-month clock for

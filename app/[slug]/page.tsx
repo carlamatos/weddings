@@ -16,6 +16,7 @@ import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 import { appHref } from '@/app/lib/app-url';
+import { isPageOffline } from '@/app/lib/page-status';
 
 interface EventData {
   id: string;
@@ -115,7 +116,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
   if (!data) notFound();
-  if (data.status === 'inactive') return <PageUnavailable />;
+  if (isPageOffline(data.status)) return <PageUnavailable />;
   const isPaid = data.plan_type === 'paid';
   const isOwner = session?.user?.id === data.user_id;
   const pageSettings = await fetchPageSettings(data.id);

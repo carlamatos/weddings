@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     const page = await sql`
       SELECT 1 FROM user_page
       WHERE lower(regexp_replace(custom_domain, '^www\\.', '')) = ${bare}
-        AND COALESCE(status, 'active') <> 'inactive'
+        AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended')
       LIMIT 1`;
     if (!page.rows.length) return notFound();
   } catch {

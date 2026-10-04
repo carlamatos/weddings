@@ -50,7 +50,7 @@ export type TrashedUserRow = {
 };
 
 export type PlanFilter = 'all' | 'free' | 'paid';
-export type StatusFilter = 'all' | 'active' | 'inactive';
+export type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended';
 export type SortOrder = 'newest' | 'oldest';
 
 // SQL lives in plain strings so it can also be run directly in tests.

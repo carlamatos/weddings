@@ -1237,20 +1237,28 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
 
 // Owner-facing deactivate/reactivate — separate from the admin version
 // (api/admin/pages/[id]/status), which any super admin can use on any page.
-// This one only ever touches a page the signed-in user owns.
+// This one only ever touches a page the signed-in user owns, and never a
+// suspended one: only an admin can lift a suspension.
 export async function setPageStatus(pageId: number, status: 'active' | 'inactive'): Promise<{ error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: 'Not authenticated.' };
   const pid = parsePageId(pageId);
   if (pid === null) return { error: 'Invalid page.' };
+  if (status !== 'active' && status !== 'inactive') return { error: 'Invalid status.' };
 
   const result = await sql`
     UPDATE user_page SET status = ${status}, status_changed_at = NOW()
-    WHERE id = ${pid} AND user_id = ${userId}
+    WHERE id = ${pid} AND user_id = ${userId} AND COALESCE(status, 'active') <> 'suspended'
     RETURNING id
   `;
-  if (!result.rows[0]) return { error: 'Page not found.' };
+  if (!result.rows[0]) {
+    const owned = await sql`SELECT status FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    if (owned.rows[0]?.status === 'suspended') {
+      return { error: 'This page has been suspended by MyGala. Please contact us to have it reviewed.' };
+    }
+    return { error: 'Page not found.' };
+  }
   revalidatePath(`/dashboard/pages/${pid}`);
   return {};
 }
