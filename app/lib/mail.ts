@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import { siteUrl } from './site-url';
+import { companyMailingLine } from './company';
 
 const BRAND = {
   text: '#241F2B',
@@ -73,7 +74,7 @@ export function wrap(bodyHtml: string): string {
           ${bodyHtml}
         </div>
       </div>
-      <p style="max-width: 560px; margin: 24px auto 0; text-align: center; font-size: 12px; color: ${BRAND.muted};">MyGala &middot; mygala.ca</p>
+      <p style="max-width: 560px; margin: 24px auto 0; text-align: center; font-size: 12px; color: ${BRAND.muted};">${escHtml(companyMailingLine())}</p>
     </div>
   `;
 }

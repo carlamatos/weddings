@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
+import { COMPANY, copyrightLine } from '@/app/lib/company';
 
 // Footer for every marketing page: links to each feature and event type
 // page, plus the company pages.
@@ -23,11 +24,13 @@ export default function SiteFooter() {
           <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy Policy</Link>
           <Link href="/terms">Terms of Service</Link>
+          <Link href="/company">Company Information</Link>
           <Link href="/open-source">Open-Source Licences</Link>
         </div>
       </div>
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
       <p style={{ marginTop: 6 }}>mygala.ca</p>
+      <p style={{ marginTop: 6, fontSize: 12 }}>{copyrightLine()} MyGala is operated by {COMPANY.legalName}</p>
     </footer>
   );
 }

@@ -3,6 +3,7 @@ import { escHtml } from './mail';
 import { publicPageUrl, socialImagePathFor, socialImageFor } from './share';
 import { reminderLeadText, type ReminderKey } from './reminders';
 import { eventWhen } from '@/app/ui/themes/event-when';
+import { companyMailingLine } from './company';
 
 // The reminder email guests receive (see app/api/cron/reminders). Written in
 // the page's language; laid out with inline styles and tables so it renders
@@ -176,7 +177,8 @@ export function reminderEmail({
     </div>
     <p style="max-width: 560px; margin: 20px auto 0; text-align: center; font-size: 12px; line-height: 1.6; color: ${C.muted};">
       ${escHtml(t.footer(title))}<br />
-      <a href="${escHtml(unsubscribeLink)}" style="color: ${C.muted};">${t.unsubscribe}</a> &middot; MyGala &middot; mygala.ca
+      <a href="${escHtml(unsubscribeLink)}" style="color: ${C.muted};">${t.unsubscribe}</a><br />
+      ${escHtml(companyMailingLine())}
     </p>
   </div>
 </body>

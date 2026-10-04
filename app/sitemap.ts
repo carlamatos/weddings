@@ -24,6 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry('/contact', 0.4),
     entry('/privacy', 0.2, 'yearly'),
     entry('/terms', 0.2, 'yearly'),
+    entry('/company', 0.2, 'yearly'),
     entry('/open-source', 0.1, 'yearly'),
   ];
 }
