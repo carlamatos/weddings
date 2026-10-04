@@ -576,6 +576,81 @@ export const FEATURES: Feature[] = [
   },
 
   {
+    slug: 'gift-exchange',
+    navLabel: 'Gift Exchange (Secret Santa)',
+    plan: 'Plus',
+    seo: {
+      title: 'Secret Santa Generator & Gift Exchange for Your Event',
+      description:
+        'Run a Secret Santa from your event page: guests sign up with gift ideas, names are drawn fairly (nobody gets themselves, couples kept apart) and everyone is told by email, text or WhatsApp.',
+      keywords: ['secret santa generator', 'online secret santa', 'gift exchange organizer', 'secret santa draw', 'secret santa with exclusions', 'office gift exchange'],
+    },
+    eyebrow: 'Gift exchange',
+    h1: 'A Secret Santa that runs itself',
+    lead:
+      'Add a Gift Exchange to your event page and guests sign up with their gift ideas. When everyone’s in, draw names with one click — nobody gets their own name, couples can be kept apart — and each person finds out privately who they’re buying for, by email, text or WhatsApp.',
+    summary: 'Guests sign up, names are drawn fairly, and everyone is told privately.',
+    highlights: [
+      { title: 'A fair draw', text: 'Nobody draws themselves, everyone gives and receives one gift, and no two people draw each other.' },
+      { title: 'Couples kept apart', text: 'Mark couples (or anyone) who shouldn’t draw each other, and the draw respects it.' },
+      { title: 'Private results', text: 'Each person only sees their own match — even you, if you’re playing too.' },
+    ],
+    blocks: [
+      {
+        heading: 'How it works',
+        paragraphs: [
+          'Switch on the Gift Exchange and a sign-up appears on your event page, right after the RSVP. Guests enter their name and email, an optional phone number, and gift ideas for whoever draws them. Sending the form again with the same email updates their entry. You can also add people yourself — from your guest list or one by one.',
+          'Set a budget, when gifts will be exchanged and a note for everyone. They appear in the section and in each person’s Secret Santa message.',
+        ],
+      },
+      {
+        heading: 'A draw you can trust',
+        paragraphs: [
+          'When everyone’s in (at least three people), click Draw names. MyGala places everyone in one random circle and each person gives to the next — so nobody gets their own name, everyone gives and receives exactly one gift, and no two people end up buying for each other.',
+        ],
+        bullets: [
+          'Keep couples, siblings or anyone else apart: they won’t draw each other, either way round.',
+          'If your keep-apart rules make a draw impossible, MyGala tells you instead of quietly breaking one.',
+          'Changed your mind? Draw again, or clear the draw to reopen sign-ups.',
+        ],
+      },
+      {
+        heading: 'Telling everyone — without spoiling it',
+        paragraphs: [
+          'Click Email everyone and each person gets an email naming who they’re buying for, with that person’s gift ideas, the budget, the date and your note. Replies come straight to you.',
+          'For guests you’d rather text, tap Text or WhatsApp next to their phone number: your phone opens a ready-made message with their own private link. The message doesn’t name anyone, so you can play along without seeing who has whom. A “Told” column shows who has been emailed or texted.',
+        ],
+      },
+      {
+        heading: 'Great for',
+        bullets: [
+          'Christmas and holiday parties',
+          'Office and team gift exchanges',
+          'Family gatherings, friend groups and clubs',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Upgrade your page to Plus', text: 'The Gift Exchange is part of MyGala Plus — a one-time payment, no subscription.' },
+      { title: 'Open Gift Exchange', text: 'In your dashboard, choose Gift Exchange in the left menu, switch the section on and add the budget, date and a note.', dashboard: '/dashboard/gift-exchange', linkLabel: 'Open Gift Exchange' },
+      { title: 'Gather participants', text: 'Share your page so guests can sign up, or add people from your guest list. Add any couples to Keep apart.' },
+      { title: 'Draw names', text: 'Once at least three people have joined, click Draw names.' },
+      { title: 'Let everyone know', text: 'Click Email everyone, or send each person their private link by text or WhatsApp from your phone.' },
+    ],
+    faqs: [
+      { q: 'Can someone draw their own name?', a: 'Never. Everyone is placed in one circle and gives to the next person, so nobody can get themselves.' },
+      { q: 'Can I stop couples from drawing each other?', a: 'Yes. Add them under Keep apart and they won’t draw each other in either direction. For a family, add each pair.' },
+      { q: 'Can I take part if I’m the organizer?', a: 'Yes. Messages and private links only show each person their own match, and the list of who has whom stays hidden in your dashboard unless you choose to show it.' },
+      { q: 'Do guests need an account?', a: 'No. Guests sign up on your event page with their name and email, and open their result from an email or a private link.' },
+      { q: 'Can guests change their gift ideas after the draw?', a: 'Yes. Sign-ups close once names are drawn, but participants can still update their gift ideas with the same email — the person buying for them sees the latest ideas when they open their link.' },
+      { q: 'How many people can take part?', a: 'At least 3 and up to 200 people per event.' },
+      { q: 'What languages are the messages in?', a: 'The section and the messages follow your page’s language — English, Spanish or French.' },
+    ],
+    cta: { title: 'Make your gift exchange effortless', text: 'Create your event page, upgrade to Plus, and switch on the Gift Exchange.' },
+    related: ['potluck', 'invitations', 'event-reminder-emails'],
+  },
+
+  {
     slug: 'password-protection',
     navLabel: 'Password Protection',
     plan: 'Plus',

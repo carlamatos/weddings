@@ -457,7 +457,7 @@ export default async function Page() {
               <p className="faq-a">No. Guests just visit your link. No sign-up, no app, no friction.</p>
             </div>
             <div className="faq-item">
-              <p className="faq-q">What happens to my page after the wedding?</p>
+              <p className="faq-q">What happens to my page after the event?</p>
               <p className="faq-a">It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages stay fully featured for 15 months from your purchase, then you can extend for another 15 with a single payment.</p>
             </div>
             <div className="faq-item">
