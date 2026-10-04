@@ -11,6 +11,7 @@ import {
   MAX_PARTY_SIZE,
   SAMPLE_CSV,
   canPickContacts,
+  csvBlob,
   guestsFromCsv,
   guestsFromVCard,
   partySize,
@@ -95,7 +96,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
 
   function downloadSample() {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([SAMPLE_CSV], { type: 'text/csv' }));
+    a.href = URL.createObjectURL(csvBlob(SAMPLE_CSV));
     a.download = 'guest-list-sample.csv';
     a.click();
   }
