@@ -70,6 +70,7 @@ export interface ThemeProps {
   sponsors?: import('@/app/lib/definitions').Sponsor[];
   livestream?: import('@/app/lib/livestream').Livestream;
   potluck?: import('@/app/lib/potluck').PotluckProps; // Plus, off by default
+  giftExchange?: import('@/app/lib/gift-exchange').GiftExchangeProps; // Plus, off by default
   sectionTextPageId?: number; // editor only: makes those headings editable in place
 
   isLoggedIn?: boolean;

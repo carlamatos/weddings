@@ -15,6 +15,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
@@ -461,6 +462,7 @@ export default function AntiqueCars({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -683,6 +685,23 @@ export default function AntiqueCars({
               <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
               <div className="rsvp-card">
                 <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+              </div>
+            </div>
+          </div>
+        </Reveal>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <Reveal>
+          <div id="gift-exchange" className="rsvp-section">
+            <WireWheel className="ac-wheel ac-wheel-left" />
+            <div style={{ position: 'relative' }}>
+              <CrossedFlags light={TEAL} />
+              <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow on-teal" fallback={t.giftLabel} />
+              <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+              <div className="rsvp-card">
+                <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
               </div>
             </div>
           </div>

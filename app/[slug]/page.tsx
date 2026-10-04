@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '../lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -129,12 +129,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
   }
 
-  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck, giftExchange] = await Promise.all([
     fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchEventProgram(data.id),
     potluckProps(data.id, isPaid, pageSettings),
+    giftExchangeProps(data.id, isPaid, pageSettings),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
@@ -209,6 +210,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
         potluck={potluck}
+        giftExchange={giftExchange}
         shareUrl={data.share_url}
         isLoggedIn={!!session?.user}
       />

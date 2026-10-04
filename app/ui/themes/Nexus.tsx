@@ -14,6 +14,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
@@ -379,6 +380,7 @@ export default function Nexus({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -589,6 +591,24 @@ export default function Nexus({
                 <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
                 <div className="rsvp-card">
                   <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+                </div>
+              </div>
+            </div>
+          </Reveal>
+          <NexusDivider />
+        </>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <>
+          <Reveal>
+            <div id="gift-exchange" className="section section-center section-soft">
+              <div className="wrap">
+                <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow teal" icon={<Icon name="users" />} fallback={t.giftLabel} />
+                <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+                <div className="rsvp-card">
+                  <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
                 </div>
               </div>
             </div>

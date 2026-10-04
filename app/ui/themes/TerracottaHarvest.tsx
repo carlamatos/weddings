@@ -11,6 +11,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
@@ -226,6 +227,7 @@ export default function TerracottaHarvest({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -413,6 +415,18 @@ export default function TerracottaHarvest({
             <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="section-label" fallback={t.potluckLabel} />
             <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
             <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+          </div>
+          <BandDivider thin />
+        </>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <>
+          <div id="gift-exchange" className="section-tinted">
+            <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="section-label" fallback={t.giftLabel} />
+            <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+            <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
           </div>
           <BandDivider thin />
         </>

@@ -27,6 +27,7 @@ export const TRASH_TABLES: TableSpec[] = [
   { table: 'page_custom_sections', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_sponsors', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_potluck', where: `user_page_id IN ${PAGE_IDS}` },
+  { table: 'page_gift_exchange', where: `user_page_id IN ${PAGE_IDS}` },
 ];
 
 export type Snapshot = { version: 1; tables: Record<string, Row[]> };

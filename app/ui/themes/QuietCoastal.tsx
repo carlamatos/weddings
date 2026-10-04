@@ -11,6 +11,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
@@ -179,6 +180,7 @@ export default function QuietCoastal({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -386,6 +388,20 @@ export default function QuietCoastal({
               <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel.toLowerCase()} />
               <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="title" fallback={t.potluckTitle.toLowerCase()} />
               <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <>
+          <hr className="hairline" />
+          <div id="gift-exchange" className="wrap">
+            <div className="section">
+              <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel.toLowerCase()} />
+              <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="title" fallback={t.giftTitle.toLowerCase()} />
+              <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
             </div>
           </div>
         </>

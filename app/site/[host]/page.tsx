@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
-import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps } from '@/app/lib/data';
+import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { livestreamFromSettings } from '@/app/lib/livestream';
@@ -42,12 +42,13 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
     return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
   }
 
-  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck] = await Promise.all([
+  const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck, giftExchange] = await Promise.all([
     fetchGalleryImages(data.id),
     isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchEventProgram(data.id),
     potluckProps(data.id, isPaid, pageSettings),
+    giftExchangeProps(data.id, isPaid, pageSettings),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
@@ -109,6 +110,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
         potluck={potluck}
+        giftExchange={giftExchange}
         shareUrl={publicPageUrl(data)}
     />
   );

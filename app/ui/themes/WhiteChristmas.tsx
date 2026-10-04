@@ -15,6 +15,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
@@ -439,6 +440,7 @@ export default function WhiteChristmas({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -668,6 +670,26 @@ export default function WhiteChristmas({
                 <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
               </div>
               <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <div id="gift-exchange" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp-room.jpeg)` }}>
+          <div className="wx-snow-layer far" aria-hidden="true" />
+          <div className="wx-snow-layer near" aria-hidden="true" />
+          {/* Reveal animates with a transform, which starts a new stacking
+              context — lift it so the snow falls behind the card, not over it */}
+          <Reveal style={{ position: 'relative', zIndex: 2 }}>
+            <div className="rsvp-card">
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+                <StarRule />
+                <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+              </div>
+              <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>

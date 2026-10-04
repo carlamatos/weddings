@@ -11,6 +11,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
@@ -195,6 +196,7 @@ export default function MidnightBotanical({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -368,6 +370,15 @@ export default function MidnightBotanical({
           <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
           <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="title" fallback={t.potluckTitle} />
           <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+        </div>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <div id="gift-exchange" className="spine-section">
+          <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+          <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="title" fallback={t.giftTitle} />
+          <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
         </div>
       )}
 

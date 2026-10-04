@@ -77,7 +77,7 @@ export async function findPurgeCandidates(
 // purge finds the page's storage files, such as sponsor and section images.
 const PAGE_TABLES = [
   'user_page_settings', 'event_gallery', 'event_guests', 'guests_photos', 'guests_songs',
-  'event_program', 'page_custom_sections', 'page_sponsors', 'page_potluck',
+  'event_program', 'page_custom_sections', 'page_sponsors', 'page_potluck', 'page_gift_exchange',
 ];
 
 // Tables added by /api/migrate may not exist yet in every environment.

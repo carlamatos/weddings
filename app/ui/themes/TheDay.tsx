@@ -15,6 +15,7 @@ import { SectionText } from './section-text';
 import { CustomSectionContent, SponsorGrid } from './PlusSections';
 import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
+import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
@@ -393,6 +394,7 @@ export default function TheDay({
   sponsors,
   livestream,
   potluck,
+  giftExchange,
   isLoggedIn,
   demo,
 }: ThemeProps) {
@@ -619,6 +621,24 @@ export default function TheDay({
                 <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title" fallback={t.potluckTitle} />
               </div>
               <PotluckForm potluck={potluck} translations={t} disabled={formsDisabled} />
+            </div>
+          </Reveal>
+        </div>
+      )}
+
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
+      {isPaid && giftExchange && (
+        <div id="gift-exchange" className="rsvp-section">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="td-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
+          <Reveal className="rsvp-panel">
+            <div className="rsvp-card">
+              <div style={{ textAlign: 'center' }}>
+                <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
+                <Sprig />
+                <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title" fallback={t.giftTitle} />
+              </div>
+              <GiftExchangeSection giftExchange={giftExchange} translations={t} disabled={formsDisabled} />
             </div>
           </Reveal>
         </div>
