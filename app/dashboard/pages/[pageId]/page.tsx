@@ -19,6 +19,7 @@ import { EditableGallery } from '@/app/ui/themes/GallerySection';
 import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 import { formatDateRange } from '@/app/ui/themes/event-when';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
+import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -32,6 +33,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
     fetchEventProgram(pageId),
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
+  const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
@@ -88,6 +90,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         {...heroFallbackFor(userPage.theme_slug)}
         src={userPage.banner_image || ''}
         initialObjectFit={heroObjectFit}
+        initialObjectPosition={heroObjectPosition}
       />
     ),
     heroEyebrow: (
@@ -180,6 +183,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         guestSongs={guestSongsResult.songs}
         guestSongsHasMore={guestSongsResult.hasMore}
         heroObjectFit={heroObjectFit}
+        heroObjectPosition={heroObjectPosition}
         eventProgram={eventProgram}
         showEventProgram={showEventProgram}
         showSongRequests={showSongRequests}

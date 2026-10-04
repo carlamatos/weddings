@@ -8,6 +8,7 @@ import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-au
 import { formatDateRange } from './event-when';
 import { compressImageFile, isHeicFile } from '@/app/lib/compress-image';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
+import { HERO_OBJECT_POSITIONS, heroMediaStyle, type HeroObjectPosition } from './hero-media';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -501,12 +502,15 @@ export function EditableBannerBg({
   pageId,
   src,
   initialObjectFit = 'cover',
+  initialObjectPosition,
   defaultSrc,
   fallback,
 }: {
   pageId: number;
   src: string;
   initialObjectFit?: 'cover' | 'contain';
+  // Vertical alignment the owner chose; unset = the theme's own default.
+  initialObjectPosition?: HeroObjectPosition;
   // What the current theme shows when there is no banner (its default image, or
   // a custom element such as Terracotta's illustration).
   defaultSrc?: string;
@@ -520,6 +524,7 @@ export function EditableBannerBg({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);
+  const [objectPosition, setObjectPosition] = useState<HeroObjectPosition | undefined>(initialObjectPosition);
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -543,6 +548,20 @@ export function EditableBannerBg({
     const next = objectFit === 'cover' ? 'contain' : 'cover';
     setObjectFit(next);
     startTransition(() => updatePageSetting(pageId, 'hero_object_fit', next));
+  };
+
+  // Clicking the chosen alignment again goes back to the theme's default.
+  const chooseObjectPosition = (next: HeroObjectPosition) => {
+    const value = objectPosition === next ? undefined : next;
+    setObjectPosition(value);
+    startTransition(() => updatePageSetting(pageId, 'hero_object_position', value ?? ''));
+  };
+
+  // Fills the banner on its own, whatever the theme's CSS does — some themes
+  // position their banner image with inline styles that don't reach this one.
+  const mediaStyle: React.CSSProperties = {
+    position: 'absolute', inset: 0, width: '100%', height: '100%', display: 'block',
+    ...heroMediaStyle(objectFit, objectPosition),
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -638,11 +657,11 @@ export function EditableBannerBg({
           muted
           loop
           playsInline
-          style={{ objectFit }}
+          style={mediaStyle}
         />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img className="hero-bg" src={mediaSrc} alt="" style={{ objectFit }} />
+        <img className="hero-bg" src={mediaSrc} alt="" style={mediaStyle} />
       )}
 
       <input
@@ -677,6 +696,19 @@ export function EditableBannerBg({
         >
           {objectFit === 'cover' ? 'Cover ✓' : 'Contain ✓'}
         </button>
+        <span role="group" aria-label="Vertical alignment" style={{ display: 'inline-flex', borderRadius: 6, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.4)' }}>
+          {HERO_OBJECT_POSITIONS.map((pos) => (
+            <button
+              key={pos}
+              onClick={() => chooseObjectPosition(pos)}
+              aria-pressed={objectPosition === pos}
+              title={objectPosition === pos ? 'Aligned — click again to use the theme’s default' : `Align the photo to the ${pos}`}
+              style={{ background: objectPosition === pos ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.12)', border: 'none', cursor: 'pointer', color: 'inherit', font: 'inherit', fontSize: 12, padding: '4px 9px', fontWeight: 600, letterSpacing: 0.3 }}
+            >
+              {pos === 'top' ? 'Top' : pos === 'center' ? 'Center' : 'Bottom'}{objectPosition === pos ? ' ✓' : ''}
+            </button>
+          ))}
+        </span>
         {current && !uploading && (
           <button
             onClick={restoreDefault}

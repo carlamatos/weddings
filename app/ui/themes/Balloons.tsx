@@ -18,6 +18,7 @@ import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
+import { heroMediaStyle } from './hero-media';
 
 // Exclusive to Balloons — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -320,6 +321,7 @@ export default function Balloons({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -377,10 +379,10 @@ export default function Balloons({
         {editSlots?.heroBg ?? (
           bannerImage ? (
             isVideoUrl(bannerImage) ? (
-              <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: heroObjectFit, zIndex: 0 }} />
+              <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', ...heroMediaStyle(heroObjectFit, heroObjectPosition), zIndex: 0 }} />
             ) : (
               // eslint-disable-next-line @next/next/no-img-element
-              <img className="hero-bg" src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: heroObjectFit, zIndex: 0 }} />
+              <img className="hero-bg" src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', ...heroMediaStyle(heroObjectFit, heroObjectPosition), zIndex: 0 }} />
             )
           ) : null
         )}

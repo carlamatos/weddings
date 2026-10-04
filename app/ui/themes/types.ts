@@ -54,6 +54,7 @@ export interface ThemeProps {
   guestSongs?: import('@/app/lib/definitions').GuestSong[];
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
+  heroObjectPosition?: 'top' | 'center' | 'bottom'; // banner's vertical alignment; unset = theme default
   userPhone?: string;
   eventProgram?: import('@/app/lib/definitions').EventProgramItem[];
   showEventProgram?: boolean;

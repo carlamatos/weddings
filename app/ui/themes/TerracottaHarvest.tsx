@@ -13,6 +13,7 @@ import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
+import { heroMediaStyle } from './hero-media';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -210,6 +211,7 @@ export default function TerracottaHarvest({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -264,10 +266,10 @@ export default function TerracottaHarvest({
       <div className="hero">
         {editSlots?.heroBg ?? (bannerImage ? (
           isVideoUrl(bannerImage) ? (
-            <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={bannerImage} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={bannerImage} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={bannerImage} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         ) : (
           <TerracottaDefaultHero />

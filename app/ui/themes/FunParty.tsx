@@ -17,6 +17,7 @@ import { LivestreamContent } from './LivestreamSection';
 import PotluckForm from './PotluckForm';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
+import { heroMediaStyle } from './hero-media';
 
 // Exclusive to Fun Party — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -273,6 +274,7 @@ export default function FunParty({
   guestSongs,
   guestSongsHasMore,
   heroObjectFit = 'cover',
+  heroObjectPosition,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -331,10 +333,10 @@ export default function FunParty({
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(bannerImage || HERO_DEFAULTS['fun-party']) ? (
-            <video className="hero-bg" src={bannerImage || HERO_DEFAULTS['fun-party']} autoPlay muted loop playsInline style={{ objectFit: heroObjectFit }} />
+            <video className="hero-bg" src={bannerImage || HERO_DEFAULTS['fun-party']} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="hero-bg" src={bannerImage || HERO_DEFAULTS['fun-party']} alt="" style={{ objectFit: heroObjectFit }} />
+            <img className="hero-bg" src={bannerImage || HERO_DEFAULTS['fun-party']} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
         <div className="hero-overlay" />
