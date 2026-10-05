@@ -117,7 +117,8 @@ const css = `
   .al .hero { position: relative; min-height: 94vh; display: flex; align-items: center; justify-content: flex-end; text-align: right; padding: 72px 48px 88px; background: var(--al-cream); overflow: hidden; }
   .al .hero-bg-svg { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
   .al .hero-dots { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-  .al .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.85; }
+  /* Bottom-aligned by default so the bouquet stays in view; a Top/Center/Bottom choice in the editor overrides it. */
+  .al .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; z-index: 0; opacity: 0.85; }
   /* Darker toward the right, where the text sits, so it reads clearly over
      a busy photo/video — left side stays lighter to still show the footage. */
   .al .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43,26,34,0.1) 0%, rgba(43,26,34,0.55) 45%, rgba(43,26,34,0.8) 100%); z-index: 0; }
