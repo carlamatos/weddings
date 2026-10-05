@@ -19,9 +19,15 @@ export default function ConstructionPage() {
       });
       if (res.ok) {
         // Hard navigation (not router.push) so the proxy re-evaluates the
-        // freshly-set bypass cookie on a clean request.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = '/';
+        // freshly-set bypass cookie on a clean request. The gate shows this
+        // page in place of /login or /register, so reload that same page;
+        // opened directly at /construction, continue to the login page.
+        if (window.location.pathname === '/construction') {
+          // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+          window.location.href = '/login';
+        } else {
+          window.location.reload();
+        }
       } else {
         setError('Incorrect password.');
       }

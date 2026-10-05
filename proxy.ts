@@ -6,21 +6,17 @@ import { appOrigin, isAppPath, isSplitHost, siteOrigin } from './app/lib/app-url
 
 const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
 
-// Staging-only, temporary: let the front page through unauthenticated so it
-// can be shared/reviewed without the construction password. Everything else
-// on staging (and all of production) stays gated as before. Vercel sets
-// VERCEL_GIT_COMMIT_REF to the branch name being deployed.
-const isStagingDeploy = process.env.VERCEL_GIT_COMMIT_REF === 'staging';
+// Pre-launch gate (CONSTRUCTION_PASSWORD): the public site — homepage,
+// marketing and legal pages, event pages — is open, so Google sign-in and
+// Stripe can verify it. Only signing in and signing up stay behind the
+// password; entering it once sets the site_bypass cookie (shared with
+// app.mygala.ca). Remove CONSTRUCTION_PASSWORD to open them too.
+const GATED_PATHS = new Set(['/login', '/register']);
 
 const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   const constructionPassword = process.env.CONSTRUCTION_PASSWORD;
   const { pathname } = req.nextUrl;
-  // /verify-2fa completes a login (2FA is required for admins), so it's as open as /login.
-  const isAppRoute = pathname === '/login' || pathname === '/verify-2fa' || pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
-  // Guests reach this from reminder emails without the bypass cookie.
-  const isUnsubscribe = pathname === '/unsubscribe';
-  const isStagingFrontPage = isStagingDeploy && pathname === '/';
-  if (constructionPassword && pathname !== '/construction' && !isAppRoute && !isStagingFrontPage && !isUnsubscribe) {
+  if (constructionPassword && GATED_PATHS.has(pathname)) {
     const bypass = req.cookies.get('site_bypass')?.value;
     if (bypass !== constructionPassword) {
       return NextResponse.rewrite(new URL('/construction', req.url));
