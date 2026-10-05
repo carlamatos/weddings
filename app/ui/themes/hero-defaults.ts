@@ -6,7 +6,7 @@ export const HERO_DEFAULTS = {
   'quiet-coastal': '/images/themes/quiet-coastal/coastal.png',
   'midnight-botanical': '/images/themes/midnight-botanical/woods.png',
   vilma: '/images/themes/vilma/hero-bg.jpg',
-  alegria: '/videos/alegria-hero.mp4',
+  alegria: '/images/themes/alegria/hero.jpeg',
   'fun-party': '/images/themes/fun-party/hero.png',
   summit: '/images/themes/summit/hero.jpeg',
   nexus: '/images/themes/nexus/hero.jpeg',
