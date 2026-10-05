@@ -7,7 +7,6 @@ import RsvpForm from './RsvpForm';
 import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
-import { GradientHeroPlaceholder } from './GradientHeroPlaceholder';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
@@ -23,17 +22,16 @@ import { heroMediaStyle } from './hero-media';
 
 // Exclusive to Alegría — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
-  { id: 'al-default-1', user_page_id: 0, image_path: '/images/themes/alegria/celebration-1.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-2', user_page_id: 0, image_path: '/images/themes/alegria/celebration-2.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-3', user_page_id: 0, image_path: '/images/themes/alegria/celebration-3.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-4', user_page_id: 0, image_path: '/images/themes/alegria/celebration-4.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-5', user_page_id: 0, image_path: '/images/themes/alegria/celebration-5.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-6', user_page_id: 0, image_path: '/images/themes/alegria/celebration-6.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-7', user_page_id: 0, image_path: '/images/themes/alegria/celebration-7.png', image_name: '', image_type: 'image/png', created_at: '' },
-  { id: 'al-default-8', user_page_id: 0, image_path: '/images/themes/alegria/celebration-8.png', image_name: '', image_type: 'image/png', created_at: '' },
+  { id: 'al-default-1', user_page_id: 0, image_path: '/images/themes/alegria/photo-1.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-2', user_page_id: 0, image_path: '/images/themes/alegria/photo-2.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-3', user_page_id: 0, image_path: '/images/themes/alegria/photo-3.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-4', user_page_id: 0, image_path: '/images/themes/alegria/photo-4.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-5', user_page_id: 0, image_path: '/images/themes/alegria/photo-5.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-6', user_page_id: 0, image_path: '/images/themes/alegria/photo-6.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-7', user_page_id: 0, image_path: '/images/themes/alegria/photo-7.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
+  { id: 'al-default-8', user_page_id: 0, image_path: '/images/themes/alegria/photo-8.jpeg', image_name: '', image_type: 'image/jpeg', created_at: '' },
 ];
 
-const PALETTE: [string, string, string] = ['#E8A8B4', '#D8C3EE', '#D9A544'];
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -42,12 +40,9 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     : '';
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#FFF8F3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
-      {bannerImage ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }} />
-      ) : (
-        <GradientHeroPlaceholder colors={PALETTE} />
-      )}
+      {/* An uploaded video can't be a still preview: fall back to the theme's photo. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={bannerImage && !isVideoUrl(bannerImage) ? bannerImage : HERO_DEFAULTS.alegria} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #D9A544', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: 24, height: 24, borderRadius: '50%', border: '0.5px solid rgba(217,165,68,0.5)' }} />
@@ -163,7 +158,7 @@ const css = `
   .al .schedule-info .name { font-family: var(--al-font-sans); font-size: 15px; color: var(--al-ink); font-weight: 600; margin: 0 0 3px; }
   .al .schedule-info .loc { font-family: var(--al-font-sans); font-size: 13px; color: var(--al-ink-soft); margin: 0; }
 
-  .al .rsvp-section { background: var(--al-lilac); padding: 84px 28px; text-align: center; }
+  .al .rsvp-section { background: var(--al-lilac) url('/images/themes/alegria/rsvp.jpeg') center / cover no-repeat; padding: 84px 28px; text-align: center; }
   .al .rsvp-card { max-width: 460px; margin: 0 auto; background: #FFFFFF; border-radius: 20px 4px 20px 4px; padding: 34px 30px; text-align: left; box-shadow: 0 4px 28px rgba(232,168,180,0.25); }
 
   .al .gallery-tile { overflow: hidden; border-radius: 16px 4px 16px 4px; border: 1px solid var(--al-blush); }
