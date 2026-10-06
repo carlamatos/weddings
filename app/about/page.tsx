@@ -38,7 +38,7 @@ export default function AboutPage() {
 
       <h2 style={h2}>Pricing</h2>
       <p>
-        MyGala is free to start. The free plan gives you full-featured event pages at <em>mygala.ca/yourname</em> — as many events as you need. The <strong>Plus plan</strong> ($49.99 CAD, one-time, per event) adds unlimited photo uploads, a custom domain, no Gala branding, priority support, and more — for 15 months, no subscription or recurring charge.
+        MyGala is free to start. The free plan gives you full-featured event pages at <em>mygala.ca/yourname</em> — as many events as you need. The <strong>Plus plan</strong> ($49.99 CAD, one-time, per event) adds unlimited photo uploads, a custom domain, priority support, and more — for 15 months, no subscription or recurring charge.
       </p>
 
       <h2 style={h2}>Privacy and your data</h2>

@@ -45,6 +45,7 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
         {isLoggedIn ? (
           <Link
             href={appHref('/dashboard')}
+            rel="nofollow"
             style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             Dashboard
@@ -53,12 +54,14 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
           <>
             <Link
               href={appHref('/login')}
+              rel="nofollow"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: '1.5px solid #241F2B', background: 'transparent', color: '#241F2B', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Log in
             </Link>
             <Link
               href={appHref('/login')}
+              rel="nofollow"
               className="mg-start-page"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
@@ -66,6 +69,7 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
             </Link>
             <Link
               href={appHref('/register')}
+              rel="nofollow"
               className="mg-sign-up"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >

@@ -54,7 +54,7 @@ function slugify(text: string): string {
 
 // Short lists for the plan choice; the full comparison lives on the pricing page.
 const FREE_POINTS = ['Every theme', 'RSVPs, guest list & guest count', 'Countdown, details & event program'];
-const PLUS_POINTS = ['Invitations by email, text & WhatsApp', 'Guest photo uploads & QR code', 'Livestream, reminders & song requests', 'Potluck, custom sections, sponsors & registry', 'Password protection & custom domain', 'No MyGala branding, priority support'];
+const PLUS_POINTS = ['Invitations by email, text & WhatsApp', 'Guest photo uploads & QR code', 'Livestream, reminders & song requests', 'Potluck, custom sections, sponsors & registry', 'Password protection & custom domain', 'Priority support'];
 
 // accountEmail: the signed-in account's email — the contact email starts as
 // this, and the user can change it.
