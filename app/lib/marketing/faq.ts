@@ -36,6 +36,8 @@ export const FAQ_GROUPS: FaqGroup[] = [
       { q: 'What happens when my 15 months of Plus end?', a: 'Your page stays online. The Plus features switch off and the page continues on the free plan until you extend Plus with another one-time payment.' },
       { q: 'Can I start free and upgrade later?', a: 'Yes. When you create an event you choose Free or Plus, and you can upgrade a free event at any time from Event pages. Everything you set up stays, and Plus features become available immediately.' },
       { q: 'How do I pay?', a: 'Payments are processed securely by Stripe. MyGala never sees or stores your card number.' },
+      { q: 'Can I get a refund on Plus?', a: 'Plus features unlock as soon as your payment goes through, so Plus purchases are non-refundable, except where the law requires otherwise. If you think you were charged in error, email info@mygala.ca within 14 days of the charge and we will review it. The full policy is in section 8 of our Terms of Service.' },
+      { q: 'How do I cancel Plus?', a: 'There is nothing to cancel: Plus is a one-time payment, not a subscription, so it never renews. After 15 months your page simply continues on the free plan, unless you choose to extend it.' },
     ],
   },
   {

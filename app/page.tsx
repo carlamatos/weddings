@@ -437,6 +437,12 @@ export default async function Page() {
               <Link href={appHref('/login')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>
           </div>
+          {/* What Stripe and card networks expect next to a price: who processes
+              payment, accepted cards, the currency, and the refund policy. */}
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.7, margin: '28px auto 0', maxWidth: 640 }}>
+            🔒 Secure checkout by Stripe · Visa, Mastercard and American Express accepted · Prices in Canadian dollars ({PLAN_CURRENCY}).{' '}
+            <Link href="/terms#refunds" style={{ color: 'var(--rose)' }}>Refund &amp; cancellation policy</Link>
+          </p>
         </div>
       </div>
 
