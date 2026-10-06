@@ -842,7 +842,8 @@ export default function HalloweenParty({
       {/* REGISTRY (costumes & treats) */}
       {(registryDescription || registryButtonLink) && (
         <Reveal>
-          <div className="registry-wrap" style={{ backgroundImage: `url(${registryImage || `${IMG}/registry.jpeg`})` }}>
+          {/* Same ember-to-pumpkin gradient as the Tag your posts band; an uploaded image replaces it. */}
+          <div className="registry-wrap" style={registryImage ? { backgroundImage: `url(${registryImage})` } : { background: `linear-gradient(135deg, ${EMBER} 0%, ${PUMPKIN} 50%, #D9661A 100%)`, justifyContent: 'center' }}>
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
               {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
