@@ -792,7 +792,8 @@ export default function BabyShowerBoy({
         <Reveal>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || `${IMG}/watercolor-frame.jpeg`})` }}
+            // A soft sky blue by default; an uploaded registry image replaces it.
+            style={registryImage ? { backgroundImage: `url(${registryImage})` } : { backgroundColor: '#E4F4FF' }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>

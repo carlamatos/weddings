@@ -589,7 +589,8 @@ export default function Balloons({
         <Reveal>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/balloons/registry.jpg'})` }}
+            // A solid coral by default; an uploaded registry image replaces it.
+            style={registryImage ? { backgroundImage: `url(${registryImage})` } : { backgroundColor: '#F2454B' }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
