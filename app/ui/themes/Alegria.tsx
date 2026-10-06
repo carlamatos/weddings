@@ -124,6 +124,37 @@ const css = `
   .al .hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(43,26,34,0.1) 0%, rgba(43,26,34,0.55) 45%, rgba(43,26,34,0.8) 100%); z-index: 0; }
   .al .hero-content { position: relative; z-index: 1; max-width: 560px; margin: 0 0 0 auto; }
   @keyframes al-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── Waves: cream wave edges, drifting gently — the banner's bottom, the
+     RSVP section's top and bottom (Potluck and Gift Exchange share its
+     styling) and the footer's bottom. Pure CSS (pseudo-elements). Two
+     layers at different speeds; still for visitors who prefer reduced
+     motion. ── */
+  .al .hero, .al .rsvp-section, .al .footer { position: relative; }
+  .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before {
+    content: ''; position: absolute; left: 0; right: 0; height: 56px; z-index: 2; pointer-events: none;
+    background-repeat: repeat-x, repeat-x; background-size: 600px 56px, 400px 56px;
+  }
+  .al .hero::after, .al .rsvp-section::after, .al .footer::after {
+    bottom: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 30 Q150 2 300 30 T600 30 V56 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 22 Q100 50 200 22 T400 22 V56 H0 Z'/%3E%3C/svg%3E");
+    animation: al-wave-drift 12s linear infinite;
+  }
+  .al .rsvp-section::before {
+    top: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 26 Q150 54 300 26 T600 26 V0 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 34 Q100 6 200 34 T400 34 V0 H0 Z'/%3E%3C/svg%3E");
+    animation: al-wave-drift 15s linear infinite reverse;
+  }
+  @keyframes al-wave-drift { from { background-position: 0 0, 0 0; } to { background-position: 600px 0, -400px 0; } }
+  /* Same drift for the smaller phone tiles: one tile width per loop, so it never jumps. */
+  @keyframes al-wave-drift-sm { from { background-position: 0 0, 0 0; } to { background-position: 360px 0, -240px 0; } }
+  @media (max-width: 640px) {
+    .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before {
+      height: 34px; background-size: 360px 34px, 240px 34px; animation-name: al-wave-drift-sm;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before { animation: none; }
+  }
+
   /* Hero sits over a dark scrim now, so these get the same on-dark
      treatment used elsewhere (footer, song section) instead of the
      light-on-light colors used on the cream sections below. */
@@ -164,7 +195,7 @@ const css = `
 
   .al .gallery-tile { overflow: hidden; border-radius: 16px 4px 16px 4px; border: 1px solid var(--al-blush); }
 
-  .al .registry-wrap { position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center; background-size: cover; background-position: center; }
+  .al .registry-wrap { position: relative; width: 100%; min-height: 280px; display: flex; align-items: center; justify-content: center; background: var(--al-lilac); }
   .al .registry-overlay { background: rgba(74,46,58,0.6); padding: 48px 60px; text-align: center; border-radius: 4px; }
   .al .registry-title { font-family: var(--al-font-sans); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--al-gold); margin: 0 0 14px; font-weight: 600; }
   .al .registry-description { font-size: 15px; color: rgba(255,255,255,0.9); margin: 0 0 24px; line-height: 1.6; max-width: 390px; }
@@ -253,7 +284,6 @@ export default function Alegria({
   userEmail,
   userPhone,
   mapsKey,
-  registryImage,
   registryDescription,
   registryButtonText,
   registryButtonLink,
@@ -531,10 +561,7 @@ export default function Alegria({
       {/* GIFTS (registry section, reframed) */}
       {(registryDescription || registryButtonLink) && (
         <Reveal>
-          <div
-            className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/alegria/registry.jpeg'})` }}
-          >
+          <div className="registry-wrap">
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
               {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}

@@ -127,7 +127,7 @@ export default async function Page() {
                 <a href="/themes/alegria" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#FFF8F3' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera Party" eventDate="2027-06-12" city="San Antonio" country="TX" />
+                      <ThemeHeroPreview themeSlug="alegria" heading="Quinceañera" eventDate="2027-06-12" city="San Antonio" country="TX" />
                     </div>
                   </div>
                   <div className="theme-info">
@@ -149,7 +149,7 @@ export default async function Page() {
                 <a href="/themes/balloons" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                      <ThemeHeroPreview themeSlug="balloons" heading="Kids Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
+                      <ThemeHeroPreview themeSlug="balloons" heading="Birthday Bash" eventDate="2026-11-14" city="Austin" country="TX" />
                     </div>
                   </div>
                   <div className="theme-info">
@@ -437,6 +437,12 @@ export default async function Page() {
               <Link href={appHref('/login')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>
           </div>
+          {/* What Stripe and card networks expect next to a price: who processes
+              payment, accepted cards, the currency, and the refund policy. */}
+          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.7, margin: '28px auto 0', maxWidth: 640 }}>
+            🔒 Secure checkout by Stripe · Visa, Mastercard and American Express accepted · Prices in Canadian dollars ({PLAN_CURRENCY}).{' '}
+            <Link href="/terms#refunds" style={{ color: 'var(--rose)' }}>Refund &amp; cancellation policy</Link>
+          </p>
         </div>
       </div>
 

@@ -5,6 +5,7 @@ import SiteTopbar from '@/app/ui/site-topbar';
 import SiteFooter from '@/app/ui/marketing/site-footer';
 import '@/app/ui/marketing.css';
 import ContactForm from './ContactForm';
+import { COMPANY } from '@/app/lib/company';
 
 export const metadata = {
   title: 'Contact — MyGala',
@@ -40,6 +41,21 @@ export default async function ContactPage() {
               <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Email us directly</p>
               <a href="mailto:info@mygala.ca" style={{ fontSize: 14, color: 'var(--rose)', textDecoration: 'none', fontWeight: 500 }}>info@mygala.ca</a>
             </div>
+            {COMPANY.phone && (
+              <div>
+                <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Call us</p>
+                <a href={`tel:${COMPANY.phone.replace(/[^+\d]/g, '')}`} style={{ fontSize: 14, color: 'var(--rose)', textDecoration: 'none', fontWeight: 500 }}>{COMPANY.phone}</a>
+              </div>
+            )}
+            {COMPANY.address.length > 0 && (
+              <div>
+                <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Mailing address</p>
+                <p style={{ fontSize: 14, color: 'var(--ink)', margin: 0, lineHeight: 1.6 }}>
+                  {COMPANY.legalName}<br />
+                  {COMPANY.address.map((line) => <span key={line}>{line}<br /></span>)}
+                </p>
+              </div>
+            )}
             <div>
               <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Response time</p>
               <p style={{ fontSize: 14, color: 'var(--ink)', margin: 0 }}>Within 1 business day</p>

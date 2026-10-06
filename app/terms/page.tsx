@@ -80,7 +80,7 @@ export default function TermsPage() {
         When you send invitations through MyGala — by email, or as a text or WhatsApp message from your own phone — they are sent on your behalf and in your name. Guests can unsubscribe from emails about your event at any time. MyGala stores your guests&rsquo; information on your behalf, uses it only to provide the Service, and handles it as described in our <Link href="/privacy" style={link}>Privacy Policy</Link>.
       </p>
 
-      <h2 id="billing" style={h2}>8. MyGala Plus: price, payment and refunds</h2>
+      <h2 id="billing" style={h2}>8. MyGala Plus: price, payment, refunds and cancellation</h2>
       <p>
         MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
       </p>
@@ -88,7 +88,9 @@ export default function TermsPage() {
         <li><strong>Payment:</strong> Payments are processed securely by <strong>Stripe</strong>. We never see or store your full card details. Your card issuer may charge a currency conversion fee if your card is not in Canadian dollars.</li>
         <li><strong>Receipt:</strong> After your payment, a receipt is emailed to the address you used at checkout. Keep it as your record of the purchase.</li>
         <li><strong>When Plus ends:</strong> After {PLAN_TERM_MONTHS} months, your event page stays live on the free plan, without the Plus-only features. You can extend Plus for another {PLAN_TERM_MONTHS} months with another one-time payment at any time.</li>
-        <li><strong>Refunds:</strong> Because Plus features are available as soon as payment is complete, payments are non-refundable, except where required by law. If you believe you were charged in error, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> within 14 days of the charge and we will review it.</li>
+        <li id="refunds"><strong>Refunds:</strong> Because Plus features are available as soon as payment is complete, payments are non-refundable, except where required by law. If you believe you were charged in error, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> within 14 days of the charge and we will review it.</li>
+        <li id="cancellation"><strong>Cancellation:</strong> Plus is not a subscription, so there is nothing to cancel: it ends on its own after {PLAN_TERM_MONTHS} months and you are never charged again unless you choose to extend it. You can stop using Plus, deactivate your page or close your account at any time; the unused part of a Plus term is not refunded, except where required by law.</li>
+        <li><strong>Promotion codes:</strong> From time to time we may offer promotion codes, entered at checkout. Each code&rsquo;s discount, expiry date and any other conditions are shown with the code. Codes can only be used as described, can&rsquo;t be combined unless we say so, have no cash value, and a purchase made with a code follows the same refund terms as any other purchase.</li>
         <li><strong>Price changes:</strong> We may change the price of Plus for future purchases. The price that applies to you is the one shown at checkout when you buy.</li>
       </ul>
       <p>
