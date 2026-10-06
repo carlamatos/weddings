@@ -452,7 +452,7 @@ export default function TerracottaHarvest({
         <>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
+            style={{ backgroundImage: `url(${registryImage || '/images/themes/terracotta-harvest/registry.jpg'})` }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>

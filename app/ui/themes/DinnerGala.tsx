@@ -555,7 +555,7 @@ export default function DinnerGala({
         <Reveal>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
+            style={{ backgroundImage: `url(${registryImage || '/images/themes/dinner-gala/registry.jpg'})` }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
