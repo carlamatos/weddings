@@ -398,7 +398,7 @@ export default function MidnightBotanical({
       {(registryDescription || registryButtonLink) && (
         <div
           className="registry-wrap"
-          style={{ backgroundImage: `url(${registryImage || '/images/themes/midnight-botanical/registry.jpg'})` }}
+          style={registryImage ? { backgroundImage: `url(${registryImage})` } : { backgroundColor: 'rgba(30, 58, 46, 0.6)' }}
         >
           <div className="registry-overlay">
             <p className="registry-title">{t.registry}</p>

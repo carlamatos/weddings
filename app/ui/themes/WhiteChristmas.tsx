@@ -275,7 +275,8 @@ const css = `
   .wx .gallery-tile { overflow: hidden; border-radius: 2px; }
 
   /* registry, over the tree and gifts */
-  .wx .registry-wrap { position: relative; width: 100%; min-height: 400px; display: flex; align-items: center; justify-content: flex-end; background-size: cover; background-position: left center; padding: 72px 8vw; }
+  /* the whole photo shows (contain), with frosty white filling the rest */
+  .wx .registry-wrap { position: relative; width: 100%; min-height: 400px; display: flex; align-items: center; justify-content: flex-end; background-size: contain; background-repeat: no-repeat; background-color: #F4F9FD; padding: 72px 8vw; }
   .wx .registry-overlay { background: rgba(255,255,255,0.94); padding: 52px 56px; text-align: center; max-width: 520px; box-shadow: inset 0 0 0 1px ${FROST}, inset 0 0 0 8px rgba(255,255,255,0.94), inset 0 0 0 9px rgba(214,171,124,0.55), 0 30px 60px -36px rgba(59,62,61,0.45); }
   @media (max-width: 760px) { .wx .registry-wrap { justify-content: center; padding: 60px 20px; } .wx .registry-overlay { padding: 40px 24px; } }
   .wx .registry-title { font-family: var(--wx-font-display); font-style: italic; font-size: 44px; color: var(--wx-pine); margin: 0 0 12px; font-weight: 500; }
