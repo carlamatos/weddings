@@ -1,11 +1,9 @@
 import LegalLayout from '@/app/ui/legal-layout';
 import Link from 'next/link';
 import { COMPANY } from '@/app/lib/company';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'About — MyGala',
-  description: 'MyGala helps you create a beautiful, personalised page for any event in minutes. Learn about what we do and why we built it.',
-};
+export const metadata = pageMetadata('About Us', 'MyGala helps you create a beautiful, personalised page for any event in minutes. Learn about what we do and why we built it.', '/about');
 
 export default function AboutPage() {
   return (

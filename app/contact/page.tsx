@@ -6,11 +6,9 @@ import SiteFooter from '@/app/ui/marketing/site-footer';
 import '@/app/ui/marketing.css';
 import ContactForm from './ContactForm';
 import { COMPANY } from '@/app/lib/company';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'Contact — MyGala',
-  description: 'Get in touch with the MyGala team.',
-};
+export const metadata = pageMetadata('Contact Us', 'Contact MyGala by email, phone or mail for help with your event page, billing or partnerships. We reply within one business day.', '/contact');
 
 export default async function ContactPage() {
   const session = await auth();

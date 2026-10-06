@@ -6,7 +6,10 @@ import ThemeFilter from '@/app/ui/theme-filter';
 import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
-import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_LABEL } from '@/app/lib/plans';
+import type { Metadata } from 'next';
+import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { faqPageJsonLd, marketingMetadata, organizationJsonLd, productJsonLd, webSiteJsonLd } from '@/app/lib/marketing/seo';
+import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
@@ -17,12 +20,35 @@ const NEW_THEME_PREVIEW_SCALE = 220 / 280;
 
 const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn more';
 
+const HOME_SEO = {
+  title: 'MyGala — Event Websites with RSVPs, Invitations & Photos',
+  description: `Create an event website in minutes: RSVPs, guest list, invitations, guest photos, livestream and reminders. Free to start; Plus is ${PLAN_PRICE_LABEL} per event.`,
+};
+
+export const metadata: Metadata = {
+  ...marketingMetadata(HOME_SEO, '/'),
+  // The homepage title already leads with the brand: no " | MyGala" suffix.
+  title: { absolute: HOME_SEO.title },
+};
+
+// Shown on the page and marked up as FAQPage for search engines and AI assistants.
+const HOME_FAQS = [
+  { q: 'Can I switch themes after I’ve started?', a: 'Yes. Your content stays put — switching themes only changes how it looks, any time, as many times as you like.' },
+  { q: 'Do my guests need an account to RSVP or upload photos?', a: 'No. Guests just visit your link. No sign-up, no app, no friction.' },
+  { q: 'What happens to my page after the event?', a: `It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages stay fully featured for ${PLAN_TERM_MONTHS} months from your purchase, then you can extend for another ${PLAN_TERM_MONTHS} with a single payment.` },
+  { q: 'Is Plus a subscription?', a: `No — it’s a single one-time payment of ${PLAN_PRICE_LABEL} per event that unlocks every feature for that event for ${PLAN_TERM_MONTHS} months. No recurring charge, and no card kept on file.` },
+];
+
 export default async function Page() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
 
   return (
     <div className={`marketing-page ${greatVibes.variable}`}>
+      <JsonLd data={organizationJsonLd()} />
+      <JsonLd data={webSiteJsonLd()} />
+      <JsonLd data={productJsonLd()} />
+      <JsonLd data={faqPageJsonLd(HOME_FAQS)} />
 
       {/* TOP BAR */}
       <SiteTopbar isLoggedIn={isLoggedIn} />
@@ -456,22 +482,12 @@ export default async function Page() {
             <h2 className="section-title">Good to know</h2>
           </div>
           <div className="reveal">
-            <div className="faq-item">
-              <p className="faq-q">Can I switch themes after I&apos;ve started?</p>
-              <p className="faq-a">Yes. Your content stays put — switching themes only changes how it looks, any time, as many times as you like.</p>
-            </div>
-            <div className="faq-item">
-              <p className="faq-q">Do my guests need an account to RSVP or upload photos?</p>
-              <p className="faq-a">No. Guests just visit your link. No sign-up, no app, no friction.</p>
-            </div>
-            <div className="faq-item">
-              <p className="faq-q">What happens to my page after the event?</p>
-              <p className="faq-a">It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages stay fully featured for 15 months from your purchase, then you can extend for another 15 with a single payment.</p>
-            </div>
-            <div className="faq-item">
-              <p className="faq-q">Is Plus a subscription?</p>
-              <p className="faq-a">No — it&apos;s a single one-time payment of {PLAN_PRICE_LABEL} per event that unlocks every feature for that event for 15 months. No recurring charge, and no card kept on file.</p>
-            </div>
+            {HOME_FAQS.map((f) => (
+              <div className="faq-item" key={f.q}>
+                <p className="faq-q">{f.q}</p>
+                <p className="faq-a">{f.a}</p>
+              </div>
+            ))}
           </div>
         </div>
       </div>

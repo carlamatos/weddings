@@ -3,11 +3,9 @@ import Link from 'next/link';
 import CompanyDetails from '@/app/ui/marketing/company-details';
 import { COMPANY } from '@/app/lib/company';
 import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'Terms of Service — MyGala',
-  description: `The terms governing your use of MyGala, the Canadian event website platform operated by ${COMPANY.legalName}`,
-};
+export const metadata = pageMetadata('Terms of Service', `The terms governing your use of MyGala, the Canadian event website platform operated by ${COMPANY.legalName}`, '/terms');
 
 const EFFECTIVE_DATE = 'October 4, 2026';
 const CONTACT_EMAIL = COMPANY.email;

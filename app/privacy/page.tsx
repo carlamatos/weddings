@@ -2,11 +2,9 @@ import LegalLayout from '@/app/ui/legal-layout';
 import Link from 'next/link';
 import CompanyDetails from '@/app/ui/marketing/company-details';
 import { COMPANY } from '@/app/lib/company';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'Privacy Policy — MyGala',
-  description: `How ${COMPANY.legalName} (MyGala) collects, uses, and protects personal information, in compliance with PIPEDA and PIPA.`,
-};
+export const metadata = pageMetadata('Privacy Policy', `How ${COMPANY.legalName} (MyGala) collects, uses, and protects personal information, in compliance with PIPEDA and PIPA.`, '/privacy');
 
 const EFFECTIVE_DATE = 'October 4, 2026';
 const CONTACT_EMAIL = COMPANY.email;

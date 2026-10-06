@@ -1,9 +1,7 @@
 import LegalLayout from '@/app/ui/legal-layout';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'Open-Source Licences — MyGala',
-  description: 'The open-source software MyGala uses, with its licences and where to get the source code.',
-};
+export const metadata = pageMetadata('Open-Source Licences', 'The open-source software MyGala uses, with its licences and where to get the source code.', '/open-source');
 
 const UPDATED = 'October 4, 2026';
 const CONTACT_EMAIL = 'info@mygala.ca';

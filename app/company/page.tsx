@@ -3,11 +3,9 @@ import LegalLayout from '@/app/ui/legal-layout';
 import CompanyDetails from '@/app/ui/marketing/company-details';
 import { COMPANY, copyrightLine } from '@/app/lib/company';
 import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = {
-  title: 'Company Information — MyGala',
-  description: `mygala.ca is owned and operated by ${COMPANY.legalName} Company details, contact information and legal notices.`,
-};
+export const metadata = pageMetadata('Company Information', `mygala.ca is owned and operated by ${COMPANY.legalName} Company details, contact information and legal notices.`, '/company');
 
 const UPDATED = 'October 4, 2026';
 
