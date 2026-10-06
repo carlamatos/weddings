@@ -53,6 +53,28 @@ export type PlanFilter = 'all' | 'free' | 'paid';
 export type StatusFilter = 'all' | 'active' | 'inactive' | 'suspended';
 export type SortOrder = 'newest' | 'oldest';
 
+// Search: what an admin types, as an ILIKE pattern ('' = no search). LIKE's
+// own wildcards are escaped, so "%" or "_" match literally.
+export const ADMIN_SEARCH_MAX = 100;
+export function searchPattern(raw: string | null | undefined): string {
+  const term = (raw ?? '').trim().slice(0, ADMIN_SEARCH_MAX);
+  if (!term) return '';
+  return `%${term.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
+}
+
+// A pasted event link is reduced to what's stored: "https://mygala.ca/ana-ben"
+// → "ana-ben", "https://www.anaben.com/" → "anaben.com", "/ana-ben" → "ana-ben".
+export function pageSearchTerm(raw: string | null | undefined): string {
+  let term = (raw ?? '').trim();
+  const url = term.match(/^(?:https?:\/\/)?(?:www\.)?([^/\s?#]+)(\/[^\s?#]*)?/i);
+  if (url && (/^https?:\/\//i.test(term) || /\.[a-z]{2,}$/i.test(url[1]) || url[2])) {
+    const host = url[1].toLowerCase();
+    const path = (url[2] ?? '').replace(/^\/+|\/+$/g, '');
+    term = /(^|\.)mygala\.ca$/.test(host) || /^localhost(:\d+)?$/.test(host) ? path || host : path ? `${host}/${path}` : host;
+  }
+  return term.replace(/^\/+/, '');
+}
+
 // SQL lives in plain strings so it can also be run directly in tests.
 export const USERS_SQL = `
   SELECT u.id, u.name, u.email, u.provider, u.date,
@@ -69,9 +91,24 @@ export const USERS_SQL = `
     SELECT id, slug, heading, status, plan_type, stripe_customer_id
     FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1
   ) p ON true
+  WHERE ${USER_SEARCH('$1')}
   ORDER BY u.date DESC NULLS LAST, u.email
-  LIMIT $1 OFFSET $2
+  LIMIT $2 OFFSET $3
 `;
+
+// Users: name (or first + last name) or email.
+function USER_SEARCH(param: string): string {
+  return `(${param}::text = '' OR u.email ILIKE ${param} OR u.name ILIKE ${param}
+    OR concat_ws(' ', u.given_name, u.family_name) ILIKE ${param})`;
+}
+
+// Pages: the owner's account email, the page's contact email, the event name
+// (line breaks count as spaces), its address (slug) or custom domain.
+function PAGE_SEARCH(param: string): string {
+  return `(${param}::text = '' OR owner.email ILIKE ${param} OR p.user_email ILIKE ${param}
+    OR regexp_replace(COALESCE(p.heading, ''), '\\s+', ' ', 'g') ILIKE ${param}
+    OR p.slug ILIKE ${param} OR p.custom_domain ILIKE ${param})`;
+}
 
 export const PAGES_SQL = `
   SELECT p.id, p.slug, p.heading, p.user_id, p.user_email, p.created_at, p.event_date, p.custom_domain,
@@ -82,10 +119,12 @@ export const PAGES_SQL = `
          COALESCE(pl.cancel_at_period_end, false) AS cancel_at_period_end
   FROM user_page p
   LEFT JOIN user_plans pl ON pl.user_id = p.user_id::text
+  LEFT JOIN users owner ON owner.id = p.user_id
   WHERE ($1 = 'all' OR COALESCE(p.plan_type, 'free') = $1)
     AND ($2 = 'all' OR COALESCE(p.status, 'active') = $2)
+    AND ${PAGE_SEARCH('$4')}
   ORDER BY (CASE WHEN $3 = 'oldest' THEN p.created_at END) ASC NULLS LAST, p.created_at DESC
-  LIMIT $4 OFFSET $5
+  LIMIT $5 OFFSET $6
 `;
 
 export const TRASH_SQL = `
@@ -100,12 +139,14 @@ export const TRASH_SQL = `
   LIMIT $1 OFFSET $2
 `;
 
-export const USERS_COUNT_SQL = `SELECT count(*)::int AS n FROM users`;
+export const USERS_COUNT_SQL = `SELECT count(*)::int AS n FROM users u WHERE ${USER_SEARCH('$1')}`;
 
 export const PAGES_COUNT_SQL = `
   SELECT count(*)::int AS n FROM user_page p
+  LEFT JOIN users owner ON owner.id = p.user_id
   WHERE ($1 = 'all' OR COALESCE(p.plan_type, 'free') = $1)
     AND ($2 = 'all' OR COALESCE(p.status, 'active') = $2)
+    AND ${PAGE_SEARCH('$3')}
 `;
 
 export const TRASH_COUNT_SQL = `SELECT count(*)::int AS n FROM deleted_users WHERE restored_at IS NULL`;
@@ -128,17 +169,18 @@ async function list<T extends QueryResultRow>(text: string, params: unknown[], o
   }
 }
 
-export async function fetchAllUsers(offset = 0) {
-  return list<AdminUserRow>(USERS_SQL, [], offset);
+export async function fetchAllUsers(offset = 0, search = '') {
+  return list<AdminUserRow>(USERS_SQL, [searchPattern(search)], offset);
 }
 
 export async function fetchAllUserPages(opts: {
   plan: PlanFilter;
   status: StatusFilter;
   sort: SortOrder;
+  search?: string;
   offset?: number;
 }) {
-  return list<AdminPageRow>(PAGES_SQL, [opts.plan, opts.status, opts.sort], opts.offset ?? 0);
+  return list<AdminPageRow>(PAGES_SQL, [opts.plan, opts.status, opts.sort, searchPattern(pageSearchTerm(opts.search))], opts.offset ?? 0);
 }
 
 export async function fetchTrashedUsers(offset = 0) {
@@ -156,7 +198,7 @@ async function count(text: string, params: unknown[] = []): Promise<number | nul
   }
 }
 
-export const countUsers = () => count(USERS_COUNT_SQL);
+export const countUsers = (search = '') => count(USERS_COUNT_SQL, [searchPattern(search)]);
 export const countTrashedUsers = () => count(TRASH_COUNT_SQL);
-export const countUserPages = (plan: PlanFilter = 'all', status: StatusFilter = 'all') =>
-  count(PAGES_COUNT_SQL, [plan, status]);
+export const countUserPages = (plan: PlanFilter = 'all', status: StatusFilter = 'all', search = '') =>
+  count(PAGES_COUNT_SQL, [plan, status, searchPattern(pageSearchTerm(search))]);

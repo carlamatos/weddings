@@ -530,7 +530,8 @@ export default function Summit({
         <Reveal>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
+            // The theme's dark ink by default; an uploaded image replaces it.
+            style={registryImage ? { backgroundImage: `url(${registryImage})` } : { backgroundColor: '#14171C' }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>

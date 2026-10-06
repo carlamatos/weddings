@@ -1,11 +1,6 @@
 import Link from 'next/link';
-import {
-  countUserPages,
-  fetchAllUserPages,
-  type PlanFilter,
-  type SortOrder,
-  type StatusFilter,
-} from '@/app/lib/admin-data';
+import { countUserPages, fetchAllUserPages, type PlanFilter, type SortOrder, type StatusFilter, ADMIN_SEARCH_MAX } from '@/app/lib/admin-data';
+import { searchInput } from '@/app/ui/admin/search';
 import { hydrateSubscriptionInfo } from '@/app/lib/subscriptions';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
 import Total from '@/app/ui/admin/total';
@@ -18,7 +13,7 @@ import { siteHref } from '@/app/lib/app-url';
 // Live admin data: never run these queries at build time.
 export const dynamic = 'force-dynamic';
 
-type Search = { plan?: string; status?: string; sort?: string; offset?: string };
+type Search = { plan?: string; status?: string; sort?: string; offset?: string; q?: string };
 
 function pick<T extends string>(value: string | undefined, allowed: readonly T[], fallback: T): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
@@ -40,10 +35,11 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
   const sort: SortOrder = pick(sp.sort, ['newest', 'oldest'] as const, 'newest');
   const offset = parseOffset(sp.offset);
 
-  const filtered = plan !== 'all' || status !== 'all';
+  const q = (typeof sp.q === 'string' ? sp.q : '').trim().slice(0, ADMIN_SEARCH_MAX);
+  const filtered = plan !== 'all' || status !== 'all' || !!q;
   const [{ rows, hasMore, error }, matching, overall] = await Promise.all([
-    fetchAllUserPages({ plan, status, sort, offset }),
-    countUserPages(plan, status),
+    fetchAllUserPages({ plan, status, sort, offset, search: q }),
+    countUserPages(plan, status, q),
     filtered ? countUserPages() : Promise.resolve(null),
   ]);
   await hydrateSubscriptionInfo(rows, (r) => r.user_id);
@@ -62,6 +58,17 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
         method="get"
         style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: 20 }}
       >
+        <label style={{ fontSize: 12, color: c.soft, display: 'grid', gap: 4 }}>
+          Search
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            placeholder="Owner email, event name or page URL"
+            maxLength={ADMIN_SEARCH_MAX}
+            style={searchInput}
+          />
+        </label>
         <label style={{ fontSize: 12, color: c.soft, display: 'grid', gap: 4 }}>
           Plan
           <select name="plan" defaultValue={plan} style={select}>
@@ -165,7 +172,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
         </table>
       </div>
 
-      <Pagination path="/admin/pages" params={{ plan, status, sort }} offset={offset} hasMore={hasMore} />
+      <Pagination path="/admin/pages" params={{ plan, status, sort, ...(q ? { q } : {}) }} offset={offset} hasMore={hasMore} />
     </>
   );
 }

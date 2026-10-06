@@ -491,7 +491,7 @@ export default function Vilma({
       {(registryDescription || registryButtonLink) && (
         <div
           className="registry-wrap"
-          style={{ backgroundImage: `url(${registryImage || '/images/themes/wedding/registry.png'})` }}
+          style={{ backgroundImage: `url(${registryImage || '/images/themes/vilma/registry.jpg'})` }}
         >
           <div className="registry-overlay">
             <p className="registry-title">{t.registry}</p>
