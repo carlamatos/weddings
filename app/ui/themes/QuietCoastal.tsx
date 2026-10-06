@@ -429,7 +429,7 @@ export default function QuietCoastal({
         <>
           <div
             className="registry-wrap"
-            style={{ backgroundImage: `url(${registryImage || '/images/themes/quiet-coastal/registry.jpg'})` }}
+            style={registryImage ? { backgroundImage: `url(${registryImage})` } : { backgroundColor: '#3F4A45' }}
           >
             <div className="registry-overlay">
               <p className="registry-title">{t.registry.toLowerCase()}</p>
