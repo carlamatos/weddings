@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getSuperAdmin, isSuperAdmin } from '@/app/lib/admin';
-import { countUsers, fetchAllUsers } from '@/app/lib/admin-data';
+import { ADMIN_SEARCH_MAX, countUsers, fetchAllUsers } from '@/app/lib/admin-data';
+import AdminSearch from '@/app/ui/admin/search';
 import { hydrateSubscriptionInfo } from '@/app/lib/subscriptions';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
 import Total from '@/app/ui/admin/total';
@@ -13,12 +14,18 @@ import { siteHref } from '@/app/lib/app-url';
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ offset?: string }>;
+  searchParams: Promise<{ offset?: string; q?: string }>;
 }) {
   const admin = await getSuperAdmin();
-  const offset = parseOffset((await searchParams).offset);
+  const sp = await searchParams;
+  const offset = parseOffset(sp.offset);
+  const q = (typeof sp.q === 'string' ? sp.q : '').trim().slice(0, ADMIN_SEARCH_MAX);
 
-  const [{ rows, hasMore, error }, total] = await Promise.all([fetchAllUsers(offset), countUsers()]);
+  const [{ rows, hasMore, error }, total, overall] = await Promise.all([
+    fetchAllUsers(offset, q),
+    countUsers(q),
+    q ? countUsers() : Promise.resolve(null),
+  ]);
   await hydrateSubscriptionInfo(rows, (r) => r.id);
 
   return (
@@ -36,7 +43,9 @@ export default async function AdminUsersPage({
         </div>
       )}
 
-      <Total label={total === 1 ? 'user' : 'users'} count={total} />
+      <AdminSearch path="/admin/users" value={q} placeholder="Search by name or email" />
+
+      <Total label={total === 1 ? 'user' : 'users'} count={total} of={overall} />
 
       <div style={tableWrap}>
         <table style={table}>
@@ -108,7 +117,7 @@ export default async function AdminUsersPage({
         </table>
       </div>
 
-      <Pagination path="/admin/users" params={{}} offset={offset} hasMore={hasMore} />
+      <Pagination path="/admin/users" params={q ? { q } : {}} offset={offset} hasMore={hasMore} />
     </>
   );
 }
