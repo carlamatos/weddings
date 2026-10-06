@@ -125,6 +125,36 @@ const css = `
   .al .hero-content { position: relative; z-index: 1; max-width: 560px; margin: 0 0 0 auto; }
   @keyframes al-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+  /* ── Waves: cream wave edges, drifting gently — the banner's bottom, the
+     RSVP section's top and bottom (Potluck and Gift Exchange share its
+     styling) and the footer's bottom. Pure CSS (pseudo-elements). Two
+     layers at different speeds; still for visitors who prefer reduced
+     motion. ── */
+  .al .hero, .al .rsvp-section, .al .footer { position: relative; }
+  .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before {
+    content: ''; position: absolute; left: 0; right: 0; height: 56px; z-index: 2; pointer-events: none;
+    background-repeat: repeat-x, repeat-x; background-size: 600px 56px, 400px 56px;
+  }
+  .al .hero::after, .al .rsvp-section::after, .al .footer::after {
+    bottom: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 30 Q150 2 300 30 T600 30 V56 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 22 Q100 50 200 22 T400 22 V56 H0 Z'/%3E%3C/svg%3E");
+    animation: al-wave-drift 12s linear infinite;
+  }
+  .al .rsvp-section::before {
+    top: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 26 Q150 54 300 26 T600 26 V0 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 34 Q100 6 200 34 T400 34 V0 H0 Z'/%3E%3C/svg%3E");
+    animation: al-wave-drift 15s linear infinite reverse;
+  }
+  @keyframes al-wave-drift { from { background-position: 0 0, 0 0; } to { background-position: 600px 0, -400px 0; } }
+  /* Same drift for the smaller phone tiles: one tile width per loop, so it never jumps. */
+  @keyframes al-wave-drift-sm { from { background-position: 0 0, 0 0; } to { background-position: 360px 0, -240px 0; } }
+  @media (max-width: 640px) {
+    .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before {
+      height: 34px; background-size: 360px 34px, 240px 34px; animation-name: al-wave-drift-sm;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .al .hero::after, .al .rsvp-section::after, .al .footer::after, .al .rsvp-section::before { animation: none; }
+  }
+
   /* Hero sits over a dark scrim now, so these get the same on-dark
      treatment used elsewhere (footer, song section) instead of the
      light-on-light colors used on the cream sections below. */
