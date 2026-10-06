@@ -778,7 +778,8 @@ export default function DiaDeLosMuertos({
       {/* REGISTRY (the ofrenda) */}
       {(registryDescription || registryButtonLink) && (
         <Reveal>
-          <div className="registry-wrap" style={{ backgroundImage: `url(${registryImage || `${IMG}/registry.jpeg`})` }}>
+          {/* Same magenta-to-pink gradient as the Tag your posts band; an uploaded image replaces it. */}
+          <div className="registry-wrap" style={registryImage ? { backgroundImage: `url(${registryImage})` } : { background: `linear-gradient(135deg, ${MAGENTA} 0%, ${HOT_PINK} 100%)` }}>
             <div className="registry-overlay">
               <p className="registry-title">{t.registry}</p>
               {registryDescription && <p className="registry-description" style={{ whiteSpace: 'pre-line' }}>{registryDescription}</p>}
