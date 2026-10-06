@@ -108,14 +108,16 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
   const slugCandidates = useMemo(() => {
     const base = slugify(formData.eventName) || 'your-event';
     const year = formData.eventDate ? formData.eventDate.slice(0, 4) : '';
-    const city = slugify(formData.city) || 'your-city';
+    // No city yet (or a virtual event): skip the city-based suggestions
+    // rather than offer a placeholder like "…-your-city" as a real address.
+    const city = slugify(formData.city);
 
     const all = [
       { id: 'name',      value: base,                                    label: 'Event name only' },
       { id: 'date',      value: year ? `${base}-${year}` : `${base}-year`, label: 'Event name + year' },
-      { id: 'city',      value: `${base}-${city}`,                       label: 'Event name + city' },
+      ...(city ? [{ id: 'city', value: `${base}-${city}`, label: 'Event name + city' }] : []),
       { id: 'random',    value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`, label: 'Event name + unique number' },
-      { id: 'date-city', value: year ? `${base}-${city}-${year}` : `${base}-${city}-year`, label: 'Event name + city + year' },
+      ...(city ? [{ id: 'date-city', value: year ? `${base}-${city}-${year}` : `${base}-${city}-year`, label: 'Event name + city + year' }] : []),
       { id: 'random2',   value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: 'Event name + unique number' },
     ];
     return all.filter((o, i) => all.findIndex((x) => x.value === o.value) === i);
