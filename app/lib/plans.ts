@@ -35,7 +35,6 @@ export const PLAN_FEATURES = {
     'Gift registry section',
     'Password-protected page',
     'Custom domain support',
-    'Remove Gala branding',
     'Priority support',
   ],
 } as const;
