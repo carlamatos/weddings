@@ -72,3 +72,18 @@ export function eventPageMetadata(page: UserPage): Metadata {
     },
   };
 }
+
+// Hosts can keep their event page out of search engines and AI answers
+// (Share screen; on by default). Crawlers that honour robots meta tags —
+// Google, Bing and the AI assistants built on them — then skip the page.
+export function isHiddenFromSearch(settings: Record<string, string>): boolean {
+  return settings['show_in_search'] === 'false';
+}
+
+export function withSearchVisibility(meta: Metadata, settings: Record<string, string>): Metadata {
+  if (!isHiddenFromSearch(settings)) return meta;
+  return {
+    ...meta,
+    robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false, noimageindex: true } },
+  };
+}

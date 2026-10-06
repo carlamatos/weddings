@@ -4,12 +4,18 @@ import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { themeRegistry } from '@/app/ui/themes/registry';
 
+// The sitemap is generated once per deploy, and every listed page is
+// built from the code being deployed — so the deploy time is an honest
+// last-modified date for all of them.
+const DEPLOYED_AT = new Date();
+
 // Public marketing pages only. Hosts' event pages are not listed — they are
 // shared by link, not promoted.
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl();
   const entry = (path: string, priority: number, changeFrequency: 'weekly' | 'monthly' | 'yearly' = 'monthly') => ({
     url: `${base}${path}`,
+    lastModified: DEPLOYED_AT,
     changeFrequency,
     priority,
   });

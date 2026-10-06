@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
+import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import Link from 'next/link';
 import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '../lib/data';
 import { auth } from '@/auth';
@@ -104,8 +104,9 @@ export async function generateMetadata(
   const slug = (await params).slug;
   const page = await fetchUserPage(slug);
   if (!page) return {};
-  if (isPageLocked(await fetchPageSettings(page.id), page.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
-  return eventPageMetadata(page);
+  const settings = await fetchPageSettings(page.id);
+  if (isPageLocked(settings, page.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
+  return withSearchVisibility(eventPageMetadata(page), settings);
 }
 
 export async function generateStaticParams() {

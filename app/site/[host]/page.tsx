@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { eventPageMetadata, publicPageUrl } from '@/app/lib/share';
+import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -23,8 +23,9 @@ export async function generateMetadata(
   const host = decodeURIComponent((await params).host);
   const data = await fetchUserPageByDomain(host);
   if (!data) return {};
-  if (isPageLocked(await fetchPageSettings(data.id), data.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
-  return eventPageMetadata(data);
+  const settings = await fetchPageSettings(data.id);
+  if (isPageLocked(settings, data.plan_type === 'paid')) return LOCKED_PAGE_METADATA;
+  return withSearchVisibility(eventPageMetadata(data), settings);
 }
 
 export default async function CustomDomainPage({ params }: { params: Promise<{ host: string }> }) {

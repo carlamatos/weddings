@@ -12,5 +12,5 @@ export type ContentBlock = { heading: string; paragraphs?: string[]; bullets?: s
 export type SeoMeta = {
   title: string; // <title>, without the "| MyGala" suffix
   description: string; // meta description, ~150–160 characters
-  keywords: string[];
+  keywords?: string[];
 };

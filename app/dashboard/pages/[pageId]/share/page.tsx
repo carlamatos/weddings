@@ -48,6 +48,16 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
         <HashtagForm pageId={pageId} initialHashtag={hashtag} pageUrl={url} />
       </section>
 
+      <section style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginBottom: 28, background: '#fff' }}>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Search engines &amp; AI answers</h2>
+        <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 }}>
+          Public events are easier to find when Google and AI assistants can show them. For a private event, switch this off: your page
+          asks search engines and AI tools not to list it, and stays open to anyone who has the link. To keep strangers out
+          completely, use a page password (Plus).
+        </p>
+        <SectionToggle pageId={pageId} settingName="show_in_search" initialOn={isSectionOn(settings, 'show_in_search')} label="Show this page in search results" />
+      </section>
+
       <ShareButtons url={url} title={title} description={description} image={image} shareImage={socialImageFor(userPage)} hashtag={hashtag || undefined} />
 
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 16, lineHeight: 1.6 }}>
