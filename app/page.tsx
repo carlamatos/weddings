@@ -35,7 +35,9 @@ export default async function Page() {
           muted
           loop
           playsInline
-          src="/videos/community-event.mp4"
+          preload="auto"
+          poster="/images/home-hero-poster.jpg"
+          src="/videos/home-hero.mp4"
         />
         <div className="hero-overlay" />
         <p className="hero-eyebrow reveal">For every celebration that deserves it done right</p>
