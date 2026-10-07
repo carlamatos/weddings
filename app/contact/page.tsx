@@ -8,7 +8,7 @@ import ContactForm from './ContactForm';
 import { COMPANY } from '@/app/lib/company';
 import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = pageMetadata('Contact Us', 'Contact MyGala by email, phone or mail for help with your event page, billing or partnerships. We reply within one business day.', '/contact');
+export const metadata = pageMetadata('Contact Us', 'Contact MyGala by email or mail for help with your event page, billing or partnerships. We reply within one business day.', '/contact');
 
 export default async function ContactPage() {
   const session = await auth();
@@ -39,12 +39,6 @@ export default async function ContactPage() {
               <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Email us directly</p>
               <a href="mailto:info@mygala.ca" style={{ fontSize: 14, color: 'var(--rose)', textDecoration: 'none', fontWeight: 500 }}>info@mygala.ca</a>
             </div>
-            {COMPANY.phone && (
-              <div>
-                <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Call us</p>
-                <a href={`tel:${COMPANY.phone.replace(/[^+\d]/g, '')}`} style={{ fontSize: 14, color: 'var(--rose)', textDecoration: 'none', fontWeight: 500 }}>{COMPANY.phone}</a>
-              </div>
-            )}
             {COMPANY.address.length > 0 && (
               <div>
                 <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: 0.5, fontWeight: 600 }}>Mailing address</p>
