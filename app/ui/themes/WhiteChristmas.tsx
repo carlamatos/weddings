@@ -19,6 +19,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 const IMG = '/images/themes/white-christmas';
 
@@ -427,6 +428,7 @@ export default function WhiteChristmas({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -492,6 +494,7 @@ export default function WhiteChristmas({
             <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         <Snowfall />
         <div className="hero-content">

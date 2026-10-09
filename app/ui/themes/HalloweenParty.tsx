@@ -19,6 +19,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 const IMG = '/images/themes/halloween-party';
 const HAND = `${IMG}/hand.webp`;
@@ -556,6 +557,7 @@ export default function HalloweenParty({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -621,6 +623,7 @@ export default function HalloweenParty({
             <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <BatFlight color="#0B0A0B" scale={1.6} />
         <Spider left="62%" length={150} />
         <div className="hw-fog" aria-hidden="true"><span /><span /></div>

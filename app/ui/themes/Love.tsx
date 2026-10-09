@@ -19,6 +19,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 const IMG = '/images/themes/love';
 
@@ -350,6 +351,7 @@ export default function Love({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -414,6 +416,7 @@ export default function Love({
             <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         {HERO_HEARTS.map((h) => (
           <Heart key={h.left} className="lv-heart-float" size={h.size} fill={h.fill} style={{ left: h.left, animationDelay: h.delay }} />

@@ -19,6 +19,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 const IMG = '/images/themes/dia-de-los-muertos';
 const SKULL = `${IMG}/skull.webp`;
@@ -484,6 +485,7 @@ export default function DiaDeLosMuertos({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -549,6 +551,7 @@ export default function DiaDeLosMuertos({
             <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
           {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}

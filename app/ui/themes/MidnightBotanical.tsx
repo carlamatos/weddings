@@ -15,6 +15,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -182,6 +183,7 @@ export default function MidnightBotanical({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -245,6 +247,7 @@ export default function MidnightBotanical({
             <img className="hero-bg" src={heroImg} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
           <div className="hero-frame">
             {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Save the date'}</p>}

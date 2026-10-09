@@ -19,6 +19,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 const IMG = '/images/themes/baby-shower-neutral';
 
@@ -461,6 +462,7 @@ export default function BabyShowerNeutral({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -526,6 +528,7 @@ export default function BabyShowerNeutral({
             <img className="hero-bg" src={heroSrc} alt="" style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           )
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         {HERO_CLOUDS.map((c) => (
           <Cloud key={c.top} className="bn-cloud" width={c.width} fill={c.fill} style={{ top: c.top, animationDuration: c.duration, animationDelay: c.delay }} />

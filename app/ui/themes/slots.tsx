@@ -9,6 +9,7 @@ import { formatDateRange } from './event-when';
 import { compressImageFile, isHeicFile } from '@/app/lib/compress-image';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { HERO_OBJECT_POSITIONS, heroMediaStyle, type HeroObjectPosition } from './hero-media';
+import { HeroOverlay, HERO_OVERLAY_DEFAULT_COLOR, isHeroOverlayColor, isHeroOverlayOpacity } from './hero-overlay';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -503,6 +504,8 @@ export function EditableBannerBg({
   src,
   initialObjectFit = 'cover',
   initialObjectPosition,
+  initialOverlayColor,
+  initialOverlayOpacity,
   defaultSrc,
   fallback,
 }: {
@@ -511,6 +514,9 @@ export function EditableBannerBg({
   initialObjectFit?: 'cover' | 'contain';
   // Vertical alignment the owner chose; unset = the theme's own default.
   initialObjectPosition?: HeroObjectPosition;
+  // Saved banner overlay (hero_overlay_color / hero_overlay_opacity settings).
+  initialOverlayColor?: string;
+  initialOverlayOpacity?: string;
   // What the current theme shows when there is no banner (its default image, or
   // a custom element such as Terracotta's illustration).
   defaultSrc?: string;
@@ -525,8 +531,11 @@ export function EditableBannerBg({
   const [uploadError, setUploadError] = useState('');
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);
   const [objectPosition, setObjectPosition] = useState<HeroObjectPosition | undefined>(initialObjectPosition);
+  const [overlayColor, setOverlayColor] = useState(isHeroOverlayColor(initialOverlayColor) ? initialOverlayColor : HERO_OVERLAY_DEFAULT_COLOR);
+  const [overlayOpacity, setOverlayOpacity] = useState(isHeroOverlayOpacity(initialOverlayOpacity) ? Number(initialOverlayOpacity) : 0);
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const overlaySaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Back to the theme's own default hero (only offered while a custom banner is set).
   const [restoring, setRestoring] = useState(false);
@@ -555,6 +564,29 @@ export function EditableBannerBg({
     const value = objectPosition === next ? undefined : next;
     setObjectPosition(value);
     startTransition(() => updatePageSetting(pageId, 'hero_object_position', value ?? ''));
+  };
+
+  // The colour picker and slider fire on every move; preview instantly, save
+  // once the owner pauses.
+  const saveOverlaySetting = (name: 'hero_overlay_color' | 'hero_overlay_opacity', value: string) => {
+    clearTimeout(overlaySaveTimers.current[name]);
+    overlaySaveTimers.current[name] = setTimeout(() => {
+      startTransition(() => updatePageSetting(pageId, name, value));
+    }, 400);
+  };
+  const chooseOverlayColor = (next: string) => {
+    if (!isHeroOverlayColor(next)) return;
+    setOverlayColor(next);
+    saveOverlaySetting('hero_overlay_color', next);
+    // Picking a colour while the overlay is off would show nothing — turn it on.
+    if (overlayOpacity === 0) {
+      setOverlayOpacity(40);
+      saveOverlaySetting('hero_overlay_opacity', '40');
+    }
+  };
+  const chooseOverlayOpacity = (next: number) => {
+    setOverlayOpacity(next);
+    saveOverlaySetting('hero_overlay_opacity', String(next));
   };
 
   // Fills the banner on its own, whatever the theme's CSS does — some themes
@@ -663,6 +695,7 @@ export function EditableBannerBg({
         // eslint-disable-next-line @next/next/no-img-element
         <img className="hero-bg" src={mediaSrc} alt="" style={mediaStyle} />
       )}
+      <HeroOverlay overlay={{ color: overlayColor, opacity: overlayOpacity }} />
 
       <input
         ref={fileInputRef}
@@ -708,6 +741,28 @@ export function EditableBannerBg({
               {pos === 'top' ? 'Top' : pos === 'center' ? 'Center' : 'Bottom'}{objectPosition === pos ? ' ✓' : ''}
             </button>
           ))}
+        </span>
+        <span role="group" aria-label="Overlay" title="A colour layer between the photo and the text" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span>Overlay</span>
+          <input
+            type="color"
+            value={overlayColor}
+            onChange={(e) => chooseOverlayColor(e.target.value)}
+            aria-label="Overlay colour"
+            style={{ width: 26, height: 22, padding: 0, border: '1px solid rgba(255,255,255,0.5)', borderRadius: 4, background: 'none', cursor: 'pointer' }}
+          />
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={overlayOpacity}
+            onChange={(e) => chooseOverlayOpacity(Number(e.target.value))}
+            aria-label="Overlay opacity"
+            aria-valuetext={`${overlayOpacity}%`}
+            style={{ width: 80, cursor: 'pointer', accentColor: '#fff' }}
+          />
+          <span style={{ minWidth: 30, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{overlayOpacity}%</span>
         </span>
         {current && !uploading && (
           <button

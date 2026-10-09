@@ -55,6 +55,7 @@ export interface ThemeProps {
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
   heroObjectPosition?: 'top' | 'center' | 'bottom'; // banner's vertical alignment; unset = theme default
+  heroOverlay?: import('./hero-overlay').HeroOverlaySettings; // colour wash between banner photo and text; unset = none
   userPhone?: string;
   eventProgram?: import('@/app/lib/definitions').EventProgramItem[];
   showEventProgram?: boolean;

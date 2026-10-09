@@ -20,6 +20,7 @@ import GiftExchangeSection from './GiftExchangeSection';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
+import { HeroOverlay } from './hero-overlay';
 
 // Exclusive to Balloons — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -323,6 +324,7 @@ export default function Balloons({
   guestSongsHasMore,
   heroObjectFit = 'cover',
   heroObjectPosition,
+  heroOverlay,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -388,6 +390,7 @@ export default function Balloons({
             )
           ) : null
         )}
+        {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="hero-balloons" src="/images/themes/balloons/hero-balloons.png" alt="" />
         <div className="hero-content">

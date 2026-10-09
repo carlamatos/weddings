@@ -45,6 +45,7 @@ import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
+import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -331,14 +332,17 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
-// What updatePageSetting may write: the show/hide switches, the banner fit and
-// the banner's vertical alignment ('' = back to the theme's default).
+// What updatePageSetting may write: the show/hide switches, the banner fit,
+// the banner's vertical alignment ('' = back to the theme's default) and the
+// banner overlay's colour (#rrggbb) and opacity (0–100).
 // Everything else (livestream, reminders, hashtag, headings…) has its own
 // validating action, so a crafted call can't store arbitrary settings.
 function isWritableSetting(name: string, value: string): boolean {
   if (/^show_[a-z_]{1,40}$/.test(name)) return value === 'true' || value === 'false';
   if (name === 'hero_object_fit') return value === 'cover' || value === 'contain';
   if (name === 'hero_object_position') return value === '' || isHeroObjectPosition(value);
+  if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
+  if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
   return false;
 }
 

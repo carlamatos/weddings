@@ -16,6 +16,7 @@ import '@/app/ui/wedding.css';
 import { isPageOffline } from '@/app/lib/page-status';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
+import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -53,6 +54,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
+  const heroOverlay = heroOverlayFromSettings(pageSettings);
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
@@ -99,6 +101,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       guestSongsHasMore={guestSongsResult.hasMore}
       heroObjectFit={heroObjectFit}
       heroObjectPosition={heroObjectPosition}
+      heroOverlay={heroOverlay}
       eventProgram={eventProgram}
       showEventProgram={showEventProgram}
       showSongRequests={showSongRequests}
