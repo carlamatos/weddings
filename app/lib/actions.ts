@@ -16,7 +16,7 @@ import { headers } from 'next/headers';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage, type Guest } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -44,6 +44,7 @@ import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
+import { partySize } from './guest-import';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
 import { heroButtonSetting, isHeroButtonKey, isHeroColor, normalizeHeroButtonLabel } from '@/app/ui/themes/hero-style';
@@ -741,6 +742,55 @@ export async function updateGuestStatus(
   } catch (error) {
     console.error('Failed to update guest status:', error);
     return { ok: false };
+  }
+}
+
+// The host edits a guest on the list (Guests → Guest List): name, email,
+// phone, party size and status. Any plan. Email must be unique on the list,
+// as when guests are added.
+export async function updateGuest(
+  pageId: number,
+  guestId: string,
+  data: { name: string; email: string; phone: string; guests: number | string; status: string },
+): Promise<{ ok: true; guest: Pick<Guest, 'name' | 'email' | 'phone' | 'guests' | 'status'> } | { ok: false; error: string }> {
+  const fail = (error: string) => ({ ok: false as const, error });
+  if (!UUID_RE.test(guestId) || !data) return fail('Guest not found.');
+  const name = typeof data.name === 'string' ? data.name.trim().slice(0, 120) : '';
+  if (!name) return fail('Please enter a name.');
+  const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : '';
+  if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) return fail('Please enter a valid email address.');
+  const phoneRaw = typeof data.phone === 'string' ? data.phone : '';
+  if (!isValidOptionalPhone(phoneRaw)) return fail(PHONE_INVALID_MESSAGE);
+  const phone = cleanPhone(phoneRaw);
+  const guests = partySize(data.guests);
+  const status = data.status;
+  if (status !== 'invited' && status !== 'attending' && status !== 'not_attending') return fail('Please choose a status.');
+
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return fail('Guest not found.');
+  try {
+    if (email) {
+      const dup = await sql`
+        SELECT 1 FROM event_guests
+        WHERE user_page_id = ${pid} AND lower(email) = ${email} AND id <> ${guestId}::uuid
+        LIMIT 1
+      `;
+      if (dup.rows.length) return fail('Another guest on your list already has that email.');
+    }
+    const res = await sql`
+      UPDATE event_guests
+      SET name = ${name}, email = ${email || null}, phone = ${phone}, guests = ${guests}, status = ${status}
+      WHERE id = ${guestId}::uuid
+        AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+    `;
+    if (!res.rowCount) return fail('Guest not found.');
+    revalidatePath('/dashboard', 'layout');
+    return { ok: true, guest: { name, email: email || null, phone, guests, status } };
+  } catch (error) {
+    console.error('Failed to update guest:', error);
+    return fail('Could not save that guest. Please try again.');
   }
 }
 

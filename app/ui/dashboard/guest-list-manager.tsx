@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { removeGuest } from '@/app/lib/actions';
+import { removeGuest, updateGuest } from '@/app/lib/actions';
 import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 import type { Guest } from '@/app/lib/definitions';
 import {
@@ -21,7 +21,7 @@ import {
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 
 // Guests → Guest List (every plan): build the list from a spreadsheet, a
-// contacts file, the phone's contacts or by hand, and remove guests. Sending
+// contacts file, the phone's contacts or by hand, and edit or remove guests. Sending
 // invitations to them is on the Invitations screen (Plus).
 export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string }) {
   const router = useRouter();
@@ -33,6 +33,10 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
   const [notice, setNotice] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [form, setForm] = useState({ name: '', email: '', guests: '1', phone: '', note: '' });
   const [removing, setRemoving] = useState<string | null>(null);
+  // The guest being edited in place (one row at a time).
+  const [editing, setEditing] = useState<{ id: string; name: string; email: string; phone: string; guests: string; status: Guest['status'] } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [editError, setEditError] = useState('');
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- browser capability, only known after mount
@@ -121,6 +125,28 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
     setRemoving(null);
     if (ok) router.refresh();
     else setNotice({ kind: 'error', text: 'Could not remove that guest.' });
+  }
+
+  function startEdit(g: Guest) {
+    setEditError('');
+    setEditing({ id: g.id, name: g.name, email: g.email ?? '', phone: g.phone ?? '', guests: String(g.guests || 1), status: g.status });
+  }
+
+  async function saveEdit() {
+    if (!editing) return;
+    if (!editing.name.trim()) { setEditError('Please enter a name.'); return; }
+    setSaving(true);
+    setEditError('');
+    try {
+      const res = await updateGuest(pageId, editing.id, { name: editing.name, email: editing.email, phone: editing.phone, guests: editing.guests, status: editing.status });
+      if (!res.ok) { setEditError(res.error); return; }
+      setEditing(null);
+      router.refresh();
+    } catch {
+      setEditError('Could not save that guest. Please check your connection.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   const totalPeople = guests.reduce((sum, g) => sum + (g.guests || 1), 0);
@@ -217,6 +243,35 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
             </thead>
             <tbody>
               {guests.map((g) => {
+                if (editing?.id === g.id) {
+                  const set = (patch: Partial<typeof editing>) => setEditing({ ...editing, ...patch });
+                  const onKey = (e: React.KeyboardEvent) => {
+                    if (e.key === 'Enter') { e.preventDefault(); saveEdit(); }
+                    if (e.key === 'Escape') setEditing(null);
+                  };
+                  return (
+                    <tr key={g.id} style={{ background: '#FBF8F5' }}>
+                      <td style={cell}><input aria-label="Name" style={{ ...input, width: '100%' }} value={editing.name} maxLength={120} onChange={(e) => set({ name: e.target.value })} onKeyDown={onKey} autoFocus /></td>
+                      <td style={cell}><input aria-label="Email" type="email" style={{ ...input, width: '100%' }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}><input aria-label="Phone" type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}><input aria-label="Number of guests" type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}>
+                        <select aria-label="Status" style={input} value={editing.status} onChange={(e) => set({ status: e.target.value as Guest['status'] })} onKeyDown={onKey}>
+                          <option value="invited">Invited</option>
+                          <option value="attending">Attending</option>
+                          <option value="not_attending">Declining</option>
+                        </select>
+                      </td>
+                      <td style={{ ...cell, textAlign: 'right' }}>
+                        <div style={{ display: 'inline-flex', gap: 6 }}>
+                          <button type="button" style={{ ...primary, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={saveEdit}>{saving ? 'Saving…' : 'Save'}</button>
+                          <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={() => setEditing(null)}>Cancel</button>
+                        </div>
+                        {editError && <p role="alert" style={{ margin: '6px 0 0', fontSize: 12, color: '#B91C1C', textAlign: 'right', maxWidth: 240, marginLeft: 'auto' }}>{editError}</p>}
+                      </td>
+                    </tr>
+                  );
+                }
                 const [text, style] = STATUS[g.status] ?? STATUS.invited;
                 return (
                   <tr key={g.id}>
@@ -226,9 +281,14 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                     <td style={{ ...cell, textAlign: 'center' }}>{g.guests || 1}</td>
                     <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>
                     <td style={{ ...cell, textAlign: 'right' }}>
-                      <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => remove(g)}>
-                        {removing === g.id ? 'Removing…' : 'Remove'}
-                      </button>
+                      <div style={{ display: 'inline-flex', gap: 6 }}>
+                        <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => startEdit(g)}>
+                          Edit
+                        </button>
+                        <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => remove(g)}>
+                          {removing === g.id ? 'Removing…' : 'Remove'}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
