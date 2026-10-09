@@ -90,7 +90,8 @@ const css = `
   .dg .section-center { text-align: center; }
   @media (max-width: 640px) { .dg .section { padding: 64px 20px; } }
 
-  .dg .btn { font-family: var(--dg-font-sans); font-size: 12px; font-weight: 500; letter-spacing: 1.6px; text-transform: uppercase; padding: 13px 32px; border-radius: 0; border: 1px solid var(--dg-gold); background: transparent; color: var(--dg-gold); cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .dg .btn { font-family: var(--dg-font-sans); font-size: 12px; font-weight: 500; letter-spacing: 1.6px; text-transform: uppercase; padding: 13px 32px; border-radius: 0; border: 1px solid var(--dg-gold); background: transparent; color: var(--dg-gold); cursor: pointer; transition: background 0.2s ease, color 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .dg .btn { text-box: trim-both cap alphabetic; padding-top: calc(13px + (1em - 1cap) / 2); padding-bottom: calc(13px + (1em - 1cap) / 2); } }
   .dg .btn:hover { background: var(--dg-gold); color: var(--dg-bg); }
   .dg .btn-outline { border-color: rgba(243,236,221,0.4); color: var(--dg-cream); }
   .dg .btn-outline:hover { background: var(--dg-cream); color: var(--dg-bg); border-color: var(--dg-cream); }

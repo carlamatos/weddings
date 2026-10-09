@@ -239,7 +239,8 @@ const css = `
   .bn .section-center { text-align: center; }
   @media (max-width: 640px) { .bn .section { padding: 60px 20px; } }
 
-  .bn .btn { font-family: var(--bn-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bn-rust); background: var(--bn-rust); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .bn .btn { font-family: var(--bn-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bn-rust); background: var(--bn-rust); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .bn .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .bn .btn:hover { background: var(--bn-rust-deep); border-color: var(--bn-rust-deep); transform: translateY(-1px); }
   .bn .btn-outline { background: rgba(255,255,255,0.75); color: var(--bn-blue-deep); border-color: var(--bn-blue-deep); }
   .bn .btn-outline:hover { background: #FFFFFF; color: var(--bn-blue-deep); border-color: var(--bn-blue-deep); }

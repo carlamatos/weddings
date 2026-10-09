@@ -203,7 +203,8 @@ const css = `
   .wx .section-center { text-align: center; }
   @media (max-width: 640px) { .wx .section { padding: 74px 22px; } }
 
-  .wx .btn { font-family: var(--wx-font-caps); font-size: 12px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; padding: 16px 34px; border-radius: 2px; border: 1px solid var(--wx-pine); background: var(--wx-pine); color: #FFFFFF; cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .wx .btn { font-family: var(--wx-font-caps); font-size: 12px; font-weight: 500; letter-spacing: 3px; text-transform: uppercase; padding: 16px 34px; border-radius: 2px; border: 1px solid var(--wx-pine); background: var(--wx-pine); color: #FFFFFF; cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .wx .btn { text-box: trim-both cap alphabetic; padding-top: calc(16px + (1em - 1cap) / 2); padding-bottom: calc(16px + (1em - 1cap) / 2); } }
   .wx .btn:hover { background: var(--wx-bark); border-color: var(--wx-bark); }
   .wx .btn-outline { background: rgba(255,255,255,0.6); color: var(--wx-pine); border-color: var(--wx-gold-deep); }
   .wx .btn-outline:hover { background: var(--wx-gold); border-color: var(--wx-gold); color: var(--wx-pine); }

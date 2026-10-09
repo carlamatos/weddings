@@ -258,7 +258,8 @@ const css = `
   .bb .section-center { text-align: center; }
   @media (max-width: 640px) { .bb .section { padding: 60px 20px; } }
 
-  .bb .btn { font-family: var(--bb-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bb-navy); background: var(--bb-navy); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .bb .btn { font-family: var(--bb-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bb-navy); background: var(--bb-navy); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .bb .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .bb .btn:hover { background: var(--bb-navy-deep); border-color: var(--bb-navy-deep); transform: translateY(-1px); }
   .bb .btn-outline { background: rgba(255,255,255,0.8); color: var(--bb-string); border-color: var(--bb-string); }
   .bb .btn-outline:hover { background: #FFFFFF; color: var(--bb-nose); border-color: var(--bb-nose); }

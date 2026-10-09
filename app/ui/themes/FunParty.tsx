@@ -88,7 +88,8 @@ const css = `
   .fp .section-dark { background: var(--fp-purple-deep); }
   @media (max-width: 640px) { .fp .section { padding: 60px 20px; } }
 
-  .fp .btn { font-family: var(--fp-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 14px 30px; border-radius: 999px; border: none; background: var(--fp-pink); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .fp .btn { font-family: var(--fp-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 14px 30px; border-radius: 999px; border: 2px solid transparent; background: var(--fp-pink); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .fp .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .fp .btn:hover { background: var(--fp-pink-deep); transform: translateY(-2px) rotate(-1deg); }
   .fp .btn-outline { background: transparent; color: #FFFFFF; border: 2px solid var(--fp-cyan); }
   .fp .btn-outline:hover { background: rgba(0,217,233,0.15); }

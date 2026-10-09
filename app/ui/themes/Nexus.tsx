@@ -172,7 +172,8 @@ const css = `
   .nx .nx-divider { position: relative; width: 100%; height: 1px; background: var(--nx-line); }
   .nx .nx-divider-node { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; line-height: 0; background: var(--nx-bg); padding: 0 14px; }
 
-  .nx .btn { font-family: var(--nx-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.3px; padding: 14px 30px; border-radius: 6px; border: none; background: var(--nx-accent); color: #1D2124; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .nx .btn { font-family: var(--nx-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.3px; padding: 14px 30px; border-radius: 6px; border: 1.5px solid transparent; background: var(--nx-accent); color: #1D2124; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .nx .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .nx .btn:hover { background: var(--nx-accent-deep); transform: translateY(-1px); }
   .nx .btn-outline { background: transparent; color: #FFFFFF; border: 1.5px solid var(--nx-teal); }
   .nx .btn-outline:hover { background: rgba(79,182,168,0.12); }

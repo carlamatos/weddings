@@ -106,7 +106,8 @@ const css = `
   .bl .section-center { text-align: center; }
   @media (max-width: 640px) { .bl .section { padding: 56px 20px; } }
 
-  .bl .btn { font-family: var(--bl-font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.3px; padding: 13px 30px; border-radius: 999px; border: none; background: var(--bl-red); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 16px rgba(242,69,75,0.28); }
+  .bl .btn { font-family: var(--bl-font-display); font-size: 14px; font-weight: 700; letter-spacing: 0.3px; padding: 13px 30px; border-radius: 999px; border: 2px solid transparent; background: var(--bl-red); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 16px rgba(242,69,75,0.28); height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .bl .btn { text-box: trim-both cap alphabetic; padding-top: calc(13px + (1em - 1cap) / 2); padding-bottom: calc(13px + (1em - 1cap) / 2); } }
   .bl .btn:hover { background: #D93840; transform: translateY(-2px) rotate(-1deg); }
   .bl .btn-outline { background: transparent; color: var(--bl-blue); border: 2px solid var(--bl-blue); box-shadow: none; }
   .bl .btn-outline:hover { background: rgba(62,143,224,0.1); transform: translateY(-2px); }

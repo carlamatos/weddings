@@ -88,7 +88,8 @@ const css = `
   .sm .story-section { position: relative; background-size: cover; background-position: center; overflow: hidden; }
   @media (max-width: 640px) { .sm .section { padding: 64px 20px; } }
 
-  .sm .btn { font-family: var(--sm-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 14px 30px; border-radius: 4px; border: 1.5px solid var(--sm-accent); background: var(--sm-accent); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .sm .btn { font-family: var(--sm-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 0.5px; padding: 14px 30px; border-radius: 4px; border: 1.5px solid var(--sm-accent); background: var(--sm-accent); color: #fff; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .sm .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .sm .btn:hover { background: var(--sm-accent-deep); transform: translateY(-1px); }
   .sm .btn-outline { background: transparent; color: var(--sm-ink); border-color: var(--sm-line); }
   .sm .btn-outline:hover { background: var(--sm-paper); }

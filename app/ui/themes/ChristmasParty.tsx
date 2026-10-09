@@ -270,7 +270,8 @@ const css = `
   .xm .section-center { text-align: center; }
   @media (max-width: 640px) { .xm .section { padding: 70px 20px; } }
 
-  .xm .btn { font-family: var(--xm-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 1px; padding: 15px 32px; border-radius: 999px; border: 2px solid var(--xm-red); background: var(--xm-red); color: var(--xm-bulb); cursor: pointer; transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 18px -6px rgba(179,37,27,0.7); }
+  .xm .btn { font-family: var(--xm-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 1px; padding: 15px 32px; border-radius: 999px; border: 2px solid var(--xm-red); background: var(--xm-red); color: var(--xm-bulb); cursor: pointer; transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 18px -6px rgba(179,37,27,0.7); height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .xm .btn { text-box: trim-both cap alphabetic; padding-top: calc(15px + (1em - 1cap) / 2); padding-bottom: calc(15px + (1em - 1cap) / 2); } }
   .xm .btn:hover { background: var(--xm-wrap-red); border-color: var(--xm-wrap-red); transform: translateY(-2px); }
   .xm .btn-outline { background: rgba(26,38,24,0.35); color: var(--xm-shine); border-color: var(--xm-gold); box-shadow: none; }
   .xm .btn-outline:hover { background: var(--xm-gold); border-color: var(--xm-gold); color: var(--xm-forest); }

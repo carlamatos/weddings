@@ -241,7 +241,8 @@ const css = `
   .dm .section-center { text-align: center; }
   @media (max-width: 640px) { .dm .section { padding: 72px 20px; } }
 
-  .dm .btn { font-family: var(--dm-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 15px 32px; border-radius: 999px; border: 2px solid var(--dm-hot-pink); background: var(--dm-hot-pink); color: #FFFFFF; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 0 ${MAGENTA}; }
+  .dm .btn { font-family: var(--dm-font-sans); font-size: 14px; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; padding: 15px 32px; border-radius: 999px; border: 2px solid var(--dm-hot-pink); background: var(--dm-hot-pink); color: #FFFFFF; cursor: pointer; transition: background 0.2s ease, transform 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; box-shadow: 0 6px 0 ${MAGENTA}; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .dm .btn { text-box: trim-both cap alphabetic; padding-top: calc(15px + (1em - 1cap) / 2); padding-bottom: calc(15px + (1em - 1cap) / 2); } }
   .dm .btn:hover { transform: translateY(-2px); background: ${CRIMSON}; border-color: ${CRIMSON}; }
   .dm .btn-outline { background: rgba(53,16,64,0.08); color: var(--dm-plum); border-color: var(--dm-plum); box-shadow: none; }
   .dm .btn-outline:hover { background: var(--dm-plum); color: var(--dm-cream); border-color: var(--dm-plum); }

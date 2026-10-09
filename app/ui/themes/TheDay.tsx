@@ -220,7 +220,8 @@ const css = `
   .td .section-center { text-align: center; }
   @media (max-width: 640px) { .td .section { padding: 76px 22px; } }
 
-  .td .btn { font-family: var(--td-font-sans); font-size: 12px; font-weight: 400; letter-spacing: 3.5px; text-transform: uppercase; padding: 17px 36px; border-radius: 0; border: 1px solid var(--td-forest); background: var(--td-forest); color: var(--td-ivory); cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .td .btn { font-family: var(--td-font-sans); font-size: 12px; font-weight: 400; letter-spacing: 3.5px; text-transform: uppercase; padding: 17px 36px; border-radius: 0; border: 1px solid var(--td-forest); background: var(--td-forest); color: var(--td-ivory); cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .td .btn { text-box: trim-both cap alphabetic; padding-top: calc(17px + (1em - 1cap) / 2); padding-bottom: calc(17px + (1em - 1cap) / 2); } }
   .td .btn:hover { background: var(--td-evergreen); border-color: var(--td-evergreen); }
   .td .btn-outline { background: transparent; color: var(--td-forest); }
   .td .btn-outline:hover { background: var(--td-forest); color: var(--td-ivory); }

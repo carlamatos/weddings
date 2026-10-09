@@ -195,7 +195,8 @@ const css = `
   .lv .section-center { text-align: center; }
   @media (max-width: 640px) { .lv .section { padding: 74px 22px; } }
 
-  .lv .btn { font-family: var(--lv-font-sans); font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; padding: 16px 34px; border-radius: 999px; border: 1px solid var(--lv-raspberry); background: var(--lv-raspberry); color: var(--lv-cream); cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .lv .btn { font-family: var(--lv-font-sans); font-size: 12px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; padding: 16px 34px; border-radius: 999px; border: 1px solid var(--lv-raspberry); background: var(--lv-raspberry); color: var(--lv-cream); cursor: pointer; transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .lv .btn { text-box: trim-both cap alphabetic; padding-top: calc(16px + (1em - 1cap) / 2); padding-bottom: calc(16px + (1em - 1cap) / 2); } }
   .lv .btn:hover { background: var(--lv-deep-rose); border-color: var(--lv-deep-rose); }
   .lv .btn-outline { background: rgba(246,234,222,0.6); color: var(--lv-raspberry); }
   .lv .btn-outline:hover { background: var(--lv-raspberry); color: var(--lv-cream); }
