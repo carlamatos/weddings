@@ -16,6 +16,7 @@ export interface ThemeSlots {
   description?: React.ReactNode;
   gallery?: React.ReactNode;
   footerContact?: React.ReactNode;
+  heroEditPageId?: number; // editor only: makes the banner buttons editable
 }
 
 export interface ThemeProps {
@@ -55,6 +56,7 @@ export interface ThemeProps {
   guestSongsHasMore?: boolean;
   heroObjectFit?: 'cover' | 'contain';
   heroObjectPosition?: 'top' | 'center' | 'bottom'; // banner's vertical alignment; unset = theme default
+  heroStyle?: import('./hero-style').HeroStyle; // owner's banner text/button colours and button labels
   heroOverlay?: import('./hero-overlay').HeroOverlaySettings; // colour wash between banner photo and text; unset = none
   userPhone?: string;
   eventProgram?: import('@/app/lib/definitions').EventProgramItem[];

@@ -16,6 +16,8 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
+import { heroTextStyle } from './hero-style';
+import HeroButton from './HeroButton';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toLowerCase();
@@ -168,6 +170,7 @@ export default function QuietCoastal({
   heroObjectFit = 'cover',
   heroObjectPosition,
   heroOverlay,
+  heroStyle,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -233,13 +236,13 @@ export default function QuietCoastal({
         )}
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'together with their families'}</p>}
-          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
-          {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || 'together with their families'}</p>}
+          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
+          {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}
           <div className="hero-actions">
-            <a href="#rsvp" className="btn">{t.rsvpBtn.toLowerCase()}</a>
-            <a href="#story" className="btn btn-outline">{t.ourStoryBtn.toLowerCase()}</a>
-            {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto.toLowerCase()}</a>}
+            <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+            <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>

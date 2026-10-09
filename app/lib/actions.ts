@@ -46,6 +46,7 @@ import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
+import { heroButtonSetting, isHeroButtonKey, isHeroColor, normalizeHeroButtonLabel } from '@/app/ui/themes/hero-style';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -334,7 +335,8 @@ export async function updateDescription(pageId: number, description: string) {
 
 // What updatePageSetting may write: the show/hide switches, the banner fit,
 // the banner's vertical alignment ('' = back to the theme's default) and the
-// banner overlay's colour (#rrggbb) and opacity (0–100).
+// banner overlay's colour (#rrggbb) and opacity (0–100), and the banner
+// text colours (#rrggbb, '' = the theme's colour).
 // Everything else (livestream, reminders, hashtag, headings…) has its own
 // validating action, so a crafted call can't store arbitrary settings.
 function isWritableSetting(name: string, value: string): boolean {
@@ -343,6 +345,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'hero_object_position') return value === '' || isHeroObjectPosition(value);
   if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
   if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
+  if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   return false;
 }
 
@@ -362,6 +365,65 @@ export async function updatePageSetting(pageId: number, settingName: string, set
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update page setting:', error);
+  }
+}
+
+// Saves one top-banner button: its label and its button / text colours.
+// '' for any of them = back to the theme's own. Returns false when nothing
+// was saved (bad input, not the owner, or a database error).
+export async function updateHeroButton(
+  pageId: number,
+  key: string,
+  values: { label: string; bg: string; color: string },
+): Promise<boolean> {
+  if (!isHeroButtonKey(key) || !values) return false;
+  const label = normalizeHeroButtonLabel(values.label);
+  const { bg, color } = values;
+  if ((bg !== '' && !isHeroColor(bg)) || (color !== '' && !isHeroColor(color))) return false;
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    const owned = await sql`SELECT 1 FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    if (!owned.rows.length) return false;
+    for (const [name, value] of [
+      [heroButtonSetting(key, 'label'), label],
+      [heroButtonSetting(key, 'bg'), bg],
+      [heroButtonSetting(key, 'color'), color],
+    ]) {
+      await sql`
+        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+        VALUES (${pid}, ${name}, ${value})
+        ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+      `;
+    }
+    revalidatePath('/', 'layout');
+    return true;
+  } catch (error) {
+    console.error('Failed to update banner button:', error);
+    return false;
+  }
+}
+
+// "Restore default theme colors": clears the banner's text and button colours
+// (button labels and the photo overlay are kept).
+export async function resetHeroColors(pageId: number): Promise<boolean> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    await sql`
+      DELETE FROM user_page_settings
+      WHERE user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+        AND setting_name ~ '^hero_(eyebrow|name|date)_color$|^hero_btn_(rsvp|story|photos)_(bg|color)$'
+    `;
+    revalidatePath('/', 'layout');
+    return true;
+  } catch (error) {
+    console.error('Failed to reset banner colours:', error);
+    return false;
   }
 }
 

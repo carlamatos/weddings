@@ -20,6 +20,8 @@ import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from '.
 import type { GalleryImage } from '@/app/lib/definitions';
 import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
+import { heroTextStyle } from './hero-style';
+import HeroButton from './HeroButton';
 
 const IMG = '/images/themes/baby-shower-girl';
 
@@ -440,6 +442,7 @@ export default function BabyShowerGirl({
   heroObjectFit = 'cover',
   heroObjectPosition,
   heroOverlay,
+  heroStyle,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -513,13 +516,13 @@ export default function BabyShowerGirl({
           </div>
         ))}
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
-          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
-          {heroDateText && (editSlots?.heroDate ?? <p className="hero-date">{heroDateText}</p>)}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
+          {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDateText}</p>)}
           <div className="hero-actions">
-            <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
-            <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
-            {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto}</a>}
+            <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+            <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>

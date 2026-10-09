@@ -16,6 +16,8 @@ import { PreviewTopBar } from './PreviewTopBar';
 import { groupEventProgramByDate, formatProgramDate, formatProgramTime } from './event-program-utils';
 import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
+import { heroTextStyle } from './hero-style';
+import HeroButton from './HeroButton';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -184,6 +186,7 @@ export default function MidnightBotanical({
   heroObjectFit = 'cover',
   heroObjectPosition,
   heroOverlay,
+  heroStyle,
   eventProgram,
   showEventProgram,
   showSongRequests,
@@ -250,14 +253,14 @@ export default function MidnightBotanical({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
           <div className="hero-frame">
-            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line' }}>{heroEyebrow || 'Save the date'}</p>}
-            {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line' }}>{heading}</h1>}
+            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || 'Save the date'}</p>}
+            {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
             <div className="hero-rule" />
-            {heroDate && (editSlots?.heroDate ?? <p className="hero-date">{heroDate}</p>)}
+            {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}
             <div className="hero-actions">
-              <a href="#rsvp" className="btn">{t.rsvpBtn}</a>
-              <a href="#story" className="btn btn-outline">{t.ourStoryBtn}</a>
-              {isPaid && <a href="#photos" className="btn btn-outline">{t.shareYourPhoto}</a>}
+              <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+              <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+              {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             </div>
           </div>
         </div>
