@@ -39,6 +39,7 @@ export function invitationText({
     [when, where].filter(Boolean).join('\n'),
     note?.trim() ?? '',
     `${t.rsvp} ${details.url}`,
+    details.password ? `${details.passwordLabel ?? 'Page password'}: ${details.password}` : '',
     hostName?.trim() ? `— ${hostName.trim()}` : '',
   ];
   return parts.filter(Boolean).join('\n\n');
