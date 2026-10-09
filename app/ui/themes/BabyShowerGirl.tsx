@@ -210,7 +210,8 @@ const css = `
   .bs .section-center { text-align: center; }
   @media (max-width: 640px) { .bs .section { padding: 60px 20px; } }
 
-  .bs .btn { font-family: var(--bs-font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bs-rose); background: var(--bs-rose); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .bs .btn { font-family: var(--bs-font-sans); font-size: 14px; font-weight: 700; letter-spacing: 0.6px; padding: 14px 30px; border-radius: 999px; border: 2px solid var(--bs-rose); background: var(--bs-rose); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .bs .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .bs .btn:hover { background: var(--bs-rose-deep); border-color: var(--bs-rose-deep); transform: translateY(-1px); }
   .bs .btn-outline { background: rgba(255,255,255,0.7); color: var(--bs-rose); }
   .bs .btn-outline:hover { background: #FFFFFF; color: var(--bs-rose-deep); }

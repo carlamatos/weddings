@@ -311,7 +311,8 @@ const css = `
   .hw .above { position: relative; z-index: 2; }
   @media (max-width: 640px) { .hw .section { padding: 76px 20px; } }
 
-  .hw .btn { font-family: var(--hw-font-sans); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 16px 32px; border-radius: 4px; border: 1px solid var(--hw-pumpkin); background: var(--hw-pumpkin); color: var(--hw-ink); cursor: pointer; transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .hw .btn { font-family: var(--hw-font-sans); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 16px 32px; border-radius: 4px; border: 1px solid var(--hw-pumpkin); background: var(--hw-pumpkin); color: var(--hw-ink); cursor: pointer; transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .hw .btn { text-box: trim-both cap alphabetic; padding-top: calc(16px + (1em - 1cap) / 2); padding-bottom: calc(16px + (1em - 1cap) / 2); } }
   .hw .btn:hover { background: var(--hw-ember); box-shadow: 0 0 26px rgba(242,138,34,0.55); }
   .hw .btn-outline { background: transparent; color: var(--hw-bone); border-color: rgba(237,228,211,0.55); }
   .hw .btn-outline:hover { background: transparent; color: var(--hw-pumpkin); border-color: var(--hw-pumpkin); }

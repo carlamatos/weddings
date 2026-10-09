@@ -97,7 +97,8 @@ const css = `
   .al .section-center { text-align: center; }
   @media (max-width: 640px) { .al .section { padding: 60px 20px; } }
 
-  .al .btn { font-family: var(--al-font-sans); font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 13px 30px; border-radius: 999px; border: 1.5px solid var(--al-blush-deep); background: var(--al-blush-deep); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .al .btn { font-family: var(--al-font-sans); font-size: 12px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; padding: 13px 30px; border-radius: 999px; border: 1.5px solid var(--al-blush-deep); background: var(--al-blush-deep); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .al .btn { text-box: trim-both cap alphabetic; padding-top: calc(13px + (1em - 1cap) / 2); padding-bottom: calc(13px + (1em - 1cap) / 2); } }
   .al .btn:hover { background: #D9909E; transform: translateY(-1px); }
   .al .btn-outline { background: transparent; color: var(--al-blush-deep); border-color: var(--al-blush-deep); }
   .al .btn-outline:hover { background: rgba(232,168,180,0.12); }

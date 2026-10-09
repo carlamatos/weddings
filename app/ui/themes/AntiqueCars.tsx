@@ -227,7 +227,8 @@ const css = `
   .ac .section-center { text-align: center; }
   @media (max-width: 640px) { .ac .section { padding: 60px 20px; } }
 
-  .ac .btn { font-family: var(--ac-font-label); font-size: 14px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 14px 30px; border-radius: 4px; border: 2px solid var(--ac-purple); background: var(--ac-purple); color: var(--ac-white); cursor: pointer; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .ac .btn { font-family: var(--ac-font-label); font-size: 14px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 14px 30px; border-radius: 4px; border: 2px solid var(--ac-purple); background: var(--ac-purple); color: var(--ac-white); cursor: pointer; transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .ac .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .ac .btn:hover { background: var(--ac-purple-deep); border-color: var(--ac-purple-deep); transform: translateY(-1px); }
   .ac .btn-gold { background: var(--ac-gold); border-color: var(--ac-gold); color: var(--ac-purple); }
   .ac .btn-gold:hover { background: #F2C200; border-color: #F2C200; }

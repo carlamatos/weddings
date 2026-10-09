@@ -96,7 +96,8 @@ const css = `
   .vl .section-center { text-align: center; }
   @media (max-width: 640px) { .vl .section { padding: 60px 20px; } }
 
-  .vl .btn { font-family: var(--vl-sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 13px 30px; border-radius: 999px; border: 1.5px solid var(--vl-steel); background: var(--vl-steel); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .vl .btn { font-family: var(--vl-sans); font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; padding: 13px 30px; border-radius: 999px; border: 1.5px solid var(--vl-steel); background: var(--vl-steel); color: #FFFFFF; cursor: pointer; transition: transform 0.15s ease, background 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .vl .btn { text-box: trim-both cap alphabetic; padding-top: calc(13px + (1em - 1cap) / 2); padding-bottom: calc(13px + (1em - 1cap) / 2); } }
   .vl .btn:hover { background: var(--vl-steel-deep); transform: translateY(-1px); }
   .vl .btn:active { transform: scale(0.98); }
   .vl .btn-outline { background: transparent; color: var(--vl-olive); border-color: var(--vl-olive); }

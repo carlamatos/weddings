@@ -132,7 +132,8 @@ const css = `
   .cm .section-center { text-align: center; }
   @media (max-width: 640px) { .cm .section { padding: 60px 20px; } }
 
-  .cm .btn { font-family: var(--cm-font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.6px; padding: 13px 30px; border-radius: 999px; border: none; background: var(--cm-red); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .cm .btn { font-family: var(--cm-font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.6px; padding: 13px 30px; border-radius: 999px; border: 1.5px solid transparent; background: var(--cm-red); color: #FFFFFF; cursor: pointer; transition: background 0.15s ease, transform 0.15s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .cm .btn { text-box: trim-both cap alphabetic; padding-top: calc(13px + (1em - 1cap) / 2); padding-bottom: calc(13px + (1em - 1cap) / 2); } }
   .cm .btn:hover { background: #94290F; transform: translateY(-1px); }
   .cm .btn-outline { background: transparent; color: var(--cm-navy); border: 1.5px solid var(--cm-navy); }
   .cm .btn-outline:hover { background: rgba(12,47,70,0.08); }

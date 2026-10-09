@@ -67,7 +67,8 @@ const css = `
     .qc .split, .qc .split.reverse { grid-template-columns: 1fr; gap: 36px; }
     .qc .split.reverse .col-wide, .qc .split.reverse .col-narrow { order: unset; }
   }
-  .qc .btn { font-family: var(--font-sans); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; padding: 14px 32px; border-radius: 0; border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; transition: opacity 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; }
+  .qc .btn { font-family: var(--font-sans); font-size: 13px; font-weight: 500; letter-spacing: 0.5px; padding: 14px 32px; border-radius: 0; border: 1px solid var(--ink); background: var(--ink); color: #fff; cursor: pointer; transition: opacity 0.2s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  @supports (text-box: trim-both cap alphabetic) { .qc .btn { text-box: trim-both cap alphabetic; padding-top: calc(14px + (1em - 1cap) / 2); padding-bottom: calc(14px + (1em - 1cap) / 2); } }
   .qc .btn:hover { opacity: 0.78; }
   .qc .btn-outline { background: transparent; color: var(--ink); border-color: var(--ink); }
   .qc .btn-outline:hover { background: var(--chalk); opacity: 1; }
