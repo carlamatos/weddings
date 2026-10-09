@@ -3,7 +3,7 @@
 import { AtSymbolIcon, KeyIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useActionState } from 'react';
-import { authenticate, GoogleSignIn, FacebookSignIn } from '@/app/lib/actions';
+import { authenticate, GoogleSignIn } from '@/app/lib/actions';
 import Link from 'next/link';
 
 export default function LoginForm() {
@@ -74,15 +74,6 @@ export default function LoginForm() {
           <path fill="none" d="M0 0h48v48H0z"/>
         </svg>
         Continue with Google
-      </button>
-
-
-      <button onClick={() => FacebookSignIn()} className="auth-social-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: 18, height: 18 }}>
-          <path fill="#1877F2" d="M48 24C48 10.745 37.255 0 24 0S0 10.745 0 24c0 11.979 8.776 21.908 20.25 23.708V30.938h-6.094V24h6.094v-5.288c0-6.014 3.583-9.337 9.065-9.337 2.625 0 5.372.469 5.372.469v5.906h-3.026c-2.981 0-3.911 1.85-3.911 3.75V24h6.656l-1.064 6.938H27.75v16.77C39.224 45.908 48 35.979 48 24z"/>
-          <path fill="#fff" d="M33.342 30.938 34.406 24H27.75v-4.5c0-1.9.93-3.75 3.911-3.75h3.026V9.844s-2.747-.469-5.372-.469c-5.482 0-9.065 3.323-9.065 9.337V24h-6.094v6.938h6.094V47.708A24.124 24.124 0 0 0 24 48c1.28 0 2.542-.097 3.75-.292V30.938h5.592z"/>
-        </svg>
-        Continue with Facebook
       </button>
 
       <p className="auth-footer">
