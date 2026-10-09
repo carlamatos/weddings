@@ -7,11 +7,11 @@ import { appOrigin, isAppPath, isSplitHost, siteOrigin } from './app/lib/app-url
 const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
 
 // Pre-launch gate (CONSTRUCTION_PASSWORD): the public site — homepage,
-// marketing and legal pages, event pages — is open, so Google sign-in and
-// Stripe can verify it. Only signing in and signing up stay behind the
-// password; entering it once sets the site_bypass cookie (shared with
-// app.mygala.ca). Remove CONSTRUCTION_PASSWORD to open them too.
-const GATED_PATHS = new Set(['/login', '/register']);
+// marketing and legal pages, event pages — and signing in are open. Only
+// signing up with email stays behind the password; entering it once sets
+// the site_bypass cookie (shared with app.mygala.ca). Remove
+// CONSTRUCTION_PASSWORD to open it too.
+const GATED_PATHS = new Set(['/register']);
 
 const authMiddleware = NextAuth(authConfig).auth(function middleware(req: NextRequest) {
   const constructionPassword = process.env.CONSTRUCTION_PASSWORD;
