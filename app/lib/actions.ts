@@ -28,8 +28,8 @@ import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidP
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isReservedSlug } from './reserved-slugs';
-import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
-import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign } from './invitation';
+import { encryptPagePassword, invitationPassword, PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
+import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign, type InvitationDetails } from './invitation';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
@@ -347,6 +347,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'hero_object_position') return value === '' || isHeroObjectPosition(value);
   if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
   if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
+  if (name === 'invitation_include_password') return value === 'true' || value === 'false';
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   return false;
@@ -693,7 +694,10 @@ export async function savePagePassword(
       VALUES (${owned.value}, ${name}, ${value})
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
     `;
-    if (password) await upsert('page_password_hash', await bcrypt.hash(password, 10));
+    if (password) {
+      await upsert('page_password_hash', await bcrypt.hash(password, 10));
+      await upsert('page_password_enc', encryptPagePassword(password));
+    }
     const existing = await sql`SELECT 1 FROM user_page_settings WHERE user_page_id = ${owned.value} AND setting_name = 'page_password_hash' AND setting_value <> ''`;
     const hasPassword = existing.rows.length > 0;
     if (data?.enabled && !hasPassword) return { ok: false, error: 'Set a password to turn protection on.' };
@@ -845,10 +849,11 @@ export async function saveInvitationDesign(pageId: number, design: unknown): Pro
 const MAX_INVITATION_RECIPIENTS = 1000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: string; hostEmail: string | null };
+type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: string; hostEmail: string | null; details: InvitationDetails };
 
-// The signed-in owner's Plus page, its saved invitation design and the host's
-// name/email (for the From name and Reply-To).
+// The signed-in owner's Plus page, its saved invitation design, the host's
+// name/email (for the From name and Reply-To) and the event details (with the
+// page password, when the host includes it).
 async function invitationContext(pageId: number): Promise<PlusResult<InvitationContext>> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -858,11 +863,11 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
   if (!page) return { ok: false, error: 'Page not found.' };
   if (page.plan_type !== 'paid') return { ok: false, error: 'Invitations are a Plus feature.' };
   const [settings, user] = await Promise.all([
-    sql<{ setting_value: string }>`SELECT setting_value FROM user_page_settings WHERE user_page_id = ${pid} AND setting_name = ${INVITATION_SETTING}`,
+    fetchPageSettings(pid),
     sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
   ]);
   let saved: unknown = null;
-  try { saved = JSON.parse(settings.rows[0]?.setting_value ?? 'null'); } catch { saved = null; }
+  try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
   const hostEmail = user.rows[0]?.email ?? session?.user?.email ?? null;
   return {
     ok: true,
@@ -871,6 +876,7 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
       design: normalizeInvitation(saved, page.theme_slug),
       hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
       hostEmail,
+      details: invitationDetails(page, invitationPassword(settings, true).password),
     },
   };
 }
@@ -889,7 +895,7 @@ export async function sendInvitations(
 
     const ctx = await invitationContext(pageId);
     if (!ctx.ok) return ctx;
-    const { page, design, hostName, hostEmail } = ctx.value;
+    const { page, design, hostName, hostEmail, details } = ctx.value;
     if (await overRateLimit(`invitations:${page.id}`, 10, 60 * 60 * 1000)) {
       return { ok: false, error: 'You’ve sent invitations 10 times in the last hour. Please try again later.' };
     }
@@ -905,7 +911,6 @@ export async function sendInvitations(
     const recipients = guests.rows.filter((g) => EMAIL_RE.test(g.email.trim()));
     if (!recipients.length) return { ok: false, error: 'None of the chosen guests have an email address you can send to.' };
 
-    const details = invitationDetails(page);
     const messages: MailMessage[] = recipients.map((g) => {
       const { subject, html } = invitationEmail({
         design,
@@ -956,14 +961,14 @@ export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean;
   try {
     const ctx = await invitationContext(pageId);
     if (!ctx.ok) return { ok: false, message: ctx.error };
-    const { page, design, hostName, hostEmail } = ctx.value;
+    const { page, design, hostName, hostEmail, details } = ctx.value;
     if (!hostEmail) return { ok: false, message: 'Your account has no email address.' };
     if (await overRateLimit(`invitation-test:${page.id}`, 5, 60 * 60 * 1000)) {
       return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
     }
     const { subject, html } = invitationEmail({
       design,
-      details: invitationDetails(page),
+      details,
       language: page.language,
       hostName,
       guestName: hostName,

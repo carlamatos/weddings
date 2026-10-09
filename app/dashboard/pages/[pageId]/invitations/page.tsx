@@ -5,6 +5,8 @@ import { invitationDetails } from '@/app/lib/invitation-details';
 import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
+import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
+import { invitationPassword } from '@/app/lib/page-password';
 import { auth } from '@/auth';
 
 export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
@@ -27,7 +29,8 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
   const design = normalizeInvitation(saved, page.theme_slug);
 
-  const details = invitationDetails(page);
+  const pagePassword = invitationPassword(settings, true);
+  const details = invitationDetails(page, pagePassword.password);
   const hostName = (await auth())?.user?.name?.trim() || '';
 
   return (
@@ -39,6 +42,10 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
           as a PDF, or send it to your guests by email, text message or WhatsApp.
         </p>
       </div>
+
+      {pagePassword.state !== 'none' && (
+        <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
+      )}
 
       <InvitationDesigner
         pageId={pageId}

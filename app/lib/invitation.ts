@@ -57,6 +57,10 @@ export type InvitationDetails = {
   venue: string;
   address: string;
   url: string;
+  // The page password, when the page is protected and the host includes it in
+  // invitations, with its label in the page's language.
+  password?: string;
+  passwordLabel?: string;
 };
 
 type Preset = Pick<InvitationDesign, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor'> & { bg: string };

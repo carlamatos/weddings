@@ -120,6 +120,7 @@ export function invitationEmail({
     ${details.date ? p(escHtml(details.date), 'font-size: 18px; font-weight: 600; margin-bottom: 6px;') : ''}
     ${details.time ? p(escHtml(details.time), 'font-size: 16px;') : ''}
     ${place ? p(place, 'font-size: 15px; line-height: 1.55; margin-top: 8px;') : ''}
+    ${details.password ? p(`${escHtml(details.passwordLabel ?? 'Page password')}: <strong style="font-weight: 700; letter-spacing: 1px;">${escHtml(details.password)}</strong>`, 'font-size: 15px; margin-top: 8px;') : ''}
     ${note?.trim() ? `
     <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 24px auto 0; max-width: 440px; width: 100%;">
       <tr><td style="padding: 16px 20px; border: 1px solid ${rgba(accent, 0.55)}; border-left: 3px solid ${accent}; border-radius: 6px; text-align: left;">
