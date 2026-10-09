@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
-import { isSectionTextKey, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
+import { isSectionTextKey, sectionKeyFromColorSetting, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
 import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
@@ -16,7 +16,7 @@ import { headers } from 'next/headers';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage, type Guest } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -44,7 +44,10 @@ import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
+import { partySize } from './guest-import';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
+import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
+import { heroButtonSetting, isHeroButtonKey, isHeroColor, normalizeHeroButtonLabel } from '@/app/ui/themes/hero-style';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -331,14 +334,21 @@ export async function updateDescription(pageId: number, description: string) {
   }
 }
 
-// What updatePageSetting may write: the show/hide switches, the banner fit and
-// the banner's vertical alignment ('' = back to the theme's default).
+// What updatePageSetting may write: the show/hide switches, the banner fit,
+// the banner's vertical alignment ('' = back to the theme's default) and the
+// banner overlay's colour (#rrggbb) and opacity (0–100), and the banner
+// text colours and each section heading's colour (`color:<key>`) (#rrggbb,
+// '' = the theme's colour).
 // Everything else (livestream, reminders, hashtag, headings…) has its own
 // validating action, so a crafted call can't store arbitrary settings.
 function isWritableSetting(name: string, value: string): boolean {
   if (/^show_[a-z_]{1,40}$/.test(name)) return value === 'true' || value === 'false';
   if (name === 'hero_object_fit') return value === 'cover' || value === 'contain';
   if (name === 'hero_object_position') return value === '' || isHeroObjectPosition(value);
+  if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
+  if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
+  if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
+  if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   return false;
 }
 
@@ -358,6 +368,66 @@ export async function updatePageSetting(pageId: number, settingName: string, set
     revalidatePath('/', 'layout');
   } catch (error) {
     console.error('Failed to update page setting:', error);
+  }
+}
+
+// Saves one top-banner button: its label and its button / text colours.
+// '' for any of them = back to the theme's own. Returns false when nothing
+// was saved (bad input, not the owner, or a database error).
+export async function updateHeroButton(
+  pageId: number,
+  key: string,
+  values: { label: string; bg: string; color: string },
+): Promise<boolean> {
+  if (!isHeroButtonKey(key) || !values) return false;
+  const label = normalizeHeroButtonLabel(values.label);
+  const { bg, color } = values;
+  if ((bg !== '' && !isHeroColor(bg)) || (color !== '' && !isHeroColor(color))) return false;
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    const owned = await sql`SELECT 1 FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    if (!owned.rows.length) return false;
+    for (const [name, value] of [
+      [heroButtonSetting(key, 'label'), label],
+      [heroButtonSetting(key, 'bg'), bg],
+      [heroButtonSetting(key, 'color'), color],
+    ]) {
+      await sql`
+        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+        VALUES (${pid}, ${name}, ${value})
+        ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+      `;
+    }
+    revalidatePath('/', 'layout');
+    return true;
+  } catch (error) {
+    console.error('Failed to update banner button:', error);
+    return false;
+  }
+}
+
+// "Restore default theme colors": clears the banner's text and button colours
+// and every section heading colour (button labels and the photo overlay are
+// kept).
+export async function resetHeroColors(pageId: number): Promise<boolean> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    await sql`
+      DELETE FROM user_page_settings
+      WHERE user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+        AND setting_name ~ '^hero_(eyebrow|name|date)_color$|^hero_btn_(rsvp|story|photos)_(bg|color)$|^color:'
+    `;
+    revalidatePath('/', 'layout');
+    return true;
+  } catch (error) {
+    console.error('Failed to reset banner colours:', error);
+    return false;
   }
 }
 
@@ -675,6 +745,55 @@ export async function updateGuestStatus(
   } catch (error) {
     console.error('Failed to update guest status:', error);
     return { ok: false };
+  }
+}
+
+// The host edits a guest on the list (Guests → Guest List): name, email,
+// phone, party size and status. Any plan. Email must be unique on the list,
+// as when guests are added.
+export async function updateGuest(
+  pageId: number,
+  guestId: string,
+  data: { name: string; email: string; phone: string; guests: number | string; status: string },
+): Promise<{ ok: true; guest: Pick<Guest, 'name' | 'email' | 'phone' | 'guests' | 'status'> } | { ok: false; error: string }> {
+  const fail = (error: string) => ({ ok: false as const, error });
+  if (!UUID_RE.test(guestId) || !data) return fail('Guest not found.');
+  const name = typeof data.name === 'string' ? data.name.trim().slice(0, 120) : '';
+  if (!name) return fail('Please enter a name.');
+  const email = typeof data.email === 'string' ? data.email.trim().toLowerCase() : '';
+  if (email && (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))) return fail('Please enter a valid email address.');
+  const phoneRaw = typeof data.phone === 'string' ? data.phone : '';
+  if (!isValidOptionalPhone(phoneRaw)) return fail(PHONE_INVALID_MESSAGE);
+  const phone = cleanPhone(phoneRaw);
+  const guests = partySize(data.guests);
+  const status = data.status;
+  if (status !== 'invited' && status !== 'attending' && status !== 'not_attending') return fail('Please choose a status.');
+
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return fail('Guest not found.');
+  try {
+    if (email) {
+      const dup = await sql`
+        SELECT 1 FROM event_guests
+        WHERE user_page_id = ${pid} AND lower(email) = ${email} AND id <> ${guestId}::uuid
+        LIMIT 1
+      `;
+      if (dup.rows.length) return fail('Another guest on your list already has that email.');
+    }
+    const res = await sql`
+      UPDATE event_guests
+      SET name = ${name}, email = ${email || null}, phone = ${phone}, guests = ${guests}, status = ${status}
+      WHERE id = ${guestId}::uuid
+        AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+    `;
+    if (!res.rowCount) return fail('Guest not found.');
+    revalidatePath('/dashboard', 'layout');
+    return { ok: true, guest: { name, email: email || null, phone, guests, status } };
+  } catch (error) {
+    console.error('Failed to update guest:', error);
+    return fail('Could not save that guest. Please try again.');
   }
 }
 

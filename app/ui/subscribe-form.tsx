@@ -207,24 +207,6 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
         <input type="hidden" name="slug" value={activeSlug} />
         <input type="hidden" name="plan" value={plan} />
 
-        {/* Event Type */}
-        <div className="auth-field">
-          <label className="auth-label">Event Type</label>
-          <div className="setup-type-pills">
-            {(['wedding', 'birthdays', 'business', 'community'] as const).map((type) => (
-              <button
-                key={type}
-                type="button"
-                className={`setup-type-pill${eventType === type ? ' setup-type-pill--active' : ''}`}
-                onClick={() => handleEventTypeChange(type)}
-              >
-                {CATEGORY_LABELS[type]}
-              </button>
-            ))}
-          </div>
-          {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
-        </div>
-
         {/* Event Name */}
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventName">Event Name</label>
@@ -279,9 +261,30 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
           </div>
         </div>
 
+        {/* Event Type */}
+        <div className="auth-field">
+          <label className="auth-label">Event Type</label>
+          <div className="setup-type-pills">
+            {(['wedding', 'birthdays', 'business', 'community'] as const).map((type) => (
+              <button
+                key={type}
+                type="button"
+                className={`setup-type-pill${eventType === type ? ' setup-type-pill--active' : ''}`}
+                onClick={() => handleEventTypeChange(type)}
+              >
+                {CATEGORY_LABELS[type]}
+              </button>
+            ))}
+          </div>
+          {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
+        </div>
+
         {/* Theme picker */}
         <div className="auth-field">
           <label className="auth-label">{CATEGORY_LABELS[eventType]} Theme</label>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '0 0 10px', lineHeight: 1.5 }}>
+            Not sure yet? Pick one you like — you can change your theme anytime from your page editor.
+          </p>
           {themes.length === 0 ? (
             <div className="setup-theme-cards--empty">
               No {CATEGORY_LABELS[eventType].toLowerCase()} themes yet — more are on the way. Pick another category for now.

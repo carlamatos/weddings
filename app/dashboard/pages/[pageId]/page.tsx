@@ -20,6 +20,8 @@ import { heroFallbackFor } from '@/app/ui/themes/hero-fallback';
 import { formatDateRange } from '@/app/ui/themes/event-when';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
+import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
+import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -34,6 +36,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   ]);
   const heroObjectFit = (pageSettings['hero_object_fit'] as 'cover' | 'contain') ?? 'cover';
   const heroObjectPosition = isHeroObjectPosition(pageSettings['hero_object_position']) ? pageSettings['hero_object_position'] : undefined;
+  const heroOverlay = heroOverlayFromSettings(pageSettings);
+  const heroStyle = heroStyleFromSettings(pageSettings);
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
   const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
@@ -85,6 +89,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       : 'hero-eyebrow';
 
   const editSlots = {
+    heroEditPageId: pageId,
     heroBg: (
       <EditableBannerBg
         pageId={pageId}
@@ -92,6 +97,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         src={userPage.banner_image || ''}
         initialObjectFit={heroObjectFit}
         initialObjectPosition={heroObjectPosition}
+        initialOverlayColor={pageSettings['hero_overlay_color']}
+        initialOverlayOpacity={pageSettings['hero_overlay_opacity']}
       />
     ),
     heroEyebrow: (
@@ -99,18 +106,21 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         pageId={pageId}
         value={userPage.hero_eyebrow || themeEyebrowDefault}
         className={themeEyebrowClass}
+        initialColor={heroStyle.text.eyebrow}
       />
     ),
     heroName: (
       <EditableHeroName
         pageId={pageId}
         value={userPage.heading || ''}
+        initialColor={heroStyle.text.name}
       />
     ),
     heroDate: heroDateText ? (
       <EditableHeroDate
         pageId={pageId}
         displayText={heroDateText}
+        initialColor={heroStyle.text.date}
         eventDate={userPage.event_date || undefined}
         eventTime={userPage.event_time || undefined}
         eventEndDate={userPage.event_end_date || undefined}
@@ -185,6 +195,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         guestSongsHasMore={guestSongsResult.hasMore}
         heroObjectFit={heroObjectFit}
         heroObjectPosition={heroObjectPosition}
+        heroOverlay={heroOverlay}
+        heroStyle={heroStyle}
         eventProgram={eventProgram}
         showEventProgram={showEventProgram}
         showSongRequests={showSongRequests}

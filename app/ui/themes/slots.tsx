@@ -2,13 +2,16 @@
 
 import { useState, useRef, useTransition } from 'react';
 import { createPortal } from 'react-dom';
-import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
+import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, resetHeroColors, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
 import { formatDateRange } from './event-when';
 import { compressImageFile, isHeicFile } from '@/app/lib/compress-image';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { HERO_OBJECT_POSITIONS, heroMediaStyle, type HeroObjectPosition } from './hero-media';
+import { HeroOverlay, HERO_OVERLAY_DEFAULT_COLOR, isHeroOverlayColor, isHeroOverlayOpacity } from './hero-overlay';
+import { heroTextStyle, type HeroTextKey } from './hero-style';
+import HeroColorField from './HeroColorField';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -29,25 +32,59 @@ function CameraIcon() {
   );
 }
 
+// ─── Banner text colour ───────────────────────────────────
+// Shown next to Save / Cancel while the eyebrow or name is being edited.
+function InlineTextColor({ value, onChange }: { value: string; onChange: (next: string) => void }) {
+  return (
+    <span className="theme-edit-cancel" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px' }}>
+      <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
+        Colour
+        <input
+          type="color"
+          value={value || '#ffffff'}
+          onChange={(e) => onChange(e.target.value)}
+          aria-label="Text colour"
+          style={{ width: 24, height: 20, padding: 0, border: '1px solid rgba(36,31,43,0.25)', borderRadius: 4, background: 'none', cursor: 'pointer' }}
+        />
+      </label>
+      {value && (
+        <button type="button" onClick={() => onChange('')} title="Use the theme's own colour"
+          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit', color: 'inherit', textDecoration: 'underline' }}>
+          Theme colour
+        </button>
+      )}
+    </span>
+  );
+}
+
+function saveHeroTextColor(pageId: number, key: HeroTextKey, color: string) {
+  return updatePageSetting(pageId, `hero_${key}_color`, color);
+}
+
 // ─── EditableHeroEyebrow ──────────────────────────────────
 // Replaces: <p className="hero-eyebrow">...</p>
 export function EditableHeroEyebrow({
   pageId,
   value,
+  initialColor = '',
   className = 'hero-eyebrow',
 }: {
   pageId: number;
   value: string;
+  initialColor?: string; // owner's text colour; '' = the theme's
   className?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
+  const [color, setColor] = useState(initialColor);
+  const [draftColor, setDraftColor] = useState(initialColor);
   const [, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const startEdit = () => {
     setDraft(current);
+    setDraftColor(color);
     setEditing(true);
     setTimeout(() => textareaRef.current?.select(), 0);
   };
@@ -57,6 +94,10 @@ export function EditableHeroEyebrow({
     setCurrent(v);
     setEditing(false);
     startTransition(() => updateHeroEyebrow(pageId, v));
+    if (draftColor !== color) {
+      setColor(draftColor);
+      startTransition(() => saveHeroTextColor(pageId, 'eyebrow', draftColor));
+    }
   };
 
   const cancel = () => {
@@ -76,12 +117,13 @@ export function EditableHeroEyebrow({
             if (e.key === 'Escape') cancel();
           }}
           className={`${className} theme-edit-input`}
-          style={{ resize: 'vertical', width: '100%' }}
+          style={{ resize: 'vertical', width: '100%', ...heroTextStyle(draftColor) }}
           autoFocus
         />
         <div className="theme-edit-controls">
           <button className="theme-edit-save" onClick={save}>Save</button>
           <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
+          <InlineTextColor value={draftColor} onChange={setDraftColor} />
         </div>
       </span>
     );
@@ -89,7 +131,7 @@ export function EditableHeroEyebrow({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <p className={className} style={{ whiteSpace: 'pre-line' }}>{current}</p>
+      <p className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</p>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit eyebrow text">
         <PencilIcon /> Edit
       </button>
@@ -106,6 +148,7 @@ export function EditableSectionText({
   k,
   as: Tag,
   value,
+  initialColor = '',
   fallback,
   className,
   style,
@@ -115,6 +158,7 @@ export function EditableSectionText({
   k: SectionTextKey;
   as: 'p' | 'h2';
   value: string;
+  initialColor?: string; // owner's colour for this heading; '' = the theme's
   fallback: string;
   className?: string;
   style?: React.CSSProperties;
@@ -123,11 +167,14 @@ export function EditableSectionText({
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value || fallback);
+  const [color, setColor] = useState(initialColor);
+  const [draftColor, setDraftColor] = useState(initialColor);
   const [, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
   const startEdit = () => {
     setDraft(current || fallback);
+    setDraftColor(color);
     setEditing(true);
     setTimeout(() => inputRef.current?.select(), 0);
   };
@@ -137,6 +184,10 @@ export function EditableSectionText({
     const v = trimmed === fallback ? '' : trimmed;
     setCurrent(v);
     setEditing(false);
+    if (draftColor !== color) {
+      setColor(draftColor);
+      startTransition(() => updatePageSetting(pageId, `color:${k}`, draftColor));
+    }
     startTransition(async () => {
       const saved = await updateSectionText(pageId, k, v);
       if (saved !== null) setCurrent(saved);
@@ -161,12 +212,13 @@ export function EditableSectionText({
             if (e.key === 'Escape') cancel();
           }}
           className={`${className ?? ''} theme-edit-input`}
-          style={style}
+          style={{ ...style, ...heroTextStyle(draftColor) }}
           autoFocus
         />
         <span className="theme-edit-controls" style={{ justifyContent: 'center' }}>
           <button className="theme-edit-save" onClick={() => saveValue(draft)}>Save</button>
           <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
+          <InlineTextColor value={draftColor} onChange={setDraftColor} />
           {current && (
             <button className="theme-edit-cancel" onClick={() => saveValue('')} title={`Back to "${fallback}"`}>
               Reset to default
@@ -179,7 +231,7 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <Tag className={className} style={style}>{icon}{current || fallback}</Tag>
+      <Tag className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit text">
         <PencilIcon /> Edit
       </button>
@@ -192,20 +244,25 @@ export function EditableSectionText({
 export function EditableHeroName({
   pageId,
   value,
+  initialColor = '',
   className = 'hero-name',
 }: {
   pageId: number;
   value: string;
+  initialColor?: string; // owner's text colour; '' = the theme's
   className?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
+  const [color, setColor] = useState(initialColor);
+  const [draftColor, setDraftColor] = useState(initialColor);
   const [, startTransition] = useTransition();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const startEdit = () => {
     setDraft(current);
+    setDraftColor(color);
     setEditing(true);
     setTimeout(() => textareaRef.current?.select(), 0);
   };
@@ -215,6 +272,10 @@ export function EditableHeroName({
     setCurrent(v);
     setEditing(false);
     startTransition(() => updateHeading(pageId, v));
+    if (draftColor !== color) {
+      setColor(draftColor);
+      startTransition(() => saveHeroTextColor(pageId, 'name', draftColor));
+    }
   };
 
   const cancel = () => {
@@ -234,12 +295,13 @@ export function EditableHeroName({
             if (e.key === 'Escape') cancel();
           }}
           className={`${className} theme-edit-input`}
-          style={{ resize: 'vertical', width: '100%' }}
+          style={{ resize: 'vertical', width: '100%', ...heroTextStyle(draftColor) }}
           autoFocus
         />
         <div className="theme-edit-controls">
           <button className="theme-edit-save" onClick={save}>Save</button>
           <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
+          <InlineTextColor value={draftColor} onChange={setDraftColor} />
         </div>
       </span>
     );
@@ -247,7 +309,7 @@ export function EditableHeroName({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <h1 className={className} style={{ whiteSpace: 'pre-line' }}>{current}</h1>
+      <h1 className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</h1>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit name">
         <PencilIcon /> Edit
       </button>
@@ -272,6 +334,7 @@ export type HeroDateAddress = {
 export function EditableHeroDate({
   pageId,
   className = 'hero-date',
+  initialColor = '',
   displayText,
   eventDate,
   eventTime,
@@ -283,6 +346,7 @@ export function EditableHeroDate({
 }: {
   pageId: number;
   className?: string;
+  initialColor?: string; // owner's text colour; '' = the theme's
   displayText: string;
   eventDate?: string;
   eventTime?: string;
@@ -295,6 +359,8 @@ export function EditableHeroDate({
 }) {
   const [open, setOpen] = useState(false);
   const [currentText, setCurrentText] = useState(displayText);
+  const [color, setColor] = useState(initialColor);
+  const [dColor, setDColor] = useState(initialColor);
   const [, startTransition] = useTransition();
 
   const [dDate, setDDate] = useState(eventDate ?? '');
@@ -337,6 +403,10 @@ export function EditableHeroDate({
     const loc = [dCity, dCountry].filter(Boolean).join(', ');
     if (loc) parts.push(loc);
     if (parts.length) setCurrentText(parts.join(' · '));
+    if (dColor !== color) {
+      setColor(dColor);
+      startTransition(() => saveHeroTextColor(pageId, 'date', dColor));
+    }
     startTransition(() =>
       updateEventDateTime(pageId, {
         date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined,
@@ -347,15 +417,16 @@ export function EditableHeroDate({
   };
 
   const cancel = () => setOpen(false);
+  const openDialog = () => { setDColor(color); setOpen(true); };
 
   return (
     <span
       className="theme-editable"
       style={{ display: 'block', position: 'relative' }}
     >
-      <p className={className}>{currentText}</p>
+      <p className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
 
-      <button className="theme-edit-badge" onClick={() => setOpen(true)} title="Edit dates and location">
+      <button className="theme-edit-badge" onClick={openDialog} title="Edit dates and location">
         <PencilIcon /> Edit dates and location
       </button>
 
@@ -412,6 +483,8 @@ export function EditableHeroDate({
                 </div>
               </>
             )}
+            <p className="theme-date-heading">Text</p>
+            <HeroColorField id="hd-color" label="Text colour" value={dColor} onChange={setDColor} />
             <div className="theme-edit-controls" style={{ marginTop: 4 }}>
               <button className="theme-edit-save" onClick={save} disabled={endBeforeStart}>Save</button>
               <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
@@ -483,7 +556,7 @@ export function EditableDescription({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <p className={className} style={style}>{current}</p>
+      <p className={className} style={style} onClick={startEdit}>{current}</p>
       <button className="theme-edit-badge" onClick={startEdit} title="Edit description">
         <PencilIcon /> Edit
       </button>
@@ -503,6 +576,8 @@ export function EditableBannerBg({
   src,
   initialObjectFit = 'cover',
   initialObjectPosition,
+  initialOverlayColor,
+  initialOverlayOpacity,
   defaultSrc,
   fallback,
 }: {
@@ -511,6 +586,9 @@ export function EditableBannerBg({
   initialObjectFit?: 'cover' | 'contain';
   // Vertical alignment the owner chose; unset = the theme's own default.
   initialObjectPosition?: HeroObjectPosition;
+  // Saved banner overlay (hero_overlay_color / hero_overlay_opacity settings).
+  initialOverlayColor?: string;
+  initialOverlayOpacity?: string;
   // What the current theme shows when there is no banner (its default image, or
   // a custom element such as Terracotta's illustration).
   defaultSrc?: string;
@@ -525,8 +603,11 @@ export function EditableBannerBg({
   const [uploadError, setUploadError] = useState('');
   const [objectFit, setObjectFit] = useState<'cover' | 'contain'>(initialObjectFit);
   const [objectPosition, setObjectPosition] = useState<HeroObjectPosition | undefined>(initialObjectPosition);
+  const [overlayColor, setOverlayColor] = useState(isHeroOverlayColor(initialOverlayColor) ? initialOverlayColor : HERO_OVERLAY_DEFAULT_COLOR);
+  const [overlayOpacity, setOverlayOpacity] = useState(isHeroOverlayOpacity(initialOverlayOpacity) ? Number(initialOverlayOpacity) : 0);
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const overlaySaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Back to the theme's own default hero (only offered while a custom banner is set).
   const [restoring, setRestoring] = useState(false);
@@ -555,6 +636,45 @@ export function EditableBannerBg({
     const value = objectPosition === next ? undefined : next;
     setObjectPosition(value);
     startTransition(() => updatePageSetting(pageId, 'hero_object_position', value ?? ''));
+  };
+
+  // The colour picker and slider fire on every move; preview instantly, save
+  // once the owner pauses.
+  const saveOverlaySetting = (name: 'hero_overlay_color' | 'hero_overlay_opacity', value: string) => {
+    clearTimeout(overlaySaveTimers.current[name]);
+    overlaySaveTimers.current[name] = setTimeout(() => {
+      startTransition(() => updatePageSetting(pageId, name, value));
+    }, 400);
+  };
+  const chooseOverlayColor = (next: string) => {
+    if (!isHeroOverlayColor(next)) return;
+    setOverlayColor(next);
+    saveOverlaySetting('hero_overlay_color', next);
+    // Picking a colour while the overlay is off would show nothing — turn it on.
+    if (overlayOpacity === 0) {
+      setOverlayOpacity(40);
+      saveOverlaySetting('hero_overlay_opacity', '40');
+    }
+  };
+  const chooseOverlayOpacity = (next: number) => {
+    setOverlayOpacity(next);
+    saveOverlaySetting('hero_overlay_opacity', String(next));
+  };
+
+  // Clears the custom text, heading and button colours, then reloads so every
+  // editable piece shows the theme's colours again.
+  const [restoringColors, setRestoringColors] = useState(false);
+  const restoreThemeColors = async () => {
+    if (!window.confirm('Are you sure you want to restore the default theme colors? Your custom heading, text and button colors will be removed from the whole page.')) return;
+    setRestoringColors(true);
+    setUploadError('');
+    const ok = await resetHeroColors(pageId);
+    if (!ok) {
+      setRestoringColors(false);
+      setUploadError('Couldn’t restore the theme colors. Please try again.');
+      return;
+    }
+    window.location.reload();
   };
 
   // Fills the banner on its own, whatever the theme's CSS does — some themes
@@ -663,6 +783,7 @@ export function EditableBannerBg({
         // eslint-disable-next-line @next/next/no-img-element
         <img className="hero-bg" src={mediaSrc} alt="" style={mediaStyle} />
       )}
+      <HeroOverlay overlay={{ color: overlayColor, opacity: overlayOpacity }} />
 
       <input
         ref={fileInputRef}
@@ -709,6 +830,36 @@ export function EditableBannerBg({
             </button>
           ))}
         </span>
+        <span role="group" aria-label="Overlay" title="A colour layer between the photo and the text" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span>Overlay</span>
+          <input
+            type="color"
+            value={overlayColor}
+            onChange={(e) => chooseOverlayColor(e.target.value)}
+            aria-label="Overlay colour"
+            style={{ width: 26, height: 22, padding: 0, border: '1px solid rgba(255,255,255,0.5)', borderRadius: 4, background: 'none', cursor: 'pointer' }}
+          />
+          <input
+            type="range"
+            min={0}
+            max={100}
+            step={5}
+            value={overlayOpacity}
+            onChange={(e) => chooseOverlayOpacity(Number(e.target.value))}
+            aria-label="Overlay opacity"
+            aria-valuetext={`${overlayOpacity}%`}
+            style={{ width: 80, cursor: 'pointer', accentColor: '#fff' }}
+          />
+          <span style={{ minWidth: 30, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{overlayOpacity}%</span>
+        </span>
+        <button
+          onClick={restoreThemeColors}
+          disabled={restoringColors}
+          title="Remove your custom heading, text and button colors from the whole page"
+          style={{ background: 'none', border: 'none', cursor: restoringColors ? 'wait' : 'pointer', color: 'inherit', font: 'inherit', padding: 0 }}
+        >
+          <span>{restoringColors ? 'Restoring…' : 'Restore default theme colors'}</span>
+        </button>
         {current && !uploading && (
           <button
             onClick={restoreDefault}
@@ -813,7 +964,9 @@ export function EditableContactInfo({
   }
 
   return (
-    <span style={{ position: 'relative', display: 'inline-block' }}>
+    // In the editor, clicking the details edits them (rather than opening
+    // the mail or phone app).
+    <span style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); setEditing(true); }}>
       {emailVal && <p style={{ margin: '0 0 4px' }}><a href={`mailto:${emailVal}`} style={{ textDecoration: 'none', ...linkStyle }}>{emailVal}</a></p>}
       {phoneVal && <p style={{ margin: 0 }}><a href={`tel:${phoneVal}`} style={{ textDecoration: 'none', ...linkStyle }}>{phoneVal}</a></p>}
       {!emailVal && !phoneVal && <p style={{ margin: 0, opacity: 0.5, fontStyle: 'italic' }}>Add contact info</p>}
