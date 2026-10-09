@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
-import { isSectionTextKey, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
+import { isSectionTextKey, sectionKeyFromColorSetting, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
 import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
@@ -337,7 +337,8 @@ export async function updateDescription(pageId: number, description: string) {
 // What updatePageSetting may write: the show/hide switches, the banner fit,
 // the banner's vertical alignment ('' = back to the theme's default) and the
 // banner overlay's colour (#rrggbb) and opacity (0–100), and the banner
-// text colours (#rrggbb, '' = the theme's colour).
+// text colours and each section heading's colour (`color:<key>`) (#rrggbb,
+// '' = the theme's colour).
 // Everything else (livestream, reminders, hashtag, headings…) has its own
 // validating action, so a crafted call can't store arbitrary settings.
 function isWritableSetting(name: string, value: string): boolean {
@@ -347,6 +348,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
   if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
+  if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   return false;
 }
 
@@ -408,7 +410,8 @@ export async function updateHeroButton(
 }
 
 // "Restore default theme colors": clears the banner's text and button colours
-// (button labels and the photo overlay are kept).
+// and every section heading colour (button labels and the photo overlay are
+// kept).
 export async function resetHeroColors(pageId: number): Promise<boolean> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -418,7 +421,7 @@ export async function resetHeroColors(pageId: number): Promise<boolean> {
     await sql`
       DELETE FROM user_page_settings
       WHERE user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
-        AND setting_name ~ '^hero_(eyebrow|name|date)_color$|^hero_btn_(rsvp|story|photos)_(bg|color)$'
+        AND setting_name ~ '^hero_(eyebrow|name|date)_color$|^hero_btn_(rsvp|story|photos)_(bg|color)$|^color:'
     `;
     revalidatePath('/', 'layout');
     return true;

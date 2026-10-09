@@ -1,5 +1,6 @@
 import type { SectionText as SectionTextValues, SectionTextKey } from '@/app/lib/section-text';
 import { EditableSectionText } from './slots';
+import { heroTextStyle } from './hero-style';
 
 // What a theme passes to every <SectionText>: the page's custom heading text
 // and, in the editor only, the page id that turns each heading into an
@@ -29,6 +30,7 @@ export function SectionText({
   icon?: React.ReactNode; // Nexus puts a small icon before its eyebrows
 }) {
   const value = ctx?.values?.[k] ?? '';
+  const color = ctx?.values?.colors?.[k] ?? '';
   if (ctx?.pageId) {
     return (
       <EditableSectionText
@@ -36,6 +38,7 @@ export function SectionText({
         k={k}
         as={as}
         value={value}
+        initialColor={color}
         fallback={fallback}
         className={className}
         style={style}
@@ -44,5 +47,5 @@ export function SectionText({
     );
   }
   const Tag = as;
-  return <Tag className={className} style={style}>{icon}{value || fallback}</Tag>;
+  return <Tag className={className} style={color ? { ...style, ...heroTextStyle(color) } : style}>{icon}{value || fallback}</Tag>;
 }
