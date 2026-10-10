@@ -3,6 +3,8 @@ import { inter } from '@/app/ui/fonts';
 import Script from 'next/script';
 import type { Metadata } from 'next';
 import { siteUrl } from '@/app/lib/site-url';
+import { Suspense } from 'react';
+import PurchaseConversion from '@/app/ui/purchase-conversion';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -22,6 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         {children}
+        <Suspense fallback={null}>
+          <PurchaseConversion />
+        </Suspense>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-5MD6D8FQ6X"
           strategy="afterInteractive"
