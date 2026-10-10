@@ -28,7 +28,7 @@ export default function CompanyPage() {
       <h2 style={h2}>Purchases</h2>
       <p>
         When you buy {COMPANY.tradeName} Plus, your contract is with {COMPANY.legalName} Plus is a one-time payment of{' '}
-        {PLAN_PRICE_LABEL} per event page, charged in Canadian dollars, that unlocks that page&rsquo;s Plus features for{' '}
+        {PLAN_PRICE_LABEL} per event page plus applicable taxes, charged in Canadian dollars, that unlocks that page&rsquo;s Plus features for{' '}
         {PLAN_TERM_MONTHS} months. It is not a subscription and does not renew. Payments are processed by Stripe, and a receipt is
         emailed to you. Refunds and cancellations are described in our <Link href="/terms#billing" style={link}>Terms of Service</Link>.
       </p>

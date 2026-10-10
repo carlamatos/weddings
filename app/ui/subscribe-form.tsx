@@ -8,7 +8,7 @@ import AddressAutocomplete, { AddressComponents } from './address-autocomplete';
 import { themesByCategory } from './themes/registry';
 import type { EventCategory } from './themes/types';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
-import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '../lib/plans';
+import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '../lib/plans';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
 const CATEGORY_LABELS: Record<EventCategory, string> = {
@@ -457,7 +457,7 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
               <div className="setup-plan-options">
                 {([
                   ['free', 'Free', '$0', FREE_POINTS],
-                  ['plus', 'Plus', `${PLAN_PRICE_LABEL} one-time`, PLUS_POINTS],
+                  ['plus', 'Plus', `${PLAN_PRICE_PLUS_TAX}, one-time`, PLUS_POINTS],
                 ] as const).map(([value, name, price, points]) => (
                   <label key={value} className={`setup-plan-option${plan === value ? ' setup-plan-option--active' : ''}`}>
                     <input type="radio" name="planRadio" value={value} checked={plan === value} onChange={() => setPlan(value)} />
