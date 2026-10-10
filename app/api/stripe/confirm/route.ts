@@ -18,6 +18,9 @@ export async function GET(req: NextRequest) {
 
   // Back to the page that was bought (its editor), else the event pages list.
   let landing = '/dashboard';
+  // Set on a successful purchase so the landing page reports the Google Ads
+  // conversion (see PurchaseConversion).
+  let conversion: { id: string; value: number; currency: string } | null = null;
   try {
     const checkoutSession = await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -43,10 +46,22 @@ export async function GET(req: NextRequest) {
         `;
         landing = pagePath(pageId);
       }
+      conversion = {
+        id: checkoutSession.id,
+        value: (checkoutSession.amount_total ?? 0) / 100,
+        currency: (checkoutSession.currency ?? 'cad').toUpperCase(),
+      };
     }
   } catch (err) {
     console.error('Stripe confirm error:', err);
   }
 
-  return NextResponse.redirect(new URL(landing, req.url));
+  const url = new URL(landing, req.url);
+  if (conversion) {
+    url.searchParams.set('purchase', 'plus');
+    url.searchParams.set('tid', conversion.id);
+    url.searchParams.set('value', String(conversion.value));
+    url.searchParams.set('currency', conversion.currency);
+  }
+  return NextResponse.redirect(url);
 }
