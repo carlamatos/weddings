@@ -10,6 +10,9 @@ export const PLAN_ONE_TIME_PRICE = 49.99;
 export const PLAN_CURRENCY = 'CAD';
 // How the price is written everywhere it's shown: "$49.99 CAD".
 export const PLAN_PRICE_LABEL = `$${PLAN_ONE_TIME_PRICE} ${PLAN_CURRENCY}`;
+// Prices are tax-exclusive: GST/HST and provincial sales tax are added at
+// checkout from the buyer's billing address (Stripe Tax). "$49.99 CAD + tax".
+export const PLAN_PRICE_PLUS_TAX = `${PLAN_PRICE_LABEL} + tax`;
 export const PLAN_TERM_MONTHS = 15;
 
 // Feature bullets for the two plans — one list shared by the homepage

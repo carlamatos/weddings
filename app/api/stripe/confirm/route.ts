@@ -48,7 +48,8 @@ export async function GET(req: NextRequest) {
       }
       conversion = {
         id: checkoutSession.id,
-        value: (checkoutSession.amount_total ?? 0) / 100,
+        // Revenue before tax (GST/HST and PST aren't MyGala's income).
+        value: (checkoutSession.amount_subtotal ?? checkoutSession.amount_total ?? 0) / 100,
         currency: (checkoutSession.currency ?? 'cad').toUpperCase(),
       };
     }

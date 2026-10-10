@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { saveDomain, removeDomain } from '@/app/lib/actions';
-import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 const VERCEL_IP = '216.150.1.1';
 const VERCEL_CNAME = '842c52a8e96459ec.vercel-dns-017.com';
@@ -196,7 +196,7 @@ export default function DomainForm({
             opacity: stripeLoading ? 0.7 : 1,
           }}
         >
-          {stripeLoading ? 'Redirecting…' : expired ? `Extend for ${PLAN_PRICE_LABEL} — ${PLAN_TERM_MONTHS} months` : `Upgrade for ${PLAN_PRICE_LABEL} — ${PLAN_TERM_MONTHS} months`}
+          {stripeLoading ? 'Redirecting…' : expired ? `Extend for ${PLAN_PRICE_PLUS_TAX} — ${PLAN_TERM_MONTHS} months` : `Upgrade for ${PLAN_PRICE_PLUS_TAX} — ${PLAN_TERM_MONTHS} months`}
         </button>
       </>
     );

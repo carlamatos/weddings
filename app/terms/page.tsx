@@ -80,7 +80,7 @@ export default function TermsPage() {
 
       <h2 id="billing" style={h2}>8. MyGala Plus: price, payment, refunds and cancellation</h2>
       <p>
-        MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
+        MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, plus applicable taxes (GST/HST and, where it applies, provincial sales tax, calculated at checkout from your billing address), charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
       </p>
       <ul style={ul}>
         <li><strong>Payment:</strong> Payments are processed securely by <strong>Stripe</strong>. We never see or store your full card details. Your card issuer may charge a currency conversion fee if your card is not in Canadian dollars.</li>

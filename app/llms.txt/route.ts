@@ -2,7 +2,7 @@ import { siteUrl } from '@/app/lib/site-url';
 import { COMPANY } from '@/app/lib/company';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
-import { PLAN_FEATURES, PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 // /llms.txt — a plain-language summary of MyGala for AI assistants and LLM
 // crawlers (https://llmstxt.org): what it is, who it's for, the plans and the
@@ -15,7 +15,7 @@ export function GET() {
   const body = [
     '# MyGala',
     '',
-    `> MyGala (${base.replace(/^https?:\/\//, '')}) is a Canadian event website builder. Hosts create a website for any event — weddings, birthdays, baby showers, quinceañeras, conferences, galas, holiday parties and community events — and share one link where guests find every detail and RSVP. Free to start; MyGala Plus is a one-time ${PLAN_PRICE_LABEL} per event page (not a subscription).`,
+    `> MyGala (${base.replace(/^https?:\/\//, '')}) is a Canadian event website builder. Hosts create a website for any event — weddings, birthdays, baby showers, quinceañeras, conferences, galas, holiday parties and community events — and share one link where guests find every detail and RSVP. Free to start; MyGala Plus is a one-time ${PLAN_PRICE_PLUS_TAX} per event page (not a subscription).`,
     '',
     `MyGala is owned and operated by ${COMPANY.legalName}, ${COMPANY.address.join(', ')}. Contact: ${COMPANY.email}${COMPANY.phone ? `, ${COMPANY.phone}` : ''}.`,
     '',
@@ -30,7 +30,7 @@ export function GET() {
     '## Plans',
     '',
     `- Free ($0): ${PLAN_FEATURES.free.join('; ')}.`,
-    `- Plus (${PLAN_PRICE_LABEL}, one-time, per event): ${PLAN_FEATURES.plus.join('; ')}.`,
+    `- Plus (${PLAN_PRICE_PLUS_TAX}, one-time, per event): ${PLAN_FEATURES.plus.join('; ')}.`,
     link('Pricing', '/#pricing'),
     '',
     '## Features',
