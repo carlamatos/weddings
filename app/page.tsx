@@ -70,7 +70,7 @@ export default async function Page() {
         <h1 className="hero-headline reveal delay-1">A page as considered as the celebration itself.</h1>
         <p className="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions reveal delay-2">
-          <Link href={appHref('/login')} className="btn-primary">Start your event page</Link>
+          <Link href={appHref('/register')} className="btn-primary">Start your event page</Link>
           <a href="#themes" className="btn-secondary">See the themes</a>
         </div>
 
@@ -452,7 +452,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.free.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href={appHref('/login')} className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
+              <Link href={appHref('/register')} className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
             </div>
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
@@ -462,7 +462,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href={appHref('/login')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
+              <Link href={appHref('/register')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
             </div>
           </div>
           {/* What Stripe and card networks expect next to a price: who processes
@@ -496,7 +496,7 @@ export default async function Page() {
       <div className="final-cta reveal">
         <h2 className="section-title">Your story deserves a beautiful home.</h2>
         <p className="hero-sub">Start free today. Upgrade only if you need to.</p>
-        <Link href={appHref('/login')} className="btn-primary">Start your event page</Link>
+        <Link href={appHref('/register')} className="btn-primary">Start your event page</Link>
       </div>
 
       {/* FOOTER */}

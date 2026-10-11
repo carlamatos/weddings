@@ -5,6 +5,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useActionState } from 'react';
 import { registerUser, RegisterState } from '@/app/lib/actions';
 import Link from 'next/link';
+import GoogleButton from '@/app/ui/google-button';
 
 export default function RegisterForm() {
   const initialState: RegisterState = { message: null, errors: {} };
@@ -12,8 +13,12 @@ export default function RegisterForm() {
 
   return (
     <div className="auth-card">
-      <h1 className="auth-heading">Create your account</h1>
-      <p className="auth-subheading">Start building your wedding page today.</p>
+      <h1 className="auth-heading">Create your free event page</h1>
+      <p className="auth-subheading">Free to start — no credit card needed.</p>
+
+      <GoogleButton />
+
+      <div className="auth-divider">or sign up with email</div>
 
       {state.message && !state.errors && (
         <div className="auth-error">
