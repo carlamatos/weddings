@@ -6,7 +6,7 @@ import { pageMetadata } from '@/app/lib/marketing/seo';
 
 export const metadata = pageMetadata('Privacy Policy', `How ${COMPANY.legalName} (MyGala) collects, uses, and protects personal information, in compliance with PIPEDA and PIPA.`, '/privacy');
 
-const EFFECTIVE_DATE = 'October 4, 2026';
+const EFFECTIVE_DATE = 'October 11, 2026';
 const CONTACT_EMAIL = COMPANY.email;
 const link = { color: 'var(--rose)' };
 
@@ -69,7 +69,7 @@ export default function PrivacyPage() {
 
       <h3 style={h3}>2.6 Cookies and local storage</h3>
       <p>
-        We use cookies to keep you signed in, to remember that a guest entered an event page&rsquo;s password (for up to 30 days), and, while parts of the site are in preview, to let invited visitors past the preview password. No advertising cookies are used.
+        We use cookies to keep you signed in and to remember that a guest entered an event page&rsquo;s password (for up to 30 days). No advertising cookies are used.
       </p>
 
       <h2 style={h2}>3. How we use your information</h2>
