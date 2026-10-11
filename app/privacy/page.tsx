@@ -6,7 +6,7 @@ import { pageMetadata } from '@/app/lib/marketing/seo';
 
 export const metadata = pageMetadata('Privacy Policy', `How ${COMPANY.legalName} (MyGala) collects, uses, and protects personal information, in compliance with PIPEDA and PIPA.`, '/privacy');
 
-const EFFECTIVE_DATE = 'October 11, 2026';
+const EFFECTIVE_DATE = 'October 10, 2026';
 const CONTACT_EMAIL = COMPANY.email;
 const link = { color: 'var(--rose)' };
 
