@@ -16,6 +16,7 @@ import { isTotpPending } from './app/lib/totp-session';
 import { signedInBefore } from './app/lib/session-revocation';
 import {JWT} from 'next-auth/jwt'
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
+import { markSignUp } from '@/app/lib/signup-signal';
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 5;
@@ -122,7 +123,8 @@ const nextAuth = NextAuth({
 
         const localuser = await getUser(profile.email);
         if (!localuser) {
-          await createOAuthUser({ name: profile.name as string, email: profile.email, given_name, family_name, provider: providerName, provider_id: profile.sub, picture: (profile.picture as string) ?? '' });
+          const created = await createOAuthUser({ name: profile.name as string, email: profile.email, given_name, family_name, provider: providerName, provider_id: profile.sub, picture: (profile.picture as string) ?? '' });
+          if (created) await markSignUp(account.provider as 'google' | 'apple' | 'facebook');
         } else if (!localuser.email_verified_at) {
           await claimUnverifiedAccount(profile.email);
         }

@@ -19,6 +19,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ');
@@ -47,7 +48,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       </svg>
       {bannerImage && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.14 }} />
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.14 }} />
       )}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ width: 40, height: 40, borderRadius: '50%', border: '1.5px solid #d2c3d6', background: 'radial-gradient(circle, rgba(244,227,181,0.5) 0%, transparent 70%)', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

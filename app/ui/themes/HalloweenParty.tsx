@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/halloween-party';
 const HAND = `${IMG}/hand.webp`;
@@ -209,7 +210,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Outfit:wght@600&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['halloween-party']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['halloween-party'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '66%' }}>
         <p style={{ fontFamily: "'Outfit', sans-serif", fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: WITCH, fontWeight: 600, margin: '0 0 8px' }}>You&rsquo;re invited… if you dare</p>
         <h2 style={{ fontFamily: "'Creepster', 'Georgia', serif", fontWeight: 400, fontSize: 'clamp(30px, 5vw, 44px)', color: PUMPKIN, margin: '0 0 8px', lineHeight: 1, letterSpacing: 1, textShadow: '0 0 18px rgba(242,138,34,0.45)' }}>{heading || 'Halloween Party'}</h2>

@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/baby-shower-boy';
 
@@ -172,7 +173,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: BLUE_MID, overflow: 'hidden', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'center' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['baby-shower-boy']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['baby-shower-boy'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '26px 24px 0', maxWidth: '80%' }}>
         <p style={{ display: 'inline-block', fontFamily: "'Nunito', sans-serif", fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: '#2A6FA6', background: 'rgba(255,255,255,0.8)', borderRadius: 999, fontWeight: 800, padding: '4px 12px', margin: '0 0 8px' }}>It&apos;s a boy!</p>
         <h2 style={{ fontFamily: "'Comfortaa', sans-serif", fontSize: 'clamp(22px, 4.4vw, 34px)', fontWeight: 700, color: NOSE, margin: '0 0 6px', lineHeight: 1.1 }}>{heading || 'Baby Shower'}</h2>

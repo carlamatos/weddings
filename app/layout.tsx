@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { siteUrl } from '@/app/lib/site-url';
 import { Suspense } from 'react';
 import PurchaseConversion from '@/app/ui/purchase-conversion';
+import SignupTracker from '@/app/ui/signup-tracker';
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
@@ -26,6 +27,7 @@ export default function RootLayout({
         {children}
         <Suspense fallback={null}>
           <PurchaseConversion />
+          <SignupTracker />
         </Suspense>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-5MD6D8FQ6X"

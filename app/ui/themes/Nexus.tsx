@@ -21,6 +21,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Nexus — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -125,7 +126,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#1D2124', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'right' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS.nexus} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS.nexus)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(29,33,36,0.15) 0%, rgba(29,33,36,0.75) 55%, rgba(29,33,36,0.94) 100%)' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 24px', maxWidth: 280 }}>
         <p style={{ fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: '#E1A360', fontWeight: 700, margin: '0 0 10px', fontFamily: "'JetBrains Mono', monospace" }}>You&apos;re invited</p>

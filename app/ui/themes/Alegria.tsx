@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Alegría — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -45,7 +46,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#FFF8F3', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {/* An uploaded video can't be a still preview: fall back to the theme's photo. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage && !isVideoUrl(bannerImage) ? bannerImage : HERO_DEFAULTS.alegria} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }} />
+      <img {...previewImage(bannerImage && !isVideoUrl(bannerImage) ? bannerImage : HERO_DEFAULTS.alegria)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.22 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ width: 38, height: 38, borderRadius: '50%', border: '1.5px solid #D9A544', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ width: 24, height: 24, borderRadius: '50%', border: '0.5px solid rgba(217,165,68,0.5)' }} />

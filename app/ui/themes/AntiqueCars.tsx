@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Antique Cars — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = Array.from({ length: 8 }, (_, i) => ({
@@ -168,7 +169,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: TEAL, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'right' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['antique-cars']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '15% center' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['antique-cars'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: '15% center' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to left, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.55) 40%, rgba(255,255,255,0) 60%)' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '52%' }}>
         <p style={{ display: 'inline-block', fontFamily: "'Oswald', sans-serif", fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: PURPLE, background: GOLD, fontWeight: 600, padding: '4px 12px', margin: '0 0 10px' }}>Antique &amp; Classic</p>

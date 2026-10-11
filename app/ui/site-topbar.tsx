@@ -60,7 +60,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           ) : (
             <>
               <Link href={appHref('/login')} className="topbar-login">Log in</Link>
-              <Link href={appHref('/register')} className="topbar-signup">Sign up</Link>
+              <Link href={appHref('/register')} className="topbar-signup" data-cta="topbar">Sign up</Link>
             </>
           )}
           <button

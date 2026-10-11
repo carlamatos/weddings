@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/love';
 
@@ -125,7 +126,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: HYDRANGEA, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'right' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS.love} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS.love)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       {/* The card is shown outside the theme (dashboard, homepage), so it loads its own script face */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&display=swap" />

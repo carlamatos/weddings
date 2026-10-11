@@ -13,6 +13,7 @@ import { sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
 
 import { headers } from 'next/headers';
+import { markSignUp } from './signup-signal';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
@@ -1910,5 +1911,6 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     }
   }
 
+  if (newUserId) await markSignUp('email');
   redirect(`/check-email?email=${encodeURIComponent(email)}`);
 }

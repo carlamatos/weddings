@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/christmas-party';
 
@@ -191,7 +192,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['christmas-party']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['christmas-party'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px 30px' }}>
         <p style={{ fontFamily: "'Nunito', sans-serif", fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: GLOW, fontWeight: 800, margin: '0 0 4px' }}>You&apos;re invited</p>
         <h2 style={{ fontFamily: "'Mountains of Christmas', cursive", fontWeight: 700, fontSize: 'clamp(30px, 5.6vw, 44px)', color: BULB, margin: '0 0 4px', lineHeight: 1, textShadow: `0 0 18px rgba(248,193,102,0.55)` }}>{heading || 'Christmas Party'}</h2>

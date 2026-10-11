@@ -13,6 +13,7 @@ import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
+import HeroVideo from '@/app/ui/marketing/hero-video';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
@@ -55,26 +56,18 @@ export default async function Page() {
 
       {/* HERO */}
       <div className="hero">
-        <video
-          className="hero-video"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/images/home-hero-poster.jpg"
-          src="/videos/home-hero.mp4"
-        />
+        <HeroVideo src="/videos/home-hero.mp4" poster="/images/home-hero-poster.jpg" />
         <div className="hero-overlay" />
-        <p className="hero-eyebrow reveal">For every celebration that deserves it done right</p>
-        <h1 className="hero-headline reveal delay-1">A page as considered as the celebration itself.</h1>
-        <p className="hero-sub reveal delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
-        <div className="hero-actions reveal delay-2">
-          <Link href={appHref('/register')} className="btn-primary">Start your event page</Link>
+        <p className="hero-eyebrow hero-in">Free event websites for weddings, birthdays &amp; every celebration</p>
+        <h1 className="hero-headline hero-in delay-1">A page as considered as the celebration itself.</h1>
+        <p className="hero-sub hero-in delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
+        <div className="hero-actions hero-in delay-2">
+          <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free page</Link>
           <a href="#themes" className="btn-secondary">See the themes</a>
         </div>
+        <p className="hero-note hero-in delay-2"><span>Free to start</span> · <span>No credit card</span> · <span>Ready in minutes</span></p>
 
-        <div className="fan-wrap reveal delay-3">
+        <div className="fan-wrap hero-in delay-3">
           <div className="mock-card card-left">
             <div className="mock-browser-bar"><span></span><span></span><span></span></div>
             <div className="mock-screen mock-tc">
@@ -452,7 +445,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.free.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href={appHref('/register')} className="btn-secondary" style={{ textAlign: 'center' }}>Get started free</Link>
+              <Link href={appHref('/register')} className="btn-secondary" style={{ textAlign: 'center' }} data-cta="pricing-free">Get started free</Link>
             </div>
             <div className="price-card featured reveal delay-1">
               <span className="price-badge">Most popular</span>
@@ -462,7 +455,7 @@ export default async function Page() {
               <ul className="price-features">
                 {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
               </ul>
-              <Link href={appHref('/register')} className="btn-primary" style={{ textAlign: 'center' }}>Start your event page</Link>
+              <Link href={appHref('/register')} className="btn-primary" style={{ textAlign: 'center' }} data-cta="pricing-plus">Start your event page</Link>
             </div>
           </div>
           {/* What Stripe and card networks expect next to a price: who processes
@@ -496,7 +489,7 @@ export default async function Page() {
       <div className="final-cta reveal">
         <h2 className="section-title">Your story deserves a beautiful home.</h2>
         <p className="hero-sub">Start free today. Upgrade only if you need to.</p>
-        <Link href={appHref('/register')} className="btn-primary">Start your event page</Link>
+        <Link href={appHref('/register')} className="btn-primary" data-cta="footer">Create your free page</Link>
       </div>
 
       {/* FOOTER */}

@@ -23,6 +23,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Balloons — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -59,12 +60,12 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     <div style={{ position: 'relative', width: '100%', height: 280, background: 'linear-gradient(135deg, #FFFDF6 0%, #EAF4FF 100%)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {bannerImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.28 }} />
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.28 }} />
       ) : (
         <GradientHeroPlaceholder colors={PALETTE} />
       )}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/images/themes/balloons/hero-balloons.png" alt="" style={{ position: 'absolute', right: -18, bottom: -12, width: 150, objectFit: 'contain', zIndex: 1 }} />
+      <img {...previewImage('/images/themes/balloons/hero-balloons.png', '150px')} alt="" style={{ position: 'absolute', right: -18, bottom: -12, width: 150, objectFit: 'contain', zIndex: 1 }} />
       <div style={{ position: 'relative', zIndex: 2 }}>
         <p style={{ fontFamily: "'Baloo 2', cursive", fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: '#F2454B', fontWeight: 700, margin: '0 0 10px' }}>It&apos;s party time</p>
         <h2 style={{ fontFamily: "'Baloo 2', cursive", fontSize: 'clamp(26px, 5.2vw, 44px)', fontWeight: 700, color: '#2E2A3D', margin: '0 0 10px' }}>{heading || 'The Big Celebration'}</h2>
