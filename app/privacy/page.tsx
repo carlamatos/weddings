@@ -66,10 +66,13 @@ export default function PrivacyPage() {
       <p>
         We use <strong>Google Analytics</strong> to understand how visitors use the website (pages viewed, session duration, general location by region). This data is aggregated and is not used to identify you. You can opt out using the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" style={link}>Google Analytics opt-out browser add-on</a>. Our servers also keep short-lived technical logs (such as IP addresses) to keep the service secure and to limit abuse.
       </p>
+      <p>
+        We advertise MyGala with <strong>Google Ads</strong>. When you visit our website, the Google tag sets cookies that let Google tell us whether a visit that started from one of our ads led to a sign-up or a Plus purchase, and the purchase amount. We do not give Google your name, email address or event details. Google may use these cookies under its own policies, including to show you ads; you can turn off personalised ads in <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer" style={link}>Google&rsquo;s My Ad Center</a>, and learn more at <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" style={link}>policies.google.com/technologies/ads</a>. You can also block these cookies in your browser settings; the site will still work.
+      </p>
 
       <h3 style={h3}>2.6 Cookies and local storage</h3>
       <p>
-        We use cookies to keep you signed in and to remember that a guest entered an event page&rsquo;s password (for up to 30 days). No advertising cookies are used.
+        We use cookies to keep you signed in and to remember that a guest entered an event page&rsquo;s password (for up to 30 days). Google Analytics and Google Ads also set cookies on our website, as described in section 2.5.
       </p>
 
       <h2 style={h2}>3. How we use your information</h2>
@@ -79,6 +82,7 @@ export default function PrivacyPage() {
         <li><strong>To keep the service safe</strong> — check uploaded photos for explicit or violent content before they are published, block spam and abuse on guest forms, and secure accounts.</li>
         <li><strong>To process payments</strong> — confirm Plus purchases with Stripe.</li>
         <li><strong>To improve MyGala</strong> — aggregated analytics help us understand which features matter most.</li>
+        <li><strong>To measure our advertising</strong> — learn which Google Ads lead to sign-ups and purchases.</li>
         <li><strong>To comply with legal obligations</strong> — where required by Canadian law.</li>
       </ul>
       <p>We do not send marketing emails without your consent, and we do not use your personal information for automated decision-making or profiling.</p>
@@ -94,6 +98,7 @@ export default function PrivacyPage() {
         <li><strong>Cloudflare Turnstile</strong> — spam protection on guest forms (cloudflare.com/privacypolicy)</li>
         <li><strong>Google Sign-In</strong> and <strong>Facebook Login</strong> — optional sign-in methods (policies.google.com/privacy, facebook.com/privacy/policy)</li>
         <li><strong>Google Analytics</strong> — aggregated usage analytics (policies.google.com/privacy)</li>
+        <li><strong>Google Ads</strong> — advertising and measuring which ads lead to sign-ups and purchases (policies.google.com/technologies/ads)</li>
         <li><strong>Google Maps</strong> — address search and venue maps</li>
       </ul>
       <p>
