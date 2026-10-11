@@ -1,7 +1,7 @@
 // Loading animation
 const shimmer = 'shimmer';
 
-export function RevenueChartSkeleton() {
+export function PageLoadingSkeleton() {
   return (
     <div className={`${shimmer} relative w-full overflow-hidden md-col-span-4`}>
       <div className="mb-4 h-8 w-36 rounded-md bg-gray-100" />

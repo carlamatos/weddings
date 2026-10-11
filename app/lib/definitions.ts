@@ -92,11 +92,6 @@ export type Guest = {
   texted_via: 'sms' | 'whatsapp' | null;
 };
 
-export type Revenue = {
-  month: string;
-  revenue: number;
-};
-
 export type Slugs = {
   slug: string;
 }
