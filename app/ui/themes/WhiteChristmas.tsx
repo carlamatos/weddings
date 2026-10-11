@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/white-christmas';
 
@@ -137,7 +138,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Cinzel:wght@500&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['white-christmas']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['white-christmas'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '34px 24px 0' }}>
         <p style={{ fontFamily: "'Cinzel', serif", fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: GOLD_DEEP, margin: '0 0 6px' }}>You&apos;re invited</p>
         <h2 style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: 'italic', fontWeight: 500, fontSize: 'clamp(30px, 5.6vw, 46px)', color: PINE, margin: '0 0 6px', lineHeight: 1 }}>{heading || 'White Christmas'}</h2>

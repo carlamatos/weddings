@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/the-day';
 
@@ -155,7 +156,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: IVORY, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['the-day']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['the-day'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, rgba(246,242,233,0.78) 0%, rgba(246,242,233,0.35) 55%, rgba(246,242,233,0) 80%)' }} />
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '76%', padding: '20px 26px', border: `1px solid ${STAMEN}`, outline: `1px solid ${STAMEN}`, outlineOffset: 4, background: 'rgba(246,242,233,0.4)' }}>
         <p style={{ fontFamily: "'Jost', sans-serif", fontSize: 9, letterSpacing: 3.5, textTransform: 'uppercase', color: TWIG, margin: '0 0 6px' }}>Together with their families</p>

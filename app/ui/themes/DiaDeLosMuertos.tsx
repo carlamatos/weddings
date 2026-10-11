@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 const IMG = '/images/themes/dia-de-los-muertos';
 const SKULL = `${IMG}/skull.webp`;
@@ -165,7 +166,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sancreek&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['dia-de-los-muertos']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['dia-de-los-muertos'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '50%' }}>
         <p style={{ display: 'inline-block', fontFamily: "'Nunito', sans-serif", fontSize: 9, letterSpacing: 2, textTransform: 'uppercase', color: CREAM, background: PLUM, borderRadius: 999, fontWeight: 800, padding: '4px 10px', margin: '0 0 6px' }}>Celebrate with us</p>
         <h2 style={{ fontFamily: "'Sancreek', 'Georgia', serif", fontWeight: 400, fontSize: 'clamp(24px, 4.4vw, 36px)', color: PLUM, margin: '0 0 6px', lineHeight: 1.05 }}>{heading || 'Día de los Muertos'}</h2>

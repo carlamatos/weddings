@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Dinner Gala — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -46,10 +47,10 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#0a1420', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {bannerImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
       ) : (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src="/images/themes/dinner-gala/gala-banner.svg" alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img {...previewImage("/images/themes/dinner-gala/gala-banner.svg")} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       )}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <div style={{ width: 28, height: 1, background: '#d8b35a', margin: '0 auto 14px', opacity: 0.7 }} />

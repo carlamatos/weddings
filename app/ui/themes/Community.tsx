@@ -23,6 +23,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Community — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -83,7 +84,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#F6E0BD', overflow: 'hidden', display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-start', textAlign: 'left' }}>
       {bannerImage ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
         <GradientHeroPlaceholder colors={PALETTE} />
       )}

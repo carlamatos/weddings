@@ -22,6 +22,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Fun Party — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -43,7 +44,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#1A0B2E', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', textAlign: 'left' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS['fun-party']} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS['fun-party'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(26,11,46,0.88) 0%, rgba(26,11,46,0.35) 60%, rgba(26,11,46,0.1) 100%)' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 24px', maxWidth: 260 }}>
         <p style={{ fontSize: 10, letterSpacing: 2.5, textTransform: 'uppercase', color: '#E8FF3D', fontWeight: 700, margin: '0 0 10px' }}>Let&apos;s get this party started</p>

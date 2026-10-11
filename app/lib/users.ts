@@ -19,11 +19,11 @@ const OAuthUser = z.object({
 
 // First sign-in through Google / Apple / Facebook. The provider has already
 // proven control of the email address, so the account starts verified.
-export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Promise<void> {
+export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Promise<boolean> {
   const parsed = OAuthUser.safeParse({ ...user, picture: user.picture ?? '' });
   if (!parsed.success) {
     console.error('OAuth user rejected:', parsed.error.flatten().fieldErrors);
-    return;
+    return false;
   }
   const { name, email, given_name, family_name, provider, provider_id, picture } = parsed.data;
   const date = new Date().toISOString().split('T')[0];
@@ -32,8 +32,10 @@ export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Pr
       INSERT INTO users (name, email, date, given_name, family_name, provider, provider_id, picture, email_verified_at)
       VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
     `;
+    return true;
   } catch (error) {
     console.error('Failed to create OAuth user:', error);
+    return false;
   }
 }
 

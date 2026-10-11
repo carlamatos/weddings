@@ -21,6 +21,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 // Exclusive to Summit — do not reuse these on other themes.
 const DEFAULT_GALLERY_IMAGES: GalleryImage[] = [
@@ -43,7 +44,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#14171C', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={bannerImage || HERO_DEFAULTS.summit} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
+      <img {...previewImage(bannerImage || HERO_DEFAULTS.summit)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }} />
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(20,23,28,0.35), rgba(20,23,28,0.75))' }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
         <p style={{ fontSize: 10, letterSpacing: 3, textTransform: 'uppercase', color: '#C9A24B', fontWeight: 700, margin: '0 0 12px' }}>You&apos;re invited</p>

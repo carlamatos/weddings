@@ -18,6 +18,7 @@ import { heroMediaStyle } from './hero-media';
 import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
+import { previewImage } from './preview-image';
 
 export function HeroPreview({ heading, eventDate, city, country, bannerImage }: ThemePreviewProps) {
   const loc = [city, country].filter(Boolean).join(', ').toUpperCase();
@@ -28,7 +29,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     <div style={{ position: 'relative', width: '100%', height: 280, background: '#0F1F1A', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
       {bannerImage && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={bannerImage} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.85 }} />
       )}
       <div style={{ position: 'relative', zIndex: 1, border: '1px solid #8C7440', padding: '28px 48px', background: 'rgba(30,58,46,0.6)', maxWidth: 380 }}>
         <p style={{ fontSize: 9, letterSpacing: 4, textTransform: 'uppercase', color: '#C9A75D', margin: '0 0 10px', fontWeight: 600 }}>Save the date</p>
