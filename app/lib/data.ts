@@ -5,7 +5,6 @@ import { signPageId } from './page-token';
 import { giftExchangeDetails, isGiftExchangeOn, GIFT_MAX_PARTICIPANTS, type GiftExchangeProps, type GiftExclusion, type GiftParticipant } from './gift-exchange';
 import { expireIfPast } from './plan-expiry';
 import {
-  Revenue,
   Slugs,
   UserPage,
   DBUser,
@@ -63,24 +62,6 @@ export async function fetchUser(email: string){
   }
 }
 
-export async function fetchRevenue() {
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-     console.log('Fetching revenue data...');
-     await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
-  }
-}
 export async function fetchUserPages(){
   try {
     const data = await sql<Slugs>`
