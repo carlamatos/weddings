@@ -23,6 +23,7 @@ import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
 import { previewImage } from './preview-image';
+import PreviewFont from './PreviewFont';
 
 const IMG = '/images/themes/halloween-party';
 const HAND = `${IMG}/hand.webp`;
@@ -207,8 +208,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     : '';
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: CHARCOAL, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'right' }}>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Creepster&family=Outfit:wght@600&display=swap" />
+      <PreviewFont href="https://fonts.googleapis.com/css2?family=Creepster&family=Outfit:wght@600&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...previewImage(bannerImage || HERO_DEFAULTS['halloween-party'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '66%' }}>
