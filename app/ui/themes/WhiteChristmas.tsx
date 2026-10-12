@@ -23,6 +23,7 @@ import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
 import { previewImage } from './preview-image';
+import PreviewFont from './PreviewFont';
 
 const IMG = '/images/themes/white-christmas';
 
@@ -135,8 +136,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     : '';
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: SKY, overflow: 'hidden', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', textAlign: 'center' }}>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Cinzel:wght@500&display=swap" />
+      <PreviewFont href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500&family=Cinzel:wght@500&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...previewImage(bannerImage || HERO_DEFAULTS['white-christmas'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center bottom' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '34px 24px 0' }}>

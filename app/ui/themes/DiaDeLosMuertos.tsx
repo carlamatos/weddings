@@ -23,6 +23,7 @@ import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
 import { previewImage } from './preview-image';
+import PreviewFont from './PreviewFont';
 
 const IMG = '/images/themes/dia-de-los-muertos';
 const SKULL = `${IMG}/skull.webp`;
@@ -163,8 +164,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     : '';
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: GOLDEN, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', textAlign: 'right' }}>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sancreek&display=swap" />
+      <PreviewFont href="https://fonts.googleapis.com/css2?family=Sancreek&display=swap" />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...previewImage(bannerImage || HERO_DEFAULTS['dia-de-los-muertos'])} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '50%' }}>

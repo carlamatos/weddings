@@ -23,6 +23,7 @@ import { HeroOverlay } from './hero-overlay';
 import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
 import { previewImage } from './preview-image';
+import PreviewFont from './PreviewFont';
 
 const IMG = '/images/themes/love';
 
@@ -128,8 +129,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...previewImage(bannerImage || HERO_DEFAULTS.love)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'left center' }} />
       {/* The card is shown outside the theme (dashboard, homepage), so it loads its own script face */}
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Allura&display=swap" />
+      <PreviewFont href="https://fonts.googleapis.com/css2?family=Allura&display=swap" />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 22px', maxWidth: '52%' }}>
         <p style={{ fontFamily: "'Raleway', sans-serif", fontSize: 9, letterSpacing: 3, textTransform: 'uppercase', color: RASPBERRY, fontWeight: 600, margin: '0 0 4px' }}>Together with their families</p>
         <h2 style={{ fontFamily: "'Allura', 'Brush Script MT', cursive", fontWeight: 400, fontSize: 'clamp(30px, 5.2vw, 44px)', color: RASPBERRY, margin: '0 0 6px', lineHeight: 1 }}>{heading || 'Love'}</h2>
