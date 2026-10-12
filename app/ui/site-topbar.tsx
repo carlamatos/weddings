@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
+import SiteSearch from '@/app/ui/marketing/site-search';
 
 const EVENT_LINKS = EVENT_TYPES.map((e) => ({ href: `/events/${e.slug}`, label: e.name }));
 const FEATURE_LINKS = FEATURES.map((f) => ({ href: `/features/${f.slug}`, label: f.navLabel }));
@@ -55,6 +56,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           <Link href="/contact" className="nav-link">Contact</Link>
         </nav>
         <div className="topbar-actions">
+          <SiteSearch />
           {isLoggedIn ? (
             <Link href={appHref('/dashboard')} className="topbar-signup">Dashboard</Link>
           ) : (
@@ -91,6 +93,10 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           <Link href="/faq" className="mobile-nav-link" onClick={close}>FAQ</Link>
           <Link href="/about" className="mobile-nav-link" onClick={close}>About Us</Link>
           <Link href="/contact" className="mobile-nav-link" onClick={close}>Contact</Link>
+          {!isLoggedIn && (
+            // The smallest phones hide the top bar's Log in button.
+            <Link href={appHref('/login')} className="mobile-nav-link" onClick={close}>Log in</Link>
+          )}
         </nav>
       )}
     </div>
