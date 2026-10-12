@@ -1,12 +1,16 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { preload } from 'react-dom';
 
 // The homepage's background video. It starts as just the poster image; the
 // video itself (~2 MB) is only fetched on wider screens, so phones on mobile
 // data — and anyone with Data Saver or reduced motion on — get the still.
 export default function HeroVideo({ src, poster }: { src: string; poster: string }) {
   const ref = useRef<HTMLVideoElement>(null);
+  // The poster is the page's largest image on phones (its LCP), but browsers
+  // fetch posters late and at low priority. Announce it in the <head> instead.
+  preload(poster, { as: 'image', fetchPriority: 'high' });
 
   useEffect(() => {
     const video = ref.current;
