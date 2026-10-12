@@ -13,6 +13,7 @@ import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
+import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
@@ -55,7 +56,10 @@ export default async function Page() {
 
       {/* HERO */}
       <div className="hero">
+        <HeroThemeWall />
+        <div className="hero-wash" />
         <p className="hero-eyebrow hero-badge hero-in"><span className="hero-badge-free">Free</span><span>Event websites for weddings, birthdays &amp; every celebration</span></p>
+        <p className="hero-tagline hero-in delay-1">A page as considered as the celebration itself.</p>
         <h1 className="hero-headline hero-in delay-1">Set up your event page in minutes.</h1>
         <p className="hero-sub hero-in delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions hero-in delay-2">
@@ -72,42 +76,6 @@ export default async function Page() {
         </div>
         <p className="hero-note hero-in delay-2"><span>Free to start</span> · <span>No credit card</span> · <span>No design skills needed</span></p>
 
-        <div className="fan-wrap hero-in delay-3">
-          <div className="mock-card card-left">
-            <div className="mock-browser-bar"><span></span><span></span><span></span></div>
-            <div className="mock-screen mock-tc">
-              <p className="mock-eyebrow">Together with their families</p>
-              <p className="mock-name">Elena &amp; Marcus</p>
-              <p className="mock-date">SEPT 20, 2026 · MAPLE RIDGE</p>
-              <div className="mock-band">
-                <span style={{ background: '#BC5A38' }}></span>
-                <span style={{ background: '#CC9A3E' }}></span>
-                <span style={{ background: '#EFCBA3' }}></span>
-                <span style={{ background: '#F7F1E6' }}></span>
-                <span style={{ background: '#A9C4DE' }}></span>
-                <span style={{ background: '#D8D2C2' }}></span>
-              </div>
-            </div>
-          </div>
-          <div className="mock-card card-center">
-            <div className="mock-browser-bar"><span></span><span></span><span></span></div>
-            <div className="mock-screen mock-mb">
-              <p className="mock-eyebrow">Save the date</p>
-              <p className="mock-name">Sofia &amp; James</p>
-              <p className="mock-date">November 7, 2026</p>
-              <div className="mock-rule"></div>
-            </div>
-          </div>
-          <div className="mock-card card-right">
-            <div className="mock-browser-bar"><span></span><span></span><span></span></div>
-            <div className="mock-screen mock-qc">
-              <p className="mock-eyebrow">together with their families</p>
-              <p className="mock-name">Nora + Theo</p>
-              <p className="mock-date">june 13, 2027 · tofino</p>
-              <div className="mock-hairline"></div>
-            </div>
-          </div>
-        </div>
       </div>
 
 {/* VALUE PROPS */}
