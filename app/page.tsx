@@ -63,7 +63,15 @@ export default async function Page() {
         <p className="hero-sub hero-in delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions hero-in delay-2">
           <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free page</Link>
-          <a href="#themes" className="btn-secondary">See the themes</a>
+          {/* A full sample event page (wedding), built from the real theme. */}
+          <Link href="/themes/the-day" className="btn-secondary btn-demo" data-cta="hero-demo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" />
+            </svg>
+            See a live demo
+          </Link>
+          <a href="#themes" className="btn-secondary" data-cta="hero-themes">See the themes</a>
         </div>
         <p className="hero-note hero-in delay-2"><span>Free to start</span> · <span>No credit card</span> · <span>Ready in minutes</span></p>
 
