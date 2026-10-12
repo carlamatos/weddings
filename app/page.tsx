@@ -13,7 +13,6 @@ import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
-import HeroVideo from '@/app/ui/marketing/hero-video';
 
 // New-theme showcase cards scale the theme's own real HeroPreview (280px
 // tall) down to the marketing grid's 220px preview slot.
@@ -56,8 +55,6 @@ export default async function Page() {
 
       {/* HERO */}
       <div className="hero">
-        <HeroVideo src="/videos/home-hero.mp4" poster="/images/home-hero-poster.webp" />
-        <div className="hero-overlay" />
         <p className="hero-eyebrow hero-badge hero-in"><span className="hero-badge-free">Free</span><span>Event websites for weddings, birthdays &amp; every celebration</span></p>
         <h1 className="hero-headline hero-in delay-1">A page as considered as the celebration itself.</h1>
         <p className="hero-sub hero-in delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
