@@ -56,7 +56,7 @@ export default async function Page() {
 
       {/* HERO */}
       <div className="hero">
-        <HeroVideo src="/videos/home-hero.mp4" poster="/images/home-hero-poster.jpg" />
+        <HeroVideo src="/videos/home-hero.mp4" poster="/images/home-hero-poster.webp" />
         <div className="hero-overlay" />
         <p className="hero-eyebrow hero-in">Free event websites for weddings, birthdays &amp; every celebration</p>
         <h1 className="hero-headline hero-in delay-1">A page as considered as the celebration itself.</h1>

@@ -64,6 +64,8 @@ const nextConfig: NextConfig = {
     ],
     minimumCacheTTL: 2678400, // 31 days — blob files are immutable (unique per upload)
     qualities: [75, 90], // 90 for photo thumbnails/lightbox — Next 16 defaults to [75] only
+    // AVIF where the browser supports it (~40% smaller than WebP for photos), else WebP.
+    formats: ['image/avif', 'image/webp'],
   },
   async headers() {
     return [
