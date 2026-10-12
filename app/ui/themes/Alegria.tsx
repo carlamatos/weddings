@@ -144,6 +144,9 @@ const css = `
     bottom: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 30 Q150 2 300 30 T600 30 V56 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 22 Q100 50 200 22 T400 22 V56 H0 Z'/%3E%3C/svg%3E");
     animation: al-wave-drift 12s linear infinite;
   }
+  /* The page's last edge: overlapping by 1px here pokes out of .al, whose
+     overflow-x: hidden makes it a scroll box — a second scrollbar. */
+  .al .footer::after { bottom: 0; }
   .al .rsvp-section::before {
     top: -1px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='56' viewBox='0 0 600 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='1' d='M0 26 Q150 54 300 26 T600 26 V0 H0 Z'/%3E%3C/svg%3E"), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='56' viewBox='0 0 400 56' preserveAspectRatio='none'%3E%3Cpath fill='%23FFF8F3' fill-opacity='0.5' d='M0 34 Q100 6 200 34 T400 34 V0 H0 Z'/%3E%3C/svg%3E");
     animation: al-wave-drift 15s linear infinite reverse;
