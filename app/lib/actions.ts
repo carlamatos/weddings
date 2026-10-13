@@ -36,6 +36,7 @@ import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type Invi
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
+import { notifyAdminsOfNewPage } from './admin-notify';
 import { randomInt } from 'crypto';
 import { drawCycle, giftExchangeDetails, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
 import { giftExchangeEmail } from './gift-exchange-email';
@@ -241,6 +242,11 @@ export type UserPageState = {
     }
 
     revalidatePath(`/${slug}`);
+
+    // Let the super admins know (never blocks or fails the request).
+    if (newPageId) {
+      await notifyAdminsOfNewPage(newPageId, prepaid ? 'Plus (prepaid)' : wantsPlus ? 'Free — chose Plus, sent to checkout' : 'Free');
+    }
 
     // Chose Plus for this event: the page exists (free) now, so pay for it.
     // Cancelling checkout leaves it free, upgradeable from the dashboard.
