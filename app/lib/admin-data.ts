@@ -151,6 +151,35 @@ export const PAGES_COUNT_SQL = `
 
 export const TRASH_COUNT_SQL = `SELECT count(*)::int AS n FROM deleted_users WHERE restored_at IS NULL`;
 
+// Event pages their owners deleted (page trash), newest first.
+export type DeletedPageRow = {
+  id: number;
+  page_id: number;
+  slug: string;
+  heading: string | null;
+  owner_email: string | null;
+  plan_type: string | null;
+  custom_domain: string | null;
+  deleted_at: Date | string;
+  deleted_by: string | null;
+  purge_after: Date | string;
+  photo_count: number;
+  gallery_count: number;
+  guest_count: number;
+};
+
+export const DELETED_PAGES_SQL = `
+  SELECT id, page_id, slug, heading, owner_email, plan_type, custom_domain, deleted_at, deleted_by, purge_after,
+         COALESCE(jsonb_array_length(snapshot #> '{tables,guests_photos}'), 0) AS photo_count,
+         COALESCE(jsonb_array_length(snapshot #> '{tables,event_gallery}'), 0) AS gallery_count,
+         COALESCE(jsonb_array_length(snapshot #> '{tables,event_guests}'), 0) AS guest_count
+  FROM deleted_pages
+  WHERE restored_at IS NULL
+  ORDER BY deleted_at DESC
+  LIMIT $1 OFFSET $2
+`;
+export const DELETED_PAGES_COUNT_SQL = `SELECT count(*)::int AS n FROM deleted_pages WHERE restored_at IS NULL`;
+
 type Listed<T> = { rows: T[]; hasMore: boolean; error: string | null };
 
 // Fetch one extra row to learn whether there is another page.
@@ -187,6 +216,10 @@ export async function fetchTrashedUsers(offset = 0) {
   return list<TrashedUserRow>(TRASH_SQL, [], offset);
 }
 
+export async function fetchDeletedPages(offset = 0) {
+  return list<DeletedPageRow>(DELETED_PAGES_SQL, [], offset);
+}
+
 // Totals shown above each table. null means the count couldn't be read
 // (e.g. schema setup not run yet) — the list itself reports the error.
 async function count(text: string, params: unknown[] = []): Promise<number | null> {
@@ -200,5 +233,6 @@ async function count(text: string, params: unknown[] = []): Promise<number | nul
 
 export const countUsers = (search = '') => count(USERS_COUNT_SQL, [searchPattern(search)]);
 export const countTrashedUsers = () => count(TRASH_COUNT_SQL);
+export const countDeletedPages = () => count(DELETED_PAGES_COUNT_SQL);
 export const countUserPages = (plan: PlanFilter = 'all', status: StatusFilter = 'all', search = '') =>
   count(PAGES_COUNT_SQL, [plan, status, searchPattern(pageSearchTerm(search))]);

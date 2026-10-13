@@ -84,9 +84,30 @@ export async function POST() {
     )
   `;
 
+  // Event pages their owners deleted: restorable by an admin until
+  // purge_after, then removed with their files by /api/cron/purge-deleted-pages.
+  await sql`
+    CREATE TABLE IF NOT EXISTS deleted_pages (
+      id SERIAL PRIMARY KEY,
+      page_id INTEGER NOT NULL,
+      user_id TEXT NOT NULL,
+      owner_email TEXT,
+      slug TEXT NOT NULL,
+      heading TEXT,
+      custom_domain TEXT,
+      plan_type TEXT,
+      deleted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      deleted_by TEXT,
+      purge_after TIMESTAMPTZ NOT NULL,
+      snapshot JSONB NOT NULL,
+      restored_at TIMESTAMPTZ
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS deleted_pages_purge_after_idx ON deleted_pages (purge_after) WHERE restored_at IS NULL`;
+
   return NextResponse.json({
     ok: true,
     message:
-      'Tables ready: user_plans, user_cancellations, deleted_users, page_purges. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
+      'Tables ready: user_plans, user_cancellations, deleted_users, deleted_pages, page_purges. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
   });
 }

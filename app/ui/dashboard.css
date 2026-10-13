@@ -276,6 +276,16 @@ body:has(.dash-shell) {
   font-weight: 600; background: #fff; color: var(--ink); transition: background 0.15s;
 }
 .dash-btn-secondary:hover { background: var(--chalk); }
+/* Destructive confirm (e.g. Delete page). */
+.dash-btn.dash-btn--danger { background: #B42318; }
+.dash-btn.dash-btn--danger:hover:not(:disabled) { background: #912018; }
+/* "Delete" on an event card: quiet until hovered. */
+.dash-card-delete {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px;
+  border-radius: 8px; border: 1px solid transparent; background: none;
+  color: #8B3A2A; font-family: var(--font-sans); font-size: 13px; font-weight: 600; cursor: pointer;
+}
+.dash-card-delete:hover { background: #FDF0EE; border-color: #F2C4C4; }
 
 /* ---------- content scroll area ---------- */
 .dash-content {

@@ -53,6 +53,7 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
         name={session?.user?.name || 'Guest'}
         pageId={pageId}
         pageStatus={userPage?.status}
+        page={userPage ? { id: Number(userPage.id), slug: userPage.slug, heading: userPage.heading, isPaid } : undefined}
       />
     </header>
   );

@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useTransition } from 'react';
 import { signOut } from 'next-auth/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
+import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 
 interface Profile {
   given_name: string;
@@ -339,18 +340,22 @@ export default function UserMenu({
   name,
   pageId,
   pageStatus,
+  page,
 }: {
   name: string;
   // Deactivate/reactivate applies to the page currently open in the
   // dashboard, so this is undefined outside a page context (setup, page list).
   pageId?: number;
   pageStatus?: string;
+  // The open page, for "Delete this page…".
+  page?: DeletablePage;
 }) {
   const [open, setOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
   const [displayName, setDisplayName] = useState(name);
   const [statusError, setStatusError] = useState<string | null>(null);
+  const [showDelete, setShowDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -418,6 +423,14 @@ export default function UserMenu({
                 {pageSuspended ? 'Page suspended' : isPending ? 'Saving…' : pageInactive ? 'Reactivate my page' : 'Deactivate my page'}
               </button>
             )}
+            {page && !pageSuspended && (
+              <button
+                onClick={() => { setOpen(false); setShowDelete(true); }}
+                className="dash-user-menu-item dash-user-menu-item--danger"
+              >
+                Delete this page…
+              </button>
+            )}
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               className="dash-user-menu-item"
@@ -442,6 +455,8 @@ export default function UserMenu({
       )}
 
       {showSecurity && <SecurityModal onClose={() => setShowSecurity(false)} />}
+
+      {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
     </>
   );
 }

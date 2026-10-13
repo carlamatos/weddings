@@ -9,8 +9,10 @@ import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders'
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
 
-import { sql } from '@vercel/postgres';
+import { db, sql } from '@vercel/postgres';
 import bcrypt from 'bcrypt';
+import { movePageToTrash } from './page-trash-core';
+import { runInTransaction } from './trash-core';
 
 import { headers } from 'next/headers';
 import { markSignUp } from './signup-signal';
@@ -1693,6 +1695,44 @@ export async function setPageStatus(pageId: number, status: 'active' | 'inactive
     return { error: 'Page not found.' };
   }
   revalidatePath(`/dashboard/pages/${pid}`);
+  return {};
+}
+
+// Owner deletes one of their event pages. It goes to the trash (deleted_pages)
+// with everything on it — guests, RSVPs, photos, settings — for 30 days, when
+// an admin can still restore it; then /api/cron/purge-deleted-pages removes it
+// and its files. The owner must type the page's address to confirm. A
+// suspended page can't be deleted by its owner (it's under review).
+export async function deletePage(pageId: number, confirmation: string): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+  const pid = parsePageId(pageId);
+  if (pid === null) return { error: 'Invalid page.' };
+
+  const owned = await sql`SELECT slug, status FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+  const page = owned.rows[0];
+  if (!page) return { error: 'Page not found.' };
+  if (page.status === 'suspended') {
+    return { error: 'This page has been suspended by MyGala and can’t be deleted while it’s under review. Please contact us.' };
+  }
+  if (typeof confirmation !== 'string' || confirmation.trim().toLowerCase() !== String(page.slug).toLowerCase()) {
+    return { error: 'The page address you typed doesn’t match. Nothing was deleted.' };
+  }
+
+  const client = await db.connect();
+  try {
+    await runInTransaction(client, () =>
+      movePageToTrash(client, pid, { userId, deletedBy: session.user?.email ?? 'owner' }),
+    );
+  } catch (error) {
+    console.error('Failed to delete page:', error);
+    return { error: 'Something went wrong — your page was not deleted. Please try again.' };
+  } finally {
+    client.release();
+  }
+
+  revalidatePath('/dashboard');
   return {};
 }
 

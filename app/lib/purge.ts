@@ -42,7 +42,7 @@ export async function previewPurge(): Promise<{
 
 // Best effort: detach a purged page's custom domain from the Vercel project so
 // it isn't left pointing at nothing. Never blocks the purge.
-async function removeVercelDomain(domain: string): Promise<void> {
+export async function removeVercelDomain(domain: string): Promise<void> {
   const projectId = process.env.VERCEL_PROJECT_ID;
   const token = process.env.VERCEL_API_TOKEN;
   const teamId = process.env.VERCEL_TEAM_ID;
