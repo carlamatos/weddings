@@ -14,6 +14,7 @@ interface Profile {
 
 function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (name: string) => void }) {
   const [form, setForm] = useState<Profile>({ given_name: '', family_name: '', phone: '' });
+  const [email, setEmail] = useState(''); // shown for reference only; not editable
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -28,6 +29,7 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
           family_name: data.family_name ?? '',
           phone: data.phone ?? '',
         });
+        setEmail(data.email ?? '');
         setLoading(false);
       })
       .catch(() => { setError('Failed to load profile.'); setLoading(false); });
@@ -79,6 +81,11 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
                 <label>Family name</label>
                 <input value={form.family_name} onChange={handleChange('family_name')} required autoComplete="family-name" />
               </div>
+            </div>
+            <div className="profile-field">
+              <label htmlFor="profile-email">Email</label>
+              <input id="profile-email" type="email" value={email} disabled readOnly aria-describedby="profile-email-note" />
+              <p id="profile-email-note" className="profile-field-note">This is the email you sign in with. It can&rsquo;t be changed here.</p>
             </div>
             <div className="profile-field">
               <label>Phone</label>

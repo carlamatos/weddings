@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
 import { isSectionTextKey, sectionKeyFromColorSetting, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
-import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
+import { DEFAULT_REMINDER_TIMEZONE, isValidTimeZone, parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
 
@@ -36,6 +36,7 @@ import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type Invi
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
+import { notifyAdminsOfNewPage } from './admin-notify';
 import { randomInt } from 'crypto';
 import { drawCycle, giftExchangeDetails, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
 import { giftExchangeEmail } from './gift-exchange-email';
@@ -242,6 +243,11 @@ export type UserPageState = {
 
     revalidatePath(`/${slug}`);
 
+    // Let the super admins know (never blocks or fails the request).
+    if (newPageId) {
+      await notifyAdminsOfNewPage(newPageId, prepaid ? 'Plus (prepaid)' : wantsPlus ? 'Free — chose Plus, sent to checkout' : 'Free');
+    }
+
     // Chose Plus for this event: the page exists (free) now, so pay for it.
     // Cancelling checkout leaves it free, upgradeable from the dashboard.
     if (wantsPlus && !prepaid && newPageId && user_id) {
@@ -351,6 +357,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
   if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
   if (name === 'invitation_include_password') return value === 'true' || value === 'false';
+  if (name === 'rsvp_notify_owner') return value === 'true' || value === 'false';
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   return false;
@@ -1360,13 +1367,16 @@ export async function updateSectionText(pageId: number, key: string, raw: string
 // personal note; the daily cron job (app/lib/reminder-send.ts) does the sending.
 export async function saveReminderSettings(
   pageId: number,
-  data: { schedule: string[]; message: string },
+  data: { schedule: string[]; message: string; timeZone?: string },
 ): Promise<{ ok: boolean; error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  if (!Array.isArray(data?.schedule)) return { ok: false, error: 'Couldn’t save. Please try again.' };
   const schedule = parseReminderSchedule(data.schedule.join(',')).join(',');
+  // For hours-before reminders: the event's time is read in this time zone.
+  const timeZone = isValidTimeZone(data.timeZone) ? data.timeZone : DEFAULT_REMINDER_TIMEZONE;
   const message = (data.message ?? '').trim().slice(0, REMINDER_MESSAGE_MAX_LENGTH);
   try {
     const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
@@ -1374,7 +1384,7 @@ export async function saveReminderSettings(
     if (page.rows[0].plan_type !== 'paid') return { ok: false, error: 'Event Reminders are a Plus feature.' };
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-      VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message})
+      VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message}), (${pid}, 'reminder_timezone', ${timeZone})
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()
     `;
     return { ok: true };

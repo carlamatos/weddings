@@ -17,7 +17,11 @@ const guestLinks: NavItem[] = [
 ];
 
 const links: NavItem[] = [
+  // The free sections first (Edit Page, Event Program, Share, then the Guests
+  // group); the Plus ones after.
   { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
+  { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'Potluck', section: '/potluck', icon: CakeIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon, paidOnly: false, greyOutIfFree: true },
   // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
@@ -27,12 +31,9 @@ const links: NavItem[] = [
   { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Reminders', section: '/reminders', icon: BellAlertIcon, paidOnly: false, greyOutIfFree: true },
-  // Free tier now, same as everything else.
-  { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
   { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Sponsors', section: '/sponsors', icon: TrophyIcon, paidOnly: false, greyOutIfFree: true },
   { name: 'Registry', section: '/registry', icon: GiftIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
 ];
 
 // "Event pages" (the dashboard landing) is always there; the per-page links
@@ -72,7 +73,10 @@ export default function NavLinks({ pageId, pageName, isPaid, status }: { pageId?
   };
 
   const visible = (link: NavItem) => !link.paidOnly || isPaid;
-  const [editPage, ...rest] = links.filter(visible);
+  // Edit Page, Event Program and Share sit above the Guests group.
+  const visibleLinks = links.filter(visible);
+  const top = visibleLinks.slice(0, 3);
+  const rest = visibleLinks.slice(3);
 
   return (
     <>
@@ -85,7 +89,7 @@ export default function NavLinks({ pageId, pageName, isPaid, status }: { pageId?
       )}
       {pageId !== undefined && (
         <>
-          {editPage && item(editPage)}
+          {top.map((link) => item(link))}
           <button
             type="button"
             className={`dash-nav-link dash-nav-parent${guestsActive ? ' dash-nav-parent--active' : ''}`}

@@ -3,9 +3,9 @@ import { sql } from '@vercel/postgres';
 import { fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { hasExpiredPlan } from '@/app/lib/plans';
-import { parseReminderSchedule, reminderSendDate, REMINDER_OPTIONS } from '@/app/lib/reminders';
+import { parseReminderSchedule } from '@/app/lib/reminders';
 import { reminderEmail } from '@/app/lib/reminder-email';
-import { RemindersForm, type ReminderOptionStatus } from '@/app/ui/dashboard/reminders-form';
+import { RemindersForm } from '@/app/ui/dashboard/reminders-form';
 
 export default async function RemindersPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -19,7 +19,7 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
         <p style={{ fontSize: 14, color: '#6B6470', marginBottom: 24 }}>
           {expired
             ? 'Your Plus term has ended. Extend to bring Event Reminders back.'
-            : 'Event Reminders is a Plus feature. Upgrade to automatically email your guests before the big day — a month, a week, or the day before, with your own personal note.'}
+            : 'Event Reminders is a Plus feature. Upgrade to automatically email your guests before the big day — a month, a week, the day before or a few hours before, with your own personal note.'}
         </p>
         <Link href={pagePath(userPage.id, '/domain')} style={{ display: 'inline-block', padding: '10px 24px', background: '#B6584A', color: '#fff', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
           {expired ? 'Extend Plus' : 'Upgrade to Plus'}
@@ -45,16 +45,7 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
 
   const schedule = parseReminderSchedule(settings['reminder_schedule']);
   const message = settings['reminder_message'] ?? '';
-  const today = new Date().toISOString().slice(0, 10);
-  const options: ReminderOptionStatus[] = REMINDER_OPTIONS.map((o) => {
-    const sendDate = userPage.event_date ? reminderSendDate(userPage.event_date, o.key) : null;
-    return {
-      key: o.key,
-      sendDate,
-      passed: !!sendDate && sendDate < today,
-      sentCount: Number(sent.find((s) => s.reminder_key === o.key)?.count ?? 0),
-    };
-  });
+  const sentCounts = Object.fromEntries(sent.map((s) => [s.reminder_key, Number(s.count)]));
 
   const preview = reminderEmail({
     page: userPage,
@@ -82,7 +73,14 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
         <Link href={pagePath(userPage.id, '/rsvp')} style={{ color: '#B6584A', fontWeight: 600, marginLeft: 'auto' }}>View guests</Link>
       </div>
 
-      <RemindersForm pageId={pageId} initialSchedule={schedule} initialMessage={message} options={options} />
+      <RemindersForm
+        pageId={pageId}
+        initialSchedule={schedule}
+        initialMessage={message}
+        eventDate={userPage.event_date || null}
+        eventTime={userPage.event_time || null}
+        sentCounts={sentCounts}
+      />
 
       <section style={{ marginTop: 32 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Email preview</h2>
