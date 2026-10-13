@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
+import { fetchPageSettings } from '@/app/lib/data';
+import { isRsvpNotifyOn, notifyOwnerOfRsvp } from '@/app/lib/rsvp-notify';
 
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_GUESTS = 50;
@@ -116,6 +118,19 @@ export async function POST(request: Request) {
           NOW()
         )
       `;
+    }
+
+    // Let the organizer know (unless they turned it off on the RSVP screen).
+    if (isRsvpNotifyOn(await fetchPageSettings(pageId))) {
+      await notifyOwnerOfRsvp(pageId, {
+        name: name.trim(),
+        email: email.trim(),
+        phone: cleanPhone,
+        status,
+        guests: guestCount,
+        message: cleanMessage,
+        updated: !!existing.rows[0],
+      });
     }
 
     return NextResponse.json({ success: true });

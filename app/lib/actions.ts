@@ -351,6 +351,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'hero_overlay_color') return isHeroOverlayColor(value);
   if (name === 'hero_overlay_opacity') return isHeroOverlayOpacity(value);
   if (name === 'invitation_include_password') return value === 'true' || value === 'false';
+  if (name === 'rsvp_notify_owner') return value === 'true' || value === 'false';
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   return false;

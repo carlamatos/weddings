@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { DBUser } from './definitions';
 import { markPasswordChanged } from './session-revocation';
+import { sendWelcomeEmail } from './welcome-email';
 
 // Server-only helpers for user rows. Deliberately NOT in actions.ts: every
 // export of a 'use server' file is callable from the browser, and creating
@@ -28,10 +29,12 @@ export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Pr
   const { name, email, given_name, family_name, provider, provider_id, picture } = parsed.data;
   const date = new Date().toISOString().split('T')[0];
   try {
-    await sql`
+    const created = await sql<{ id: string }>`
       INSERT INTO users (name, email, date, given_name, family_name, provider, provider_id, picture, email_verified_at)
       VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
+      RETURNING id
     `;
+    if (created.rows[0]) await sendWelcomeEmail(created.rows[0].id);
     return true;
   } catch (error) {
     console.error('Failed to create OAuth user:', error);
@@ -45,10 +48,13 @@ export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Pr
 // verify the account and drop the unproven password — otherwise whoever set
 // it could keep signing in alongside the owner.
 export async function claimUnverifiedAccount(email: string): Promise<void> {
-  const result = await sql`
+  const result = await sql<{ id: string }>`
     UPDATE users SET password = '', email_verified_at = NOW()
     WHERE email = ${email} AND email_verified_at IS NULL
+    RETURNING id
   `;
   // ...and sign out whoever was using that password.
   if (result.rowCount) await markPasswordChanged({ email });
+  // The owner's first verified sign-in: welcome them.
+  if (result.rows[0]) await sendWelcomeEmail(result.rows[0].id);
 }

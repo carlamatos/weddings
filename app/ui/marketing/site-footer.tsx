@@ -2,12 +2,14 @@ import Link from 'next/link';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { COMPANY, copyrightLine } from '@/app/lib/company';
+import NewsletterForm from './newsletter-form';
 
 // Footer for every marketing page: links to each feature and event type
-// page, plus the company pages.
+// page, plus the company pages, under the newsletter sign-up.
 export default function SiteFooter() {
   return (
     <footer className="footer site-footer">
+      <NewsletterForm />
       <div className="site-footer-cols">
         <div>
           <p className="site-footer-heading">Features</p>

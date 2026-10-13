@@ -105,9 +105,21 @@ export async function POST() {
   `;
   await sql`CREATE INDEX IF NOT EXISTS deleted_pages_purge_after_idx ON deleted_pages (purge_after) WHERE restored_at IS NULL`;
 
+  // Newsletter sign-ups (marketing footer). Also created on first use by
+  // app/lib/newsletter.ts.
+  await sql`
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id SERIAL PRIMARY KEY,
+      email TEXT NOT NULL UNIQUE,
+      source TEXT,
+      subscribed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      unsubscribed_at TIMESTAMPTZ
+    )
+  `;
+
   return NextResponse.json({
     ok: true,
     message:
-      'Tables ready: user_plans, user_cancellations, deleted_users, deleted_pages, page_purges. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
+      'Tables ready: user_plans, user_cancellations, deleted_users, deleted_pages, page_purges, newsletter_subscribers. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
   });
 }

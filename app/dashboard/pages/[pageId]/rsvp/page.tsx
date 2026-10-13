@@ -5,13 +5,17 @@ import { GuestStatusSelect } from './GuestStatusSelect';
 import Link from 'next/link';
 import { pagePath } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
+import { RsvpNotifyOption } from '@/app/ui/dashboard/rsvp-notify-option';
+import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
+import { auth } from '@/auth';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
-  const [guests, settings] = await Promise.all([
+  const [guests, settings, session] = await Promise.all([
     fetchGuests(pageId),
     fetchPageSettings(pageId),
+    auth(),
   ]);
 
   const attending = guests.filter((g) => g.status === 'attending');
@@ -29,6 +33,8 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         initialOn={isSectionOn(settings, 'show_rsvp')}
         label="RSVP form visible on your page"
       />
+
+      <RsvpNotifyOption pageId={pageId} initialOn={isRsvpNotifyOn(settings)} email={session?.user?.email ?? undefined} />
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
         <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />
