@@ -58,11 +58,11 @@ export default async function Page() {
       <div className="hero">
         <HeroThemeWall />
         <div className="hero-wash" />
-        <p className="hero-eyebrow hero-badge hero-in"><span className="hero-badge-free">Free</span><span>Event websites for weddings, birthdays &amp; every celebration</span></p>
-        <p className="hero-tagline hero-in delay-1">A page as considered as the celebration itself.</p>
-        <h1 className="hero-headline hero-in delay-1">Set up your event page in minutes.</h1>
-        <p className="hero-sub hero-in delay-2">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
-        <div className="hero-actions hero-in delay-2">
+        <p className="hero-eyebrow hero-badge"><span className="hero-badge-free">Free</span><span>Event websites for weddings, birthdays &amp; every celebration</span></p>
+        <p className="hero-tagline">A page as considered as the celebration itself.</p>
+        <h1 className="hero-headline">Set up your event page in minutes.</h1>
+        <p className="hero-sub">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
+        <div className="hero-actions">
           <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free page</Link>
           {/* A full sample event page (wedding), built from the real theme. */}
           <Link href="/themes/the-day" className="btn-secondary btn-demo" data-cta="hero-demo">
@@ -74,7 +74,7 @@ export default async function Page() {
           </Link>
           <a href="#themes" className="btn-secondary" data-cta="hero-themes">See the themes</a>
         </div>
-        <p className="hero-note hero-in delay-2"><span>Free to start</span> · <span>No credit card</span> · <span>No design skills needed</span></p>
+        <p className="hero-note"><span>Free to start</span> · <span>No credit card</span> · <span>No design skills needed</span></p>
 
       </div>
 

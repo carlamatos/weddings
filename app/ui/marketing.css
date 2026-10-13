@@ -500,14 +500,8 @@
   position: relative;
   z-index: 2;
 }
-/* The hero fades in with CSS alone, so its text and button show as soon as
-   the page arrives instead of waiting for JavaScript (unlike .reveal). */
-@keyframes hero-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.marketing-page .hero-in { animation: hero-in 0.6s ease both; }
-.marketing-page .hero-in.delay-1 { animation-delay: 0.08s; }
-.marketing-page .hero-in.delay-2 { animation-delay: 0.16s; }
-.marketing-page .hero-in.delay-3 { animation-delay: 0.24s; }
-@media (prefers-reduced-motion: reduce) { .marketing-page .hero-in { animation: none; } }
+/* No fade-in on the banner text: Chrome only counts it as shown (LCP) once a
+   fade finishes, which cost ~0.7 s on phones in PageSpeed. */
 .marketing-page .hero-eyebrow { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--rose); font-weight: 600; margin: 0 0 20px; }
 .marketing-page .hero-headline {
   font-family: var(--font-display);
