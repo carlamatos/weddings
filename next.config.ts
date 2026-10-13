@@ -55,6 +55,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // CSS goes in the page's <head> instead of separate render-blocking files:
+  // first visits (most ad traffic) paint ~0.2–0.4 s sooner on phones. Applies
+  // to every page; the cost is no cross-page CSS caching.
+  experimental: { inlineCss: true },
   images: {
     remotePatterns: [
       {

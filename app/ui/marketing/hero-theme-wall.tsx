@@ -7,9 +7,9 @@ import { previewImage } from '@/app/ui/themes/preview-image';
 // .hero-wall in marketing.css). Decorative only — hidden from screen readers.
 // Phones show the first three columns.
 //
-// A tile can be the page's Largest Contentful Paint, so the columns every
-// screen shows (1–3) load at once — the first tile of each at high priority —
-// while columns 4–6 (desktop only) and nothing else wait their turn.
+// A tile can be the page's Largest Contentful Paint (which one depends on the
+// screen), so the tiles of the columns every screen shows (1–3) load at once
+// at high priority — 9 small images. Columns 4–6 (desktop only) load lazily.
 
 // Mixed so neighbouring tiles differ in colour and occasion.
 const ORDER = [
@@ -38,7 +38,7 @@ export default function HeroThemeWall() {
           {[...tiles, ...tiles].map((t, i) => (
             <div className="hero-wall-tile" key={`${t.slug}-${i}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img {...previewImage(t.src, '(max-width: 760px) 34vw, 260px', { eager: c < 3, priority: c < 3 && i % tiles.length === 0 })} alt="" />
+              <img {...previewImage(t.src, '(max-width: 760px) 34vw, 260px', { priority: c < 3 })} alt="" />
               <span>{t.name}</span>
             </div>
           ))}
