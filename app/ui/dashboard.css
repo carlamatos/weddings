@@ -570,12 +570,21 @@ body:has(.dash-shell) {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
-  min-width: 200px;
+  /* Top bar (tablets and desktops): every theme at once, in three columns. */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px;
+  width: min(620px, calc(100vw - 48px));
+  max-height: calc(100vh - 90px);
+  max-height: calc(100dvh - 90px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px;
+  box-sizing: border-box;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: 0 8px 24px -4px rgba(36,31,43,0.12);
-  overflow: hidden;
   z-index: 100;
 }
 
@@ -584,21 +593,22 @@ body:has(.dash-shell) {
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 11px 16px;
+  padding: 10px 12px;
   background: none;
   border: none;
+  border-radius: 6px;
   font-size: 13px;
   font-weight: 500;
   color: var(--ink);
   font-family: var(--font-sans);
   cursor: pointer;
   text-align: left;
+  line-height: 1.3;
   transition: background 0.12s;
 }
 .dash-theme-option:hover { background: var(--paper); }
-.dash-theme-option + .dash-theme-option { border-top: 1px solid var(--line); }
 .dash-theme-option--active {
-  color: var(--ink-soft);
+  color: var(--rose);
   cursor: default;
   background: var(--paper);
   font-weight: 600;
@@ -693,7 +703,17 @@ body:has(.dash-shell) {
 /* Make the theme switcher fill the drawer width */
 .mobile-menu-theme .dash-theme-switcher { display: block; width: 100%; }
 .mobile-menu-theme .dash-theme-btn { width: 100%; justify-content: space-between; }
-.mobile-menu-theme .dash-theme-dropdown { width: 100%; }
+.mobile-menu-theme .dash-theme-dropdown {
+  /* Phones: the menu drawer is narrow, so one column that scrolls. */
+  position: static;
+  margin-top: 8px;
+  width: 100%;
+  grid-template-columns: 1fr;
+  max-height: 50vh;
+  max-height: 50dvh;
+  box-shadow: none;
+}
+.mobile-menu-theme .dash-theme-option + .dash-theme-option { border-top: 1px solid var(--line); border-radius: 0; }
 .mobile-menu-header .dash-sidebar-logo { border-bottom: 0; padding: 0; }
 .mobile-menu-drawer .dash-sidebar-nav { flex: 1 0 auto; }
 
