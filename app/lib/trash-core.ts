@@ -29,6 +29,11 @@ export const TRASH_TABLES: TableSpec[] = [
   { table: 'page_potluck', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exchange', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exclusions', where: `user_page_id IN ${PAGE_IDS}` },
+  // Both are removed with their page (ON DELETE CASCADE), so they must be in
+  // the snapshot: legacy RSVPs, and which reminders already went out (without
+  // it a restore would send guests the same reminders again).
+  { table: 'event_rsvp', where: `user_page_id IN ${PAGE_IDS}` },
+  { table: 'event_reminder_deliveries', where: `user_page_id IN ${PAGE_IDS}` },
 ];
 
 export type Snapshot = { version: 1; tables: Record<string, Row[]> };
@@ -45,7 +50,7 @@ export async function runInTransaction<T>(client: DbClient, fn: () => Promise<T>
   }
 }
 
-async function tableExists(client: DbClient, table: string): Promise<boolean> {
+export async function tableExists(client: DbClient, table: string): Promise<boolean> {
   const r = await client.query('SELECT to_regclass($1::text) IS NOT NULL AS ok', [table]);
   return r.rows[0]?.ok === true;
 }
@@ -133,20 +138,24 @@ export async function findRestoreConflicts(client: DbClient, snapshot: Snapshot)
 // defaults instead of failing on NOT NULL.
 export async function restoreSnapshot(client: DbClient, snapshot: Snapshot): Promise<void> {
   for (const { table } of TRASH_TABLES) {
-    const rows = snapshot.tables[table] ?? [];
-    if (!rows.length) continue;
-    if (!(await tableExists(client, table))) {
-      throw new Error(`Cannot restore: table ${table} no longer exists.`);
-    }
-    const existing = await tableColumns(client, table);
-    const keys = Object.keys(rows[0]).filter((k) => existing.has(k));
-    if (!keys.length) continue;
-    const list = keys.map((k) => `"${k.replace(/"/g, '""')}"`).join(', ');
-    await client.query(
-      `INSERT INTO ${table} (${list}) SELECT ${list} FROM json_populate_recordset(NULL::${table}, $1::json)`,
-      [JSON.stringify(rows)],
-    );
+    await insertRows(client, table, snapshot.tables[table] ?? []);
   }
+}
+
+// Re-inserts archived rows of one table (also used by the page trash).
+export async function insertRows(client: DbClient, table: string, rows: Row[]): Promise<void> {
+  if (!rows.length) return;
+  if (!(await tableExists(client, table))) {
+    throw new Error(`Cannot restore: table ${table} no longer exists.`);
+  }
+  const existing = await tableColumns(client, table);
+  const keys = Object.keys(rows[0]).filter((k) => existing.has(k));
+  if (!keys.length) return;
+  const list = keys.map((k) => `"${k.replace(/"/g, '""')}"`).join(', ');
+  await client.query(
+    `INSERT INTO ${table} (${list}) SELECT ${list} FROM json_populate_recordset(NULL::${table}, $1::json)`,
+    [JSON.stringify(rows)],
+  );
 }
 
 export type RestoreResult =

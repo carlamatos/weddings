@@ -11,6 +11,7 @@ import { getTheme } from '@/app/ui/themes/registry';
 import { formatDateRange } from '@/app/ui/themes/event-when';
 import UpgradeButton from '@/app/ui/dashboard/upgrade-button';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
+import { DeletePageButton } from '@/app/ui/dashboard/delete-page-dialog';
 
 // Dashboard screens a "shortcut" link (/dashboard/livestream, …) can ask for
 // when the user has several events and has to pick one first.
@@ -41,7 +42,7 @@ const badge = (bg: string, color: string): React.CSSProperties => ({
 
 // /dashboard: the user's event pages. Each event is free or Plus on its own;
 // "Create new event" runs the full setup again.
-export default async function EventPages({ searchParams }: { searchParams: Promise<{ section?: string }> }) {
+export default async function EventPages({ searchParams }: { searchParams: Promise<{ section?: string; deleted?: string }> }) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) redirect('/login');
@@ -75,6 +76,12 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
           <p style={{ fontSize: 13, color: '#6B6470', margin: 0 }}>You&rsquo;ve reached {quota.limit} event pages.</p>
         )}
       </div>
+
+      {query.deleted === '1' && (
+        <div role="status" style={{ background: '#EEF6EF', border: '1px solid #C9E2CD', color: '#2F5A36', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 18 }}>
+          <strong>Your page was deleted.</strong> If that was a mistake, contact us within 30 days and we can restore it.
+        </div>
+      )}
 
       <div style={{ display: 'grid', gap: 14 }}>
         {sortEvents(pages).map((p) => {
@@ -132,6 +139,9 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
                 >
                   {section ? `Open ${SECTIONS[section]}` : 'Edit page'}
                 </Link>
+                {!section && p.status !== 'suspended' && (
+                  <DeletePageButton page={{ id: Number(p.id), slug: p.slug, heading: p.heading, isPaid: paid }} />
+                )}
               </div>
             </div>
           );
