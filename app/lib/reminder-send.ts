@@ -6,13 +6,17 @@ type Sql = typeof poolSql;
 import type { UserPage } from './definitions';
 import { sendMailBatch, type MailMessage } from './mail';
 import { reminderEmail } from './reminder-email';
-import { parseReminderSchedule, reminderSendDate, type ReminderKey } from './reminders';
+import { DEFAULT_REMINDER_TIMEZONE, isHourReminder, isValidTimeZone, parseReminderSchedule, reminderSendDate, reminderSendInstant, type ReminderKey } from './reminders';
 import { oneClickUnsubscribeUrl, unsubscribeUrl } from './unsubscribe-token';
 
-// Daily job body (app/api/cron/reminders). For each Plus page with reminders
-// ticked, sends the reminder whose send date is today — or yesterday, so one
-// missed run still catches up. Older missed dates are skipped rather than
-// sent late, and at most one reminder goes out per page per run.
+// Hourly job body (app/api/cron/reminders). For each Plus page with
+// reminders set, sends at most one due reminder per run:
+// - date-based ones (months, weeks, days before) go out on their send date,
+//   from the 14:00 UTC run on (around 9–10 AM Eastern) — or the next day, so
+//   a missed day still catches up. Older missed dates are skipped rather than
+//   sent late.
+// - hours-before ones go out at the event's start time (in the owner's time
+//   zone) minus those hours, or within the next 3 hours if a run was missed.
 //
 // Each guest is claimed in event_reminder_deliveries *before* sending, so a
 // retry or overlapping run can never email the same guest twice; if the send
@@ -25,38 +29,63 @@ const addDays = (iso: string, n: number) => {
   return isoDay(d);
 };
 
-type Candidate = UserPage & { reminder_schedule: string; reminder_message: string | null };
+const MORNING_UTC_HOUR = 14;
+const HOUR_MS = 60 * 60 * 1000;
+const HOURLY_CATCH_UP_MS = 3 * HOUR_MS;
+
+type Candidate = UserPage & { reminder_schedule: string; reminder_message: string | null; reminder_timezone: string | null };
 
 export type ReminderRunResult = { page: string; reminder: ReminderKey; sent: number; error?: string };
 
-export function dueReminder(eventDate: string, keys: ReminderKey[], today: string): ReminderKey | null {
+export function dueReminder(
+  page: { event_date: string; event_time?: string | null; reminder_timezone?: string | null },
+  keys: ReminderKey[],
+  now: Date,
+): ReminderKey | null {
+  const today = isoDay(now);
   const yesterday = addDays(today, -1);
-  const due = keys
-    .map((key) => ({ key, on: reminderSendDate(eventDate, key) }))
-    .filter(({ on }) => on <= today && on >= yesterday)
-    .sort((a, b) => (a.on < b.on ? 1 : -1)); // latest send date = closest to the event
+  const timeZone = isValidTimeZone(page.reminder_timezone) ? page.reminder_timezone : DEFAULT_REMINDER_TIMEZONE;
+  const due: { key: ReminderKey; at: number }[] = [];
+  for (const key of keys) {
+    if (isHourReminder(key)) {
+      const at = reminderSendInstant(page.event_date, page.event_time, key, timeZone);
+      if (at && at.getTime() <= now.getTime() && now.getTime() - at.getTime() < HOURLY_CATCH_UP_MS) {
+        due.push({ key, at: at.getTime() });
+      }
+    } else if (page.event_date > today) {
+      const on = reminderSendDate(page.event_date, key);
+      if (on === yesterday || (on === today && now.getUTCHours() >= MORNING_UTC_HOUR)) {
+        due.push({ key, at: Date.parse(`${on}T00:00:00Z`) });
+      }
+    }
+  }
+  due.sort((a, b) => b.at - a.at); // latest = closest to the event
   return due[0]?.key ?? null;
 }
 
-export async function sendDueReminders(today = isoDay(new Date()), sql: Sql = poolSql): Promise<ReminderRunResult[]> {
-  // The longest lead time is one month, so nothing further out can be due.
-  const horizon = addDays(today, 32);
+export async function sendDueReminders(now = new Date(), sql: Sql = poolSql): Promise<ReminderRunResult[]> {
+  const today = isoDay(now);
+  // The longest lead time is 52 weeks, so nothing further out can be due.
+  // Events from yesterday on are included for hours-before reminders.
+  const horizon = addDays(today, 370);
   const pages = await sql<Candidate>`
     SELECT up.*, up.event_date::text AS event_date, up.event_end_date::text AS event_end_date,
-           et.slug AS theme_slug, s.setting_value AS reminder_schedule, m.setting_value AS reminder_message
+           et.slug AS theme_slug, s.setting_value AS reminder_schedule, m.setting_value AS reminder_message,
+           tz.setting_value AS reminder_timezone
     FROM user_page up
     JOIN user_page_settings s ON s.user_page_id = up.id AND s.setting_name = 'reminder_schedule' AND s.setting_value <> ''
     LEFT JOIN user_page_settings m ON m.user_page_id = up.id AND m.setting_name = 'reminder_message'
+    LEFT JOIN user_page_settings tz ON tz.user_page_id = up.id AND tz.setting_name = 'reminder_timezone'
     LEFT JOIN event_themes et ON et.theme_id = up.theme_id
     WHERE up.plan_type = 'paid'
       AND (up.plan_expires_at IS NULL OR up.plan_expires_at > NOW())
       AND COALESCE(up.status, 'active') NOT IN ('inactive', 'suspended')
-      AND up.event_date > ${today}::date AND up.event_date <= ${horizon}::date
+      AND up.event_date >= ${addDays(today, -1)}::date AND up.event_date <= ${horizon}::date
   `;
 
   const results: ReminderRunResult[] = [];
   for (const page of pages.rows) {
-    const key = dueReminder(page.event_date, parseReminderSchedule(page.reminder_schedule), today);
+    const key = dueReminder(page, parseReminderSchedule(page.reminder_schedule), now);
     if (!key) continue;
     results.push(await sendReminderForPage(page, key, sql));
   }

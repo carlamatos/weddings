@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { sendDueReminders } from '@/app/lib/reminder-send';
 import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
 
-// Called once a day by Vercel Cron (see vercel.json). Vercel sends
+// Called every hour by Vercel Cron (see vercel.json). Vercel sends
 // "Authorization: Bearer $CRON_SECRET" when the CRON_SECRET env var is set;
 // without that variable the endpoint refuses every call.
 export const dynamic = 'force-dynamic';

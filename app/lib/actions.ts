@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
 import { isSectionTextKey, sectionKeyFromColorSetting, sectionTextSettingName, SECTION_TEXT_MAX_LENGTH } from './section-text';
-import { parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
+import { DEFAULT_REMINDER_TIMEZONE, isValidTimeZone, parseReminderSchedule, REMINDER_MESSAGE_MAX_LENGTH } from './reminders';
 import { reminderEmail } from './reminder-email';
 import { redirect } from 'next/navigation';
 
@@ -1361,13 +1361,16 @@ export async function updateSectionText(pageId: number, key: string, raw: string
 // personal note; the daily cron job (app/lib/reminder-send.ts) does the sending.
 export async function saveReminderSettings(
   pageId: number,
-  data: { schedule: string[]; message: string },
+  data: { schedule: string[]; message: string; timeZone?: string },
 ): Promise<{ ok: boolean; error?: string }> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  if (!Array.isArray(data?.schedule)) return { ok: false, error: 'Couldn’t save. Please try again.' };
   const schedule = parseReminderSchedule(data.schedule.join(',')).join(',');
+  // For hours-before reminders: the event's time is read in this time zone.
+  const timeZone = isValidTimeZone(data.timeZone) ? data.timeZone : DEFAULT_REMINDER_TIMEZONE;
   const message = (data.message ?? '').trim().slice(0, REMINDER_MESSAGE_MAX_LENGTH);
   try {
     const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
@@ -1375,7 +1378,7 @@ export async function saveReminderSettings(
     if (page.rows[0].plan_type !== 'paid') return { ok: false, error: 'Event Reminders are a Plus feature.' };
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-      VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message})
+      VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message}), (${pid}, 'reminder_timezone', ${timeZone})
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()
     `;
     return { ok: true };
