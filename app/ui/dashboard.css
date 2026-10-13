@@ -254,6 +254,8 @@ body:has(.dash-shell) {
   box-sizing: border-box; transition: border-color 0.15s;
 }
 .profile-field input:focus { outline: none; border-color: var(--rose); background: #fff; }
+.profile-field input:disabled { color: var(--ink-soft); background: #F1EEEA; cursor: not-allowed; }
+.profile-field-note { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
 .profile-modal-actions {
   display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;
 }
