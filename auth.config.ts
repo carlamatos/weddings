@@ -2,7 +2,6 @@
 import GoogleProvider from 'next-auth/providers/google';
 import AppleProvider from 'next-auth/providers/apple';
 import FacebookProvider from 'next-auth/providers/facebook';
-import { countUserPages, fetchUser } from './app/lib/data';
 import type { Session } from "next-auth";
 import type { NextRequest  } from "next/server";
 import type { NextAuthConfig } from 'next-auth';
@@ -83,41 +82,19 @@ export const authConfig = {
         if (isLoggedIn) return true;
         return false; // Redirect unauthenticated users to login page
       } else if (isOnAdmin) {
-        // Must come before the branch below, which sends users without a
-        // wedding page to /dashboard/setup — a super admin may not have one.
         // Whether the user is actually an admin is checked in app/admin/layout.tsx.
         return isLoggedIn;
       } else if (nextUrl.pathname.startsWith('/verify-2fa')) {
-        // Must also come before the branch below — a user mid-2FA-challenge
-        // needs to reach this page regardless of page count, and the
-        // "no page yet" redirect would otherwise divert them straight into
-        // /dashboard/setup without ever completing the challenge.
+        // A user mid-2FA-challenge must always reach this page.
         return true;
       } else if (isLoggedIn) {
-
-
-        //check if the user has a page or if it is the first time it logs in
-        const email = auth?.user?.email;
-
-        if (email){
-        const loggedInUser = await fetchUser(email);
-
-        if (loggedInUser !== undefined) {
-
-          const pageCount = await countUserPages(loggedInUser.id);
-
-
-          if (pageCount === 0) {
-            return Response.redirect(new URL('/dashboard/setup', nextUrl));
-          }
-        }
-
-        console.log('Current URL:', nextUrl.toString());
-
+        // Signed-in visitors browse the homepage, marketing pages and event
+        // pages normally. Only the sign-in screens send them on to the
+        // dashboard, which itself sends anyone without a page yet to
+        // /dashboard/setup.
         if (nextUrl.pathname.startsWith('/login') || nextUrl.pathname.startsWith('/register')) {
           return Response.redirect(new URL('/dashboard', nextUrl));
         }
-      }
       }
       return true;
     },
