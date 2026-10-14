@@ -49,9 +49,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const page = getLandingPage((await params).slug);
   if (!page) return {};
-  // For ad traffic only: kept out of search so it doesn't compete with the
-  // event type page (/events/<slug>).
-  return { ...marketingMetadata(page.seo, `/events/${page.slug}/start`), robots: { index: false, follow: true } };
+  return marketingMetadata(page.seo, `/events/${page.slug}/start`);
 }
 
 export default async function LandingPage({ params }: { params: Promise<{ slug: string }> }) {

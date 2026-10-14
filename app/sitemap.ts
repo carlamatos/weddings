@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { siteUrl } from '@/app/lib/site-url';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
+import { LANDING_PAGES } from '@/app/lib/marketing/landing';
 import { themeRegistry } from '@/app/ui/themes/registry';
 
 // The sitemap is generated once per deploy, and every listed page is
@@ -24,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry('/features', 0.9),
     ...FEATURES.map((f) => entry(`/features/${f.slug}`, 0.8)),
     ...EVENT_TYPES.map((e) => entry(`/events/${e.slug}`, 0.8)),
+    ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),
     entry('/faq', 0.7),
     ...Object.keys(themeRegistry).map((slug) => entry(`/themes/${slug}`, 0.5)),
     entry('/about', 0.5),
