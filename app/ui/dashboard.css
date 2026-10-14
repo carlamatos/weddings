@@ -329,7 +329,7 @@ body:has(.dash-shell) {
 .dash-user-menu-item + .dash-user-menu-item { border-top: 1px solid var(--line); }
 a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-user-menu-item--upgrade { color: #B6584A; font-weight: 600; }
-/* Free pages on phones: the top bar's buttons, at the top of this menu. */
+/* Phones: the top bar's buttons, at the top of this menu. */
 .dash-user-menu-phone { display: none; border-bottom: 1px solid var(--line); }
 
 /* ── Profile modal ────────────────────────────── */
@@ -840,9 +840,8 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .dash-topnav { justify-content: flex-start; gap: 10px; padding: 0 12px; }
   .dash-user--btn { min-width: 0; }
   .dash-user--btn span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* Free pages: Upgrade, Share RSVP, Share and Preview move into the
-     profile menu. */
-  .dash-topnav--free .dash-topnav-actions { display: none; }
+  /* Upgrade, Share RSVP, Share and Preview move into the profile menu. */
+  .dash-topnav-actions { display: none; }
   .dash-user-menu-phone { display: block; }
   .dash-theme-switcher { display: none; }
   .dash-preview-full-text { display: none; }

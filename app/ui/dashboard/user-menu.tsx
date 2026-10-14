@@ -8,10 +8,11 @@ import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareTarget } from './share-menu';
 import { startPlusCheckout } from './upgrade-button';
 
-// Free pages on phones: the top bar's buttons, listed at the top of this
-// menu instead (see .dash-topnav--free in dashboard.css).
+// On phones: the top bar's buttons, listed at the top of this menu instead
+// (see .dash-topnav-actions in dashboard.css).
 export type PhoneActions = {
   pageId?: number;
+  upgrade?: boolean; // free pages only
   previewHref?: string;
   share?: ShareTarget;
   shareRsvp?: ShareTarget;
@@ -424,13 +425,15 @@ export default function UserMenu({
           <div className="dash-user-menu">
             {phoneActions && (
               <div className="dash-user-menu-phone">
-                <button
-                  onClick={async () => { setUpgrading(true); if (!(await startPlusCheckout(phoneActions.pageId))) setUpgrading(false); }}
-                  disabled={upgrading}
-                  className="dash-user-menu-item dash-user-menu-item--upgrade"
-                >
-                  {upgrading ? 'Redirecting…' : '⭐ Upgrade to Plus'}
-                </button>
+                {phoneActions.upgrade && (
+                  <button
+                    onClick={async () => { setUpgrading(true); if (!(await startPlusCheckout(phoneActions.pageId))) setUpgrading(false); }}
+                    disabled={upgrading}
+                    className="dash-user-menu-item dash-user-menu-item--upgrade"
+                  >
+                    {upgrading ? 'Redirecting…' : '⭐ Upgrade to Plus'}
+                  </button>
+                )}
                 {phoneActions.shareRsvp && (
                   <button onClick={() => { setOpen(false); setSharing(phoneActions.shareRsvp!); }} className="dash-user-menu-item">
                     Share RSVP

@@ -27,16 +27,14 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
   const share = userPage
     ? { url: pageUrl, title, heading: 'Share your page', sharePageHref: pagePath(userPage.id, '/share') }
     : undefined;
-  // Free pages also get a link straight to their RSVP form.
-  const shareRsvp = userPage && !isPaid
+  // A link straight to the page's RSVP form.
+  const shareRsvp = userPage
     ? { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: 'Share your RSVP', sharePageHref: pagePath(userPage.id, '/share') }
     : undefined;
-  // Free pages: on phones these move into the profile menu, so the bar
-  // keeps just the menu button and the profile.
   const free = !!userPage && !isPaid;
 
   return (
-    <header className={`dash-topnav${free ? ' dash-topnav--free' : ''}`}>
+    <header className="dash-topnav">
       <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} status={status} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {free && <div className="dash-topnav-actions"><UpgradeButton pageId={pageId} /></div>}
@@ -67,7 +65,9 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
         pageId={pageId}
         pageStatus={userPage?.status}
         page={userPage ? { id: Number(userPage.id), slug: userPage.slug, heading: userPage.heading, isPaid } : undefined}
-        phoneActions={free ? { pageId, previewHref, share, shareRsvp } : undefined}
+        // On phones the top bar keeps just the menu button and the profile;
+        // these move into the profile menu.
+        phoneActions={userPage ? { pageId, upgrade: free, previewHref, share, shareRsvp } : undefined}
       />
     </header>
   );
