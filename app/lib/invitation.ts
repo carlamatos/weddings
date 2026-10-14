@@ -69,6 +69,7 @@ type Preset = Pick<InvitationDesign, 'headingFont' | 'bodyFont' | 'textColor' | 
 const THEME_PRESETS: Record<string, Preset> = {
   'the-day': { bg: '#F6F2E9', textColor: '#33402F', accentColor: '#9C7C3C', headingFont: 'cormorant', bodyFont: 'lato' },
   'love': { bg: '#FBE4E2', textColor: '#5A2D3A', accentColor: '#B23A5B', headingFont: 'great-vibes', bodyFont: 'cormorant' },
+  'nature': { bg: '#ECEEEE', textColor: '#2A231E', accentColor: '#2D4130', headingFont: 'parisienne', bodyFont: 'cormorant' },
   'terracotta-harvest': { bg: '#F7F1E6', textColor: '#3D2B1F', accentColor: '#BC5A38', headingFont: 'playfair', bodyFont: 'lato' },
   'midnight-botanical': { bg: '#0F1F1A', textColor: '#E9E2CC', accentColor: '#C9A75D', headingFont: 'cormorant', bodyFont: 'cormorant' },
   'quiet-coastal': { bg: '#FFFFFF', textColor: '#3E4A45', accentColor: '#7D8F84', headingFont: 'cormorant', bodyFont: 'josefin' },
