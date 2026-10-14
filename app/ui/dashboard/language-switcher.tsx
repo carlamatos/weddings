@@ -45,7 +45,7 @@ export default function LanguageSwitcher({ pageId, currentLanguage }: Props) {
       </button>
 
       {open && (
-        <div className="dash-theme-dropdown">
+        <div className="dash-theme-dropdown dash-lang-dropdown">
           {others.map((lang) => (
             <button
               key={lang.code}

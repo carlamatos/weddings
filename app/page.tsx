@@ -253,6 +253,17 @@ export default async function Page() {
                     <p className="theme-desc">Blush, rose and raspberry with peach and soft greens. Romantic script, arched cards and rising hearts — built for warm, heartfelt weddings.</p>
                   </div>
                 </a>
+                <a href="/themes/nature" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#2A231E' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="nature" heading="Olivia & Ethan" eventDate="2027-09-25" city="Muskoka" country="ON" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Nature</p>
+                    <p className="theme-desc">Walnut, oak and leaf green with candlelight, coral and daisy-gold accents. Falling leaves and fireflies — built for forest, barn and outdoor weddings.</p>
+                  </div>
+                </a>
               <a href="/themes/terracotta-harvest" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
                   <div style={{ textAlign: 'center', padding: '0 20px' }}>

@@ -18,6 +18,7 @@ import BabyShowerNeutral, { HeroPreview as BabyShowerNeutralPreview } from './Ba
 import BabyShowerBoy, { HeroPreview as BabyShowerBoyPreview } from './BabyShowerBoy';
 import TheDay, { HeroPreview as TheDayPreview } from './TheDay';
 import Love, { HeroPreview as LovePreview } from './Love';
+import Nature, { HeroPreview as NaturePreview } from './Nature';
 import ChristmasParty, { HeroPreview as ChristmasPartyPreview } from './ChristmasParty';
 import WhiteChristmas, { HeroPreview as WhiteChristmasPreview } from './WhiteChristmas';
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
@@ -49,6 +50,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'vilma':              { Page: Vilma,             Preview: VLPreview,     category: 'wedding',     label: 'Vilma' },
   'the-day':            { Page: TheDay,            Preview: TheDayPreview, category: 'wedding',     label: 'The Day' },
   'love':               { Page: Love,              Preview: LovePreview,   category: 'wedding',     label: 'Love' },
+  'nature':             { Page: Nature,            Preview: NaturePreview, category: 'wedding',     label: 'Nature' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },
   'fun-party':          { Page: FunParty,          Preview: FunPartyPreview, category: 'birthdays',  label: 'Fun Party' },

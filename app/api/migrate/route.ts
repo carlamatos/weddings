@@ -66,6 +66,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'love')
   `;
 
+  // Nature theme (Wedding category).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Nature',
+           'Walnut, oak and deep leaf green with candlelight, coral bloom and daisy-gold accents. A forest wedding with falling leaves, fireflies and swaying sprigs.',
+           'nature'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'nature')
+  `;
+
   // Christmas Party theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)

@@ -173,6 +173,109 @@ body:has(.dash-shell) {
 .dash-preview-link:hover { background: var(--rose); color: #fff; }
 .dash-preview-link svg { width: 14px; height: 14px; }
 
+/* ---------- share menu (top bar) ---------- */
+.dash-share { position: relative; }
+.dash-share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: #fff;
+  padding: 7px 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s, background 0.15s;
+}
+.dash-share-btn:hover, .dash-share-btn[aria-expanded="true"] { border-color: var(--ink-soft); background: var(--paper); }
+.dash-share-btn svg { width: 14px; height: 14px; }
+.dash-share-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(360px, calc(100vw - 32px));
+  padding: 16px;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px -6px rgba(36,31,43,0.18);
+  z-index: 100;
+  font-family: var(--font-sans);
+}
+.dash-share-title { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--ink); }
+.dash-share-link { display: flex; gap: 6px; margin-bottom: 14px; }
+.dash-share-link input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--ink);
+  background: var(--paper);
+}
+.dash-share-link button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #B6584A;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.dash-share-link button.is-copied { background: #3F7A52; }
+.dash-share-link button svg { width: 15px; height: 15px; }
+.dash-share-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.dash-share-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.dash-share-option:hover { background: var(--paper); }
+.dash-share-option svg { width: 16px; height: 16px; color: var(--ink-soft); flex-shrink: 0; }
+.dash-share-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin: 0 3px; }
+.dash-share-more {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--rose);
+  text-decoration: none;
+}
+.dash-share-more svg { width: 14px; height: 14px; }
+@media (max-width: 768px) {
+  /* Phones: the panel spans the screen just under the top bar. */
+  .dash-share { position: static; }
+  .dash-share-panel { position: fixed; top: 64px; left: 16px; right: 16px; width: auto; }
+}
+
 .dash-user {
   display: flex;
   align-items: center;
@@ -613,6 +716,9 @@ body:has(.dash-shell) {
   background: var(--paper);
   font-weight: 600;
 }
+
+/* The language list is short: a plain single column. */
+.dash-lang-dropdown { display: block; width: auto; min-width: 180px; }
 
 /* ---------- mobile burger button ---------- */
 .mobile-burger {

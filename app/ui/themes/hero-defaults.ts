@@ -18,6 +18,7 @@ export const HERO_DEFAULTS = {
   'baby-shower-boy': '/images/themes/baby-shower-boy/hero.jpeg',
   'the-day': '/images/themes/the-day/hero.jpeg',
   love: '/images/themes/love/hero.jpeg',
+  nature: '/images/themes/nature/hero.jpeg',
   'christmas-party': '/images/themes/christmas-party/hero.jpeg',
   'white-christmas': '/images/themes/white-christmas/hero.jpeg',
   'dia-de-los-muertos': '/images/themes/dia-de-los-muertos/hero.jpeg',
