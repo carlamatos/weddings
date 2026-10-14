@@ -7,11 +7,17 @@ import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareTarget } from './share-menu';
 import { startPlusCheckout } from './upgrade-button';
+import ThemeSwitcher from './theme-switcher';
+import LanguageSwitcher from './language-switcher';
+import type { EventTheme } from '@/app/lib/definitions';
 
-// On phones: the top bar's buttons, listed at the top of this menu instead
-// (see .dash-topnav-actions in dashboard.css).
+// On phones and tablets: the top bar's buttons, listed at the top of this
+// menu instead (see .dash-topnav-actions in dashboard.css).
 export type PhoneActions = {
-  pageId?: number;
+  pageId: number;
+  themes: EventTheme[];
+  currentThemeId: string | null;
+  language: string;
   upgrade?: boolean; // free pages only
   previewHref?: string;
   share?: ShareTarget;
@@ -449,6 +455,16 @@ export default function UserMenu({
                     Preview page
                   </a>
                 )}
+                {phoneActions.themes.length > 0 && (
+                  <div className="dash-user-menu-picker">
+                    <p className="mobile-menu-theme-label">Theme</p>
+                    <ThemeSwitcher pageId={phoneActions.pageId} currentThemeId={phoneActions.currentThemeId} themes={phoneActions.themes} />
+                  </div>
+                )}
+                <div className="dash-user-menu-picker">
+                  <p className="mobile-menu-theme-label">Language</p>
+                  <LanguageSwitcher pageId={phoneActions.pageId} currentLanguage={phoneActions.language} />
+                </div>
               </div>
             )}
             <button

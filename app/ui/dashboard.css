@@ -303,11 +303,13 @@ body:has(.dash-shell) {
   top: calc(100% + 8px);
   right: 0;
   min-width: 180px;
+  max-height: calc(100vh - 72px);
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  overflow: hidden;
   z-index: 100;
 }
 .dash-user-menu-item {
@@ -329,8 +331,24 @@ body:has(.dash-shell) {
 .dash-user-menu-item + .dash-user-menu-item { border-top: 1px solid var(--line); }
 a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-user-menu-item--upgrade { color: #B6584A; font-weight: 600; }
-/* Phones: the top bar's buttons, at the top of this menu. */
+/* Phones and tablets: the top bar's buttons, at the top of this menu. */
 .dash-user-menu-phone { display: none; border-bottom: 1px solid var(--line); }
+.dash-user-menu-picker { padding: 10px 16px 12px; border-top: 1px solid var(--line); }
+.dash-user-menu-picker .mobile-menu-theme-label { margin-bottom: 6px; }
+.dash-user-menu-picker .dash-theme-switcher { display: block; width: 100%; }
+.dash-user-menu-picker .dash-theme-btn { width: 100%; justify-content: space-between; }
+.dash-user-menu-picker .dash-theme-btn > span { flex: 1; text-align: left; }
+.dash-user-menu-picker .dash-theme-dropdown {
+  /* A single scrolling column inside the menu. */
+  position: static;
+  margin-top: 8px;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 1fr;
+  max-height: 40vh;
+  max-height: 40dvh;
+  box-shadow: none;
+}
 
 /* ── Profile modal ────────────────────────────── */
 .profile-modal-backdrop {
@@ -840,13 +858,20 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .dash-topnav { justify-content: flex-start; gap: 10px; padding: 0 12px; }
   .dash-user--btn { min-width: 0; }
   .dash-user--btn span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  /* Upgrade, Share RSVP, Share and Preview move into the profile menu. */
-  .dash-topnav-actions { display: none; }
-  .dash-user-menu-phone { display: block; }
+
   .dash-theme-switcher { display: none; }
   .dash-preview-full-text { display: none; }
   .dash-content { padding: 20px 16px; }
   .dash-2col { grid-template-columns: 1fr; }
+}
+
+/* Phones and tablets: only the menu button (phones) and the profile stay
+   in the top bar. Upgrade, Theme, Language, Share RSVP, Share and Preview
+   move into the profile menu. */
+@media (max-width: 1024px) {
+  .dash-topnav-actions { display: none; }
+  .dash-user-menu-phone { display: block; }
+  .dash-user-menu:has(.dash-user-menu-phone) { width: min(280px, calc(100vw - 24px)); }
 }
 
 /* ── in-place theme editing ─────────────────────────────── */

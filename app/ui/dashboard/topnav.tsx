@@ -38,15 +38,17 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
       <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} status={status} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {free && <div className="dash-topnav-actions"><UpgradeButton pageId={pageId} /></div>}
-      {pageId !== undefined && userPage && themes.length > 0 && (
-        <ThemeSwitcher
-          pageId={pageId}
-          currentThemeId={userPage.theme_id ?? null}
-          themes={themes}
-        />
-      )}
       {pageId !== undefined && userPage && (
-        <LanguageSwitcher pageId={pageId} currentLanguage={userPage.language ?? 'en'} />
+        <div className="dash-topnav-actions">
+          {themes.length > 0 && (
+            <ThemeSwitcher
+              pageId={pageId}
+              currentThemeId={userPage.theme_id ?? null}
+              themes={themes}
+            />
+          )}
+          <LanguageSwitcher pageId={pageId} currentLanguage={userPage.language ?? 'en'} />
+        </div>
       )}
 
       <div className="dash-topnav-actions">
@@ -65,9 +67,12 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
         pageId={pageId}
         pageStatus={userPage?.status}
         page={userPage ? { id: Number(userPage.id), slug: userPage.slug, heading: userPage.heading, isPaid } : undefined}
-        // On phones the top bar keeps just the menu button and the profile;
-        // these move into the profile menu.
-        phoneActions={userPage ? { pageId, upgrade: free, previewHref, share, shareRsvp } : undefined}
+        // On phones and tablets the top bar keeps just the menu button and
+        // the profile; these move into the profile menu.
+        phoneActions={userPage && pageId !== undefined ? {
+          pageId, upgrade: free, previewHref, share, shareRsvp,
+          themes, currentThemeId: userPage.theme_id ?? null, language: userPage.language ?? 'en',
+        } : undefined}
       />
     </header>
   );
