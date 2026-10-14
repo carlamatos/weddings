@@ -8,6 +8,9 @@ import LanguageSwitcher from './language-switcher';
 import UpgradeButton from './upgrade-button';
 import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
+import ShareMenu from './share-menu';
+import { publicPageUrl } from '@/app/lib/share';
+import { pagePath } from '@/app/lib/dashboard';
 import { siteHref } from '@/app/lib/app-url';
 
 export default async function TopNav({ page: userPage, status }: { page?: UserPage; status?: Record<string, boolean> }) {
@@ -31,6 +34,10 @@ export default async function TopNav({ page: userPage, status }: { page?: UserPa
       )}
       {pageId !== undefined && userPage && (
         <LanguageSwitcher pageId={pageId} currentLanguage={userPage.language ?? 'en'} />
+      )}
+
+      {userPage && (
+        <ShareMenu url={publicPageUrl(userPage)} title={userPage.heading || 'MyGala'} sharePageHref={pagePath(userPage.id, '/share')} />
       )}
 
       {userPage && (

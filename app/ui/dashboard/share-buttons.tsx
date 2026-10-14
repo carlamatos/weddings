@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { EnvelopeIcon, ChatBubbleLeftIcon, LinkIcon, CheckIcon, ArrowUpOnSquareIcon } from '@heroicons/react/24/outline';
 
-type Network = {
+export type Network = {
   name: string;
   color: string;
   href: (p: { url: string; title: string; text: string; shareImage: string; hashtag?: string }) => string;
@@ -14,7 +14,7 @@ const enc = encodeURIComponent;
 // Each network's public "share a link" intent URL. Networks read the preview
 // (banner image, title, description) from the page's Open Graph tags;
 // Pinterest is the exception and takes the image explicitly.
-const NETWORKS: Network[] = [
+export const NETWORKS: Network[] = [
   { name: 'Facebook', color: '#1877F2', href: ({ url, hashtag }) => `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}${hashtag ? `&hashtag=${enc(`#${hashtag}`)}` : ''}` },
   { name: 'X', color: '#000000', href: ({ url, title, hashtag }) => `https://x.com/intent/post?url=${enc(url)}&text=${enc(title)}${hashtag ? `&hashtags=${enc(hashtag)}` : ''}` },
   { name: 'WhatsApp', color: '#25D366', href: ({ text }) => `https://wa.me/?text=${enc(text)}` },
