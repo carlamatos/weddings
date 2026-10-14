@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { appHref } from '@/app/lib/app-url';
 
-// MyGala top bar (logo, login/dashboard). Live event pages show it without
-// the "Back to themes" link — guests land on a real event page, not the
-// showcase; theme previews (/themes/<slug>) pass backToThemes.
+// MyGala top bar (logo, login/dashboard, "Back to themes"), shown only on
+// theme demos (/themes/<slug>). Live event pages and the owner's preview
+// have no MyGala bar — the page belongs to the event.
 export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boolean; backToThemes?: boolean }) {
   return (
     <div
