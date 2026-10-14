@@ -667,7 +667,7 @@ export const FEATURES: Feature[] = [
     summary: 'Only guests with the password can open your page.',
     highlights: [
       { title: 'One password for everyone', text: 'Set a password, share it with your link, and guests enter it once on each device.' },
-      { title: 'Hidden from search', text: 'A locked page is kept out of search engines, and link previews show only “Private event”.' },
+      { title: 'Hidden from search', text: 'A locked page is kept out of search engines, and link previews show only a general “You’re invited — private event” card.' },
       { title: 'Change it anytime', text: 'A new password asks everyone to enter it again. Turn protection off whenever you like.' },
     ],
     blocks: [
@@ -682,7 +682,7 @@ export const FEATURES: Feature[] = [
         heading: 'Private by design',
         bullets: [
           'Locked pages are marked “no index”, so search engines don’t list them.',
-          'Link previews on social apps show “Private event” instead of your details and photo.',
+          'Link previews on social apps show a general “You’re invited — private event” card instead of your details and photo.',
           'Changing the password signs every guest out, so old passwords stop working right away.',
           'You always see your own page when you’re signed in.',
         ],
