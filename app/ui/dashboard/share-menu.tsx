@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
   ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon,
@@ -13,14 +13,14 @@ const enc = encodeURIComponent;
 // (Pinterest, Reddit, Threads…) are on the full Share page.
 const QUICK = ['WhatsApp', 'Facebook', 'Messenger', 'X', 'LinkedIn', 'Telegram'];
 
-// "Share" in the dashboard's top bar: copy the page link or send it to a
-// messaging app or social network in one click.
-export default function ShareMenu({ url, title, sharePageHref }: { url: string; title: string; sharePageHref: string }) {
-  const [open, setOpen] = useState(false);
+export type ShareTarget = { url: string; title: string; heading: string; sharePageHref: string };
+
+// The share options themselves: the link with Copy, then the apps.
+// `onDone` closes whatever holds the panel.
+export function SharePanel({ url, title, heading, sharePageHref, onDone }: ShareTarget & { onDone: () => void }) {
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Read after mount so the server render and first client render match.
@@ -28,20 +28,6 @@ export default function ShareMenu({ url, title, sharePageHref }: { url: string; 
     setCanNativeShare(typeof navigator.share === 'function');
     setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
   }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
-    document.addEventListener('mousedown', onClick);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onClick);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open]);
 
   async function copy() {
     try {
@@ -70,52 +56,95 @@ export default function ShareMenu({ url, title, sharePageHref }: { url: string; 
     .filter(Boolean);
 
   return (
+    <>
+      <p className="dash-share-title">{heading}</p>
+      <div className="dash-share-link">
+        <input readOnly value={url} aria-label="Link to share" onFocus={(e) => e.currentTarget.select()} />
+        <button type="button" onClick={copy} className={copied ? 'is-copied' : undefined}>
+          {copied ? <CheckIcon /> : <LinkIcon />}
+          {copied ? 'Copied!' : 'Copy link'}
+        </button>
+      </div>
+
+      <div className="dash-share-grid">
+        {networks.map((n) => (
+          <a key={n.name} href={n.href(params)} target="_blank" rel="noopener noreferrer" className="dash-share-option" onClick={onDone}>
+            <span className="dash-share-dot" style={{ background: n.color }} aria-hidden="true" />
+            {n.name}
+          </a>
+        ))}
+        <a href={`mailto:?subject=${enc(title)}&body=${enc(url)}`} className="dash-share-option" onClick={onDone}>
+          <EnvelopeIcon />
+          Email
+        </a>
+        <a href={`sms:?&body=${enc(text)}`} className="dash-share-option" onClick={onDone}>
+          <ChatBubbleLeftIcon />
+          Text message
+        </a>
+        {canNativeShare && (
+          <button type="button" onClick={nativeShare} className="dash-share-option">
+            <ArrowUpOnSquareIcon />
+            More apps…
+          </button>
+        )}
+      </div>
+
+      <Link href={sharePageHref} className="dash-share-more" onClick={onDone}>
+        More sharing options &amp; link preview
+        <ChevronRightIcon />
+      </Link>
+    </>
+  );
+}
+
+// Closes on a click outside `ref` or Escape, while `open`.
+function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLElement | null>) {
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) close();
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('mousedown', onClick);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onClick);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open, close, ref]);
+}
+
+// A button in the dashboard's top bar ("Share", "Share RSVP") that opens the
+// share options beneath it.
+export default function ShareMenu({ label, ...target }: ShareTarget & { label: string }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useDismiss(open, close, ref);
+
+  return (
     <div className="dash-share" ref={ref}>
       <button type="button" className="dash-share-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
         <ShareIcon />
-        Share
+        {label}
       </button>
-
       {open && (
-        <div className="dash-share-panel" role="dialog" aria-label="Share your page">
-          <p className="dash-share-title">Share your page</p>
-          <div className="dash-share-link">
-            <input readOnly value={url} aria-label="Your page link" onFocus={(e) => e.currentTarget.select()} />
-            <button type="button" onClick={copy} className={copied ? 'is-copied' : undefined}>
-              {copied ? <CheckIcon /> : <LinkIcon />}
-              {copied ? 'Copied!' : 'Copy link'}
-            </button>
-          </div>
-
-          <div className="dash-share-grid">
-            {networks.map((n) => (
-              <a key={n.name} href={n.href(params)} target="_blank" rel="noopener noreferrer" className="dash-share-option" onClick={() => setOpen(false)}>
-                <span className="dash-share-dot" style={{ background: n.color }} aria-hidden="true" />
-                {n.name}
-              </a>
-            ))}
-            <a href={`mailto:?subject=${enc(title)}&body=${enc(url)}`} className="dash-share-option" onClick={() => setOpen(false)}>
-              <EnvelopeIcon />
-              Email
-            </a>
-            <a href={`sms:?&body=${enc(text)}`} className="dash-share-option" onClick={() => setOpen(false)}>
-              <ChatBubbleLeftIcon />
-              Text message
-            </a>
-            {canNativeShare && (
-              <button type="button" onClick={nativeShare} className="dash-share-option">
-                <ArrowUpOnSquareIcon />
-                More apps…
-              </button>
-            )}
-          </div>
-
-          <Link href={sharePageHref} className="dash-share-more" onClick={() => setOpen(false)}>
-            More sharing options &amp; link preview
-            <ChevronRightIcon />
-          </Link>
+        <div className="dash-share-panel" role="dialog" aria-label={target.heading}>
+          <SharePanel {...target} onDone={close} />
         </div>
       )}
+    </div>
+  );
+}
+
+// The same options opened from elsewhere (the profile menu on phones), as a
+// panel under the top bar.
+export function ShareSheet({ onClose, ...target }: ShareTarget & { onClose: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useDismiss(true, onClose, ref);
+  return (
+    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label={target.heading} ref={ref}>
+      <SharePanel {...target} onDone={onClose} />
     </div>
   );
 }

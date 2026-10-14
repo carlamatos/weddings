@@ -15,6 +15,7 @@ import {
 } from '@/app/lib/invitation';
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
+import { FontPicker } from '@/app/ui/dashboard/font-picker';
 
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
@@ -125,11 +126,6 @@ export function InvitationDesigner({
     frame.srcdoc = doc;
   }
 
-  const fontSelect = (id: string, value: InvitationFont, onChange: (f: InvitationFont) => void) => (
-    <select id={id} value={value} onChange={(e) => onChange(e.target.value as InvitationFont)} style={input}>
-      {ALL_FONTS.map((f) => <option key={f} value={f}>{INVITATION_FONTS[f].label}</option>)}
-    </select>
-  );
 
   return (
     <div className="invitation-designer" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 420px)', gap: 24, alignItems: 'start' }}>
@@ -168,10 +164,10 @@ export function InvitationDesigner({
 
         <section style={panel}>
           <h3 style={h3}>Fonts &amp; colours</h3>
-          <label style={label} htmlFor="inv-heading-font">Event name font</label>
-          {fontSelect('inv-heading-font', design.headingFont, (f) => set('headingFont', f))}
-          <label style={label} htmlFor="inv-body-font">Text font</label>
-          {fontSelect('inv-body-font', design.bodyFont, (f) => set('bodyFont', f))}
+          <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">Event name font</label>
+          <FontPicker id="inv-heading-font" labelledBy="inv-heading-font-label" value={design.headingFont} onChange={(f) => set('headingFont', f)} />
+          <label style={label} id="inv-body-font-label" htmlFor="inv-body-font">Text font</label>
+          <FontPicker id="inv-body-font" labelledBy="inv-body-font-label" value={design.bodyFont} onChange={(f) => set('bodyFont', f)} />
           <ColorField id="inv-text" text="Text colour" value={design.textColor} onChange={(v) => set('textColor', v)} />
           <ColorField id="inv-accent" text="Event name & accent colour" value={design.accentColor} onChange={(v) => set('accentColor', v)} />
         </section>

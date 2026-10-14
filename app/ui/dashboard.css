@@ -174,6 +174,7 @@ body:has(.dash-shell) {
 .dash-preview-link svg { width: 14px; height: 14px; }
 
 /* ---------- share menu (top bar) ---------- */
+.dash-topnav-actions { display: contents; }
 .dash-share { position: relative; }
 .dash-share-btn {
   display: flex;
@@ -275,6 +276,9 @@ body:has(.dash-shell) {
   .dash-share { position: static; }
   .dash-share-panel { position: fixed; top: 64px; left: 16px; right: 16px; width: auto; }
 }
+/* Opened from the profile menu (phones). */
+.dash-share-panel--sheet { position: fixed; top: 64px; left: 16px; right: 16px; width: auto; max-width: 420px; margin-left: auto; }
+
 
 .dash-user {
   display: flex;
@@ -299,11 +303,13 @@ body:has(.dash-shell) {
   top: calc(100% + 8px);
   right: 0;
   min-width: 180px;
+  max-height: calc(100vh - 72px);
+  max-height: calc(100dvh - 72px);
+  overflow-y: auto;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-  overflow: hidden;
   z-index: 100;
 }
 .dash-user-menu-item {
@@ -323,6 +329,26 @@ body:has(.dash-shell) {
 .dash-user-menu-item--danger { color: #8B3A2A; }
 .dash-user-menu-item--danger:hover { background: #FDF0EE; }
 .dash-user-menu-item + .dash-user-menu-item { border-top: 1px solid var(--line); }
+a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
+.dash-user-menu-item--upgrade { color: #B6584A; font-weight: 600; }
+/* Phones and tablets: the top bar's buttons, at the top of this menu. */
+.dash-user-menu-phone { display: none; border-bottom: 1px solid var(--line); }
+.dash-user-menu-picker { padding: 10px 16px 12px; border-top: 1px solid var(--line); }
+.dash-user-menu-picker .mobile-menu-theme-label { margin-bottom: 6px; }
+.dash-user-menu-picker .dash-theme-switcher { display: block; width: 100%; }
+.dash-user-menu-picker .dash-theme-btn { width: 100%; justify-content: space-between; }
+.dash-user-menu-picker .dash-theme-btn > span { flex: 1; text-align: left; }
+.dash-user-menu-picker .dash-theme-dropdown {
+  /* A single scrolling column inside the menu. */
+  position: static;
+  margin-top: 8px;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 1fr;
+  max-height: 40vh;
+  max-height: 40dvh;
+  box-shadow: none;
+}
 
 /* ── Profile modal ────────────────────────────── */
 .profile-modal-backdrop {
@@ -827,10 +853,25 @@ body:has(.dash-shell) {
 @media (max-width: 768px) {
   .dash-sidebar { display: none; }
   .mobile-burger { display: flex; }
+  /* The menu button stays at the left edge: if the bar's buttons don't fit,
+     they overflow to the right instead of pushing it off screen. */
+  .dash-topnav { justify-content: flex-start; gap: 10px; padding: 0 12px; }
+  .dash-user--btn { min-width: 0; }
+  .dash-user--btn span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
   .dash-theme-switcher { display: none; }
   .dash-preview-full-text { display: none; }
   .dash-content { padding: 20px 16px; }
   .dash-2col { grid-template-columns: 1fr; }
+}
+
+/* Phones and tablets: only the menu button (phones) and the profile stay
+   in the top bar. Upgrade, Theme, Language, Share RSVP, Share and Preview
+   move into the profile menu. */
+@media (max-width: 1024px) {
+  .dash-topnav-actions { display: none; }
+  .dash-user-menu-phone { display: block; }
+  .dash-user-menu:has(.dash-user-menu-phone) { width: min(280px, calc(100vw - 24px)); }
 }
 
 /* ── in-place theme editing ─────────────────────────────── */
@@ -1054,3 +1095,56 @@ body:has(.dash-shell) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ── Invitation designer: font picker (each name in its own font) ── */
+.font-picker { position: relative; }
+.font-picker-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid #EDE8E3;
+  border-radius: 8px;
+  background: #fff;
+  color: #241F2B;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.font-picker-btn:hover, .font-picker-btn[aria-expanded="true"] { border-color: #DDD5CE; }
+.font-picker-btn:focus-visible { outline: 2px solid #B6584A; outline-offset: 1px; }
+.font-picker-name { font-size: 20px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.font-picker-hint { font-size: 12px; color: #8A838F; white-space: nowrap; font-family: system-ui, sans-serif; }
+.font-picker-chevron { width: 14px; height: 14px; margin-left: auto; flex-shrink: 0; color: #6B6470; transition: transform 0.15s; }
+.font-picker-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  max-height: 320px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: #fff;
+  border: 1px solid #EDE8E3;
+  border-radius: 10px;
+  box-shadow: 0 12px 28px -8px rgba(36,31,43,0.2);
+}
+.font-picker-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #241F2B;
+}
+.font-picker-option.is-active { background: #F7F4F1; }
+.font-picker-option.is-selected .font-picker-name { color: #B6584A; }
+.font-picker-check { width: 15px; height: 15px; margin-left: auto; flex-shrink: 0; color: #B6584A; }

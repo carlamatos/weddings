@@ -5,6 +5,24 @@ import { signOut } from 'next-auth/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
+import { ShareSheet, type ShareTarget } from './share-menu';
+import { startPlusCheckout } from './upgrade-button';
+import ThemeSwitcher from './theme-switcher';
+import LanguageSwitcher from './language-switcher';
+import type { EventTheme } from '@/app/lib/definitions';
+
+// On phones and tablets: the top bar's buttons, listed at the top of this
+// menu instead (see .dash-topnav-actions in dashboard.css).
+export type PhoneActions = {
+  pageId: number;
+  themes: EventTheme[];
+  currentThemeId: string | null;
+  language: string;
+  upgrade?: boolean; // free pages only
+  previewHref?: string;
+  share?: ShareTarget;
+  shareRsvp?: ShareTarget;
+};
 
 interface Profile {
   given_name: string;
@@ -348,6 +366,7 @@ export default function UserMenu({
   pageId,
   pageStatus,
   page,
+  phoneActions,
 }: {
   name: string;
   // Deactivate/reactivate applies to the page currently open in the
@@ -356,6 +375,7 @@ export default function UserMenu({
   pageStatus?: string;
   // The open page, for "Delete this page…".
   page?: DeletablePage;
+  phoneActions?: PhoneActions;
 }) {
   const [open, setOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -363,6 +383,8 @@ export default function UserMenu({
   const [displayName, setDisplayName] = useState(name);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
+  const [sharing, setSharing] = useState<ShareTarget | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -407,6 +429,44 @@ export default function UserMenu({
 
         {open && (
           <div className="dash-user-menu">
+            {phoneActions && (
+              <div className="dash-user-menu-phone">
+                {phoneActions.upgrade && (
+                  <button
+                    onClick={async () => { setUpgrading(true); if (!(await startPlusCheckout(phoneActions.pageId))) setUpgrading(false); }}
+                    disabled={upgrading}
+                    className="dash-user-menu-item dash-user-menu-item--upgrade"
+                  >
+                    {upgrading ? 'Redirecting…' : '⭐ Upgrade to Plus'}
+                  </button>
+                )}
+                {phoneActions.shareRsvp && (
+                  <button onClick={() => { setOpen(false); setSharing(phoneActions.shareRsvp!); }} className="dash-user-menu-item">
+                    Share RSVP
+                  </button>
+                )}
+                {phoneActions.share && (
+                  <button onClick={() => { setOpen(false); setSharing(phoneActions.share!); }} className="dash-user-menu-item">
+                    Share
+                  </button>
+                )}
+                {phoneActions.previewHref && (
+                  <a href={phoneActions.previewHref} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="dash-user-menu-item">
+                    Preview page
+                  </a>
+                )}
+                {phoneActions.themes.length > 0 && (
+                  <div className="dash-user-menu-picker">
+                    <p className="mobile-menu-theme-label">Theme</p>
+                    <ThemeSwitcher pageId={phoneActions.pageId} currentThemeId={phoneActions.currentThemeId} themes={phoneActions.themes} />
+                  </div>
+                )}
+                <div className="dash-user-menu-picker">
+                  <p className="mobile-menu-theme-label">Language</p>
+                  <LanguageSwitcher pageId={phoneActions.pageId} currentLanguage={phoneActions.language} />
+                </div>
+              </div>
+            )}
             <button
               onClick={() => { setOpen(false); setShowProfile(true); }}
               className="dash-user-menu-item"
@@ -464,6 +524,8 @@ export default function UserMenu({
       {showSecurity && <SecurityModal onClose={() => setShowSecurity(false)} />}
 
       {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
+
+      {sharing && <ShareSheet {...sharing} onClose={() => setSharing(null)} />}
     </>
   );
 }
