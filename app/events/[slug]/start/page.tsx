@@ -1,0 +1,341 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
+import type { ComponentType, SVGProps } from 'react';
+import {
+  BellAlertIcon, CakeIcon, CalendarDaysIcon, CheckIcon, ClipboardDocumentCheckIcon, ClockIcon, GiftIcon,
+  GlobeAltIcon, HeartIcon, LanguageIcon, LinkIcon, LockClosedIcon, MapPinIcon, MusicalNoteIcon,
+  PaperAirplaneIcon, PhotoIcon, QrCodeIcon, Squares2X2Icon, SwatchIcon, UserGroupIcon, VideoCameraIcon,
+} from '@heroicons/react/24/outline';
+import { greatVibes } from '@/app/ui/fonts';
+import { appHref } from '@/app/lib/app-url';
+import { getEventType } from '@/app/lib/marketing/events';
+import { LANDING_PAGES, getLandingPage, type LandingIcon } from '@/app/lib/marketing/landing';
+import { marketingMetadata } from '@/app/lib/marketing/seo';
+import { THEME_CARDS, themeCardsFor } from '@/app/lib/marketing/theme-cards';
+import { PLAN_PRICE_PLUS_TAX } from '@/app/lib/plans';
+import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
+import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
+import { previewImage } from '@/app/ui/themes/preview-image';
+import SiteFooter from '@/app/ui/marketing/site-footer';
+import '@/app/ui/marketing.css';
+import '@/app/ui/marketing/landing.css';
+
+// Google Ads landing pages: /events/weddings/start and
+// /events/celebrations/start. Built to load fast on a phone: fully static
+// (no session lookup), no client components — every movement on the page
+// is CSS — and only the banner's photos load up front.
+
+// Theme previews render at 280px tall; the card slot is 220px.
+const PREVIEW_SCALE = 220 / 280;
+
+const ICONS: Record<LandingIcon, ComponentType<SVGProps<SVGSVGElement>>> = {
+  rsvp: ClipboardDocumentCheckIcon, guests: UserGroupIcon, countdown: ClockIcon, map: MapPinIcon,
+  program: CalendarDaysIcon, palette: SwatchIcon, globe: LanguageIcon, link: LinkIcon, photo: PhotoIcon,
+  mail: PaperAirplaneIcon, camera: QrCodeIcon, video: VideoCameraIcon, music: MusicalNoteIcon,
+  bell: BellAlertIcon, gift: GiftIcon, sections: Squares2X2Icon, lock: LockClosedIcon, domain: GlobeAltIcon,
+  potluck: CakeIcon, heart: HeartIcon,
+};
+
+const themePhoto = (slug: string): string | undefined => HERO_DEFAULTS[slug as keyof typeof HERO_DEFAULTS];
+const themeName = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.name ?? slug;
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return LANDING_PAGES.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const page = getLandingPage((await params).slug);
+  if (!page) return {};
+  // For ad traffic only: kept out of search so it doesn't compete with the
+  // event type page (/events/<slug>).
+  return { ...marketingMetadata(page.seo, `/events/${page.slug}/start`), robots: { index: false, follow: true } };
+}
+
+export default async function LandingPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const page = getLandingPage(slug);
+  const type = getEventType(slug);
+  if (!page || !type) notFound();
+
+  const register = appHref('/register');
+  const cta = (where: string) => `lp-${page.slug}-${where}`;
+  const templates = themeCardsFor(type.category);
+  const free = page.features.items.filter((f) => !f.plus);
+  const plus = page.features.items.filter((f) => f.plus);
+
+  // Banner background: 6 drifting columns of theme photos (3 on phones).
+  const COLUMNS = 6;
+  const wall = Array.from({ length: COLUMNS }, (_, c) => page.wall.filter((_, i) => i % COLUMNS === c));
+
+  const s = page.steps;
+  const stepPhoto = themePhoto(s.theme);
+
+  return (
+    <div className={`marketing-page lp ${greatVibes.variable}`}>
+      {/* TOP BAR: just the brand and sign-up, nothing to wander off to. */}
+      <header className="lp-topbar">
+        <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
+        <div className="lp-topbar-actions">
+          <a href={appHref('/login')} className="lp-topbar-login">Log in</a>
+          <a href={register} className="topbar-signup" data-cta={cta('topbar')}>Sign up free</a>
+        </div>
+      </header>
+
+      <main>
+        {/* HERO */}
+        <section className="hero lp-hero">
+          <div className="hero-wall" aria-hidden="true">
+            {wall.map((tiles, c) => (
+              <div className="hero-wall-col" key={c}>
+                {/* Twice over, so the drift loops without a jump. */}
+                {[...tiles, ...tiles].map((t, i) => (
+                  <div className="hero-wall-tile" key={`${t}-${i}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img {...previewImage(themePhoto(t) ?? '', '(max-width: 760px) 34vw, 260px', { priority: c < 3 && i < 2, eager: c < 3 })} alt="" />
+                    <span>{themeName(t)}</span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="hero-wash" />
+          <p className="hero-eyebrow hero-badge"><span className="hero-badge-free">Free</span><span>{page.hero.badge}</span></p>
+          <p className="hero-tagline">{page.hero.tagline}</p>
+          <h1 className="hero-headline">{page.hero.headline}</h1>
+          <p className="hero-sub">{page.hero.sub}</p>
+          <div className="hero-actions">
+            <a href={register} className="btn-primary lp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
+            <a href={`/themes/${page.demo}`} className="btn-secondary btn-demo" data-cta={cta('hero-demo')}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" />
+              </svg>
+              See a live demo
+            </a>
+          </div>
+          <ul className="lp-hero-checks">
+            <li><CheckIcon aria-hidden="true" />Free to sign up</li>
+            <li><CheckIcon aria-hidden="true" />No credit card</li>
+            <li><CheckIcon aria-hidden="true" />Ready in minutes</li>
+          </ul>
+        </section>
+
+        {/* MOVING STRIP OF FEATURES */}
+        <div className="lp-ticker" aria-label="Included features">
+          <div className="lp-ticker-track">
+            {[0, 1].map((copy) => (
+              <ul key={copy} aria-hidden={copy === 1 || undefined}>
+                {page.ticker.map((t) => <li key={t}><HeartIcon aria-hidden="true" />{t}</li>)}
+              </ul>
+            ))}
+          </div>
+        </div>
+
+        {/* TEMPLATES */}
+        <section className="lp-section lp-templates" id="templates">
+          <div className="wrap">
+            <p className="eyebrow lp-center">Templates</p>
+            <h2 className="section-title lp-center">{page.templates.title}</h2>
+            <p className="section-sub lp-center lp-sub">{page.templates.sub}</p>
+          </div>
+          <div className="lp-template-row" role="list">
+            {templates.map((t) => (
+              <div className="lp-template" role="listitem" key={t.slug}>
+                <a href={`/themes/${t.slug}`} className="theme-card" data-cta={cta(`template-${t.slug}`)}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: t.bg }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / PREVIEW_SCALE}%`, transform: `scale(${PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug={t.slug} {...t.sample} />
+                    </div>
+                    <span className="lp-template-demo">Live demo →</span>
+                  </div>
+                  <div className="theme-info">
+                    <h3 className="theme-name">{t.name}</h3>
+                    <p className="theme-desc">{t.desc}</p>
+                  </div>
+                </a>
+              </div>
+            ))}
+          </div>
+          <p className="lp-swipe-hint" aria-hidden="true">Swipe to see more →</p>
+          <div className="lp-center">
+            <a href={register} className="btn-primary" data-cta={cta('templates')}>Start free with any template</a>
+          </div>
+        </section>
+
+        {/* HOW IT WORKS: an animated phone walks through the four steps. */}
+        <section className="lp-section lp-how">
+          <div className="wrap">
+            <p className="eyebrow lp-center">How it works</p>
+            <h2 className="section-title lp-center">Four easy steps to your page</h2>
+            <p className="section-sub lp-center lp-sub">No designer, no tech skills, just a few minutes of your time.</p>
+            <div className="lp-how-grid">
+              <div className="lp-phone" aria-hidden="true">
+                <div className="lp-phone-notch" />
+                <div className="lp-phone-screen">
+                  {/* 1. Sign up */}
+                  <div className="lp-scr lp-scr-1">
+                    <p className="lp-scr-brand">My<span>Gala</span></p>
+                    <p className="lp-scr-title">Create your free account</p>
+                    <div className="lp-scr-btn lp-scr-google"><span className="lp-g">G</span>Continue with Google</div>
+                    <p className="lp-scr-or">or</p>
+                    <div className="lp-scr-field">you@email.com</div>
+                    <div className="lp-scr-btn lp-scr-primary lp-tap">Sign up free</div>
+                    <p className="lp-scr-small">✓ Free · No credit card</p>
+                  </div>
+                  {/* 2. Pick a template */}
+                  <div className="lp-scr lp-scr-2">
+                    <p className="lp-scr-title">Pick a template</p>
+                    <div className="lp-scr-themes">
+                      {s.pickFrom.map((t, i) => (
+                        <div className={`lp-scr-theme${i === 0 ? ' lp-picked' : ''}`} key={t}>
+                          {themePhoto(t) && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img {...previewImage(themePhoto(t)!, '120px')} alt="" />
+                          )}
+                          <span>{themeName(t)}</span>
+                          {i === 0 && <b className="lp-check">✓</b>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  {/* 3. Add the details */}
+                  <div className="lp-scr lp-scr-3">
+                    <p className="lp-scr-title">Add your details</p>
+                    <label>Event name</label>
+                    <div className="lp-scr-field"><span className="lp-type lp-type-1">{s.name}</span></div>
+                    <label>Date</label>
+                    <div className="lp-scr-field"><span className="lp-type lp-type-2">{s.date}</span></div>
+                    <label>Venue</label>
+                    <div className="lp-scr-field"><span className="lp-type lp-type-3">{s.place}</span></div>
+                    <div className="lp-scr-btn lp-scr-primary">Publish my page</div>
+                  </div>
+                  {/* 4. Share and watch the RSVPs */}
+                  <div className="lp-scr lp-scr-4">
+                    <div className="lp-scr-hero">
+                      {stepPhoto && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img {...previewImage(stepPhoto, '260px')} alt="" />
+                      )}
+                      <div>
+                        <p className="lp-scr-hero-name">{s.name}</p>
+                        <p className="lp-scr-hero-date">{s.date}</p>
+                      </div>
+                    </div>
+                    <div className="lp-scr-link"><LinkIcon aria-hidden="true" />mygala.ca/{s.link}</div>
+                    <p className="lp-scr-label">New RSVPs</p>
+                    {s.rsvps.map((r, i) => (
+                      <div className={`lp-scr-rsvp lp-rsvp-${i + 1}`} key={r.who}>
+                        <span className="lp-rsvp-dot">✓</span>
+                        <div><b>{r.who}</b><small>{r.reply}</small></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <ol className="lp-steps">
+                {[
+                  ['Sign up free', 'Create your account in seconds with your email or Google. No credit card.'],
+                  ['Pick a template', 'Choose the design you love. You can switch any time.'],
+                  ['Add your details', 'Names, date, venue and schedule. Your page fills in as you type.'],
+                  ['Share one link', 'Send it by text, email or WhatsApp and watch the RSVPs roll in.'],
+                ].map(([title, text], i) => (
+                  <li className={`lp-step lp-step-${i + 1}`} key={title}>
+                    <span className="lp-step-num">{i + 1}</span>
+                    <div>
+                      <h3>{title}</h3>
+                      <p>{text}</p>
+                    </div>
+                    <span className="lp-step-bar" aria-hidden="true" />
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <div className="lp-center lp-how-cta">
+              <a href={register} className="btn-primary lp-btn-big" data-cta={cta('steps')}>Start step 1 — it’s free</a>
+            </div>
+          </div>
+        </section>
+
+        {/* FEATURES */}
+        <section className="lp-section lp-features">
+          <div className="wrap">
+            <p className="eyebrow lp-center">Features</p>
+            <h2 className="section-title lp-center">{page.features.title}</h2>
+            <p className="section-sub lp-center lp-sub">{page.features.sub}</p>
+
+            <h3 className="lp-feature-group"><span className="lp-pill lp-pill-free">Free</span>Included when you sign up</h3>
+            <div className="lp-feature-grid">
+              {free.map((f) => {
+                const Icon = ICONS[f.icon];
+                return (
+                  <div className="lp-feature" key={f.title}>
+                    <span className="lp-feature-icon"><Icon aria-hidden="true" /></span>
+                    <div><h4>{f.title}</h4><p>{f.text}</p></div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <h3 className="lp-feature-group"><span className="lp-pill lp-pill-plus">Plus</span>Optional extras, one payment of {PLAN_PRICE_PLUS_TAX}</h3>
+            <div className="lp-feature-grid">
+              {plus.map((f) => {
+                const Icon = ICONS[f.icon];
+                return (
+                  <div className="lp-feature lp-feature-plus" key={f.title}>
+                    <span className="lp-feature-icon"><Icon aria-hidden="true" /></span>
+                    <div><h4>{f.title}</h4><p>{f.text}</p></div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="lp-center lp-features-cta">
+              <a href={register} className="btn-primary lp-btn-big" data-cta={cta('features')}>{page.cta}</a>
+            </div>
+          </div>
+        </section>
+
+        {/* OCCASIONS */}
+        <section className="lp-section lp-occasions">
+          <div className="wrap">
+            <h2 className="section-title lp-center">{page.occasions.title}</h2>
+            <ul className="lp-chips">{page.occasions.items.map((o) => <li key={o}>{o}</li>)}</ul>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="lp-section lp-faq">
+          <div className="wrap">
+            <h2 className="section-title lp-center">Questions? We’ve got answers.</h2>
+            <div className="lp-faq-list">
+              {type.faqs.map((f) => (
+                <details key={f.q}>
+                  <summary>{f.q}</summary>
+                  <p>{f.a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* FINAL CTA */}
+        <section className="final-cta lp-final">
+          <h2 className="section-title">{page.final.title}</h2>
+          <p className="hero-sub">{page.final.text}</p>
+          <a href={register} className="btn-primary lp-btn-big" data-cta={cta('footer')}>{page.cta}</a>
+          <p className="lp-final-note">Free to sign up · No credit card</p>
+        </section>
+      </main>
+
+      <SiteFooter />
+
+      {/* Phones: the sign-up button stays in reach while scrolling. */}
+      <div className="lp-sticky">
+        <a href={register} className="btn-primary" data-cta={cta('sticky')}>{page.cta}</a>
+        <span>Free · No credit card</span>
+      </div>
+    </div>
+  );
+}

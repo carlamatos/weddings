@@ -34,8 +34,6 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes }: Props)
 
   if (!themes.length) return null;
 
-  const others = themes.filter((t) => t.theme_id !== selected?.theme_id);
-
   return (
     <div className="dash-theme-switcher" ref={ref}>
       <button
@@ -48,25 +46,27 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes }: Props)
         <ChevronDownIcon style={{ width: 12, height: 12, transition: 'transform 0.15s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 
+      {/* Every theme in its usual order; the current one is ticked. Three
+          columns in the top bar, one scrolling column in the mobile menu
+          (dashboard.css). */}
       {open && (
-        <div className="dash-theme-dropdown">
-          {others.map((theme) => (
-            <button
-              key={theme.theme_id}
-              className="dash-theme-option"
-              onClick={() => handleSelect(theme)}
-              type="button"
-            >
-              {theme.name}
-            </button>
-          ))}
-          {/* Show current with a checkmark at the bottom */}
-          {selected && (
-            <button className="dash-theme-option dash-theme-option--active" disabled type="button">
-              <CheckIcon style={{ width: 13, height: 13 }} />
-              {selected.name}
-            </button>
-          )}
+        <div className="dash-theme-dropdown" role="listbox" aria-label="Themes">
+          {themes.map((theme) => {
+            const active = theme.theme_id === selected?.theme_id;
+            return (
+              <button
+                key={theme.theme_id}
+                className={`dash-theme-option${active ? ' dash-theme-option--active' : ''}`}
+                onClick={() => (active ? setOpen(false) : handleSelect(theme))}
+                type="button"
+                role="option"
+                aria-selected={active}
+              >
+                {active && <CheckIcon style={{ width: 13, height: 13, flexShrink: 0 }} />}
+                {theme.name}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
