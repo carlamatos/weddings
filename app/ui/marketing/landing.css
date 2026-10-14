@@ -235,6 +235,8 @@
   .marketing-page .lp-topbar .wordmark { font-size: 28px; }
   .marketing-page .lp-topbar .topbar-signup { padding: 8px 14px; }
   .marketing-page .lp-hero { padding-bottom: 64px; }
+  /* The sticky bar below carries the same button. */
+  .marketing-page .lp-hero .hero-actions .btn-primary { display: none; }
   .marketing-page .lp-hero-checks { font-size: 14px; gap: 6px 14px; }
   .marketing-page .lp-feature-grid { grid-template-columns: 1fr; gap: 12px; }
   .marketing-page .lp-feature { padding: 16px; }
