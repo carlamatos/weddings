@@ -13,7 +13,7 @@ import { getEventType } from '@/app/lib/marketing/events';
 import { LANDING_PAGES, getLandingPage, type LandingIcon } from '@/app/lib/marketing/landing';
 import { marketingMetadata } from '@/app/lib/marketing/seo';
 import { THEME_CARDS, themeCardsFor } from '@/app/lib/marketing/theme-cards';
-import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_PRICE_PLUS_TAX } from '@/app/lib/plans';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
 import { previewImage } from '@/app/ui/themes/preview-image';
@@ -293,48 +293,6 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
             </div>
             <div className="lp-center lp-features-cta">
               <a href={register} className="btn-primary lp-btn-big" data-cta={cta('features')}>{page.cta}</a>
-            </div>
-          </div>
-        </section>
-
-        {/* WHY HOSTS LIKE IT */}
-        <section className="lp-section lp-why">
-          <div className="wrap lp-why-grid">
-            <div>
-              <p className="lp-why-num">0 apps</p>
-              <p className="lp-why-text">Guests just open your link. No app, no account, no passwords to remember.</p>
-            </div>
-            <div>
-              <p className="lp-why-num">1 link</p>
-              <p className="lp-why-text">Every detail in one place, so you answer fewer “what time is it again?” texts.</p>
-            </div>
-            <div>
-              <p className="lp-why-num">$0</p>
-              <p className="lp-why-text">Free to sign up and free to share. Upgrade only if you want the extras.</p>
-            </div>
-          </div>
-        </section>
-
-        {/* FREE vs PLUS */}
-        <section className="lp-section lp-pricing">
-          <div className="wrap">
-            <p className="eyebrow lp-center">Pricing</p>
-            <h2 className="section-title lp-center">Start free. Stay free if you like.</h2>
-            <div className="lp-price-grid">
-              <div className="lp-price lp-price-free">
-                <span className="lp-price-tag">Start here</span>
-                <p className="lp-price-tier">Free</p>
-                <p className="lp-price-amount">$0</p>
-                <p className="lp-price-note">Free to sign up. No credit card, no trial that runs out.</p>
-                <ul>{PLAN_FEATURES.free.map((f) => <li key={f}><CheckIcon aria-hidden="true" />{f}</li>)}</ul>
-                <a href={register} className="btn-primary" data-cta={cta('pricing-free')}>Sign up free</a>
-              </div>
-              <div className="lp-price">
-                <p className="lp-price-tier">Plus</p>
-                <p className="lp-price-amount">{PLAN_PRICE_PLUS_TAX.replace(' + tax', '')}<small> + tax, one-time</small></p>
-                <p className="lp-price-note">Per event, for {PLAN_TERM_MONTHS} months. Never a subscription. Upgrade from your dashboard whenever you’re ready.</p>
-                <ul>{PLAN_FEATURES.plus.map((f) => <li key={f}><CheckIcon aria-hidden="true" />{f}</li>)}</ul>
-              </div>
             </div>
           </div>
         </section>
