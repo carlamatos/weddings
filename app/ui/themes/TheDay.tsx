@@ -439,7 +439,7 @@ export default function TheDay({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">

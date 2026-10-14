@@ -387,7 +387,7 @@ export default function Community({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">

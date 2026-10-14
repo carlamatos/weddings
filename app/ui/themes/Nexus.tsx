@@ -428,7 +428,7 @@ export default function Nexus({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">

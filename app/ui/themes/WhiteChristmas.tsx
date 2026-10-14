@@ -487,7 +487,7 @@ export default function WhiteChristmas({
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Lato:wght@400;700&display=swap" />
       <style>{css}</style>
-      {!isPreview && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes={demo} />}
+      {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
       {/* HERO */}
       <div className="hero">
