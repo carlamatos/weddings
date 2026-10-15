@@ -360,24 +360,7 @@ export async function POST(request: Request) {
     )
   `;
 
-  let rsvpsMigrated = 0;
   let inviteesMigrated = 0;
-
-  // Migrate from event_rsvp
-  try {
-    const rsvps = await sql`SELECT * FROM event_rsvp`;
-    for (const r of rsvps.rows) {
-      const exists = await sql`SELECT id FROM event_guests WHERE id = ${r.id} LIMIT 1`;
-      if (exists.rows[0]) continue;
-      await sql`
-        INSERT INTO event_guests (id, user_page_id, name, email, phone, status, guests, message, receive_updates, created_at, responded_at)
-        VALUES (${r.id}, ${r.user_page_id}, ${r.name}, ${r.email}, ${r.phone}, ${r.status}, ${r.guests}, ${r.message}, ${r.receive_updates}, ${r.created_at}, ${r.created_at})
-      `;
-      rsvpsMigrated++;
-    }
-  } catch {
-    // event_rsvp table may not exist on fresh deployments
-  }
 
   // Migrate from event_invitees
   try {
@@ -400,5 +383,5 @@ export async function POST(request: Request) {
     // event_invitees table may not exist on fresh deployments
   }
 
-  return NextResponse.json({ success: true, rsvpsMigrated, inviteesMigrated });
+  return NextResponse.json({ success: true, inviteesMigrated });
 }

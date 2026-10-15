@@ -22,7 +22,6 @@ export const PAGE_TRASH_TABLES = [
   'page_potluck',
   'page_gift_exchange',
   'page_gift_exclusions',
-  'event_rsvp',
   'event_reminder_deliveries',
 ];
 
