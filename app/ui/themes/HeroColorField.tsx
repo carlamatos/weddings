@@ -13,6 +13,7 @@ export default function HeroColorField({
   hint = 'Click the colour square to choose a new colour.',
   defaultLabel = 'Theme colour',
   allowDefault = true,
+  current,
 }: {
   id: string;
   label: string;
@@ -21,15 +22,19 @@ export default function HeroColorField({
   hint?: React.ReactNode;
   defaultLabel?: string;
   allowDefault?: boolean; // false when there's always a colour (the overlay)
+  current?: string; // the theme's colour as shown on the page, when known
 }) {
+  const shown = value || current;
+  const currentHex = current && /^#[0-9a-f]{6}$/i.test(current) ? current : undefined;
   return (
     <SheetField label={label} hint={hint} htmlFor={id}>
       <div className="theme-color-field">
-        <span className="theme-color-swatch" style={{ background: value || undefined }} data-empty={!value || undefined}>
-          <input id={id} type="color" value={value || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
+        <span className="theme-color-swatch" style={{ background: shown || undefined }} data-empty={!shown || undefined}>
+          {/* Opens on the colour shown, so small tweaks start from it. */}
+          <input id={id} type="color" value={value || currentHex || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
         </span>
         <span className="theme-color-value">
-          <strong>{value ? value.toUpperCase() : defaultLabel}</strong>
+          <strong>{value ? value.toUpperCase() : currentHex ? `${defaultLabel} · ${currentHex.toUpperCase()}` : defaultLabel}</strong>
           <span>{value ? 'Your colour' : 'The colour the theme was designed with'}</span>
         </span>
         {allowDefault && value && (

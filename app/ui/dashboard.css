@@ -899,38 +899,38 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   border-color: rgba(182, 88, 74, 0.35);
 }
 
-/* pencil badge — always visible, more prominent on hover */
+/* Edit button — sits in the page flow just under the element it edits, so
+   it has its own space and never covers the text or another Edit button.
+   It's a solid pill with a white ring, readable on any photo or colour, and
+   resets the type it would otherwise inherit from the theme. */
 .theme-edit-badge {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  z-index: 200;
-  display: flex;
+  position: relative;
+  z-index: 5;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 11px 5px 8px;
-  background: #241F2B;
+  gap: 6px;
+  margin: 8px 0 4px;
+  padding: 6px 14px 6px 11px;
+  background: #B6584A;
   color: #fff;
+  -webkit-text-fill-color: #fff;
   border: none;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  font-family: system-ui, sans-serif;
-  letter-spacing: 0.3px;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  box-shadow: 0 0 0 2px #fff, 0 3px 10px rgba(0, 0, 0, 0.28);
+  font: 600 13px/1.2 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  letter-spacing: 0.2px;
+  text-transform: none;
+  text-shadow: none;
   white-space: nowrap;
-  opacity: 0.45;
-  transform: scale(0.88);
-  transition: background 0.15s, opacity 0.15s, transform 0.15s, box-shadow 0.15s;
+  vertical-align: middle;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
 }
-.theme-editable:hover .theme-edit-badge {
-  opacity: 1;
-  transform: scale(1);
-  background: #B6584A;
-  box-shadow: 0 4px 14px rgba(182, 88, 74, 0.45);
-}
-.theme-edit-badge svg { width: 12px; height: 12px; flex-shrink: 0; }
+.theme-edit-badge:hover,
+.theme-editable:hover .theme-edit-badge { background: #9A4738; }
+.theme-edit-badge:active { transform: scale(0.97); }
+.theme-edit-badge:focus-visible { outline: 3px solid #241F2B; outline-offset: 2px; }
+.theme-edit-badge svg { width: 14px; height: 14px; flex-shrink: 0; }
 
 /* camera overlay on the banner image */
 .theme-banner-overlay {
@@ -941,17 +941,18 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   flex-direction: row;
   align-items: center;
   gap: 6px;
-  background: rgba(36,31,43,0.65);
+  background: #B6584A;
   border-radius: 999px;
-  padding: 8px 14px 8px 10px;
+  padding: 8px 16px 8px 12px;
+  box-shadow: 0 0 0 2px #fff, 0 3px 10px rgba(0, 0, 0, 0.28);
   cursor: pointer;
   transition: background 0.2s;
   z-index: 10;
 }
-.theme-banner-overlay:hover { background: rgba(36,31,43,0.88); }
+.theme-banner-overlay:hover { background: #9A4738; }
 .theme-banner-overlay svg { width: 16px; height: 16px; color: #fff; flex-shrink: 0; }
 .theme-banner-overlay span {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   font-family: system-ui, sans-serif;
   color: #fff;

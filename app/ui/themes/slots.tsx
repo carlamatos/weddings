@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useTransition, useId } from 'react';
+import { useState, useRef, useTransition, useId, useLayoutEffect } from 'react';
 import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, resetHeroColors, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
@@ -12,6 +12,7 @@ import { HeroOverlay, HERO_OVERLAY_DEFAULT_COLOR, isHeroOverlayColor, isHeroOver
 import { heroTextStyle, type HeroTextKey } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField, SheetSection, TextPreview } from './EditSheet';
+import { useThemeLook, type ThemeLook } from './theme-look';
 
 // ─── shared pencil icon ──────────────────────────────────
 function PencilIcon() {
@@ -56,6 +57,7 @@ function TextSheet({
   onClose,
   extra,
   selectAll = true,
+  look,
 }: {
   title: string;
   intro: string;
@@ -73,6 +75,7 @@ function TextSheet({
   onClose: () => void;
   extra?: React.ReactNode;
   selectAll?: boolean; // select the text on open, so typing replaces it
+  look?: ThemeLook; // how the text looks with the theme's colours
 }) {
   const id = useId();
   return (
@@ -110,9 +113,10 @@ function TextSheet({
             label="Text colour"
             value={color ?? ''}
             onChange={setColor}
+            current={look?.colorHex ?? look?.color}
             hint="Click the colour square to choose a colour for this text. Pick one that stands out from the photo or background behind it."
           />
-          <TextPreview text={draft} color={color ?? ''} large={previewLarge} />
+          <TextPreview text={draft} color={color ?? ''} look={look} large={previewLarge} />
         </>
       )}
       {extra}
@@ -120,9 +124,23 @@ function TextSheet({
   );
 }
 
-function EditBadge({ onClick, title, label = 'Edit' }: { onClick: () => void; title: string; label?: string }) {
+// The Edit button under an editable element. The element's bottom margin
+// (the theme's space before the next thing) moves below the button, so the
+// button sits right under what it edits instead of drifting toward the next
+// element.
+export function EditBadge({ onClick, title, label = 'Edit' }: { onClick: () => void; title: string; label?: string }) {
+  const ref = useRef<HTMLButtonElement>(null);
+  useLayoutEffect(() => {
+    const badge = ref.current;
+    const el = badge?.previousElementSibling as HTMLElement | null;
+    if (!badge || !el) return;
+    const margin = parseFloat(getComputedStyle(el).marginBottom);
+    if (!(margin > 0)) return;
+    el.style.marginBottom = '0px';
+    badge.style.marginBottom = `${margin}px`;
+  }, []);
   return (
-    <button className="theme-edit-badge" onClick={onClick} title={title}>
+    <button ref={ref} type="button" className="theme-edit-badge" onClick={onClick} title={title}>
       <PencilIcon /> {label}
     </button>
   );
@@ -146,9 +164,12 @@ export function EditableHeroEyebrow({
   const [draft, setDraft] = useState(value);
   const [color, setColor] = useState(initialColor);
   const [draftColor, setDraftColor] = useState(initialColor);
+  const [elRef, readLook] = useThemeLook<HTMLParagraphElement>();
+  const [look, setLook] = useState<ThemeLook>();
   const [, startTransition] = useTransition();
 
   const startEdit = () => {
+    setLook(readLook());
     setDraft(current);
     setDraftColor(color);
     setEditing(true);
@@ -167,11 +188,12 @@ export function EditableHeroEyebrow({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <p className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</p>
-      <EditBadge onClick={startEdit} title="Edit eyebrow text" />
+      <p ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</p>
+      <EditBadge onClick={startEdit} title="Edit the line above the names" label="Edit top line" />
       {editing && (
         <TextSheet
           title="Edit the line above the names"
+          look={look}
           intro="This short line sits at the top of your banner, above the names — for example “Together with their families” or “Save the date”."
           label="Text"
           hint="Press Enter for a new line."
@@ -218,9 +240,12 @@ export function EditableSectionText({
   const [draft, setDraft] = useState(value || fallback);
   const [color, setColor] = useState(initialColor);
   const [draftColor, setDraftColor] = useState(initialColor);
+  const [elRef, readLook] = useThemeLook<HTMLParagraphElement & HTMLHeadingElement>();
+  const [look, setLook] = useState<ThemeLook>();
   const [, startTransition] = useTransition();
 
   const startEdit = () => {
+    setLook(readLook());
     setDraft(current || fallback);
     setDraftColor(color);
     setEditing(true);
@@ -245,11 +270,12 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <Tag className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
-      <EditBadge onClick={startEdit} title="Edit text" />
+      <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
+      <EditBadge onClick={startEdit} title="Edit this heading" label={Tag === 'h2' ? 'Edit section title' : 'Edit heading'} />
       {editing && (
         <TextSheet
           title={isTitle ? 'Edit this section’s title' : 'Edit this section’s heading'}
+          look={look}
           intro={`You’re changing “${current || fallback}”. Leave it empty to go back to the theme’s wording.`}
           label={isTitle ? 'Title' : 'Heading'}
           hint="Keep it short — it’s shown as a heading on your page."
@@ -290,9 +316,12 @@ export function EditableHeroName({
   const [draft, setDraft] = useState(value);
   const [color, setColor] = useState(initialColor);
   const [draftColor, setDraftColor] = useState(initialColor);
+  const [elRef, readLook] = useThemeLook<HTMLHeadingElement>();
+  const [look, setLook] = useState<ThemeLook>();
   const [, startTransition] = useTransition();
 
   const startEdit = () => {
+    setLook(readLook());
     setDraft(current);
     setDraftColor(color);
     setEditing(true);
@@ -311,11 +340,12 @@ export function EditableHeroName({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
-      <h1 className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</h1>
-      <EditBadge onClick={startEdit} title="Edit name" />
+      <h1 ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</h1>
+      <EditBadge onClick={startEdit} title="Edit the main title" label="Edit title" />
       {editing && (
         <TextSheet
           title="Edit your event’s main title"
+          look={look}
           intro="This is the big title on your banner — usually the couple’s names or the name of the event."
           label="Title"
           hint="Press Enter to break it onto a new line, e.g. “Emma” on one line and “& Liam” on the next."
@@ -376,6 +406,8 @@ export function EditableHeroDate({
   const [currentText, setCurrentText] = useState(displayText);
   const [color, setColor] = useState(initialColor);
   const [dColor, setDColor] = useState(initialColor);
+  const [elRef, readLook] = useThemeLook<HTMLParagraphElement>();
+  const [look, setLook] = useState<ThemeLook>();
   const [, startTransition] = useTransition();
 
   const [dDate, setDDate] = useState(eventDate ?? '');
@@ -433,16 +465,16 @@ export function EditableHeroDate({
     );
   };
 
-  const openDialog = () => { setDColor(color); setOpen(true); };
+  const openDialog = () => { setLook(readLook()); setDColor(color); setOpen(true); };
 
   return (
     <span
       className="theme-editable"
       style={{ display: 'block', position: 'relative' }}
     >
-      <p className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
+      <p ref={elRef} className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
 
-      <EditBadge onClick={openDialog} title="Edit dates and location" label="Edit dates and location" />
+      <EditBadge onClick={openDialog} title="Edit the date and location" label="Edit date & location" />
 
       {open && (
         <EditSheet
@@ -496,9 +528,10 @@ export function EditableHeroDate({
               label="Text colour"
               value={dColor}
               onChange={setDColor}
+              current={look?.colorHex ?? look?.color}
               hint="Click the colour square to choose a colour for the date and place on your banner."
             />
-            <TextPreview text={previewText || currentText} color={dColor} />
+            <TextPreview text={previewText || currentText} color={dColor} look={look} />
           </SheetSection>
         </EditSheet>
       )}
@@ -539,7 +572,7 @@ export function EditableDescription({
   return (
     <span className="theme-editable" style={{ display: 'block' }}>
       <p className={className} style={style} onClick={startEdit}>{current}</p>
-      <EditBadge onClick={startEdit} title="Edit description" />
+      <EditBadge onClick={startEdit} title="Edit your story" label="Edit story" />
       {editing && (
         <TextSheet
           title="Edit your story"
@@ -987,23 +1020,9 @@ export function EditableContactInfo({
   return (
     // In the editor, clicking the details edits them (rather than opening
     // the mail or phone app).
-    <span style={{ position: 'relative', display: 'inline-block', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); setEditing(true); }}>
+    <span className="theme-editable" style={{ position: 'relative', display: 'inline-block' }} onClick={(e) => { e.preventDefault(); setEditing(true); }}>
       <ContactPreview email={emailVal} phone={phoneVal} linkStyle={linkStyle} />
-      <button
-        onClick={() => setEditing(true)}
-        title="Edit contact info"
-        style={{
-          position: 'absolute', top: 0, right: -28,
-          background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 4,
-          cursor: 'pointer', padding: 4, color: 'inherit', lineHeight: 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-        </svg>
-      </button>
+      <EditBadge onClick={() => setEditing(true)} title="Edit contact info" label="Edit contact info" />
     </span>
   );
 }

@@ -5,6 +5,8 @@ import { updateHeroButton } from '@/app/lib/actions';
 import { HERO_BUTTON_LABEL_MAX_LENGTH, heroButtonStyle, isHeroColor, type HeroButtonKey, type HeroButtonStyle } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField } from './EditSheet';
+import { EditBadge } from './slots';
+import { useThemeLook, type ThemeLook } from './theme-look';
 
 // Editor version of a top-banner button: an Edit badge opens the full-screen
 // editor for its label, button colour and text colour.
@@ -30,8 +32,11 @@ export default function EditableHeroButton({
   const [color, setColor] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [elRef, readLook] = useThemeLook<HTMLAnchorElement>();
+  const [look, setLook] = useState<ThemeLook>();
 
   const startEdit = () => {
+    setLook(readLook());
     setLabel(current.label ?? '');
     setBg(current.bg ?? '');
     setColor(current.color ?? '');
@@ -58,18 +63,24 @@ export default function EditableHeroButton({
   // While the dialog is open the button previews the unsaved choices.
   const shown: HeroButtonStyle = open ? { label: label.trim() || undefined, bg: bg || undefined, color: color || undefined } : current;
 
+  // The button in the preview: the theme's own look as read from the page,
+  // with the owner's colours on top.
+  const previewStyle: React.CSSProperties = {
+    ...look?.font,
+    ...look?.shape,
+    ...(look?.background ? { background: look.background } : {}),
+    ...(look?.borderColor ? { borderColor: look.borderColor } : {}),
+    ...(look?.color ? { color: look.color, WebkitTextFillColor: look.color } : {}),
+    ...heroButtonStyle(shown),
+  };
+
   return (
-    <span className="theme-editable" style={{ display: 'inline-flex', position: 'relative' }}>
-      <a href={href} className={className} style={heroButtonStyle(shown)} onClick={(e) => { e.preventDefault(); startEdit(); }}>
+    // A column, so the Edit button sits under the banner button, not beside it.
+    <span className="theme-editable" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+      <a ref={elRef} href={href} className={className} style={heroButtonStyle(shown)} onClick={(e) => { e.preventDefault(); startEdit(); }}>
         {shown.label || defaultLabel}
       </a>
-      <button className="theme-edit-badge" onClick={startEdit} title="Edit button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-        </svg>
-        Edit
-      </button>
+      <EditBadge onClick={startEdit} title="Edit this button" label="Edit button" />
 
       {open && (
         <EditSheet
@@ -92,15 +103,14 @@ export default function EditableHeroButton({
               autoFocus
             />
           </SheetField>
-          <HeroColorField id={`hb-${id}-bg`} label="Button colour" value={bg} onChange={setBg} hint="Click the colour square to choose the colour of the button itself." />
-          <HeroColorField id={`hb-${id}-color`} label="Text colour" value={color} onChange={setColor} hint="Click the colour square to choose the colour of the words on the button. Pick one that stands out from the button colour." />
+          <HeroColorField id={`hb-${id}-bg`} label="Button colour" value={bg} onChange={setBg} current={look?.backgroundHex ?? look?.background} hint="Click the colour square to choose the colour of the button itself." />
+          <HeroColorField id={`hb-${id}-color`} label="Text colour" value={color} onChange={setColor} current={look?.colorHex ?? look?.color} hint="Click the colour square to choose the colour of the words on the button. Pick one that stands out from the button colour." />
           <div className="theme-sheet-field">
             <p className="theme-sheet-label">Preview</p>
             <div className="theme-sheet-preview theme-sheet-preview--button">
-              <span className="theme-sheet-preview-light"><span className="theme-sheet-button" style={heroButtonStyle(shown)}>{shown.label || defaultLabel}</span></span>
-              <span className="theme-sheet-preview-dark"><span className="theme-sheet-button" style={heroButtonStyle(shown)}>{shown.label || defaultLabel}</span></span>
+              <span className="theme-sheet-preview-light"><span className="theme-sheet-button" style={previewStyle}>{shown.label || defaultLabel}</span></span>
+              <span className="theme-sheet-preview-dark"><span className="theme-sheet-button" style={previewStyle}>{shown.label || defaultLabel}</span></span>
             </div>
-            {!bg && !color && <p className="theme-sheet-hint">Using the theme’s colours — on your page the button looks the way the theme designed it.</p>}
           </div>
           {error && <p className="theme-sheet-error" role="alert">{error}</p>}
         </EditSheet>

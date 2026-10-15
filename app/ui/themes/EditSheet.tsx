@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import type { ThemeLook } from './theme-look';
 
 // The full-screen white editor that every editable piece of a page opens,
 // so the owner sees clearly what they're changing: a title, a line on what
@@ -129,17 +130,24 @@ export function SheetSection({ title, children }: { title: string; children: Rea
   );
 }
 
-// The text as it will look in the chosen colour, on a light and a dark
-// background — banner text sits on a photo, which can be either.
-export function TextPreview({ text, color, large }: { text: string; color: string; large?: boolean }) {
+// The text as it will look in the chosen colour — or, with none chosen, in
+// the theme's own colour and type as read from the page — on a light and a
+// dark background, since banner text sits on a photo that can be either.
+export function TextPreview({ text, color, look, large }: { text: string; color: string; look?: ThemeLook; large?: boolean }) {
+  const shown = color || look?.color;
+  const style = (fallback: string): React.CSSProperties => ({
+    ...look?.font,
+    color: shown || fallback,
+    WebkitTextFillColor: shown || fallback,
+    fontSize: large ? 30 : 19,
+  });
   return (
     <div className="theme-sheet-field">
       <p className="theme-sheet-label">Preview</p>
       <div className="theme-sheet-preview">
-        <span className="theme-sheet-preview-light" style={{ color: color || '#241F2B', fontSize: large ? 28 : 18 }}>{text || ' '}</span>
-        <span className="theme-sheet-preview-dark" style={{ color: color || '#ffffff', fontSize: large ? 28 : 18 }}>{text || ' '}</span>
+        <span className="theme-sheet-preview-light" style={style('#241F2B')}>{text || ' '}</span>
+        <span className="theme-sheet-preview-dark" style={style('#ffffff')}>{text || ' '}</span>
       </div>
-      {!color && <p className="theme-sheet-hint">Using the theme’s colour — on your page it looks the way the theme designed it.</p>}
     </div>
   );
 }
