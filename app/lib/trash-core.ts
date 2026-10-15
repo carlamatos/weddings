@@ -29,10 +29,9 @@ export const TRASH_TABLES: TableSpec[] = [
   { table: 'page_potluck', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exchange', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exclusions', where: `user_page_id IN ${PAGE_IDS}` },
-  // Both are removed with their page (ON DELETE CASCADE), so they must be in
-  // the snapshot: legacy RSVPs, and which reminders already went out (without
-  // it a restore would send guests the same reminders again).
-  { table: 'event_rsvp', where: `user_page_id IN ${PAGE_IDS}` },
+  // Removed with its page (ON DELETE CASCADE), so it must be in the
+  // snapshot: which reminders already went out (without it a restore would
+  // send guests the same reminders again).
   { table: 'event_reminder_deliveries', where: `user_page_id IN ${PAGE_IDS}` },
 ];
 
