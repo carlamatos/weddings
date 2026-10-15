@@ -34,14 +34,6 @@
 .marketing-page .lp-hero-checks li { display: inline-flex; align-items: center; gap: 6px; }
 .marketing-page .lp-hero-checks svg { width: 18px; height: 18px; color: #3D6B46; stroke-width: 2.5; }
 
-/* ── moving feature strip ────────────────────────────────── */
-.marketing-page .lp-ticker { background: var(--ink); color: var(--paper); overflow: hidden; padding: 16px 0; }
-.marketing-page .lp-ticker-track { display: flex; width: max-content; animation: lp-ticker 48s linear infinite; }
-.marketing-page .lp-ticker ul { list-style: none; display: flex; gap: 36px; margin: 0; padding: 0 18px; }
-.marketing-page .lp-ticker li { display: inline-flex; align-items: center; gap: 10px; white-space: nowrap; font-size: 15px; font-weight: 500; letter-spacing: 0.3px; }
-.marketing-page .lp-ticker li svg { width: 16px; height: 16px; color: #E89A8C; }
-@keyframes lp-ticker { to { transform: translateX(-50%); } }
-
 /* ── templates ───────────────────────────────────────────── */
 .marketing-page .lp-templates { background: var(--paper-deep); }
 .marketing-page .lp-template-row {
@@ -262,13 +254,9 @@
 
 /* ── reduced motion: hold still, show the finished page ─── */
 @media (prefers-reduced-motion: reduce) {
-  .marketing-page .lp-ticker-track,
-  .marketing-page .lp-scr, .marketing-page .lp-scr *,
+    .marketing-page .lp-scr, .marketing-page .lp-scr *,
   .marketing-page .lp-step, .marketing-page .lp-step-bar,
   .marketing-page .lp-feature, .marketing-page .lp-template { animation: none !important; }
-  .marketing-page .lp-ticker-track { flex-wrap: wrap; width: auto; }
-  .marketing-page .lp-ticker ul[aria-hidden] { display: none; }
-  .marketing-page .lp-ticker ul { flex-wrap: wrap; justify-content: center; gap: 10px 24px; }
-  .marketing-page .lp-scr-4, .marketing-page .lp-scr-rsvp { opacity: 1; }
+        .marketing-page .lp-scr-4, .marketing-page .lp-scr-rsvp { opacity: 1; }
   .marketing-page .lp-step { background: #fff; border-color: var(--line); }
 }

@@ -1,43 +1,43 @@
 'use client';
 
-// A colour picker for the banner's text and buttons that can also be left on
-// the theme's own colour ('' = theme default).
+import { SheetField } from './EditSheet';
+
+// A colour picker for text, buttons and the banner overlay that can also be
+// left on the theme's own colour ('' = theme default). A large swatch, the
+// colour's code, and a line on how to use it.
 export default function HeroColorField({
   id,
   label,
   value,
   onChange,
+  hint = 'Click the colour square to choose a new colour.',
+  defaultLabel = 'Theme colour',
+  allowDefault = true,
 }: {
   id: string;
   label: string;
   value: string; // '#rrggbb', or '' for the theme's colour
   onChange: (next: string) => void;
+  hint?: React.ReactNode;
+  defaultLabel?: string;
+  allowDefault?: boolean; // false when there's always a colour (the overlay)
 }) {
   return (
-    <div>
-      <label htmlFor={id}>{label}</label>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <input
-          id={id}
-          type="color"
-          value={value || '#ffffff'}
-          onChange={(e) => onChange(e.target.value)}
-          style={{ width: 44, height: 34, padding: 2, cursor: 'pointer', flex: 'none' }}
-        />
-        <span style={{ fontSize: 12, color: '#6B6470', fontFamily: 'system-ui, sans-serif', flex: 1 }}>
-          {value ? value.toUpperCase() : 'Theme default'}
+    <SheetField label={label} hint={hint} htmlFor={id}>
+      <div className="theme-color-field">
+        <span className="theme-color-swatch" style={{ background: value || undefined }} data-empty={!value || undefined}>
+          <input id={id} type="color" value={value || '#ffffff'} onChange={(e) => onChange(e.target.value)} />
         </span>
-        {value && (
-          <button
-            type="button"
-            className="theme-edit-cancel"
-            onClick={() => onChange('')}
-            title="Use the theme's own colour"
-          >
+        <span className="theme-color-value">
+          <strong>{value ? value.toUpperCase() : defaultLabel}</strong>
+          <span>{value ? 'Your colour' : 'The colour the theme was designed with'}</span>
+        </span>
+        {allowDefault && value && (
+          <button type="button" className="theme-sheet-btn theme-sheet-btn--small" onClick={() => onChange('')}>
             Use theme colour
           </button>
         )}
       </div>
-    </div>
+    </SheetField>
   );
 }

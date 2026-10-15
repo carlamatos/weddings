@@ -1,14 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { updateHeroButton } from '@/app/lib/actions';
 import { HERO_BUTTON_LABEL_MAX_LENGTH, heroButtonStyle, isHeroColor, type HeroButtonKey, type HeroButtonStyle } from './hero-style';
 import HeroColorField from './HeroColorField';
+import EditSheet, { SheetField } from './EditSheet';
 
-// Editor version of a top-banner button: an Edit badge opens a dialog for its
-// label, button colour and text colour. The dialog is portaled to <body>
-// because every theme's hero clips its overflow.
+// Editor version of a top-banner button: an Edit badge opens the full-screen
+// editor for its label, button colour and text colour.
 export default function EditableHeroButton({
   pageId,
   id,
@@ -72,39 +71,39 @@ export default function EditableHeroButton({
         Edit
       </button>
 
-      {open && createPortal(
-        <div className="theme-edit-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) cancel(); }}>
-          <div
-            className="theme-date-popover theme-date-dialog"
-            role="dialog"
-            aria-modal="true"
-            aria-label="Edit button"
-            onKeyDown={(e) => { if (e.key === 'Escape') cancel(); }}
-          >
-            <p className="theme-date-heading">Button</p>
-            <div>
-              <label htmlFor={`hb-${id}-label`}>Button text</label>
-              <input
-                id={`hb-${id}-label`}
-                type="text"
-                value={label}
-                maxLength={HERO_BUTTON_LABEL_MAX_LENGTH}
-                placeholder={defaultLabel}
-                onChange={(e) => setLabel(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') save(); }}
-                autoFocus
-              />
+      {open && (
+        <EditSheet
+          title="Edit this button"
+          intro={`The “${current.label || defaultLabel}” button on your banner. Guests tap it to jump to that part of your page.`}
+          onClose={cancel}
+          onSave={save}
+          saving={saving}
+        >
+          <SheetField label="Button text" htmlFor={`hb-${id}-label`} hint={`Leave it empty to use the theme’s wording, “${defaultLabel}”.`}>
+            <input
+              id={`hb-${id}-label`}
+              className="theme-sheet-input"
+              type="text"
+              value={label}
+              maxLength={HERO_BUTTON_LABEL_MAX_LENGTH}
+              placeholder={defaultLabel}
+              onChange={(e) => setLabel(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') save(); }}
+              autoFocus
+            />
+          </SheetField>
+          <HeroColorField id={`hb-${id}-bg`} label="Button colour" value={bg} onChange={setBg} hint="Click the colour square to choose the colour of the button itself." />
+          <HeroColorField id={`hb-${id}-color`} label="Text colour" value={color} onChange={setColor} hint="Click the colour square to choose the colour of the words on the button. Pick one that stands out from the button colour." />
+          <div className="theme-sheet-field">
+            <p className="theme-sheet-label">Preview</p>
+            <div className="theme-sheet-preview theme-sheet-preview--button">
+              <span className="theme-sheet-preview-light"><span className="theme-sheet-button" style={heroButtonStyle(shown)}>{shown.label || defaultLabel}</span></span>
+              <span className="theme-sheet-preview-dark"><span className="theme-sheet-button" style={heroButtonStyle(shown)}>{shown.label || defaultLabel}</span></span>
             </div>
-            <HeroColorField id={`hb-${id}-bg`} label="Button colour" value={bg} onChange={setBg} />
-            <HeroColorField id={`hb-${id}-color`} label="Text colour" value={color} onChange={setColor} />
-            {error && <p style={{ color: '#B91C1C', fontSize: 12, margin: 0 }}>{error}</p>}
-            <div className="theme-edit-controls" style={{ marginTop: 4 }}>
-              <button className="theme-edit-save" onClick={save} disabled={saving}>{saving ? 'Saving…' : 'Save'}</button>
-              <button className="theme-edit-cancel" onClick={cancel}>Cancel</button>
-            </div>
+            {!bg && !color && <p className="theme-sheet-hint">Using the theme’s colours — on your page the button looks the way the theme designed it.</p>}
           </div>
-        </div>,
-        document.body,
+          {error && <p className="theme-sheet-error" role="alert">{error}</p>}
+        </EditSheet>
       )}
     </span>
   );

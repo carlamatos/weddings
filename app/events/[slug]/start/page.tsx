@@ -121,17 +121,6 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
           </ul>
         </section>
 
-        {/* MOVING STRIP OF FEATURES */}
-        <div className="lp-ticker" aria-label="Included features">
-          <div className="lp-ticker-track">
-            {[0, 1].map((copy) => (
-              <ul key={copy} aria-hidden={copy === 1 || undefined}>
-                {page.ticker.map((t) => <li key={t}><HeartIcon aria-hidden="true" />{t}</li>)}
-              </ul>
-            ))}
-          </div>
-        </div>
-
         {/* TEMPLATES */}
         <section className="lp-section lp-templates" id="templates">
           <div className="wrap">
