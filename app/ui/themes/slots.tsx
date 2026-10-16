@@ -599,6 +599,9 @@ function isVideoUrl(url: string) {
   return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
 }
 
+// Largest banner photo an owner can pick, checked before any compression.
+const MAX_BANNER_BYTES = 4 * 1024 * 1024;
+
 export function EditableBannerBg({
   pageId,
   src,
@@ -724,6 +727,11 @@ export function EditableBannerBg({
       e.target.value = '';
       return;
     }
+    if (file.size > MAX_BANNER_BYTES) {
+      setUploadError('That photo is larger than 4 MB. Please choose a smaller one.');
+      e.target.value = '';
+      return;
+    }
 
     // Optimistic preview — except HEIC, which most browsers can't display;
     // that one appears once it's converted and uploaded.
@@ -741,6 +749,8 @@ export function EditableBannerBg({
       const formData = new FormData();
       formData.append('file', compressed);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      // Vercel refuses bodies over 4.5 MB with a plain-text 413 before our route runs.
+      if (res.status === 413) throw new Error('That photo is too large to upload. Please choose one under 4 MB.');
       const text = await res.text();
       let data: { url?: string; error?: string };
       try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
@@ -834,7 +844,7 @@ export function EditableBannerBg({
           {uploadError && <p className="theme-sheet-error" role="alert">{uploadError}</p>}
 
           <SheetSection title="Photo">
-            <SheetField label="Upload a new one" hint="A photo (JPG, PNG, HEIC). Wide, landscape photos work best.">
+            <SheetField label="Upload a new one" hint="A photo (JPG, PNG, HEIC) up to 4 MB. Wide, landscape photos work best.">
               <div className="theme-sheet-row">
                 <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
                   <CameraIcon /> {uploading ? 'Uploading…' : 'Choose a photo'}
