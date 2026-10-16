@@ -64,12 +64,10 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
   const free = page.features.items.filter((f) => !f.plus);
   const plus = page.features.items.filter((f) => f.plus);
 
-  // Banner background: 6 drifting columns of theme photos (3 on phones).
-  const COLUMNS = 6;
-  const wall = Array.from({ length: COLUMNS }, (_, c) => page.wall.filter((_, i) => i % COLUMNS === c));
-
   const s = page.steps;
   const stepPhoto = themePhoto(s.theme);
+  // Banner: the step's theme in front, two others fanned out behind it.
+  const fan = s.pickFrom.filter((t) => t !== s.theme && themePhoto(t)).slice(0, 2);
 
   return (
     <div className={`marketing-page lp ${greatVibes.variable}`}>
@@ -84,41 +82,58 @@ export default async function LandingPage({ params }: { params: Promise<{ slug: 
 
       <main>
         {/* HERO */}
-        <section className="hero lp-hero">
-          <div className="hero-wall" aria-hidden="true">
-            {wall.map((tiles, c) => (
-              <div className="hero-wall-col" key={c}>
-                {/* Twice over, so the drift loops without a jump. */}
-                {[...tiles, ...tiles].map((t, i) => (
-                  <div className="hero-wall-tile" key={`${t}-${i}`}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img {...previewImage(themePhoto(t) ?? '', '(max-width: 760px) 34vw, 260px', { priority: c < 3 && i < 2, eager: c < 3 })} alt="" />
-                    <span>{themeName(t)}</span>
-                  </div>
-                ))}
+        <section className="lp-hero">
+          <div className="lp-hero-inner">
+            <div className="lp-hero-copy">
+              <p className="hero-eyebrow hero-badge"><span className="hero-badge-free">Free</span><span>{page.hero.badge}</span></p>
+              <p className="hero-tagline">{page.hero.tagline}</p>
+              <h1 className="hero-headline">{page.hero.headline}</h1>
+              <p className="hero-sub">{page.hero.sub}</p>
+              <div className="hero-actions">
+                <a href={register} className="btn-primary lp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
+                <a href={`/themes/${page.demo}`} className="btn-secondary btn-demo" data-cta={cta('hero-demo')}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" />
+                  </svg>
+                  See a live demo
+                </a>
               </div>
-            ))}
+              <ul className="lp-hero-checks">
+                <li><CheckIcon aria-hidden="true" />Free to sign up</li>
+                <li><CheckIcon aria-hidden="true" />No credit card</li>
+                <li><CheckIcon aria-hidden="true" />Ready in minutes</li>
+              </ul>
+            </div>
+
+            {/* A fan of event pages: the example page in front, two themes behind. */}
+            <div className="lp-fan" aria-hidden="true">
+              {fan.map((t, i) => (
+                <div className={`lp-fan-card lp-fan-card--${i === 0 ? 'left' : 'right'}`} key={t}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img {...previewImage(themePhoto(t) ?? '', '(max-width: 900px) 40vw, 240px')} alt="" />
+                </div>
+              ))}
+              <div className="lp-fan-card lp-fan-card--front">
+                <div className="lp-fan-bar"><i /><i /><i /><span>mygala.ca/{s.link}</span></div>
+                <div className="lp-fan-cover">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img {...previewImage(stepPhoto ?? '', '(max-width: 900px) 60vw, 340px', { priority: true, eager: true })} alt="" />
+                  <div className="lp-fan-title">
+                    <p className="lp-fan-name">{s.name}</p>
+                    <p className="lp-fan-date">{s.date}</p>
+                  </div>
+                </div>
+                <div className="lp-fan-rsvp"><span>RSVP</span></div>
+              </div>
+              {s.rsvps[0] && (
+                <div className="lp-fan-note">
+                  <CheckIcon />
+                  <span><strong>{s.rsvps[0].who}</strong>{s.rsvps[0].reply}</span>
+                </div>
+              )}
+            </div>
           </div>
-          <div className="hero-wash" />
-          <p className="hero-eyebrow hero-badge"><span className="hero-badge-free">Free</span><span>{page.hero.badge}</span></p>
-          <p className="hero-tagline">{page.hero.tagline}</p>
-          <h1 className="hero-headline">{page.hero.headline}</h1>
-          <p className="hero-sub">{page.hero.sub}</p>
-          <div className="hero-actions">
-            <a href={register} className="btn-primary lp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
-            <a href={`/themes/${page.demo}`} className="btn-secondary btn-demo" data-cta={cta('hero-demo')}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" />
-              </svg>
-              See a live demo
-            </a>
-          </div>
-          <ul className="lp-hero-checks">
-            <li><CheckIcon aria-hidden="true" />Free to sign up</li>
-            <li><CheckIcon aria-hidden="true" />No credit card</li>
-            <li><CheckIcon aria-hidden="true" />Ready in minutes</li>
-          </ul>
         </section>
 
         {/* TEMPLATES */}

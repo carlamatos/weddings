@@ -21,7 +21,6 @@ export type LandingPage = {
   seo: SeoMeta;
   cta: string; // the main button: "Create my free wedding page"
   hero: { badge: string; tagline: string; headline: string; sub: string };
-  wall: string[]; // theme slugs behind the banner (the ones with a cover photo)
   templates: { title: string; sub: string };
   demo: string; // theme for "See a live demo"
   // The animated "how it works" phone.
@@ -54,7 +53,6 @@ export const LANDING_PAGES: LandingPage[] = [
       headline: 'Your wedding website, ready in minutes.',
       sub: 'Pick a stunning template, add your names and date, and share one link with every guest. RSVPs, your schedule, the venue, photos and more, all in one place.',
     },
-    wall: ['the-day', 'love', 'quiet-coastal', 'midnight-botanical', 'vilma', 'the-day', 'love', 'midnight-botanical', 'vilma', 'quiet-coastal', 'love', 'the-day'],
     templates: {
       title: 'Wedding templates your guests will remember',
       sub: 'Every template comes with every feature. Tap one to open a full live demo, and switch any time without losing a word.',
@@ -120,7 +118,6 @@ export const LANDING_PAGES: LandingPage[] = [
       headline: 'Your party page, ready in minutes.',
       sub: 'Birthdays, baby showers, quinceañeras and sweet 16s. Pick a fun template, add the details and share one link. RSVPs, the countdown, the map and the photos, all in one place.',
     },
-    wall: ['alegria', 'baby-shower-girl', 'fun-party', 'baby-shower-boy', 'baby-shower-neutral', 'alegria', 'fun-party', 'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy', 'alegria', 'fun-party'],
     templates: {
       title: 'Party templates that set the mood',
       sub: 'Every template comes with every feature. Tap one to open a full live demo, and switch any time without losing a word.',

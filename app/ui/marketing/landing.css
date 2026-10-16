@@ -23,16 +23,104 @@
 .marketing-page .lp-topbar-login:hover { color: var(--rose); }
 
 /* ── hero ────────────────────────────────────────────────── */
-.marketing-page .lp-hero { padding-bottom: 96px; }
-.marketing-page .lp-hero .hero-sub { max-width: 560px; }
+/* A variation on the homepage banner: text on the left, aligned left, and
+   on the right a fan of event pages instead of the drifting photo wall,
+   over a warm wash with two soft blooms. */
+.marketing-page .lp-hero {
+  position: relative; overflow: hidden;
+  padding: 72px 32px 96px;
+  background:
+    radial-gradient(circle at 88% 12%, rgba(182, 88, 74, 0.16), transparent 42%),
+    radial-gradient(circle at 6% 96%, rgba(201, 162, 39, 0.14), transparent 38%),
+    linear-gradient(135deg, #FBF7F2 0%, var(--paper) 45%, #F1E3DA 100%);
+}
+.marketing-page .lp-hero-inner {
+  max-width: 1160px; margin: 0 auto;
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  gap: 40px; align-items: center;
+}
+.marketing-page .lp-hero-copy { text-align: left; }
+.marketing-page .lp-hero .hero-eyebrow.hero-badge { margin: 0 0 18px; }
+.marketing-page .lp-hero .hero-headline { margin: 0 0 20px; max-width: 600px; font-size: clamp(36px, 5.2vw, 60px); }
+.marketing-page .lp-hero .hero-sub { margin: 0 0 32px; max-width: 540px; color: #3A3340; font-weight: 500; font-size: 17px; line-height: 1.7; }
+.marketing-page .lp-hero .hero-actions { justify-content: flex-start; }
 .marketing-page .lp-hero-checks {
   position: relative; z-index: 2;
   list-style: none; padding: 0; margin: 18px 0 0;
-  display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px;
+  display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 8px 22px;
   font-size: 15px; font-weight: 600; color: var(--ink);
 }
 .marketing-page .lp-hero-checks li { display: inline-flex; align-items: center; gap: 6px; }
 .marketing-page .lp-hero-checks svg { width: 18px; height: 18px; color: #3D6B46; stroke-width: 2.5; }
+
+/* The fan of pages. */
+.marketing-page .lp-fan { position: relative; height: 500px; }
+.marketing-page .lp-fan-card {
+  position: absolute; top: 50%; left: 50%;
+  border-radius: 16px; overflow: hidden; background: #fff;
+  box-shadow: 0 24px 50px -22px rgba(36, 31, 43, 0.45), 0 0 0 1px rgba(36, 31, 43, 0.06);
+}
+.marketing-page .lp-fan-card img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.marketing-page .lp-fan-card--left,
+.marketing-page .lp-fan-card--right { width: 230px; aspect-ratio: 3 / 4; border: 6px solid #fff; }
+.marketing-page .lp-fan-card--left { transform: translate(-112%, -46%) rotate(-9deg); animation: lp-fan-left 7s ease-in-out infinite; }
+.marketing-page .lp-fan-card--right { transform: translate(12%, -54%) rotate(8deg); animation: lp-fan-right 8s ease-in-out infinite; }
+.marketing-page .lp-fan-card--front { width: 320px; transform: translate(-50%, -50%); z-index: 2; }
+.marketing-page .lp-fan-bar {
+  display: flex; align-items: center; gap: 5px; padding: 9px 12px;
+  background: #F4EFEA; border-bottom: 1px solid var(--line);
+}
+.marketing-page .lp-fan-bar i { width: 8px; height: 8px; border-radius: 50%; background: #D9CFC6; }
+.marketing-page .lp-fan-bar span {
+  flex: 1; margin-left: 8px; padding: 3px 10px; border-radius: 999px; background: #fff;
+  font-size: 11px; font-weight: 600; color: var(--ink-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.marketing-page .lp-fan-cover { position: relative; aspect-ratio: 4 / 3.4; }
+.marketing-page .lp-fan-cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20, 16, 24, 0.55), transparent 60%); }
+.marketing-page .lp-fan-title { position: absolute; left: 0; right: 0; bottom: 18px; z-index: 1; text-align: center; color: #fff; }
+.marketing-page .lp-fan-name { font-family: var(--font-great-vibes), cursive; font-size: 34px; line-height: 1.1; margin: 0; text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35); }
+.marketing-page .lp-fan-date { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin: 6px 0 0; }
+.marketing-page .lp-fan-rsvp { padding: 16px; text-align: center; }
+.marketing-page .lp-fan-rsvp span {
+  display: inline-block; padding: 9px 30px; border-radius: 999px; background: var(--rose);
+  color: #fff; font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+}
+.marketing-page .lp-fan-note {
+  position: absolute; z-index: 3; left: 0; top: 3%;
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px 10px 10px; border-radius: 14px; background: #fff;
+  box-shadow: 0 16px 34px -14px rgba(36, 31, 43, 0.4);
+  animation: lp-fan-note 6s ease-in-out infinite;
+}
+.marketing-page .lp-fan-note svg { flex-shrink: 0; width: 30px; height: 30px; padding: 6px; border-radius: 50%; background: #E4EFE5; color: #3D6B46; stroke-width: 2.5; }
+.marketing-page .lp-fan-note span { display: flex; flex-direction: column; font-size: 12px; color: var(--ink-soft); line-height: 1.35; }
+.marketing-page .lp-fan-note strong { font-size: 14px; color: var(--ink); }
+@keyframes lp-fan-left { 50% { transform: translate(-114%, -49%) rotate(-10.5deg); } }
+@keyframes lp-fan-right { 50% { transform: translate(14%, -51%) rotate(9.5deg); } }
+@keyframes lp-fan-note { 50% { transform: translateY(-8px); } }
+@media (prefers-reduced-motion: reduce) {
+  .marketing-page .lp-fan-card, .marketing-page .lp-fan-note { animation: none; }
+}
+@media (max-width: 900px) {
+  /* Stacked: the text centred, the fan smaller below it. */
+  .marketing-page .lp-hero-inner { grid-template-columns: 1fr; gap: 24px; }
+  .marketing-page .lp-hero-copy { text-align: center; }
+  .marketing-page .lp-hero .hero-eyebrow.hero-badge { margin: 0 auto 16px; }
+  .marketing-page .lp-hero .hero-headline,
+  .marketing-page .lp-hero .hero-sub { margin-left: auto; margin-right: auto; }
+  .marketing-page .lp-hero .hero-actions,
+  .marketing-page .lp-hero-checks { justify-content: center; }
+  .marketing-page .lp-fan { height: 400px; max-width: 520px; width: 100%; margin: 0 auto; }
+}
+@media (max-width: 560px) {
+  .marketing-page .lp-fan { height: 330px; }
+  .marketing-page .lp-fan-card--left, .marketing-page .lp-fan-card--right { width: 150px; border-width: 4px; }
+  .marketing-page .lp-fan-card--front { width: 230px; }
+  .marketing-page .lp-fan-name { font-size: 26px; }
+  .marketing-page .lp-fan-note { display: none; }
+  .marketing-page .lp-fan-note strong { font-size: 13px; }
+}
 
 /* ── templates ───────────────────────────────────────────── */
 .marketing-page .lp-templates { background: var(--paper-deep); }
@@ -226,7 +314,7 @@
   .marketing-page .lp-topbar { padding: 10px 16px; }
   .marketing-page .lp-topbar .wordmark { font-size: 28px; }
   .marketing-page .lp-topbar .topbar-signup { padding: 8px 14px; }
-  .marketing-page .lp-hero { padding-bottom: 64px; }
+  .marketing-page .lp-hero { padding: 48px 20px 56px; }
   /* The sticky bar below carries the same button. */
   .marketing-page .lp-hero .hero-actions .btn-primary { display: none; }
   .marketing-page .lp-hero-checks { font-size: 14px; gap: 6px 14px; }
