@@ -833,19 +833,24 @@ export default function HalloweenParty({
         </div>
       )}
 
-      {/* GALLERY — shows the theme's own sample photos until the owner
-          uploads real ones, so the section is never empty. */}
-      <div className="section section-charcoal section-center">
-        <Cobweb corner="tl" size={140} />
-        <Reveal style={{ position: 'relative', zIndex: 2 }}>
-          <div className="wrap-wide">
-            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
-            <PumpkinRule />
-            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
-            {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
+      {/* GALLERY — the host's photos. Hidden on a live page until there
+          are some; theme previews show the theme's own sample photos. */}
+      {(() => {
+        const gallery = galleryImages?.length ? galleryImages : demo ? DEFAULT_GALLERY_IMAGES : [];
+        return (editSlots?.gallery || gallery.length > 0) && (
+          <div className="section section-charcoal section-center">
+            <Cobweb corner="tl" size={140} />
+            <Reveal style={{ position: 'relative', zIndex: 2 }}>
+              <div className="wrap-wide">
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+                <PumpkinRule />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
+                {editSlots?.gallery ?? <GalleryGrid images={gallery} />}
+              </div>
+            </Reveal>
           </div>
-        </Reveal>
-      </div>
+        );
+      })()}
 
       {/* REGISTRY (costumes & treats) */}
       {(registryDescription || registryButtonLink) && (

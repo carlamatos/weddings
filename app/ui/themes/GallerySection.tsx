@@ -211,7 +211,9 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
   };
 
   return (
-    <div>
+    // Marked while empty: the editor's Preview hides the whole section then,
+    // as the live page does (dashboard.css).
+    <div className={images.length ? undefined : 'theme-gallery-empty'}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 8 }}>
         {images.map((img) => (
           <GalleryThumb key={img.id} image={img} onDelete={handleDelete} />

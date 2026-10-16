@@ -164,7 +164,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   };
 
   return (
-    <div style={{ margin: '-32px -28px' }}>
+    <div className="dash-editor-bleed">
       <EditorCanvas>
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}

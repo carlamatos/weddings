@@ -464,7 +464,7 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-content {
   flex: 1;
   overflow-y: auto;
-  padding: 32px 28px;
+  padding: 0 28px 32px;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -909,7 +909,7 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 768px) {
   .dash-theme-switcher { display: none; }
   .dash-preview-full-text { display: none; }
-  .dash-content { padding: 20px 16px; }
+  .dash-content { padding: 0 16px 20px; }
   .dash-2col { grid-template-columns: 1fr; }
 }
 
@@ -997,7 +997,14 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .theme-edit-canvas[data-mode="preview"] .theme-editable::before,
 .theme-edit-canvas[data-mode="preview"] .theme-editable::after,
 .theme-edit-canvas[data-mode="preview"] .theme-banner-overlay,
+/* The page in the editor runs edge to edge in the content area. */
+.dash-editor-bleed { margin: 0 -28px -32px; }
+@media (max-width: 768px) { .dash-editor-bleed { margin: 0 -16px -20px; } }
+/* The banner's "Change banner" button sits below the sticky Edit / Preview bar. */
+.theme-edit-canvas .theme-banner-overlay { top: 72px; }
 .theme-edit-canvas[data-mode="preview"] .theme-edit-only { display: none; }
+/* An empty gallery isn't shown on the live page, so not in Preview either. */
+.theme-edit-canvas[data-mode="preview"] .section:has(.theme-gallery-empty) { display: none; }
 
 /* The bar above the page in the editor: how to edit, and Edit / Preview. */
 .theme-edit-bar {

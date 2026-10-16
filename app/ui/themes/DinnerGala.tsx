@@ -545,18 +545,23 @@ export default function DinnerGala({
         </Reveal>
       )}
 
-      {/* GALLERY — shows the theme's own sample photos until the owner
-          uploads real ones, so the section is never empty. */}
-      <Reveal>
-        <div className="section section-alt section-center">
-          <div className="wrap-wide">
-            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
-            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
-            <hr className="dg-rule" />
-            {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
-          </div>
-        </div>
-      </Reveal>
+      {/* GALLERY — the host's photos. Hidden on a live page until there
+          are some; theme previews show the theme's own sample photos. */}
+      {(() => {
+        const gallery = galleryImages?.length ? galleryImages : demo ? DEFAULT_GALLERY_IMAGES : [];
+        return (editSlots?.gallery || gallery.length > 0) && (
+          <Reveal>
+            <div className="section section-alt section-center">
+              <div className="wrap-wide">
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
+                <hr className="dg-rule" />
+                {editSlots?.gallery ?? <GalleryGrid images={gallery} />}
+              </div>
+            </div>
+          </Reveal>
+        );
+      })()}
 
       {/* PARTNERS & SPONSORS (registry section, reframed) */}
       {(registryDescription || registryButtonLink) && (

@@ -579,18 +579,23 @@ export default function Balloons({
         </Reveal>
       )}
 
-      {/* GALLERY — shows the theme's own sample photos until the owner
-          uploads real ones, so the section is never empty. */}
-      <Reveal>
-        <div className="section section-center">
-          <div className="wrap-wide">
-            <Confetti style={{ justifyContent: 'center', display: 'flex' }} />
-            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
-            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
-            {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
-          </div>
-        </div>
-      </Reveal>
+      {/* GALLERY — the host's photos. Hidden on a live page until there
+          are some; theme previews show the theme's own sample photos. */}
+      {(() => {
+        const gallery = galleryImages?.length ? galleryImages : demo ? DEFAULT_GALLERY_IMAGES : [];
+        return (editSlots?.gallery || gallery.length > 0) && (
+          <Reveal>
+            <div className="section section-center">
+              <div className="wrap-wide">
+                <Confetti style={{ justifyContent: 'center', display: 'flex' }} />
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
+                {editSlots?.gallery ?? <GalleryGrid images={gallery} />}
+              </div>
+            </div>
+          </Reveal>
+        );
+      })()}
 
       {/* WISH LIST (registry section, reframed) */}
       {(registryDescription || registryButtonLink) && (
