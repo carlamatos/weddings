@@ -333,7 +333,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
     faqs: [
-      { q: 'How much does a wedding website cost?', a: 'A MyGala wedding website is free to create and share, with every template, RSVPs, the guest list, the countdown, event details and the schedule. MyGala Plus is a one-time payment per wedding website (not a subscription) that adds features like invitations, reminders, guest photos, livestream, the registry section and a custom domain.' },
+      { q: 'How much does a wedding website cost?', a: 'A MyGala wedding website is free to create and share, with every template, RSVPs, the guest list, the countdown, event details and the schedule. MyGala Plus is a one-time payment per wedding website (not a subscription) that adds features like invitations, reminders, livestream, the registry section, a custom domain and room for up to 500 guest photos (free pages get 50).' },
       { q: 'How long does it take to make a wedding website?', a: 'You can have a page ready to share in an afternoon: pick a template, add your names, date and venue, and turn on RSVPs. You can keep adding details as your plans come together.' },
       { q: 'When should our wedding website go live?', a: 'Ideally before your save-the-dates go out, about 8 to 12 months before the wedding, so you can put the link on them. Start with the date and location, and add the rest as you book it.' },
       { q: 'Can we keep our wedding website after the wedding?', a: 'Yes. Your page stays online as a keepsake after the wedding.' },

@@ -262,7 +262,7 @@ export default function MidnightBotanical({
             <div className="hero-actions">
               <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
               <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-              {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+              {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             </div>
           </div>
         </div>
@@ -430,7 +430,7 @@ export default function MidnightBotanical({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <div id="photos" style={{ padding: '80px 24px', maxWidth: 1000, margin: '0 auto' }}>
           <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="section-label" style={{ textAlign: 'center' }} fallback={t.guestPhotos} />
           <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" style={{ textAlign: 'center' }} fallback={t.shareYourPhoto} />

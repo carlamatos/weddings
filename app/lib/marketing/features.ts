@@ -99,17 +99,17 @@ export const FEATURES: Feature[] = [
   {
     slug: 'guest-photo-qr-code',
     navLabel: 'Guest Photo QR Code',
-    plan: 'Plus',
+    plan: 'Free',
     seo: {
       title: 'Guest Photo Upload QR Code for Events',
       description:
-        'Print a QR code for your tables so guests upload photos from their phones — no app, no account. Collect every photo on one page and download them all.',
+        'Print a QR code for your tables so guests upload photos from their phones — no app, no account. Free for up to 50 photos; collect them on one page and download them all.',
       keywords: ['guest photo upload QR code', 'event photo sharing QR code', 'QR code table cards', 'collect guest photos', 'wedding photo QR code', 'party photo sharing', 'event photo wall'],
     },
     eyebrow: 'Guest photo QR code',
     h1: 'Collect every guest’s photos with one QR code on the table',
     lead:
-      'Your guests take hundreds of photos at your event — and most of them never reach you. Print a MyGala QR code, place it on the tables, and guests upload their photos straight from their phone camera to your event page. No app to install, no account to create.',
+      'Your guests take hundreds of photos at your event — and most of them never reach you. Print a MyGala QR code, place it on the tables, and guests upload their photos straight from their phone camera to your event page. No app to install, no account to create — and it’s free for up to 50 photos.',
     summary: 'Printable table cards that open your event’s photo upload page — no app, no sign-up for guests.',
     highlights: [
       { title: 'No app, no sign-up', text: 'Guests scan with their phone camera and upload in the browser. Nothing to install, nothing to remember.' },
@@ -120,7 +120,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'How the guest photo QR code works',
         paragraphs: [
-          'Every MyGala Plus event page has a Guest Photo Wall: a section where guests can share photos and browse everyone else’s. The QR code is a shortcut to it. When a guest scans the code, their phone opens your event page and jumps straight to the upload button.',
+          'Every MyGala event page can have a Guest Photo Wall: a section where guests can share photos and browse everyone else’s. It’s free for up to 50 photos, and MyGala Plus raises that to 500. The QR code is a shortcut to it. When a guest scans the code, their phone opens your event page and jumps straight to the upload button.',
           'Guests can pick several photos at once from their camera roll. MyGala resizes large photos on the guest’s phone before uploading, so it works even on slow venue Wi-Fi, and the photos show up on the wall right away.',
         ],
       },
@@ -148,7 +148,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Keep control of the photos',
         bullets: [
-          'Up to 500 guest photos per event page.',
+          'Up to 50 guest photos free, or up to 500 with Plus.',
           'Delete any photo from your dashboard at any time.',
           'Download every photo in one click to keep after the event.',
           'Hide the Guest Photo Wall whenever you like — for example, until the event starts.',
@@ -156,8 +156,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Upgrade your page to Plus', text: 'The Guest Photo Wall and its QR code are part of MyGala Plus — a one-time payment, no subscription.' },
-      { title: 'Open Guest Photos', text: 'In your dashboard, choose Guest Photos in the left menu and make sure the section is switched on.', dashboard: '/dashboard/guest-photos', linkLabel: 'Open Guest Photos' },
+      { title: 'Open Guest Photos', text: 'In your dashboard, choose Guest Photos in the left menu and switch the section on. Free pages hold up to 50 photos; Plus pages up to 500.', dashboard: '/dashboard/guest-photos', linkLabel: 'Open Guest Photos' },
       { title: 'Customize your card', text: 'Under “QR code for your tables”, edit the title and message, then pick 4 table cards or 1 large sign.' },
       { title: 'Print or download', text: 'Click Print QR code, or Download PNG to use the code in your own design. Test it with your phone before printing a full batch.' },
       { title: 'Place the cards and collect', text: 'Put a card on every table. After the event, download all the photos from the same Guest Photos screen.' },
@@ -165,13 +164,14 @@ export const FEATURES: Feature[] = [
     faqs: [
       { q: 'Do guests need to download an app to upload photos?', a: 'No. The QR code opens your event page in the phone’s web browser. Guests tap the upload button and choose photos — no app and no account.' },
       { q: 'Does the QR code work with iPhone and Android?', a: 'Yes. Any recent iPhone or Android phone can scan a QR code with the built-in camera app.' },
-      { q: 'How many photos can guests upload?', a: 'Each Plus event page holds up to 500 guest photos. Guests can select several photos at once.' },
+      { q: 'Is the guest photo wall free?', a: 'Yes. Every event page can collect up to 50 guest photos for free, QR code included. Upgrade the page to MyGala Plus — a one-time payment, no subscription — to collect up to 500.' },
+      { q: 'How many photos can guests upload?', a: 'Up to 50 photos on a free event page and up to 500 on a Plus page. Guests can select several photos at once, and your dashboard shows how many you’ve used.' },
       { q: 'Can I remove a photo a guest uploaded?', a: 'Yes. You can delete any photo from the Guest Photos screen in your dashboard, and it disappears from your page.' },
       { q: 'How do I get all the photos after the event?', a: 'Open Guest Photos in your dashboard and use the download button to save every photo at once.' },
       { q: 'Can I use the QR code on my own signs or programs?', a: 'Yes. Download it as a high-resolution PNG and place it in any design. It always points to your event page’s photo section.' },
       { q: 'What happens if I print the QR code and then change my page?', a: 'The code points to your event page address, so changing themes, text or photos doesn’t affect it. Only changing the page address or removing your custom domain would.' },
     ],
-    cta: { title: 'Never miss a guest’s photo again', text: 'Create your free event page, upgrade to Plus when you’re ready, and print your table cards in minutes.' },
+    cta: { title: 'Never miss a guest’s photo again', text: 'Create your free event page, switch on Guest Photos and print your table cards in minutes. Need room for more than 50 photos? Upgrade to Plus.' },
     related: ['livestream', 'custom-sections', 'custom-domain'],
   },
 
@@ -415,8 +415,8 @@ export const FEATURES: Feature[] = [
           'A live countdown to your event.',
           'An RSVP form with guest count, plus a guest list you can export to CSV.',
           'An event program for one day or several.',
-          'A photo gallery and a share section for social media.',
-          'Plus features such as guest photos, live stream, registry, custom sections and sponsors.',
+          'A photo gallery, a guest photo wall for up to 50 photos, and a share section for social media.',
+          'Plus features such as live stream, registry, custom sections, sponsors and room for up to 500 guest photos.',
         ],
       },
       {

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { savePagePassword } from '@/app/lib/actions';
 import { PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from '@/app/lib/page-password';
+import { usePlus } from './plus-gate';
 
 const inputStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14,
@@ -13,7 +14,11 @@ const labelStyle: React.CSSProperties = {
 };
 
 export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialHasPassword }: { pageId: number; initialEnabled: boolean; hasPassword: boolean }) {
-  const [enabled, setEnabled] = useState(initialEnabled);
+  // On a free page the password can be set, but protection only turns on
+  // with Plus: switching it on saves the password and asks to upgrade.
+  const plus = usePlus();
+  const [savedEnabled, setEnabled] = useState(initialEnabled);
+  const enabled = savedEnabled && plus.paid;
   const [hasPassword, setHasPassword] = useState(initialHasPassword);
   const [password, setPassword] = useState('');
   const [show, setShow] = useState(false);
@@ -34,7 +39,8 @@ export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialH
     setPassword('');
     setMessage({
       kind: 'ok',
-      text: next.password
+      text: !plus.paid ? 'Password saved. It protects your page once this event is on Plus.'
+        : next.password
         ? result.value.enabled ? 'Password saved. Guests now need it to open your page.' : 'Password saved.'
         : result.value.enabled ? 'Protection is on.' : 'Protection is off — anyone with the link can open your page.',
     });
@@ -51,7 +57,14 @@ export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialH
           aria-checked={enabled}
           aria-label="Password protection"
           disabled={saving || (!enabled && !hasPassword && !password)}
-          onClick={() => save({ enabled: !enabled, password: !enabled && password ? password : undefined })}
+          onClick={async () => {
+            if (!plus.paid) {
+              if (password && !tooShort) await save({ enabled: false, password });
+              plus.ask({ section: '/password', turnOn: true });
+              return;
+            }
+            save({ enabled: !enabled, password: !enabled && password ? password : undefined });
+          }}
           style={{
             position: 'relative', width: 40, height: 22, borderRadius: 999, border: 'none', padding: 0, flexShrink: 0,
             background: enabled ? '#3D6B46' : '#D9D2CB', cursor: saving ? 'default' : 'pointer',
@@ -62,6 +75,7 @@ export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialH
         </button>
         <span style={{ fontSize: 14, fontWeight: 500, color: '#241F2B' }}>
           Password protection — <strong>{enabled ? 'On' : 'Off'}</strong>
+          {!plus.paid && <span style={{ color: '#6B6470' }}> · turns on with Plus</span>}
         </span>
       </div>
 

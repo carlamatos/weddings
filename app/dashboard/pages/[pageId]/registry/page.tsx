@@ -1,27 +1,19 @@
 import { fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
+import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { RegistryForm } from '@/app/ui/dashboard/registry-form';
 
 export default async function RegistryPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
-  if (userPage.plan_type !== 'paid') {
-    return (
-      <PlusUpgradePrompt
-        page={userPage}
-        title="Registry"
-        pitch="The Registry section is a Plus feature. Upgrade to link guests to your gift registry and add a note about gifts."
-      />
-    );
-  }
 
   const settings = await fetchPageSettings(pageId);
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <PlusSetupNote section="/registry" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Registry</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
@@ -32,7 +24,7 @@ export default async function RegistryPage({ params }: { params: Promise<{ pageI
 
       <SectionToggle
         pageId={pageId}
-        settingName="show_registry"
+        settingName="show_registry" plusSection="/registry"
         initialOn={isSectionOn(settings, 'show_registry')}
       />
 

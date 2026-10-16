@@ -3,6 +3,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { saveReminderSettings, sendTestReminder } from '@/app/lib/actions';
+import { usePlus } from './plus-gate';
 import {
   CUSTOM_REMINDER_MAX, DEFAULT_REMINDER_TIMEZONE, REMINDER_MESSAGE_MAX_LENGTH, REMINDER_OPTIONS, REMINDER_UNIT_LABELS, REMINDER_UNIT_MAX,
   customReminderKey, isHourReminder, isPresetReminderKey, isValidTimeZone, parseReminderSchedule, reminderLabel, reminderSendDate,
@@ -61,6 +62,7 @@ export function RemindersForm({
   eventTime: string | null;
   sentCounts: Record<string, number>;
 }) {
+  const plus = usePlus();
   const router = useRouter();
   const [schedule, setSchedule] = useState<Set<ReminderKey>>(new Set(initialSchedule));
   const [message, setMessage] = useState(initialMessage);
@@ -140,7 +142,12 @@ export function RemindersForm({
       const result = await saveReminderSettings(pageId, { schedule: [...schedule], message, timeZone });
       if (result.ok) {
         setSaved({ schedule: [...schedule].sort().join(','), message: message.trim() });
-        setStatus({ ok: true, text: schedule.size ? 'Saved. Your reminders are scheduled.' : 'Saved. No reminders will be sent.' });
+        setStatus({
+          ok: true,
+          text: !schedule.size ? 'Saved. No reminders will be sent.'
+            : plus.paid ? 'Saved. Your reminders are scheduled.'
+            : 'Saved. Your reminders will start going out once this event is on Plus.',
+        });
         router.refresh(); // re-render the email preview with the new note
       } else {
         setStatus({ ok: false, text: result.error ?? 'Couldn’t save.' });

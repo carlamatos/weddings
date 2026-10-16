@@ -1,57 +1,47 @@
-import { fetchGuestPhotos, fetchPageSettings, isSectionOn } from '@/app/lib/data';
-import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { hasExpiredPlan } from '@/app/lib/plans';
+import { sql } from '@vercel/postgres';
+import { fetchGuestPhotos, fetchPageSettings } from '@/app/lib/data';
+import { requireOwnedPage } from '@/app/lib/dashboard';
 import { publicPageUrl } from '@/app/lib/share';
+import { areGuestPhotosOn, guestPhotoLimit } from '@/app/lib/guest-photos';
+import { isPagePaidAndLive } from '@/app/lib/plans';
 import { DashboardGuestPhotos } from '@/app/ui/themes/GuestPhotoSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PhotoQrCard } from '@/app/ui/dashboard/photo-qr-card';
-import Link from 'next/link';
+import { GuestPhotoAllowance } from '@/app/ui/dashboard/guest-photo-allowance';
 
+// Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Plus raises the
+// limit. Free pages start with the section off.
 export default async function GuestPhotosPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
-  const isPaid = userPage.plan_type === 'paid';
+  const paid = isPagePaidAndLive(userPage);
 
-  if (!isPaid) {
-    const expired = hasExpiredPlan(userPage);
-    return (
-      <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 520, padding: '60px 24px', textAlign: 'center', margin: '0 auto' }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', marginBottom: 10 }}>Guest Photos</p>
-        <p style={{ fontSize: 14, color: '#6B6470', marginBottom: 24 }}>
-          {expired
-            ? 'Your Plus term has ended. Extend to bring the Guest Photo Wall back.'
-            : 'The Guest Photo Wall is a Plus feature. Upgrade to let guests share photos directly on your event page.'}
-        </p>
-        <Link href={pagePath(userPage.id, '/domain')} style={{ display: 'inline-block', padding: '10px 24px', background: '#B6584A', color: '#fff', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
-          {expired ? 'Extend Plus' : 'Upgrade to Plus'}
-        </Link>
-      </div>
-    );
-  }
-
-  const [{ photos, hasMore }, settings] = await Promise.all([
+  const [{ photos, hasMore }, settings, total] = await Promise.all([
     fetchGuestPhotos(userPage.id, 0),
     fetchPageSettings(userPage.id),
+    sql<{ count: string }>`SELECT COUNT(*)::text AS count FROM guests_photos WHERE user_page_id = ${userPage.id}`
+      .then((r) => Number(r.rows[0]?.count ?? 0))
+      .catch(() => 0),
   ]);
+  const on = areGuestPhotosOn(settings, paid);
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Guest Photos</h1>
-        <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
-          Photos shared by your guests on your event page. You can delete any photo.
+        <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
+          Guests share their photos straight from your event page, and everyone can browse them. You can delete any photo,
+          and download them all at once.
         </p>
       </div>
 
-      <SectionToggle
-        pageId={Number(userPage.id)}
-        settingName="show_guest_photos"
-        initialOn={isSectionOn(settings, 'show_guest_photos')}
-      />
+      <SectionToggle pageId={Number(userPage.id)} settingName="show_guest_photos" initialOn={on} />
+
+      <GuestPhotoAllowance used={total} limit={guestPhotoLimit(paid)} paid={paid} />
 
       <PhotoQrCard
         uploadUrl={`${publicPageUrl(userPage)}#photos`}
         heading={userPage.heading || ''}
-        sectionOn={isSectionOn(settings, 'show_guest_photos')}
+        sectionOn={on}
       />
 
       <DashboardGuestPhotos

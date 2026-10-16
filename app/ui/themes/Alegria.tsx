@@ -385,7 +385,7 @@ export default function Alegria({
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
             <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>
@@ -556,18 +556,23 @@ export default function Alegria({
         </Reveal>
       )}
 
-      {/* GALLERY — shows the theme's own sample photos until the owner
-          uploads real ones, so the section is never empty. */}
-      <Reveal>
-        <div className="section section-center">
-          <div className="wrap-wide">
-            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
-            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
-            <hr className="al-rule" />
-            {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
-          </div>
-        </div>
-      </Reveal>
+      {/* GALLERY — the host's photos. Hidden on a live page until there
+          are some; theme previews show the theme's own sample photos. */}
+      {(() => {
+        const gallery = galleryImages?.length ? galleryImages : demo ? DEFAULT_GALLERY_IMAGES : [];
+        return (editSlots?.gallery || gallery.length > 0) && (
+          <Reveal>
+            <div className="section section-center">
+              <div className="wrap-wide">
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" fallback={t.memoriesSoFar} />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.ourMoments} />
+                <hr className="al-rule" />
+                {editSlots?.gallery ?? <GalleryGrid images={gallery} />}
+              </div>
+            </div>
+          </Reveal>
+        );
+      })()}
 
       {/* GIFTS (registry section, reframed) */}
       {(registryDescription || registryButtonLink) && (
@@ -600,7 +605,7 @@ export default function Alegria({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <Reveal>
           <div id="photos" className="section section-center">
             <div className="wrap">

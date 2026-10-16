@@ -449,7 +449,7 @@ export default function Nexus({
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
             <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>
@@ -625,17 +625,22 @@ export default function Nexus({
         </>
       )}
 
-      {/* GALLERY — shows the theme's own sample photos until the owner
-          uploads real ones, so the section is never empty. */}
-      <Reveal>
-        <div className="section section-center">
-          <div className="wrap-wide">
-            <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" icon={<Icon name="image" />} fallback={t.gallery} />
-            <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.memoriesSoFar} />
-            {editSlots?.gallery ?? <GalleryGrid images={galleryImages?.length ? galleryImages : DEFAULT_GALLERY_IMAGES} />}
-          </div>
-        </div>
-      </Reveal>
+      {/* GALLERY — the host's photos. Hidden on a live page until there
+          are some; theme previews show the theme's own sample photos. */}
+      {(() => {
+        const gallery = galleryImages?.length ? galleryImages : demo ? DEFAULT_GALLERY_IMAGES : [];
+        return (editSlots?.gallery || gallery.length > 0) && (
+          <Reveal>
+            <div className="section section-center">
+              <div className="wrap-wide">
+                <SectionText ctx={sectionTextCtx} k="gallery.eyebrow" className="eyebrow" icon={<Icon name="image" />} fallback={t.gallery} />
+                <SectionText ctx={sectionTextCtx} k="gallery.title" as="h2" className="section-title" fallback={t.memoriesSoFar} />
+                {editSlots?.gallery ?? <GalleryGrid images={gallery} />}
+              </div>
+            </div>
+          </Reveal>
+        );
+      })()}
 
       {/* RESOURCES (registry section, reframed) */}
       {(registryDescription || registryButtonLink) && (
@@ -674,7 +679,7 @@ export default function Nexus({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <>
           <NexusDivider />
           <Reveal>

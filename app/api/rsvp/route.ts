@@ -4,6 +4,7 @@ import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 import { fetchPageSettings } from '@/app/lib/data';
 import { isRsvpNotifyOn, notifyOwnerOfRsvp } from '@/app/lib/rsvp-notify';
+import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_GUESTS = 50;
@@ -84,18 +85,29 @@ export async function POST(request: Request) {
     const cleanPhone = str(phone, 40) || null;
     const cleanMessage = str(message, 2000) || null;
 
-    // If the guest was already invited, update their record; otherwise insert fresh
-    const existing = await sql`
+    const settings = await fetchPageSettings(pageId);
+
+    // If the guest was already invited (same email), update their record;
+    // otherwise insert fresh. With "only guests on the list" on, the email
+    // must already be on the guest list, and a reply is never added as new.
+    const existing = await sql<{ id: number }>`
       SELECT id FROM event_guests
       WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()})
       LIMIT 1
     `;
 
+    if (isRsvpGuestListOnly(settings) && !existing.rows[0]) {
+      return NextResponse.json(
+        { error: 'We couldn’t find this email on the guest list. Please use the email address your host has for you.', code: 'not_on_guest_list' },
+        { status: 403 },
+      );
+    }
+
     if (existing.rows[0]) {
       await sql`
         UPDATE event_guests SET
           name = ${name.trim()},
-          phone = ${cleanPhone},
+          phone = COALESCE(${cleanPhone}, phone),
           status = ${status},
           guests = ${guestCount},
           message = ${cleanMessage},
@@ -121,7 +133,7 @@ export async function POST(request: Request) {
     }
 
     // Let the organizer know (unless they turned it off on the RSVP screen).
-    if (isRsvpNotifyOn(await fetchPageSettings(pageId))) {
+    if (isRsvpNotifyOn(settings)) {
       await notifyOwnerOfRsvp(pageId, {
         name: name.trim(),
         email: email.trim(),

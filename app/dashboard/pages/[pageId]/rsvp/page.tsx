@@ -7,6 +7,8 @@ import { pagePath } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { RsvpNotifyOption } from '@/app/ui/dashboard/rsvp-notify-option';
 import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
+import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { RsvpGuestListOption } from '@/app/ui/dashboard/rsvp-guest-list-option';
 import { auth } from '@/auth';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
@@ -35,6 +37,13 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
       />
 
       <RsvpNotifyOption pageId={pageId} initialOn={isRsvpNotifyOn(settings)} email={session?.user?.email ?? undefined} />
+
+      <RsvpGuestListOption
+        pageId={pageId}
+        initialOn={isRsvpGuestListOnly(settings)}
+        guestCount={guests.length}
+        guestListHref={pagePath(pageId, '/guest-list')}
+      />
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
         <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />

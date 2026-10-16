@@ -30,8 +30,8 @@ export const FAQ_GROUPS: FaqGroup[] = [
     id: 'pricing',
     title: 'Plans & pricing',
     faqs: [
-      { q: 'Is MyGala free?', a: 'Yes. Create as many event pages as you need for free, each with every theme, RSVPs with guest counts, the countdown, event details, the event program and a gallery of up to 8 photos.' },
-      { q: 'What does Plus add?', a: 'Plus adds guest photo uploads with printable QR codes, the livestream section, song requests, automatic reminder emails, custom sections, sponsors, a registry section, a custom domain, a gallery of up to 100 photos and priority support.' },
+      { q: 'Is MyGala free?', a: 'Yes. Create as many event pages as you need for free, each with every theme, RSVPs with guest counts, the countdown, event details, the event program, a gallery of up to 8 photos and a guest photo wall for up to 50 photos from your guests.' },
+      { q: 'What does Plus add?', a: 'Plus adds room for up to 500 guest photos, invitations, the livestream section, song requests, automatic reminder emails, custom sections, sponsors, a registry section, a custom domain, a gallery of up to 100 photos and priority support.' },
       { q: 'How much is Plus, and is it a subscription?', a: 'Plus is a one-time payment of $49.99 CAD (plus applicable tax) per event page, so you only pay for the events that need it. It is not a subscription: there are no recurring charges and no card kept on file.' },
       { q: 'What happens when my 15 months of Plus end?', a: 'Your page stays online. The Plus features switch off and the page continues on the free plan until you extend Plus with another one-time payment.' },
       { q: 'Can I start free and upgrade later?', a: 'Yes. When you create an event you choose Free or Plus, and you can upgrade a free event at any time from Event pages. Everything you set up stays, and Plus features become available immediately.' },
@@ -66,8 +66,8 @@ export const FAQ_GROUPS: FaqGroup[] = [
     id: 'photos-media',
     title: 'Photos, video & livestream',
     faqs: [
-      { q: 'What’s the difference between the gallery and guest photos?', a: 'The gallery is for photos you upload as the host. Guest photos (Plus) is a separate wall where guests upload their own photos from their phones.' },
-      { q: 'How do guests upload photos during the event?', a: 'With Plus, print the guest photo QR code for your tables. Guests scan it with their phone camera and upload — no app needed.' },
+      { q: 'What’s the difference between the gallery and guest photos?', a: 'The gallery is for photos you upload as the host. Guest photos is a separate wall where guests upload their own photos from their phones — free for up to 50 photos, or up to 500 with Plus.' },
+      { q: 'How do guests upload photos during the event?', a: 'Switch on Guest Photos and print the guest photo QR code for your tables (free for up to 50 photos). Guests scan it with their phone camera and upload — no app needed.' },
       { q: 'Can I use my own photo as my banner?', a: 'Yes. Upload a photo for the top banner of your page, or keep the theme’s default artwork.' },
       { q: 'Can I stream my event?', a: 'Yes, with Plus. Add a YouTube, Vimeo, Twitch or Facebook video to play on your page, or link to Zoom, Google Meet or any other service.' },
     ],

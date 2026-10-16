@@ -108,6 +108,8 @@ export interface Translations {
   errorName: string;
   errorEmail: string;
   errorGeneral: string;
+  errorNotOnGuestList: string; // when the host only accepts replies from their guest list
+  rsvpGuestListNote: string; // above the RSVP form when the host only accepts replies from their guest list
   // Guest photos
   guestPhotos: string;
   shareYourPhoto: string;
@@ -115,6 +117,7 @@ export interface Translations {
   beFirstToShare: string;
   photoUploaded: string;
   photoUploadError: string;
+  photoLimitReached: string; // the page's photo wall is full
   // Share / hashtag section
   tagYourPosts: string;
   shareThisEvent: string;
@@ -227,6 +230,8 @@ const en: Translations = {
   errorName: 'Please enter your name.',
   errorEmail: 'Please enter a valid email address.',
   errorGeneral: 'Something went wrong. Please try again.',
+  errorNotOnGuestList: 'We couldn’t find this email on the guest list. Please use the email address your host has for you, or contact your host.',
+  rsvpGuestListNote: 'This RSVP is for guests on the guest list. Please use the email address your host has for you.',
   guestPhotos: 'Guest Photos',
   shareYourPhoto: 'Upload Photos',
   loadMore: 'Load more',
@@ -237,6 +242,7 @@ const en: Translations = {
   linkCopied: 'Link copied',
   photoUploaded: 'Photo shared — thank you!',
   photoUploadError: 'Upload failed. Please try again.',
+  photoLimitReached: 'This photo wall is full, so no more photos can be added. Thank you for sharing!',
   songRequests: 'Song Requests',
   buildOurPlaylist: 'Build our playlist',
   yourName: 'Your name',
@@ -343,6 +349,8 @@ const fr: Translations = {
   errorName: 'Veuillez entrer votre nom.',
   errorEmail: 'Veuillez entrer une adresse courriel valide.',
   errorGeneral: 'Une erreur est survenue. Veuillez réessayer.',
+  errorNotOnGuestList: 'Nous ne trouvons pas ce courriel sur la liste des invités. Utilisez l’adresse courriel que votre hôte a pour vous, ou communiquez avec votre hôte.',
+  rsvpGuestListNote: 'Cette réponse est réservée aux invités de la liste. Utilisez l’adresse courriel que votre hôte a pour vous.',
   guestPhotos: 'Photos des invités',
   shareYourPhoto: 'Télécharger une photo',
   loadMore: 'Charger plus',
@@ -353,6 +361,7 @@ const fr: Translations = {
   linkCopied: 'Lien copié',
   photoUploaded: 'Photo partagée — merci!',
   photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
+  photoLimitReached: 'Ce mur de photos est complet : il n’est plus possible d’ajouter de photos. Merci d’avoir partagé!',
   songRequests: 'Demandes de chansons',
   buildOurPlaylist: 'Construisez notre playlist',
   yourName: 'Votre nom',
@@ -459,6 +468,8 @@ const es: Translations = {
   errorName: 'Por favor ingresa tu nombre.',
   errorEmail: 'Por favor ingresa una dirección de correo válida.',
   errorGeneral: 'Algo salió mal. Por favor intenta de nuevo.',
+  errorNotOnGuestList: 'No encontramos este correo en la lista de invitados. Usa el correo electrónico que tu anfitrión tiene de ti, o comunícate con tu anfitrión.',
+  rsvpGuestListNote: 'Esta confirmación es para los invitados de la lista. Usa el correo electrónico que tu anfitrión tiene de ti.',
   guestPhotos: 'Fotos de invitados',
   shareYourPhoto: 'Subir Fotos',
   loadMore: 'Cargar más',
@@ -469,6 +480,7 @@ const es: Translations = {
   linkCopied: 'Enlace copiado',
   photoUploaded: 'Foto compartida — ¡gracias!',
   photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
+  photoLimitReached: 'Este muro de fotos está lleno, así que no se pueden agregar más fotos. ¡Gracias por compartir!',
   songRequests: 'Solicitudes de canciones',
   buildOurPlaylist: 'Construye nuestra playlist',
   yourName: 'Tu nombre',

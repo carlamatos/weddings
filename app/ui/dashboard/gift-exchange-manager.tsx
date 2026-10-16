@@ -27,6 +27,7 @@ import { GIFT_COPY, giftLang } from '@/app/lib/gift-exchange-copy';
 import { smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { btn, card, cell, headCell, input, primary } from './guest-ui';
+import { PlusLock, usePlus } from './plus-gate';
 
 export type GiftRow = {
   id: number;
@@ -75,6 +76,7 @@ export function GiftExchangeManager({
   language?: string | null;
   hostName?: string;
 }) {
+  const plus = usePlus();
   const router = useRouter();
   const copy = GIFT_COPY[giftLang(language)];
 
@@ -178,6 +180,8 @@ export function GiftExchangeManager({
   }
 
   async function draw() {
+    // Drawing is what sets the exchange going for guests: Plus.
+    if (!plus.paid) { plus.ask({ section: '/gift-exchange' }); return; }
     const again = drawn
       ? '\n\nThis replaces the current draw: everyone will have a new person, so you’ll need to tell everyone again.'
       : '';
@@ -340,6 +344,7 @@ export function GiftExchangeManager({
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             {!drawn ? (
               <button type="button" style={{ ...primary, opacity: participants.length >= GIFT_MIN_TO_DRAW ? 1 : 0.5 }} disabled={participants.length < GIFT_MIN_TO_DRAW || busy === 'draw'} onClick={draw}>
+                <PlusLock />
                 {busy === 'draw' ? 'Drawing…' : 'Draw names'}
               </button>
             ) : (

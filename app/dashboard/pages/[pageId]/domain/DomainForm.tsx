@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { saveDomain, removeDomain } from '@/app/lib/actions';
-import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PlusLock, usePlus } from '@/app/ui/dashboard/plus-gate';
 
 const VERCEL_IP = '216.150.1.1';
 const VERCEL_CNAME = '842c52a8e96459ec.vercel-dns-017.com';
@@ -68,48 +68,23 @@ function StatusBadge({ isActive }: { isActive: boolean }) {
   );
 }
 
-async function redirectToStripe(endpoint: string, body: Record<string, unknown> | undefined, setError: (e: string) => void, setLoading: (l: boolean) => void) {
-  setLoading(true);
-  setError('');
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      setError(data.error || 'Something went wrong. Please try again.');
-      setLoading(false);
-    }
-  } catch {
-    setError('Network error. Please try again.');
-    setLoading(false);
-  }
-}
-
 export default function DomainForm({
   pageId,
   initialDomain,
   initialStatus,
   isPaid,
-  expired = false,
 }: {
   pageId: number;
   initialDomain: string | null;
   initialStatus: string;
   isPaid: boolean;
-  // Previously paid, term lapsed — show "extend" instead of "upgrade".
-  expired?: boolean;
 }) {
   const [domain, setDomain] = useState<string | null>(initialDomain);
   const [status, setStatus] = useState(initialStatus);
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
   const [checking, setChecking] = useState(false);
-  const [stripeLoading, setStripeLoading] = useState(false);
+  const plus = usePlus();
   const [isPending, startTransition] = useTransition();
   const [isRemoving, startRemoveTransition] = useTransition();
 
@@ -164,40 +139,29 @@ export default function DomainForm({
 
   const isActive = status === 'active';
 
-  // Free plan
+  // Free plan: the form works as usual up to connecting, which asks for Plus.
   if (!isPaid) {
     return (
       <>
-        <div style={{ opacity: 0.4, pointerEvents: 'none', userSelect: 'none' }}>
-          <label style={{ fontSize: 13, fontWeight: 500, color: '#241F2B', display: 'block', marginBottom: 8 }}>
+        <form onSubmit={(e) => { e.preventDefault(); plus.ask({ section: '/domain' }); }}>
+          <label htmlFor="domain-input" style={{ fontSize: 13, fontWeight: 500, color: '#241F2B', display: 'block', marginBottom: 8 }}>
             Domain name
           </label>
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <input
+              id="domain-input"
               type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               placeholder="yourdomain.com or www.yourdomain.com"
-              disabled
-              style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE', fontSize: 14, color: '#241F2B', fontFamily: 'system-ui', background: '#F5F3F0' }}
+              style={{ flex: '1 1 240px', padding: '10px 14px', borderRadius: 8, border: '1px solid #D8D3CE', fontSize: 14, color: '#241F2B', fontFamily: 'system-ui', background: '#fff' }}
             />
-            <button disabled style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#241F2B', color: '#fff', fontSize: 14, fontWeight: 500 }}>
-              Add Domain
+            <button type="submit" style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#241F2B', color: '#fff', fontSize: 14, fontWeight: 500, cursor: 'pointer' }}>
+              <PlusLock />Connect domain
             </button>
           </div>
-        </div>
-        <DnsInstructions domain="" />
-        {error && <p style={{ color: '#8B3A2A', fontSize: 13, margin: '12px 0 0' }}>{error}</p>}
-        <button
-          onClick={() => redirectToStripe('/api/stripe/checkout', { pageId }, setError, setStripeLoading)}
-          disabled={stripeLoading}
-          style={{
-            marginTop: 20, padding: '11px 28px', borderRadius: 8, border: 'none',
-            background: '#B6584A', color: '#fff', fontSize: 14, fontWeight: 600,
-            cursor: stripeLoading ? 'not-allowed' : 'pointer',
-            opacity: stripeLoading ? 0.7 : 1,
-          }}
-        >
-          {stripeLoading ? 'Redirecting…' : expired ? `Extend for ${PLAN_PRICE_PLUS_TAX} — ${PLAN_TERM_MONTHS} months` : `Upgrade for ${PLAN_PRICE_PLUS_TAX} — ${PLAN_TERM_MONTHS} months`}
-        </button>
+        </form>
+        <DnsInstructions domain={input.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '')} />
       </>
     );
   }

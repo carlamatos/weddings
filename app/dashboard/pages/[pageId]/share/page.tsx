@@ -67,7 +67,7 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
             ? 'Social networks can’t show a video or SVG banner as a preview, so a fallback image is used instead.'
             : 'You haven’t uploaded a top banner yet, so your theme’s default image is used.'}{' '}
         Change it from{' '}
-        <Link href={pagePath(userPage.id)} style={{ color: '#B6584A' }}>Edit Page</Link>.
+        <Link href={pagePath(userPage.id)} style={{ color: '#B6584A' }}>Edit Event Page</Link>.
         {' '}Networks cache previews, so a new banner can take a while to show up on links already shared.
       </p>
 

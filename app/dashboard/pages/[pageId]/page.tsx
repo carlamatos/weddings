@@ -22,6 +22,9 @@ import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
+import EditorCanvas from '@/app/ui/themes/EditorCanvas';
+import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { areGuestPhotosOn } from '@/app/lib/guest-photos';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -29,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const isPaid = isPagePaidAndLive(userPage);
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
     fetchGalleryImages(pageId),
-    isPaid ? fetchGuestPhotos(userPage.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+    fetchGuestPhotos(userPage.id, 0),
     isPaid ? fetchGuestSongs(userPage.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchPageSettings(userPage.id),
     fetchEventProgram(pageId),
@@ -40,7 +43,8 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   const heroStyle = heroStyleFromSettings(pageSettings);
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
-  const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
+  // Free pages get Guest Photos too (up to FREE_GUEST_PHOTO_LIMIT).
+  const showGuestPhotos = areGuestPhotosOn(pageSettings, isPaid);
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
@@ -160,8 +164,10 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
   };
 
   return (
-    <div style={{ margin: '-32px -28px' }}>
+    <div className="dash-editor-bleed">
+      <EditorCanvas>
       <ThemeRenderer
+        rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         themeSlug={userPage.theme_slug}
         heading={userPage.heading || ''}
         description={userPage.description || undefined}
@@ -182,7 +188,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         userEmail={userPage.user_email || undefined}
         userPhone={userPage.user_phone || undefined}
         mapsKey={mapsKey}
-        galleryToken={isPaid ? signPageId(pageId) : undefined}
+        galleryToken={signPageId(pageId)}
         {...registryProps(userPage, isPaid, pageSettings)}
         galleryImages={galleryImages}
         heroEyebrow={userPage.hero_eyebrow || undefined}
@@ -214,6 +220,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}
       />
+      </EditorCanvas>
     </div>
   );
 }

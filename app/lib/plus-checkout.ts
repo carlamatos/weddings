@@ -16,12 +16,18 @@ export async function createPlusCheckout({
   pageId,
   origin,
   cancelPath = '/dashboard',
+  returnPath,
+  enable,
 }: {
   userId: string;
   email?: string;
   pageId: number;
   origin: string;
   cancelPath?: string;
+  // The dashboard screen to land on after paying (checked by the caller).
+  returnPath?: string;
+  // A Plus setting to switch on once paid (checked by the caller).
+  enable?: string;
 }): Promise<string | null> {
   // Tax-exclusive pricing: Stripe Tax adds GST/HST and provincial sales
   // tax (e.g. BC PST) on top of the price, from the billing address, for the
@@ -48,7 +54,12 @@ export async function createPlusCheckout({
     ],
     success_url: `${origin}/api/stripe/confirm?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${origin}${cancelPath}`,
-    metadata: { userId, pageId: String(pageId) },
+    metadata: {
+      userId,
+      pageId: String(pageId),
+      ...(returnPath ? { returnPath } : {}),
+      ...(enable ? { enable } : {}),
+    },
     allow_promotion_codes: true,
   };
 

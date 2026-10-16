@@ -4,11 +4,12 @@ import { sql } from '@vercel/postgres';
 import { isSafeImage, optimizeImage, isHeicUpload, HEIC_NOT_CONVERTED_ERROR } from '@/app/lib/image-processing';
 import { verifyPageToken } from '@/app/lib/page-token';
 import { overRateLimit } from '@/app/lib/rate-limit';
+import { guestPhotoLimit } from '@/app/lib/guest-photos';
+import { getTranslations } from '@/app/lib/translations';
 
 // Per-visitor limit, stored in Postgres (app/lib/rate-limit) so it holds across serverless instances.
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_IP = 50;
-const MAX_PHOTOS_PAID = 500;
 
 
 export async function POST(request: Request) {
@@ -41,20 +42,20 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
   }
 
-  // Verify the page exists and is paid
+  // Free pages take up to FREE_GUEST_PHOTO_LIMIT photos, Plus pages more.
   const pageResult = await sql`
-    SELECT plan_type FROM user_page WHERE id = ${pageId} LIMIT 1
+    SELECT plan_type, language FROM user_page WHERE id = ${pageId} LIMIT 1
   `;
-  if (!pageResult.rows[0] || pageResult.rows[0].plan_type !== 'paid') {
-    return NextResponse.json({ error: 'Feature not available' }, { status: 403 });
+  if (!pageResult.rows[0]) {
+    return NextResponse.json({ error: 'Invalid page' }, { status: 404 });
   }
-
-  // Enforce 500-photo limit
+  const limit = guestPhotoLimit(pageResult.rows[0].plan_type === 'paid');
   const countResult = await sql`
     SELECT COUNT(*) FROM guests_photos WHERE user_page_id = ${pageId}
   `;
-  if (Number(countResult.rows[0].count) >= MAX_PHOTOS_PAID) {
-    return NextResponse.json({ error: 'Photo limit reached (500 max).' }, { status: 403 });
+  if (Number(countResult.rows[0].count) >= limit) {
+    // Shown to the guest, in the page's language.
+    return NextResponse.json({ error: getTranslations(pageResult.rows[0].language).photoLimitReached, code: 'photo_limit' }, { status: 403 });
   }
 
   try {

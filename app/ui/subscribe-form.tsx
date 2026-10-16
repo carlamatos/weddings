@@ -53,8 +53,8 @@ function slugify(text: string): string {
 }
 
 // Short lists for the plan choice; the full comparison lives on the pricing page.
-const FREE_POINTS = ['Every theme', 'RSVPs, guest list & guest count', 'Countdown, details & event program'];
-const PLUS_POINTS = ['Invitations by email, text & WhatsApp', 'Guest photo uploads & QR code', 'Livestream, reminders & song requests', 'Potluck, custom sections, sponsors & registry', 'Password protection & custom domain', 'Priority support'];
+const FREE_POINTS = ['Every theme', 'RSVPs, guest list & guest count', 'Countdown, details & event program', 'Guest photos by QR code (up to 50)'];
+const PLUS_POINTS = ['Invitations by email, text & WhatsApp', 'Up to 500 guest photos', 'Livestream, reminders & song requests', 'Potluck, custom sections, sponsors & registry', 'Password protection & custom domain', 'Priority support'];
 
 // accountEmail: the signed-in account's email — the contact email starts as
 // this, and the user can change it.

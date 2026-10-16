@@ -4,6 +4,8 @@ import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
 import { PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { pagePath } from '@/app/lib/dashboard';
+import { enablePlusSetting } from '@/app/lib/plus-enable';
+import { isPageReturnPath } from '@/app/lib/plus-features';
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -16,7 +18,8 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
-  // Back to the page that was bought (its editor), else the event pages list.
+  // Back to the screen the upgrade started from (else the page's editor), or
+  // the event pages list.
   let landing = '/dashboard';
   // Set on a successful purchase so the landing page reports the Google Ads
   // conversion (see PurchaseConversion).
@@ -44,7 +47,9 @@ export async function GET(req: NextRequest) {
           SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}
           WHERE id = ${pageId} AND user_id = ${session.user.id}
         `;
-        landing = pagePath(pageId);
+        await enablePlusSetting(pageId, session.user.id, checkoutSession.metadata?.enable);
+        const returnPath = checkoutSession.metadata?.returnPath;
+        landing = isPageReturnPath(returnPath, pageId) ? returnPath : pagePath(pageId);
       }
       conversion = {
         id: checkoutSession.id,
