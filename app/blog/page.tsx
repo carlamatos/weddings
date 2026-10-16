@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { BLOG_POSTS, formatPostDate } from '@/app/lib/marketing/blog';
-import { breadcrumbJsonLd, marketingMetadata, webPageJsonLd } from '@/app/lib/marketing/seo';
+import { blogJsonLd, breadcrumbJsonLd, marketingMetadata } from '@/app/lib/marketing/seo';
 import type { SeoMeta } from '@/app/lib/marketing/types';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
@@ -22,7 +22,7 @@ export default function BlogIndex() {
   const crumbs = [{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }];
   return (
     <MarketingShell>
-      <JsonLd data={webPageJsonLd(SEO, '/blog')} />
+      <JsonLd data={blogJsonLd(SEO, '/blog', BLOG_POSTS.map((p) => ({ title: p.title, path: `/blog/${p.slug}`, published: p.published, image: p.cardImage })))} />
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <header className="mk-hero">
         <div className="wrap">

@@ -156,10 +156,36 @@ export function pageMetadata(title: string, description: string, path: string): 
   return marketingMetadata({ title, description }, path);
 }
 
-// A blog article: the usual marketing metadata, shared as an article.
-export function articleMetadata(seo: SeoMeta, path: string, published: string): Metadata {
+// A blog article: the usual marketing metadata, shared as an article with
+// its own photo as the link preview instead of the site-wide image.
+export function articleMetadata(seo: SeoMeta, path: string, published: string, image: { src: string; alt: string }): Metadata {
   const base = marketingMetadata(seo, path);
-  return { ...base, openGraph: { ...base.openGraph, type: 'article', publishedTime: published } };
+  const url = absoluteUrl(image.src);
+  return {
+    ...base,
+    openGraph: { ...base.openGraph, type: 'article', publishedTime: published, images: [{ url, alt: image.alt }] },
+    twitter: { ...base.twitter, images: [url] },
+  };
+}
+
+// The blog index: a Blog listing every article.
+export function blogJsonLd(seo: SeoMeta, path: string, posts: { title: string; path: string; published: string; image: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    name: seo.title,
+    description: seo.description,
+    url: absoluteUrl(path),
+    inLanguage: 'en',
+    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      url: absoluteUrl(p.path),
+      datePublished: p.published,
+      image: absoluteUrl(p.image),
+    })),
+  };
 }
 
 export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, published: string, image: string) {

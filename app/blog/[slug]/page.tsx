@@ -17,7 +17,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const post = getBlogPost((await params).slug);
-  return post ? articleMetadata(post.seo, `/blog/${post.slug}`, post.published) : {};
+  return post ? articleMetadata(post.seo, `/blog/${post.slug}`, post.published, { src: post.cardImage, alt: post.title }) : {};
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
