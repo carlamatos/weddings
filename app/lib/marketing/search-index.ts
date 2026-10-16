@@ -2,15 +2,16 @@ import { FEATURES } from './features';
 import { EVENT_TYPES } from './events';
 import { FAQ_GROUPS } from './faq';
 import { THEME_CARDS } from './theme-cards';
+import { BLOG_POSTS, postText } from './blog';
 import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { appHref } from '@/app/lib/app-url';
 import type { ContentBlock, Faq } from './types';
 
 // The site search (top bar → search icon): every marketing page, feature,
-// event type, theme and FAQ answer, searched in the browser. Loaded only
+// event type, theme, blog article and FAQ answer, searched in the browser. Loaded only
 // when the search opens, so it adds nothing to a page's first load.
 
-export type SearchKind = 'Page' | 'Feature' | 'Event type' | 'Theme' | 'FAQ';
+export type SearchKind = 'Page' | 'Feature' | 'Event type' | 'Theme' | 'Article' | 'FAQ';
 
 export type SearchEntry = {
   kind: SearchKind;
@@ -55,6 +56,7 @@ function buildIndex(): SearchEntry[] {
       ['price prices cost how much plan plans free plus upgrade payment one time subscription', ...PLAN_FEATURES.free, ...PLAN_FEATURES.plus]),
     entry('Page', 'All themes', '/#themes', 'Browse every theme for weddings, celebrations, business and general events.', ['themes templates designs styles']),
     entry('Page', 'All features', '/features', 'Everything MyGala can do for your event, free and Plus.', FEATURES.map((f) => `${f.navLabel} ${f.summary}`)),
+    entry('Page', 'Blog', '/blog', 'Wedding and event planning tips, checklists and guides.', ['blog articles guides tips advice planning']),
     entry('Page', 'FAQ', '/faq', 'Answers to common questions about MyGala.', ['frequently asked questions help support']),
     entry('Page', 'About us', '/about', 'Who we are and why we built MyGala.', ['about company team story mygala canada']),
     entry('Page', 'Contact us', '/contact', 'Questions, feedback or help with your event page.', ['contact email support help phone reach']),
@@ -81,14 +83,18 @@ function buildIndex(): SearchEntry[] {
     CATEGORY_LABEL[t.category] ?? '', 'theme template design', t.sample.heading,
   ]));
 
+  const articles = BLOG_POSTS.map((p) => entry('Article', p.title, `/blog/${p.slug}`, p.summary, [
+    p.eyebrow, p.lead, p.seo.description, ...(p.seo.keywords ?? []), ...postText(p), ...faqText(p.faqs ?? []),
+  ]));
+
   const faqs = FAQ_GROUPS.flatMap((g) => g.faqs.map((f) => entry('FAQ', f.q, `/faq#${g.id}`, f.a, [g.title])));
 
-  return [...pages, ...features, ...eventTypes, ...themes, ...faqs];
+  return [...pages, ...features, ...eventTypes, ...themes, ...articles, ...faqs];
 }
 
 export const SEARCH_INDEX: SearchEntry[] = buildIndex();
 
-const KIND_BOOST: Record<SearchKind, number> = { Page: 3, Feature: 3, 'Event type': 3, Theme: 2, FAQ: 0 };
+const KIND_BOOST: Record<SearchKind, number> = { Page: 3, Feature: 3, 'Event type': 3, Theme: 2, Article: 2, FAQ: 0 };
 
 // Query words, with a plural "s" dropped so "photos" also finds "photo".
 export function queryTerms(query: string): string[] {

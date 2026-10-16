@@ -850,7 +850,8 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .mobile-menu-drawer .dash-sidebar-nav { flex: 1 0 auto; }
 
 /* ---------- responsive rules ---------- */
-@media (max-width: 768px) {
+/* Below 1000px the sidebar collapses into the menu button's drawer. */
+@media (max-width: 999.98px) {
   .dash-sidebar { display: none; }
   .mobile-burger { display: flex; }
   /* The menu button stays at the left edge: if the bar's buttons don't fit,
@@ -858,14 +859,16 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .dash-topnav { justify-content: flex-start; gap: 10px; padding: 0 12px; }
   .dash-user--btn { min-width: 0; }
   .dash-user--btn span { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}
 
+@media (max-width: 768px) {
   .dash-theme-switcher { display: none; }
   .dash-preview-full-text { display: none; }
   .dash-content { padding: 20px 16px; }
   .dash-2col { grid-template-columns: 1fr; }
 }
 
-/* Phones and tablets: only the menu button (phones) and the profile stay
+/* Phones and tablets: only the menu button (below 1000px) and the profile stay
    in the top bar. Upgrade, Theme, Language, Share RSVP, Share and Preview
    move into the profile menu. */
 @media (max-width: 1024px) {

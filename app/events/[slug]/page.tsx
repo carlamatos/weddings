@@ -5,15 +5,12 @@ import { appHref } from '@/app/lib/app-url';
 import { EVENT_TYPES, getEventType } from '@/app/lib/marketing/events';
 import { breadcrumbJsonLd, faqPageJsonLd, marketingMetadata, webPageJsonLd } from '@/app/lib/marketing/seo';
 import { themeCardsFor } from '@/app/lib/marketing/theme-cards';
-import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { Blocks, FeatureCards, FinalCta } from '@/app/ui/marketing/content-blocks';
 import { FaqList } from '@/app/ui/marketing/faq-list';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
-
-// Theme previews render at 280px tall; the card slot is 220px.
-const PREVIEW_SCALE = 220 / 280;
+import { ThemeGrid } from '@/app/ui/marketing/theme-grid';
 
 export const dynamicParams = false;
 
@@ -63,21 +60,7 @@ export default async function EventTypePage({ params }: { params: Promise<{ slug
         <section className="mk-templates" id="templates">
           <h2 className="mk-h2">{type.name} templates</h2>
           <p className="mk-sub">Open any template for a full live preview. Every template includes every feature, and you can switch at any time.</p>
-          <div className="theme-grid">
-            {themes.map((t) => (
-              <a key={t.slug} href={`/themes/${t.slug}`} target="_blank" rel="noopener noreferrer" className="theme-card" style={{ textDecoration: 'none' }}>
-                <div className="theme-preview" style={{ overflow: 'hidden', background: t.bg }}>
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / PREVIEW_SCALE}%`, transform: `scale(${PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
-                    <ThemeHeroPreview themeSlug={t.slug} {...t.sample} />
-                  </div>
-                </div>
-                <div className="theme-info">
-                  <h3 className="theme-name">{t.name}</h3>
-                  <p className="theme-desc">{t.desc}</p>
-                </div>
-              </a>
-            ))}
-          </div>
+          <ThemeGrid themes={themes} />
         </section>
 
         <div className="mk-body">
