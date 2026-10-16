@@ -2,7 +2,7 @@ import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
-import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
+import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
@@ -13,15 +13,6 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
-  if (page.plan_type !== 'paid') {
-    return (
-      <PlusUpgradePrompt
-        page={page}
-        title="Invitations"
-        pitch="Invitations is a Plus feature. Upgrade to design an invitation that matches your theme and send it to your guest list by email, text message or WhatsApp — with a personal note for each guest. Your guest list itself is free, under Guests → Guest List."
-      />
-    );
-  }
 
   const [settings, guests] = await Promise.all([fetchPageSettings(pageId), fetchGuests(pageId)]);
 
@@ -35,6 +26,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <PlusSetupNote section="/invitations" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Invitations</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
+import { enablePlusSetting } from '@/app/lib/plus-enable';
 import { isDeadSubscription, subscriptionPeriodEnd } from '@/app/lib/subscriptions';
 import { PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
@@ -47,6 +48,7 @@ export async function POST(req: NextRequest) {
               SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}
               WHERE id = ${pageId} AND user_id = ${userId}
             `;
+            await enablePlusSetting(pageId, userId, session.metadata?.enable);
           }
         }
         break;

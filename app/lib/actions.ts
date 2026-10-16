@@ -476,15 +476,18 @@ const PLUS_ONLY_ERROR = 'This is a Plus feature.';
 const GENERIC_PLUS_ERROR = 'Couldn’t save. Please try again.';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// The page id when the signed-in user owns this page and it's paid, else an error.
-async function ownedPlusPageId(pageId: number): Promise<PlusResult<number>> {
+// The page id when the signed-in user owns this page and it's paid, else an
+// error. `setup`: saving a Plus feature's content, which a free page may do
+// too — the host sets it up fully and only turning it on for guests (the
+// public page checks the plan) or sending needs Plus.
+async function ownedPlusPageId(pageId: number, { setup = false }: { setup?: boolean } = {}): Promise<PlusResult<number>> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
   const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
   if (!page.rows[0]) return { ok: false, error: 'Page not found.' };
-  if (page.rows[0].plan_type !== 'paid') return { ok: false, error: PLUS_ONLY_ERROR };
+  if (!setup && page.rows[0].plan_type !== 'paid') return { ok: false, error: PLUS_ONLY_ERROR };
   return { ok: true, value: pid };
 }
 
@@ -500,7 +503,7 @@ export async function saveCustomSection(
   const blocks = normalizeBlocks(data?.blocks);
   if (!blocks) return { ok: false, error: 'Some of the content couldn’t be saved. Please check it and try again.' };
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     if (!title && !blocks.length) {
       await sql`DELETE FROM page_custom_sections WHERE user_page_id = ${owned.value} AND position = ${position}`;
@@ -539,7 +542,7 @@ export async function addSponsor(
   const input = cleanSponsorInput(data);
   if (!input.ok) return input;
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const count = await sql`SELECT COUNT(*)::int AS n, COALESCE(MAX(position), 0)::int AS last FROM page_sponsors WHERE user_page_id = ${owned.value}`;
     if (count.rows[0].n >= SPONSOR_MAX_COUNT) return { ok: false, error: `You can add up to ${SPONSOR_MAX_COUNT} sponsors.` };
@@ -565,7 +568,7 @@ export async function updateSponsor(
   const input = cleanSponsorInput(data);
   if (!input.ok) return input;
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const result = await sql<Sponsor>`
       UPDATE page_sponsors SET image_url = ${input.value.imageUrl}, image_bg = ${input.value.imageBg}, description = ${input.value.description}
@@ -584,7 +587,7 @@ export async function updateSponsor(
 export async function deleteSponsor(pageId: number, sponsorId: string): Promise<PlusResult<null>> {
   if (typeof sponsorId !== 'string' || !UUID_RE.test(sponsorId)) return { ok: false, error: 'Sponsor not found.' };
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`DELETE FROM page_sponsors WHERE id = ${sponsorId} AND user_page_id = ${owned.value}`;
     revalidatePath('/', 'layout');
@@ -601,7 +604,7 @@ export async function reorderSponsors(pageId: number, orderedIds: string[]): Pro
     return { ok: false, error: 'Couldn’t reorder the sponsors.' };
   }
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql.query(
       `UPDATE page_sponsors s SET position = o.ord
@@ -628,7 +631,7 @@ export async function saveRegistry(
   const buttonText = (typeof data?.buttonText === 'string' ? data.buttonText : '').replace(/\s+/g, ' ').trim().slice(0, REGISTRY_BUTTON_TEXT_MAX);
   const message = (typeof data?.message === 'string' ? data.message : '').replace(/\r\n/g, '\n').trim().slice(0, REGISTRY_MESSAGE_MAX);
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`
       UPDATE user_page SET
@@ -658,7 +661,7 @@ export async function saveLivestream(
   const buttonText = (typeof data?.buttonText === 'string' ? data.buttonText : '').replace(/\s+/g, ' ').trim().slice(0, LIVESTREAM_BUTTON_TEXT_MAX);
   const message = (typeof data?.message === 'string' ? data.message : '').replace(/\r\n/g, '\n').trim().slice(0, LIVESTREAM_MESSAGE_MAX);
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const values: [string, string][] = [
       [LIVESTREAM_SETTINGS.url, url],
@@ -697,7 +700,7 @@ export async function savePagePassword(
     return { ok: false, error: `Use a password of ${PAGE_PASSWORD_MIN} to ${PAGE_PASSWORD_MAX} characters.` };
   }
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const upsert = (name: string, value: string) => sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
@@ -836,7 +839,7 @@ export async function removeGuest(pageId: number, guestId: string): Promise<{ ok
 // known fonts, #RRGGBB colours, bounded text and MyGala-hosted images are kept.
 export async function saveInvitationDesign(pageId: number, design: unknown): Promise<PlusResult<InvitationDesign>> {
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const theme = await sql`SELECT et.slug FROM user_page up LEFT JOIN event_themes et ON et.theme_id = up.theme_id WHERE up.id = ${owned.value}`;
     const clean = normalizeInvitation(design, theme.rows[0]?.slug);
@@ -864,14 +867,15 @@ type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: s
 // The signed-in owner's Plus page, its saved invitation design, the host's
 // name/email (for the From name and Reply-To) and the event details (with the
 // page password, when the host includes it).
-async function invitationContext(pageId: number): Promise<PlusResult<InvitationContext>> {
+// `test`: a test to the host themselves, which a free page may send too.
+async function invitationContext(pageId: number, { test = false }: { test?: boolean } = {}): Promise<PlusResult<InvitationContext>> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
   const page = await fetchOwnedPage(userId, pid);
   if (!page) return { ok: false, error: 'Page not found.' };
-  if (page.plan_type !== 'paid') return { ok: false, error: 'Invitations are a Plus feature.' };
+  if (!test && page.plan_type !== 'paid') return { ok: false, error: 'Invitations are a Plus feature.' };
   const [settings, user] = await Promise.all([
     fetchPageSettings(pid),
     sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
@@ -969,7 +973,7 @@ export async function sendInvitations(
 // their own inbox first. Limited to 5 an hour.
 export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean; message: string }> {
   try {
-    const ctx = await invitationContext(pageId);
+    const ctx = await invitationContext(pageId, { test: true });
     if (!ctx.ok) return { ok: false, message: ctx.error };
     const { page, design, hostName, hostEmail, details } = ctx.value;
     if (!hostEmail) return { ok: false, message: 'Your account has no email address.' };
@@ -998,7 +1002,7 @@ export async function saveInvitationNote(pageId: number, guestId: string, raw: s
   try {
     if (!UUID_RE.test(guestId)) return { ok: false, error: 'Guest not found.' };
     const note = String(raw ?? '').replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX);
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const res = await sql`
       UPDATE event_guests SET invitation_note = ${note || null}
@@ -1041,7 +1045,7 @@ export async function saveGiftExchangeDetails(
   input: { budget?: string; exchangeDate?: string; note?: string },
 ): Promise<PlusResult<GiftExchangeDetails>> {
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const clean = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\r\n/g, '\n').trim().slice(0, max) : '');
     const details: GiftExchangeDetails = {
@@ -1077,7 +1081,7 @@ export async function addGiftParticipantsFromGuests(pageId: number, guestIds: st
   try {
     const ids = [...new Set((Array.isArray(guestIds) ? guestIds : []).filter((id) => typeof id === 'string' && UUID_RE.test(id)))];
     if (!ids.length) return { ok: false, error: 'Choose at least one guest.' };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
     const res = await sql`
@@ -1113,7 +1117,7 @@ export async function addGiftParticipant(
     if (!name) return { ok: false, error: 'Please add a name.' };
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Please enter a valid email address.' };
     if (!isValidOptionalPhone(phone)) return { ok: false, error: PHONE_INVALID_MESSAGE };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
     const count = await sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM page_gift_exchange WHERE user_page_id = ${owned.value}`;
@@ -1135,7 +1139,7 @@ export async function addGiftParticipant(
 export async function removeGiftParticipant(pageId: number, participantId: number): Promise<PlusResult<null>> {
   try {
     if (!Number.isInteger(participantId) || participantId <= 0) return { ok: false, error: 'Participant not found.' };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     // Removing someone after the draw would leave a gap in the circle.
     if (await giftExchangeDrawn(owned.value)) return { ok: false, error: DRAWN_ERROR };
@@ -1195,7 +1199,7 @@ export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count:
 export async function addGiftExclusion(pageId: number, aId: number, bId: number): Promise<PlusResult<{ redrawNeeded: boolean }>> {
   try {
     if (!Number.isInteger(aId) || !Number.isInteger(bId) || aId === bId) return { ok: false, error: 'Choose two different people.' };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const [a, b] = aId < bId ? [aId, bId] : [bId, aId];
     const people = await sql<{ id: number; giftee_id: number | null }>`
@@ -1218,7 +1222,7 @@ export async function addGiftExclusion(pageId: number, aId: number, bId: number)
 export async function removeGiftExclusion(pageId: number, exclusionId: number): Promise<PlusResult<null>> {
   try {
     if (!Number.isInteger(exclusionId)) return { ok: false, error: 'Not found.' };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`DELETE FROM page_gift_exclusions WHERE id = ${exclusionId} AND user_page_id = ${owned.value}`;
     revalidatePath('/', 'layout');
@@ -1232,7 +1236,7 @@ export async function removeGiftExclusion(pageId: number, exclusionId: number): 
 // Undoes the draw, reopening sign-ups and letting the host change who's in.
 export async function clearGiftDraw(pageId: number): Promise<PlusResult<null>> {
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`UPDATE page_gift_exchange SET giftee_id = NULL, notified_at = NULL, notified_via = NULL, updated_at = NOW() WHERE user_page_id = ${owned.value}`;
     revalidatePath('/', 'layout');
@@ -1379,9 +1383,9 @@ export async function saveReminderSettings(
   const timeZone = isValidTimeZone(data.timeZone) ? data.timeZone : DEFAULT_REMINDER_TIMEZONE;
   const message = (data.message ?? '').trim().slice(0, REMINDER_MESSAGE_MAX_LENGTH);
   try {
-    const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
+    const page = await sql`SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
     if (!page.rows[0]) return { ok: false, error: 'Page not found.' };
-    if (page.rows[0].plan_type !== 'paid') return { ok: false, error: 'Event Reminders are a Plus feature.' };
+    // A free page can set its schedule up; the cron job only sends for Plus pages.
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
       VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message}), (${pid}, 'reminder_timezone', ${timeZone})
@@ -1406,7 +1410,7 @@ export async function sendTestReminder(pageId: number, message: string): Promise
   if (await isRateLimited(limitKey, 5)) return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
   const page = await fetchOwnedPage(userId, pid);
   if (!page) return { ok: false, message: 'Page not found.' };
-  if (page.plan_type !== 'paid') return { ok: false, message: 'Event Reminders are a Plus feature.' };
+  // Free pages may test too: it only goes to the host.
   await recordAttempt(limitKey, 60 * 60 * 1000);
   const { subject, html } = reminderEmail({
     page,

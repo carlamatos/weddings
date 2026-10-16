@@ -4,22 +4,13 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { giftExchangeDetails, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { giftRevealUrl } from '@/app/lib/gift-token';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-import { PlusUpgradePrompt } from '@/app/ui/dashboard/plus-upgrade-prompt';
+import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { GiftExchangeManager, type GiftRow } from '@/app/ui/dashboard/gift-exchange-manager';
 
 export default async function GiftExchangePage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
-  if (page.plan_type !== 'paid') {
-    return (
-      <PlusUpgradePrompt
-        page={page}
-        title="Gift Exchange"
-        pitch="The Gift Exchange is a Plus feature. Upgrade to run a Secret Santa: guests join from your page, MyGala draws names so nobody gets themselves, and everyone finds out who they’re buying for by email, text or WhatsApp."
-      />
-    );
-  }
 
   const [settings, participants, guests, exclusions] = await Promise.all([fetchPageSettings(pageId), fetchGiftParticipants(pageId), fetchGuests(pageId), fetchGiftExclusions(pageId)]);
   const byId = new Map(participants.map((p) => [p.id, p]));
@@ -42,6 +33,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <PlusSetupNote section="/gift-exchange" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Gift Exchange</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
@@ -49,7 +41,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
           for — by email, text or WhatsApp. Nobody draws their own name. The section appears on your page right after the RSVP.
         </p>
       </div>
-      <SectionToggle pageId={pageId} settingName="show_gift_exchange" initialOn={isGiftExchangeOn(settings)} />
+      <SectionToggle pageId={pageId} settingName="show_gift_exchange" plusSection="/gift-exchange" initialOn={isGiftExchangeOn(settings)} />
       <GiftExchangeManager
         pageId={pageId}
         initialDetails={giftExchangeDetails(settings)}

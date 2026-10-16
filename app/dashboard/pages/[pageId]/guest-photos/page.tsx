@@ -1,32 +1,15 @@
 import { fetchGuestPhotos, fetchPageSettings, isSectionOn } from '@/app/lib/data';
-import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { hasExpiredPlan } from '@/app/lib/plans';
+import { requireOwnedPage } from '@/app/lib/dashboard';
 import { publicPageUrl } from '@/app/lib/share';
 import { DashboardGuestPhotos } from '@/app/ui/themes/GuestPhotoSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PhotoQrCard } from '@/app/ui/dashboard/photo-qr-card';
-import Link from 'next/link';
+import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
+import { isPagePaidAndLive } from '@/app/lib/plans';
 
 export default async function GuestPhotosPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
-  const isPaid = userPage.plan_type === 'paid';
 
-  if (!isPaid) {
-    const expired = hasExpiredPlan(userPage);
-    return (
-      <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 520, padding: '60px 24px', textAlign: 'center', margin: '0 auto' }}>
-        <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', marginBottom: 10 }}>Guest Photos</p>
-        <p style={{ fontSize: 14, color: '#6B6470', marginBottom: 24 }}>
-          {expired
-            ? 'Your Plus term has ended. Extend to bring the Guest Photo Wall back.'
-            : 'The Guest Photo Wall is a Plus feature. Upgrade to let guests share photos directly on your event page.'}
-        </p>
-        <Link href={pagePath(userPage.id, '/domain')} style={{ display: 'inline-block', padding: '10px 24px', background: '#B6584A', color: '#fff', borderRadius: 8, fontWeight: 600, textDecoration: 'none', fontSize: 14 }}>
-          {expired ? 'Extend Plus' : 'Upgrade to Plus'}
-        </Link>
-      </div>
-    );
-  }
 
   const [{ photos, hasMore }, settings] = await Promise.all([
     fetchGuestPhotos(userPage.id, 0),
@@ -35,6 +18,7 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
+      <PlusSetupNote section="/guest-photos" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Guest Photos</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
@@ -44,14 +28,14 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
 
       <SectionToggle
         pageId={Number(userPage.id)}
-        settingName="show_guest_photos"
+        settingName="show_guest_photos" plusSection="/guest-photos"
         initialOn={isSectionOn(settings, 'show_guest_photos')}
       />
 
       <PhotoQrCard
         uploadUrl={`${publicPageUrl(userPage)}#photos`}
         heading={userPage.heading || ''}
-        sectionOn={isSectionOn(settings, 'show_guest_photos')}
+        sectionOn={isPagePaidAndLive(userPage) && isSectionOn(settings, 'show_guest_photos')}
       />
 
       <DashboardGuestPhotos

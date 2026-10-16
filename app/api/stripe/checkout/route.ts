@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { fetchOwnedPage, parsePageId } from '@/app/lib/data';
 import { createPlusCheckout } from '@/app/lib/plus-checkout';
+import { PLUS_ENABLE_SETTINGS, isPageReturnPath } from '@/app/lib/plus-features';
 
 // Buy (or extend) Plus for one of the user's event pages. Plus is charged
 // per event, so a page id is required.
@@ -12,7 +13,7 @@ export async function POST(req: Request) {
   }
 
   const userId = session.user.id;
-  const body = (await req.json().catch(() => ({}))) as { pageId?: unknown };
+  const body = (await req.json().catch(() => ({}))) as { pageId?: unknown; returnPath?: unknown; enable?: unknown };
   const pageId = parsePageId(body.pageId);
   if (pageId === null) {
     return NextResponse.json({ error: 'Choose an event page to upgrade.' }, { status: 400 });
@@ -29,6 +30,13 @@ export async function POST(req: Request) {
   }
 
   const origin = req.headers.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
-  const url = await createPlusCheckout({ userId, email: session.user.email ?? undefined, pageId, origin });
+  // Back to the screen the upgrade started from (also on cancel), and the
+  // feature the host was turning on, switched on once paid.
+  const returnPath = isPageReturnPath(body.returnPath, pageId) ? body.returnPath : undefined;
+  const enable = typeof body.enable === 'string' && PLUS_ENABLE_SETTINGS.has(body.enable) ? body.enable : undefined;
+  const url = await createPlusCheckout({
+    userId, email: session.user.email ?? undefined, pageId, origin,
+    cancelPath: returnPath ?? '/dashboard', returnPath, enable,
+  });
   return NextResponse.json({ url });
 }

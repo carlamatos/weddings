@@ -9,9 +9,12 @@ interface Props {
   pageId: number;
   currentThemeId: string | null;
   themes: EventTheme[];
+  // Shown before the theme's name ("Theme: Fun Party"), so the button reads
+  // as the theme picker.
+  label?: string;
 }
 
-export default function ThemeSwitcher({ pageId, currentThemeId, themes }: Props) {
+export default function ThemeSwitcher({ pageId, currentThemeId, themes, label }: Props) {
   const current = themes.find((t) => t.theme_id === currentThemeId) ?? themes[0] ?? null;
   const [selected, setSelected] = useState<EventTheme | null>(current);
   const [open, setOpen] = useState(false);
@@ -40,9 +43,11 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes }: Props)
         className="dash-theme-btn"
         onClick={() => setOpen((o) => !o)}
         type="button"
+        aria-expanded={open}
+        aria-haspopup="listbox"
       >
         <SwatchIcon style={{ width: 14, height: 14 }} />
-        <span>{selected?.name ?? 'Choose theme'}</span>
+        <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? 'Choose theme'}</span>
         <ChevronDownIcon style={{ width: 12, height: 12, transition: 'transform 0.15s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
       </button>
 

@@ -2,22 +2,31 @@
 
 import { useState, useTransition } from 'react';
 import { updatePageSetting } from '@/app/lib/actions';
+import { usePlus } from './plus-gate';
 
 export function SectionToggle({
   pageId,
   settingName,
   initialOn,
   label = 'Show on your page',
+  plusSection,
 }: {
   pageId: number;
   settingName: string;
   initialOn: boolean;
   label?: string;
+  // The Plus feature this switch shows to guests (its dashboard path). On a
+  // free page it stays off and asks to upgrade — and switches on after.
+  plusSection?: string;
 }) {
-  const [on, setOn] = useState(initialOn);
+  const plus = usePlus();
+  const locked = !!plusSection && !plus.paid;
+  const [saved, setOn] = useState(initialOn);
+  const on = saved && !locked;
   const [isPending, startTransition] = useTransition();
 
   function toggle() {
+    if (locked) { plus.ask({ section: plusSection, turnOn: true }); return; }
     const next = !on;
     setOn(next);
     startTransition(() => {
@@ -50,6 +59,7 @@ export function SectionToggle({
       </button>
       <span style={{ fontSize: 14, fontWeight: 500, color: '#241F2B' }}>
         {label} — <strong>{on ? 'Visible' : 'Hidden'}</strong>
+        {locked && <span style={{ color: '#6B6470' }}> · turns on with Plus</span>}
       </span>
     </div>
   );

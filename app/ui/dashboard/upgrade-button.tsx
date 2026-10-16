@@ -3,12 +3,15 @@
 import { useState } from 'react';
 
 // Sends the owner to Stripe Checkout for Plus. False when that failed.
-export async function startPlusCheckout(pageId?: number): Promise<boolean> {
+// From inside a page's dashboard, checkout comes back to the same screen;
+// `enable` is a Plus setting to switch on once paid (the section the host
+// was turning on).
+export async function startPlusCheckout(pageId?: number, { enable }: { enable?: string } = {}): Promise<boolean> {
   try {
     const res = await fetch('/api/stripe/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pageId !== undefined ? { pageId } : {}),
+      body: JSON.stringify(pageId !== undefined ? { pageId, returnPath: window.location.pathname, enable } : {}),
     });
     const data = await res.json();
     if (data.url) { window.location.href = data.url; return true; }

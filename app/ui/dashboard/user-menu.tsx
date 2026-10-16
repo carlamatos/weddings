@@ -5,8 +5,7 @@ import { signOut } from 'next-auth/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
-import { ShareSheet, type ShareTarget } from './share-menu';
-import { startPlusCheckout } from './upgrade-button';
+import { ShareSheet, type ShareChoice } from './share-menu';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import type { EventTheme } from '@/app/lib/definitions';
@@ -18,10 +17,8 @@ export type PhoneActions = {
   themes: EventTheme[];
   currentThemeId: string | null;
   language: string;
-  upgrade?: boolean; // free pages only
   previewHref?: string;
-  share?: ShareTarget;
-  shareRsvp?: ShareTarget;
+  shareChoices: ShareChoice[];
 };
 
 interface Profile {
@@ -383,8 +380,7 @@ export default function UserMenu({
   const [displayName, setDisplayName] = useState(name);
   const [statusError, setStatusError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
-  const [sharing, setSharing] = useState<ShareTarget | null>(null);
-  const [upgrading, setUpgrading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
 
@@ -431,28 +427,12 @@ export default function UserMenu({
           <div className="dash-user-menu">
             {phoneActions && (
               <div className="dash-user-menu-phone">
-                {phoneActions.upgrade && (
-                  <button
-                    onClick={async () => { setUpgrading(true); if (!(await startPlusCheckout(phoneActions.pageId))) setUpgrading(false); }}
-                    disabled={upgrading}
-                    className="dash-user-menu-item dash-user-menu-item--upgrade"
-                  >
-                    {upgrading ? 'Redirecting…' : '⭐ Upgrade to Plus'}
-                  </button>
-                )}
-                {phoneActions.shareRsvp && (
-                  <button onClick={() => { setOpen(false); setSharing(phoneActions.shareRsvp!); }} className="dash-user-menu-item">
-                    Share RSVP
-                  </button>
-                )}
-                {phoneActions.share && (
-                  <button onClick={() => { setOpen(false); setSharing(phoneActions.share!); }} className="dash-user-menu-item">
-                    Share
-                  </button>
-                )}
+                <button onClick={() => { setOpen(false); setSharing(true); }} className="dash-user-menu-item">
+                  Share
+                </button>
                 {phoneActions.previewHref && (
                   <a href={phoneActions.previewHref} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="dash-user-menu-item">
-                    Preview page
+                    View your page
                   </a>
                 )}
                 {phoneActions.themes.length > 0 && (
@@ -525,7 +505,7 @@ export default function UserMenu({
 
       {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
 
-      {sharing && <ShareSheet {...sharing} onClose={() => setSharing(null)} />}
+      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} />}
     </>
   );
 }

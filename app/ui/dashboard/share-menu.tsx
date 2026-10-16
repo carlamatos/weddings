@@ -114,9 +114,38 @@ function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLE
   }, [open, close, ref]);
 }
 
-// A button in the dashboard's top bar ("Share", "Share RSVP") that opens the
-// share options beneath it.
-export default function ShareMenu({ label, ...target }: ShareTarget & { label: string }) {
+// What to share: the page itself, or straight to its RSVP form. One Share
+// button offers both, as a choice at the top of the panel.
+export type ShareChoice = { tab: string; target: ShareTarget };
+
+function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () => void }) {
+  const [index, setIndex] = useState(0);
+  const current = choices[index] ?? choices[0];
+  return (
+    <>
+      {choices.length > 1 && (
+        <div className="dash-share-tabs" role="tablist" aria-label="What to share">
+          {choices.map((c, i) => (
+            <button
+              key={c.tab}
+              type="button"
+              role="tab"
+              aria-selected={i === index}
+              className={i === index ? 'is-active' : undefined}
+              onClick={() => setIndex(i)}
+            >
+              {c.tab}
+            </button>
+          ))}
+        </div>
+      )}
+      <SharePanel key={current.tab} {...current.target} onDone={onDone} />
+    </>
+  );
+}
+
+// The top bar's Share button, with the share options beneath it.
+export default function ShareMenu({ choices }: { choices: ShareChoice[] }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
@@ -126,11 +155,11 @@ export default function ShareMenu({ label, ...target }: ShareTarget & { label: s
     <div className="dash-share" ref={ref}>
       <button type="button" className="dash-share-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
         <ShareIcon />
-        {label}
+        Share
       </button>
       {open && (
-        <div className="dash-share-panel" role="dialog" aria-label={target.heading}>
-          <SharePanel {...target} onDone={close} />
+        <div className="dash-share-panel" role="dialog" aria-label="Share">
+          <ChoicePanel choices={choices} onDone={close} />
         </div>
       )}
     </div>
@@ -139,12 +168,12 @@ export default function ShareMenu({ label, ...target }: ShareTarget & { label: s
 
 // The same options opened from elsewhere (the profile menu on phones), as a
 // panel under the top bar.
-export function ShareSheet({ onClose, ...target }: ShareTarget & { onClose: () => void }) {
+export function ShareSheet({ onClose, choices }: { onClose: () => void; choices: ShareChoice[] }) {
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(true, onClose, ref);
   return (
-    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label={target.heading} ref={ref}>
-      <SharePanel {...target} onDone={onClose} />
+    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label="Share" ref={ref}>
+      <ChoicePanel choices={choices} onDone={onClose} />
     </div>
   );
 }

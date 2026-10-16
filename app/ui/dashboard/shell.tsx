@@ -3,11 +3,13 @@ import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
 import { sectionStatus } from '@/app/lib/section-status';
+import { fetchSetupCounts, setupSteps } from '@/app/lib/setup-progress';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
 import { verificationGracePeriodOver, needsTotpChallenge } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
+import { PlusProvider } from '@/app/ui/dashboard/plus-gate';
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
 import { siteHref } from '@/app/lib/app-url';
@@ -51,17 +53,21 @@ export default async function DashboardShell({
   // lapsed paid page to the free tier instead of deactivating it, so it
   // stays live at its URL.
   // On/off state of each section, shown beside it in the sidebar.
-  const status = page ? sectionStatus(page, await fetchPageSettings(page.id)) : undefined;
+  const [settings, counts] = page ? await Promise.all([fetchPageSettings(page.id), fetchSetupCounts(page.id)]) : [];
+  const status = page && settings ? sectionStatus(page, settings) : undefined;
+  // "Your page is 3/5 ready" at the top of the sidebar.
+  const setup = page && counts ? setupSteps(page, counts) : undefined;
 
   const deactivated = page?.status === 'inactive';
   const suspended = page?.status === 'suspended';
   const expired = !!page && hasExpiredPlan(page);
 
   return (
+    <PlusProvider pageId={page ? Number(page.id) : undefined} paid={page ? isPagePaidAndLive(page) : true} expired={expired}>
     <div className={`dash dash-shell ${greatVibes.variable}`}>
-      <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} status={status} />
+      <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} status={status} setup={setup} />
       <div className="dash-main">
-        <TopNav page={page} status={status} />
+        <TopNav page={page} status={status} setup={setup} />
         <div className="dash-content">
           {userId && !verifiedEmail && (
             <div
@@ -129,5 +135,6 @@ export default async function DashboardShell({
         </div>
       </div>
     </div>
+    </PlusProvider>
   );
 }

@@ -1,5 +1,5 @@
 import { requireOwnedPage } from '@/app/lib/dashboard';
-import { hasExpiredPlan } from '@/app/lib/plans';
+import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import DomainForm from './DomainForm';
 
 export default async function DomainPage({
@@ -17,6 +17,7 @@ export default async function DomainPage({
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 640 }}>
+      <PlusSetupNote section="/domain" />
       <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Custom Domain</h1>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 32px' }}>
         Point your own domain to your event page. Guests will see your domain instead of mygala.ca.
@@ -24,7 +25,7 @@ export default async function DomainPage({
 
       {justUpgraded && (
         <div style={{ marginBottom: 24, padding: '14px 18px', background: '#EAF2EC', border: '1px solid #B2D4B8', borderRadius: 10, fontSize: 14, color: '#3D6B46', fontWeight: 500 }}>
-          Welcome to the paid plan! You can now add your custom domain below.
+          Welcome to Plus! You can now connect your custom domain below.
         </div>
       )}
 
@@ -33,7 +34,6 @@ export default async function DomainPage({
         initialDomain={userPage.custom_domain ?? null}
         initialStatus={userPage.domain_status ?? 'pending'}
         isPaid={isPaid}
-        expired={hasExpiredPlan(userPage)}
       />
 
       <div style={{ marginTop: 36, padding: '16px 20px', background: '#F5F3F0', borderRadius: 10, fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>

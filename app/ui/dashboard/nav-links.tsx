@@ -1,82 +1,99 @@
 'use client';
 
-import { DocumentIcon, GiftTopIcon, UsersIcon, UserGroupIcon, ClipboardDocumentListIcon, ChevronDownIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon, CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon, Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
-import { CheckCircleIcon, MinusCircleIcon } from '@heroicons/react/20/solid';
+import {
+  DocumentIcon, GiftTopIcon, UsersIcon, ClipboardDocumentListIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
+  CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
+  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon,
+} from '@heroicons/react/24/outline';
+import { CheckCircleIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { PLUS_FEATURES } from '@/app/lib/plus-features';
+import type { SetupStep } from '@/app/lib/setup-progress';
 
-type NavItem = { name: string; section: string; icon: typeof DocumentIcon; paidOnly: boolean; greyOutIfFree: boolean };
+type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
-// Everything about the people coming, grouped under "Guests".
-const guestLinks: NavItem[] = [
-  { name: 'Guest List', section: '/guest-list', icon: ClipboardDocumentListIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'RSVP', section: '/rsvp', icon: UsersIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Invitations', section: '/invitations', icon: EnvelopeIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon, paidOnly: false, greyOutIfFree: true },
-];
-
-const links: NavItem[] = [
-  // The free sections first (Edit Page, Event Program, Share, then the Guests
-  // group); the Plus ones after.
-  { name: 'Edit Page', section: '', icon: DocumentIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Share', section: '/share', icon: ShareIcon, paidOnly: false, greyOutIfFree: false },
-  { name: 'Potluck', section: '/potluck', icon: CakeIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon, paidOnly: false, greyOutIfFree: true },
-  // Kept visible (not filtered out) for free accounts, but greyed out — clicking still
-  // reaches the upgrade prompt on each section's own page.
-  { name: 'Domain', section: '/domain', icon: GlobeAltIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Password', section: '/password', icon: LockClosedIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Reminders', section: '/reminders', icon: BellAlertIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Sponsors', section: '/sponsors', icon: TrophyIcon, paidOnly: false, greyOutIfFree: true },
-  { name: 'Registry', section: '/registry', icon: GiftIcon, paidOnly: false, greyOutIfFree: true },
+// Grouped by what the host is doing: building the page, looking after the
+// guests, running the day itself, and the page's settings. Plus sections
+// (PLUS_FEATURES) carry a "Plus" tag on free pages; they open and can be set
+// up fully, and ask for Plus only when they're turned on for guests.
+const GROUPS: { title: string; links: NavItem[] }[] = [
+  {
+    title: 'Page',
+    links: [
+      { name: 'Edit Page', section: '', icon: DocumentIcon },
+      { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon },
+      { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon },
+      { name: 'Registry', section: '/registry', icon: GiftIcon },
+      { name: 'Sponsors', section: '/sponsors', icon: TrophyIcon },
+    ],
+  },
+  {
+    title: 'Guests',
+    links: [
+      { name: 'Guest List', section: '/guest-list', icon: ClipboardDocumentListIcon },
+      { name: 'RSVP', section: '/rsvp', icon: UsersIcon },
+      { name: 'Invitations', section: '/invitations', icon: EnvelopeIcon },
+      { name: 'Reminders', section: '/reminders', icon: BellAlertIcon },
+      { name: 'Share', section: '/share', icon: ShareIcon },
+    ],
+  },
+  {
+    title: 'On the day',
+    links: [
+      { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon },
+      { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon },
+      { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon },
+      { name: 'Potluck', section: '/potluck', icon: CakeIcon },
+      { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon },
+    ],
+  },
+  {
+    title: 'Settings',
+    links: [
+      { name: 'Domain', section: '/domain', icon: GlobeAltIcon },
+      { name: 'Password', section: '/password', icon: LockClosedIcon },
+    ],
+  },
 ];
 
 // "Event pages" (the dashboard landing) is always there; the per-page links
 // appear when a page is selected (pageId set), under that event's name, and
 // point at that page.
-// status: whether each section is on for this page (app/lib/section-status.ts),
-// shown as a small icon beside it.
-export default function NavLinks({ pageId, pageName, isPaid, status }: { pageId?: number; pageName?: string; isPaid?: boolean; status?: Record<string, boolean> }) {
+// status: whether each section is live on the page for guests
+// (app/lib/section-status.ts), shown as "On" beside it.
+// setup: the page's setup checklist (app/lib/setup-progress.ts).
+export default function NavLinks({
+  pageId, pageName, isPaid, status, setup,
+}: {
+  pageId?: number;
+  pageName?: string;
+  isPaid?: boolean;
+  status?: Record<string, boolean>;
+  setup?: SetupStep[];
+}) {
   const pathname = usePathname();
   const base = `/dashboard/pages/${pageId}`;
-  const guestsActive = pageId !== undefined && guestLinks.some((l) => pathname === `${base}${l.section}`);
-  const [guestsOpen, setGuestsOpen] = useState(true);
-  const showGuests = guestsOpen || guestsActive;
 
-  const item = (link: NavItem, nested = false) => {
+  const item = (link: NavItem) => {
     const Icon = link.icon;
     const href = `${base}${link.section}`;
-    const greyedOut = link.greyOutIfFree && !isPaid;
+    const plus = !isPaid && link.section in PLUS_FEATURES;
+    const on = !!status?.[link.section];
     return (
       <Link
         key={link.name}
         href={href}
-        className={`dash-nav-link${nested ? ' dash-nav-link--nested' : ''}${pathname === href ? ' dash-nav-link--active' : ''}`}
-        style={greyedOut ? { opacity: 0.45 } : undefined}
-        title={greyedOut ? 'Upgrade to Plus to unlock' : undefined}
+        className={`dash-nav-link${pathname === href ? ' dash-nav-link--active' : ''}`}
+        title={plus ? `${link.name} — set it up now; it goes live with Plus` : on ? `${link.name} is on your page` : undefined}
       >
         <Icon />
         {link.name}
-        {greyedOut && (
-          <span style={{ marginLeft: 'auto', fontSize: 10, fontWeight: 700, letterSpacing: 0.4, textTransform: 'uppercase', color: '#B6584A', border: '1px solid #B6584A', borderRadius: 999, padding: '1px 6px' }}>
-            Plus
-          </span>
-        )}
-        {!greyedOut && status && link.section in status && <SectionState on={status[link.section]} name={link.name} />}
+        {plus ? <span className="dash-nav-tag dash-nav-tag--plus">Plus</span> : on && <span className="dash-nav-tag dash-nav-tag--on">On</span>}
       </Link>
     );
   };
-
-  const visible = (link: NavItem) => !link.paidOnly || isPaid;
-  // Edit Page, Event Program and Share sit above the Guests group.
-  const visibleLinks = links.filter(visible);
-  const top = visibleLinks.slice(0, 3);
-  const rest = visibleLinks.slice(3);
 
   return (
     <>
@@ -85,43 +102,58 @@ export default function NavLinks({ pageId, pageName, isPaid, status }: { pageId?
         Event pages
       </Link>
       {pageId !== undefined && (
-        <p className="dash-nav-group" title={pageName}>{pageName || 'Untitled event'}</p>
+        <p className="dash-nav-event" title={pageName}>{pageName || 'Untitled event'}</p>
       )}
-      {pageId !== undefined && (
-        <>
-          {top.map((link) => item(link))}
-          <button
-            type="button"
-            className={`dash-nav-link dash-nav-parent${guestsActive ? ' dash-nav-parent--active' : ''}`}
-            aria-expanded={showGuests}
-            aria-controls="dash-nav-guests"
-            // Stays open while one of its screens is showing. stopPropagation:
-            // the mobile drawer closes on any click inside the menu.
-            onClick={(e) => { e.stopPropagation(); if (!guestsActive) setGuestsOpen((o) => !o); }}
-          >
-            <UserGroupIcon />
-            Guests
-            <ChevronDownIcon className="dash-nav-chevron" style={{ marginLeft: 'auto', transform: showGuests ? 'rotate(180deg)' : undefined }} />
-          </button>
-          {showGuests && (
-            <div id="dash-nav-guests" className="dash-nav-children">
-              {guestLinks.filter(visible).map((link) => item(link, true))}
-            </div>
-          )}
-          {rest.map((link) => item(link))}
-        </>
-      )}
+      {pageId !== undefined && setup && <SetupChecklist steps={setup} base={base} />}
+      {pageId !== undefined && GROUPS.map((group) => (
+        <div className="dash-nav-section" key={group.title}>
+          <p className="dash-nav-group">{group.title}</p>
+          {group.links.map(item)}
+        </div>
+      ))}
     </>
   );
 }
 
-function SectionState({ on, name }: { on: boolean; name: string }) {
-  const label = on ? `${name} is on` : `${name} is off`;
-  const Icon = on ? CheckCircleIcon : MinusCircleIcon;
+// "Your page is 3/5 ready", a progress bar and the next step; the full list
+// opens below. Gone once every step is done.
+function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
+  const [open, setOpen] = useState(false);
+  const done = steps.filter((s) => s.done).length;
+  const next = steps.find((s) => !s.done);
+  if (!next) return null;
   return (
-    <span className="dash-nav-state" title={label} style={{ marginLeft: 'auto', display: 'inline-flex', color: on ? '#3D6B46' : '#B8B0A8' }}>
-      <Icon aria-hidden="true" style={{ width: 16, height: 16 }} />
-      <span className="sr-only">{on ? 'On' : 'Off'}</span>
-    </span>
+    <div className="dash-setup">
+      <p className="dash-setup-title">Your page is {done}/{steps.length} ready</p>
+      <div className="dash-setup-bar" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={done} aria-label="Page setup">
+        <span style={{ width: `${(done / steps.length) * 100}%` }} />
+      </div>
+      <Link href={`${base}${next.section}`} className="dash-setup-next">
+        <span>Next: {next.label}</span>
+        <ChevronRightIcon />
+      </Link>
+      <button
+        type="button"
+        className="dash-setup-toggle"
+        aria-expanded={open}
+        // The mobile drawer closes on any click inside the menu.
+        onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
+      >
+        {open ? 'Hide steps' : 'See all steps'}
+      </button>
+      {open && (
+        <ul className="dash-setup-list">
+          {steps.map((s) => (
+            <li key={s.label} className={s.done ? 'is-done' : undefined}>
+              <Link href={`${base}${s.section}`}>
+                {s.done ? <CheckCircleIcon aria-hidden="true" /> : <span className="dash-setup-dot" aria-hidden="true" />}
+                <span>{s.label}</span>
+                <span className="sr-only">{s.done ? ' (done)' : ' (to do)'}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

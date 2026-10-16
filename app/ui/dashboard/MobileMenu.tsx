@@ -9,18 +9,20 @@ import LanguageSwitcher from './language-switcher';
 import { Bars3Icon, XMarkIcon, PowerIcon } from '@heroicons/react/24/outline';
 import type { EventTheme } from '@/app/lib/definitions';
 import { siteHref } from '@/app/lib/app-url';
+import type { SetupStep } from '@/app/lib/setup-progress';
 
 interface Props {
   pageId?: number;
   pageName?: string;
   isPaid?: boolean;
   status?: Record<string, boolean>;
+  setup?: SetupStep[];
   themes: EventTheme[];
   currentThemeId: string | null;
   currentLanguage?: string;
 }
 
-export default function MobileMenu({ pageId, pageName, isPaid, status, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+export default function MobileMenu({ pageId, pageName, isPaid, status, setup, themes, currentThemeId, currentLanguage = 'en' }: Props) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -45,7 +47,7 @@ export default function MobileMenu({ pageId, pageName, isPaid, status, themes, c
             </div>
 
             <nav className="dash-sidebar-nav" onClick={() => setOpen(false)}>
-              <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} status={status} />
+              <NavLinks pageId={pageId} pageName={pageName} isPaid={isPaid} status={status} setup={setup} />
             </nav>
 
             {pageId !== undefined && themes.length > 0 && (
