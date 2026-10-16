@@ -73,7 +73,7 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
           {turnOn && feature?.setting ? ' — we’ll switch it on for you right after.' : '.'}
         </p>
         <ul className="dash-plus-list">
-          <li><CheckIcon />Every Plus feature for this event: invitations, reminders, photos, potluck and more</li>
+          <li><CheckIcon />Every Plus feature for this event: invitations, reminders, potluck, up to 500 guest photos and more</li>
           <li><CheckIcon />One payment of {PLAN_PRICE_PLUS_TAX}, for {PLAN_TERM_MONTHS} months — no subscription</li>
           <li><CheckIcon />You come straight back here when you’re done</li>
         </ul>

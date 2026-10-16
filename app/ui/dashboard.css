@@ -90,14 +90,22 @@ body:has(.dash-shell) {
 /* Groups of links: Page, Guests, On the day, Settings */
 .dash-nav-section { display: flex; flex-direction: column; gap: 1px; }
 .dash-nav-section .dash-nav-link { padding-top: 8px; padding-bottom: 8px; }
-/* Beside a link: "On" = live on the page for guests; "Plus" = a Plus
-   feature on a free page (it can still be opened and set up). */
+/* Beside a link: "On" = live on the page for guests. On a free page, a
+   small gold sparkle marks a Plus feature (it can still be opened and set
+   up), and "50 free" marks Guest Photos. A group that's all Plus says so
+   once, on its heading. */
 .dash-nav-tag {
   margin-left: auto; flex-shrink: 0; padding: 0 6px; border-radius: 999px;
-  font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; line-height: 1.7;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.02em; line-height: 1.7;
 }
 .dash-nav-tag--on { background: #E6F0E8; color: #2F5A38; }
-.dash-nav-tag--plus { border: 1px solid #D9A99F; color: #9A4738; text-transform: uppercase; }
+.dash-nav-tag--free { color: #8A817C; font-weight: 600; padding: 0; }
+.dash-nav-link svg.dash-nav-sparkle { margin-left: auto; width: 13px; height: 13px; color: #C9A227; opacity: 0.85; }
+.dash-nav-group-plus {
+  display: inline-flex; align-items: center; gap: 3px; margin-left: 8px;
+  color: #A8861F; letter-spacing: 0.04em;
+}
+.dash-nav-group-plus svg { width: 11px; height: 11px; color: #C9A227; }
 
 /* Setup checklist at the top of the sidebar */
 .dash-setup {
@@ -732,12 +740,15 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-theme-dropdown {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
-  /* Top bar (tablets and desktops): every theme at once, in three columns. */
+  /* The picker sits at the left of the top bar, beside the sidebar: open
+     rightwards, and no wider than the space right of the sidebar (.dash-main
+     clips anything that crosses it). */
+  left: 0;
+  /* Top bar (desktops): every theme at once, in three columns. */
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2px;
-  width: min(620px, calc(100vw - 48px));
+  width: min(620px, calc(100vw - 236px - 48px));
   max-height: calc(100vh - 90px);
   max-height: calc(100dvh - 90px);
   overflow-y: auto;

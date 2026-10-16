@@ -528,7 +528,7 @@ export default function AntiqueCars({
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn btn-gold" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
             <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
         <div className="hero-checker"><CheckerBand /></div>
@@ -766,7 +766,7 @@ export default function AntiqueCars({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <Reveal>
           <div id="photos" className="section section-soft section-center">
             <div className="wrap">

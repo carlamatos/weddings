@@ -293,7 +293,7 @@ export default function TerracottaHarvest({
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
             <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>
@@ -489,7 +489,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="section-wide">
           <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="section-label" fallback={t.guestPhotos} />
           <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" fallback={t.shareYourPhoto} />

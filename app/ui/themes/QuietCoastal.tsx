@@ -244,7 +244,7 @@ export default function QuietCoastal({
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
             <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            {isPaid && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
       </div>
@@ -465,7 +465,7 @@ export default function QuietCoastal({
       )}
 
       {/* GUEST PHOTOS */}
-      {isPaid && galleryToken && showGuestPhotos !== false && (
+      {galleryToken && showGuestPhotos !== false && (
         <div id="photos" className="wrap" style={{ padding: '80px 32px' }}>
           <SectionText ctx={sectionTextCtx} k="photos.eyebrow" className="eyebrow" style={{ marginBottom: 8 }} fallback={t.guestPhotos.toLowerCase()} />
           <SectionText ctx={sectionTextCtx} k="photos.title" as="h2" className="section-title" style={{ marginBottom: 28 }} fallback={t.shareYourPhoto.toLowerCase()} />

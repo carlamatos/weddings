@@ -5,19 +5,22 @@ import {
   CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
   Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon,
 } from '@heroicons/react/24/outline';
-import { CheckCircleIcon } from '@heroicons/react/20/solid';
+import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { PLUS_FEATURES } from '@/app/lib/plus-features';
+import { FREE_GUEST_PHOTO_LIMIT } from '@/app/lib/guest-photos';
 import type { SetupStep } from '@/app/lib/setup-progress';
 
 type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
 // Grouped by what the host is doing: building the page, looking after the
-// guests, running the day itself, and the page's settings. Plus sections
-// (PLUS_FEATURES) carry a "Plus" tag on free pages; they open and can be set
-// up fully, and ask for Plus only when they're turned on for guests.
+// guests, running the day itself, and the page's settings. On a free page,
+// Plus sections (PLUS_FEATURES) carry a small gold sparkle — or, when a
+// whole group is Plus, the group's heading carries one "Plus" mark instead.
+// They open and can be set up fully, and ask for Plus only when they're
+// turned on for guests.
 const GROUPS: { title: string; links: NavItem[] }[] = [
   {
     title: 'Page',
@@ -76,21 +79,28 @@ export default function NavLinks({
   const pathname = usePathname();
   const base = `/dashboard/pages/${pageId}`;
 
-  const item = (link: NavItem) => {
+  const isPlus = (link: NavItem) => !isPaid && link.section in PLUS_FEATURES;
+
+  const item = (link: NavItem, groupIsPlus: boolean) => {
     const Icon = link.icon;
     const href = `${base}${link.section}`;
-    const plus = !isPaid && link.section in PLUS_FEATURES;
+    const plus = isPlus(link);
     const on = !!status?.[link.section];
+    // Guest Photos is free up to a limit: say so on free pages.
+    const freeHook = !isPaid && link.section === '/guest-photos' && !on;
     return (
       <Link
         key={link.name}
         href={href}
         className={`dash-nav-link${pathname === href ? ' dash-nav-link--active' : ''}`}
-        title={plus ? `${link.name} — set it up now; it goes live with Plus` : on ? `${link.name} is on your page` : undefined}
+        title={plus ? `${link.name} (Plus): set it up now; it goes live with Plus` : on ? `${link.name} is on your page` : undefined}
       >
         <Icon />
         {link.name}
-        {plus ? <span className="dash-nav-tag dash-nav-tag--plus">Plus</span> : on && <span className="dash-nav-tag dash-nav-tag--on">On</span>}
+        {on ? <span className="dash-nav-tag dash-nav-tag--on">On</span>
+          : plus && !groupIsPlus ? <SparklesIcon className="dash-nav-sparkle" aria-label="Plus" />
+          : freeHook ? <span className="dash-nav-tag dash-nav-tag--free">{FREE_GUEST_PHOTO_LIMIT} free</span>
+          : null}
       </Link>
     );
   };
@@ -105,12 +115,18 @@ export default function NavLinks({
         <p className="dash-nav-event" title={pageName}>{pageName || 'Untitled event'}</p>
       )}
       {pageId !== undefined && setup && <SetupChecklist steps={setup} base={base} />}
-      {pageId !== undefined && GROUPS.map((group) => (
-        <div className="dash-nav-section" key={group.title}>
-          <p className="dash-nav-group">{group.title}</p>
-          {group.links.map(item)}
-        </div>
-      ))}
+      {pageId !== undefined && GROUPS.map((group) => {
+        const groupIsPlus = group.links.every(isPlus);
+        return (
+          <div className="dash-nav-section" key={group.title}>
+            <p className="dash-nav-group">
+              {group.title}
+              {groupIsPlus && <span className="dash-nav-group-plus"><SparklesIcon aria-hidden="true" />Plus</span>}
+            </p>
+            {group.links.map((link) => item(link, groupIsPlus))}
+          </div>
+        );
+      })}
     </>
   );
 }

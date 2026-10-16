@@ -19,6 +19,7 @@ import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { areGuestPhotosOn } from '@/app/lib/guest-photos';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -48,7 +49,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
 
   const [galleryImages, guestPhotosResult, guestSongsResult, eventProgram, potluck, giftExchange] = await Promise.all([
     fetchGalleryImages(data.id),
-    isPaid ? fetchGuestPhotos(data.id, 0) : Promise.resolve({ photos: [], hasMore: false }),
+    fetchGuestPhotos(data.id, 0),
     isPaid ? fetchGuestSongs(data.id, 0) : Promise.resolve({ songs: [], hasMore: false }),
     fetchEventProgram(data.id),
     potluckProps(data.id, isPaid, pageSettings),
@@ -60,7 +61,8 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const heroStyle = heroStyleFromSettings(pageSettings);
   const showEventProgram = isSectionOn(pageSettings, 'show_event_program');
   const showSongRequests = areSongRequestsOn(pageSettings);
-  const showGuestPhotos = isSectionOn(pageSettings, 'show_guest_photos');
+  // Free pages get Guest Photos too (up to FREE_GUEST_PHOTO_LIMIT).
+  const showGuestPhotos = areGuestPhotosOn(pageSettings, isPaid);
   const showRsvp = isSectionOn(pageSettings, 'show_rsvp');
   const showShare = isSectionOn(pageSettings, 'show_share');
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
@@ -88,7 +90,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       placeId={data.place_id || undefined}
       url={data.url || undefined}
       userPageId={String(data.id)}
-      galleryToken={isPaid ? signPageId(data.id) : undefined}
+      galleryToken={signPageId(data.id)}
       bannerImage={data.banner_image || undefined}
       userEmail={data.user_email || undefined}
       userPhone={data.user_phone || undefined}

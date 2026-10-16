@@ -117,6 +117,7 @@ export interface Translations {
   beFirstToShare: string;
   photoUploaded: string;
   photoUploadError: string;
+  photoLimitReached: string; // the page's photo wall is full
   // Share / hashtag section
   tagYourPosts: string;
   shareThisEvent: string;
@@ -241,6 +242,7 @@ const en: Translations = {
   linkCopied: 'Link copied',
   photoUploaded: 'Photo shared — thank you!',
   photoUploadError: 'Upload failed. Please try again.',
+  photoLimitReached: 'This photo wall is full, so no more photos can be added. Thank you for sharing!',
   songRequests: 'Song Requests',
   buildOurPlaylist: 'Build our playlist',
   yourName: 'Your name',
@@ -359,6 +361,7 @@ const fr: Translations = {
   linkCopied: 'Lien copié',
   photoUploaded: 'Photo partagée — merci!',
   photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
+  photoLimitReached: 'Ce mur de photos est complet : il n’est plus possible d’ajouter de photos. Merci d’avoir partagé!',
   songRequests: 'Demandes de chansons',
   buildOurPlaylist: 'Construisez notre playlist',
   yourName: 'Votre nom',
@@ -477,6 +480,7 @@ const es: Translations = {
   linkCopied: 'Enlace copiado',
   photoUploaded: 'Foto compartida — ¡gracias!',
   photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
+  photoLimitReached: 'Este muro de fotos está lleno, así que no se pueden agregar más fotos. ¡Gracias por compartir!',
   songRequests: 'Solicitudes de canciones',
   buildOurPlaylist: 'Construye nuestra playlist',
   yourName: 'Tu nombre',
