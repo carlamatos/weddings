@@ -12,7 +12,7 @@ const EVENT_LINKS = EVENT_TYPES.map((e) => ({ href: `/events/${e.slug}`, label: 
 const FEATURE_LINKS = FEATURES.map((f) => ({ href: `/features/${f.slug}`, label: f.navLabel }));
 
 // The marketing pages' top bar (homepage, About, Contact, Privacy, Terms,
-// features, event types, FAQ). Desktop shows the nav inline with hover
+// features, event types, FAQ, blog). Desktop shows the nav inline with hover
 // dropdowns; narrower screens get a menu button that opens the same links
 // as a panel, since touch has no hover.
 export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -52,6 +52,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
             </div>
           </div>
           <Link href="/faq" className="nav-link">FAQ</Link>
+          <Link href="/blog" className="nav-link">Blog</Link>
           <Link href="/about" className="nav-link">About Us</Link>
           <Link href="/contact" className="nav-link">Contact</Link>
         </nav>
@@ -91,6 +92,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
             <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={close}>{l.label}</Link>
           ))}
           <Link href="/faq" className="mobile-nav-link" onClick={close}>FAQ</Link>
+          <Link href="/blog" className="mobile-nav-link" onClick={close}>Blog</Link>
           <Link href="/about" className="mobile-nav-link" onClick={close}>About Us</Link>
           <Link href="/contact" className="mobile-nav-link" onClick={close}>Contact</Link>
           {!isLoggedIn && (

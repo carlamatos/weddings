@@ -155,3 +155,27 @@ export function productJsonLd() {
 export function pageMetadata(title: string, description: string, path: string): Metadata {
   return marketingMetadata({ title, description }, path);
 }
+
+// A blog article: the usual marketing metadata, shared as an article.
+export function articleMetadata(seo: SeoMeta, path: string, published: string): Metadata {
+  const base = marketingMetadata(seo, path);
+  return { ...base, openGraph: { ...base.openGraph, type: 'article', publishedTime: published } };
+}
+
+export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, published: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline,
+    description: seo.description,
+    url: absoluteUrl(path),
+    mainEntityOfPage: absoluteUrl(path),
+    datePublished: published,
+    dateModified: published,
+    inLanguage: 'en',
+    image: absoluteUrl(OG_IMAGE),
+    // The Organization itself is only on the homepage, so spell it out here.
+    author: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/') },
+    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
+  };
+}

@@ -5,7 +5,7 @@ import SiteFooter from './site-footer';
 import '@/app/ui/marketing.css';
 
 // Top bar + footer around the marketing content pages (features, event
-// types, FAQ).
+// types, FAQ, blog).
 export default async function MarketingShell({ children }: { children: React.ReactNode }) {
   const session = await auth();
   return (
