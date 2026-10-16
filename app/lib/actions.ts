@@ -225,12 +225,14 @@ export type UserPageState = {
       `;
 
       // New pages start with the Event Program section hidden until the
-      // owner adds phases and turns it on; every other section defaults on.
+      // owner adds phases and turns it on, and with Guest Photos on (free
+      // pages too, up to FREE_GUEST_PHOTO_LIMIT; older free pages without
+      // the setting stay off, see areGuestPhotosOn).
       newPageId = inserted.rows[0]?.id;
       if (newPageId) {
         await sql`
           INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-          VALUES (${newPageId}, 'show_event_program', 'false')
+          VALUES (${newPageId}, 'show_event_program', 'false'), (${newPageId}, 'show_guest_photos', 'true')
           ON CONFLICT (user_page_id, setting_name) DO NOTHING
         `;
       }
