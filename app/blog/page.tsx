@@ -7,6 +7,7 @@ import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { FinalCta } from '@/app/ui/marketing/content-blocks';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
+import { previewImage } from '@/app/ui/themes/preview-image';
 
 const SEO: SeoMeta = {
   title: 'Blog: Wedding and Event Planning Tips',
@@ -35,7 +36,9 @@ export default function BlogIndex() {
         <section className="mk-related" style={{ paddingTop: 8 }}>
           <div className="mk-cards">
             {BLOG_POSTS.map((p) => (
-              <Link key={p.slug} href={`/blog/${p.slug}`} className="mk-card">
+              <Link key={p.slug} href={`/blog/${p.slug}`} className="mk-card mk-post-card">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img {...previewImage(p.cardImage, '(max-width: 760px) 100vw, 360px', { eager: true })} alt="" className="mk-post-card-img" />
                 <span className="mk-post-meta">{p.eyebrow} · {formatPostDate(p.published)}</span>
                 <h2 className="mk-card-title">{p.title}</h2>
                 <p>{p.summary}</p>

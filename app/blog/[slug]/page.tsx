@@ -1,7 +1,5 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { appHref } from '@/app/lib/app-url';
 import { BLOG_POSTS, formatPostDate, getBlogPost } from '@/app/lib/marketing/blog';
 import { articleMetadata, blogPostingJsonLd, breadcrumbJsonLd, faqPageJsonLd } from '@/app/lib/marketing/seo';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
@@ -9,6 +7,7 @@ import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { FeatureCards, FinalCta } from '@/app/ui/marketing/content-blocks';
 import { FaqList } from '@/app/ui/marketing/faq-list';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
+import { ArticleSections } from '@/app/ui/marketing/article-blocks';
 
 export const dynamicParams = false;
 
@@ -33,9 +32,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <MarketingShell>
-      <JsonLd data={blogPostingJsonLd(post.seo, post.title, path, post.published)} />
+      <JsonLd data={blogPostingJsonLd(post.seo, post.title, path, post.published, post.cardImage)} />
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
-      <JsonLd data={faqPageJsonLd(post.faqs)} />
+      {post.faqs && <JsonLd data={faqPageJsonLd(post.faqs)} />}
 
       <header className="mk-hero">
         <div className="wrap">
@@ -51,30 +50,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <div className="wrap">
         <article className="mk-body">
-          {post.sections.map((s) => (
-            <section className="mk-block" key={s.heading}>
-              <h2 className="mk-h2">{s.heading}</h2>
-              {s.paragraphs?.map((p) => <p key={p}>{p}</p>)}
-              {s.bullets && (
-                <ul className={s.checklist ? 'mk-checklist' : 'mk-list'}>
-                  {s.bullets.map((li) => <li key={li}>{li}</li>)}
-                </ul>
-              )}
-            </section>
-          ))}
+          <ArticleSections sections={post.sections} />
 
-          <section className="mk-block" id="faq">
-            <h2 className="mk-h2">Frequently asked questions</h2>
-            <FaqList faqs={post.faqs} />
-            <p className="mk-note">
-              Ready to share the details? <Link href="/events/weddings">See how MyGala works for weddings</Link> or{' '}
-              <Link href={appHref('/register')}>create your free wedding website</Link>.
-            </p>
-          </section>
+          {post.faqs && (
+            <section className="mk-block" id="faq">
+              <h2 className="mk-h2">Frequently asked questions</h2>
+              <FaqList faqs={post.faqs} />
+            </section>
+          )}
         </article>
 
         <section className="mk-related">
-          <h2 className="mk-h2">Tools that help with your checklist</h2>
+          <h2 className="mk-h2">MyGala features that help</h2>
           <FeatureCards slugs={post.related} />
         </section>
       </div>

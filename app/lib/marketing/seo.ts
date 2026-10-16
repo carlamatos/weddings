@@ -162,7 +162,7 @@ export function articleMetadata(seo: SeoMeta, path: string, published: string): 
   return { ...base, openGraph: { ...base.openGraph, type: 'article', publishedTime: published } };
 }
 
-export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, published: string) {
+export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, published: string, image: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -173,7 +173,7 @@ export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, 
     datePublished: published,
     dateModified: published,
     inLanguage: 'en',
-    image: absoluteUrl(OG_IMAGE),
+    image: absoluteUrl(image),
     // The Organization itself is only on the homepage, so spell it out here.
     author: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/') },
     publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },

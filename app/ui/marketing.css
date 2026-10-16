@@ -740,6 +740,23 @@
 .marketing-page .mk-checklist { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .marketing-page .mk-checklist li { position: relative; padding-left: 32px; font-size: 16px; line-height: 1.65; color: var(--ink); }
 .marketing-page .mk-checklist li::before { content: ''; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border: 1.5px solid var(--rose); border-radius: 5px; background: #fff; }
+.marketing-page .mk-h3 { font-size: 18px; font-weight: 600; color: var(--ink); margin: 24px 0 12px; }
+.marketing-page .mk-block strong { font-weight: 600; }
+.marketing-page .mk-figure { margin: 28px 0; }
+.marketing-page .mk-figure img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 14px; background: var(--paper-deep); }
+.marketing-page .mk-figure figcaption { font-size: 13px; line-height: 1.5; color: var(--ink-soft); margin-top: 10px; text-align: center; }
+.marketing-page .mk-article-templates { margin: 24px 0; }
+.marketing-page .theme-grid--2 { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.marketing-page .mk-article-cta { margin: 28px 0 8px; padding: 28px 24px; border-radius: 16px; background: #fff; border: 1px solid var(--line); text-align: center; }
+.marketing-page .mk-article-cta .mk-article-cta-title { font-family: var(--font-display); font-size: 24px; line-height: 1.25; color: var(--ink); margin: 0 0 8px; }
+/* .mk-block a would make the button's label rose on rose. */
+.marketing-page .mk-article-cta .btn-primary { color: #fff; }
+.marketing-page .mk-article-cta p { color: var(--ink-soft); margin: 0 0 20px; }
+.marketing-page .mk-post-card { padding: 0; overflow: hidden; }
+.marketing-page .mk-post-card > :not(img) { margin-left: 22px; margin-right: 22px; }
+.marketing-page .mk-post-card > :last-child { margin-bottom: 22px; }
+.marketing-page .mk-post-card-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; margin-bottom: 10px; }
+@media (max-width: 800px) { .marketing-page .theme-grid--2 { grid-template-columns: 1fr; } }
 
 .marketing-page .learn-more-link { display: inline-block; margin-top: 22px; font-size: 15px; font-weight: 600; color: var(--rose); text-decoration: none; }
 .marketing-page .learn-more-link:hover { text-decoration: underline; }

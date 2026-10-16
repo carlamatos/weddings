@@ -2,7 +2,7 @@ import { FEATURES } from './features';
 import { EVENT_TYPES } from './events';
 import { FAQ_GROUPS } from './faq';
 import { THEME_CARDS } from './theme-cards';
-import { BLOG_POSTS } from './blog';
+import { BLOG_POSTS, postText } from './blog';
 import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { appHref } from '@/app/lib/app-url';
 import type { ContentBlock, Faq } from './types';
@@ -84,7 +84,7 @@ function buildIndex(): SearchEntry[] {
   ]));
 
   const articles = BLOG_POSTS.map((p) => entry('Article', p.title, `/blog/${p.slug}`, p.summary, [
-    p.eyebrow, p.lead, p.seo.description, ...(p.seo.keywords ?? []), ...blockText(p.sections), ...faqText(p.faqs),
+    p.eyebrow, p.lead, p.seo.description, ...(p.seo.keywords ?? []), ...postText(p), ...faqText(p.faqs ?? []),
   ]));
 
   const faqs = FAQ_GROUPS.flatMap((g) => g.faqs.map((f) => entry('FAQ', f.q, `/faq#${g.id}`, f.a, [g.title])));
