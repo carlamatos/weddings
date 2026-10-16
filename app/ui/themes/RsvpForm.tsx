@@ -120,7 +120,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? t.errorGeneral);
+        setError(data.code === 'not_on_guest_list' ? t.errorNotOnGuestList : data.error ?? t.errorGeneral);
         // Tokens are single-use: get a fresh one for the next attempt.
         if (widgetIdRef.current && window.turnstile) {
           window.turnstile.reset(widgetIdRef.current);
