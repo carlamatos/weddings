@@ -22,7 +22,6 @@ export type LandingPage = {
   cta: string; // the main button: "Create my free wedding page"
   hero: { badge: string; tagline: string; headline: string; sub: string };
   wall: string[]; // theme slugs behind the banner (the ones with a cover photo)
-  ticker: string[]; // the moving strip under the banner
   templates: { title: string; sub: string };
   demo: string; // theme for "See a live demo"
   // The animated "how it works" phone.
@@ -56,7 +55,6 @@ export const LANDING_PAGES: LandingPage[] = [
       sub: 'Pick a stunning template, add your names and date, and share one link with every guest. RSVPs, your schedule, the venue, photos and more, all in one place.',
     },
     wall: ['the-day', 'love', 'quiet-coastal', 'midnight-botanical', 'vilma', 'the-day', 'love', 'midnight-botanical', 'vilma', 'quiet-coastal', 'love', 'the-day'],
-    ticker: ['RSVPs with guest counts', 'Countdown to the big day', 'Ceremony & reception map', 'Weekend schedule', 'Guest photo QR codes', 'Livestream for faraway family', 'Gift registry', 'Invitations by text, email & WhatsApp', 'English · Español · Français', 'Your own domain'],
     templates: {
       title: 'Wedding templates your guests will remember',
       sub: 'Every template comes with every feature. Tap one to open a full live demo, and switch any time without losing a word.',
@@ -123,7 +121,6 @@ export const LANDING_PAGES: LandingPage[] = [
       sub: 'Birthdays, baby showers, quinceañeras and sweet 16s. Pick a fun template, add the details and share one link. RSVPs, the countdown, the map and the photos, all in one place.',
     },
     wall: ['alegria', 'baby-shower-girl', 'fun-party', 'baby-shower-boy', 'baby-shower-neutral', 'alegria', 'fun-party', 'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy', 'alegria', 'fun-party'],
-    ticker: ['RSVPs with guest counts', 'Party countdown', 'Venue map & directions', 'Party schedule', 'Baby shower registry', 'Guest photo QR codes', 'Song requests for the DJ', 'Potluck sign-up', 'English · Español · Français', 'Invitations by text, email & WhatsApp'],
     templates: {
       title: 'Party templates that set the mood',
       sub: 'Every template comes with every feature. Tap one to open a full live demo, and switch any time without losing a word.',

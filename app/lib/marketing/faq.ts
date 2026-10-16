@@ -68,7 +68,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     faqs: [
       { q: 'What’s the difference between the gallery and guest photos?', a: 'The gallery is for photos you upload as the host. Guest photos (Plus) is a separate wall where guests upload their own photos from their phones.' },
       { q: 'How do guests upload photos during the event?', a: 'With Plus, print the guest photo QR code for your tables. Guests scan it with their phone camera and upload — no app needed.' },
-      { q: 'Can I use a video as my banner?', a: 'Yes. Upload a photo or a short video for the top banner of your page.' },
+      { q: 'Can I use my own photo as my banner?', a: 'Yes. Upload a photo for the top banner of your page, or keep the theme’s default artwork.' },
       { q: 'Can I stream my event?', a: 'Yes, with Plus. Add a YouTube, Vimeo, Twitch or Facebook video to play on your page, or link to Zoom, Google Meet or any other service.' },
     ],
   },
