@@ -90,6 +90,7 @@ export type Guest = {
   invitation_note: string | null; // the host's personal note in this guest's invitation email
   texted_at: string | null; // last time the host opened a pre-filled text to this guest
   texted_via: 'sms' | 'whatsapp' | null;
+  seating_table?: string | null; // Find Your Table (Plus); the column is added on first use (seating-data.ts)
 };
 
 export type Slugs = {

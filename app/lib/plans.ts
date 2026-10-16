@@ -34,6 +34,7 @@ export const PLAN_FEATURES = {
     'Up to 500 guest photos',
     'Livestream link & song requests',
     'Automatic reminder emails to guests',
+    'Find-your-table seating with a QR sign',
     'Potluck sign-up',
     'Custom sections & sponsors',
     'Gift registry section',

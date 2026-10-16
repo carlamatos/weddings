@@ -176,6 +176,90 @@ export const FEATURES: Feature[] = [
   },
 
   {
+    slug: 'find-your-table',
+    navLabel: 'Find Your Table',
+    plan: 'Plus',
+    seo: {
+      title: 'Find Your Table: QR Code Seating Chart for Weddings & Events',
+      description:
+        'Skip the printed seating chart. Guests scan a QR sign at the entrance, type their name and see their table. Update tables any time, right up to the last minute.',
+      keywords: ['find your table', 'QR code seating chart', 'digital seating chart', 'wedding seating chart QR code', 'online seating chart for guests', 'table assignment lookup', 'escort card alternative'],
+    },
+    eyebrow: 'Find your table',
+    h1: 'A seating chart guests look up on their phone',
+    lead:
+      'No more printing a seating chart, reprinting it when someone cancels, or a crowd squinting at an easel by the door. Give each guest a table in your dashboard, put one QR sign at the entrance, and guests scan it, type their name and see their table.',
+    summary: 'Guests scan a QR sign, type their name and see their table — no seating chart to print.',
+    highlights: [
+      { title: 'Nothing to reprint', text: 'Move a guest the night before and the change is live straight away. Your sign never goes out of date.' },
+      { title: 'Each guest sees their own table', text: 'Guests type their name and see only their table, never the whole seating plan.' },
+      { title: 'Built on your guest list', text: 'Seat the guests you already have, one by one, a few at a time, or by pasting your chart from a spreadsheet.' },
+    ],
+    blocks: [
+      {
+        heading: 'How it works',
+        paragraphs: [
+          'Open Find Your Table in your dashboard and you’ll see everyone on your guest list. Type a table next to each guest. It can be a number, or a name like “Sunflower” or “The Rockies”. Anyone in a guest’s party sits with them, so you seat each invitation once.',
+          'When you’re ready, switch it on and print the QR sign. Guests scan it with their phone camera and a simple page opens on your event’s address. They type their name, tap Find my table, and their table appears in large letters.',
+        ],
+      },
+      {
+        heading: 'Seat everyone in minutes',
+        bullets: [
+          'Select several guests and seat them at a table in one go.',
+          'Already planned it in a spreadsheet? Copy the name and table columns and paste them in. MyGala matches the names to your guest list and lists any it couldn’t find.',
+          'See how many people are at each table, and who hasn’t been seated yet.',
+          'Rename a table and everyone at it moves with it.',
+          'Hide guests who can’t come, so you only seat the ones who are.',
+        ],
+      },
+      {
+        heading: 'Friendly for every guest',
+        paragraphs: [
+          'Guests don’t need an app or an account, and they don’t need to type their name perfectly. Accents and capital letters don’t matter, and part of a name works: “ana m” finds Ana Martínez. If several guests share a name, they’re asked for their full name. The page follows your event’s language: English, French or Spanish.',
+        ],
+      },
+      {
+        heading: 'Private by design',
+        bullets: [
+          'Guests only see the names that match what they type, with their tables.',
+          'When too many guests match a search, nobody is shown and the guest is asked for their full name, so the plan can’t be read letter by letter.',
+          'If your page is password protected, guests enter the password before they can look anything up.',
+          'The page is hidden from search engines.',
+        ],
+      },
+      {
+        heading: 'Great for',
+        bullets: [
+          'Wedding receptions: replace escort cards and the big seating chart board.',
+          'Galas, fundraisers and award dinners with assigned tables.',
+          'Bar and bat mitzvahs, quinceañeras and milestone birthdays.',
+          'Company dinners and conference banquets.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Upgrade your page to Plus', text: 'Find Your Table is part of MyGala Plus, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Plus.' },
+      { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
+      { title: 'Seat them', text: 'In Find Your Table, type a table for each guest, seat several at once, or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
+      { title: 'Switch it on and print the sign', text: 'Turn on “Let guests look up their table”, then print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG for your own design.' },
+      { title: 'Test it, then put it at the entrance', text: 'Scan the sign with your phone and look up a guest or two. Put the sign at the entrance, the welcome table or the bar.' },
+    ],
+    faqs: [
+      { q: 'Do guests need an app?', a: 'No. Guests scan the QR code with their phone camera, and the page opens in their browser. There’s nothing to install and no account to create.' },
+      { q: 'Can guests see the whole seating chart?', a: 'No. Guests only see the guests whose names match what they type, with their tables. If too many guests match, nobody is shown until they type their full name.' },
+      { q: 'What if I change a table after printing the sign?', a: 'That’s the point. The sign always opens the latest seating, so you can move guests right up to the moment they arrive, with nothing to reprint.' },
+      { q: 'What about plus-ones and children?', a: 'They sit with the guest who invited them. A plus-one who looks up their own name won’t find it, so the page suggests trying the name of the person they came with. You can also add plus-ones to your guest list by name and give them a table.' },
+      { q: 'Can I use table names instead of numbers?', a: 'Yes. A table can be anything up to 60 characters: “Table 12”, “Sunflower”, “Head table” or “The Rockies”.' },
+      { q: 'Can I paste my seating chart from Excel or Google Sheets?', a: 'Yes. Copy the guest name and table columns and paste them in. MyGala matches each name to your guest list and lists any it couldn’t find, so you can add them.' },
+      { q: 'Does it work with my own domain and a password-protected page?', a: 'Yes. With a custom domain, the sign uses your own address, such as yournames.com/table. If your page is password protected, guests enter the password first.' },
+      { q: 'Is it free?', a: 'Find Your Table is part of MyGala Plus, a one-time payment per event with no subscription. On a free page you can still seat all your guests, and the lookup turns on as soon as you upgrade.' },
+    ],
+    cta: { title: 'Skip the seating chart this time', text: 'Create your event page, add your guests and seat them in minutes. Upgrade to Plus to put the QR sign at the door.' },
+    related: ['guest-photo-qr-code', 'invitations', 'password-protection'],
+  },
+
+  {
     slug: 'livestream',
     navLabel: 'Livestream',
     plan: 'Plus',

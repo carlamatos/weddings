@@ -14,7 +14,7 @@ export type LandingFeature = {
 
 export type LandingIcon =
   | 'rsvp' | 'guests' | 'countdown' | 'map' | 'program' | 'palette' | 'globe' | 'link' | 'photo'
-  | 'mail' | 'camera' | 'video' | 'music' | 'bell' | 'gift' | 'sections' | 'lock' | 'domain' | 'potluck' | 'heart';
+  | 'mail' | 'camera' | 'video' | 'music' | 'bell' | 'gift' | 'sections' | 'lock' | 'domain' | 'potluck' | 'heart' | 'seat';
 
 export type LandingPage = {
   slug: string; // the event type's slug: weddings, celebrations
@@ -86,6 +86,7 @@ export const LANDING_PAGES: LandingPage[] = [
         { icon: 'link', title: 'One easy link', text: 'mygala.ca/yournames. Put it in texts, invitations and your Instagram bio.' },
         { icon: 'mail', title: 'Invitations by email, text & WhatsApp', text: 'Send beautiful invitations to your whole guest list in a few taps.', plus: true },
         { icon: 'camera', title: 'Guest photos by QR code', text: 'Put a QR code on every table. Guests upload their photos from their phones, no app needed. Free for up to 50 photos.' },
+        { icon: 'seat', title: 'Find your table', text: 'One QR sign at the door: guests type their name and see their table. No seating chart to print.', plus: true },
         { icon: 'video', title: 'Livestream the ceremony', text: 'Family who can’t travel can watch live on your page.', plus: true },
         { icon: 'gift', title: 'Gift registry', text: 'Link to any registry or store, with your own note about gifts.', plus: true },
         { icon: 'music', title: 'Song requests', text: 'Guests suggest the songs that will fill the dance floor.', plus: true },

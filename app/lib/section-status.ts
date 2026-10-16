@@ -9,6 +9,7 @@ import { parseReminderSchedule } from './reminders';
 import { areSongRequestsOn } from './song-requests';
 import { isGiftExchangeOn } from './gift-exchange';
 import { areGuestPhotosOn } from './guest-photos';
+import { isSeatingOn } from './seating';
 
 // Whether each dashboard section is currently ON for this page, keyed by the
 // section's path in the sidebar (see nav-links.tsx). Follows the same rules
@@ -21,6 +22,7 @@ export function sectionStatus(page: UserPage, settings: Record<string, string>):
     '/potluck': paid && isPotluckOn(settings),
     '/gift-exchange': paid && isGiftExchangeOn(settings),
     '/guest-photos': areGuestPhotosOn(settings, paid),
+    '/seating': isSeatingOn(settings, paid),
     '/livestream': paid && !!livestreamFromSettings(settings, paid),
     '/song-requests': paid && areSongRequestsOn(settings),
     '/reminders': paid && parseReminderSchedule(settings['reminder_schedule']).length > 0,

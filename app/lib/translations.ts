@@ -134,6 +134,18 @@ export interface Translations {
   songAddError: string;
   noSongsYet: string;
   requestedBy: string;
+  // Find Your Table (<page>/table)
+  findTableTitle: string;
+  findTableLead: string;
+  findTableLabel: string; // the name field
+  findTableButton: string;
+  findTableYourTable: string; // above the table's name in a result
+  findTableNotFound: string;
+  findTableTooMany: string; // too many guests match: type the full name
+  findTableTooShort: string;
+  findTableTooFast: string; // rate limited
+  findTableUnavailable: string; // the host hasn't switched it on
+  findTableBack: string; // link to the event page
 }
 
 const en: Translations = {
@@ -253,6 +265,17 @@ const en: Translations = {
   songAddError: 'Failed to add song. Please try again.',
   noSongsYet: 'No song requests yet. Be the first!',
   requestedBy: 'Requested by',
+  findTableTitle: 'Find your table',
+  findTableLead: 'Type your name as it appears on your invitation.',
+  findTableLabel: 'Your name',
+  findTableButton: 'Find my table',
+  findTableYourTable: 'Your table',
+  findTableNotFound: 'We couldn’t find that name. Try your first and last name, or the name of the person you came with — or ask a member of the hosting team.',
+  findTableTooMany: 'Several guests have that name. Please type your first and last name.',
+  findTableTooShort: 'Please type at least two letters of your name.',
+  findTableTooFast: 'Too many searches from this connection. Please wait a minute and try again.',
+  findTableUnavailable: 'Seating isn’t available here yet. Please ask a member of the hosting team.',
+  findTableBack: 'Back to the event page',
 };
 
 const fr: Translations = {
@@ -372,6 +395,17 @@ const fr: Translations = {
   songAddError: 'Échec de l\'ajout. Veuillez réessayer.',
   noSongsYet: 'Aucune demande encore. Soyez le premier!',
   requestedBy: 'Demandé par',
+  findTableTitle: 'Trouvez votre table',
+  findTableLead: 'Entrez votre nom tel qu’il figure sur votre invitation.',
+  findTableLabel: 'Votre nom',
+  findTableButton: 'Trouver ma table',
+  findTableYourTable: 'Votre table',
+  findTableNotFound: 'Nous n’avons pas trouvé ce nom. Essayez votre prénom et votre nom, ou le nom de la personne qui vous accompagne — ou demandez à un membre de l’équipe d’accueil.',
+  findTableTooMany: 'Plusieurs invités portent ce nom. Entrez votre prénom et votre nom.',
+  findTableTooShort: 'Entrez au moins deux lettres de votre nom.',
+  findTableTooFast: 'Trop de recherches depuis cette connexion. Attendez une minute et réessayez.',
+  findTableUnavailable: 'Le plan de table n’est pas encore disponible ici. Demandez à un membre de l’équipe d’accueil.',
+  findTableBack: 'Retour à la page de l’événement',
 };
 
 const es: Translations = {
@@ -491,6 +525,17 @@ const es: Translations = {
   songAddError: 'Error al agregar. Por favor intenta de nuevo.',
   noSongsYet: 'Sin solicitudes aún. ¡Sé el primero!',
   requestedBy: 'Solicitado por',
+  findTableTitle: 'Encuentra tu mesa',
+  findTableLead: 'Escribe tu nombre tal como aparece en tu invitación.',
+  findTableLabel: 'Tu nombre',
+  findTableButton: 'Buscar mi mesa',
+  findTableYourTable: 'Tu mesa',
+  findTableNotFound: 'No encontramos ese nombre. Prueba con tu nombre y apellido, o con el nombre de la persona con quien viniste, o pregunta a alguien del equipo anfitrión.',
+  findTableTooMany: 'Varios invitados tienen ese nombre. Escribe tu nombre y apellido.',
+  findTableTooShort: 'Escribe al menos dos letras de tu nombre.',
+  findTableTooFast: 'Demasiadas búsquedas desde esta conexión. Espera un minuto y vuelve a intentarlo.',
+  findTableUnavailable: 'La asignación de mesas aún no está disponible aquí. Pregunta a alguien del equipo anfitrión.',
+  findTableBack: 'Volver a la página del evento',
 };
 
 const map: Record<string, Translations> = { en, fr, es };

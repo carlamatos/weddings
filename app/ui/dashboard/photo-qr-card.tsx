@@ -24,12 +24,45 @@ function escapeHtml(value: string): string {
 }
 
 // A printable QR code that opens the page's Guest Photos section, for hosts
-// to put on the tables. Printing renders the cards into a hidden iframe so
-// the dashboard itself never ends up on paper.
+// to put on the tables.
 export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: string; heading: string; sectionOn: boolean }) {
+  return (
+    <QrSignCard
+      url={uploadUrl}
+      heading={heading}
+      sectionOn={sectionOn}
+      title="QR code for your tables"
+      intro="Print this and place it on the tables at your event. Guests scan it with their phone camera and land right on the photo upload section of your page."
+      offWarning="The Guest Photos section is hidden, so guests who scan the code won’t find a place to upload. Switch it on above."
+      defaultMessage="Share your photos with us!"
+      how="Scan with your phone camera to upload your photos"
+      fileName="photo-upload-qr-code.png"
+      defaultLayout="four"
+      idPrefix="qr"
+    />
+  );
+}
+
+type QrSignProps = {
+  url: string; // what the code opens
+  heading: string; // the event's name: the sign's title to start with
+  sectionOn: boolean;
+  title: string; // this card's heading in the dashboard
+  intro: string;
+  offWarning: string; // shown while the feature is off for guests
+  defaultMessage: string;
+  how: string; // printed under the code
+  fileName: string;
+  defaultLayout: Layout;
+  idPrefix: string; // unique per screen, for the form labels
+};
+
+// A printable QR sign. Printing renders the cards into a hidden iframe so
+// the dashboard itself never ends up on paper.
+export function QrSignCard({ url: uploadUrl, heading, sectionOn, title: cardTitle, intro, offWarning, defaultMessage, how, fileName, defaultLayout, idPrefix }: QrSignProps) {
   const [title, setTitle] = useState(heading);
-  const [message, setMessage] = useState('Share your photos with us!');
-  const [layout, setLayout] = useState<Layout>('four');
+  const [message, setMessage] = useState(defaultMessage);
+  const [layout, setLayout] = useState<Layout>(defaultLayout);
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(false);
   const frameRef = useRef<HTMLIFrameElement>(null);
@@ -51,11 +84,11 @@ export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: stri
         ${title.trim() ? `<h1>${escapeHtml(title.trim())}</h1>` : ''}
         ${message.trim() ? `<p class="msg">${escapeHtml(message.trim())}</p>` : ''}
         <div class="qr">${svg}</div>
-        <p class="how">Scan with your phone camera to upload your photos</p>
+        <p class="how">${escapeHtml(how)}</p>
         <p class="url">${escapeHtml(displayUrl)}</p>
       </div>`;
     const cards = layout === 'four' ? card.repeat(4) : card;
-    const doc = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title || 'Photo QR code')}</title>
+    const doc = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(title || cardTitle)}</title>
       <style>
         @page { margin: 0.4in; }
         * { box-sizing: border-box; }
@@ -88,7 +121,7 @@ export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: stri
       const png = await QRCode.toDataURL(uploadUrl, { errorCorrectionLevel: 'M', margin: 2, width: 1200 });
       const a = document.createElement('a');
       a.href = png;
-      a.download = 'photo-upload-qr-code.png';
+      a.download = fileName;
       a.click();
     } catch {
       setError(true);
@@ -97,15 +130,12 @@ export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: stri
 
   return (
     <section style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: 22, marginBottom: 28, maxWidth: 760 }}>
-      <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>QR code for your tables</h2>
-      <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
-        Print this and place it on the tables at your event. Guests scan it with their phone camera and land right on the photo
-        upload section of your page.
-      </p>
+      <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{cardTitle}</h2>
+      <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>{intro}</p>
 
       {!sectionOn && (
         <p role="alert" style={{ fontSize: 13, color: '#8A6800', background: '#FFF8E7', border: '1px solid #E8D9A8', borderRadius: 8, padding: '8px 12px', margin: '0 0 16px' }}>
-          The Guest Photos section is hidden, so guests who scan the code won&rsquo;t find a place to upload. Switch it on above.
+          {offWarning}
         </p>
       )}
 
@@ -126,11 +156,11 @@ export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: stri
         </div>
 
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-          <label style={labelStyle} htmlFor="qr-title">Title</label>
-          <input id="qr-title" style={inputStyle} value={title} maxLength={TITLE_MAX} onChange={(e) => setTitle(e.target.value)} />
+          <label style={labelStyle} htmlFor={`${idPrefix}-title`}>Title</label>
+          <input id={`${idPrefix}-title`} style={inputStyle} value={title} maxLength={TITLE_MAX} onChange={(e) => setTitle(e.target.value)} />
 
-          <label style={{ ...labelStyle, marginTop: 14 }} htmlFor="qr-message">Message</label>
-          <input id="qr-message" style={inputStyle} value={message} maxLength={MESSAGE_MAX} onChange={(e) => setMessage(e.target.value)} />
+          <label style={{ ...labelStyle, marginTop: 14 }} htmlFor={`${idPrefix}-message`}>Message</label>
+          <input id={`${idPrefix}-message`} style={inputStyle} value={message} maxLength={MESSAGE_MAX} onChange={(e) => setMessage(e.target.value)} />
 
           <fieldset style={{ border: 'none', padding: 0, margin: '14px 0 0' }}>
             <legend style={labelStyle}>Print layout</legend>
@@ -139,7 +169,7 @@ export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: stri
               ['one', '1 large sign per page', 'for an entrance or a photo booth'],
             ] as const).map(([value, name, sub]) => (
               <label key={value} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 14, color: '#241F2B', marginBottom: 6, cursor: 'pointer' }}>
-                <input type="radio" name="qr-layout" value={value} checked={layout === value} onChange={() => setLayout(value)} style={{ marginTop: 3 }} />
+                <input type="radio" name={`${idPrefix}-layout`} value={value} checked={layout === value} onChange={() => setLayout(value)} style={{ marginTop: 3 }} />
                 <span>{name} <span style={{ color: '#6B6470' }}>— {sub}</span></span>
               </label>
             ))}
