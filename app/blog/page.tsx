@@ -33,7 +33,7 @@ export default function BlogIndex() {
         </div>
       </header>
       <div className="wrap">
-        <section className="mk-related" style={{ paddingTop: 8 }}>
+        <section className="mk-related" style={{ paddingTop: 48 }}>
           <div className="mk-cards">
             {BLOG_POSTS.map((p) => (
               <Link key={p.slug} href={`/blog/${p.slug}`} className="mk-card mk-post-card">
