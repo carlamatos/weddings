@@ -410,7 +410,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Everything every template includes',
         bullets: [
-          'A full-width banner — upload your own photo or video, or keep the theme’s artwork.',
+          'A full-width banner — upload your own photo, or keep the theme’s artwork.',
           'Event details with date, time, venue, address and a map with directions.',
           'A live countdown to your event.',
           'An RSVP form with guest count, plus a guest list you can export to CSV.',
@@ -436,7 +436,7 @@ export const FEATURES: Feature[] = [
       { q: 'Are all templates free?', a: 'Yes. Every theme is available on the free plan. Plus unlocks extra features, not extra themes.' },
       { q: 'Can I use a wedding theme for a different kind of event?', a: 'Yes. Categories are suggestions — any theme works for any event, and every theme has the same features.' },
       { q: 'Will I lose my content if I switch themes?', a: 'No. Your text, photos, guest list and settings stay the same. Only the design changes.' },
-      { q: 'Can I use my own photo or video in the banner?', a: 'Yes. Upload a photo or a short video for the top banner, or keep the theme’s default artwork.' },
+      { q: 'Can I use my own photo in the banner?', a: 'Yes. Upload a photo for the top banner, or keep the theme’s default artwork.' },
       { q: 'Do the templates work on phones?', a: 'Yes. Every theme is designed to look good on phones, tablets and computers — most guests will open your link on their phone.' },
     ],
     cta: { title: 'Find the look that fits your event', text: 'Pick a template, add your details, and share your page today — free.' },

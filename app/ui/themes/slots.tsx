@@ -594,7 +594,7 @@ export function EditableDescription({
 
 // ─── EditableBannerBg ─────────────────────────────────────
 // Replaces: <img className="hero-bg" src={bannerImage} alt="" />
-// Shows a camera overlay; clicking opens a file picker (image or video).
+// Shows a camera overlay; clicking opens a file picker (images only; existing video banners still play).
 function isVideoUrl(url: string) {
   return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url);
 }
@@ -717,66 +717,38 @@ export function EditableBannerBg({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const fileIsVideo = file.type.startsWith('video/');
+    // Banner videos are switched off for now — images only. Existing video
+    // banners still display (see isVideoUrl above).
+    if (file.type.startsWith('video/')) {
+      setUploadError('Videos aren’t supported right now. Please choose a photo.');
+      e.target.value = '';
+      return;
+    }
 
     // Optimistic preview — except HEIC, which most browsers can't display;
     // that one appears once it's converted and uploaded.
     if (!isHeicFile(file)) {
       const objectUrl = URL.createObjectURL(file);
       setCurrent(objectUrl);
-      setIsVideo(fileIsVideo);
+      setIsVideo(false);
     }
     setUploading(true);
     setUploadError('');
 
     try {
-      let uploadedUrl: string;
-
-      if (fileIsVideo) {
-        // Videos upload directly from browser to Blob — bypasses the 4.5 MB
-        // Vercel function body limit.
-        //
-        // Step 1: fetch our token route manually so we surface real server errors
-        // instead of the opaque "Failed to retrieve the client token" from upload().
-        const ext = file.name.split('.').pop()?.toLowerCase() || 'mp4';
-        const pathname = `banners/${Date.now()}.${ext}`;
-
-        const tokenRes = await fetch('/api/upload/token', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            type: 'blob.generate-client-token',
-            payload: { pathname, clientPayload: null, multipart: false },
-          }),
-        });
-        const tokenData = await tokenRes.json() as { clientToken?: string; error?: string };
-        if (!tokenRes.ok || !tokenData.clientToken) {
-          throw new Error(tokenData.error ?? `Token request failed (${tokenRes.status})`);
-        }
-
-        // Step 2: upload directly to Vercel Blob with the client token.
-        const { put } = await import('@vercel/blob/client');
-        const blob = await put(pathname, file, {
-          access: 'public',
-          token: tokenData.clientToken,
-          contentType: file.type,
-        });
-        uploadedUrl = blob.url;
-      } else {
-        // Images go through the server route for safety check + optimization.
-        const compressed = await compressImageFile(file);
-        const formData = new FormData();
-        formData.append('file', compressed);
-        const res = await fetch('/api/upload', { method: 'POST', body: formData });
-        const text = await res.text();
-        let data: { url?: string; error?: string };
-        try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
-        if (!data.url) throw new Error(data.error ?? 'Upload failed. Please try again.');
-        uploadedUrl = data.url;
-      }
+      // Images go through the server route for safety check + optimization.
+      const compressed = await compressImageFile(file);
+      const formData = new FormData();
+      formData.append('file', compressed);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const text = await res.text();
+      let data: { url?: string; error?: string };
+      try { data = JSON.parse(text); } catch { data = { error: text || res.statusText }; }
+      if (!data.url) throw new Error(data.error ?? 'Upload failed. Please try again.');
+      const uploadedUrl = data.url;
 
       setCurrent(uploadedUrl);
-      setIsVideo(isVideoUrl(uploadedUrl) || fileIsVideo);
+      setIsVideo(false);
       startTransition(() => updateBannerImage(pageId, uploadedUrl));
     } catch (err) {
       setCurrent(src);
@@ -817,7 +789,7 @@ export function EditableBannerBg({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*,.heic,.heif,video/mp4,video/quicktime,video/webm"
+        accept="image/*,.heic,.heif"
         style={{ display: 'none' }}
         onChange={handleFile}
       />
@@ -839,7 +811,7 @@ export function EditableBannerBg({
       {editing && (
         <EditSheet
           title="Edit your banner"
-          intro="The large photo or video at the top of your page. Changes here are saved as you make them."
+          intro="The large photo at the top of your page. Changes here are saved as you make them."
           onClose={() => setEditing(false)}
         >
           <div className="theme-sheet-field">
@@ -861,11 +833,11 @@ export function EditableBannerBg({
 
           {uploadError && <p className="theme-sheet-error" role="alert">{uploadError}</p>}
 
-          <SheetSection title="Photo or video">
-            <SheetField label="Upload a new one" hint="A photo (JPG, PNG, HEIC) or a short video (MP4, MOV, WebM). Wide, landscape photos work best.">
+          <SheetSection title="Photo">
+            <SheetField label="Upload a new one" hint="A photo (JPG, PNG, HEIC). Wide, landscape photos work best.">
               <div className="theme-sheet-row">
                 <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                  <CameraIcon /> {uploading ? 'Uploading…' : 'Choose a photo or video'}
+                  <CameraIcon /> {uploading ? 'Uploading…' : 'Choose a photo'}
                 </button>
                 {current && !uploading && (
                   <button type="button" className="theme-sheet-btn" onClick={restoreDefault} disabled={restoring}>

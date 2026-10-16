@@ -19,7 +19,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    // Images only — videos use /api/upload/token for client-side direct upload
+    // Images only — banner videos are switched off for now
     const rawBuffer = Buffer.from(await file.arrayBuffer());
 
     const { safe, reason } = await isSafeImage(rawBuffer);
