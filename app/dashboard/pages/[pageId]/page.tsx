@@ -22,6 +22,8 @@ import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
+import EditorCanvas from '@/app/ui/themes/EditorCanvas';
+import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -161,7 +163,9 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
 
   return (
     <div style={{ margin: '-32px -28px' }}>
+      <EditorCanvas>
       <ThemeRenderer
+        rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         themeSlug={userPage.theme_slug}
         heading={userPage.heading || ''}
         description={userPage.description || undefined}
@@ -214,6 +218,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         shareUrl={publicPageUrl(userPage)}
         editSlots={editSlots}
       />
+      </EditorCanvas>
     </div>
   );
 }

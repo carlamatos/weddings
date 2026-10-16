@@ -5,10 +5,10 @@ import { updateHeroButton } from '@/app/lib/actions';
 import { HERO_BUTTON_LABEL_MAX_LENGTH, heroButtonStyle, isHeroColor, type HeroButtonKey, type HeroButtonStyle } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField } from './EditSheet';
-import { EditBadge } from './slots';
+import { editTarget } from './slots';
 import { useThemeLook, type ThemeLook } from './theme-look';
 
-// Editor version of a top-banner button: an Edit badge opens the full-screen
+// Editor version of a top-banner button: clicking it opens the full-screen
 // editor for its label, button colour and text colour.
 export default function EditableHeroButton({
   pageId,
@@ -75,12 +75,11 @@ export default function EditableHeroButton({
   };
 
   return (
-    // A column, so the Edit button sits under the banner button, not beside it.
-    <span className="theme-editable" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+    // Named by its own label, so two banner buttons can't be mixed up.
+    <span className="theme-editable" style={{ display: 'inline-flex', position: 'relative' }} {...editTarget(startEdit, `Edit “${current.label || defaultLabel}” button`)}>
       <a ref={elRef} href={href} className={className} style={heroButtonStyle(shown)} onClick={(e) => { e.preventDefault(); startEdit(); }}>
         {shown.label || defaultLabel}
       </a>
-      <EditBadge onClick={startEdit} title="Edit this button" label="Edit button" />
 
       {open && (
         <EditSheet

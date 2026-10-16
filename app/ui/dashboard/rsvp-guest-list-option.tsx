@@ -7,7 +7,7 @@ import { RSVP_GUEST_LIST_ONLY_SETTING } from '@/app/lib/rsvp-settings';
 import { card } from './guest-ui';
 
 // RSVP screen: only guests already on the guest list can RSVP. The reply has
-// to match a guest's email or phone number (app/api/rsvp). Off by default.
+// to match a guest's email address (app/api/rsvp). Off by default.
 export function RsvpGuestListOption({
   pageId, initialOn, guestCount, guestListHref,
 }: {
@@ -33,13 +33,13 @@ export function RsvpGuestListOption({
         <span>
           <strong>Only guests on my guest list can RSVP</strong>
           <span style={{ display: 'block', color: '#6B6470', fontSize: 13 }}>
-            A reply is accepted only when its email or phone number matches a guest on your{' '}
-            <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>Guest List</Link>. Anyone else is asked to use the
-            email or phone number you have for them.
+            Guests are matched by <strong>email address</strong>: a reply is accepted only when its email matches a guest on your{' '}
+            <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>Guest List</Link>, so make sure each guest has the
+            email they&rsquo;ll use. Your RSVP form tells guests to use the email address you have for them.
           </span>
           {on && guestCount === 0 && (
             <span role="alert" style={{ display: 'block', marginTop: 6, color: '#8A6800', fontSize: 13, fontWeight: 600 }}>
-              Your guest list is empty, so nobody can RSVP yet. Add your guests first.
+              Your guest list is empty, so nobody can RSVP yet. Add your guests and their email addresses first.
             </span>
           )}
         </span>

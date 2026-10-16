@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useTransition, useId, useLayoutEffect } from 'react';
+import { useState, useRef, useTransition, useId } from 'react';
 import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, resetHeroColors, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
 import AddressAutocomplete, { type AddressComponents } from '@/app/ui/address-autocomplete';
@@ -13,16 +13,6 @@ import { heroTextStyle, type HeroTextKey } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField, SheetSection, TextPreview } from './EditSheet';
 import { useThemeLook, type ThemeLook } from './theme-look';
-
-// ─── shared pencil icon ──────────────────────────────────
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-  );
-}
 
 function CameraIcon() {
   return (
@@ -124,26 +114,24 @@ function TextSheet({
   );
 }
 
-// The Edit button under an editable element. The element's bottom margin
-// (the theme's space before the next thing) moves below the button, so the
-// button sits right under what it edits instead of drifting toward the next
-// element.
-export function EditBadge({ onClick, title, label = 'Edit' }: { onClick: () => void; title: string; label?: string }) {
-  const ref = useRef<HTMLButtonElement>(null);
-  useLayoutEffect(() => {
-    const badge = ref.current;
-    const el = badge?.previousElementSibling as HTMLElement | null;
-    if (!badge || !el) return;
-    const margin = parseFloat(getComputedStyle(el).marginBottom);
-    if (!(margin > 0)) return;
-    el.style.marginBottom = '0px';
-    badge.style.marginBottom = `${margin}px`;
-  }, []);
-  return (
-    <button ref={ref} type="button" className="theme-edit-badge" onClick={onClick} title={title}>
-      <PencilIcon /> {label}
-    </button>
-  );
+// Click-to-edit: the wrapper around an editable element. Clicking the
+// element opens its editor; on hover (or keyboard focus) it gets an outline
+// and a small pencil label naming what it edits, drawn over the page so it
+// takes no space and the page keeps its real layout (dashboard.css,
+// .theme-editable). Enter or Space opens it from the keyboard.
+export function editTarget(open: () => void, label: string) {
+  return {
+    'data-edit-label': label,
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': label,
+    onKeyDown: (e: React.KeyboardEvent) => {
+      // Only the wrapper itself: keys typed in its (portaled) editor bubble here too.
+      if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
+      e.preventDefault();
+      open();
+    },
+  } as const;
 }
 
 // ─── EditableHeroEyebrow ──────────────────────────────────
@@ -187,9 +175,8 @@ export function EditableHeroEyebrow({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit top line')}>
       <p ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</p>
-      <EditBadge onClick={startEdit} title="Edit the line above the names" label="Edit top line" />
       {editing && (
         <TextSheet
           title="Edit the line above the names"
@@ -269,9 +256,8 @@ export function EditableSectionText({
   const isTitle = Tag === 'h2';
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, Tag === 'h2' ? 'Edit section title' : 'Edit heading')}>
       <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
-      <EditBadge onClick={startEdit} title="Edit this heading" label={Tag === 'h2' ? 'Edit section title' : 'Edit heading'} />
       {editing && (
         <TextSheet
           title={isTitle ? 'Edit this section’s title' : 'Edit this section’s heading'}
@@ -339,9 +325,8 @@ export function EditableHeroName({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit title')}>
       <h1 ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</h1>
-      <EditBadge onClick={startEdit} title="Edit the main title" label="Edit title" />
       {editing && (
         <TextSheet
           title="Edit your event’s main title"
@@ -471,10 +456,9 @@ export function EditableHeroDate({
     <span
       className="theme-editable"
       style={{ display: 'block', position: 'relative' }}
+      {...editTarget(openDialog, 'Edit date & location')}
     >
       <p ref={elRef} className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
-
-      <EditBadge onClick={openDialog} title="Edit the date and location" label="Edit date & location" />
 
       {open && (
         <EditSheet
@@ -570,9 +554,8 @@ export function EditableDescription({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit story')}>
       <p className={className} style={style} onClick={startEdit}>{current}</p>
-      <EditBadge onClick={startEdit} title="Edit your story" label="Edit story" />
       {editing && (
         <TextSheet
           title="Edit your story"
@@ -804,9 +787,9 @@ export function EditableBannerBg({
         onChange={handleFile}
       />
 
-      {/* Always visible — matches every other editable field's "Edit" badge.
-          Hover-only would hide the only way to edit the banner on touch
-          devices, and from anyone who doesn't happen to hover over it. */}
+      {/* The banner's background has no text to click, so it keeps a small
+          button in its corner — always shown in Edit mode (hover-only would
+          hide it on touch screens), hidden in Preview. */}
       <button
         type="button"
         className="theme-banner-overlay"
@@ -815,7 +798,7 @@ export function EditableBannerBg({
         style={{ border: 'none', font: 'inherit', opacity: hovered || uploading ? 1 : 0.85 }}
       >
         <CameraIcon />
-        <span>{uploading ? 'Uploading…' : 'Edit banner'}</span>
+        <span>{uploading ? 'Uploading…' : 'Change banner'}</span>
       </button>
 
       {editing && (
@@ -1002,9 +985,13 @@ export function EditableContactInfo({
   return (
     // In the editor, clicking the details edits them (rather than opening
     // the mail or phone app).
-    <span className="theme-editable" style={{ position: 'relative', display: 'inline-block' }} onClick={(e) => { e.preventDefault(); setEditing(true); }}>
+    <span
+      className="theme-editable"
+      style={{ position: 'relative', display: 'inline-block' }}
+      onClick={(e) => { e.preventDefault(); setEditing(true); }}
+      {...editTarget(() => setEditing(true), 'Edit contact info')}
+    >
       <ContactPreview email={emailVal} phone={phoneVal} linkStyle={linkStyle} />
-      <EditBadge onClick={() => setEditing(true)} title="Edit contact info" label="Edit contact info" />
     </span>
   );
 }

@@ -18,6 +18,7 @@ import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
+import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ host: string }> }
@@ -69,6 +70,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
 
   return (
     <ThemeRenderer
+      rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
       themeSlug={data.theme_slug}
       heading={data.heading}
       description={data.description || undefined}

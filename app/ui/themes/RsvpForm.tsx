@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { Translations } from '@/app/lib/translations';
+import { useRsvpOptions } from './rsvp-options';
 
 declare global {
   interface Window {
@@ -31,6 +32,7 @@ function onRootDomain(hostname: string): boolean {
 }
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
+  const { guestListOnly } = useRsvpOptions();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -169,6 +171,12 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
         />
       </div>
 
+      {/* The host only accepts replies from their guest list, matched by email. */}
+      {guestListOnly && (
+        <p id="rsvp-guest-list-note" className="rsvp-guest-list-note" style={{ margin: 0, fontSize: '0.95em', lineHeight: 1.55 }}>
+          {t.rsvpGuestListNote}
+        </p>
+      )}
       <div>
         <label className="field-label" htmlFor="rsvp-name">{t.fullName}</label>
         <input
@@ -183,6 +191,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           type="email" id="rsvp-email" value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="jane@email.com" required
+          aria-describedby={guestListOnly ? 'rsvp-guest-list-note' : undefined}
         />
       </div>
       <div>

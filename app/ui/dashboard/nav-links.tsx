@@ -22,7 +22,7 @@ const GROUPS: { title: string; links: NavItem[] }[] = [
   {
     title: 'Page',
     links: [
-      { name: 'Edit Page', section: '', icon: DocumentIcon },
+      { name: 'Edit Event Page', section: '', icon: DocumentIcon },
       { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon },
       { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon },
       { name: 'Registry', section: '/registry', icon: GiftIcon },

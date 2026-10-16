@@ -217,6 +217,7 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
           <GalleryThumb key={img.id} image={img} onDelete={handleDelete} />
         ))}
         {images.length < MAX_IMAGES && <button
+          className="theme-edit-only"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
           style={{

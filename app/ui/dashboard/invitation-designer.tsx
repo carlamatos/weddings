@@ -136,7 +136,7 @@ export function InvitationDesigner({
         <section style={panel}>
           <h3 style={h3}>Event details</h3>
           <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 10px', lineHeight: 1.6 }}>
-            These come from your event page and can only be changed in <Link href={editPageHref} style={{ color: '#B6584A' }}>Edit Page</Link>.
+            These come from your event page and can only be changed in <Link href={editPageHref} style={{ color: '#B6584A' }}>Edit Event Page</Link>.
           </p>
           <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 14px', margin: 0, fontSize: 14 }}>
             {([['Event', details.name], ['Date', details.date], ['Time', details.time], ['Place', [details.venue, details.address].filter(Boolean).join(', ')]] as const).map(([k, v]) => (

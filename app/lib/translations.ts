@@ -109,6 +109,7 @@ export interface Translations {
   errorEmail: string;
   errorGeneral: string;
   errorNotOnGuestList: string; // when the host only accepts replies from their guest list
+  rsvpGuestListNote: string; // above the RSVP form when the host only accepts replies from their guest list
   // Guest photos
   guestPhotos: string;
   shareYourPhoto: string;
@@ -228,7 +229,8 @@ const en: Translations = {
   errorName: 'Please enter your name.',
   errorEmail: 'Please enter a valid email address.',
   errorGeneral: 'Something went wrong. Please try again.',
-  errorNotOnGuestList: 'We couldn’t find you on the guest list. Please use the email or phone number your host has for you, or contact your host.',
+  errorNotOnGuestList: 'We couldn’t find this email on the guest list. Please use the email address your host has for you, or contact your host.',
+  rsvpGuestListNote: 'This RSVP is for guests on the guest list. Please use the email address your host has for you.',
   guestPhotos: 'Guest Photos',
   shareYourPhoto: 'Upload Photos',
   loadMore: 'Load more',
@@ -345,7 +347,8 @@ const fr: Translations = {
   errorName: 'Veuillez entrer votre nom.',
   errorEmail: 'Veuillez entrer une adresse courriel valide.',
   errorGeneral: 'Une erreur est survenue. Veuillez réessayer.',
-  errorNotOnGuestList: 'Nous ne vous trouvons pas sur la liste des invités. Utilisez le courriel ou le numéro de téléphone que votre hôte a pour vous, ou communiquez avec votre hôte.',
+  errorNotOnGuestList: 'Nous ne trouvons pas ce courriel sur la liste des invités. Utilisez l’adresse courriel que votre hôte a pour vous, ou communiquez avec votre hôte.',
+  rsvpGuestListNote: 'Cette réponse est réservée aux invités de la liste. Utilisez l’adresse courriel que votre hôte a pour vous.',
   guestPhotos: 'Photos des invités',
   shareYourPhoto: 'Télécharger une photo',
   loadMore: 'Charger plus',
@@ -462,7 +465,8 @@ const es: Translations = {
   errorName: 'Por favor ingresa tu nombre.',
   errorEmail: 'Por favor ingresa una dirección de correo válida.',
   errorGeneral: 'Algo salió mal. Por favor intenta de nuevo.',
-  errorNotOnGuestList: 'No te encontramos en la lista de invitados. Usa el correo o el número de teléfono que tu anfitrión tiene de ti, o comunícate con tu anfitrión.',
+  errorNotOnGuestList: 'No encontramos este correo en la lista de invitados. Usa el correo electrónico que tu anfitrión tiene de ti, o comunícate con tu anfitrión.',
+  rsvpGuestListNote: 'Esta confirmación es para los invitados de la lista. Usa el correo electrónico que tu anfitrión tiene de ti.',
   guestPhotos: 'Fotos de invitados',
   shareYourPhoto: 'Subir Fotos',
   loadMore: 'Cargar más',
