@@ -10,8 +10,9 @@ export function guestPhotoLimit(isPaid: boolean): number {
 }
 
 // Whether the section shows on the page. On Plus it's on unless switched off
-// (as before); on a free page it's off until the host switches it on, so no
-// existing free page starts taking uploads without its host choosing to.
+// (as before). New pages are created with it on; a free page without the
+// setting (one made before Guest Photos was free) stays off until the host
+// switches it on, so it doesn't start taking uploads unasked.
 export function areGuestPhotosOn(settings: Record<string, string>, isPaid: boolean): boolean {
   const value = settings['show_guest_photos'];
   return isPaid ? value !== 'false' : value === 'true';
