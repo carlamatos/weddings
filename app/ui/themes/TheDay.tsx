@@ -336,6 +336,12 @@ const css = `
   .td .td-wreath { display: block; margin: 0 auto 26px; }
   .td .footer-signoff { font-family: var(--td-font-display); font-style: italic; font-size: clamp(34px, 5vw, 50px) !important; font-weight: 300; color: var(--td-ivory) !important; margin: 34px 0 0 !important; line-height: 1.15; }
   .td .footer-credit { font-size: 11px; letter-spacing: 1px; color: rgba(246,242,233,0.5) !important; margin-top: 30px !important; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .td #potluck.rsvp-section, .td #gift-exchange.rsvp-section { background: none; background-image: none !important; display: block; min-height: 0; padding: 90px 20px; }
+  .td #potluck.rsvp-section { background-color: #DDE3D0; }
+  .td #gift-exchange.rsvp-section { background-color: #EFE5CC; }
+  .td #potluck .rsvp-panel, .td #gift-exchange .rsvp-panel { max-width: 520px; margin: 0 auto; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -619,8 +625,6 @@ export default function TheDay({
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
         <div id="potluck" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="td-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <div style={{ textAlign: 'center' }}>
@@ -637,8 +641,6 @@ export default function TheDay({
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="td-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <div style={{ textAlign: 'center' }}>

@@ -306,6 +306,12 @@ const css = `
   .lv .footer p { font-size: 15px; color: rgba(246,234,222,0.88); margin: 0 0 4px; }
   .lv .footer-signoff { font-family: var(--lv-font-script); font-size: clamp(46px, 7vw, 66px) !important; font-weight: 400; color: var(--lv-cream) !important; margin: 30px 0 0 !important; line-height: 1.05; }
   .lv .footer-credit { font-size: 11px; letter-spacing: 1px; color: rgba(246,234,222,0.55) !important; margin-top: 30px !important; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .lv #potluck.rsvp-section, .lv #gift-exchange.rsvp-section { background: none; background-image: none !important; display: block; min-height: 0; padding: 90px 20px; }
+  .lv #potluck.rsvp-section { background-color: #F6DCCB; }
+  .lv #gift-exchange.rsvp-section { background-color: #E7C6CC; }
+  .lv #potluck .rsvp-panel, .lv #gift-exchange .rsvp-panel { max-width: 520px; margin: 0 auto; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -591,8 +597,6 @@ export default function Love({
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
         <div id="potluck" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="lv-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <div style={{ textAlign: 'center' }}>
@@ -609,8 +613,6 @@ export default function Love({
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="lv-bouquet" src={`${IMG}/bouquet.jpeg`} alt="" />
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <div style={{ textAlign: 'center' }}>

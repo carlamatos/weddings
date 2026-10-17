@@ -332,6 +332,11 @@ const css = `
   .ac .footer-car { display: block; margin: 0 auto 26px; }
   .ac .footer-signoff { font-family: var(--ac-font-display); font-size: clamp(28px, 6vw, 38px) !important; font-weight: 400; color: var(--ac-white) !important; margin: 24px 0 0 !important; }
   .ac .footer-credit { font-family: var(--ac-font-sans); font-size: 11px; color: rgba(255,255,255,0.6) !important; margin-top: 24px !important; letter-spacing: 0.5px; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .ac #potluck.rsvp-section, .ac #gift-exchange.rsvp-section { background: none; background-image: none !important; }
+  .ac #potluck.rsvp-section { background-color: #FFF1CC; }
+  .ac #gift-exchange.rsvp-section { background-color: #E8E3F6; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

@@ -187,6 +187,11 @@ const css = `
   .vl .share-hashtag { font-family: var(--vl-script); font-size: clamp(42px, 4.5vw, 56px); line-height: 1.2; color: #fff; margin: 0 0 28px; font-weight: 400; letter-spacing: 0.5px; overflow-wrap: anywhere; }
   .vl .share-band .btn-outline { color: #fff; border-color: rgba(255,255,255,0.6); }
   .vl .share-band .btn-outline:hover { background: rgba(255,255,255,0.12); }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .vl #potluck.rsvp-section, .vl #gift-exchange.rsvp-section { background: none; background-image: none !important; }
+  .vl #potluck.rsvp-section { background-color: #DCE4EA; }
+  .vl #gift-exchange.rsvp-section { background-color: #E6DDEA; }
 `;
 
 function formatDate(dateStr: string, city?: string, country?: string, locale = 'en-US', endDateStr?: string): string {

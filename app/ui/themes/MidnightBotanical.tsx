@@ -140,6 +140,11 @@ const css = `
   .mb .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .mb .share-hashtag { font-family: var(--font-serif); font-size: clamp(24px, 4vw, 30px); color: var(--gold); margin: 0 0 28px; font-weight: 500; font-style: italic; letter-spacing: 0.5px; overflow-wrap: anywhere; }
   .mb .share-band .btn-outline { border-color: rgba(201,167,93,0.6); }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .mb #potluck.spine-section, .mb #gift-exchange.spine-section { background: none; background-image: none !important; }
+  .mb #potluck.spine-section { background-color: #EEF2EA; box-shadow: 0 0 0 100vmax #EEF2EA; clip-path: inset(0 -100vmax); }
+  .mb #gift-exchange.spine-section { background-color: #F5EEDC; box-shadow: 0 0 0 100vmax #F5EEDC; clip-path: inset(0 -100vmax); }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

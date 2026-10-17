@@ -365,6 +365,11 @@ const css = `
   .dm .footer-skull { display: block; width: 110px; margin: 0 auto 20px; transform-origin: 50% 10%; animation: dm-dance 3.4s ease-in-out infinite; filter: drop-shadow(0 10px 12px rgba(0,0,0,0.4)); }
   .dm .footer-signoff { font-family: var(--dm-font-display); font-size: clamp(36px, 5.6vw, 54px) !important; font-weight: 400; color: var(--dm-marigold) !important; margin: 28px 0 0 !important; text-shadow: 0 3px 0 rgba(0,0,0,0.3); }
   .dm .footer-credit { font-size: 11px; letter-spacing: 1px; color: rgba(238,224,181,0.5) !important; margin-top: 28px !important; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .dm #potluck.rsvp-section, .dm #gift-exchange.rsvp-section { background: none; background-image: none !important; justify-content: center; min-height: 0; padding: 90px 18px; }
+  .dm #potluck.rsvp-section { background-color: #0F4A4F; }
+  .dm #gift-exchange.rsvp-section { background-color: #6E1B4D; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -729,8 +734,6 @@ export default function DiaDeLosMuertos({
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
         <div id="potluck" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rsvp-art" src={`${IMG}/rsvp.jpeg`} alt="" />
           <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>
             <div className="rsvp-card">
               <div className="dm-peek-wrap" aria-hidden="true">
@@ -751,8 +754,6 @@ export default function DiaDeLosMuertos({
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rsvp-art" src={`${IMG}/rsvp.jpeg`} alt="" />
           <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>
             <div className="rsvp-card">
               <div className="dm-peek-wrap" aria-hidden="true">

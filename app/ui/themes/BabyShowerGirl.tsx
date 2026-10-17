@@ -322,6 +322,11 @@ const css = `
   .bs .footer .section-title { position: relative; }
   .bs .footer-signoff { font-family: var(--bs-font-display); font-size: clamp(32px, 6vw, 44px) !important; font-weight: 700; color: var(--bs-rose) !important; margin: 24px 0 0 !important; position: relative; }
   .bs .footer-credit { font-size: 11px; color: var(--bs-ink-soft) !important; margin-top: 24px !important; letter-spacing: 0.5px; position: relative; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .bs #potluck.rsvp-section, .bs #gift-exchange.rsvp-section { background: none; background-image: none !important; }
+  .bs #potluck.rsvp-section { background-color: #FDEFE6; }
+  .bs #gift-exchange.rsvp-section { background-color: #EFE7F4; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

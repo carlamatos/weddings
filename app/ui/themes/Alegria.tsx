@@ -228,6 +228,11 @@ const css = `
   .al .share-band .eyebrow { color: var(--al-ink-soft); }
   .al .share-band .btn-outline { color: var(--al-ink); border-color: var(--al-lilac-deep); }
   .al .share-band .btn-outline:hover { background: rgba(255,255,255,0.45); }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .al #potluck.rsvp-section, .al #gift-exchange.rsvp-section { background: none; background-image: none !important; }
+  .al #potluck.rsvp-section { background-color: #F7D9DE; }
+  .al #gift-exchange.rsvp-section { background-color: #E3D5F0; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }

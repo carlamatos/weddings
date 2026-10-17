@@ -308,6 +308,12 @@ const css = `
   .wx .footer-star { display: block; margin: 0 auto 20px; filter: drop-shadow(0 0 10px rgba(235,197,149,0.6)); }
   .wx .footer-signoff { font-family: var(--wx-font-display); font-style: italic; font-size: clamp(36px, 5.6vw, 54px) !important; font-weight: 500; color: var(--wx-gold-light) !important; margin: 32px 0 0 !important; }
   .wx .footer-credit { font-size: 11px; letter-spacing: 1px; color: rgba(255,255,255,0.5) !important; margin-top: 28px !important; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .wx #potluck.rsvp-section, .wx #gift-exchange.rsvp-section { background: none; background-image: none !important; }
+  .wx #potluck.rsvp-section { background-color: #DCE8F3; }
+  .wx #gift-exchange.rsvp-section { background-color: #F1E9D6; }
+  .wx #potluck.rsvp-section::before, .wx #gift-exchange.rsvp-section::before { display: none; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -666,7 +672,7 @@ export default function WhiteChristmas({
       )}
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
-        <div id="potluck" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp-room.jpeg)` }}>
+        <div id="potluck" className="rsvp-section">
           <div className="wx-snow-layer far" aria-hidden="true" />
           <div className="wx-snow-layer near" aria-hidden="true" />
           {/* Reveal animates with a transform, which starts a new stacking
@@ -686,7 +692,7 @@ export default function WhiteChristmas({
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
-        <div id="gift-exchange" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp-room.jpeg)` }}>
+        <div id="gift-exchange" className="rsvp-section">
           <div className="wx-snow-layer far" aria-hidden="true" />
           <div className="wx-snow-layer near" aria-hidden="true" />
           {/* Reveal animates with a transform, which starts a new stacking
