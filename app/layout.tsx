@@ -43,29 +43,25 @@ export default function RootLayout({
           <PurchaseConversion />
           <SignupTracker />
         </Suspense>
-        {/* beforeInteractive puts the GTM snippet in <head>, as Google asks. */}
+        {/* One Google tag install: the GTM container already holds the GA4
+            tag (G-5MD6D8FQ6X), so gtag.js isn't loaded separately. The queue
+            and gtag() are set up at once, so the visit's start time and any
+            early events (signup, purchase conversions) are kept; GTM itself
+            loads when the browser is idle so it doesn't compete with the
+            page's own content. Google Ads is configured here because the
+            container has no Ads tag. */}
         {GTM_ID && (
-          <Script id="google-tag-manager" strategy="beforeInteractive">
-            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${GTM_ID}');`}
-          </Script>
+          <>
+            <Script id="google-tag-queue" strategy="beforeInteractive">
+              {`window.dataLayer=window.dataLayer||[];
+window.gtag=function(){dataLayer.push(arguments);};
+dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+gtag('js',new Date());
+gtag('config','AW-18504468577');`}
+            </Script>
+            <Script id="google-tag-manager" src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`} strategy="lazyOnload" />
+          </>
         )}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-5MD6D8FQ6X"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-5MD6D8FQ6X');
-            gtag('config', 'AW-18504468577');
-          `}
-        </Script>
       </body>
     </html>
   );
