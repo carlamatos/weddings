@@ -63,7 +63,7 @@ export default async function Page() {
         <h1 className="hero-headline">Set up your event page in minutes.</h1>
         <p className="hero-sub">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions">
-          <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free page</Link>
+          <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free event page</Link>
           {/* A full sample event page (wedding), built from the real theme. */}
           <Link href="/themes/the-day" className="btn-secondary btn-demo" data-cta="hero-demo">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -473,7 +473,7 @@ export default async function Page() {
       <div className="final-cta reveal">
         <h2 className="section-title">Your story deserves a beautiful home.</h2>
         <p className="hero-sub">Start free today. Upgrade only if you need to.</p>
-        <Link href={appHref('/register')} className="btn-primary" data-cta="footer">Create your free page</Link>
+        <Link href={appHref('/register')} className="btn-primary" data-cta="footer">Create your free event page</Link>
       </div>
 
       {/* FOOTER */}
