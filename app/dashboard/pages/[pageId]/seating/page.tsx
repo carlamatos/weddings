@@ -2,12 +2,12 @@ import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { publicPageUrl } from '@/app/lib/share';
 import { isPagePaidAndLive } from '@/app/lib/plans';
-import { isSeatingOn, SEATING_SETTING } from '@/app/lib/seating';
+import { isSeatingOn, parseSeatingTables, SEATING_SETTING, SEATING_TABLES_SETTING } from '@/app/lib/seating';
 import { ensureSeatingColumn } from '@/app/lib/seating-data';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { QrSignCard } from '@/app/ui/dashboard/photo-qr-card';
-import { SeatingManager } from '@/app/ui/dashboard/seating-manager';
+import { SeatingPlanner } from '@/app/ui/dashboard/seating-planner';
 
 // On the day → Find Your Table (Plus): seat the guest list, then put the QR
 // sign at the entrance. Guests type their name at <page>/table and see their
@@ -28,6 +28,7 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
           No seating chart to print or fix at the last minute. Give each guest a table here, put the QR sign at the entrance, and
           guests scan it, type their name and see their table. Change a table any time — guests always see the latest.
+          Set up your tables on the seating map and drag your guests onto them.
         </p>
       </div>
 
@@ -46,8 +47,9 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
         . They only see their own table, by typing their name — never the whole seating plan.
       </p>
 
-      <SeatingManager
+      <SeatingPlanner
         pageId={pageId}
+        initialTables={parseSeatingTables(settings[SEATING_TABLES_SETTING])}
         guestListHref={pagePath(pageId, '/guest-list')}
         guests={guests.map((g) => ({ id: g.id, name: g.name, status: g.status, guests: g.guests, table: g.seating_table ?? '' }))}
       />

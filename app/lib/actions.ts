@@ -49,7 +49,7 @@ import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { partySize } from './guest-import';
-import { cleanTableName } from './seating';
+import { cleanTableName, normalizeSeatingTables, SEATING_TABLES_SETTING, type SeatingTable } from './seating';
 import { ensureSeatingColumn } from './seating-data';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
@@ -847,6 +847,29 @@ export async function saveSeating(
   } catch (error) {
     console.error('Failed to save seating:', error);
     return { ok: false, error: 'Couldn’t save the seating. Please try again.' };
+  }
+}
+
+// The seating map's tables (Find Your Table): names, seats and shapes, in
+// the host's order. Guests at a table are saved with saveSeating.
+export async function saveSeatingTables(
+  pageId: number,
+  tables: SeatingTable[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const clean = normalizeSeatingTables(tables);
+  try {
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok) return owned;
+    const value = JSON.stringify(clean);
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${SEATING_TABLES_SETTING}, ${value})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+    `;
+    return { ok: true };
+  } catch (error) {
+    console.error('Failed to save seating tables:', error);
+    return { ok: false, error: 'Couldn’t save your tables. Please try again.' };
   }
 }
 

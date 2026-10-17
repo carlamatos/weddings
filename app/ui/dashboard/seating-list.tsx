@@ -1,14 +1,12 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
-import Link from 'next/link';
+import { useMemo, useState } from 'react';
 import { CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
-import { saveSeating } from '@/app/lib/actions';
 import { cleanTableName, parseSeatingPaste, sameName, nameMatches, sortTables, SEATING_TABLE_MAX } from '@/app/lib/seating';
 import type { Guest } from '@/app/lib/definitions';
-import { btn, primary, input, card, STATUS, statusPill } from './guest-ui';
+import { btn, primary, input, STATUS, statusPill } from './guest-ui';
 
-type SeatGuest = Pick<Guest, 'id' | 'name' | 'status' | 'guests'> & { table: string };
+export type SeatGuest = Pick<Guest, 'id' | 'name' | 'status' | 'guests'> & { table: string };
 type Filter = 'all' | 'unseated' | { table: string };
 
 const muted: React.CSSProperties = { fontSize: 13, color: '#6B6470', margin: 0, lineHeight: 1.6 };
@@ -18,21 +16,25 @@ const chip = (active: boolean): React.CSSProperties => ({
   cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
 });
 
-// Find Your Table: the host gives each guest on the guest list a table —
-// one by one, several at once, or by pasting a seating chart — and guests
-// look theirs up on the page. Works on any plan; the lookup needs Plus.
-export function SeatingManager({ pageId, guests, guestListHref }: { pageId: number; guests: SeatGuest[]; guestListHref: string }) {
-  const [seats, setSeats] = useState<Record<string, string>>(() => Object.fromEntries(guests.map((g) => [g.id, g.table])));
+// Find Your Table → List: every guest with a table field — seat them one by
+// one, several at once, or by pasting a seating chart. The seating map
+// (seating-planner.tsx) owns the seats and saving; this is one view of them.
+export function SeatingList({ guests, seats, tableNames, pending, save, onRename }: {
+  guests: SeatGuest[];
+  seats: Record<string, string>;
+  tableNames: string[]; // the map's tables, offered while typing
+  pending: boolean;
+  save: (changes: { id: string; table: string }[], after?: () => void) => void;
+  onRename: (from: string, to: string, after?: () => void) => void;
+}) {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [savedId, setSavedId] = useState<string | null>(null);
-  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [hideDeclined, setHideDeclined] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkTable, setBulkTable] = useState('');
   const [rename, setRename] = useState('');
-  const [pending, startTransition] = useTransition();
 
   const tables = useMemo(() => {
     const people = new Map<string, number>();
@@ -52,22 +54,6 @@ export function SeatingManager({ pageId, guests, guestListHref }: { pageId: numb
     .filter((g) => !search.trim() || nameMatches(search, g.name))
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  function save(changes: { id: string; table: string }[], after?: () => void) {
-    if (!changes.length) return;
-    setError('');
-    const before = seats;
-    setSeats((s) => ({ ...s, ...Object.fromEntries(changes.map((c) => [c.id, cleanTableName(c.table)])) }));
-    startTransition(async () => {
-      const res = await saveSeating(pageId, changes);
-      if (!res.ok) {
-        setSeats(before);
-        setError(res.error);
-        return;
-      }
-      after?.();
-    });
-  }
-
   function commitRow(id: string) {
     if (!(id in drafts)) return;
     const table = cleanTableName(drafts[id]);
@@ -83,7 +69,7 @@ export function SeatingManager({ pageId, guests, guestListHref }: { pageId: numb
   function renameTable() {
     const to = cleanTableName(rename);
     if (!activeTable || !to || to === activeTable) return;
-    save(guests.filter((g) => seats[g.id] === activeTable).map((g) => ({ id: g.id, table: to })), () => {
+    onRename(activeTable, to, () => {
       setFilter({ table: to });
       setRename('');
     });
@@ -92,32 +78,13 @@ export function SeatingManager({ pageId, guests, guestListHref }: { pageId: numb
   const toggle = (id: string) => setSelected((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
   const allShownSelected = shown.length > 0 && shown.every((g) => selected.has(g.id));
 
-  if (guests.length === 0) {
-    return (
-      <section style={{ ...card, maxWidth: 760, marginBottom: 28 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Seat your guests</h2>
-        <p style={{ ...muted, marginBottom: 14 }}>
-          Guests find their table by the name on your guest list. Add your guests first — import them from a spreadsheet or
-          your phone&rsquo;s contacts — then come back to give each one a table.
-        </p>
-        <Link href={guestListHref} style={primary}>Go to Guest List</Link>
-      </section>
-    );
-  }
-
   return (
-    <section style={{ ...card, maxWidth: 860, marginBottom: 28 }}>
-      <datalist id="seating-tables">{tables.map((t) => <option key={t.name} value={t.name} />)}</datalist>
+    <div>
+      <datalist id="seating-tables">{sortTables([...tableNames, ...tables.map((t) => t.name)]).map((name) => <option key={name} value={name} />)}</datalist>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, flexWrap: 'wrap', marginBottom: 4 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: 0 }}>Seat your guests</h2>
-        <p style={{ ...muted, fontWeight: 600, color: '#241F2B' }}>
-          {seated} of {guests.length} seated · {tables.length} {tables.length === 1 ? 'table' : 'tables'}
-        </p>
-      </div>
       <p style={{ ...muted, marginBottom: 16, maxWidth: 640 }}>
         Type a table for each guest — a number or a name like &ldquo;Sunflower&rdquo;. Anyone in a guest&rsquo;s party sits with them.
-        Changes save as you go.
+        Changes save as you go. {seated} of {guests.length} guests are seated.
       </p>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
@@ -168,8 +135,6 @@ export function SeatingManager({ pageId, guests, guestListHref }: { pageId: numb
         </form>
       )}
 
-      {error && <p role="alert" style={{ fontSize: 13, color: '#8B3A2A', background: '#FBF0EE', borderRadius: 8, padding: '8px 12px', margin: '0 0 12px' }}>{error}</p>}
-
       <div style={{ border: '1px solid #F0ECE8', borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 14px', background: '#FAF8F6', borderBottom: '1px solid #F0ECE8', fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B6470' }}>
           <input
@@ -213,7 +178,7 @@ export function SeatingManager({ pageId, guests, guestListHref }: { pageId: numb
       </div>
 
       <PasteSeating guests={guests} pending={pending} onSave={(changes, done) => save(changes, done)} />
-    </section>
+    </div>
   );
 }
 

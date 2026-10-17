@@ -69,3 +69,55 @@ export function parseSeatingPaste(text: string): { name: string; table: string }
   }
   return rows;
 }
+
+// The seating map's tables, saved as JSON in the page setting
+// SEATING_TABLES_SETTING — so a table exists before anyone sits at it.
+// Guests point at a table by its name (event_guests.seating_table); a name
+// guests use that isn't in the list (typed in the List view, or pasted)
+// still shows on the map, with the default seats.
+export type TableShape = 'round' | 'long';
+export type SeatingTable = { name: string; seats: number; shape: TableShape };
+
+export const SEATING_TABLES_SETTING = 'seating_tables';
+export const SEATING_MAX_TABLES = 200;
+export const SEATING_MAX_SEATS = 40;
+export const SEATING_DEFAULT_SEATS = 8;
+
+export const tableKey = (name: string) => name.toLocaleLowerCase();
+
+// A clean list from anything (a saved setting, or the dashboard's save):
+// valid names, 1–SEATING_MAX_SEATS seats, each name once.
+export function normalizeSeatingTables(value: unknown): SeatingTable[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  const tables: SeatingTable[] = [];
+  for (const item of value) {
+    if (!item || typeof item !== 'object') continue;
+    const { name: rawName, seats: rawSeats, shape: rawShape } = item as Record<string, unknown>;
+    const name = cleanTableName(rawName);
+    if (!name || seen.has(tableKey(name))) continue;
+    const n = Math.round(Number(rawSeats));
+    const seats = Number.isFinite(n) ? Math.min(SEATING_MAX_SEATS, Math.max(1, n)) : SEATING_DEFAULT_SEATS;
+    seen.add(tableKey(name));
+    tables.push({ name, seats, shape: rawShape === 'long' ? 'long' : 'round' });
+    if (tables.length >= SEATING_MAX_TABLES) break;
+  }
+  return tables;
+}
+
+export function parseSeatingTables(raw: string | undefined): SeatingTable[] {
+  if (!raw) return [];
+  try {
+    return normalizeSeatingTables(JSON.parse(raw));
+  } catch {
+    return [];
+  }
+}
+
+// "Table 1", "Table 2"…: the first number no table uses yet.
+export function nextTableName(tables: { name: string }[]): string {
+  const used = new Set(tables.map((t) => tableKey(t.name)));
+  let n = 1;
+  while (used.has(tableKey(`Table ${n}`))) n++;
+  return `Table ${n}`;
+}

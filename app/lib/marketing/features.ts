@@ -191,22 +191,23 @@ export const FEATURES: Feature[] = [
       'No more printing a seating chart, reprinting it when someone cancels, or a crowd squinting at an easel by the door. Give each guest a table in your dashboard, put one QR sign at the entrance, and guests scan it, type their name and see their table.',
     summary: 'Guests scan a QR sign, type their name and see their table — no seating chart to print.',
     highlights: [
+      { title: 'A drag-and-drop seating map', text: 'Add your tables, then drag guests onto them. Seats fill in as you go, so you always see where there’s room.' },
       { title: 'Nothing to reprint', text: 'Move a guest the night before and the change is live straight away. Your sign never goes out of date.' },
       { title: 'Each guest sees their own table', text: 'Guests type their name and see only their table, never the whole seating plan.' },
-      { title: 'Built on your guest list', text: 'Seat the guests you already have, one by one, a few at a time, or by pasting your chart from a spreadsheet.' },
     ],
     blocks: [
       {
         heading: 'How it works',
         paragraphs: [
-          'Open Find Your Table in your dashboard and you’ll see everyone on your guest list. Type a table next to each guest. It can be a number, or a name like “Sunflower” or “The Rockies”. Anyone in a guest’s party sits with them, so you seat each invitation once.',
+          'Open Find Your Table in your dashboard and set up your tables on the seating map: how many, how many seats, round or long, and a number or a name like “Sunflower” or “The Rockies”. Then drag your guests onto them. Each table shows its seats filling up, so you can see at a glance where there’s room. Anyone in a guest’s party sits with them, so you seat each invitation once.',
           'When you’re ready, switch it on and print the QR sign. Guests scan it with their phone camera and a simple page opens on your event’s address. They type their name, tap Find my table, and their table appears in large letters.',
         ],
       },
       {
         heading: 'Seat everyone in minutes',
         bullets: [
-          'Select several guests and seat them at a table in one go.',
+          'Drag and drop guests from “Not seated” onto a table, or from one table to another. On a phone, tap a guest and then tap their table.',
+          'Prefer a list? Type each guest’s table, or select several guests and seat them in one go.',
           'Already planned it in a spreadsheet? Copy the name and table columns and paste them in. MyGala matches the names to your guest list and lists any it couldn’t find.',
           'See how many people are at each table, and who hasn’t been seated yet.',
           'Rename a table and everyone at it moves with it.',
@@ -241,7 +242,7 @@ export const FEATURES: Feature[] = [
     steps: [
       { title: 'Upgrade your page to Plus', text: 'Find Your Table is part of MyGala Plus, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Plus.' },
       { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
-      { title: 'Seat them', text: 'In Find Your Table, type a table for each guest, seat several at once, or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
+      { title: 'Seat them', text: 'In Find Your Table, create your tables and drag your guests onto them, or use the List to type tables or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
       { title: 'Switch it on and print the sign', text: 'Turn on “Let guests look up their table”, then print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG for your own design.' },
       { title: 'Test it, then put it at the entrance', text: 'Scan the sign with your phone and look up a guest or two. Put the sign at the entrance, the welcome table or the bar.' },
     ],
