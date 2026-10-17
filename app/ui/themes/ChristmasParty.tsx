@@ -393,6 +393,13 @@ const css = `
   .xm .footer-signoff { font-family: var(--xm-font-display); font-size: clamp(38px, 6vw, 56px) !important; font-weight: 700; color: var(--xm-glow) !important; margin: 26px 0 0 !important; text-shadow: 0 0 22px rgba(248,193,102,0.4); }
   .xm .xm-hills { position: relative; z-index: 2; display: block; width: calc(100% + 48px); max-width: none; height: 120px; margin: 10px -24px 0; }
   .xm .footer-credit { position: relative; z-index: 2; font-size: 11px; letter-spacing: 1px; color: ${WRAP_GREEN} !important; background: ${BULB}; margin: 0 -24px !important; padding: 0 24px 26px; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .xm #potluck.rsvp-section, .xm #gift-exchange.rsvp-section { background: none; background-image: none !important; display: block; min-height: 0; padding: 90px 18px; }
+  .xm #potluck.rsvp-section { background-color: #24402A; }
+  .xm #gift-exchange.rsvp-section { background-color: #7E1D22; }
+  .xm #potluck.rsvp-section::before, .xm #gift-exchange.rsvp-section::before { display: none; }
+  .xm #potluck .rsvp-panel, .xm #gift-exchange .rsvp-panel { max-width: 520px; margin: 0 auto; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -757,9 +764,7 @@ export default function ChristmasParty({
       )}
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
-        <div id="potluck" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp.jpeg)` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rsvp-photo" src={`${IMG}/rsvp.jpeg`} alt="" />
+        <div id="potluck" className="rsvp-section">
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <svg className="rsvp-bow" width="80" height="44" viewBox="0 0 80 44" aria-hidden="true">
@@ -781,9 +786,7 @@ export default function ChristmasParty({
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
-        <div id="gift-exchange" className="rsvp-section" style={{ backgroundImage: `url(${IMG}/rsvp.jpeg)` }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="rsvp-photo" src={`${IMG}/rsvp.jpeg`} alt="" />
+        <div id="gift-exchange" className="rsvp-section">
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
               <svg className="rsvp-bow" width="80" height="44" viewBox="0 0 80 44" aria-hidden="true">

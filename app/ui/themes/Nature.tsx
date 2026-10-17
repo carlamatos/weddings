@@ -362,6 +362,13 @@ const css = `
   .nt .footer p { font-size: 15px; color: rgba(218,222,223,0.85); margin: 0 0 4px; }
   .nt .footer-signoff { font-family: var(--nt-font-script); font-size: clamp(46px, 7vw, 68px) !important; font-weight: 400; color: var(--nt-linen-pale) !important; margin: 30px 0 0 !important; line-height: 1.1; }
   .nt .footer-credit { font-size: 11px; letter-spacing: 1px; color: rgba(218,222,223,0.5) !important; margin-top: 30px !important; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .nt #potluck.rsvp-section, .nt #gift-exchange.rsvp-section { background: none; background-image: none !important; display: block; min-height: 0; padding: 90px 20px; }
+  .nt #potluck.rsvp-section { background-color: #3E5A3A; }
+  .nt #gift-exchange.rsvp-section { background-color: #7A5A3A; }
+  .nt #potluck.rsvp-section::before, .nt #gift-exchange.rsvp-section::before { display: none; }
+  .nt #potluck .rsvp-panel, .nt #gift-exchange .rsvp-panel { max-width: 520px; margin: 0 auto; }
 `;
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
@@ -374,11 +381,12 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
 
 const HERO_EYEBROW_DEFAULT = { en: 'Together with their families', fr: 'Avec leurs familles', es: 'Junto a sus familias' };
 
-// The RSVP, Potluck and Gift Exchange sections share the flat-lay backdrop.
-function FlatLaySection({ id, children }: { id: string; children: React.ReactNode }) {
+// The RSVP, Potluck and Gift Exchange sections share this layout; only the
+// RSVP has the flat-lay photo behind it (photo={false}: a plain colour).
+function FlatLaySection({ id, photo = true, children }: { id: string; photo?: boolean; children: React.ReactNode }) {
   return (
     <div id={id} className="rsvp-section">
-      <div className="nt-photo-bg" style={{ backgroundImage: `url(${IMG}/rsvp.jpeg)`, backgroundPosition: '30% center' }} aria-hidden="true" />
+      {photo && <div className="nt-photo-bg" style={{ backgroundImage: `url(${IMG}/rsvp.jpeg)`, backgroundPosition: '30% center' }} aria-hidden="true" />}
       <Reveal className="rsvp-panel">
         <div className="rsvp-card">{children}</div>
       </Reveal>
@@ -653,7 +661,7 @@ export default function Nature({
       )}
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
-        <FlatLaySection id="potluck">
+        <FlatLaySection id="potluck" photo={false}>
           <div style={{ textAlign: 'center' }}>
             <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
             <SprigRule />
@@ -665,7 +673,7 @@ export default function Nature({
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
-        <FlatLaySection id="gift-exchange">
+        <FlatLaySection id="gift-exchange" photo={false}>
           <div style={{ textAlign: 'center' }}>
             <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
             <SprigRule />

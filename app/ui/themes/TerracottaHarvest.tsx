@@ -144,6 +144,11 @@ const css = `
   .tc .share-band { padding: 70px 24px; background: transparent; text-align: center; }
   .tc .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .tc .share-hashtag { font-family: var(--font-serif); font-size: clamp(26px, 4vw, 32px); color: var(--rust); margin: 0 0 28px; font-weight: 500; overflow-wrap: anywhere; }
+  /* Potluck and Secret Santa: a plain colour each, so only the RSVP has
+     the special background. */
+  .tc #potluck.section-tinted, .tc #gift-exchange.section-tinted { background: none; background-image: none !important; }
+  .tc #potluck.section-tinted { background-color: #F6E2D2; }
+  .tc #gift-exchange.section-tinted { background-color: #E3E9EE; }
 `;
 
 const BandDivider = ({ thin }: { thin?: boolean }) => (

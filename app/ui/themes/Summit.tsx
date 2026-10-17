@@ -494,7 +494,7 @@ export default function Summit({
       {/* POTLUCK (Plus, off by default) */}
       {isPaid && potluck && (
         <Reveal>
-          <div id="potluck" className="section section-center" style={{ backgroundColor: '#14171C' }}>
+          <div id="potluck" className="section section-center" style={{ backgroundColor: '#1E2B4A' }}>
             <div className="wrap">
               <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" style={{ color: '#FFFFFF' }} fallback={t.potluckLabel} />
               <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title on-dark" fallback={t.potluckTitle} />
@@ -509,7 +509,7 @@ export default function Summit({
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
       {isPaid && giftExchange && (
         <Reveal>
-          <div id="gift-exchange" className="section section-center" style={{ backgroundColor: '#14171C' }}>
+          <div id="gift-exchange" className="section section-center" style={{ backgroundColor: '#2C2342' }}>
             <div className="wrap">
               <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" style={{ color: '#FFFFFF' }} fallback={t.giftLabel} />
               <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title on-dark" fallback={t.giftTitle} />
