@@ -9,7 +9,7 @@ import { SIGNUP_COOKIE } from '@/app/lib/signup-cookie';
 const ADS_SIGNUP_SEND_TO = process.env.NEXT_PUBLIC_GOOGLE_ADS_SIGNUP_SEND_TO;
 
 // Funnel events for Google Analytics:
-// - sign_up_click: a "Create your free page" / "Sign up" link was clicked
+// - sign_up_click: a "Create your free event page" / "Sign up" link was clicked
 //   (location = the link's data-cta, else the page it was on);
 // - cta_click: another link with a data-cta was clicked (e.g. the demo);
 // - sign_up: an account was just created (markSignUp left a cookie), also

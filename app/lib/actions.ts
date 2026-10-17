@@ -49,6 +49,8 @@ import { siteUrl } from './site-url';
 import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { partySize } from './guest-import';
+import { cleanTableName, normalizeSeatingTables, SEATING_TABLES_SETTING, type SeatingTable } from './seating';
+import { ensureSeatingColumn } from './seating-data';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
 import { heroButtonSetting, isHeroButtonKey, isHeroColor, normalizeHeroButtonLabel } from '@/app/ui/themes/hero-style';
@@ -814,6 +816,60 @@ export async function updateGuest(
   } catch (error) {
     console.error('Failed to update guest:', error);
     return fail('Could not save that guest. Please try again.');
+  }
+}
+
+// Find Your Table (Plus): sets the table of one or more guests on the
+// list ('' takes them off their table). Saving is open to free pages too, so
+// the seating can be done before upgrading; the guest lookup needs Plus.
+const SEATING_MAX_PER_SAVE = 2000;
+export async function saveSeating(
+  pageId: number,
+  seats: { id: string; table: string }[],
+): Promise<{ ok: true; saved: number } | { ok: false; error: string }> {
+  if (!Array.isArray(seats) || seats.length === 0 || seats.length > SEATING_MAX_PER_SAVE) return { ok: false, error: 'Nothing to save.' };
+  const rows: { id: string; t: string | null }[] = [];
+  for (const seat of seats) {
+    if (!seat || typeof seat.id !== 'string' || !UUID_RE.test(seat.id)) return { ok: false, error: 'Guest not found.' };
+    rows.push({ id: seat.id, t: cleanTableName(seat.table) || null });
+  }
+  try {
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok) return owned;
+    await ensureSeatingColumn();
+    const res = await sql`
+      UPDATE event_guests g SET seating_table = v.t
+      FROM json_to_recordset(${JSON.stringify(rows)}::json) AS v(id uuid, t text)
+      WHERE g.id = v.id AND g.user_page_id = ${owned.value}
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: true, saved: res.rowCount ?? 0 };
+  } catch (error) {
+    console.error('Failed to save seating:', error);
+    return { ok: false, error: 'Couldn’t save the seating. Please try again.' };
+  }
+}
+
+// The seating map's tables (Find Your Table): names, seats and shapes, in
+// the host's order. Guests at a table are saved with saveSeating.
+export async function saveSeatingTables(
+  pageId: number,
+  tables: SeatingTable[],
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const clean = normalizeSeatingTables(tables);
+  try {
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok) return owned;
+    const value = JSON.stringify(clean);
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${SEATING_TABLES_SETTING}, ${value})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}, updated_at = NOW()
+    `;
+    return { ok: true };
+  } catch (error) {
+    console.error('Failed to save seating tables:', error);
+    return { ok: false, error: 'Couldn’t save your tables. Please try again.' };
   }
 }
 

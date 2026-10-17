@@ -10,6 +10,7 @@ import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { Blocks, FeatureCards, FinalCta, Steps } from '@/app/ui/marketing/content-blocks';
 import { FaqList } from '@/app/ui/marketing/faq-list';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
+import { ZoomableScreenshot } from '@/app/ui/marketing/zoomable-screenshot';
 
 export const dynamicParams = false;
 
@@ -65,6 +66,8 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
             </div>
           ))}
         </div>
+
+        {feature.screenshot && <ZoomableScreenshot shot={feature.screenshot} />}
 
         <div className="mk-body">
           <Blocks blocks={feature.blocks} />

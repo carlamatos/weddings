@@ -1432,3 +1432,13 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   font: 600 13px var(--font-sans); color: var(--ink-soft);
 }
 .dash-share-tabs button.is-active { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgba(36, 31, 43, 0.12); }
+
+/* Find Your Table → seating map: the "Not seated" guests stay in view
+   beside the tables on wide screens; on phones they sit above the tables,
+   in a shorter scrolling box. */
+@media (min-width: 900px) {
+  .seat-unseated { position: sticky; max-height: calc(100vh - 150px); overflow-y: auto; flex-grow: 0 !important; width: 260px; }
+}
+@media (max-width: 899px) {
+  .seat-unseated-list { max-height: 210px; overflow-y: auto; }
+}

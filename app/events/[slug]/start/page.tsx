@@ -5,7 +5,7 @@ import type { ComponentType, SVGProps } from 'react';
 import {
   BellAlertIcon, CakeIcon, CalendarDaysIcon, CheckIcon, ClipboardDocumentCheckIcon, ClockIcon, GiftIcon,
   GlobeAltIcon, HeartIcon, LanguageIcon, LinkIcon, LockClosedIcon, MapPinIcon, MusicalNoteIcon,
-  PaperAirplaneIcon, PhotoIcon, QrCodeIcon, Squares2X2Icon, SwatchIcon, UserGroupIcon, VideoCameraIcon,
+  PaperAirplaneIcon, PhotoIcon, QrCodeIcon, Squares2X2Icon, SwatchIcon, UserGroupIcon, VideoCameraIcon, TableCellsIcon,
 } from '@heroicons/react/24/outline';
 import { greatVibes } from '@/app/ui/fonts';
 import { appHref } from '@/app/lib/app-url';
@@ -34,7 +34,7 @@ const ICONS: Record<LandingIcon, ComponentType<SVGProps<SVGSVGElement>>> = {
   program: CalendarDaysIcon, palette: SwatchIcon, globe: LanguageIcon, link: LinkIcon, photo: PhotoIcon,
   mail: PaperAirplaneIcon, camera: QrCodeIcon, video: VideoCameraIcon, music: MusicalNoteIcon,
   bell: BellAlertIcon, gift: GiftIcon, sections: Squares2X2Icon, lock: LockClosedIcon, domain: GlobeAltIcon,
-  potluck: CakeIcon, heart: HeartIcon,
+  potluck: CakeIcon, heart: HeartIcon, seat: TableCellsIcon,
 };
 
 const themePhoto = (slug: string): string | undefined => HERO_DEFAULTS[slug as keyof typeof HERO_DEFAULTS];

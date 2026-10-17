@@ -243,6 +243,9 @@ export async function POST(request: Request) {
   // host's own phone, so this records the tap, not delivery.
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_at TIMESTAMPTZ`;
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_via TEXT`;
+  // Find Your Table (Plus): the guest's table, which guests look up at
+  // <page>/table. Also added on first use (app/lib/seating-data.ts).
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS seating_table TEXT`;
 
   await sql`CREATE INDEX IF NOT EXISTS idx_reminder_deliveries_email ON event_reminder_deliveries (user_page_id, lower(email), reminder_key, event_date)`;
 

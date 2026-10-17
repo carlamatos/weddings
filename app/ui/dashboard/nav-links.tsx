@@ -3,7 +3,7 @@
 import {
   DocumentIcon, GiftTopIcon, UsersIcon, ClipboardDocumentListIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
   CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
-  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon,
+  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
@@ -46,6 +46,7 @@ const GROUPS: { title: string; links: NavItem[] }[] = [
     title: 'On the day',
     links: [
       { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon },
+      { name: 'Find Your Table', section: '/seating', icon: UserGroupIcon },
       { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon },
       { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon },
       { name: 'Potluck', section: '/potluck', icon: CakeIcon },
