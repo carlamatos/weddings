@@ -1,4 +1,4 @@
-import type { ContentBlock, Faq, SeoMeta, Step } from './types';
+import type { ContentBlock, Faq, Screenshot, SeoMeta, Step } from './types';
 
 // The feature pages under /features/<slug>. Order here is the order of the
 // Features menu and the /features index. Facts (limits, plans, services)
@@ -14,6 +14,7 @@ export type Feature = {
   lead: string; // hero paragraph
   summary: string; // one-liner for cards and the /features index
   highlights: { title: string; text: string }[];
+  screenshot?: Screenshot; // under the highlights
   blocks: ContentBlock[];
   steps: Step[];
   faqs: Faq[];
@@ -190,6 +191,13 @@ export const FEATURES: Feature[] = [
     lead:
       'No more printing a seating chart, reprinting it when someone cancels, or a crowd squinting at an easel by the door. Give each guest a table in your dashboard, put one QR sign at the entrance, and guests scan it, type their name and see their table.',
     summary: 'Guests scan a QR sign, type their name and see their table — no seating chart to print.',
+    screenshot: {
+      src: '/images/features/find-your-table-seating-map.webp',
+      alt: 'The Find Your Table seating map in the MyGala dashboard: guests not seated yet on the left, and round tables with their seats filling up as guests are dragged onto them',
+      caption: 'The seating map: drag guests from “Not seated” onto a table, and watch the seats fill up.',
+      width: 1920,
+      height: 911,
+    },
     highlights: [
       { title: 'A drag-and-drop seating map', text: 'Add your tables, then drag guests onto them. Seats fill in as you go, so you always see where there’s room.' },
       { title: 'Nothing to reprint', text: 'Move a guest the night before and the change is live straight away. Your sign never goes out of date.' },

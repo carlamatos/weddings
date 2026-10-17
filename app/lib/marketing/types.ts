@@ -14,3 +14,6 @@ export type SeoMeta = {
   description: string; // meta description, ~150–160 characters
   keywords?: string[];
 };
+
+// A product screenshot shown on a page (click to enlarge). src is under public/.
+export type Screenshot = { src: string; alt: string; caption: string; width: number; height: number };
