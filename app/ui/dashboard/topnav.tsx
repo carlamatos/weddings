@@ -77,7 +77,8 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
       )}
 
       <UserMenu
-        name={session?.user?.name || 'Guest'}
+        // Email sign-ups no longer give a name; show the email's first part.
+        name={session?.user?.name?.trim() || session?.user?.email?.split('@')[0] || 'Guest'}
         pageId={pageId}
         pageStatus={userPage?.status}
         page={userPage ? { id: Number(userPage.id), slug: userPage.slug, heading: userPage.heading, isPaid } : undefined}

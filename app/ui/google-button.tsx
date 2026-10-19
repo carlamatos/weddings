@@ -3,7 +3,7 @@
 import { GoogleSignIn } from '@/app/lib/actions';
 
 // "Continue with Google" — signs in, or creates the account on first use.
-export default function GoogleButton() {
+export default function GoogleButton({ lang = 'en' }: { lang?: 'en' | 'fr' }) {
   return (
     <button type="button" onClick={() => GoogleSignIn()} className="auth-social-btn">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style={{ width: 18, height: 18 }}>
@@ -13,7 +13,7 @@ export default function GoogleButton() {
         <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
         <path fill="none" d="M0 0h48v48H0z"/>
       </svg>
-      Continue with Google
+      {lang === 'fr' ? 'Continuer avec Google' : 'Continue with Google'}
     </button>
   );
 }

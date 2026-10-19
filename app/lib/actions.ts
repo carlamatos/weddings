@@ -46,7 +46,6 @@ import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
-import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { partySize } from './guest-import';
 import { cleanTableName, normalizeSeatingTables, SEATING_TABLES_SETTING, type SeatingTable } from './seating';
@@ -1935,88 +1934,93 @@ export async function FacebookSignIn() {
 
 
 
-const RegisterSchema = z.object({
-  given_name: z.string().min(1, { message: 'Please enter your first name.' }),
-  family_name: z.string().min(1, { message: 'Please enter your last name.' }),
-  phone: z.string().optional(),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: passwordRule,
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match.',
-  path: ['confirmPassword'],
-});
+// Sign-up asks only for an email and a password; names and phone can be
+// added later in the profile. The form comes in English and French (the
+// French wedding landing page sends ?lang=fr), so its messages do too.
+const REGISTER_MESSAGES = {
+  en: {
+    email: 'Please enter a valid email address.',
+    password: 'Password must be at least 8 characters.',
+    fix: 'Please fix the errors below.',
+    exists: 'An account with this email already exists.',
+    rateLimited: 'Too many sign-ups from this connection. Please try again later.',
+    lookupFailed: 'Something went wrong. Please try again.',
+    createFailed: 'Something went wrong creating your account. Please try again.',
+  },
+  fr: {
+    email: 'Veuillez entrer une adresse courriel valide.',
+    password: 'Le mot de passe doit contenir au moins 8 caractères.',
+    fix: 'Veuillez corriger les erreurs ci-dessous.',
+    exists: 'Un compte existe déjà avec cette adresse courriel.',
+    rateLimited: 'Trop d’inscriptions depuis cette connexion. Veuillez réessayer plus tard.',
+    lookupFailed: 'Une erreur est survenue. Veuillez réessayer.',
+    createFailed: 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
+  },
+} as const;
 
 export type RegisterState = {
   errors?: {
-    given_name?: string[];
-    family_name?: string[];
-    phone?: string[];
     email?: string[];
     password?: string[];
-    confirmPassword?: string[];
   };
   message?: string | null;
 };
 
-export async function registerUser(prevState: RegisterState, formData: FormData) {
+export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+  const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
+  const m = REGISTER_MESSAGES[lang];
   // Mass sign-ups (and the verification emails they send) are capped per IP.
   if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
-    return { message: 'Too many sign-ups from this connection. Please try again later.' };
+    return { message: m.rateLimited };
   }
-  const validatedFields = RegisterSchema.safeParse({
-    given_name: formData.get('given_name'),
-    family_name: formData.get('family_name'),
-    phone: (formData.get('phone') as string) || undefined,
+  const validatedFields = z.object({
+    email: z.string().email({ message: m.email }),
+    password: z.string().min(8, { message: m.password }),
+  }).safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
-    confirmPassword: formData.get('confirmPassword'),
   });
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Please fix the errors below.',
+      message: m.fix,
     };
   }
 
-  const { given_name, family_name, phone, email, password } = validatedFields.data;
+  const { email, password } = validatedFields.data;
 
   try {
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
     if (existing.rows.length > 0) {
-      return {
-        errors: { email: ['An account with this email already exists.'] },
-        message: 'An account with this email already exists.',
-      };
+      return { errors: { email: [m.exists] }, message: m.exists };
     }
   } catch (error) {
     console.error('Sign-up lookup failed:', error);
-    return { message: 'Something went wrong. Please try again.' };
+    return { message: m.lookupFailed };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const name = `${given_name} ${family_name}`;
   const date = new Date().toISOString().split('T')[0];
 
   let newUserId: string | undefined;
   try {
     const result = await sql`
       INSERT INTO users (name, email, password, date, given_name, family_name, provider, provider_id, picture, phone)
-      VALUES (${name}, ${email}, ${hashedPassword}, ${date}, ${given_name}, ${family_name}, 'credentials', '', '', ${phone || ''})
+      VALUES ('', ${email}, ${hashedPassword}, ${date}, '', '', 'credentials', '', '', '')
       RETURNING id
     `;
     newUserId = result.rows[0]?.id;
   } catch (error) {
     console.error('Failed to create account:', error);
-    return { message: 'Something went wrong creating your account. Please try again.' };
+    return { message: m.createFailed };
   }
 
   if (newUserId) {
     try {
       const token = await createToken('email_verification_tokens', newUserId, EMAIL_VERIFICATION_TTL_MS);
       const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link, given_name) });
+      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link) });
     } catch (error) {
       // Don't block account creation on a mail failure — the dashboard
       // banner's resend button covers this.
@@ -2025,5 +2029,5 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   }
 
   if (newUserId) await markSignUp('email');
-  redirect(`/check-email?email=${encodeURIComponent(email)}`);
+  redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'fr' ? '&lang=fr' : ''}`);
 }
