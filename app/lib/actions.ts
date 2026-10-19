@@ -60,15 +60,18 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
 
   const UserPageSchema = z.object({
     id: z.string(),
-    event_name: z.string(),
-    description: z.string(),
-    event_date: z.string(),
-    event_time: z.string().min(1, { message: 'Event time is required.' }),
+    // The create form asks only for the type, name, date and theme (and the
+    // page address); the time, place, welcome message and contact details
+    // are added afterwards from the page editor (see setup-progress.ts).
+    event_name: z.string().trim().min(1, { message: 'Please give your event a name.' }).max(200),
+    description: z.string().max(5000),
+    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please choose the date of your event.' }),
+    event_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid time.' }).optional(),
     event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
     event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
     event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
     theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
-    location: z.string(),
+    location: z.enum(['address', 'virtual']),
     slug: z.string({
       invalid_type_error: 'Please specify a slug (page URL).',
     }),
@@ -162,16 +165,17 @@ export type UserPageState = {
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
-      event_time: formData.get('eventTime'),
+      event_time: (formData.get('eventTime') as string) || undefined,
       event_end_date: (formData.get('eventEndDate') as string) || undefined,
       event_end_time: (formData.get('eventEndTime') as string) || undefined,
       event_type: formData.get('eventType'),
       theme_slug: formData.get('themeSlug'),
-      location: formData.get('location'),
-      email: formData.get('email'),
+      location: (formData.get('location') as string) || 'address',
+      // The page's contact email starts as the account's; changed in the editor.
+      email: (formData.get('email') as string) || session?.user?.email || '',
       phone: (formData.get('phone') as string) ?? '',
       slug: formData.get('slug'),
-      description: formData.get('description'),
+      description: (formData.get('description') as string) ?? '',
       url: (formData.get('url') as string) ?? '',
       street_address: (formData.get('streetAddress') as string) ?? '',
       unit_number: (formData.get('unitNumber') as string) ?? '',
@@ -218,7 +222,7 @@ export type UserPageState = {
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
           place_id, formatted_address, venue_name, plan_type, plan_expires_at
         ) VALUES (
-          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
+          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}
         )

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
@@ -9,6 +10,7 @@ import { ShareSheet, type ShareChoice } from './share-menu';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import type { EventTheme } from '@/app/lib/definitions';
+import { PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
 // On phones and tablets: the top bar's buttons, listed at the top of this
 // menu instead (see .dash-topnav-actions in dashboard.css).
@@ -20,6 +22,14 @@ export type PhoneActions = {
   previewHref?: string;
   shareChoices: ShareChoice[];
 };
+
+// The setup checklist's "Add your name" step opens the profile from here
+// (the user menu is in the top bar on every dashboard screen; the checklist
+// can sit in the phone menu, which closes on any click).
+const OPEN_PROFILE_EVENT = 'mygala:open-profile';
+export function openProfile() {
+  window.dispatchEvent(new Event(OPEN_PROFILE_EVENT));
+}
 
 interface Profile {
   given_name: string;
@@ -81,7 +91,7 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
     <div className="profile-modal-backdrop" onClick={onClose}>
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
         <button className="profile-modal-close" onClick={onClose} aria-label="Close">×</button>
-        <h2>Edit Profile</h2>
+        <h2>Your profile</h2>
 
         {loading ? (
           <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>Loading…</p>
@@ -89,12 +99,12 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div className="profile-field">
-                <label>Given name</label>
-                <input value={form.given_name} onChange={handleChange('given_name')} required autoComplete="given-name" />
+                <label htmlFor="profile-given">First name</label>
+                <input id="profile-given" value={form.given_name} onChange={handleChange('given_name')} required autoComplete="given-name" />
               </div>
               <div className="profile-field">
-                <label>Family name</label>
-                <input value={form.family_name} onChange={handleChange('family_name')} required autoComplete="family-name" />
+                <label htmlFor="profile-family">Last name</label>
+                <input id="profile-family" value={form.family_name} onChange={handleChange('family_name')} required autoComplete="family-name" />
               </div>
             </div>
             <div className="profile-field">
@@ -103,8 +113,8 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
               <p id="profile-email-note" className="profile-field-note">This is the email you sign in with. It can&rsquo;t be changed here.</p>
             </div>
             <div className="profile-field">
-              <label>Phone</label>
-              <input type="tel" value={form.phone} onChange={handleChange('phone')} autoComplete="tel" placeholder="Optional" />
+              <label htmlFor="profile-phone">Phone <span className="profile-field-optional">(optional)</span></label>
+              <input id="profile-phone" type="tel" value={form.phone} onChange={handleChange('phone')} autoComplete="tel" inputMode="tel" maxLength={PHONE_MAX_LENGTH} placeholder="+1 (555) 000-0000" />
             </div>
 
             {error && <p className="profile-modal-error">{error}</p>}
@@ -383,6 +393,13 @@ export default function UserMenu({
   const [sharing, setSharing] = useState(false);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const show = () => { setOpen(false); setShowProfile(true); };
+    window.addEventListener(OPEN_PROFILE_EVENT, show);
+    return () => window.removeEventListener(OPEN_PROFILE_EVENT, show);
+  }, []);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -497,7 +514,8 @@ export default function UserMenu({
       {showProfile && (
         <ProfileModal
           onClose={() => setShowProfile(false)}
-          onSaved={(newName) => setDisplayName(newName)}
+          // refresh: the setup checklist's "Add your name" step is now done.
+          onSaved={(newName) => { setDisplayName(newName); router.refresh(); }}
         />
       )}
 

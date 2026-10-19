@@ -116,6 +116,7 @@ body:has(.dash-shell) {
 .dash-setup-bar { height: 6px; border-radius: 999px; background: #EADDD6; overflow: hidden; margin-bottom: 10px; }
 .dash-setup-bar span { display: block; height: 100%; border-radius: inherit; background: #3D6B46; transition: width 0.3s; }
 .dash-setup-next {
+  width: 100%; cursor: pointer; font-family: var(--font-sans); text-align: left;
   display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: 8px;
   background: #fff; border: 1px solid #E6D8D1; color: var(--rose); text-decoration: none;
   font-size: 13px; font-weight: 600; line-height: 1.35;
@@ -128,13 +129,14 @@ body:has(.dash-shell) {
   font: 600 12px var(--font-sans); color: var(--ink-soft); text-decoration: underline; text-underline-offset: 2px;
 }
 .dash-setup-list { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 2px; }
-.dash-setup-list a {
+.dash-setup-list a, .dash-setup-list button {
+  width: 100%; border: none; background: none; cursor: pointer; font-family: var(--font-sans); text-align: left;
   display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-radius: 6px;
   font-size: 12.5px; line-height: 1.35; color: var(--ink); text-decoration: none;
 }
-.dash-setup-list a:hover { background: #fff; }
+.dash-setup-list a:hover, .dash-setup-list button:hover { background: #fff; }
 .dash-setup-list svg { width: 16px; height: 16px; color: #3D6B46; flex-shrink: 0; }
-.dash-setup-list .is-done a { color: var(--ink-soft); }
+.dash-setup-list .is-done a, .dash-setup-list .is-done button { color: var(--ink-soft); }
 .dash-setup-dot { width: 14px; height: 14px; margin: 1px; border-radius: 50%; border: 1.5px solid #C9BCB5; flex-shrink: 0; }
 
 .dash-sidebar-footer {
@@ -426,6 +428,7 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .profile-field input:focus { outline: none; border-color: var(--rose); background: #fff; }
 .profile-field input:disabled { color: var(--ink-soft); background: #F1EEEA; cursor: not-allowed; }
+.profile-field-optional { font-weight: 400; letter-spacing: 0; text-transform: none; opacity: 0.8; }
 .profile-field-note { font-size: 12px; color: var(--ink-soft); margin: 6px 0 0; }
 .profile-modal-actions {
   display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;

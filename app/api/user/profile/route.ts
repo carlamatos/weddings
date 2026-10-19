@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
+import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from '@/app/lib/phone';
 
 export async function GET() {
   const session = await auth();
@@ -22,10 +23,17 @@ export async function PATCH(request: Request) {
   const userId = session?.user?.id;
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { given_name, family_name, phone } = await request.json();
+  const body = await request.json().catch(() => null);
+  const str = (v: unknown) => (typeof v === 'string' ? v : '');
+  const given_name = str(body?.given_name).slice(0, 100);
+  const family_name = str(body?.family_name).slice(0, 100);
+  const phone = str(body?.phone);
 
-  if (!given_name?.trim() || !family_name?.trim()) {
-    return NextResponse.json({ error: 'Name is required.' }, { status: 400 });
+  if (!given_name.trim() || !family_name.trim()) {
+    return NextResponse.json({ error: 'Please enter your first and last name.' }, { status: 400 });
+  }
+  if (!isValidOptionalPhone(phone)) {
+    return NextResponse.json({ error: PHONE_INVALID_MESSAGE }, { status: 400 });
   }
 
   const name = `${given_name.trim()} ${family_name.trim()}`;
@@ -35,7 +43,7 @@ export async function PATCH(request: Request) {
     SET given_name = ${given_name.trim()},
         family_name = ${family_name.trim()},
         name = ${name},
-        phone = ${phone?.trim() || null}
+        phone = ${cleanPhone(phone)}
     WHERE id = ${userId}
   `;
 

@@ -310,6 +310,19 @@
   border-color: var(--rose);
 }
 
+/* Page address on the create form: the picked address, and "Change" to
+   show the other choices. */
+.setup-slug-line {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 10px; padding: 12px 14px; border-radius: 10px; background: var(--paper-deep);
+  font-size: 14px; color: var(--ink-soft); line-height: 1.4;
+}
+.setup-slug-line strong { color: var(--ink); overflow-wrap: anywhere; }
+.setup-slug-change {
+  border: none; background: none; padding: 0; cursor: pointer;
+  font: 600 13px var(--font-sans, inherit); color: var(--rose); text-decoration: underline; text-underline-offset: 2px;
+}
+
 /* Slug option selector */
 .setup-slug-options {
   display: flex;

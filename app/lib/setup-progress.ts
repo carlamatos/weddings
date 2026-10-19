@@ -1,33 +1,48 @@
 import { sql } from '@vercel/postgres';
 import type { UserPage } from './definitions';
 
-// "Your page is 3/6 ready": the steps that turn a new page into one worth
+// "Your page is 3/7 ready": the steps that turn a new page into one worth
 // sharing, each with the dashboard screen where it's done. Shown at the top
-// of the sidebar with the next step suggested.
+// of the sidebar with the next step suggested. The create form asks only for
+// the basics, so the time, place and the owner's name come in here.
+// action 'profile' opens the profile (name and phone, kept on the account, so
+// that step is done for every page once it's filled in).
 
-export type SetupStep = { label: string; done: boolean; section: string };
+export type SetupStep = { label: string; done: boolean; section: string; action?: 'profile' };
 
-export type SetupCounts = { guests: number; program: number; gallery: number };
+export type SetupCounts = { guests: number; program: number; gallery: number; named: boolean };
 
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
   try {
-    const { rows } = await sql<{ guests: string; program: string; gallery: string }>`
+    const { rows } = await sql<{ guests: string; program: string; gallery: string; named: boolean | null }>`
       SELECT
         (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId})::text AS guests,
         (SELECT COUNT(*) FROM event_program WHERE user_page_id = ${pageId})::text AS program,
-        (SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId})::text AS gallery
+        (SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId})::text AS gallery,
+        (SELECT COALESCE(TRIM(u.given_name), '') <> '' AND COALESCE(TRIM(u.family_name), '') <> ''
+           FROM users u JOIN user_page p ON p.user_id = u.id WHERE p.id = ${pageId}) AS named
     `;
-    return { guests: Number(rows[0]?.guests ?? 0), program: Number(rows[0]?.program ?? 0), gallery: Number(rows[0]?.gallery ?? 0) };
+    return {
+      guests: Number(rows[0]?.guests ?? 0),
+      program: Number(rows[0]?.program ?? 0),
+      gallery: Number(rows[0]?.gallery ?? 0),
+      named: rows[0]?.named !== false,
+    };
   } catch (error) {
     console.error('Failed to count setup steps:', error);
-    return { guests: 0, program: 0, gallery: 0 };
+    return { guests: 0, program: 0, gallery: 0, named: true };
   }
 }
 
 export function setupSteps(page: UserPage, counts: SetupCounts): SetupStep[] {
   const filled = (v?: string | null) => !!v && v.trim() !== '';
   return [
-    { label: 'Add the date and place', done: filled(page.event_date) && (filled(page.formatted_address) || filled(page.location) || filled(page.venue_name)), section: '' },
+    {
+      label: 'Add the time and place',
+      done: filled(page.event_time) && (page.location === 'virtual' ? filled(page.url) : filled(page.formatted_address) || filled(page.venue_name)),
+      section: '',
+    },
+    { label: 'Add your name', done: counts.named, section: '', action: 'profile' },
     { label: 'Add your own banner photo', done: filled(page.banner_image), section: '' },
     { label: 'Write a welcome message', done: filled(page.description), section: '' },
     // The gallery is empty until the host adds photos (it's hidden till then).
