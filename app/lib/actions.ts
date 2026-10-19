@@ -70,7 +70,7 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
     event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
     event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
     event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
-    theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
+    theme_slug: z.string({ invalid_type_error: 'Please choose a theme.' }).min(1, { message: 'Please choose a theme.' }),
     location: z.enum(['address', 'virtual']),
     slug: z.string({
       invalid_type_error: 'Please specify a slug (page URL).',
@@ -207,6 +207,9 @@ export type UserPageState = {
       // Resolve theme slug → theme_id
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
+      if (theme_id === null) {
+        return { errors: { theme_slug: ['Please choose a theme.'] }, message: 'Please choose a theme for your page.' };
+      }
 
       // Plus is bought per page after it's created (below). The one exception
       // is a purchase made before the account had any page, which carries

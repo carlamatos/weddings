@@ -4,30 +4,15 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
 import { createUserPage, UserPageState } from '../lib/actions';
-import { themesByCategory } from './themes/registry';
-import type { EventCategory } from './themes/types';
+import { themeRegistry } from './themes/registry';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
+import { CATEGORY_LABELS, ThemePicker, themeCard } from './theme-picker';
 
-const CATEGORY_LABELS: Record<EventCategory, string> = {
-  wedding: 'Wedding',
-  birthdays: 'Celebrations',
-  business: 'Business',
-  community: 'General Events',
-};
-
-const EVENT_NAME_PLACEHOLDER: Record<EventCategory, string> = {
-  wedding: 'e.g. Sofia & James Wedding',
-  birthdays: "e.g. Sofia's Quinceañera or Sweet 16",
-  business: 'e.g. Annual Leadership Summit',
-  community: 'e.g. Classic Car Show or Neighborhood Block Party',
-};
-
-// Every theme card shows the theme's own real HeroPreview, scaled down to
-// fit the card — this always matches the live theme exactly (no separately
-// maintained thumbnail image to fall out of sync).
+// The chosen theme's own real banner (HeroPreview) with the event's name,
+// scaled down to fit the form.
 const PREVIEW_NATURAL_HEIGHT = 280;
-const PREVIEW_CARD_HEIGHT = 130;
+const PREVIEW_CARD_HEIGHT = 170;
 const PREVIEW_SCALE = PREVIEW_CARD_HEIGHT / PREVIEW_NATURAL_HEIGHT;
 
 function ThemeCardPreview({ themeSlug, heading }: { themeSlug: string; heading: string }) {
@@ -50,9 +35,10 @@ function slugify(text: string): string {
     .replace(/-+/g, '-');
 }
 
-// Create an event page with only what the page can't start without: the
-// type of event, its name, the date and a theme (the page address is picked
-// for you and can be changed). Everything else — the time, the place, the
+// Create an event page with only what the page can't start without: its
+// name, the date and a theme, chosen from the full-screen gallery
+// (theme-picker.tsx; the type of event comes from the theme). The page
+// address is picked for you and can be changed. Everything else — the time, the place, the
 // welcome message, the contact details and the owner's name — comes after,
 // from the page editor and the setup checklist (app/lib/setup-progress.ts),
 // so a new host sees their page straight away. Pages start Free; Plus is an
@@ -62,10 +48,13 @@ function slugify(text: string): string {
 // prepaid: Plus was already bought before this account had a page, so this
 // page gets it without another payment.
 export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?: boolean; accountEmail?: string }) {
-  const [eventType, setEventType] = useState<EventCategory>('wedding');
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
-  const [themeSlug, setThemeSlug] = useState<string>(() => themesByCategory('wedding')[0]?.slug ?? 'quiet-coastal');
+  const [themeSlug, setThemeSlug] = useState('');
+  const [picking, setPicking] = useState(false);
+  const [themeMissing, setThemeMissing] = useState(false);
+  const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
+  const eventType = themeRegistry[themeSlug]?.category ?? '';
   const [selectedSlug, setSelectedSlug] = useState<string>('');
   const [showSlugs, setShowSlugs] = useState(false);
   // Random suffixes for the unique-number addresses — set after mount only
@@ -82,8 +71,6 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
 
   const initialState: UserPageState = { message: null, errors: {} };
   const [state, formAction, isPending] = useActionState(createUserPage, initialState);
-
-  const themes = themesByCategory(eventType);
 
   // Address suggestions, live from the form: more than the 4 shown, so
   // taken ones can be skipped.
@@ -134,9 +121,10 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
   // A taken address comes back as an error: show the choices.
   const slugsOpen = showSlugs || !!state.errors?.slug;
 
-  const handleEventTypeChange = (type: EventCategory) => {
-    setEventType(type);
-    setThemeSlug(themesByCategory(type)[0]?.slug ?? '');
+  const chooseTheme = (slug: string) => {
+    setThemeSlug(slug);
+    setThemeMissing(false);
+    setPicking(false);
   };
 
   return (
@@ -151,7 +139,16 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
         </div>
       )}
 
-      <form action={formAction}>
+      <form
+        action={formAction}
+        // The theme is required, but it's a hidden field the browser can't check.
+        onSubmit={(e) => {
+          if (themeSlug) return;
+          e.preventDefault();
+          setThemeMissing(true);
+          document.getElementById('choose-theme')?.focus();
+        }}
+      >
         <input type="hidden" name="eventType" value={eventType} />
         <input type="hidden" name="themeSlug" value={themeSlug} />
         <input type="hidden" name="slug" value={activeSlug} />
@@ -159,32 +156,13 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
         <input type="hidden" name="location" value="address" />
         <input type="hidden" name="email" value={accountEmail} />
 
-        {/* Event Type */}
-        <div className="auth-field">
-          <label className="auth-label">What are you celebrating?</label>
-          <div className="setup-type-pills">
-            {(['wedding', 'birthdays', 'business', 'community'] as const).map((type) => (
-              <button
-                key={type}
-                type="button"
-                aria-pressed={eventType === type}
-                className={`setup-type-pill${eventType === type ? ' setup-type-pill--active' : ''}`}
-                onClick={() => handleEventTypeChange(type)}
-              >
-                {CATEGORY_LABELS[type]}
-              </button>
-            ))}
-          </div>
-          {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
-        </div>
-
         {/* Event Name + Date */}
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventName">Event Name</label>
           <div className="auth-input-wrap">
             <input className="auth-input" id="eventName" type="text" name="eventName"
               value={eventName} onChange={(e) => setEventName(e.target.value)}
-              placeholder={EVENT_NAME_PLACEHOLDER[eventType]} maxLength={200} autoFocus required />
+              placeholder="e.g. Sofia & James Wedding" maxLength={200} autoFocus required />
           </div>
           {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
         </div>
@@ -198,46 +176,37 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
           {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
         </div>
 
-        {/* Theme picker */}
+        {/* Theme: chosen from the full-screen gallery */}
         <div className="auth-field">
-          <label className="auth-label">{CATEGORY_LABELS[eventType]} Theme</label>
-          <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: '0 0 10px', lineHeight: 1.5 }}>
-            Not sure yet? Pick one you like — you can change your theme anytime from your page editor.
-          </p>
-          {themes.length === 0 ? (
-            <div className="setup-theme-cards--empty">
-              No {CATEGORY_LABELS[eventType].toLowerCase()} themes yet — more are on the way. Pick another category for now.
+          <label className="auth-label" htmlFor="choose-theme">Theme</label>
+          {chosenTheme ? (
+            <div className="setup-chosen-theme">
+              <ThemeCardPreview themeSlug={chosenTheme.slug} heading={eventName} />
+              <div className="setup-chosen-theme__row">
+                <span>
+                  <strong>{chosenTheme.name}</strong>
+                  <span className="setup-chosen-theme__cat">{CATEGORY_LABELS[chosenTheme.category]}</span>
+                </span>
+                <button type="button" id="choose-theme" className="setup-theme-change" onClick={() => setPicking(true)}>
+                  Change theme
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="setup-theme-cards">
-              {themes.map((theme) => (
-                <label
-                  key={theme.slug}
-                  className={`setup-theme-card${themeSlug === theme.slug ? ' setup-theme-card--selected' : ''}`}
-                >
-                  <input
-                    type="radio"
-                    name="themeSlugRadio"
-                    value={theme.slug}
-                    checked={themeSlug === theme.slug}
-                    onChange={() => setThemeSlug(theme.slug)}
-                  />
-                  <ThemeCardPreview themeSlug={theme.slug} heading={eventName} />
-                  <div className="setup-theme-card__label">
-                    <span className="setup-theme-card__check">
-                      {themeSlug === theme.slug && (
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                          <path d="M2 5l2.5 2.5L8 3" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      )}
-                    </span>
-                    {theme.label}
-                  </div>
-                </label>
-              ))}
-            </div>
+            <button
+              type="button"
+              id="choose-theme"
+              className={`setup-choose-theme${themeMissing ? ' is-missing' : ''}`}
+              onClick={() => setPicking(true)}
+              aria-describedby={themeMissing ? 'theme-error' : undefined}
+            >
+              <span className="setup-choose-theme__title">Choose your theme</span>
+              <span className="setup-choose-theme__sub">See all {Object.keys(themeRegistry).length} designs — weddings, celebrations, business and more</span>
+            </button>
           )}
+          {themeMissing && <p className="auth-field-error" id="theme-error">Please choose a theme for your page.</p>}
           {state.errors?.theme_slug && <p className="auth-field-error">{state.errors.theme_slug[0]}</p>}
+          {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
         </div>
 
         {/* Page address: picked for you, with the other choices a click away */}
@@ -280,6 +249,8 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
             : 'Free to start. Upgrade this event to Plus any time from your dashboard.'}
         </p>
       </form>
+
+      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} />
     </div>
   );
 }

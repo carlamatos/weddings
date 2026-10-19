@@ -55,7 +55,8 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
   const now = today();
 
   return (
-    <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 880 }}>
+    // paddingTop: room under the top bar (the dashboard content starts flush with it).
+    <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 880, paddingTop: 28 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Event pages</h1>
