@@ -999,7 +999,7 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .theme-edit-canvas[data-mode="preview"] .theme-editable { pointer-events: none; cursor: default; }
 .theme-edit-canvas[data-mode="preview"] .theme-editable::before,
 .theme-edit-canvas[data-mode="preview"] .theme-editable::after,
-.theme-edit-canvas[data-mode="preview"] .theme-banner-overlay,
+.theme-edit-canvas[data-mode="preview"] .theme-banner-overlay { display: none; }
 /* The page in the editor runs edge to edge in the content area. */
 .dash-editor-bleed { margin: 0 -28px -32px; }
 @media (max-width: 768px) { .dash-editor-bleed { margin: 0 -16px -20px; } }
