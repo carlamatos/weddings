@@ -13,6 +13,7 @@ import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { FREE_GUEST_PHOTO_LIMIT } from '@/app/lib/guest-photos';
 import type { SetupStep } from '@/app/lib/setup-progress';
 import { openProfile } from './user-menu';
+import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
 
 type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
@@ -133,6 +134,11 @@ export default function NavLinks({
   );
 }
 
+// The screen where a step is done; editor steps also open their popup.
+function stepHref(s: SetupStep, base: string) {
+  return `${base}${s.section}${s.open ? `?${OPEN_PARAM}=${s.open}` : ''}`;
+}
+
 function stepBody(s: SetupStep) {
   return (
     <>
@@ -162,7 +168,7 @@ function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
           <ChevronRightIcon />
         </button>
       ) : (
-        <Link href={`${base}${next.section}`} className="dash-setup-next">
+        <Link href={stepHref(next, base)} className="dash-setup-next">
           <span>Next: {next.label}</span>
           <ChevronRightIcon />
         </Link>
@@ -183,7 +189,7 @@ function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
               {s.action === 'profile' ? (
                 <button type="button" onClick={openProfile}>{stepBody(s)}</button>
               ) : (
-                <Link href={`${base}${s.section}`}>{stepBody(s)}</Link>
+                <Link href={stepHref(s, base)}>{stepBody(s)}</Link>
               )}
             </li>
           ))}

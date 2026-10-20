@@ -4,6 +4,7 @@ import { useState, useRef, useTransition, useEffect, useCallback } from 'react';
 import type { GalleryImage } from '@/app/lib/definitions';
 import { addGalleryImage, deleteGalleryImage } from '@/app/lib/actions';
 import { compressImageFile } from '@/app/lib/compress-image';
+import { useOpenEditor } from './open-editor';
 
 // ─── Static grid with lightbox (used in live theme pages) ────
 export function GalleryGrid({ images }: { images: GalleryImage[] }) {
@@ -137,6 +138,17 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
   const [error, setError] = useState('');
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const addButtonRef = useRef<HTMLButtonElement>(null);
+  // From the setup checklist: bring the gallery into view with its add
+  // button focused (a page can't open the file picker without a click).
+  // Deferred a moment: coming from Preview, the editor switches back to Edit
+  // first, and the button only shows then.
+  useOpenEditor('gallery', () => {
+    window.setTimeout(() => {
+      addButtonRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      addButtonRef.current?.focus({ preventScroll: true });
+    }, 100);
+  });
 
   const MAX_IMAGES = isPaid ? 100 : 8;
 
@@ -219,6 +231,7 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
           <GalleryThumb key={img.id} image={img} onDelete={handleDelete} />
         ))}
         {images.length < MAX_IMAGES && <button
+          ref={addButtonRef}
           className="theme-edit-only"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}

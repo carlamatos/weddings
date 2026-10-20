@@ -1625,19 +1625,29 @@ export async function updateEventDateTime(pageId: number, data: {
     placeId: string;
     formattedAddress: string;
   };
+  // Held at an address or online. An online event takes its link (url), and
+  // its address, city and country are cleared: the themes show a saved
+  // address and map whatever the location. undefined leaves it as is.
+  location?: 'address' | 'virtual';
+  url?: string;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return;
+  if (data.location !== undefined && data.location !== 'address' && data.location !== 'virtual') return;
   if (data.endDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.endDate)) return;
   if (data.endTime && !/^\d{2}:\d{2}$/.test(data.endTime)) return;
   const setEndDate = data.endDate !== undefined;
   const setEndTime = data.endTime !== undefined;
   const endDate = data.endDate || null;
   const endTime = data.endTime || null;
-  const setAddress = data.address !== undefined;
-  const addr = (v: string | undefined) => v?.trim() || null;
+  const location = data.location ?? null;
+  const virtual = data.location === 'virtual';
+  const setAddress = data.address !== undefined || virtual;
+  const addr = (v: string | undefined) => (virtual ? null : v?.trim() || null);
+  const setUrl = data.url !== undefined;
+  const url = safeHttpUrl(data.url) || null;
   try {
     // The end-date check sits in WHERE so an end before the (new or existing)
     // start date rejects the whole save rather than storing a bad range.
@@ -1645,8 +1655,10 @@ export async function updateEventDateTime(pageId: number, data: {
       UPDATE user_page SET
         event_date     = COALESCE(${data.date ?? null}, event_date),
         event_time     = COALESCE(${data.time ?? null}, event_time),
-        city           = COALESCE(${data.city ?? null}, city),
-        country        = COALESCE(${data.country ?? null}, country),
+        city           = CASE WHEN ${virtual} THEN NULL ELSE COALESCE(${data.city ?? null}, city) END,
+        country        = CASE WHEN ${virtual} THEN NULL ELSE COALESCE(${data.country ?? null}, country) END,
+        location       = COALESCE(${location}, location),
+        url            = CASE WHEN ${setUrl} THEN ${url} ELSE url END,
         event_end_date = CASE WHEN ${setEndDate} THEN ${endDate}::date ELSE event_end_date END,
         event_end_time = CASE WHEN ${setEndTime} THEN ${endTime} ELSE event_end_time END,
         venue_name        = CASE WHEN ${setAddress} THEN ${addr(data.address?.venueName)} ELSE venue_name END,

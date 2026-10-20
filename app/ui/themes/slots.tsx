@@ -13,6 +13,7 @@ import { heroTextStyle, type HeroTextKey } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField, SheetSection, TextPreview } from './EditSheet';
 import { useThemeLook, type ThemeLook } from './theme-look';
+import { useOpenEditor } from './open-editor';
 
 function CameraIcon() {
   return (
@@ -348,6 +349,18 @@ export function EditableHeroName({
   );
 }
 
+// An http(s) web address, typed with or without the scheme (the server
+// stores it with https:// added, app/lib/safe-url.ts).
+function isWebLink(value: string) {
+  const v = value.trim();
+  try {
+    const u = new URL(/^[a-z][a-z0-9+.-]*:/i.test(v) ? v : `https://${v}`);
+    return (u.protocol === 'https:' || u.protocol === 'http:') && u.hostname.includes('.');
+  } catch {
+    return false;
+  }
+}
+
 // ─── EditableHeroDate ─────────────────────────────────────
 // Replaces: <p className="hero-date">{formatted date}</p>
 // Opens the editor with the date / time and the venue's address. The city
@@ -373,6 +386,8 @@ export function EditableHeroDate({
   city,
   country,
   address,
+  location = 'address',
+  eventUrl = '',
 }: {
   pageId: number;
   className?: string;
@@ -384,8 +399,10 @@ export function EditableHeroDate({
   eventEndTime?: string;
   city?: string;
   country?: string;
-  // Only for pages held at an address (not virtual events).
   address?: HeroDateAddress;
+  // Held at an address, or online (virtual) with a link to join.
+  location?: 'address' | 'virtual';
+  eventUrl?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [currentText, setCurrentText] = useState(displayText);
@@ -400,6 +417,11 @@ export function EditableHeroDate({
   const [dEndDate, setDEndDate] = useState(eventEndDate ?? '');
   const [dEndTime, setDEndTime] = useState(eventEndTime ?? '');
   const endBeforeStart = !!dEndDate && !!dDate && dEndDate < dDate;
+  const [dLocation, setDLocation] = useState<'address' | 'virtual'>(location);
+  const [dUrl, setDUrl] = useState(eventUrl);
+  const virtual = dLocation === 'virtual';
+  // A link the server will accept: http(s), with or without the https:// typed.
+  const urlInvalid = virtual && dUrl.trim() !== '' && !isWebLink(dUrl);
   // Set only by picking an address (the editor has no city/country fields).
   const [dCity, setDCity] = useState(city ?? '');
   const [dCountry, setDCountry] = useState(country ?? '');
@@ -428,13 +450,14 @@ export function EditableHeroDate({
   const previewText = (() => {
     const parts: string[] = [];
     if (dDate) parts.push(formatDateRange(dDate, dEndDate || undefined, 'en-US', { month: 'long', day: 'numeric', year: 'numeric' }));
-    const loc = [dCity, dCountry].filter(Boolean).join(', ');
+    // An online event's banner shows no city.
+    const loc = virtual ? '' : [dCity, dCountry].filter(Boolean).join(', ');
     if (loc) parts.push(loc);
     return parts.join(' · ');
   })();
 
   const save = () => {
-    if (endBeforeStart) return;
+    if (endBeforeStart || urlInvalid) return;
     setOpen(false);
     if (previewText) setCurrentText(previewText);
     if (dColor !== color) {
@@ -443,14 +466,19 @@ export function EditableHeroDate({
     }
     startTransition(() =>
       updateEventDateTime(pageId, {
-        date: dDate || undefined, time: dTime || undefined, city: dCity || undefined, country: dCountry || undefined,
+        date: dDate || undefined, time: dTime || undefined,
+        city: virtual ? undefined : dCity || undefined, country: virtual ? undefined : dCountry || undefined,
         endDate: dEndDate, endTime: dEndTime,
-        address: address ? dAddress : undefined,
+        location: dLocation,
+        // Going online clears the address on the server.
+        address: virtual ? undefined : dAddress,
+        url: virtual ? dUrl.trim() : undefined,
       })
     );
   };
 
   const openDialog = () => { setLook(readLook()); setDColor(color); setOpen(true); };
+  useOpenEditor('location', openDialog);
 
   return (
     <span
@@ -466,7 +494,7 @@ export function EditableHeroDate({
           intro="When and where your event happens. Guests see this on your banner, in the countdown and in their invitations."
           onClose={() => setOpen(false)}
           onSave={save}
-          saveDisabled={endBeforeStart}
+          saveDisabled={endBeforeStart || urlInvalid}
         >
           <SheetSection title="Date & time">
             <div className="theme-sheet-2col">
@@ -490,21 +518,41 @@ export function EditableHeroDate({
             )}
           </SheetSection>
 
-          {address && (
-            <SheetSection title="Location">
-              <SheetField label="Venue name" optional htmlFor="hd-venue" hint="The name of the place, as guests know it.">
-                <input id="hd-venue" className="theme-sheet-input" type="text" value={dAddress.venueName} placeholder="e.g. Hycroft Manor"
-                  onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
+          <SheetSection title="Location">
+            <div className="theme-sheet-choice" role="radiogroup" aria-label="Where the event happens">
+              <label className={`theme-sheet-choice-option${!virtual ? ' is-selected' : ''}`}>
+                <input type="radio" name="hd-location" value="address" checked={!virtual} onChange={() => setDLocation('address')} />
+                <span><strong>At an address</strong><small>A venue, a home, a park…</small></span>
+              </label>
+              <label className={`theme-sheet-choice-option${virtual ? ' is-selected' : ''}`}>
+                <input type="radio" name="hd-location" value="virtual" checked={virtual} onChange={() => setDLocation('virtual')} />
+                <span><strong>Virtual (online)</strong><small>Zoom, Google Meet, a livestream…</small></span>
+              </label>
+            </div>
+
+            {virtual ? (
+              <SheetField label="Event URL" htmlFor="hd-url" hint="The link guests use to join. Your page shows it as a “Join online” link.">
+                <input id="hd-url" className="theme-sheet-input" type="url" inputMode="url" value={dUrl} placeholder="e.g. https://zoom.us/j/123456789"
+                  onChange={(e) => setDUrl(e.target.value)} aria-invalid={urlInvalid || undefined} />
+                {urlInvalid && <p className="theme-sheet-error" role="alert">Please enter a web link, like https://zoom.us/j/123456789.</p>}
+                {address?.formattedAddress && <p className="theme-sheet-hint">Saving as an online event removes the address from your page.</p>}
               </SheetField>
-              <SheetField label="Address" hint="Start typing, then pick the address from the list — that also sets the city and country on your banner.">
-                <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
-              </SheetField>
-              <SheetField label="Unit" optional htmlFor="hd-unit" hint="Apartment, suite or room number.">
-                <input id="hd-unit" className="theme-sheet-input" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
-                  onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
-              </SheetField>
-            </SheetSection>
-          )}
+            ) : (
+              <>
+                <SheetField label="Venue name" optional htmlFor="hd-venue" hint="The name of the place, as guests know it.">
+                  <input id="hd-venue" className="theme-sheet-input" type="text" value={dAddress.venueName} placeholder="e.g. Hycroft Manor"
+                    onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
+                </SheetField>
+                <SheetField label="Address" hint="Start typing, then pick the address from the list — that also sets the city and country on your banner.">
+                  <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
+                </SheetField>
+                <SheetField label="Unit" optional htmlFor="hd-unit" hint="Apartment, suite or room number.">
+                  <input id="hd-unit" className="theme-sheet-input" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
+                    onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
+                </SheetField>
+              </>
+            )}
+          </SheetSection>
 
           <SheetSection title="How it looks on your banner">
             <HeroColorField
@@ -545,6 +593,7 @@ export function EditableDescription({
     setDraft(current);
     setEditing(true);
   };
+  useOpenEditor('description', startEdit);
 
   const save = () => {
     const v = draft.trim() || current;
@@ -622,6 +671,7 @@ export function EditableBannerBg({
   const [overlayOpacity, setOverlayOpacity] = useState(isHeroOverlayOpacity(initialOverlayOpacity) ? Number(initialOverlayOpacity) : 0);
   const [, startTransition] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  useOpenEditor('banner', () => setEditing(true));
   const overlaySaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Back to the theme's own default hero (only offered while a custom banner is set).

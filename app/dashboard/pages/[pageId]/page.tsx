@@ -131,7 +131,9 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         eventEndTime={userPage.event_end_time || undefined}
         city={userPage.city || undefined}
         country={userPage.country || undefined}
-        address={userPage.location === 'virtual' ? undefined : {
+        location={userPage.location === 'virtual' ? 'virtual' : 'address'}
+        eventUrl={userPage.url || ''}
+        address={{
           venueName: userPage.venue_name || undefined,
           streetAddress: userPage.street_address || undefined,
           unitNumber: userPage.unit_number || undefined,

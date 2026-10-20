@@ -1,25 +1,38 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { EyeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
+import { OPEN_PARAM } from './open-editor';
 
 // The page in the editor, with a bar above it: how to edit (click anything),
 // and an Edit / Preview switch. Preview shows the page clean, as guests see
 // it, with nothing clickable (dashboard.css, .theme-edit-canvas). The choice
-// is remembered on this device.
+// is remembered on this device. A link that opens an editor (?open=, from
+// the setup checklist) always lands in Edit.
 const KEY = 'mygala-editor-mode';
 
 export default function EditorCanvas({ children }: { children: React.ReactNode }) {
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const params = useSearchParams();
+  const opening = params.has(OPEN_PARAM);
 
   useEffect(() => {
+    if (opening) return;
     try {
       // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring a per-device preference after hydration
       if (localStorage.getItem(KEY) === 'preview') setMode('preview');
     } catch {
       // Storage blocked: start in Edit.
     }
+    // Only on arrival: the remembered choice, unless a link opened an editor.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- an editor was opened from a link
+    if (opening) setMode('edit');
+  }, [opening, params]);
 
   const choose = (next: 'edit' | 'preview') => {
     setMode(next);
