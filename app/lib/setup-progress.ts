@@ -2,7 +2,7 @@ import { sql } from '@vercel/postgres';
 import type { UserPage } from './definitions';
 import type { EditorTarget } from '@/app/ui/themes/open-editor';
 
-// "Your page is 3/7 ready": the steps that turn a new page into one worth
+// "Your page is 3/6 ready": the steps that turn a new page into one worth
 // sharing, each with the dashboard screen where it's done. Shown at the top
 // of the sidebar with the next step suggested. The create form asks only for
 // the basics, so the time, place and the owner's name come in here.
@@ -46,7 +46,6 @@ export function setupSteps(page: UserPage, counts: SetupCounts): SetupStep[] {
       open: 'location',
     },
     { label: 'Add your name', done: counts.named, section: '', action: 'profile' },
-    { label: 'Add your own banner photo', done: filled(page.banner_image), section: '', open: 'banner' },
     { label: 'Write a welcome message', done: filled(page.description), section: '', open: 'description' },
     // The gallery is empty until the host adds photos (it's hidden till then).
     { label: 'Add photos to your gallery', done: counts.gallery > 0, section: '', open: 'gallery' },
