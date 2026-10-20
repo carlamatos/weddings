@@ -340,6 +340,26 @@
 }
 .setup-theme-change:hover { border-color: var(--rose); color: var(--rose); }
 
+/* Create form: "1 Theme — 2 Name, date & address" above the heading. */
+.setup-steps { list-style: none; display: flex; align-items: center; gap: 10px; margin: 0 0 20px; padding: 0; font: 600 13px var(--font-sans); color: var(--ink-soft); }
+.setup-steps li { display: flex; align-items: center; gap: 8px; }
+.setup-steps li + li::before { content: ''; width: 28px; height: 1.5px; background: var(--line); margin-right: 2px; }
+.setup-steps__num {
+  display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--line); background: #fff; font-size: 12px;
+}
+.setup-steps li.is-current { color: var(--ink); }
+.setup-steps li.is-current .setup-steps__num { border-color: var(--rose); background: var(--rose); color: #fff; }
+.setup-steps li.is-done .setup-steps__num { border-color: var(--rose); color: var(--rose); }
+/* Back and Create, side by side. */
+.setup-nav { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.setup-nav .auth-btn { flex: 1; margin-top: 0; }
+.setup-back {
+  border: 1.5px solid var(--line); background: #fff; border-radius: 999px; padding: 12px 18px; cursor: pointer;
+  font: 600 14px var(--font-sans); color: var(--ink); white-space: nowrap;
+}
+.setup-back:hover { border-color: var(--rose); color: var(--rose); }
+
 /* The theme gallery: full screen, filters stay at the top. */
 html:has(.tp-dialog[open]) { overflow: hidden; }
 .tp-dialog {
