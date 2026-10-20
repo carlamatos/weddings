@@ -12,6 +12,8 @@ import { useState } from 'react';
 import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { FREE_GUEST_PHOTO_LIMIT } from '@/app/lib/guest-photos';
 import type { SetupStep } from '@/app/lib/setup-progress';
+import { openProfile } from './user-menu';
+import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
 
 type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
@@ -132,6 +134,21 @@ export default function NavLinks({
   );
 }
 
+// The screen where a step is done; editor steps also open their popup.
+function stepHref(s: SetupStep, base: string) {
+  return `${base}${s.section}${s.open ? `?${OPEN_PARAM}=${s.open}` : ''}`;
+}
+
+function stepBody(s: SetupStep) {
+  return (
+    <>
+      {s.done ? <CheckCircleIcon aria-hidden="true" /> : <span className="dash-setup-dot" aria-hidden="true" />}
+      <span>{s.label}</span>
+      <span className="sr-only">{s.done ? ' (done)' : ' (to do)'}</span>
+    </>
+  );
+}
+
 // "Your page is 3/5 ready", a progress bar and the next step; the full list
 // opens below. Gone once every step is done.
 function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
@@ -145,10 +162,17 @@ function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
       <div className="dash-setup-bar" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={done} aria-label="Page setup">
         <span style={{ width: `${(done / steps.length) * 100}%` }} />
       </div>
-      <Link href={`${base}${next.section}`} className="dash-setup-next">
-        <span>Next: {next.label}</span>
-        <ChevronRightIcon />
-      </Link>
+      {next.action === 'profile' ? (
+        <button type="button" className="dash-setup-next" onClick={openProfile}>
+          <span>Next: {next.label}</span>
+          <ChevronRightIcon />
+        </button>
+      ) : (
+        <Link href={stepHref(next, base)} className="dash-setup-next">
+          <span>Next: {next.label}</span>
+          <ChevronRightIcon />
+        </Link>
+      )}
       <button
         type="button"
         className="dash-setup-toggle"
@@ -162,11 +186,11 @@ function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
         <ul className="dash-setup-list">
           {steps.map((s) => (
             <li key={s.label} className={s.done ? 'is-done' : undefined}>
-              <Link href={`${base}${s.section}`}>
-                {s.done ? <CheckCircleIcon aria-hidden="true" /> : <span className="dash-setup-dot" aria-hidden="true" />}
-                <span>{s.label}</span>
-                <span className="sr-only">{s.done ? ' (done)' : ' (to do)'}</span>
-              </Link>
+              {s.action === 'profile' ? (
+                <button type="button" onClick={openProfile}>{stepBody(s)}</button>
+              ) : (
+                <Link href={stepHref(s, base)}>{stepBody(s)}</Link>
+              )}
             </li>
           ))}
         </ul>

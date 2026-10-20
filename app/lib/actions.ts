@@ -46,7 +46,6 @@ import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
-import { passwordRule } from './password-schema';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { partySize } from './guest-import';
 import { cleanTableName, normalizeSeatingTables, SEATING_TABLES_SETTING, type SeatingTable } from './seating';
@@ -61,15 +60,18 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
 
   const UserPageSchema = z.object({
     id: z.string(),
-    event_name: z.string(),
-    description: z.string(),
-    event_date: z.string(),
-    event_time: z.string().min(1, { message: 'Event time is required.' }),
+    // The create form asks only for the type, name, date and theme (and the
+    // page address); the time, place, welcome message and contact details
+    // are added afterwards from the page editor (see setup-progress.ts).
+    event_name: z.string().trim().min(1, { message: 'Please give your event a name.' }).max(200),
+    description: z.string().max(5000),
+    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please choose the date of your event.' }),
+    event_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid time.' }).optional(),
     event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
     event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
     event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
-    theme_slug: z.string({ invalid_type_error: 'Please select a theme.' }),
-    location: z.string(),
+    theme_slug: z.string({ invalid_type_error: 'Please choose a theme.' }).min(1, { message: 'Please choose a theme.' }),
+    location: z.enum(['address', 'virtual']),
     slug: z.string({
       invalid_type_error: 'Please specify a slug (page URL).',
     }),
@@ -163,16 +165,17 @@ export type UserPageState = {
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
       event_date: formData.get('eventDate'),
-      event_time: formData.get('eventTime'),
+      event_time: (formData.get('eventTime') as string) || undefined,
       event_end_date: (formData.get('eventEndDate') as string) || undefined,
       event_end_time: (formData.get('eventEndTime') as string) || undefined,
       event_type: formData.get('eventType'),
       theme_slug: formData.get('themeSlug'),
-      location: formData.get('location'),
-      email: formData.get('email'),
+      location: (formData.get('location') as string) || 'address',
+      // The page's contact email starts as the account's; changed in the editor.
+      email: (formData.get('email') as string) || session?.user?.email || '',
       phone: (formData.get('phone') as string) ?? '',
       slug: formData.get('slug'),
-      description: formData.get('description'),
+      description: (formData.get('description') as string) ?? '',
       url: (formData.get('url') as string) ?? '',
       street_address: (formData.get('streetAddress') as string) ?? '',
       unit_number: (formData.get('unitNumber') as string) ?? '',
@@ -204,6 +207,9 @@ export type UserPageState = {
       // Resolve theme slug → theme_id
       const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
+      if (theme_id === null) {
+        return { errors: { theme_slug: ['Please choose a theme.'] }, message: 'Please choose a theme for your page.' };
+      }
 
       // Plus is bought per page after it's created (below). The one exception
       // is a purchase made before the account had any page, which carries
@@ -219,7 +225,7 @@ export type UserPageState = {
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
           place_id, formatted_address, venue_name, plan_type, plan_expires_at
         ) VALUES (
-          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
+          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}
         )
@@ -1619,19 +1625,29 @@ export async function updateEventDateTime(pageId: number, data: {
     placeId: string;
     formattedAddress: string;
   };
+  // Held at an address or online. An online event takes its link (url), and
+  // its address, city and country are cleared: the themes show a saved
+  // address and map whatever the location. undefined leaves it as is.
+  location?: 'address' | 'virtual';
+  url?: string;
 }) {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return;
+  if (data.location !== undefined && data.location !== 'address' && data.location !== 'virtual') return;
   if (data.endDate && !/^\d{4}-\d{2}-\d{2}$/.test(data.endDate)) return;
   if (data.endTime && !/^\d{2}:\d{2}$/.test(data.endTime)) return;
   const setEndDate = data.endDate !== undefined;
   const setEndTime = data.endTime !== undefined;
   const endDate = data.endDate || null;
   const endTime = data.endTime || null;
-  const setAddress = data.address !== undefined;
-  const addr = (v: string | undefined) => v?.trim() || null;
+  const location = data.location ?? null;
+  const virtual = data.location === 'virtual';
+  const setAddress = data.address !== undefined || virtual;
+  const addr = (v: string | undefined) => (virtual ? null : v?.trim() || null);
+  const setUrl = data.url !== undefined;
+  const url = safeHttpUrl(data.url) || null;
   try {
     // The end-date check sits in WHERE so an end before the (new or existing)
     // start date rejects the whole save rather than storing a bad range.
@@ -1639,8 +1655,10 @@ export async function updateEventDateTime(pageId: number, data: {
       UPDATE user_page SET
         event_date     = COALESCE(${data.date ?? null}, event_date),
         event_time     = COALESCE(${data.time ?? null}, event_time),
-        city           = COALESCE(${data.city ?? null}, city),
-        country        = COALESCE(${data.country ?? null}, country),
+        city           = CASE WHEN ${virtual} THEN NULL ELSE COALESCE(${data.city ?? null}, city) END,
+        country        = CASE WHEN ${virtual} THEN NULL ELSE COALESCE(${data.country ?? null}, country) END,
+        location       = COALESCE(${location}, location),
+        url            = CASE WHEN ${setUrl} THEN ${url} ELSE url END,
         event_end_date = CASE WHEN ${setEndDate} THEN ${endDate}::date ELSE event_end_date END,
         event_end_time = CASE WHEN ${setEndTime} THEN ${endTime} ELSE event_end_time END,
         venue_name        = CASE WHEN ${setAddress} THEN ${addr(data.address?.venueName)} ELSE venue_name END,
@@ -1935,88 +1953,93 @@ export async function FacebookSignIn() {
 
 
 
-const RegisterSchema = z.object({
-  given_name: z.string().min(1, { message: 'Please enter your first name.' }),
-  family_name: z.string().min(1, { message: 'Please enter your last name.' }),
-  phone: z.string().optional(),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  password: passwordRule,
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: 'Passwords do not match.',
-  path: ['confirmPassword'],
-});
+// Sign-up asks only for an email and a password; names and phone can be
+// added later in the profile. The form comes in English and French (the
+// French wedding landing page sends ?lang=fr), so its messages do too.
+const REGISTER_MESSAGES = {
+  en: {
+    email: 'Please enter a valid email address.',
+    password: 'Password must be at least 8 characters.',
+    fix: 'Please fix the errors below.',
+    exists: 'An account with this email already exists.',
+    rateLimited: 'Too many sign-ups from this connection. Please try again later.',
+    lookupFailed: 'Something went wrong. Please try again.',
+    createFailed: 'Something went wrong creating your account. Please try again.',
+  },
+  fr: {
+    email: 'Veuillez entrer une adresse courriel valide.',
+    password: 'Le mot de passe doit contenir au moins 8 caractères.',
+    fix: 'Veuillez corriger les erreurs ci-dessous.',
+    exists: 'Un compte existe déjà avec cette adresse courriel.',
+    rateLimited: 'Trop d’inscriptions depuis cette connexion. Veuillez réessayer plus tard.',
+    lookupFailed: 'Une erreur est survenue. Veuillez réessayer.',
+    createFailed: 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
+  },
+} as const;
 
 export type RegisterState = {
   errors?: {
-    given_name?: string[];
-    family_name?: string[];
-    phone?: string[];
     email?: string[];
     password?: string[];
-    confirmPassword?: string[];
   };
   message?: string | null;
 };
 
-export async function registerUser(prevState: RegisterState, formData: FormData) {
+export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+  const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
+  const m = REGISTER_MESSAGES[lang];
   // Mass sign-ups (and the verification emails they send) are capped per IP.
   if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
-    return { message: 'Too many sign-ups from this connection. Please try again later.' };
+    return { message: m.rateLimited };
   }
-  const validatedFields = RegisterSchema.safeParse({
-    given_name: formData.get('given_name'),
-    family_name: formData.get('family_name'),
-    phone: (formData.get('phone') as string) || undefined,
+  const validatedFields = z.object({
+    email: z.string().email({ message: m.email }),
+    password: z.string().min(8, { message: m.password }),
+  }).safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
-    confirmPassword: formData.get('confirmPassword'),
   });
 
   if (!validatedFields.success) {
     return {
       errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Please fix the errors below.',
+      message: m.fix,
     };
   }
 
-  const { given_name, family_name, phone, email, password } = validatedFields.data;
+  const { email, password } = validatedFields.data;
 
   try {
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
     if (existing.rows.length > 0) {
-      return {
-        errors: { email: ['An account with this email already exists.'] },
-        message: 'An account with this email already exists.',
-      };
+      return { errors: { email: [m.exists] }, message: m.exists };
     }
   } catch (error) {
     console.error('Sign-up lookup failed:', error);
-    return { message: 'Something went wrong. Please try again.' };
+    return { message: m.lookupFailed };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
-  const name = `${given_name} ${family_name}`;
   const date = new Date().toISOString().split('T')[0];
 
   let newUserId: string | undefined;
   try {
     const result = await sql`
       INSERT INTO users (name, email, password, date, given_name, family_name, provider, provider_id, picture, phone)
-      VALUES (${name}, ${email}, ${hashedPassword}, ${date}, ${given_name}, ${family_name}, 'credentials', '', '', ${phone || ''})
+      VALUES ('', ${email}, ${hashedPassword}, ${date}, '', '', 'credentials', '', '', '')
       RETURNING id
     `;
     newUserId = result.rows[0]?.id;
   } catch (error) {
     console.error('Failed to create account:', error);
-    return { message: 'Something went wrong creating your account. Please try again.' };
+    return { message: m.createFailed };
   }
 
   if (newUserId) {
     try {
       const token = await createToken('email_verification_tokens', newUserId, EMAIL_VERIFICATION_TTL_MS);
       const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link, given_name) });
+      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link) });
     } catch (error) {
       // Don't block account creation on a mail failure — the dashboard
       // banner's resend button covers this.
@@ -2025,5 +2048,5 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   }
 
   if (newUserId) await markSignUp('email');
-  redirect(`/check-email?email=${encodeURIComponent(email)}`);
+  redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'fr' ? '&lang=fr' : ''}`);
 }

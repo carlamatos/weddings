@@ -19,7 +19,7 @@
 }
 .marketing-page .lp-topbar .wordmark { font-size: 32px; }
 .marketing-page .lp-topbar-actions { display: flex; align-items: center; gap: 16px; }
-.marketing-page .lp-topbar-login { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; }
+.marketing-page .lp-topbar-login { font-size: 14px; font-weight: 600; color: var(--ink); text-decoration: none; white-space: nowrap; }
 .marketing-page .lp-topbar-login:hover { color: var(--rose); }
 
 /* ── hero ────────────────────────────────────────────────── */
