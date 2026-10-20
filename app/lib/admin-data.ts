@@ -9,6 +9,7 @@ export type AdminUserRow = {
   email: string;
   provider: string | null;
   date: Date | string | null;
+  email_verified_at: Date | string | null; // null = not verified yet
   plan_type: string;
   stripe_customer_id: string | null;
   current_period_end: Date | string | null;
@@ -77,7 +78,7 @@ export function pageSearchTerm(raw: string | null | undefined): string {
 
 // SQL lives in plain strings so it can also be run directly in tests.
 export const USERS_SQL = `
-  SELECT u.id, u.name, u.email, u.provider, u.date,
+  SELECT u.id, u.name, u.email, u.provider, u.date, u.email_verified_at,
          COALESCE(pl.plan_type, p.plan_type, 'free') AS plan_type,
          COALESCE(pl.stripe_customer_id, p.stripe_customer_id) AS stripe_customer_id,
          pl.current_period_end,

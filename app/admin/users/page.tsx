@@ -11,6 +11,10 @@ import { formatDate } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import { siteHref } from '@/app/lib/app-url';
 
+const badge: React.CSSProperties = {
+  display: 'inline-block', margin: '4px 0 2px', padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+};
+
 export default async function AdminUsersPage({
   searchParams,
 }: {
@@ -68,8 +72,16 @@ export default async function AdminUsersPage({
               return (
                 <tr key={u.id}>
                   <td style={td}>
-                    <div style={{ fontWeight: 600 }}>{u.name}</div>
+                    {/* Email sign-ups start without a name; it's added in the profile. */}
+                    <div style={{ fontWeight: 600 }}>{u.name?.trim() || <span style={{ color: c.muted, fontWeight: 400 }}>No name yet</span>}</div>
                     <div style={{ color: c.soft }}>{u.email}</div>
+                    {u.email_verified_at ? (
+                      <span style={{ ...badge, color: c.green, background: c.greenBg }} title={`Verified ${formatDate(u.email_verified_at)}`}>
+                        ✓ Email verified
+                      </span>
+                    ) : (
+                      <span style={{ ...badge, color: c.amber, background: c.amberBg }}>Email not verified</span>
+                    )}
                     <div style={{ color: c.muted, fontSize: 11 }}>{u.provider ?? 'unknown'} sign-in</div>
                   </td>
                   <td style={td}>
