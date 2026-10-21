@@ -87,6 +87,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'antique-cars': { bg: '#57C0B9', textColor: '#2E1A47', accentColor: '#F2C230', headingFont: 'cinzel', bodyFont: 'montserrat' },
   'christmas-party': { bg: '#2C3138', textColor: '#F4EDE1', accentColor: '#C8372D', headingFont: 'dancing-script', bodyFont: 'lato' },
   'white-christmas': { bg: '#DAE4F0', textColor: '#23415E', accentColor: '#B89B4F', headingFont: 'cormorant', bodyFont: 'lato' },
+  'merry': { bg: '#101A25', textColor: '#F3F6F9', accentColor: '#D3B560', headingFont: 'playfair', bodyFont: 'montserrat' },
   'dia-de-los-muertos': { bg: '#3B1E4A', textColor: '#FDF3E1', accentColor: '#FBB813', headingFont: 'fredoka', bodyFont: 'poppins' },
   'halloween-party': { bg: '#1F1D1E', textColor: '#EDE4D3', accentColor: '#F07F1E', headingFont: 'creepster', bodyFont: 'poppins' },
 };

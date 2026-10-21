@@ -93,6 +93,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'white-christmas')
   `;
 
+  // Merry theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Merry',
+           'Midnight navy, deep teal and snowflake gold with a red satin ribbon. The invitation sits in a gold arch under hanging stars; glass baubles swing around the RSVP and the countdown glows in advent windows. Elegant for holiday parties.',
+           'merry'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'merry')
+  `;
+
   // Día de los Muertos theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)
