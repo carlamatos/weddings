@@ -13,7 +13,9 @@ const ADS_SIGNUP_SEND_TO = process.env.NEXT_PUBLIC_GOOGLE_ADS_SIGNUP_SEND_TO;
 //   (location = the link's data-cta, else the page it was on);
 // - cta_click: another link with a data-cta was clicked (e.g. the demo);
 // - sign_up: an account was just created (markSignUp left a cookie), also
-//   reported as a Google Ads conversion when one is configured.
+//   reported as a Google Ads conversion when one is configured, and pushed to
+//   Tag Manager as 'mygala_signup' (a Custom Event trigger: gtag() calls
+//   don't fire those) for tags like Pinterest's.
 export default function SignupTracker() {
   const pathname = usePathname();
 
@@ -43,6 +45,10 @@ export default function SignupTracker() {
     if (!match) return;
     const method = decodeURIComponent(match[1]);
     document.cookie = `${SIGNUP_COOKIE}=; Max-Age=0; Path=/`;
+
+    // Queued for Tag Manager, which reads it whenever it loads (live site only).
+    const w = window as Window & { dataLayer?: unknown[] };
+    (w.dataLayer ??= []).push({ event: 'mygala_signup', method });
 
     // gtag loads after hydration; wait for it (up to 10s).
     let tries = 0;
