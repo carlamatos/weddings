@@ -23,7 +23,7 @@ const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn
 
 const HOME_SEO = {
   title: 'MyGala — Event Websites with RSVPs, Invitations & Photos',
-  description: `Create an event website in minutes: RSVPs, guest list, invitations, guest photos, livestream and reminders. Free to start; Plus is ${PLAN_PRICE_PLUS_TAX} per event.`,
+  description: `Create an event website in minutes: RSVPs, guest list, invitations, guest photos, livestream and reminders. Free to start.`,
 };
 
 export const metadata: Metadata = {
