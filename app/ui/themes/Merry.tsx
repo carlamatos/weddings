@@ -7,7 +7,6 @@ import RsvpForm from './RsvpForm';
 import { Reveal } from './Reveal';
 import { PreviewTopBar } from './PreviewTopBar';
 import { Countdown } from './Countdown';
-import { HERO_DEFAULTS } from './hero-defaults';
 import { getTranslations, pickByLanguage } from '@/app/lib/translations';
 import { eventWhen, formatDateRange } from './event-when';
 import ShareSection from './ShareSection';
@@ -94,6 +93,51 @@ const HERO_SPARKLES = [
   { left: '33%', top: '88%', size: 8, delay: '-1s' }, { left: '66%', top: '90%', size: 9, delay: '-2.4s' },
 ];
 
+// Gold snow falling over the banner: flakes and soft dots, each with its
+// own size, speed and sway. Fixed values so the server and client agree.
+const GOLD_SNOW = Array.from({ length: 64 }, (_, i) => ({
+  left: `${(i * 7.3 + 1.5) % 100}%`,
+  size: i % 2 === 0 ? 12 + (i % 7) * 3 : 4 + (i % 4) * 2,
+  flake: i % 2 === 0,
+  delay: `-${(i * 1.9) % 16}s`,
+  dur: `${11 + (i % 6) * 2.5}s`,
+  opacity: 0.55 + (i % 4) * 0.15,
+  // Where it rests when motion is reduced.
+  still: `${(i * 37 + 8) % 92}%`,
+}));
+
+// A six-armed gold snowflake.
+function Snowflake({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={GOLD_BRIGHT} strokeWidth="1.4" strokeLinecap="round" aria-hidden="true">
+      {[0, 60, 120].map((r) => (
+        <g key={r} transform={`rotate(${r} 12 12)`}>
+          <path d="M12 1 V23" />
+          <path d="M12 5 L9.5 2.5 M12 5 L14.5 2.5 M12 19 L9.5 21.5 M12 19 L14.5 21.5" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function GoldSnow() {
+  return (
+    <div className="mr-gold-snow" aria-hidden="true">
+      {GOLD_SNOW.map((f) => (
+        <span key={f.left} className={f.flake ? 'mr-gflake' : 'mr-gdot'} style={{ left: f.left, animationDelay: f.delay, animationDuration: f.dur, opacity: f.opacity, ['--mr-still' as string]: f.still, ...(f.flake ? {} : { width: f.size, height: f.size }) } as React.CSSProperties}>
+          {f.flake && <Snowflake size={f.size} />}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// The banner when the host hasn't added a photo: a deep blue night (the
+// gold snow falls over it). Also what the editor shows behind the banner.
+export function MerryDefaultHero() {
+  return <div className="hero-bg" style={{ background: `radial-gradient(ellipse 120% 90% at 50% 15%, #24506B 0%, ${TEAL} 30%, ${NAVY} 70%, ${MIDNIGHT} 100%)` }} />;
+}
+
 // Snow falling over the paper village in the footer.
 const SNOWFLAKES = Array.from({ length: 22 }, (_, i) => ({
   left: `${(i * 4.6 + 2) % 100}%`,
@@ -111,8 +155,16 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
     : '';
   return (
     <div style={{ position: 'relative', width: '100%', height: 280, background: MIDNIGHT, overflow: 'hidden', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img {...previewImage(bannerImage || HERO_DEFAULTS.merry)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+      {bannerImage ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img {...previewImage(bannerImage)} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+      ) : (
+        <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse 90% 80% at 50% 0%, ${TEAL} 0%, ${NAVY} 55%, ${MIDNIGHT} 100%)` }}>
+          {[['8%', '18%', 16], ['20%', '58%', 9], ['30%', '24%', 7], ['72%', '16%', 12], ['84%', '52%', 18], ['92%', '28%', 8], ['14%', '82%', 11], ['88%', '84%', 10]].map(([l, t, z]) => (
+            <span key={`${l}-${t}`} style={{ position: 'absolute', left: l, top: t, opacity: 0.8 }}><Snowflake size={z as number} /></span>
+          ))}
+        </div>
+      )}
       {/* The card is shown outside the theme (dashboard, homepage), so it loads its own display face */}
       <PreviewFont href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@1,400&display=swap" />
       <div style={{ position: 'relative', zIndex: 1, width: '62%', minWidth: 220, padding: '64px 18px 26px', textAlign: 'center', borderRadius: '999px 999px 0 0', border: `1px solid ${GOLD}`, borderBottom: 'none', background: 'linear-gradient(to bottom, rgba(16,26,37,0.35), rgba(16,26,37,0.85))' }}>
@@ -151,14 +203,16 @@ const css = `
   @keyframes mr-swoosh { 0% { transform: translate3d(-6%, 0, 0); } 100% { transform: translate3d(4%, -10px, 0); } }
   @keyframes mr-shimmer { 0%, 100% { opacity: 0.55; filter: brightness(1); } 50% { opacity: 0.95; filter: brightness(1.18); } }
   @keyframes mr-snow { 0% { transform: translate3d(0, -20px, 0); opacity: 0; } 10% { opacity: 0.9; } 50% { transform: translate3d(14px, 50vh, 0); } 100% { transform: translate3d(-10px, 105vh, 0); opacity: 0; } }
+  @keyframes mr-gsnow { 0% { transform: translate3d(0, -40px, 0) rotate(0deg); } 25% { transform: translate3d(18px, 25vh, 0) rotate(90deg); } 50% { transform: translate3d(-12px, 52vh, 0) rotate(180deg); } 75% { transform: translate3d(14px, 78vh, 0) rotate(270deg); } 100% { transform: translate3d(-6px, 108vh, 0) rotate(360deg); } }
   @keyframes mr-push { from { transform: scale(1.08); } to { transform: scale(1); } }
   @keyframes mr-drift { 0%, 100% { transform: scale(1.04) translate(0, 0); } 50% { transform: scale(1.1) translate(-1.2%, 1%); } }
   @keyframes mr-rise { from { opacity: 0; transform: translateY(60px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes mr-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes mr-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   @media (prefers-reduced-motion: reduce) {
-    .mr .mr-ornament, .mr .mr-twinkle, .mr .mr-sparkle, .mr .mr-stars, .mr .mr-flake, .mr .hero-bg, .mr .hero-arch, .mr .hero-arch-inner > *, .mr .mr-photo-bg, .mr .mr-seal { animation: none !important; }
+    .mr .mr-ornament, .mr .mr-twinkle, .mr .mr-sparkle, .mr .mr-stars, .mr .mr-flake, .mr .hero-bg, .mr .hero-arch, .mr .hero-arch-inner > *, .mr .mr-photo-bg, .mr .mr-seal, .mr .mr-gflake, .mr .mr-gdot { animation: none !important; }
     .mr .mr-flake, .mr .mr-sparkle { display: none; }
+    .mr .mr-gflake, .mr .mr-gdot { top: var(--mr-still, 30%); }
   }
   .mr .mr-twinkle { display: block; animation: mr-twinkle 3.6s ease-in-out infinite; transform-origin: center; }
   .mr .mr-rule { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 0 auto 22px; }
@@ -206,6 +260,10 @@ const css = `
      window rising from the bottom edge with the invitation inside */
   .mr .hero { position: relative; min-height: 100vh; display: flex; align-items: flex-end; justify-content: center; padding: 120px 20px 0; background: var(--mr-midnight); overflow: hidden; text-align: center; }
   .mr .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top; z-index: 0; animation: mr-push 16s cubic-bezier(0.2, 0.6, 0.3, 1) both; transform-origin: 50% 0%; }
+  .mr .mr-gold-snow { position: absolute; inset: 0; z-index: 1; overflow: hidden; pointer-events: none; }
+  .mr .mr-gflake, .mr .mr-gdot { position: absolute; top: 0; animation: mr-gsnow 16s linear infinite; will-change: transform; }
+  .mr .mr-gflake svg { display: block; filter: drop-shadow(0 0 5px rgba(231,202,106,0.55)); }
+  .mr .mr-gdot { border-radius: 50%; background: radial-gradient(circle, #FFF3C4 0%, ${GOLD_BRIGHT} 45%, rgba(211,181,96,0) 72%); }
   .mr .hero-overlay { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: linear-gradient(to bottom, rgba(16,26,37,0) 35%, rgba(16,26,37,0.55) 100%); }
   .mr .mr-sparkle { position: absolute; z-index: 1; pointer-events: none; animation: mr-sparkle 4.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(231,202,106,0.9)); }
   .mr .hero-arch { position: relative; z-index: 2; width: min(600px, 100%); min-height: min(76vh, 720px); display: flex; align-items: flex-end; border-radius: 999px 999px 0 0; border: 1px solid var(--mr-gold); border-bottom: none;
@@ -251,10 +309,9 @@ const css = `
 
   /* countdown: the gold stars hang over the night, the numbers sit in
      arched windows like the doors of an advent calendar */
-  .mr .countdown-shell { position: relative; background: var(--mr-midnight); overflow: hidden; }
+  .mr .countdown-shell { position: relative; overflow: hidden; background: radial-gradient(ellipse 90% 110% at 50% 20%, #24506B 0%, ${TEAL} 40%, ${NAVY} 100%); }
   .mr .mr-photo-bg { position: absolute; inset: -4%; background-size: cover; background-position: center top; animation: mr-drift 28s ease-in-out infinite; }
-  .mr .countdown-shell::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(16,26,37,0) 0%, rgba(16,26,37,0.15) 30%, rgba(16,26,37,0.78) 55%, rgba(16,26,37,0.95) 100%); }
-  .mr .countdown-wrap { position: relative; z-index: 2; padding: 380px 24px 110px; text-align: center; }
+    .mr .countdown-wrap { position: relative; z-index: 2; padding: 120px 24px 120px; text-align: center; }
   .mr .countdown-heading { font-family: var(--mr-font-display); font-style: italic; font-size: clamp(42px, 6vw, 76px); color: var(--mr-snow); margin: 0 0 44px; font-weight: 400; line-height: 1.05; text-shadow: 0 2px 24px rgba(16,26,37,0.8); }
   .mr .countdown-row { display: flex; justify-content: center; gap: clamp(10px, 2.6vw, 26px); }
   .mr .countdown-block { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: clamp(72px, 14vw, 132px); aspect-ratio: 3 / 4; padding-bottom: clamp(14px, 2.4vw, 24px); border-radius: 999px 999px 3px 3px; border: 1px solid var(--mr-gold); background: linear-gradient(to bottom, rgba(25,55,74,0.35), rgba(16,26,37,0.8)); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); box-shadow: 0 30px 50px -30px rgba(0,0,0,0.8); }
@@ -262,7 +319,7 @@ const css = `
   .mr .countdown-value { font-family: var(--mr-font-display); font-size: clamp(30px, 5vw, 58px); color: var(--mr-snow); font-weight: 400; line-height: 1; }
   .mr .countdown-label { font-family: var(--mr-font-sans); font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--mr-gold-bright); margin-top: 10px; font-weight: 600; }
   @media (max-width: 480px) {
-    .mr .countdown-wrap { padding: 300px 14px 84px; }
+    .mr .countdown-wrap { padding: 90px 14px 90px; }
     .mr .countdown-heading { font-size: 40px; margin-bottom: 30px; }
     .mr .countdown-row { gap: 8px; }
     .mr .countdown-block { width: 74px; }
@@ -555,7 +612,7 @@ export default function Merry({
   const formsDisabled = isPreview || !!demo;
   const sectionTextCtx = { values: sectionText, pageId: sectionTextPageId };
   const heroDateText = eventDate ? formatDate(eventDate, city, country, t.dateLocale, eventEndDate) : '';
-  const heroSrc = bannerImage || HERO_DEFAULTS.merry;
+  const heroSrc = bannerImage;
 
   const when = eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }, t.dateLocale);
   const formattedTime = when.time;
@@ -594,10 +651,10 @@ export default function Merry({
       <style>{css}</style>
       {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
-      {/* HERO — the invitation in a gold arch under the hanging stars */}
+      {/* HERO — the invitation in a gold arch, gold snow falling */}
       <div className="hero">
         {editSlots?.heroBg ?? (
-          isVideoUrl(heroSrc) ? (
+          !heroSrc ? <MerryDefaultHero /> : isVideoUrl(heroSrc) ? (
             <video className="hero-bg" src={heroSrc} autoPlay muted loop playsInline style={heroMediaStyle(heroObjectFit, heroObjectPosition)} />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
@@ -606,6 +663,7 @@ export default function Merry({
         )}
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
+        <GoldSnow />
         {HERO_SPARKLES.map((s) => (
           <Star key={`${s.left}-${s.top}`} size={s.size} fill={GOLD_BRIGHT} className="mr-sparkle" style={{ left: s.left, top: s.top, animationDelay: s.delay }} />
         ))}
@@ -643,10 +701,9 @@ export default function Merry({
         </div>
       )}
 
-      {/* COUNTDOWN — advent-calendar windows under the hanging stars */}
+      {/* COUNTDOWN — advent-calendar windows on deep blue */}
       {eventDate && (
         <div className="countdown-shell">
-          <div className="mr-photo-bg" style={{ backgroundImage: `url(${IMG}/countdown.jpeg)` }} aria-hidden="true" />
           <Countdown
             eventDate={eventDate}
             eventTime={eventTime}

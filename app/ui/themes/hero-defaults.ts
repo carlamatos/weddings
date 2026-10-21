@@ -21,7 +21,6 @@ export const HERO_DEFAULTS = {
   nature: '/images/themes/nature/hero.jpeg',
   'christmas-party': '/images/themes/christmas-party/hero.jpeg',
   'white-christmas': '/images/themes/white-christmas/hero.jpeg',
-  merry: '/images/themes/merry/hero.jpeg',
   'dia-de-los-muertos': '/images/themes/dia-de-los-muertos/hero.jpeg',
   'halloween-party': '/images/themes/halloween-party/hero.jpeg',
   // Balloons has no default cover photo — its hero is a gradient with a
