@@ -401,6 +401,27 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['White Christmas', 'Bing Crosby', 'Eleanor'], ['Let It Snow!', 'Dean Martin', 'Henry']]),
     shareHashtag: 'WhiteChristmas2026',
   }),
+  merry: demo('merry', {
+    heading: 'Merry & Bright',
+    heroEyebrow: "You're invited",
+    description: 'Join us for a glittering evening under the stars — champagne by the tree, a candlelit supper, carols around the piano and a toast to the year behind us. Black tie optional, sparkle encouraged.',
+    eventDate: '2026-12-18', eventTime: '18:30', eventEndTime: '23:59',
+    venueName: 'The Royal York', streetAddress: '100 Front St W', city: 'Toronto', country: 'ON',
+    formattedAddress: '100 Front St W, Toronto, ON',
+    userEmail: 'hosts@merryandbright.example',
+    registryDescription: 'Your company is the best present. If you’d like to give, we’re collecting new toys for the children’s hospital — bring one, wrapped, to the party.',
+    eventProgram: program([
+      ['2026-12-18', 'Champagne by the tree', '18:30', null, 'The Grand Lobby'],
+      ['2026-12-18', 'Candlelit supper', '19:30', null, 'The Imperial Room'],
+      ['2026-12-18', 'Carols at the piano', '21:00', null, 'The Library'],
+      ['2026-12-18', 'Dancing until midnight', '22:00', '23:59', 'The Ballroom'],
+    ]),
+    guestSongs: songs([['Have Yourself a Merry Little Christmas', 'Judy Garland', 'Margaret'], ['It’s the Most Wonderful Time of the Year', 'Andy Williams', 'Leo']]),
+    shareHashtag: 'MerryAndBright2026',
+    // Shown in this preview so the Secret Santa section (wrapped in the red
+    // ribbon) can be seen; the form can't be sent from a preview.
+    giftExchange: { token: 'demo', participantCount: 12, drawn: false, details: { budget: '$40', exchangeDate: 'December 18, after supper', note: 'Wrap it in gold or red — we’ll open them by the tree.' } },
+  }),
   'dia-de-los-muertos': demo('dia-de-los-muertos', {
     heading: 'Día de los Muertos',
     heroEyebrow: 'Celebrate with us',
