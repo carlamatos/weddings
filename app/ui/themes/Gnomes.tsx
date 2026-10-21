@@ -164,15 +164,15 @@ function Snow({ count = SNOW.length, className = '' }: { count?: number; classNa
 }
 
 // The santa hats peeking out of the snow, each cut from the sage artwork
-// (x, y, width, height in the 2576 × 620 crop) and bobbing on its own.
+// (x, y, width, height in the 2576 × 620 crop), standing in the snow.
 const HATS = [
-  { x: 125, y: 190, w: 282, h: 312, dur: '5.2s', delay: '0s' },
-  { x: 474, y: 32, w: 206, h: 470, dur: '6.4s', delay: '-2.1s' },
-  { x: 812, y: 161, w: 221, h: 341, dur: '4.8s', delay: '-3.6s' },
-  { x: 1157, y: 152, w: 240, h: 350, dur: '5.8s', delay: '-1.2s' },
-  { x: 1572, y: 170, w: 230, h: 332, dur: '5s', delay: '-4.3s' },
-  { x: 1906, y: 68, w: 200, h: 434, dur: '6.1s', delay: '-0.7s' },
-  { x: 2235, y: 136, w: 248, h: 366, dur: '5.5s', delay: '-2.9s' },
+  { x: 125, y: 190, w: 282 },
+  { x: 474, y: 32, w: 206 },
+  { x: 812, y: 161, w: 221 },
+  { x: 1157, y: 152, w: 240 },
+  { x: 1572, y: 170, w: 230 },
+  { x: 1906, y: 68, w: 200 },
+  { x: 2235, y: 136, w: 248 },
 ];
 const pct = (v: number, of: number) => `${(v / of) * 100}%`;
 function SantaHats() {
@@ -181,7 +181,7 @@ function SantaHats() {
       {HATS.map((h, i) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={h.x} className="gn-hat" src={`${IMG}/hat-${i + 1}.webp`} alt="" loading="lazy"
-          style={{ left: pct(h.x, 2576), top: pct(h.y, 620), width: pct(h.w, 2576), animationDuration: h.dur, animationDelay: h.delay }} />
+          style={{ left: pct(h.x, 2576), top: pct(h.y, 620), width: pct(h.w, 2576) }} />
       ))}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="gn-hats-snow" src={`${IMG}/hats-snow.webp`} alt="" loading="lazy" />
@@ -265,12 +265,11 @@ const css = `
   @keyframes gn-rock { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
   @keyframes gn-hop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
   @keyframes gn-heart { 0% { transform: translateY(0) scale(0.6); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(-220px) scale(1.1) rotate(12deg); opacity: 0; } }
-  @keyframes gn-peek { 0%, 100% { transform: translateY(0) rotate(0deg); } 30% { transform: translateY(26%) rotate(0deg); } 48% { transform: translateY(26%) rotate(0deg); } 62% { transform: translateY(0) rotate(-4deg); } 74% { transform: translateY(0) rotate(3deg); } 86% { transform: translateY(0) rotate(-1deg); } }
   @keyframes gn-footer-peek { 0%, 55%, 100% { transform: translateY(100%); } 68%, 88% { transform: translateY(14%); } 76% { transform: translateY(14%) rotate(-4deg); } 82% { transform: translateY(14%) rotate(3deg); } }
   @keyframes gn-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes gn-rise { from { opacity: 0; transform: translate(-50%, 40px); } to { opacity: 1; transform: translate(-50%, 0); } }
   @media (prefers-reduced-motion: reduce) {
-    .gn .gn-snow span, .gn .gn-bulb, .gn .gn-holly, .gn .gn-gnome, .gn .gn-hat, .gn .gn-heart, .gn .gn-peeker, .gn .hero-content > *, .gn .gn-row, .gn .gn-present { animation: none !important; }
+    .gn .gn-snow span, .gn .gn-bulb, .gn .gn-holly, .gn .gn-gnome, .gn .gn-heart, .gn .gn-peeker, .gn .hero-content > *, .gn .gn-row, .gn .gn-present { animation: none !important; }
     .gn .gn-snow span { top: var(--gn-still, 30%) !important; }
     .gn .gn-heart { display: none; }
     .gn .gn-peeker img { transform: translateY(14%) !important; }
@@ -360,7 +359,7 @@ const css = `
     .gn .story-card { padding: 44px 26px 36px; text-align: center; }
   }
 
-  /* countdown: sage, with the santa hats bobbing in and out of the snow */
+  /* countdown: sage, the santa hats standing in the snow, snow falling */
   .gn .countdown-shell { position: relative; overflow: hidden; background: var(--gn-sage); }
   .gn .countdown-wrap { position: relative; z-index: 2; padding: 110px 24px 20px; text-align: center; }
   .gn .countdown-heading { font-family: var(--gn-font-display); font-size: clamp(40px, 5.6vw, 66px); color: var(--gn-paper); margin: 0 0 36px; font-weight: 700; line-height: 1.05; text-shadow: 3px 3px 0 rgba(71,103,53,0.55); }
@@ -374,7 +373,7 @@ const css = `
   .gn .countdown-value { position: relative; font-family: var(--gn-font-display); font-size: clamp(28px, 4.6vw, 48px); color: var(--gn-hat-deep); font-weight: 700; line-height: 1; }
   .gn .countdown-label { position: relative; font-family: var(--gn-font-hand); font-size: clamp(15px, 1.8vw, 20px); color: var(--gn-pine); margin-top: 2px; font-weight: 700; }
   .gn .gn-hats { position: relative; z-index: 1; width: 100%; aspect-ratio: 2576 / 620; margin-top: -2%; }
-  .gn .gn-hat { position: absolute; height: auto; transform-origin: 50% 100%; animation: gn-peek 5.5s ease-in-out infinite; }
+  .gn .gn-hat { position: absolute; height: auto; }
   .gn .gn-hats-snow { position: absolute; left: 0; top: 66.9%; width: 100%; height: 33.1%; display: block; }
   @media (max-width: 640px) {
     .gn .countdown-wrap { padding: 84px 14px 30px; }
@@ -749,7 +748,7 @@ export default function Gnomes({
         </div>
       )}
 
-      {/* COUNTDOWN — santa hats bobbing in and out of the snow */}
+      {/* COUNTDOWN — santa hats in the snow, snow falling */}
       {eventDate && (
         <div className="countdown-shell">
           <Snow count={20} />
