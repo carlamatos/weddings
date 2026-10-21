@@ -12,6 +12,18 @@ const vercelLive = (sources: string) => (isPreviewDeploy ? ` ${sources}` : '');
 const rootDomain = process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'mygala.ca';
 const mainSite = `https://${rootDomain} https://www.${rootDomain}`;
 
+// Google Analytics 4 and Google Ads (loaded by Tag Manager): where the tags
+// send hits and fetch pixels, per Google's CSP guide
+// (developers.google.com/tag-platform/security/guides/csp). Wildcards, since
+// the hosts vary — GA4 Signals uses stats.g.doubleclick.net, Ads uses both
+// google.com and www.google.com, and Analytics has regional servers.
+const googleTags = [
+  'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://analytics.google.com',
+  'https://*.googletagmanager.com',
+  'https://*.g.doubleclick.net', 'https://ad.doubleclick.net', 'https://www.googleadservices.com',
+  'https://google.com', 'https://*.google.com', 'https://www.google.ca',
+].join(' ');
+
 const securityHeaders = [
   // frame-src also lists the livestream players the Live Stream section embeds
   // (app/lib/livestream.ts); Facebook's is already allowed for sign-in.
@@ -19,16 +31,16 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://www.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com${vercelLive('https://vercel.live')}`,
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://*.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com${vercelLive('https://vercel.live')}`,
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live')}`,
       `font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live https://assets.vercel.com')}`,
-      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.ca https://ad.doubleclick.net${vercelLive('https://vercel.live https://vercel.com')}`,
+      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com ${googleTags}${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
       // The HEIC photo decoder (heic-to, app/lib/compress-image.ts) runs in a
       // Web Worker it creates from a blob: URL — only scripts already on the
       // page can create those.
       "worker-src 'self' blob:",
-      `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://region1.google-analytics.com https://vercel.com https://*.blob.vercel-storage.com https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com https://www.google.ca https://ad.doubleclick.net https://pagead2.googlesyndication.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
+      `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://vercel.com https://*.blob.vercel-storage.com ${googleTags} https://pagead2.googlesyndication.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
       `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv https://td.doubleclick.net https://www.googletagmanager.com ${mainSite}${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
       "base-uri 'self'",
