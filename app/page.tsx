@@ -383,6 +383,17 @@ export default async function Page() {
                     <p className="theme-desc">Icy winter blues with gold stars, silver and pine, gold-framed cards and gently falling snow — classic and elegant for holiday celebrations.</p>
                   </div>
                 </a>
+                <a href="/themes/gnomes" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#F0E5DD' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="gnomes" heading="Gnome for the Holidays" eventDate="2026-12-12" city="Stratford" country="ON" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Gnomes</p>
+                    <p className="theme-desc">Watercolour gnomes in hat red, pine and sage with fairy lights and santa hats bobbing in the snow — cozy and cute for holiday parties.</p>
+                  </div>
+                </a>
                 <a href="/themes/merry" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
                   <div className="theme-preview" style={{ overflow: 'hidden', background: '#101A25' }}>
                     <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>

@@ -401,6 +401,28 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['White Christmas', 'Bing Crosby', 'Eleanor'], ['Let It Snow!', 'Dean Martin', 'Henry']]),
     shareHashtag: 'WhiteChristmas2026',
   }),
+  gnomes: demo('gnomes', {
+    heading: 'Gnome for the Holidays',
+    heroEyebrow: "You're invited",
+    description: 'Grab your coziest sweater and join us for an afternoon of cocoa, cookie decorating, carols and a little gnome-made mischief. Kids, grandparents and four-legged friends all welcome — bring your appetite and your holiday cheer!',
+    eventDate: '2026-12-12', eventTime: '15:00', eventEndTime: '20:00',
+    venueName: 'The Gingerbread Barn', streetAddress: '42 Holly Lane', city: 'Stratford', country: 'ON',
+    formattedAddress: '42 Holly Lane, Stratford, ON',
+    userEmail: 'hello@gnomefortheholidays.example',
+    registryDescription: 'No gifts needed! If you’d like, bring a new, unwrapped toy for our community toy drive.',
+    eventProgram: program([
+      ['2026-12-12', 'Cocoa & cookie decorating', '15:00', null, 'The kitchen'],
+      ['2026-12-12', 'Gnome hunt in the garden', '16:00', null, 'Out back'],
+      ['2026-12-12', 'Potluck supper', '17:30', null, 'The long table'],
+      ['2026-12-12', 'Carols by the fire', '19:00', '20:00', 'The living room'],
+    ]),
+    guestSongs: songs([['Rockin’ Around the Christmas Tree', 'Brenda Lee', 'Gran'], ['Feliz Navidad', 'José Feliciano', 'Mateo']]),
+    shareHashtag: 'GnomeForTheHolidays',
+    // Shown in this preview so the Potluck and Secret Santa sections can be
+    // seen; the forms can't be sent from a preview.
+    potluck: { token: 'demo', showEntries: true, entries: [{ name: 'Aunt Rosie', items: 'Gingerbread cookies' }, { name: 'The Parks', items: 'Mac & cheese' }] },
+    giftExchange: { token: 'demo', participantCount: 9, drawn: false, details: { budget: '$25', exchangeDate: 'December 12, by the fire', note: 'Something cozy, silly or sweet!' } },
+  }),
   merry: demo('merry', {
     heading: 'Merry & Bright',
     heroEyebrow: "You're invited",

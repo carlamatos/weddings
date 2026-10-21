@@ -22,6 +22,7 @@ import Nature, { HeroPreview as NaturePreview } from './Nature';
 import ChristmasParty, { HeroPreview as ChristmasPartyPreview } from './ChristmasParty';
 import WhiteChristmas, { HeroPreview as WhiteChristmasPreview } from './WhiteChristmas';
 import Merry, { HeroPreview as MerryPreview, MerryDefaultHero } from './Merry';
+import Gnomes, { HeroPreview as GnomesPreview, GnomesDefaultHero } from './Gnomes';
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
 import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 
@@ -63,6 +64,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', label: 'Christmas Party' },
   'white-christmas':    { Page: WhiteChristmas,    Preview: WhiteChristmasPreview, category: 'community', label: 'White Christmas' },
   'merry':              { Page: Merry,             Preview: MerryPreview, category: 'community', label: 'Merry', FallbackHero: MerryDefaultHero },
+  'gnomes':             { Page: Gnomes,            Preview: GnomesPreview, category: 'community', label: 'Gnomes', FallbackHero: GnomesDefaultHero },
   'dia-de-los-muertos': { Page: DiaDeLosMuertos,   Preview: DiaDeLosMuertosPreview, category: 'community', label: 'Día de los Muertos' },
   'halloween-party':    { Page: HalloweenParty,    Preview: HalloweenPartyPreview, category: 'community', label: 'Halloween Party' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },

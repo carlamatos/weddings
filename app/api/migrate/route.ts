@@ -93,6 +93,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'white-christmas')
   `;
 
+  // Gnomes theme (General Events category, key 'community').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Gnomes',
+           'Watercolour Christmas gnomes in hat red, pine, holly and sage with gift gold and blush. Fairy lights, santa hats bobbing in the snow, a rocking gnome, a postcard with a gnome stamp and polaroid photos. Cozy and cute for holiday parties.',
+           'gnomes'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'gnomes')
+  `;
+
   // Merry theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)
