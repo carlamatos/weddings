@@ -7,11 +7,17 @@ declare global {
   interface Window { gtag?: (...args: unknown[]) => void }
 }
 
-// Reports a Plus purchase to Google Ads (conversion) and GA4 (purchase) when
+// Reports a Plus purchase to Google Ads (conversion), GA4 (purchase) and Tag
+// Manager ('mygala_purchase', a Custom Event trigger for tags like
+// Pinterest's checkout; gtag() calls don't fire those) when
 // Stripe's confirm route lands the buyer here with
 // ?purchase=plus&tid=…&value=…&currency=…, then strips
 // those parameters so a refresh or a shared link doesn't report it again.
 // The Stripe session id is the transaction_id, so Google also de-duplicates.
+// Purchases already pushed to Tag Manager on this page load, so a re-run of
+// the effect (React may run it twice) can't report one twice.
+const pushed = new Set<string>();
+
 export default function PurchaseConversion() {
   const params = useSearchParams();
 
@@ -24,6 +30,14 @@ export default function PurchaseConversion() {
     const url = new URL(window.location.href);
     for (const k of ['purchase', 'tid', 'value', 'currency']) url.searchParams.delete(k);
     window.history.replaceState(window.history.state, '', url);
+
+    // Queued for Tag Manager, which reads it whenever it loads (live site only).
+    // value is the amount paid before tax; order_id the Stripe session.
+    if (!pushed.has(tid)) {
+      pushed.add(tid);
+      const w = window as Window & { dataLayer?: unknown[] };
+      (w.dataLayer ??= []).push({ event: 'mygala_purchase', value: value > 0 ? value : 0, currency, order_id: tid });
+    }
 
     // gtag is set up in the root layout (live site only); wait for it (up to 10s).
     let tries = 0;
