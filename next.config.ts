@@ -24,9 +24,10 @@ const googleTags = [
   'https://google.com', 'https://*.google.com', 'https://www.google.ca',
 ].join(' ');
 
-// The Pinterest tag (added in Tag Manager): its script and pixels come from
-// s.pinimg.com; it reports conversions to ct.pinterest.com.
-const pinterestTag = 'https://s.pinimg.com';
+// The Pinterest tag (added in Tag Manager): its scripts and pixels come from
+// s.pinimg.com and ct.pinterest.com, which also loads a hidden frame and
+// receives the conversions.
+const pinterestTag = 'https://s.pinimg.com https://ct.pinterest.com';
 
 const securityHeaders = [
   // frame-src also lists the livestream players the Live Stream section embeds
@@ -38,14 +39,14 @@ const securityHeaders = [
       `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://*.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com ${pinterestTag}${vercelLive('https://vercel.live')}`,
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live')}`,
       `font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live https://assets.vercel.com')}`,
-      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com ${googleTags} ${pinterestTag} https://ct.pinterest.com${vercelLive('https://vercel.live https://vercel.com')}`,
+      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com ${googleTags} ${pinterestTag}${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
       // The HEIC photo decoder (heic-to, app/lib/compress-image.ts) runs in a
       // Web Worker it creates from a blob: URL — only scripts already on the
       // page can create those.
       "worker-src 'self' blob:",
-      `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://vercel.com https://*.blob.vercel-storage.com ${googleTags} https://pagead2.googlesyndication.com https://ct.pinterest.com${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
-      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv https://td.doubleclick.net https://www.googletagmanager.com ${mainSite}${vercelLive('https://vercel.live')}`,
+      `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://vercel.com https://*.blob.vercel-storage.com ${googleTags} https://pagead2.googlesyndication.com ${pinterestTag}${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
+      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv https://td.doubleclick.net https://www.googletagmanager.com https://ct.pinterest.com ${mainSite}${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com",
