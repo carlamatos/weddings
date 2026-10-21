@@ -14,10 +14,6 @@ export const metadata: Metadata = {
     template: '%s | MyGala',
   },
   description: 'Beautiful event websites made easy.',
-  // Pinterest domain claim: <meta name="p:domain_verify" content="…">.
-  verification: {
-    other: { 'p:domain_verify': '4d3552c75368443fb81329d46054f89b' },
-  },
 };
 
 // Google Tag Manager runs on the live site only (not staging, previews or
