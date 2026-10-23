@@ -1462,3 +1462,15 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 899px) {
   .seat-unseated-list { max-height: 210px; overflow-y: auto; }
 }
+
+/* Section background popup (app/ui/themes/SectionBackgrounds.tsx): the
+   theme's colours as swatches, and the chosen photo. */
+.mg-bg-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.mg-bg-swatch {
+  width: 40px; height: 40px; padding: 0; border-radius: 50%; cursor: pointer;
+  border: 2px solid #fff; box-shadow: 0 0 0 1.5px #D9CFC1;
+}
+.mg-bg-swatch:hover { box-shadow: 0 0 0 2px #B6584A; }
+.mg-bg-swatch.is-selected { box-shadow: 0 0 0 3px #B6584A; }
+.mg-bg-swatch:focus-visible { outline: 3px solid #B6584A; outline-offset: 3px; }
+.mg-bg-photo-preview { display: block; width: 100%; max-height: 220px; margin-top: 12px; object-fit: cover; border-radius: 12px; }

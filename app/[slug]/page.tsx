@@ -12,6 +12,7 @@ import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate'
 import { getTranslations } from '@/app/lib/translations';
 import PagePasswordGate from '@/app/ui/page-password-gate';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
+import { sectionBackgroundsFromSettings } from '@/app/lib/section-background';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
@@ -217,6 +218,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        sectionBackgrounds={sectionBackgroundsFromSettings(pageSettings)}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}

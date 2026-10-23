@@ -212,6 +212,7 @@ export function EditableSectionText({
   className,
   style,
   icon,
+  section,
 }: {
   pageId: number;
   k: SectionTextKey;
@@ -222,6 +223,7 @@ export function EditableSectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
+  section?: string; // a section title names its section (SectionBackgrounds.tsx)
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
@@ -258,7 +260,7 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, Tag === 'h2' ? 'Edit section title' : 'Edit heading')}>
-      <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
+      <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit} data-section-heading={section}>{icon}{current || fallback}</Tag>
       {editing && (
         <TextSheet
           title={isTitle ? 'Edit this section’s title' : 'Edit this section’s heading'}
