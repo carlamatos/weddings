@@ -11,6 +11,7 @@ import {
 } from '@/app/lib/section-background';
 import EditSheet, { SheetField, SheetSection } from './EditSheet';
 import HeroColorField from './HeroColorField';
+import { EARLY_STYLE_ID } from './section-backgrounds-early';
 
 // The page's own section backgrounds (app/lib/section-background.ts), for
 // every theme. Each section is found by its title (data-section-heading, set
@@ -147,8 +148,10 @@ export default function SectionBackgrounds({ values = {}, pageId }: { values?: S
 
   // Find the sections, and again whenever the page's sections change.
   useEffect(() => {
-    // The theme's own top element (a theme may put <style> or <link> tags first).
-    const holder = anchor.current?.previousElementSibling;
+    // The theme's own top element (a theme may put <style> or <link> tags
+    // first). The guests' page has the early <script> in between.
+    let holder = anchor.current?.previousElementSibling;
+    while (holder && !holder.hasAttribute('data-mg-theme')) holder = holder.previousElementSibling;
     const root = [...(holder?.children ?? [])].find((el): el is HTMLElement => el instanceof HTMLElement && !el.matches('style, link, script, meta, noscript'));
     if (!root) return;
     rootRef.current = root;
@@ -195,6 +198,12 @@ export default function SectionBackgrounds({ values = {}, pageId }: { values?: S
 
   // Put each section's background on (the one being edited shows its draft).
   useEffect(() => {
+    // Taking over from the page's early CSS (section-backgrounds-early.ts):
+    // it's switched off first, so the theme's own overlays are seen and
+    // handled here, then emptied; all before the next paint.
+    const early = document.getElementById(EARLY_STYLE_ID) as HTMLStyleElement | null;
+    const takeOver = !!early && !early.hasAttribute('data-done') && surfaces.current.size > 0;
+    if (takeOver && early.sheet) early.sheet.disabled = true;
     for (const [key, surface] of surfaces.current) {
       const bg = editing === key ? draft : saved[key] ?? null;
       if (!bg) { restore(surface); if (pageId && getComputedStyle(surface).position === 'static') surface.style.setProperty('position', 'relative'); continue; }
@@ -234,6 +243,7 @@ export default function SectionBackgrounds({ values = {}, pageId }: { values?: S
         surface.style.setProperty('background', sectionBgCss(bg), 'important');
       }
     }
+    if (takeOver) { early.setAttribute('data-done', ''); early.textContent = ''; }
   }, [targets, saved, editing, draft, pageId, restore, width]);
 
   const open = (key: SectionBgKey) => {
