@@ -54,7 +54,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'the-day':            { Page: TheDay,            Preview: TheDayPreview, category: 'wedding',     label: 'The Day' },
   'love':               { Page: Love,              Preview: LovePreview,   category: 'wedding',     label: 'Love' },
   'nature':             { Page: Nature,            Preview: NaturePreview, category: 'wedding',     label: 'Nature' },
-  'wild-flores':        { Page: WildFlores,        Preview: WildFloresPreview, category: 'wedding', label: 'Wild Flores' },
+  'wild-flores':        { Page: WildFlores,        Preview: WildFloresPreview, category: 'wedding', label: 'Wild Flowers' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },
   'fun-party':          { Page: FunParty,          Preview: FunPartyPreview, category: 'birthdays',  label: 'Fun Party' },
