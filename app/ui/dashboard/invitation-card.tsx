@@ -1,11 +1,12 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ImgHTMLAttributes } from 'react';
 import { INVITATION_FONTS, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
-// when printed at 5in wide.
-export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string }>(
-  function InvitationCard({ design, details, qrSvg }, ref) {
+// when printed at 5in wide. bgImage: extra attributes for the background
+// photo (srcset, lazy loading) where many cards share a page.
+export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement> }>(
+  function InvitationCard({ design, details, qrSvg, bgImage }, ref) {
     const heading = INVITATION_FONTS[design.headingFont].family;
     const body = INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
@@ -15,7 +16,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
       <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
         {useImage && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={bg.imageUrl} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={bg.imageUrl} alt="" {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
         {useImage && bg.overlay && (
           <div style={{ position: 'absolute', inset: 0, background: bg.overlayColor, opacity: bg.overlayOpacity }} />

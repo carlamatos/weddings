@@ -402,7 +402,7 @@ export default async function Page() {
                   </div>
                   <div className="theme-info">
                     <p className="theme-name">Gnomes</p>
-                    <p className="theme-desc">Watercolour gnomes in hat red, pine and sage with fairy lights and santa hats bobbing in the snow — cozy and cute for holiday parties.</p>
+                    <p className="theme-desc">Watercolour gnomes in hat red, pine and sage with fairy lights and santa hats in the snow — cozy and cute for holiday parties.</p>
                   </div>
                 </a>
                 <a href="/themes/merry" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>

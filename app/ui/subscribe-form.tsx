@@ -8,6 +8,7 @@ import { themeRegistry } from './themes/registry';
 import ThemeHeroPreview from './dashboard/ThemeHeroPreview';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
 import { CATEGORY_LABELS, ThemePicker, themeCard } from './theme-picker';
+import { clearStartIntent, readStartIntent } from '../lib/start-intent';
 
 // The chosen theme's own real banner (HeroPreview) with the event's name,
 // scaled down to fit the form.
@@ -47,16 +48,30 @@ function slugify(text: string): string {
 // starts as this, and can be changed in the editor.
 // prepaid: Plus was already bought before this account had a page, so this
 // page gets it without another payment.
+// From a landing page (app/lib/start-intent.ts): the theme the visitor
+// picked there is already chosen (straight to step 2), and when they came to
+// make an invitation the wording says so and the new page opens on its
+// invitation designer instead of the page editor.
 export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?: boolean; accountEmail?: string }) {
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [themeSlug, setThemeSlug] = useState('');
   const [step, setStep] = useState<1 | 2>(1);
   const [picking, setPicking] = useState(false);
-  // Step 1 is the gallery itself: open it on arrival.
+  const [forInvitation, setForInvitation] = useState(false);
+  // Step 1 is the gallery itself: open it on arrival — unless a landing page
+  // already chose the theme (browser storage is only readable after mount).
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- the dialog opens after mount (showModal needs the DOM)
-    setPicking(true);
+    const start = readStartIntent();
+    /* eslint-disable react-hooks/set-state-in-effect -- the dialog opens after mount (showModal needs the DOM); the landing page's choice lives in browser storage */
+    if (start?.intent === 'invitation') setForInvitation(true);
+    if (start?.theme && themeRegistry[start.theme] && themeCard(start.theme)) {
+      setThemeSlug(start.theme);
+      setStep(2);
+    } else {
+      setPicking(true);
+    }
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
   const [themeMissing, setThemeMissing] = useState(false);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
@@ -143,8 +158,12 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
 
       {step === 1 ? (
         <>
-          <h1 className="auth-heading">Choose your theme</h1>
-          <p className="auth-subheading">Pick the design for your event page. You can change it any time.</p>
+          <h1 className="auth-heading">{forInvitation ? 'Choose your invitation design' : 'Choose your theme'}</h1>
+          <p className="auth-subheading">
+            {forInvitation
+              ? 'Pick a design. Your invitation and the page it opens to will match. You can change it any time.'
+              : 'Pick the design for your event page. You can change it any time.'}
+          </p>
           <button
             type="button"
             id="choose-theme"
@@ -162,8 +181,12 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
         </>
       ) : (
         <>
-          <h1 className="auth-heading">Name your event</h1>
-          <p className="auth-subheading">The name, the date and your page&rsquo;s address. You&rsquo;ll add the time, place and the rest on your page.</p>
+          <h1 className="auth-heading">{forInvitation ? 'Design your invitation' : 'Name your event'}</h1>
+          <p className="auth-subheading">
+            {forInvitation
+              ? 'Start with the name and the date. Next you’ll add the time and place, design your invitation and share the link.'
+              : <>The name, the date and your page&rsquo;s address. You&rsquo;ll add the time, place and the rest on your page.</>}
+          </p>
 
           {state.message && (
             <div className="auth-error">
@@ -194,7 +217,7 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
             action={formAction}
             // The theme is required, but it's a hidden field the browser can't check.
             onSubmit={(e) => {
-              if (themeSlug) return;
+              if (themeSlug) { clearStartIntent(); return; }
               e.preventDefault();
               setThemeMissing(true);
               setStep(1);
@@ -206,13 +229,14 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
             <input type="hidden" name="plan" value="free" />
             <input type="hidden" name="location" value="address" />
             <input type="hidden" name="email" value={accountEmail} />
+            {forInvitation && <input type="hidden" name="next" value="invitations" />}
 
             <div className="auth-field">
               <label className="auth-label" htmlFor="eventName">Event Name</label>
               <div className="auth-input-wrap">
                 <input className="auth-input" id="eventName" type="text" name="eventName"
                   value={eventName} onChange={(e) => setEventName(e.target.value)}
-                  placeholder="e.g. Sofia & James Wedding" maxLength={200} autoFocus required />
+                  placeholder={forInvitation ? 'e.g. The Smiths’ Christmas Party' : 'e.g. Sofia & James Wedding'} maxLength={200} autoFocus required />
               </div>
               {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
             </div>
@@ -253,7 +277,7 @@ export default function Form({ prepaid = false, accountEmail = '' }: { prepaid?:
             <div className="setup-nav">
               <button type="button" className="setup-back" onClick={() => setStep(1)}>← Back</button>
               <button className="auth-btn" type="submit" disabled={isPending}>
-                {isPending ? 'Creating your page…' : 'Create my event page'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
+                {isPending ? 'Creating…' : forInvitation ? 'Design my invitation' : 'Create my event page'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
               </button>
             </div>
             <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
