@@ -75,6 +75,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'nature')
   `;
 
+  // Wild Flores theme (Weddings category, key 'wedding').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Wild Flores',
+           'Linen, oatmeal and clover white with sage green, marigold and lilac. A wildflower frame, pressed lilac and baby''s breath, pastel blooms that change shape and a seed-packet details card. Whimsical and joyful for meadow and garden weddings.',
+           'wild-flores'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'wild-flores')
+  `;
+
   // Christmas Party theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)
