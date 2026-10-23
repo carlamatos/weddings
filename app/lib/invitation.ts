@@ -1,4 +1,4 @@
-// Plus: the invitation designer. The host chooses fonts, wording, colours
+// The invitation designer (every plan). The host chooses fonts, wording, colours
 // and the background; the event's name, date, time and place always come
 // from the page (changed only in Edit Page). Stored as JSON in
 // user_page_settings under INVITATION_SETTING. Shared by the dashboard, the

@@ -26,7 +26,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'invitations',
     navLabel: 'Invitations',
-    plan: 'Plus',
+    plan: 'Free',
     seo: {
       title: 'Online Invitations by Email, Text & WhatsApp',
       description:
@@ -86,7 +86,7 @@ export const FEATURES: Feature[] = [
       { title: 'Watch the RSVPs come in', text: 'Replies appear on your RSVP screen as guests answer on your page.' },
     ],
     faqs: [
-      { q: 'Is the guest list free?', a: 'Yes. Building and importing your guest list is free on every plan. Designing and sending invitations is part of MyGala Plus.' },
+      { q: 'Is the guest list free?', a: 'Yes. Building and importing your guest list is free on every plan, and so are designing and sending invitations.' },
       { q: 'Who do the invitation emails come from?', a: 'From “Your name via MyGala”. When a guest replies, the reply goes to your own email address.' },
       { q: 'Does MyGala send text messages for me?', a: 'No — text and WhatsApp invitations open a ready-made message on your own phone, and you press send. They come from your number, so there’s no cost per message and guests recognise you.' },
       { q: 'How many guests can I email at once?', a: 'Up to 1,000 guests per send. Guests without an email address, or who unsubscribed, are skipped.' },

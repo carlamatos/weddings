@@ -20,10 +20,8 @@ export async function POST(request: Request) {
   const pageId = parsePageId(body.pageId);
   if (pageId === null) return NextResponse.json({ error: 'Page not found' }, { status: 404 });
 
-  const page = await sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND user_id = ${session.user.id}`;
+  const page = await sql`SELECT 1 FROM user_page WHERE id = ${pageId} AND user_id = ${session.user.id}`;
   if (!page.rows[0]) return NextResponse.json({ error: 'Page not found' }, { status: 404 });
-  // Invitation notes belong to Invitations (Plus); free pages keep the list only.
-  const isPaid = page.rows[0].plan_type === 'paid';
 
   if (!Array.isArray(body.contacts) || body.contacts.length === 0) {
     return NextResponse.json({ error: 'No guests to add.' }, { status: 400 });
@@ -44,7 +42,7 @@ export async function POST(request: Request) {
     const email = EMAIL_RE.test(emailRaw) ? emailRaw : null;
     const phone = field(raw?.phone, 40) || null;
     const guests = partySize(raw?.guests);
-    const note = isPaid && typeof raw?.note === 'string' ? raw.note.replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX) || null : null;
+    const note = typeof raw?.note === 'string' ? raw.note.replace(/\r\n/g, '\n').trim().slice(0, INVITATION_NOTE_MAX) || null : null;
     const key = `${name.toLowerCase()}|${phone ?? ''}`;
     if (!name || (email ? emails.has(email) : namePhones.has(key))) { skipped++; continue; }
 

@@ -2,7 +2,6 @@ import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
-import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
@@ -26,7 +25,6 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <PlusSetupNote section="/invitations" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Invitations</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>

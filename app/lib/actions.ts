@@ -276,9 +276,11 @@ export type UserPageState = {
       if (checkoutUrl) redirect(checkoutUrl);
     }
 
-    // Straight into the editor for the new page; the event pages list is
-    // the fallback if the id somehow didn't come back.
-    redirect(newPageId ? pagePath(newPageId) : '/dashboard');
+    // Straight into the editor for the new page — or its invitation designer
+    // when the host came to make an invitation (app/lib/start-intent.ts); the
+    // event pages list is the fallback if the id somehow didn't come back.
+    const next = formData.get('next') === 'invitations' ? '/invitations' : '';
+    redirect(newPageId ? pagePath(newPageId, next || undefined) : '/dashboard');
   }
 
 export async function updateLocation(pageId: number, data: {
@@ -905,7 +907,7 @@ export async function removeGuest(pageId: number, guestId: string): Promise<{ ok
   }
 }
 
-// Plus: saves the invitation design. Cleaned by normalizeInvitation, so only
+// Saves the invitation design (every plan). Cleaned by normalizeInvitation, so only
 // known fonts, #RRGGBB colours, bounded text and MyGala-hosted images are kept.
 export async function saveInvitationDesign(pageId: number, design: unknown): Promise<PlusResult<InvitationDesign>> {
   try {
@@ -934,18 +936,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: string; hostEmail: string | null; details: InvitationDetails };
 
-// The signed-in owner's Plus page, its saved invitation design, the host's
-// name/email (for the From name and Reply-To) and the event details (with the
-// page password, when the host includes it).
-// `test`: a test to the host themselves, which a free page may send too.
-async function invitationContext(pageId: number, { test = false }: { test?: boolean } = {}): Promise<PlusResult<InvitationContext>> {
+// The signed-in owner's page (invitations are free on every plan), its saved
+// invitation design, the host's name/email (for the From name and Reply-To)
+// and the event details (with the page password, when the host includes it).
+async function invitationContext(pageId: number): Promise<PlusResult<InvitationContext>> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
   const page = await fetchOwnedPage(userId, pid);
   if (!page) return { ok: false, error: 'Page not found.' };
-  if (!test && page.plan_type !== 'paid') return { ok: false, error: 'Invitations are a Plus feature.' };
   const [settings, user] = await Promise.all([
     fetchPageSettings(pid),
     sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
@@ -1043,7 +1043,7 @@ export async function sendInvitations(
 // their own inbox first. Limited to 5 an hour.
 export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean; message: string }> {
   try {
-    const ctx = await invitationContext(pageId, { test: true });
+    const ctx = await invitationContext(pageId);
     if (!ctx.ok) return { ok: false, message: ctx.error };
     const { page, design, hostName, hostEmail, details } = ctx.value;
     if (!hostEmail) return { ok: false, message: 'Your account has no email address.' };
@@ -1093,7 +1093,7 @@ export async function saveInvitationNote(pageId: number, guestId: string, raw: s
 export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
   try {
     if (!UUID_RE.test(guestId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return { ok: false };
     const res = await sql`
       UPDATE event_guests SET texted_at = NOW(), texted_via = ${via}

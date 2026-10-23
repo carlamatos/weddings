@@ -14,7 +14,6 @@ export type PlusFeature = {
 
 // Keyed by the section's path in the dashboard (see nav-links.tsx).
 export const PLUS_FEATURES: Record<string, PlusFeature> = {
-  '/invitations': { name: 'Invitations', goesLive: 'send your invitation to guests by email, text message or WhatsApp' },
   '/reminders': { name: 'Event Reminders', goesLive: 'your reminder emails go out to guests on the schedule you set' },
   '/seating': { name: 'Find Your Table', setting: 'show_seating', goesLive: 'guests can look up their table from your QR sign or your page' },
   '/song-requests': { name: 'Song Requests', setting: 'show_song_requests', goesLive: 'guests can request songs from your page' },
