@@ -62,8 +62,6 @@ const PAPER = '#F7F1EC';
 
 // ─── decorations ─────────────────────────────────────────
 
-const PETAL = 'M6 0 C 11 4, 11.5 12, 6 17 C 0.5 12, 1 4, 6 0 Z';
-
 // A five-petal bloom with a golden centre.
 function Bloom({ size = 28, color = LILAC, center = DANDELION, className, style }: { size?: number; color?: string; center?: string; className?: string; style?: React.CSSProperties }) {
   return (
@@ -102,29 +100,6 @@ function MeadowRule() {
         </g>
       </svg>
       <span className="wf-rule-line" />
-    </div>
-  );
-}
-
-// Petals carried on a breeze across the banner and the footer. Fixed values
-// so the server and client render alike.
-const PETAL_COLORS = [LILAC, DANDELION, CORNFLOWER, MAUVE, MUSTARD, '#fff'];
-const PETALS = Array.from({ length: 18 }, (_, i) => ({
-  left: `${(i * 13.7 + 2) % 96}%`,
-  top: `${30 + ((i * 23) % 70)}%`,
-  color: PETAL_COLORS[i % PETAL_COLORS.length],
-  size: 9 + (i % 4) * 3,
-  delay: `-${(i * 1.15) % 14}s`,
-  dur: `${11 + (i % 5) * 2}s`,
-}));
-function Breeze({ count = PETALS.length }: { count?: number }) {
-  return (
-    <div className="wf-breeze" aria-hidden="true">
-      {PETALS.slice(0, count).map((p) => (
-        <span key={p.left} className="wf-petal" style={{ left: p.left, top: p.top, animationDelay: p.delay, animationDuration: p.dur }}>
-          <svg width={p.size} height={p.size * 1.4} viewBox="0 0 12 17"><path d={PETAL} fill={p.color} /></svg>
-        </span>
-      ))}
     </div>
   );
 }
@@ -176,10 +151,8 @@ const css = `
   .wf { margin: 0; background: var(--wf-clover); color: var(--wf-ink); font-family: var(--wf-font-sans); font-weight: 400; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   .wf img { max-width: 100%; }
 
-  /* ─ motion: petals on the breeze, swaying stems, morphing blooms ─ */
-  @keyframes wf-breeze { 0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; } 10% { opacity: 0.95; } 50% { transform: translate3d(18vw, -22vh, 0) rotate(260deg); } 85% { opacity: 0.85; } 100% { transform: translate3d(36vw, -46vh, 0) rotate(520deg); opacity: 0; } }
+  /* ─ motion: swaying stems, turning poppies, morphing blooms ─ */
   @keyframes wf-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-  @keyframes wf-swing { 0%, 100% { transform: rotate(-2.5deg); } 50% { transform: rotate(2.5deg); } }
   @keyframes wf-spin { to { transform: rotate(360deg); } }
   @keyframes wf-blob { 0%, 100% { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; } 33% { border-radius: 42% 58% 46% 54% / 56% 42% 58% 44%; } 66% { border-radius: 52% 48% 38% 62% / 42% 54% 46% 58%; } }
   @keyframes wf-push { from { transform: scale(1.08); } to { transform: scale(1); } }
@@ -187,12 +160,8 @@ const css = `
   @keyframes wf-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes wf-bloom { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0deg); } }
   @media (prefers-reduced-motion: reduce) {
-    .wf .wf-petal, .wf .wf-sway, .wf .wf-hang, .wf .wf-spin, .wf .countdown-block, .wf .wf-gallery button, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg, .wf .wf-hero-bloom { animation: none !important; }
-    .wf .wf-petal { display: none; }
+    .wf .wf-sway, .wf .wf-spin, .wf .countdown-block, .wf .wf-gallery button, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg, .wf .wf-hero-bloom { animation: none !important; }
   }
-  .wf .wf-breeze { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 1; }
-  .wf .wf-petal { position: absolute; animation: wf-breeze 13s linear infinite; will-change: transform; }
-  .wf .wf-petal svg { display: block; filter: drop-shadow(0 2px 2px rgba(62,58,44,0.15)); }
   .wf .wf-sway { animation: wf-sway 4.6s ease-in-out infinite; }
   .wf .wf-spin { animation: wf-spin 40s linear infinite; }
   .wf .wf-rule { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin: 0 auto 22px; }
@@ -251,10 +220,10 @@ const css = `
     .wf .hero-date { letter-spacing: 2.5px; font-size: 12px; }
   }
 
-  /* story: lilac hanging from the top, baby's breath in the corner */
+  /* story: lilac hanging from the top, baby's breath in the corner (still) */
   .wf .story { padding: 130px 26px; }
-  .wf .wf-hang { position: absolute; top: -20px; left: 2%; width: clamp(150px, 17vw, 250px); transform-origin: 20% 0; animation: wf-swing 7s ease-in-out infinite; pointer-events: none; }
-  .wf .wf-breath { position: absolute; right: -40px; bottom: -60px; width: clamp(220px, 28vw, 420px); transform-origin: 80% 100%; animation: wf-swing 9s ease-in-out infinite reverse; pointer-events: none; opacity: 0.9; }
+  .wf .wf-hang { position: absolute; top: -20px; left: 2%; width: clamp(150px, 17vw, 250px); pointer-events: none; }
+  .wf .wf-breath { position: absolute; right: -40px; bottom: -60px; width: clamp(220px, 28vw, 420px); pointer-events: none; opacity: 0.9; }
   .wf .story .wrap { position: relative; z-index: 1; }
   .wf .story-text { font-size: 18px; line-height: 1.95; color: rgba(62,58,44,0.86); margin: 0 auto; max-width: 600px; }
   @media (max-width: 760px) {
@@ -392,17 +361,16 @@ const css = `
   .wf .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
   .wf .share-hashtag { font-family: var(--wf-font-display); font-size: clamp(26px, 6vw, 66px); color: var(--wf-dandelion); margin: 0 0 30px; font-weight: 400; line-height: 1.05; overflow-wrap: anywhere; }
 
-  /* footer: leaf green, baby's breath at both sides, petals on the breeze */
+  /* footer: leaf green, baby's breath at both sides */
   .wf .footer { position: relative; padding: 120px 24px 80px; background: var(--wf-leaf); text-align: center; overflow: hidden; }
-  .wf .footer > *:not(.wf-breeze):not(.wf-foot-sprig) { position: relative; z-index: 2; }
+  .wf .footer > *:not(.wf-foot-sprig) { position: relative; z-index: 2; }
   .wf .footer p { font-size: 15px; color: rgba(238,227,221,0.88); margin: 0 0 4px; }
   .wf .footer p.eyebrow { font-size: 36px; color: var(--wf-dandelion); }
   .wf .footer-signoff { font-family: var(--wf-font-script); font-size: clamp(52px, 7vw, 76px) !important; color: var(--wf-lilac) !important; margin: 26px 0 0 !important; line-height: 1.05; }
   .wf .footer-credit { font-size: 11px !important; letter-spacing: 1px; color: rgba(238,227,221,0.5) !important; margin-top: 30px !important; }
-  .wf .wf-foot-sprig { position: absolute; bottom: -40px; width: clamp(200px, 26vw, 380px); z-index: 1; pointer-events: none; opacity: 0.85; animation: wf-swing 8s ease-in-out infinite; }
-  .wf .wf-foot-sprig.left { left: -60px; transform-origin: 20% 100%; transform: scaleX(-1); animation-name: wf-swing-flip; }
-  .wf .wf-foot-sprig.right { right: -60px; transform-origin: 80% 100%; animation-delay: -3s; }
-  @keyframes wf-swing-flip { 0%, 100% { transform: scaleX(-1) rotate(-2.5deg); } 50% { transform: scaleX(-1) rotate(2.5deg); } }
+  .wf .wf-foot-sprig { position: absolute; bottom: -40px; width: clamp(200px, 26vw, 380px); z-index: 1; pointer-events: none; opacity: 0.85; }
+  .wf .wf-foot-sprig.left { left: -60px; transform: scaleX(-1); }
+  .wf .wf-foot-sprig.right { right: -60px; }
   @media (max-width: 640px) { .wf .wf-foot-sprig { width: 170px; opacity: 0.5; } }
 `;
 
@@ -523,7 +491,7 @@ export default function WildFlores({
       <style>{css}</style>
       {demo && <PreviewTopBar isLoggedIn={isLoggedIn} backToThemes />}
 
-      {/* HERO — the names in the clearing of a wildflower frame, petals on the breeze */}
+      {/* HERO — the names in the clearing of a wildflower frame */}
       <div className="hero">
         {editSlots?.heroBg ?? (
           isVideoUrl(heroSrc) ? (
@@ -535,7 +503,6 @@ export default function WildFlores({
         )}
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
-        <Breeze />
         <div className="hero-content">
           <span className="wf-hero-bloom"><Bloom size={40} color={LILAC} center={DANDELION} /></span>
           {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
@@ -549,7 +516,7 @@ export default function WildFlores({
         </div>
       </div>
 
-      {/* STORY — lilac swinging from the top, baby's breath in the corner */}
+      {/* STORY — lilac from the top, baby's breath in the corner */}
       {(description || editSlots?.description) && (
         <div id="story" className="section story section-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -819,9 +786,8 @@ export default function WildFlores({
         <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" sectionText={sectionTextCtx} />
       )}
 
-      {/* FOOTER — leaf green, baby's breath swaying, petals on the breeze */}
+      {/* FOOTER — leaf green, baby's breath at both sides */}
       <footer className="footer">
-        <Breeze count={10} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="wf-foot-sprig left" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
