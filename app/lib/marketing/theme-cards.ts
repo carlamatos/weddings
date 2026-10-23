@@ -23,7 +23,7 @@ export const THEME_CARDS: ThemeCard[] = [
     desc: 'Walnut, oak and leaf green with candlelight, coral and daisy-gold accents. Falling leaves and fireflies — built for forest, barn and outdoor weddings.',
     sample: { heading: 'Olivia & Ethan', eventDate: '2027-09-25', city: 'Muskoka', country: 'ON' } },
   { slug: 'wild-flores', name: 'Wild Flores', category: 'wedding', bg: '#E4D5CC',
-    desc: 'Linen, sage and leaf green with dandelion, lilac and cornflower. A wildflower frame, petals on the breeze, swaying sprigs and shifting blooms — whimsical and joyful for meadow and garden weddings.',
+    desc: 'Linen and sage green with dandelion, marigold and lilac. A wildflower frame, pressed lilac and baby’s breath, and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.',
     sample: { heading: 'Rosa & Mateo', eventDate: '2027-06-12', city: 'Prince Edward County', country: 'ON' } },
   { slug: 'terracotta-harvest', name: 'Terracotta Harvest', category: 'wedding', bg: '#F7F1E6',
     desc: 'Warm rust, ochre, and linen. Golden-hour, earthy, and intimate — built for outdoor and orchard weddings.',

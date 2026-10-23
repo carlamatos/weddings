@@ -41,21 +41,21 @@ const DEFAULT_GALLERY_IMAGES: GalleryImage[] = GALLERY_PATHS.map((image_path, i)
   created_at: '',
 }));
 
-// A meadow on linen: linen, oatmeal, sand and clover white; sage stems and
-// leaf green; dandelion, soft mustard and marigold; lilac, mauve and a
-// bright cornflower blue.
+// A meadow on linen: linen, oatmeal, sand and clover white; sage green;
+// dandelion, marigold and lilac.
 const LINEN = '#E4D5CC';
 const OATMEAL = '#D4C2B4';
 const SAND = '#BCA992';
 const CLOVER = '#EEE3DD';
 const SAGE = '#82974C';
-const LEAF = '#4F641D';
 const DANDELION = '#E9B407';
-const MUSTARD = '#D7B341';
 const MARIGOLD = '#BE7922';
 const LILAC = '#CE9BC8';
-const MAUVE = '#A06691';
-const CORNFLOWER = '#484ABF';
+// Pastel tints of the flower colours, for the countdown blooms.
+const PASTEL_LILAC = '#EBD7E8';
+const PASTEL_BUTTER = '#F6E9B8';
+const PASTEL_SAGE = '#DCE4C6';
+const PASTEL_PEACH = '#F2DCC8';
 // Warm dark brown for body text, and a paper white for cards.
 const INK = '#3E3A2C';
 const PAPER = '#F7F1EC';
@@ -87,15 +87,15 @@ function MeadowRule() {
           <circle cx="18" cy="11" r="2.4" fill={MARIGOLD} />
         </g>
         <g className="wf-sway" style={{ transformOrigin: '38px 40px', animationDelay: '-1.4s' }}>
-          <path d="M38 40 C 38 30, 37 20, 39 8" stroke={LEAF} strokeWidth="1.4" strokeLinecap="round" />
+          <path d="M38 40 C 38 30, 37 20, 39 8" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
           {[8, 12, 16, 20].map((y, i) => (
-            <g key={y}><circle cx={36 - (i % 2)} cy={y} r="2.4" fill={i % 2 ? MAUVE : LILAC} /><circle cx={41 + (i % 2)} cy={y + 1.5} r="2.2" fill={i % 2 ? LILAC : MAUVE} /></g>
+            <g key={y}><circle cx={36 - (i % 2)} cy={y} r="2.4" fill={i % 2 ? SAND : LILAC} /><circle cx={41 + (i % 2)} cy={y + 1.5} r="2.2" fill={i % 2 ? LILAC : SAND} /></g>
           ))}
         </g>
         <g className="wf-sway" style={{ transformOrigin: '56px 40px', animationDelay: '-2.6s' }}>
           <path d="M56 40 C 57 31, 54 22, 58 14" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
           <path d="M57 32 C 62 30, 65 26, 65 22 C 61 23, 58 27, 57 32 Z" fill={SAGE} />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((r) => <path key={r} d="M58 6 L 56.6 11 L 59.4 11 Z" fill={CORNFLOWER} transform={`rotate(${r} 58 12)`} />)}
+          {[0, 45, 90, 135, 180, 225, 270, 315].map((r) => <path key={r} d="M58 6 L 56.6 11 L 59.4 11 Z" fill={MARIGOLD} transform={`rotate(${r} 58 12)`} />)}
           <circle cx="58" cy="12" r="1.8" fill={INK} />
         </g>
       </svg>
@@ -119,8 +119,8 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       {/* The card is shown outside the theme (dashboard, homepage), so it loads its own faces */}
       <PreviewFont href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Sacramento&display=swap" />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 24px' }}>
-        <p style={{ fontFamily: "'Sacramento', cursive", fontSize: 22, color: MAUVE, margin: '0 0 2px' }}>Together with their families</p>
-        <h2 style={{ fontFamily: "'Young Serif', Georgia, serif", fontWeight: 400, fontSize: 'clamp(26px, 4.4vw, 36px)', color: LEAF, margin: '0 0 6px', lineHeight: 1.05 }}>{heading || 'Wild Flores'}</h2>
+        <p style={{ fontFamily: "'Sacramento', cursive", fontSize: 22, color: MARIGOLD, margin: '0 0 2px' }}>Together with their families</p>
+        <h2 style={{ fontFamily: "'Young Serif', Georgia, serif", fontWeight: 400, fontSize: 'clamp(26px, 4.4vw, 36px)', color: SAGE, margin: '0 0 6px', lineHeight: 1.05 }}>{heading || 'Wild Flores'}</h2>
         {date && <p style={{ fontFamily: 'system-ui, sans-serif', fontSize: 9, letterSpacing: 2.5, textTransform: 'uppercase', color: MARIGOLD, fontWeight: 700, margin: 0 }}>{date}</p>}
       </div>
     </div>
@@ -134,13 +134,9 @@ const css = `
     --wf-sand: ${SAND};
     --wf-clover: ${CLOVER};
     --wf-sage: ${SAGE};
-    --wf-leaf: ${LEAF};
     --wf-dandelion: ${DANDELION};
-    --wf-mustard: ${MUSTARD};
     --wf-marigold: ${MARIGOLD};
     --wf-lilac: ${LILAC};
-    --wf-mauve: ${MAUVE};
-    --wf-cornflower: ${CORNFLOWER};
     --wf-ink: ${INK};
     --wf-paper: ${PAPER};
     --wf-font-display: 'Young Serif', Georgia, serif;
@@ -150,26 +146,26 @@ const css = `
   .wf * { box-sizing: border-box; }
   .wf { margin: 0; background: var(--wf-clover); color: var(--wf-ink); font-family: var(--wf-font-sans); font-weight: 400; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
   .wf img { max-width: 100%; }
+  .wf .wf-hang, .wf .wf-breath, .wf .wf-card-poppy, .wf .wf-foot-sprig, .wf .packet-art img { height: auto; }
 
   /* ─ motion: swaying stems, turning poppies, morphing blooms ─ */
   @keyframes wf-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
   @keyframes wf-spin { to { transform: rotate(360deg); } }
   @keyframes wf-blob { 0%, 100% { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; } 33% { border-radius: 42% 58% 46% 54% / 56% 42% 58% 44%; } 66% { border-radius: 52% 48% 38% 62% / 42% 54% 46% 58%; } }
   @keyframes wf-push { from { transform: scale(1.08); } to { transform: scale(1); } }
-  @keyframes wf-drift { 0%, 100% { transform: scale(1.05) translate(0, 0); } 50% { transform: scale(1.1) translate(-1%, -1%); } }
   @keyframes wf-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes wf-bloom { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0deg); } }
   @media (prefers-reduced-motion: reduce) {
-    .wf .wf-sway, .wf .wf-spin, .wf .countdown-block, .wf .wf-gallery button, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg, .wf .wf-hero-bloom { animation: none !important; }
+    .wf .wf-sway, .wf .wf-spin, .wf .countdown-block, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg, .wf .wf-hero-bloom { animation: none !important; }
   }
   .wf .wf-sway { animation: wf-sway 4.6s ease-in-out infinite; }
   .wf .wf-spin { animation: wf-spin 40s linear infinite; }
   .wf .wf-rule { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin: 0 auto 22px; }
   .wf .wf-rule-line { width: 60px; height: 1px; margin-bottom: 6px; background: linear-gradient(to right, rgba(130,151,76,0), var(--wf-sage), rgba(130,151,76,0)); }
 
-  .wf .eyebrow { font-family: var(--wf-font-script); font-size: 36px; font-weight: 400; color: var(--wf-mauve); margin: 0 0 4px; line-height: 1.1; }
+  .wf .eyebrow { font-family: var(--wf-font-script); font-size: 36px; font-weight: 400; color: var(--wf-marigold); margin: 0 0 4px; line-height: 1.1; }
   .wf .eyebrow.on-dark { color: var(--wf-dandelion); }
-  .wf .section-title { font-family: var(--wf-font-display); font-size: clamp(34px, 4.6vw, 54px); font-weight: 400; color: var(--wf-leaf); margin: 0 0 18px; line-height: 1.1; }
+  .wf .section-title { font-family: var(--wf-font-display); font-size: clamp(34px, 4.6vw, 54px); font-weight: 400; color: var(--wf-sage); margin: 0 0 18px; line-height: 1.1; }
   .wf .section-title.on-dark { color: var(--wf-clover); }
 
   .wf .wrap { max-width: 720px; margin: 0 auto; padding: 0 26px; }
@@ -180,25 +176,25 @@ const css = `
   .wf .section-center { text-align: center; }
   @media (max-width: 640px) { .wf .section { padding: 80px 20px; } }
 
-  .wf .btn { font-family: var(--wf-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; padding: 16px 32px; border-radius: 999px; border: 1.5px solid var(--wf-cornflower); background: var(--wf-cornflower); color: var(--wf-paper); cursor: pointer; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
+  .wf .btn { font-family: var(--wf-font-sans); font-size: 13px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; padding: 16px 32px; border-radius: 999px; border: 1.5px solid var(--wf-sage); background: var(--wf-sage); color: var(--wf-paper); cursor: pointer; transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease; text-decoration: none; display: inline-block; line-height: 1; height: auto; }
   @supports (text-box: trim-both cap alphabetic) { .wf .btn { text-box: trim-both cap alphabetic; padding-top: calc(16px + (1em - 1cap) / 2); padding-bottom: calc(16px + (1em - 1cap) / 2); } }
-  .wf .btn:hover { background: var(--wf-mauve); border-color: var(--wf-mauve); transform: translateY(-2px) rotate(-1deg); box-shadow: 0 10px 22px -12px rgba(160,102,145,0.8); }
-  .wf .btn-outline { background: rgba(247,241,236,0.7); color: var(--wf-leaf); border-color: var(--wf-leaf); }
-  .wf .btn-outline:hover { background: var(--wf-leaf); border-color: var(--wf-leaf); color: var(--wf-paper); }
+  .wf .btn:hover { background: var(--wf-marigold); border-color: var(--wf-marigold); transform: translateY(-2px) rotate(-1deg); box-shadow: 0 10px 22px -12px rgba(190,121,34,0.7); }
+  .wf .btn-outline { background: rgba(247,241,236,0.7); color: var(--wf-sage); border-color: var(--wf-sage); }
+  .wf .btn-outline:hover { background: var(--wf-sage); border-color: var(--wf-sage); color: var(--wf-paper); }
   .wf .btn-outline.on-dark { background: transparent; color: var(--wf-paper); border-color: rgba(247,241,236,0.75); }
   .wf .btn-outline.on-dark:hover { background: var(--wf-dandelion); border-color: var(--wf-dandelion); color: var(--wf-ink); }
 
   .wf input, .wf textarea, .wf select { font-family: var(--wf-font-sans); font-size: 15px; padding: 13px 18px; border: 1.5px solid ${OATMEAL}; border-radius: 18px; outline: none; background: #fff; color: var(--wf-ink); width: 100%; display: block; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
   .wf input:focus, .wf textarea:focus, .wf select:focus { border-color: var(--wf-sage); box-shadow: 0 0 0 4px rgba(130,151,76,0.18); }
   .wf input::placeholder, .wf textarea::placeholder { color: rgba(62,58,44,0.42); }
-  .wf label.field-label { font-family: var(--wf-font-sans); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-leaf); display: block; margin-bottom: 7px; font-weight: 700; }
+  .wf label.field-label { font-family: var(--wf-font-sans); font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-sage); display: block; margin-bottom: 7px; font-weight: 700; }
   .wf .radio-label, .wf .check-label { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--wf-ink); cursor: pointer; }
-  .wf .radio-label input, .wf .check-label input { width: auto; border: none; padding: 0; accent-color: var(--wf-mauve); box-shadow: none; }
+  .wf .radio-label input, .wf .check-label input { width: auto; border: none; padding: 0; accent-color: var(--wf-sage); box-shadow: none; }
   .wf .check-hint { font-size: 12px; color: rgba(62,58,44,0.65); margin: 4px 0 0; }
   .wf .attend-options { display: flex; gap: 22px; margin-top: 8px; flex-wrap: wrap; }
   .wf .rsvp-error { color: #9A3B2C; font-size: 13px; margin: 0; }
   .wf .rsvp-success { text-align: center; padding: 20px 0; }
-  .wf .rsvp-headline { font-family: var(--wf-font-script); font-size: 58px; color: var(--wf-mauve); margin: 0 0 8px; font-weight: 400; line-height: 1.05; }
+  .wf .rsvp-headline { font-family: var(--wf-font-script); font-size: 58px; color: var(--wf-marigold); margin: 0 0 8px; font-weight: 400; line-height: 1.05; }
   .wf .rsvp-sub { font-size: 14px; color: var(--wf-ink); margin: 0; }
   .wf .rsvp-form { display: flex; flex-direction: column; gap: 18px; }
 
@@ -209,8 +205,8 @@ const css = `
   .wf .hero-content { position: relative; z-index: 2; max-width: 680px; }
   .wf .hero-content > * { animation: wf-in 1.2s ease both; }
   .wf .wf-hero-bloom { display: inline-block; margin-bottom: 8px; animation: wf-bloom 1.4s cubic-bezier(0.3, 1.4, 0.5, 1) 0.1s both !important; }
-  .wf .hero-eyebrow { animation-delay: 0.3s !important; font-family: var(--wf-font-script); font-size: clamp(34px, 3.6vw, 46px); color: var(--wf-mauve); margin: 0; line-height: 1.1; }
-  .wf .hero-name { animation-delay: 0.45s !important; font-family: var(--wf-font-display); font-size: clamp(54px, 8vw, 112px); font-weight: 400; color: var(--wf-leaf); margin: 0 0 16px; line-height: 1; letter-spacing: -1px; }
+  .wf .hero-eyebrow { animation-delay: 0.3s !important; font-family: var(--wf-font-script); font-size: clamp(34px, 3.6vw, 46px); color: var(--wf-marigold); margin: 0; line-height: 1.1; }
+  .wf .hero-name { animation-delay: 0.45s !important; font-family: var(--wf-font-display); font-size: clamp(54px, 8vw, 112px); font-weight: 400; color: var(--wf-sage); margin: 0 0 16px; line-height: 1; letter-spacing: -1px; }
   .wf .hero-date { animation-delay: 0.7s !important; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--wf-marigold); font-weight: 700; margin: 0 0 34px; }
   .wf .hero-actions { animation-delay: 0.9s !important; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
   @media (max-width: 640px) {
@@ -220,36 +216,34 @@ const css = `
     .wf .hero-date { letter-spacing: 2.5px; font-size: 12px; }
   }
 
-  /* story: lilac hanging from the top, baby's breath in the corner (still) */
-  .wf .story { padding: 130px 26px; }
+  /* story: a solid linen */
+  .wf .story { padding: 100px 26px 120px; background: var(--wf-linen); }
   .wf .wf-hang { position: absolute; top: -20px; left: 2%; width: clamp(150px, 17vw, 250px); pointer-events: none; }
   .wf .wf-breath { position: absolute; right: -40px; bottom: -60px; width: clamp(220px, 28vw, 420px); pointer-events: none; opacity: 0.9; }
-  .wf .story .wrap { position: relative; z-index: 1; }
   .wf .story-text { font-size: 18px; line-height: 1.95; color: rgba(62,58,44,0.86); margin: 0 auto; max-width: 600px; }
-  @media (max-width: 760px) {
-    .wf .story { padding-top: 220px; }
-    .wf .wf-hang { width: 120px; }
-    .wf .wf-breath { width: 200px; right: -50px; bottom: -70px; opacity: 0.6; }
-  }
+  @media (max-width: 640px) { .wf .story { padding: 70px 20px 90px; } }
 
-  /* countdown: the reception under string lights; numbers in blooms that
-     keep changing shape */
-  .wf .countdown-shell { position: relative; background: var(--wf-leaf); overflow: hidden; }
-  .wf .wf-photo-bg { position: absolute; inset: -4%; background-size: cover; background-position: center; animation: wf-drift 26s ease-in-out infinite; }
-  .wf .countdown-shell::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to bottom, rgba(62,58,44,0.62), rgba(79,100,29,0.7)); }
-  .wf .countdown-wrap .eyebrow.on-dark { color: var(--wf-lilac); text-shadow: 0 1px 10px rgba(62,58,44,0.6); }
-  .wf .countdown-wrap { position: relative; z-index: 2; padding: 130px 24px; text-align: center; }
-  .wf .countdown-heading { font-family: var(--wf-font-display); font-size: clamp(40px, 5.6vw, 68px); color: var(--wf-paper); margin: 0 0 44px; font-weight: 400; line-height: 1.05; }
+  /* countdown: clover white, lilac hanging from the top and baby's breath
+     in the corner; the numbers in pastel blooms that keep changing shape */
+  .wf .countdown-shell { position: relative; background: var(--wf-clover); overflow: hidden; }
+  .wf .wf-photo-bg { position: absolute; inset: 0; background-size: cover; background-position: center; }
+  .wf .countdown-wrap .eyebrow.on-dark { color: var(--wf-marigold); }
+  .wf .countdown-wrap { position: relative; z-index: 2; padding: 140px 24px; text-align: center; }
+  .wf .countdown-heading { font-family: var(--wf-font-display); font-size: clamp(40px, 5.6vw, 68px); color: var(--wf-sage); margin: 0 0 44px; font-weight: 400; line-height: 1.05; }
   .wf .countdown-row { display: flex; justify-content: center; gap: clamp(10px, 2.6vw, 28px); }
-  .wf .countdown-block { display: flex; flex-direction: column; align-items: center; justify-content: center; width: clamp(78px, 14vw, 132px); aspect-ratio: 1; background: var(--wf-lilac); border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; animation: wf-blob 9s ease-in-out infinite; box-shadow: 0 18px 30px -18px rgba(0,0,0,0.6); }
-  .wf .countdown-block:nth-child(2) { background: var(--wf-dandelion); animation-delay: -2.5s; }
-  .wf .countdown-block:nth-child(3) { background: var(--wf-paper); animation-delay: -5s; }
-  .wf .countdown-block:nth-child(4) { background: var(--wf-cornflower); animation-delay: -7s; }
+  .wf .countdown-block { display: flex; flex-direction: column; align-items: center; justify-content: center; width: clamp(78px, 14vw, 132px); aspect-ratio: 1; background: ${PASTEL_LILAC}; border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; animation: wf-blob 9s ease-in-out infinite; box-shadow: 0 18px 30px -20px rgba(62,58,44,0.35); }
+  .wf .countdown-block:nth-child(2) { background: ${PASTEL_BUTTER}; animation-delay: -2.5s; }
+  .wf .countdown-block:nth-child(3) { background: ${PASTEL_SAGE}; animation-delay: -5s; }
+  .wf .countdown-block:nth-child(4) { background: ${PASTEL_PEACH}; animation-delay: -7s; }
   .wf .countdown-value { font-family: var(--wf-font-display); font-size: clamp(28px, 4.8vw, 52px); color: var(--wf-ink); line-height: 1; }
   .wf .countdown-label { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-ink); margin-top: 6px; font-weight: 700; }
-  .wf .countdown-block:nth-child(4) .countdown-value, .wf .countdown-block:nth-child(4) .countdown-label { color: var(--wf-paper); }
+  @media (max-width: 760px) {
+    .wf .countdown-wrap { padding-top: 240px; }
+    .wf .wf-hang { width: 92px; }
+    .wf .wf-breath { width: 200px; right: -50px; bottom: -70px; opacity: 0.6; }
+  }
   @media (max-width: 480px) {
-    .wf .countdown-wrap { padding: 100px 14px; }
+    .wf .countdown-wrap { padding: 240px 14px 100px; }
     .wf .countdown-row { gap: 8px; }
     .wf .countdown-block { width: 76px; }
     .wf .countdown-value { font-size: 26px; }
@@ -266,14 +260,14 @@ const css = `
   .wf .packet::after { bottom: -10px; background-image: linear-gradient(-135deg, ${PAPER} 5px, transparent 0), linear-gradient(135deg, ${PAPER} 5px, transparent 0); background-position: 0 0; }
   .wf .packet-art { position: relative; height: 190px; margin: 0 22px; border-radius: 0 0 140px 140px / 0 0 60px 60px; background: radial-gradient(circle at 30% 30%, rgba(206,155,200,0.45), rgba(206,155,200,0) 55%), radial-gradient(circle at 75% 70%, rgba(233,180,7,0.35), rgba(233,180,7,0) 55%), var(--wf-linen); overflow: hidden; display: flex; align-items: center; justify-content: center; }
   .wf .packet-art img { width: 150px; }
-  .wf .packet-tag { position: absolute; top: 18px; left: 18px; font-family: var(--wf-font-sans); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--wf-leaf); background: rgba(247,241,236,0.85); padding: 6px 10px; border-radius: 999px; }
+  .wf .packet-tag { position: absolute; top: 18px; left: 18px; font-family: var(--wf-font-sans); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--wf-sage); background: rgba(247,241,236,0.85); padding: 6px 10px; border-radius: 999px; }
   .wf .packet-body { padding: 26px 34px 0; }
-  .wf .packet-body .label { font-family: var(--wf-font-script); font-size: 34px; color: var(--wf-mauve); margin: 0 0 2px; line-height: 1.1; }
-  .wf .packet-body .time { font-family: var(--wf-font-display); font-size: 34px; color: var(--wf-leaf); margin: 0 0 8px; line-height: 1.1; }
+  .wf .packet-body .label { font-family: var(--wf-font-script); font-size: 34px; color: var(--wf-marigold); margin: 0 0 2px; line-height: 1.1; }
+  .wf .packet-body .time { font-family: var(--wf-font-display); font-size: 34px; color: var(--wf-sage); margin: 0 0 8px; line-height: 1.1; }
   .wf .packet-body p { font-size: 15px; color: rgba(62,58,44,0.8); margin: 0 0 4px; }
   .wf .packet-body .venue { font-weight: 700; color: var(--wf-ink); margin-top: 12px; }
-  .wf .packet-body .directions { display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-cornflower); text-decoration: none; border-bottom: 2px solid var(--wf-dandelion); padding-bottom: 3px; }
-  .wf .map-blob { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; animation: wf-blob 14s ease-in-out infinite; box-shadow: 0 0 0 10px var(--wf-paper), 0 30px 50px -30px rgba(62,58,44,0.5); }
+  .wf .packet-body .directions { display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-sage); text-decoration: none; border-bottom: 2px solid var(--wf-dandelion); padding-bottom: 3px; }
+  .wf .map-blob { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; box-shadow: 0 0 0 10px var(--wf-paper), 0 30px 50px -30px rgba(62,58,44,0.5); }
   .wf .map-blob iframe { border: 0; display: block; width: 100%; height: 100%; }
   @media (max-width: 760px) { .wf .details-grid { grid-template-columns: 1fr; gap: 50px; } .wf .map-blob { max-width: 360px; margin: 0 auto; width: 100%; } }
 
@@ -287,11 +281,11 @@ const css = `
   .wf .stem-row:nth-child(odd) .stem-card { grid-column: 1; grid-row: 1; text-align: right; border-radius: 24px 24px 6px 24px; }
   .wf .stem-row:nth-child(even) .stem-card { grid-column: 3; grid-row: 1; }
   .wf .stem-row .stem-bloom { grid-row: 1; }
-  .wf .schedule-day-title { font-family: var(--wf-font-script); font-size: 42px; color: var(--wf-mauve); margin: 0 0 6px; }
+  .wf .schedule-day-title { font-family: var(--wf-font-script); font-size: 42px; color: var(--wf-marigold); margin: 0 0 6px; }
   .wf .schedule-day { margin-bottom: 40px; }
   .wf .schedule-day:last-child { margin-bottom: 0; }
   .wf .schedule-time { font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-marigold); margin: 0 0 4px; }
-  .wf .stem-card .name { font-family: var(--wf-font-display); font-size: 21px; color: var(--wf-leaf); margin: 0 0 2px; }
+  .wf .stem-card .name { font-family: var(--wf-font-display); font-size: 21px; color: var(--wf-sage); margin: 0 0 2px; }
   .wf .stem-card .loc { font-size: 14px; color: rgba(62,58,44,0.68); margin: 0; }
   @media (max-width: 640px) {
     .wf .stem-list::before { left: 26px; }
@@ -309,40 +303,40 @@ const css = `
 
   /* rsvp: the wildflower table, the card on the right */
   .wf .rsvp-section { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; min-height: 880px; padding: 110px 6vw; overflow: hidden; background: var(--wf-ink); }
-  .wf .rsvp-section .wf-photo-bg { background-position: 20% center; animation-duration: 32s; }
+  .wf .rsvp-section .wf-photo-bg { background-position: 20% center; }
   .wf .rsvp-section::before { content: ''; position: absolute; inset: 0; z-index: 0; background: linear-gradient(to right, rgba(62,58,44,0) 30%, rgba(62,58,44,0.45) 100%); }
   .wf .rsvp-col { grid-column: 2; position: relative; z-index: 1; }
   @media (max-width: 900px) {
     .wf .rsvp-section { display: block; min-height: 0; padding: 0 18px 80px; background: var(--wf-linen); }
-    .wf .rsvp-section .wf-photo-bg { position: relative; inset: auto; display: block; height: 70vw; margin: 0 -18px -40px; animation: none; -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent); mask-image: linear-gradient(to bottom, #000 60%, transparent); }
+    .wf .rsvp-section .wf-photo-bg { position: relative; inset: auto; display: block; height: 70vw; margin: 0 -18px -40px; -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent); mask-image: linear-gradient(to bottom, #000 60%, transparent); }
     .wf .rsvp-section::before { display: none; }
   }
   .wf #potluck.rsvp-section, .wf #gift-exchange.rsvp-section { display: block; min-height: 0; padding: 130px 18px 100px; }
   .wf #potluck.rsvp-section { background: var(--wf-sage); }
-  .wf #gift-exchange.rsvp-section { background: var(--wf-mauve); }
+  .wf #gift-exchange.rsvp-section { background: var(--wf-lilac); }
   .wf #potluck.rsvp-section::before, .wf #gift-exchange.rsvp-section::before { display: none; }
 
-  /* gallery: photos in petal-soft shapes that shift a little */
+  /* gallery: photos in petal-soft shapes, each a little different */
   .wf .wf-gallery > div { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; gap: 22px !important; }
-  .wf .wf-gallery button[style*="zoom-in"] { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52% !important; animation: wf-blob 12s ease-in-out infinite; }
-  .wf .wf-gallery button[style*="zoom-in"]:nth-child(2n) { animation-delay: -3s; animation-duration: 14s; }
-  .wf .wf-gallery button[style*="zoom-in"]:nth-child(3n) { animation-delay: -6s; animation-duration: 10s; }
-  .wf .wf-gallery button[style*="zoom-in"]:nth-child(4n) { animation-delay: -8s; }
+  .wf .wf-gallery button[style*="zoom-in"] { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52% !important; }
+  .wf .wf-gallery button[style*="zoom-in"]:nth-child(2n) { border-radius: 42% 58% 46% 54% / 56% 42% 58% 44% !important; }
+  .wf .wf-gallery button[style*="zoom-in"]:nth-child(3n) { border-radius: 52% 48% 38% 62% / 42% 54% 46% 58% !important; }
+  .wf .wf-gallery button[style*="zoom-in"]:nth-child(4n) { border-radius: 46% 54% 60% 40% / 52% 46% 54% 48% !important; }
   @media (max-width: 760px) { .wf .wf-gallery > div { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 14px !important; } }
 
   /* registry: the card box on the lawn, the card on the left */
-  .wf .registry-wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; min-height: 620px; padding: 90px 6vw; overflow: hidden; background: var(--wf-leaf); }
-  .wf .registry-wrap .wf-photo-bg { animation-duration: 30s; background-position: 70% center; }
-  .wf .registry-wrap::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(79,100,29,0.55) 0%, rgba(79,100,29,0) 60%); }
+  .wf .registry-wrap { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; min-height: 620px; padding: 90px 6vw; overflow: hidden; background: var(--wf-sage); }
+  .wf .registry-wrap .wf-photo-bg { background-position: 70% center; }
+  .wf .registry-wrap::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(to right, rgba(130,151,76,0.55) 0%, rgba(130,151,76,0) 60%); }
   .wf .registry-card { position: relative; z-index: 2; background: var(--wf-paper); padding: 54px 46px 46px; text-align: center; max-width: 480px; border-radius: 36px 120px 36px 120px / 36px 70px 36px 70px; box-shadow: 0 30px 60px -30px rgba(0,0,0,0.6); }
-  .wf .registry-title { font-family: var(--wf-font-script); font-size: 64px; color: var(--wf-mauve); margin: 0 0 6px; font-weight: 400; line-height: 1; }
+  .wf .registry-title { font-family: var(--wf-font-script); font-size: 64px; color: var(--wf-marigold); margin: 0 0 6px; font-weight: 400; line-height: 1; }
   .wf .registry-description { font-size: 15px; color: rgba(62,58,44,0.8); margin: 0 auto 26px; line-height: 1.8; max-width: 380px; }
-  .wf .registry-button { display: inline-block; padding: 16px 32px; border-radius: 999px; background: var(--wf-leaf); color: var(--wf-paper); text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; transition: background 0.3s ease; }
-  .wf .registry-button:hover { background: var(--wf-mauve); }
+  .wf .registry-button { display: inline-block; padding: 16px 32px; border-radius: 999px; background: var(--wf-sage); color: var(--wf-paper); text-decoration: none; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; transition: background 0.3s ease; }
+  .wf .registry-button:hover { background: var(--wf-marigold); }
   @media (max-width: 760px) {
     .wf .registry-wrap { display: block; min-height: 0; padding: 62vw 18px 70px; }
-    .wf .registry-wrap .wf-photo-bg { bottom: auto; height: 80vw; background-position: 65% center; animation: none; }
-    .wf .registry-wrap::before { background: linear-gradient(to bottom, rgba(79,100,29,0) 30%, ${LEAF} 72vw); }
+    .wf .registry-wrap .wf-photo-bg { bottom: auto; height: 80vw; background-position: 65% center; }
+    .wf .registry-wrap::before { background: linear-gradient(to bottom, rgba(130,151,76,0) 30%, ${SAGE} 72vw); }
     .wf .registry-card { margin: 0 auto; padding: 46px 24px 36px; }
   }
 
@@ -352,17 +346,31 @@ const css = `
   .wf .song-section .song-list { background: var(--wf-paper); border-radius: 26px; padding: 6px 24px; max-width: 560px; margin: 0 auto; }
   .wf .song-section .song-row { border-bottom: 1px solid ${OATMEAL}; padding: 12px 0; }
   .wf .song-section .song-row:last-child { border-bottom: none; }
-  .wf .song-section .song-row .title { color: var(--wf-leaf); font-family: var(--wf-font-display); }
+  .wf .song-section .song-row .title { color: var(--wf-sage); font-family: var(--wf-font-display); }
   .wf .song-section .song-row .artist { color: rgba(62,58,44,0.65); }
 
-  /* share: cornflower blue, dandelion hashtag */
-  .wf .share-band { position: relative; padding: 104px 24px; text-align: center; background: var(--wf-cornflower); overflow: hidden; }
-  .wf .share-band .eyebrow.on-dark { color: var(--wf-lilac); }
+  /* share: dandelion, the hashtag in dark ink */
+  .wf .share-band { position: relative; padding: 104px 24px; text-align: center; background: var(--wf-dandelion); overflow: hidden; }
+  .wf .share-band .eyebrow.on-dark { color: var(--wf-paper); }
+  .wf .share-band .btn-outline.on-dark { color: var(--wf-ink); border-color: var(--wf-ink); }
+  .wf .share-band .btn-outline.on-dark:hover { background: var(--wf-ink); border-color: var(--wf-ink); color: var(--wf-paper); }
   .wf .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
-  .wf .share-hashtag { font-family: var(--wf-font-display); font-size: clamp(26px, 6vw, 66px); color: var(--wf-dandelion); margin: 0 0 30px; font-weight: 400; line-height: 1.05; overflow-wrap: anywhere; }
+  .wf .share-hashtag { font-family: var(--wf-font-display); font-size: clamp(26px, 6vw, 66px); color: var(--wf-ink); margin: 0 0 30px; font-weight: 400; line-height: 1.05; overflow-wrap: anywhere; }
 
-  /* footer: leaf green, baby's breath at both sides */
-  .wf .footer { position: relative; padding: 120px 24px 80px; background: var(--wf-leaf); text-align: center; overflow: hidden; }
+  /* every section after the banner rises over the one above on a soft wave
+     (the section's own top edge is cut into a wave, whatever is behind it) */
+  .wf { --wf-wave: 56px; }
+  .wf .section, .wf .countdown-shell, .wf .rsvp-section, .wf .registry-wrap, .wf .song-section, .wf .share-band, .wf .footer {
+    position: relative; margin-top: calc(var(--wf-wave) * -1);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'%3E%3Cpath d='M0 34 C 200 6, 420 58, 720 30 C 1000 4, 1220 52, 1440 22 V60 H0 Z'/%3E%3C/svg%3E") top / 100% calc(var(--wf-wave) + 1px) no-repeat, linear-gradient(#000 0 0) 0 var(--wf-wave) / 100% calc(100% - var(--wf-wave)) no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'%3E%3Cpath d='M0 34 C 200 6, 420 58, 720 30 C 1000 4, 1220 52, 1440 22 V60 H0 Z'/%3E%3C/svg%3E") top / 100% calc(var(--wf-wave) + 1px) no-repeat, linear-gradient(#000 0 0) 0 var(--wf-wave) / 100% calc(100% - var(--wf-wave)) no-repeat; }
+  .wf .countdown-shell, .wf .rsvp-section, .wf .song-section, .wf .footer {
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'%3E%3Cpath d='M0 20 C 260 54, 520 4, 800 32 C 1060 58, 1260 10, 1440 38 V60 H0 Z'/%3E%3C/svg%3E") top / 100% calc(var(--wf-wave) + 1px) no-repeat, linear-gradient(#000 0 0) 0 var(--wf-wave) / 100% calc(100% - var(--wf-wave)) no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 60' preserveAspectRatio='none'%3E%3Cpath d='M0 20 C 260 54, 520 4, 800 32 C 1060 58, 1260 10, 1440 38 V60 H0 Z'/%3E%3C/svg%3E") top / 100% calc(var(--wf-wave) + 1px) no-repeat, linear-gradient(#000 0 0) 0 var(--wf-wave) / 100% calc(100% - var(--wf-wave)) no-repeat; }
+  @media (max-width: 640px) { .wf { --wf-wave: 34px; } }
+
+  /* footer: sage green, baby's breath at both sides */
+  .wf .footer { position: relative; padding: 120px 24px 80px; background: var(--wf-sage); text-align: center; overflow: hidden; }
   .wf .footer > *:not(.wf-foot-sprig) { position: relative; z-index: 2; }
   .wf .footer p { font-size: 15px; color: rgba(238,227,221,0.88); margin: 0 0 4px; }
   .wf .footer p.eyebrow { font-size: 36px; color: var(--wf-dandelion); }
@@ -385,14 +393,14 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
 const HERO_EYEBROW_DEFAULT = { en: 'Together with their families', fr: 'Avec leurs familles', es: 'Junto a sus familias' };
 // The seed packet's little label, and the bloom colours down the program stem.
 const PACKET_TAG = { en: 'Wild & in love', fr: 'Fous amoureux', es: 'Locos de amor' };
-const STEM_BLOOMS = [[LILAC, DANDELION], [DANDELION, MARIGOLD], [CORNFLOWER, DANDELION], [MAUVE, MUSTARD], [PAPER, DANDELION]] as const;
+const STEM_BLOOMS = [[LILAC, DANDELION], [DANDELION, MARIGOLD], [SAGE, DANDELION], [MARIGOLD, DANDELION], [PAPER, DANDELION]] as const;
 
 // The form card, with a slowly turning poppy tucked into the corner.
 function PoppyCard({ children }: { children: React.ReactNode }) {
   return (
     <Reveal className="wf-card">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="wf-card-poppy wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" />
+      <img className="wf-card-poppy wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" width={300} height={289} />
       {children}
     </Reveal>
   );
@@ -516,13 +524,9 @@ export default function WildFlores({
         </div>
       </div>
 
-      {/* STORY — lilac from the top, baby's breath in the corner */}
+      {/* STORY — solid linen, flowing out of the banner */}
       {(description || editSlots?.description) && (
         <div id="story" className="section story section-center">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="wf-hang" src={`${IMG}/lilac.webp`} alt="" aria-hidden="true" loading="lazy" />
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="wf-breath" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" />
           <Reveal className="wrap">
             <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
             <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
@@ -532,10 +536,13 @@ export default function WildFlores({
         </div>
       )}
 
-      {/* COUNTDOWN — under the string lights, numbers in shifting blooms */}
+      {/* COUNTDOWN — lilac from the top, baby's breath in the corner, pastel blooms */}
       {eventDate && (
         <div className="countdown-shell">
-          <div className="wf-photo-bg" style={{ backgroundImage: `url(${IMG}/countdown.jpeg)` }} aria-hidden="true" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="wf-hang" src={`${IMG}/lilac.webp`} alt="" aria-hidden="true" loading="lazy" width={420} height={991} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="wf-breath" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
           <Countdown
             eventDate={eventDate}
             eventTime={eventTime}
@@ -561,7 +568,7 @@ export default function WildFlores({
                   <div className="packet-art">
                     <span className="packet-tag">{pickByLanguage(PACKET_TAG, language)}</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" />
+                    <img className="wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" width={300} height={289} />
                   </div>
                   <div className="packet-body">
                     <p className="label">{t.ceremony}</p>
@@ -675,7 +682,7 @@ export default function WildFlores({
         </div>
       )}
 
-      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain mauve */}
+      {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain lilac */}
       {isPaid && giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <PoppyCard>
@@ -781,17 +788,17 @@ export default function WildFlores({
         </Reveal>
       )}
 
-      {/* SHARE / HASHTAG — cornflower blue */}
+      {/* SHARE / HASHTAG — dandelion */}
       {showShare !== false && shareUrl && (
         <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" sectionText={sectionTextCtx} />
       )}
 
-      {/* FOOTER — leaf green, baby's breath at both sides */}
+      {/* FOOTER — sage green, baby's breath at both sides */}
       <footer className="footer">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="wf-foot-sprig left" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" />
+        <img className="wf-foot-sprig left" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img className="wf-foot-sprig right" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" />
+        <img className="wf-foot-sprig right" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
         <Bloom size={36} color={DANDELION} center={MARIGOLD} className="wf-spin" style={{ display: 'block', margin: '0 auto 16px' }} />
         <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" fallback={t.questions} />
         <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 10 }} fallback={t.getInTouch} />
