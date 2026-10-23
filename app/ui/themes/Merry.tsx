@@ -696,7 +696,7 @@ export default function Merry({
               <StarRule align="left" />
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             </div>
-            {editSlots?.description ?? <p className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
+            {editSlots?.description ?? <p data-story-text className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
           </Reveal>
         </div>
       )}

@@ -279,7 +279,7 @@ export default function MidnightBotanical({
           <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
           <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="title" fallback={t.howWeGotHere} />
           {editSlots?.description ?? (
-            <p style={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)', margin: 0 }}>
+            <p data-story-text style={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)', margin: 0 }}>
               {description}
             </p>
           )}

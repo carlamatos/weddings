@@ -516,7 +516,7 @@ export default function WildFlores({
             <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
             <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             <MeadowRule />
-            {editSlots?.description ?? <p className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
+            {editSlots?.description ?? <p data-story-text className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
           </Reveal>
         </div>
       )}

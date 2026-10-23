@@ -374,7 +374,7 @@ export default function Summit({
               <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow on-dark" fallback={t.ourStoryLabel} />
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title on-dark" fallback={t.howWeGotHere} />
               {editSlots?.description ?? (
-                <p style={{ fontFamily: 'var(--sm-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'rgba(255,255,255,0.88)', maxWidth: 600, margin: '0 auto' }}>
+                <p data-story-text style={{ fontFamily: 'var(--sm-font-sans)', fontSize: 17, lineHeight: 1.85, color: 'rgba(255,255,255,0.88)', maxWidth: 600, margin: '0 auto' }}>
                   {description}
                 </p>
               )}

@@ -404,7 +404,7 @@ export default function Alegria({
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
               <hr className="al-rule" />
               {editSlots?.description ?? (
-                <p style={{ fontFamily: 'var(--al-font-sans)', fontSize: 17, lineHeight: 1.9, color: 'var(--al-ink-soft)', maxWidth: 560, margin: '0 auto' }}>
+                <p data-story-text style={{ fontFamily: 'var(--al-font-sans)', fontSize: 17, lineHeight: 1.9, color: 'var(--al-ink-soft)', maxWidth: 560, margin: '0 auto' }}>
                   {description}
                 </p>
               )}

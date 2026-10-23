@@ -148,6 +148,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       <EditableDescription
         pageId={pageId}
         value={userPage.description || ''}
+        initialColor={pageSettings.story_text_color ?? ''}
         style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
       />
     ),

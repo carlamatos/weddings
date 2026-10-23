@@ -375,6 +375,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'rsvp_guest_list_only') return value === 'true' || value === 'false';
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
+  if (name === 'story_text_color') return value === '' || isHeroColor(value);
   return false;
 }
 

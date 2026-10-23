@@ -351,7 +351,7 @@ export default function Vilma({
             <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             <hr className="vl-rule" />
             {editSlots?.description ?? (
-              <p style={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)', maxWidth: 580, margin: '0 auto' }}>
+              <p data-story-text style={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)', maxWidth: 580, margin: '0 auto' }}>
                 {description}
               </p>
             )}

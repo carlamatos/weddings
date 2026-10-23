@@ -119,6 +119,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         shareHashtag={shareHashtag}
         sectionText={sectionText}
         sectionBackgrounds={sectionBackgroundsFromSettings(pageSettings)}
+        storyTextColor={pageSettings.story_text_color}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}
