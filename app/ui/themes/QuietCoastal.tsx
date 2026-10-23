@@ -264,7 +264,7 @@ export default function QuietCoastal({
               <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel.toLowerCase()} />
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="title" fallback={t.howWeGotHere.toLowerCase()} />
               {editSlots?.description ?? (
-                <p style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)', margin: 0, maxWidth: 520 }}>
+                <p data-story-text style={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)', margin: 0, maxWidth: 520 }}>
                   {description}
                 </p>
               )}

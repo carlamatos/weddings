@@ -31,6 +31,9 @@ export function SectionText({
 }) {
   const value = ctx?.values?.[k] ?? '';
   const color = ctx?.values?.colors?.[k] ?? '';
+  // Section titles name their section, for the page's own section
+  // backgrounds (SectionBackgrounds.tsx finds each section by its title).
+  const section = k.endsWith('.title') ? k.slice(0, -'.title'.length) : undefined;
   if (ctx?.pageId) {
     return (
       <EditableSectionText
@@ -43,9 +46,10 @@ export function SectionText({
         className={className}
         style={style}
         icon={icon}
+        section={section}
       />
     );
   }
   const Tag = as;
-  return <Tag className={className} style={color ? { ...style, ...heroTextStyle(color) } : style}>{icon}{value || fallback}</Tag>;
+  return <Tag className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} data-section-heading={section}>{icon}{value || fallback}</Tag>;
 }

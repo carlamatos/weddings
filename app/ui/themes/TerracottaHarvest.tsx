@@ -311,7 +311,7 @@ export default function TerracottaHarvest({
           <div id="story" className="section">
             <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="section-label" fallback={t.ourStoryLabel} />
             <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
-            {editSlots?.description ?? <p className="story-text">{description}</p>}
+            {editSlots?.description ?? <p data-story-text className="story-text">{description}</p>}
           </div>
           <BandDivider thin />
         </>

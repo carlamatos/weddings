@@ -428,7 +428,7 @@ export default function Community({
               <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
               {editSlots?.description ?? (
-                <p style={{ fontFamily: 'var(--cm-font-sans)', fontSize: 17, lineHeight: 1.9, color: 'var(--cm-navy-soft)', maxWidth: 560, margin: '0 auto' }}>
+                <p data-story-text style={{ fontFamily: 'var(--cm-font-sans)', fontSize: 17, lineHeight: 1.9, color: 'var(--cm-navy-soft)', maxWidth: 560, margin: '0 auto' }}>
                   {description}
                 </p>
               )}

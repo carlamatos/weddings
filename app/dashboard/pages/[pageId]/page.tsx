@@ -5,6 +5,7 @@ import { isPagePaidAndLive } from '@/app/lib/plans';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
 import { livestreamFromSettings } from '@/app/lib/livestream';
 import { sectionTextFromSettings } from '@/app/lib/section-text';
+import { sectionBackgroundsFromSettings } from '@/app/lib/section-background';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { publicPageUrl } from '@/app/lib/share';
 import {
@@ -147,6 +148,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       <EditableDescription
         pageId={pageId}
         value={userPage.description || ''}
+        initialColor={pageSettings.story_text_color ?? ''}
         style={{ fontSize: 17, lineHeight: 1.9, color: 'inherit', margin: 0 }}
       />
     ),
@@ -213,6 +215,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         showShare={showShare}
         shareHashtag={shareHashtag}
         sectionText={sectionText}
+        sectionBackgrounds={sectionBackgroundsFromSettings(pageSettings)}
         customSections={plusContent.customSections}
         sponsors={plusContent.sponsors}
         livestream={livestreamFromSettings(pageSettings, isPaid)}

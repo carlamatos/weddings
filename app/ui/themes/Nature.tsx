@@ -524,7 +524,7 @@ export default function Nature({
               <SprigRule />
               <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
               {editSlots?.description ?? (
-                <p style={{ ...textStyle, maxWidth: 580, margin: '0 auto' }}>
+                <p data-story-text style={{ ...textStyle, maxWidth: 580, margin: '0 auto' }}>
                   {description}
                 </p>
               )}

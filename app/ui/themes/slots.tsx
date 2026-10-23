@@ -212,6 +212,7 @@ export function EditableSectionText({
   className,
   style,
   icon,
+  section,
 }: {
   pageId: number;
   k: SectionTextKey;
@@ -222,6 +223,7 @@ export function EditableSectionText({
   className?: string;
   style?: React.CSSProperties;
   icon?: React.ReactNode;
+  section?: string; // a section title names its section (SectionBackgrounds.tsx)
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
@@ -258,7 +260,7 @@ export function EditableSectionText({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, Tag === 'h2' ? 'Edit section title' : 'Edit heading')}>
-      <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{icon}{current || fallback}</Tag>
+      <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit} data-section-heading={section}>{icon}{current || fallback}</Tag>
       {editing && (
         <TextSheet
           title={isTitle ? 'Edit this section’s title' : 'Edit this section’s heading'}
@@ -576,21 +578,29 @@ export function EditableHeroDate({
 export function EditableDescription({
   pageId,
   value,
+  initialColor = '',
   className,
   style,
 }: {
   pageId: number;
   value: string;
+  initialColor?: string; // owner's colour for the story text; '' = the theme's
   className?: string;
   style?: React.CSSProperties;
 }) {
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
+  const [color, setColor] = useState(initialColor);
+  const [draftColor, setDraftColor] = useState(initialColor);
+  const [elRef, readLook] = useThemeLook<HTMLParagraphElement>();
+  const [look, setLook] = useState<ThemeLook>();
   const [, startTransition] = useTransition();
 
   const startEdit = () => {
+    setLook(readLook());
     setDraft(current);
+    setDraftColor(color);
     setEditing(true);
   };
   useOpenEditor('description', startEdit);
@@ -599,12 +609,16 @@ export function EditableDescription({
     const v = draft.trim() || current;
     setCurrent(v);
     setEditing(false);
+    if (draftColor !== color) {
+      setColor(draftColor);
+      startTransition(() => updatePageSetting(pageId, 'story_text_color', draftColor));
+    }
     startTransition(() => updateDescription(pageId, v));
   };
 
   return (
     <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit story')}>
-      <p className={className} style={style} onClick={startEdit}>{current}</p>
+      <p ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{current}</p>
       {editing && (
         <TextSheet
           title="Edit your story"
@@ -616,6 +630,9 @@ export function EditableDescription({
           multiline
           rows={12}
           selectAll={false}
+          look={look}
+          color={draftColor}
+          setColor={setDraftColor}
           onSave={save}
           onClose={() => setEditing(false)}
         />

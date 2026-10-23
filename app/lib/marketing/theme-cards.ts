@@ -22,7 +22,7 @@ export const THEME_CARDS: ThemeCard[] = [
   { slug: 'nature', name: 'Nature', category: 'wedding', bg: '#2A231E',
     desc: 'Walnut, oak and leaf green with candlelight, coral and daisy-gold accents. Falling leaves and fireflies — built for forest, barn and outdoor weddings.',
     sample: { heading: 'Olivia & Ethan', eventDate: '2027-09-25', city: 'Muskoka', country: 'ON' } },
-  { slug: 'wild-flores', name: 'Wild Flores', category: 'wedding', bg: '#E4D5CC',
+  { slug: 'wild-flores', name: 'Wild Flowers', category: 'wedding', bg: '#E4D5CC',
     desc: 'Linen and sage green with marigold and lilac. A wildflower frame, pressed lilac and baby’s breath, and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.',
     sample: { heading: 'Rosa & Mateo', eventDate: '2027-06-12', city: 'Prince Edward County', country: 'ON' } },
   { slug: 'terracotta-harvest', name: 'Terracotta Harvest', category: 'wedding', bg: '#F7F1E6',

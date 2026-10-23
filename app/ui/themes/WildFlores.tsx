@@ -61,43 +61,33 @@ const PAPER = '#F7F1EC';
 
 // ─── decorations ─────────────────────────────────────────
 
-// A five-petal bloom with a golden centre.
-function Bloom({ size = 28, color = LILAC, center = MARIGOLD, className, style }: { size?: number; color?: string; center?: string; className?: string; style?: React.CSSProperties }) {
+// Real flowers, photographed and cut out of their background: four cosmos
+// (seen from above) for the single blooms, and a cornflower, an allium and a
+// calendula for the section rule. Still, not animated.
+const COSMOS = [1, 2, 3, 4].map((n) => `${IMG}/cosmos-${n}.webp`);
+
+// A cosmos flower, `size` pixels tall; `variant` picks one of the four.
+function Bloom({ size = 28, variant = 0, className, style }: { size?: number; variant?: number; className?: string; style?: React.CSSProperties }) {
   return (
-    <svg className={className} style={style} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      {[0, 72, 144, 216, 288].map((r) => (
-        <path key={r} d="M20 20 C 13 14, 14 3, 20 2 C 26 3, 27 14, 20 20 Z" fill={color} transform={`rotate(${r} 20 20)`} />
-      ))}
-      <circle cx="20" cy="20" r="5" fill={center} />
-    </svg>
+    // eslint-disable-next-line @next/next/no-img-element
+    <img className={className} src={COSMOS[variant % COSMOS.length]} alt="" aria-hidden="true" loading="lazy" decoding="async"
+      style={{ height: size, width: 'auto', ...style }} />
   );
 }
 
-// Three little wildflowers on swaying stems — the section rule.
+// Three little wildflowers between two lines — the section rule.
 function MeadowRule() {
   return (
     <div className="wf-rule" aria-hidden="true">
       <span className="wf-rule-line" />
-      <svg width="76" height="40" viewBox="0 0 76 40" fill="none">
-        <g className="wf-sway" style={{ transformOrigin: '20px 40px' }}>
-          <path d="M20 40 C 19 30, 22 22, 18 12" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M20 30 C 15 28, 12 24, 12 20 C 16 21, 19 25, 20 30 Z" fill={SAGE} />
-          {[0, 60, 120, 180, 240, 300].map((r) => <ellipse key={r} cx="18" cy="7" rx="2" ry="5" fill={MARIGOLD} transform={`rotate(${r} 18 11)`} />)}
-          <circle cx="18" cy="11" r="2.4" fill={MARIGOLD} />
-        </g>
-        <g className="wf-sway" style={{ transformOrigin: '38px 40px', animationDelay: '-1.4s' }}>
-          <path d="M38 40 C 38 30, 37 20, 39 8" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
-          {[8, 12, 16, 20].map((y, i) => (
-            <g key={y}><circle cx={36 - (i % 2)} cy={y} r="2.4" fill={i % 2 ? SAND : LILAC} /><circle cx={41 + (i % 2)} cy={y + 1.5} r="2.2" fill={i % 2 ? LILAC : SAND} /></g>
-          ))}
-        </g>
-        <g className="wf-sway" style={{ transformOrigin: '56px 40px', animationDelay: '-2.6s' }}>
-          <path d="M56 40 C 57 31, 54 22, 58 14" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
-          <path d="M57 32 C 62 30, 65 26, 65 22 C 61 23, 58 27, 57 32 Z" fill={SAGE} />
-          {[0, 45, 90, 135, 180, 225, 270, 315].map((r) => <path key={r} d="M58 6 L 56.6 11 L 59.4 11 Z" fill={MARIGOLD} transform={`rotate(${r} 58 12)`} />)}
-          <circle cx="58" cy="12" r="1.8" fill={INK} />
-        </g>
-      </svg>
+      <span className="wf-rule-flowers">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${IMG}/cornflower.webp`} alt="" loading="lazy" decoding="async" style={{ height: 40 }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${IMG}/allium.webp`} alt="" loading="lazy" decoding="async" style={{ height: 52 }} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={`${IMG}/calendula.webp`} alt="" loading="lazy" decoding="async" style={{ height: 34 }} />
+      </span>
       <span className="wf-rule-line" />
     </div>
   );
@@ -119,7 +109,7 @@ export function HeroPreview({ heading, eventDate, city, country, bannerImage }: 
       <PreviewFont href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Sacramento&display=swap" />
       <div style={{ position: 'relative', zIndex: 1, padding: '0 24px' }}>
         <p style={{ fontFamily: "'Sacramento', cursive", fontSize: 22, color: MARIGOLD, margin: '0 0 2px' }}>Together with their families</p>
-        <h2 style={{ fontFamily: "'Young Serif', Georgia, serif", fontWeight: 400, fontSize: 'clamp(26px, 4.4vw, 36px)', color: SAGE, margin: '0 0 6px', lineHeight: 1.05 }}>{heading || 'Wild Flores'}</h2>
+        <h2 style={{ fontFamily: "'Young Serif', Georgia, serif", fontWeight: 400, fontSize: 'clamp(26px, 4.4vw, 36px)', color: SAGE, margin: '0 0 6px', lineHeight: 1.05 }}>{heading || 'Wild Flowers'}</h2>
         {date && <p style={{ fontFamily: 'system-ui, sans-serif', fontSize: 9, letterSpacing: 2.5, textTransform: 'uppercase', color: MARIGOLD, fontWeight: 700, margin: 0 }}>{date}</p>}
       </div>
     </div>
@@ -148,17 +138,14 @@ const css = `
   .wf .wf-hang, .wf .wf-breath, .wf .wf-card-poppy, .wf .wf-foot-sprig, .wf .packet-art img { height: auto; }
 
   /* ─ motion: swaying stems, turning poppies, morphing blooms ─ */
-  @keyframes wf-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
-  @keyframes wf-spin { to { transform: rotate(360deg); } }
   @keyframes wf-blob { 0%, 100% { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; } 33% { border-radius: 42% 58% 46% 54% / 56% 42% 58% 44%; } 66% { border-radius: 52% 48% 38% 62% / 42% 54% 46% 58%; } }
   @keyframes wf-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes wf-bloom { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0deg); } }
   @media (prefers-reduced-motion: reduce) {
-    .wf .wf-sway, .wf .wf-spin, .wf .countdown-block, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg, .wf .wf-hero-bloom { animation: none !important; }
+    .wf .countdown-block, .wf .hero-bg, .wf .hero-content > *, .wf .wf-photo-bg { animation: none !important; }
   }
-  .wf .wf-sway { animation: wf-sway 4.6s ease-in-out infinite; }
-  .wf .wf-spin { animation: wf-spin 40s linear infinite; }
   .wf .wf-rule { display: flex; align-items: flex-end; justify-content: center; gap: 12px; margin: 0 auto 22px; }
+  .wf .wf-rule-flowers { display: flex; align-items: flex-end; gap: 2px; }
+  .wf .wf-rule-flowers img { display: block; width: auto; }
   .wf .wf-rule-line { width: 60px; height: 1px; margin-bottom: 6px; background: linear-gradient(to right, rgba(130,151,76,0), var(--wf-sage), rgba(130,151,76,0)); }
 
   .wf .eyebrow { font-family: var(--wf-font-script); font-size: 36px; font-weight: 400; color: var(--wf-marigold); margin: 0 0 4px; line-height: 1.1; }
@@ -202,7 +189,8 @@ const css = `
   .wf .hero-overlay { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 46% 42% at 50% 52%, rgba(238,227,221,0.82) 0%, rgba(238,227,221,0.35) 60%, rgba(238,227,221,0) 100%); }
   .wf .hero-content { position: relative; z-index: 2; max-width: 680px; }
   .wf .hero-content > * { animation: wf-in 1.2s ease both; }
-  .wf .wf-hero-bloom { display: inline-block; margin-bottom: 8px; animation: wf-bloom 1.4s cubic-bezier(0.3, 1.4, 0.5, 1) 0.1s both !important; }
+  /* The flowers stay still: no entrance with the rest of the hero. */
+  .wf .hero-content > .wf-hero-bloom { display: inline-block; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(62,58,44,0.25)); animation: none !important; opacity: 1; transform: none; }
   .wf .hero-eyebrow { animation-delay: 0.3s !important; font-family: var(--wf-font-script); font-size: clamp(34px, 3.6vw, 46px); color: var(--wf-marigold); margin: 0; line-height: 1.1; }
   .wf .hero-name { animation-delay: 0.45s !important; font-family: var(--wf-font-display); font-size: clamp(54px, 8vw, 112px); font-weight: 400; color: var(--wf-sage); margin: 0 0 16px; line-height: 1; letter-spacing: -1px; }
   .wf .hero-date { animation-delay: 0.7s !important; font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: var(--wf-marigold); font-weight: 700; margin: 0 0 34px; }
@@ -372,7 +360,7 @@ const css = `
   .wf .footer > *:not(.wf-foot-sprig) { position: relative; z-index: 2; }
   .wf .footer p { font-size: 15px; color: rgba(238,227,221,0.88); margin: 0 0 4px; }
   .wf .footer p.eyebrow { font-size: 36px; color: var(--wf-butter); }
-  .wf .footer-signoff { font-family: var(--wf-font-script); font-size: clamp(52px, 7vw, 76px) !important; color: var(--wf-lilac) !important; margin: 26px 0 0 !important; line-height: 1.05; }
+  .wf .footer-signoff { font-family: var(--wf-font-script); font-size: clamp(52px, 7vw, 76px) !important; color: #4A2545 !important; margin: 26px 0 0 !important; line-height: 1.05; }
   .wf .footer-credit { font-size: 11px !important; letter-spacing: 1px; color: rgba(238,227,221,0.5) !important; margin-top: 30px !important; }
   .wf .wf-foot-sprig { position: absolute; bottom: -40px; width: clamp(200px, 26vw, 380px); z-index: 1; pointer-events: none; opacity: 0.85; }
   .wf .wf-foot-sprig.left { left: -60px; transform: scaleX(-1); }
@@ -391,14 +379,13 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
 const HERO_EYEBROW_DEFAULT = { en: 'Together with their families', fr: 'Avec leurs familles', es: 'Junto a sus familias' };
 // The seed packet's little label, and the bloom colours down the program stem.
 const PACKET_TAG = { en: 'Wild & in love', fr: 'Fous amoureux', es: 'Locos de amor' };
-const STEM_BLOOMS = [[LILAC, MARIGOLD], [PASTEL_BUTTER, MARIGOLD], [SAGE, MARIGOLD], [MARIGOLD, PASTEL_BUTTER], [PAPER, MARIGOLD]] as const;
 
-// The form card, with a slowly turning poppy tucked into the corner.
+// The form card, with a cosmos tucked into the corner.
 function PoppyCard({ children }: { children: React.ReactNode }) {
   return (
     <Reveal className="wf-card">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img className="wf-card-poppy wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" width={300} height={289} />
+      <img className="wf-card-poppy" src={`${IMG}/cosmos-3.webp`} alt="" aria-hidden="true" loading="lazy" width={756} height={600} />
       {children}
     </Reveal>
   );
@@ -510,7 +497,7 @@ export default function WildFlores({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         <div className="hero-content">
-          <span className="wf-hero-bloom"><Bloom size={40} color={LILAC} center={MARIGOLD} /></span>
+          <span className="wf-hero-bloom"><Bloom size={48} variant={0} /></span>
           {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDateText}</p>)}
@@ -529,7 +516,7 @@ export default function WildFlores({
             <SectionText ctx={sectionTextCtx} k="story.eyebrow" className="eyebrow" fallback={t.ourStoryLabel} />
             <SectionText ctx={sectionTextCtx} k="story.title" as="h2" className="section-title" fallback={t.howWeGotHere} />
             <MeadowRule />
-            {editSlots?.description ?? <p className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
+            {editSlots?.description ?? <p data-story-text className="story-text" style={{ whiteSpace: 'pre-line' }}>{description}</p>}
           </Reveal>
         </div>
       )}
@@ -566,7 +553,7 @@ export default function WildFlores({
                   <div className="packet-art">
                     <span className="packet-tag">{pickByLanguage(PACKET_TAG, language)}</span>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img className="wf-spin" src={`${IMG}/poppy.webp`} alt="" aria-hidden="true" loading="lazy" width={300} height={289} />
+                    <img src={`${IMG}/cosmos-1.webp`} alt="" aria-hidden="true" loading="lazy" width={591} height={600} />
                   </div>
                   <div className="packet-body">
                     <p className="label">{t.ceremony}</p>
@@ -629,10 +616,9 @@ export default function WildFlores({
                   <p className="schedule-day-title">{formatProgramDate(group.date, t.dateLocale)}</p>
                   <div className="stem-list">
                     {group.items.map((item, i) => {
-                      const [color, center] = STEM_BLOOMS[i % STEM_BLOOMS.length];
                       return (
                         <div className="stem-row" key={item.id}>
-                          <span className="stem-bloom"><Bloom size={40} color={color} center={center} className="wf-spin" style={{ animationDuration: `${24 + i * 4}s` }} /></span>
+                          <span className="stem-bloom"><Bloom size={44} variant={i} /></span>
                           <div className="stem-card">
                             {formatProgramTime(item, t.dateLocale) && <p className="schedule-time">{formatProgramTime(item, t.dateLocale)}</p>}
                             <p className="name">{item.name}</p>
@@ -797,7 +783,7 @@ export default function WildFlores({
         <img className="wf-foot-sprig left" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="wf-foot-sprig right" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
-        <Bloom size={36} color={PASTEL_BUTTER} center={MARIGOLD} className="wf-spin" style={{ display: 'block', margin: '0 auto 16px' }} />
+        <Bloom size={46} variant={1} style={{ display: 'block', margin: '0 auto 16px' }} />
         <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" fallback={t.questions} />
         <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 10 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (

@@ -30,6 +30,7 @@ import { auth } from '@/auth';
 import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
+import { isSectionBgKey, parseSectionBackground, sectionBgSettingName, type SectionBackground } from './section-background';
 import { isReservedSlug } from './reserved-slugs';
 import { encryptPagePassword, invitationPassword, PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
 import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign, type InvitationDetails } from './invitation';
@@ -374,6 +375,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'rsvp_guest_list_only') return value === 'true' || value === 'false';
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
+  if (name === 'story_text_color') return value === '' || isHeroColor(value);
   return false;
 }
 
@@ -1432,6 +1434,42 @@ export async function updateSectionText(pageId: number, key: string, raw: string
   } catch (error) {
     console.error('Failed to update section text:', error);
     return null;
+  }
+}
+
+// Saves the owner's own background for one section (see section-background.ts),
+// or removes it (null) so the theme's background shows again. Returns false
+// when nothing was saved.
+export async function updateSectionBackground(pageId: number, key: string, value: SectionBackground | null): Promise<boolean> {
+  if (!isSectionBgKey(key)) return false;
+  const bg = value === null ? null : parseSectionBackground(value);
+  if (value !== null && !bg) return false;
+  const settingName = sectionBgSettingName(key);
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return false;
+  try {
+    if (bg) {
+      const json = JSON.stringify(bg);
+      const res = await sql`
+        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+        SELECT id, ${settingName}::text, ${json}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
+        ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${json}, updated_at = NOW()
+      `;
+      if (!res.rowCount) return false;
+    } else {
+      await sql`
+        DELETE FROM user_page_settings
+        WHERE setting_name = ${settingName}
+          AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
+      `;
+    }
+    revalidatePath('/', 'layout');
+    return true;
+  } catch (error) {
+    console.error('Failed to update section background:', error);
+    return false;
   }
 }
 
