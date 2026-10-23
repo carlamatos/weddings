@@ -322,7 +322,7 @@ export const WEDDING_LANDING_FR: LandingPage = {
     'the-day': 'Pivoines ivoire et bouquet blanc, verdure sauge et touches dorées. Intemporel et raffiné, pour les mariages classiques et élégants.',
     love: 'Rose poudré, rose et framboise, avec pêche et verts tendres. Calligraphie romantique et cœurs qui s’envolent, pour les mariages chaleureux.',
     nature: 'Noyer, chêne et vert feuille, à la lueur des chandelles. Feuilles qui tombent et lucioles, pour les mariages en forêt, en grange ou en plein air.',
-    'wild-flores': 'Lin et vert sauge, avec pissenlit, souci et lilas. Un cadre de fleurs sauvages et des fleurs pastel qui changent de forme, fantaisiste et joyeux, pour les mariages au jardin et dans les prés.',
+    'wild-flores': 'Lin et vert sauge, avec souci et lilas. Un cadre de fleurs sauvages et des fleurs pastel qui changent de forme, fantaisiste et joyeux, pour les mariages au jardin et dans les prés.',
     'terracotta-harvest': 'Rouille, ocre et lin. Heure dorée, terreux et intime, pour les mariages en plein air et au verger.',
     'midnight-botanical': 'Émeraude profond et or ancien. Formel et à la chandelle, pour les soirées et les manoirs.',
     'quiet-coastal': 'Sauge, sable et craie. Aérien et minimaliste, pour les cérémonies sur la plage et les mariages à destination.',

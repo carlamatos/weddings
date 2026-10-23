@@ -42,13 +42,12 @@ const DEFAULT_GALLERY_IMAGES: GalleryImage[] = GALLERY_PATHS.map((image_path, i)
 }));
 
 // A meadow on linen: linen, oatmeal, sand and clover white; sage green;
-// dandelion, marigold and lilac.
+// marigold and lilac.
 const LINEN = '#E4D5CC';
 const OATMEAL = '#D4C2B4';
 const SAND = '#BCA992';
 const CLOVER = '#EEE3DD';
 const SAGE = '#82974C';
-const DANDELION = '#E9B407';
 const MARIGOLD = '#BE7922';
 const LILAC = '#CE9BC8';
 // Pastel tints of the flower colours, for the countdown blooms.
@@ -63,7 +62,7 @@ const PAPER = '#F7F1EC';
 // ─── decorations ─────────────────────────────────────────
 
 // A five-petal bloom with a golden centre.
-function Bloom({ size = 28, color = LILAC, center = DANDELION, className, style }: { size?: number; color?: string; center?: string; className?: string; style?: React.CSSProperties }) {
+function Bloom({ size = 28, color = LILAC, center = MARIGOLD, className, style }: { size?: number; color?: string; center?: string; className?: string; style?: React.CSSProperties }) {
   return (
     <svg className={className} style={style} width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
       {[0, 72, 144, 216, 288].map((r) => (
@@ -83,7 +82,7 @@ function MeadowRule() {
         <g className="wf-sway" style={{ transformOrigin: '20px 40px' }}>
           <path d="M20 40 C 19 30, 22 22, 18 12" stroke={SAGE} strokeWidth="1.4" strokeLinecap="round" />
           <path d="M20 30 C 15 28, 12 24, 12 20 C 16 21, 19 25, 20 30 Z" fill={SAGE} />
-          {[0, 60, 120, 180, 240, 300].map((r) => <ellipse key={r} cx="18" cy="7" rx="2" ry="5" fill={DANDELION} transform={`rotate(${r} 18 11)`} />)}
+          {[0, 60, 120, 180, 240, 300].map((r) => <ellipse key={r} cx="18" cy="7" rx="2" ry="5" fill={MARIGOLD} transform={`rotate(${r} 18 11)`} />)}
           <circle cx="18" cy="11" r="2.4" fill={MARIGOLD} />
         </g>
         <g className="wf-sway" style={{ transformOrigin: '38px 40px', animationDelay: '-1.4s' }}>
@@ -134,7 +133,7 @@ const css = `
     --wf-sand: ${SAND};
     --wf-clover: ${CLOVER};
     --wf-sage: ${SAGE};
-    --wf-dandelion: ${DANDELION};
+    --wf-butter: ${PASTEL_BUTTER};
     --wf-marigold: ${MARIGOLD};
     --wf-lilac: ${LILAC};
     --wf-ink: ${INK};
@@ -152,7 +151,6 @@ const css = `
   @keyframes wf-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
   @keyframes wf-spin { to { transform: rotate(360deg); } }
   @keyframes wf-blob { 0%, 100% { border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; } 33% { border-radius: 42% 58% 46% 54% / 56% 42% 58% 44%; } 66% { border-radius: 52% 48% 38% 62% / 42% 54% 46% 58%; } }
-  @keyframes wf-push { from { transform: scale(1.08); } to { transform: scale(1); } }
   @keyframes wf-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes wf-bloom { from { transform: scale(0) rotate(-90deg); } to { transform: scale(1) rotate(0deg); } }
   @media (prefers-reduced-motion: reduce) {
@@ -164,7 +162,7 @@ const css = `
   .wf .wf-rule-line { width: 60px; height: 1px; margin-bottom: 6px; background: linear-gradient(to right, rgba(130,151,76,0), var(--wf-sage), rgba(130,151,76,0)); }
 
   .wf .eyebrow { font-family: var(--wf-font-script); font-size: 36px; font-weight: 400; color: var(--wf-marigold); margin: 0 0 4px; line-height: 1.1; }
-  .wf .eyebrow.on-dark { color: var(--wf-dandelion); }
+  .wf .eyebrow.on-dark { color: var(--wf-butter); }
   .wf .section-title { font-family: var(--wf-font-display); font-size: clamp(34px, 4.6vw, 54px); font-weight: 400; color: var(--wf-sage); margin: 0 0 18px; line-height: 1.1; }
   .wf .section-title.on-dark { color: var(--wf-clover); }
 
@@ -182,7 +180,7 @@ const css = `
   .wf .btn-outline { background: rgba(247,241,236,0.7); color: var(--wf-sage); border-color: var(--wf-sage); }
   .wf .btn-outline:hover { background: var(--wf-sage); border-color: var(--wf-sage); color: var(--wf-paper); }
   .wf .btn-outline.on-dark { background: transparent; color: var(--wf-paper); border-color: rgba(247,241,236,0.75); }
-  .wf .btn-outline.on-dark:hover { background: var(--wf-dandelion); border-color: var(--wf-dandelion); color: var(--wf-ink); }
+  .wf .btn-outline.on-dark:hover { background: var(--wf-butter); border-color: var(--wf-butter); color: var(--wf-ink); }
 
   .wf input, .wf textarea, .wf select { font-family: var(--wf-font-sans); font-size: 15px; padding: 13px 18px; border: 1.5px solid ${OATMEAL}; border-radius: 18px; outline: none; background: #fff; color: var(--wf-ink); width: 100%; display: block; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
   .wf input:focus, .wf textarea:focus, .wf select:focus { border-color: var(--wf-sage); box-shadow: 0 0 0 4px rgba(130,151,76,0.18); }
@@ -200,7 +198,7 @@ const css = `
 
   /* hero: the meadow frames the linen; the names sit in the clearing */
   .wf .hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 120px 24px; background: var(--wf-linen); overflow: hidden; text-align: center; }
-  .wf .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; animation: wf-push 14s cubic-bezier(0.2, 0.6, 0.3, 1) both; }
+  .wf .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .wf .hero-overlay { position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 46% 42% at 50% 52%, rgba(238,227,221,0.82) 0%, rgba(238,227,221,0.35) 60%, rgba(238,227,221,0) 100%); }
   .wf .hero-content { position: relative; z-index: 2; max-width: 680px; }
   .wf .hero-content > * { animation: wf-in 1.2s ease both; }
@@ -258,7 +256,7 @@ const css = `
   .wf .packet::before, .wf .packet::after { content: ''; position: absolute; left: 0; right: 0; height: 10px; background-size: 14px 10px; background-repeat: repeat-x; }
   .wf .packet::before { top: -10px; background-image: linear-gradient(-45deg, ${PAPER} 5px, transparent 0), linear-gradient(45deg, ${PAPER} 5px, transparent 0); background-position: 0 5px; }
   .wf .packet::after { bottom: -10px; background-image: linear-gradient(-135deg, ${PAPER} 5px, transparent 0), linear-gradient(135deg, ${PAPER} 5px, transparent 0); background-position: 0 0; }
-  .wf .packet-art { position: relative; height: 190px; margin: 0 22px; border-radius: 0 0 140px 140px / 0 0 60px 60px; background: radial-gradient(circle at 30% 30%, rgba(206,155,200,0.45), rgba(206,155,200,0) 55%), radial-gradient(circle at 75% 70%, rgba(233,180,7,0.35), rgba(233,180,7,0) 55%), var(--wf-linen); overflow: hidden; display: flex; align-items: center; justify-content: center; }
+  .wf .packet-art { position: relative; height: 190px; margin: 0 22px; border-radius: 0 0 140px 140px / 0 0 60px 60px; background: radial-gradient(circle at 30% 30%, rgba(206,155,200,0.45), rgba(206,155,200,0) 55%), radial-gradient(circle at 75% 70%, rgba(190,121,34,0.22), rgba(190,121,34,0) 55%), var(--wf-linen); overflow: hidden; display: flex; align-items: center; justify-content: center; }
   .wf .packet-art img { width: 150px; }
   .wf .packet-tag { position: absolute; top: 18px; left: 18px; font-family: var(--wf-font-sans); font-size: 10px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--wf-sage); background: rgba(247,241,236,0.85); padding: 6px 10px; border-radius: 999px; }
   .wf .packet-body { padding: 26px 34px 0; }
@@ -266,7 +264,7 @@ const css = `
   .wf .packet-body .time { font-family: var(--wf-font-display); font-size: 34px; color: var(--wf-sage); margin: 0 0 8px; line-height: 1.1; }
   .wf .packet-body p { font-size: 15px; color: rgba(62,58,44,0.8); margin: 0 0 4px; }
   .wf .packet-body .venue { font-weight: 700; color: var(--wf-ink); margin-top: 12px; }
-  .wf .packet-body .directions { display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-sage); text-decoration: none; border-bottom: 2px solid var(--wf-dandelion); padding-bottom: 3px; }
+  .wf .packet-body .directions { display: inline-block; margin-top: 18px; font-size: 12px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase; color: var(--wf-sage); text-decoration: none; border-bottom: 2px solid var(--wf-marigold); padding-bottom: 3px; }
   .wf .map-blob { position: relative; aspect-ratio: 1; overflow: hidden; border-radius: 58% 42% 55% 45% / 48% 58% 42% 52%; box-shadow: 0 0 0 10px var(--wf-paper), 0 30px 50px -30px rgba(62,58,44,0.5); }
   .wf .map-blob iframe { border: 0; display: block; width: 100%; height: 100%; }
   @media (max-width: 760px) { .wf .details-grid { grid-template-columns: 1fr; gap: 50px; } .wf .map-blob { max-width: 360px; margin: 0 auto; width: 100%; } }
@@ -349,9 +347,9 @@ const css = `
   .wf .song-section .song-row .title { color: var(--wf-sage); font-family: var(--wf-font-display); }
   .wf .song-section .song-row .artist { color: rgba(62,58,44,0.65); }
 
-  /* share: dandelion, the hashtag in dark ink */
-  .wf .share-band { position: relative; padding: 104px 24px; text-align: center; background: var(--wf-dandelion); overflow: hidden; }
-  .wf .share-band .eyebrow.on-dark { color: var(--wf-paper); }
+  /* share: light clover, the hashtag in dark ink */
+  .wf .share-band { position: relative; padding: 104px 24px; text-align: center; background: var(--wf-clover); overflow: hidden; }
+  .wf .share-band .eyebrow.on-dark { color: var(--wf-marigold); }
   .wf .share-band .btn-outline.on-dark { color: var(--wf-ink); border-color: var(--wf-ink); }
   .wf .share-band .btn-outline.on-dark:hover { background: var(--wf-ink); border-color: var(--wf-ink); color: var(--wf-paper); }
   .wf .share-row { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
@@ -373,7 +371,7 @@ const css = `
   .wf .footer { position: relative; padding: 120px 24px 80px; background: var(--wf-sage); text-align: center; overflow: hidden; }
   .wf .footer > *:not(.wf-foot-sprig) { position: relative; z-index: 2; }
   .wf .footer p { font-size: 15px; color: rgba(238,227,221,0.88); margin: 0 0 4px; }
-  .wf .footer p.eyebrow { font-size: 36px; color: var(--wf-dandelion); }
+  .wf .footer p.eyebrow { font-size: 36px; color: var(--wf-butter); }
   .wf .footer-signoff { font-family: var(--wf-font-script); font-size: clamp(52px, 7vw, 76px) !important; color: var(--wf-lilac) !important; margin: 26px 0 0 !important; line-height: 1.05; }
   .wf .footer-credit { font-size: 11px !important; letter-spacing: 1px; color: rgba(238,227,221,0.5) !important; margin-top: 30px !important; }
   .wf .wf-foot-sprig { position: absolute; bottom: -40px; width: clamp(200px, 26vw, 380px); z-index: 1; pointer-events: none; opacity: 0.85; }
@@ -393,7 +391,7 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
 const HERO_EYEBROW_DEFAULT = { en: 'Together with their families', fr: 'Avec leurs familles', es: 'Junto a sus familias' };
 // The seed packet's little label, and the bloom colours down the program stem.
 const PACKET_TAG = { en: 'Wild & in love', fr: 'Fous amoureux', es: 'Locos de amor' };
-const STEM_BLOOMS = [[LILAC, DANDELION], [DANDELION, MARIGOLD], [SAGE, DANDELION], [MARIGOLD, DANDELION], [PAPER, DANDELION]] as const;
+const STEM_BLOOMS = [[LILAC, MARIGOLD], [PASTEL_BUTTER, MARIGOLD], [SAGE, MARIGOLD], [MARIGOLD, PASTEL_BUTTER], [PAPER, MARIGOLD]] as const;
 
 // The form card, with a slowly turning poppy tucked into the corner.
 function PoppyCard({ children }: { children: React.ReactNode }) {
@@ -512,7 +510,7 @@ export default function WildFlores({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         <div className="hero-content">
-          <span className="wf-hero-bloom"><Bloom size={40} color={LILAC} center={DANDELION} /></span>
+          <span className="wf-hero-bloom"><Bloom size={40} color={LILAC} center={MARIGOLD} /></span>
           {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDateText}</p>)}
@@ -788,7 +786,7 @@ export default function WildFlores({
         </Reveal>
       )}
 
-      {/* SHARE / HASHTAG — dandelion */}
+      {/* SHARE / HASHTAG — light clover */}
       {showShare !== false && shareUrl && (
         <ShareSection url={shareUrl} title={heading} hashtag={shareHashtag} t={t} eyebrowClassName="eyebrow on-dark" buttonClassName="btn btn-outline on-dark" sectionText={sectionTextCtx} />
       )}
@@ -799,14 +797,14 @@ export default function WildFlores({
         <img className="wf-foot-sprig left" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img className="wf-foot-sprig right" src={`${IMG}/breath.webp`} alt="" aria-hidden="true" loading="lazy" width={800} height={872} />
-        <Bloom size={36} color={DANDELION} center={MARIGOLD} className="wf-spin" style={{ display: 'block', margin: '0 auto 16px' }} />
+        <Bloom size={36} color={PASTEL_BUTTER} center={MARIGOLD} className="wf-spin" style={{ display: 'block', margin: '0 auto 16px' }} />
         <SectionText ctx={sectionTextCtx} k="footer.eyebrow" className="eyebrow on-dark" fallback={t.questions} />
         <SectionText ctx={sectionTextCtx} k="footer.title" as="h2" className="section-title on-dark" style={{ marginBottom: 10 }} fallback={t.getInTouch} />
         {editSlots?.footerContact ?? (
           <>
             {heading && <p style={{ marginTop: 18 }}>{heading}</p>}
-            {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'var(--wf-dandelion)', textDecoration: 'none' }}>{userEmail}</a></p>}
-            {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--wf-dandelion)', textDecoration: 'none' }}>{userPhone}</a></p>}
+            {userEmail && <p><a href={`mailto:${userEmail}`} style={{ color: 'var(--wf-butter)', textDecoration: 'none' }}>{userEmail}</a></p>}
+            {userPhone && <p><a href={`tel:${userPhone}`} style={{ color: 'var(--wf-butter)', textDecoration: 'none' }}>{userPhone}</a></p>}
           </>
         )}
         <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove}, ${heading || t.theCouple}`} />

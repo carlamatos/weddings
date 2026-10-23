@@ -272,7 +272,7 @@ export default async function Page() {
                   </div>
                   <div className="theme-info">
                     <p className="theme-name">Wild Flores</p>
-                    <p className="theme-desc">Linen and sage green with dandelion, marigold and lilac, pressed wildflowers and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.</p>
+                    <p className="theme-desc">Linen and sage green with marigold and lilac, pressed wildflowers and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.</p>
                   </div>
                 </a>
               <a href="/themes/terracotta-harvest" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
