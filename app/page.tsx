@@ -264,6 +264,17 @@ export default async function Page() {
                     <p className="theme-desc">Walnut, oak and leaf green with candlelight, coral and daisy-gold accents. Falling leaves and fireflies — built for forest, barn and outdoor weddings.</p>
                   </div>
                 </a>
+                <a href="/themes/wild-flores" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <div className="theme-preview" style={{ overflow: 'hidden', background: '#E4D5CC' }}>
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: `${100 / NEW_THEME_PREVIEW_SCALE}%`, transform: `scale(${NEW_THEME_PREVIEW_SCALE})`, transformOrigin: 'top left' }}>
+                      <ThemeHeroPreview themeSlug="wild-flores" heading="Rosa & Mateo" eventDate="2027-06-12" city="Prince Edward County" country="ON" />
+                    </div>
+                  </div>
+                  <div className="theme-info">
+                    <p className="theme-name">Wild Flores</p>
+                    <p className="theme-desc">Linen, sage and leaf green with dandelion, lilac and cornflower, petals on the breeze and blooms that change shape — whimsical and joyful for meadow and garden weddings.</p>
+                  </div>
+                </a>
               <a href="/themes/terracotta-harvest" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
                 <div className="theme-preview tc">
                   <div style={{ textAlign: 'center', padding: '0 20px' }}>
