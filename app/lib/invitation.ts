@@ -49,7 +49,23 @@ export type InvitationDesign = {
   dividerColor: string;
   frame: string; // around the card's edge
   frameColor: string;
+  // A picture from the theme in a corner (INVITATION_PICTURES), '' for none.
+  picture: string;
 };
+
+// Pictures from a theme that its invitation can show in a corner: drawn
+// under the words so they never hide any. width is a share of the card's
+// width (cqw); corner and nudge place it.
+export const INVITATION_PICTURES = {
+  balloons: { label: 'Balloons', src: '/images/invitations/balloons.webp', corner: 'top-right', width: 20, rotate: 6 },
+  gnome: { label: 'Gnome', src: '/images/invitations/gnome.webp', corner: 'bottom-left', width: 13, rotate: -4 },
+} as const;
+export type InvitationPicture = keyof typeof INVITATION_PICTURES;
+// Themes whose invitation starts on one of our papers (INVITATION_PAPERS).
+const THEME_PAPER: Partial<Record<string, string>> = { nature: '/images/invitations/nature-greenery.jpg' };
+// Which theme starts with which picture.
+export const THEME_PICTURE: Partial<Record<string, InvitationPicture>> = { balloons: 'balloons', gnomes: 'gnome' };
+export const isInvitationPicture = (v: unknown): v is InvitationPicture => typeof v === 'string' && v in INVITATION_PICTURES;
 
 export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160 } as const;
 
@@ -110,7 +126,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Weddings (and the formal business themes, from the same elegant set)
   'the-day': { divider: 'wedding-scroll', frame: '' },
   'love': { divider: 'wedding-heart', frame: 'wedding-pearls' }, // the same pearls as Quiet Coastal
-  'nature': { divider: 'wedding-fern', frame: '' }, // no frame: the fern divider alone
+  'nature': { divider: '', frame: '' }, // the watercolour greenery paper is decoration enough
   'wild-flores': { divider: 'wedding-vine', frame: '' },
   'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
   'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
@@ -123,7 +139,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Celebrations
   'alegria': { divider: 'birthday-stars', frame: '' },
   'fun-party': { divider: 'birthday-confetti', frame: '' },
-  'balloons': { divider: 'birthday-balloons', frame: 'birthday-bunting' },
+  'balloons': { divider: 'birthday-balloons', frame: '' }, // the balloon picture instead
   'baby-shower-girl': { divider: 'birthday-polka', frame: 'birthday-balloons' },
   'baby-shower-neutral': { divider: 'birthday-cake', frame: 'birthday-polka' },
   'baby-shower-boy': { divider: 'birthday-stars', frame: 'birthday-sparkle' },
@@ -131,7 +147,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Christmas
   'christmas-party': { divider: 'christmas-evergreen', frame: '' },
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
-  'gnomes': { divider: 'christmas-holly', frame: 'christmas-holly' },
+  'gnomes': { divider: 'christmas-holly', frame: '' }, // the gnome picture instead
   'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
   // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
@@ -145,16 +161,19 @@ export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
     headingFont: p.headingFont,
     bodyFont: p.bodyFont,
     eyebrow: 'You’re invited to',
-    message: 'We would love for you to join us. Please RSVP on our event page.',
+    message: 'We would love for you to join us.\nPlease RSVP on our event page.',
     closing: 'We can’t wait to celebrate with you!',
     textColor: p.textColor,
     accentColor: p.accentColor,
-    background: { kind: 'color', color: p.bg, imageUrl: '', overlay: true, overlayColor: '#000000', overlayOpacity: 0.35 },
+    background: THEME_PAPER[themeSlug ?? '']
+      ? { kind: 'image', color: p.bg, imageUrl: THEME_PAPER[themeSlug ?? '']!, overlay: false, overlayColor: '#000000', overlayOpacity: 0 }
+      : { kind: 'color', color: p.bg, imageUrl: '', overlay: true, overlayColor: '#000000', overlayOpacity: 0.35 },
     showQr: true,
     divider: decor.divider,
     dividerColor: p.accentColor,
     frame: decor.frame,
     frameColor: p.accentColor,
+    picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
   };
 }
 
@@ -164,8 +183,16 @@ const text = (v: unknown, max: number, fallback: string) => (typeof v === 'strin
 const font = (v: unknown, fallback: InvitationFont): InvitationFont => (typeof v === 'string' && v in INVITATION_FONTS ? (v as InvitationFont) : fallback);
 
 // Only images uploaded through MyGala's own storage (or local dev uploads).
+// Papers we design ourselves for a theme's starting invitation: already
+// light where the words go, so they need no wash; textLeft moves the words
+// right (a share of the card's width, cqw) to clear the artwork on the left.
+export const INVITATION_PAPERS: Record<string, { textLeft: number }> = {
+  '/images/invitations/nature-greenery.jpg': { textLeft: 0 },
+};
+
 export function isInvitationImageUrl(v: unknown): v is string {
   if (typeof v !== 'string' || !v) return false;
+  if (v in INVITATION_PAPERS) return true;
   if (v.startsWith('/uploads/')) return /^\/uploads\/[\w.-]+$/.test(v);
   try {
     const u = new URL(v);
@@ -205,6 +232,8 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null): In
     dividerColor: color(r.dividerColor, color(r.accentColor, d.dividerColor)),
     frame: typeof r.frame === 'string' && findOrnament('frame', r.frame) ? r.frame : '',
     frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
+    // Saved designs from before pictures existed keep looking as they did.
+    picture: isInvitationPicture(r.picture) ? r.picture : '',
   };
 }
 
@@ -247,6 +276,8 @@ export const MIN_PHOTO_WASH = 0.65;
 export function invitationOverlay(design: InvitationDesign): { color: string; opacity: number } | null {
   const bg = design.background;
   if (bg.kind !== 'image' || !bg.imageUrl) return null;
+  // Our own papers are light where the words go: only the host's own wash, if any.
+  if (bg.imageUrl in INVITATION_PAPERS) return bg.overlay && bg.overlayOpacity > 0 ? { color: bg.overlayColor, opacity: bg.overlayOpacity } : null;
   const lightText = luminance(design.textColor) > 0.4;
   let color = bg.overlay ? bg.overlayColor : lightText ? '#000000' : bg.color;
   if (contrast(color, design.textColor) < 4.5) color = lightText ? '#000000' : luminance(bg.color) > 0.4 ? bg.color : '#FFFFFF';

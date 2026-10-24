@@ -12,6 +12,7 @@ import {
   type InvitationDesign,
   type InvitationDetails,
   type InvitationFont,
+  INVITATION_PICTURES, THEME_PICTURE, isInvitationPicture,
 } from '@/app/lib/invitation';
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
@@ -191,6 +192,17 @@ export function InvitationDesigner({
               onColor={(c) => set(kind === 'divider' ? 'dividerColor' : 'frameColor', c)}
             />
           ))}
+          {/* The theme's own picture in a corner (Balloons, Gnomes). */}
+          {(() => {
+            const pic = (themeSlug && THEME_PICTURE[themeSlug]) || (isInvitationPicture(design.picture) ? design.picture : null);
+            if (!pic) return null;
+            return (
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#241F2B', marginTop: 14, cursor: 'pointer' }}>
+                <input type="checkbox" checked={design.picture === pic} onChange={(e) => set('picture', e.target.checked ? pic : '')} />
+                Show the {INVITATION_PICTURES[pic].label.toLowerCase()} picture in the corner
+              </label>
+            );
+          })()}
         </section>
 
         <section style={panel}>

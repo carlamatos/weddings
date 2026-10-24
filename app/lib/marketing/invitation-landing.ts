@@ -179,7 +179,8 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
           items: WEDDING_THEMES.filter((s) => s !== 'the-day').map((slug): InvitationSample => {
             const preset = defaultInvitation(slug);
             // Quiet Coastal: a plain white card. Love: a stronger wash over its photo.
-            const image = slug === 'quiet-coastal' ? undefined : heroPhoto(slug);
+            // Nature: its watercolour greenery paper (its starting design).
+            const image = slug === 'quiet-coastal' || slug === 'nature' ? undefined : heroPhoto(slug);
             const opacity = slug === 'love' ? 0.85 : 0.7;
             return { theme: slug, image, wash: image ? { color: preset.background.color, opacity } : undefined, design: WEDDING_COPY };
           }).concat([
