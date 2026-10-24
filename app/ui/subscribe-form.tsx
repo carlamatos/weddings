@@ -329,6 +329,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
                   Change theme
                 </button>
               </div>
+              <p className="setup-style__note">You can change the colours, fonts and design of your invitation and website in the editor later.</p>
             </div>
           )}
           </div>
