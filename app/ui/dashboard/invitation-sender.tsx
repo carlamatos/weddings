@@ -8,7 +8,6 @@ import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } fr
 import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import type { Guest } from '@/app/lib/definitions';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
-import { PlusLock, usePlus } from './plus-gate';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Guests the invitation can be emailed to.
@@ -17,7 +16,7 @@ const sentOn = (iso: string) => new Date(iso).toLocaleDateString('en-US', { mont
 
 const phoneBtn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 999, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 600, textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
 
-// Guests → Invitations (Plus): send the designed invitation to the guest
+// Guests → Invitations (every plan): send the designed invitation to the guest
 // list — by email to the ticked guests, or one by one as a pre-filled SMS /
 // WhatsApp message from the host's own phone — with a personal note per
 // guest. The list itself is managed on the Guest List screen.
@@ -29,6 +28,7 @@ export function InvitationSender({
   language,
   hostName,
   guestListHref,
+  locked = false,
 }: {
   pageId: number;
   guests: Guest[];
@@ -37,11 +37,10 @@ export function InvitationSender({
   language?: string | null;
   hostName?: string;
   guestListHref: string;
+  // The account hasn't verified its email: nothing can be sent yet.
+  locked?: boolean;
 }) {
   const router = useRouter();
-  // Sending reaches guests, so on a free page it asks for Plus.
-  const plus = usePlus();
-  const needsPlus = () => { if (plus.paid) return false; plus.ask({ section: '/invitations' }); return true; };
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState<'guests' | 'test' | null>(null);
   const [sendNotice, setSendNotice] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
@@ -82,7 +81,6 @@ export function InvitationSender({
   }
 
   async function copyMessage(g: Guest) {
-    if (needsPlus()) return;
     try {
       await navigator.clipboard.writeText(messageFor(g));
       setCopied(g.id);
@@ -118,7 +116,6 @@ export function InvitationSender({
 
   async function sendToChosen() {
     if (!chosen.length) return;
-    if (needsPlus()) return;
     const again = chosen.filter((g) => g.invited_at).length;
     const confirmText =
       `Email your invitation to ${chosen.length} guest${chosen.length === 1 ? '' : 's'}?` +
@@ -164,6 +161,13 @@ export function InvitationSender({
         <Link href={guestListHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>+ Add or import guests in Guest List</Link>
       </div>
 
+      {locked && (
+        <p role="status" style={{ background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, margin: '10px 0 14px' }}>
+          <strong>Verify your email to send invitations.</strong> Click the link we emailed you — then you can email, text and WhatsApp your
+          invitation from here, and publish your page so guests can RSVP. Until then you can design, print and save it as a PDF, and build your guest list.
+        </p>
+      )}
+
       {guests.length === 0 ? (
         <p style={{ fontSize: 14, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
           Your guest list is empty. <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>Add your guests</Link> — from a
@@ -188,9 +192,9 @@ export function InvitationSender({
               <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>Select not yet invited ({notInvited.length})</button>
               {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>Clear</button>}
               <span style={{ flex: '1 1 auto' }} />
-              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
-              <button type="button" style={{ ...primary, opacity: chosen.length ? 1 : 0.5 }} disabled={!chosen.length || sending !== null} onClick={sendToChosen}>
-                <PlusLock />{sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Email ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Email invitations'}
+              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
+              <button type="button" style={{ ...primary, opacity: chosen.length && !locked ? 1 : 0.5 }} disabled={locked || !chosen.length || sending !== null} onClick={sendToChosen}>
+                {sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Email ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Email invitations'}
               </button>
             </div>
             {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
@@ -237,13 +241,13 @@ export function InvitationSender({
                         <td style={{ ...cell, color: '#6B6470', minWidth: 150 }}>
                           <div style={{ marginBottom: 6, whiteSpace: 'nowrap' }}>{g.phone || '—'}</div>
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                            {g.phone && (
+                            {g.phone && !locked && (
                               <>
-                                <a href={smsHref(g.phone, messageFor(g))} onClick={(e) => { if (needsPlus()) { e.preventDefault(); return; } onTexted(g, 'sms'); }} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
-                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={(e) => { if (needsPlus()) { e.preventDefault(); return; } onTexted(g, 'whatsapp'); }} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
+                                <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
+                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
                               </>
                             )}
-                            <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>
+                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>}
                           </div>
                         </td>
                         <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>

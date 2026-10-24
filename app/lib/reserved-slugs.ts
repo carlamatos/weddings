@@ -3,9 +3,9 @@
 // own page, so they can't be claimed. Shared by page creation and the setup
 // form's availability check.
 export const RESERVED_SLUGS = new Set([
-  'about', 'admin', 'api', 'blog', 'check-email', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
+  'about', 'admin', 'api', 'blog', 'check-email', 'christmas-invitations', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
   'faq', 'features', 'forgot-password', 'fr', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
-  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending',
+  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-website',
 ]);
 
 export function isReservedSlug(slug: string): boolean {

@@ -2,14 +2,17 @@
 
 import { AtSymbolIcon, EyeIcon, EyeSlashIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
-import { useActionState, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { registerUser, RegisterState } from '@/app/lib/actions';
 import Link from 'next/link';
 import GoogleButton from '@/app/ui/google-button';
+import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
 
 // Just an email and a password: every extra field costs sign-ups. Names and
 // phone can be added later in the profile. French when the visitor comes
-// from the French landing page (/register?lang=fr).
+// from the French landing page (/register?lang=fr). start: how a landing
+// page's visitor wants to begin (see app/lib/start-intent.ts) — kept for the
+// create-event form, and an invitation heading here.
 const TEXT = {
   en: {
     heading: 'Create your free event page',
@@ -39,8 +42,16 @@ const TEXT = {
   },
 } as const;
 
-export default function RegisterForm({ lang = 'en' }: { lang?: 'en' | 'fr' }) {
-  const t = TEXT[lang];
+const INVITATION_HEADING = {
+  en: { heading: 'Create your free invitation', sub: 'Design it, share one link, and watch the RSVPs come in. No credit card needed.' },
+  fr: { heading: 'Créez votre invitation gratuite', sub: 'Créez-la, partagez un seul lien et recevez les réponses. Sans carte de crédit.' },
+} as const;
+
+export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en' | 'fr'; start?: StartIntent | null }) {
+  const t = start?.intent === 'invitation' ? { ...TEXT[lang], ...INVITATION_HEADING[lang] } : TEXT[lang];
+  useEffect(() => {
+    if (start) saveStartIntent(start);
+  }, [start]);
   const initialState: RegisterState = { message: null, errors: {} };
   const [state, formAction, isPending] = useActionState(registerUser, initialState);
   const [showPassword, setShowPassword] = useState(false);

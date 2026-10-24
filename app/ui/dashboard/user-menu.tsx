@@ -476,7 +476,7 @@ export default function UserMenu({
             >
               Security
             </button>
-            {pageId !== undefined && (
+            {pageId !== undefined && pageStatus !== 'draft' && (
               <button
                 onClick={handleToggleStatus}
                 disabled={isPending || pageSuspended}

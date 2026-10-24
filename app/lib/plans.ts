@@ -23,6 +23,7 @@ export const PLAN_FEATURES = {
     'All themes',
     'RSVP & guest count',
     'Guest list (import from a spreadsheet or contacts)',
+    'Invitations by email, text & WhatsApp',
     'Countdown & event details',
     'Event Program',
     'Guest photo wall & table QR codes (up to 50 photos)',
@@ -30,7 +31,6 @@ export const PLAN_FEATURES = {
   ],
   plus: [
     'Everything in Free',
-    'Invitations by email, text & WhatsApp',
     'Up to 500 guest photos',
     'Livestream link & song requests',
     'Automatic reminder emails to guests',

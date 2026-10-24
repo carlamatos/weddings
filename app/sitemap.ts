@@ -3,6 +3,7 @@ import { siteUrl } from '@/app/lib/site-url';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { LANDING_PAGES } from '@/app/lib/marketing/landing';
+import { INVITATION_LANDING_PAGES } from '@/app/lib/marketing/invitation-landing';
 import { BLOG_POSTS } from '@/app/lib/marketing/blog';
 import { themeRegistry } from '@/app/ui/themes/registry';
 
@@ -28,6 +29,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...EVENT_TYPES.map((e) => entry(`/events/${e.slug}`, 0.8)),
     ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),
     entry('/fr/mariage', 0.8),
+    ...Object.values(INVITATION_LANDING_PAGES).map((p) => entry(p.path, 0.9)),
     entry('/faq', 0.7),
     // Articles carry their publish date; the blog index changes when the newest one is published.
     entry('/blog', 0.6, 'weekly', new Date(Math.max(...BLOG_POSTS.map((p) => Date.parse(p.published))))),

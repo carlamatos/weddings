@@ -1,0 +1,131 @@
+/* Invitation-first landing pages: /christmas-invitations and /wedding-website
+   (app/ui/marketing/invitation-landing-view.tsx). Christmas in deep pine and
+   gold, weddings in warm linen; every movement is CSS and stops under
+   prefers-reduced-motion. */
+
+.marketing-page.ilp {
+  --ilp-bg: #FBF7F2;
+  --ilp-hero-bg: linear-gradient(135deg, #FBF7F2 0%, #F3E9DF 55%, #EADFD3 100%);
+  --ilp-hero-ink: var(--ink);
+  --ilp-hero-soft: var(--ink-soft);
+  --ilp-accent: var(--rose);
+  --ilp-gallery-bg: #FFFFFF;
+  --ilp-themes-bg: var(--paper);
+}
+.marketing-page.ilp--christmas {
+  --ilp-hero-bg:
+    radial-gradient(circle at 80% 10%, rgba(231, 202, 106, 0.18), transparent 40%),
+    radial-gradient(circle at 8% 90%, rgba(220, 62, 54, 0.22), transparent 42%),
+    linear-gradient(160deg, #102A22 0%, #0F2019 55%, #1B1414 100%);
+  --ilp-hero-ink: #FFF8EC;
+  --ilp-hero-soft: rgba(255, 248, 236, 0.78);
+  --ilp-accent: #C8372D;
+  --ilp-gold: #E7CA6A;
+}
+
+@keyframes ilp-float { 0%, 100% { transform: rotate(-5deg) translateY(0); } 50% { transform: rotate(-4deg) translateY(-10px); } }
+@keyframes ilp-scroll { 0%, 6% { transform: translateY(0); } 94%, 100% { transform: translateY(calc(-100% + var(--ilp-screen-h))); } }
+@keyframes ilp-pop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes ilp-twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.9; } }
+
+/* ── hero ── */
+.marketing-page .ilp-hero { position: relative; overflow: hidden; padding: 64px 28px 84px; background: var(--ilp-hero-bg); color: var(--ilp-hero-ink); }
+.marketing-page.ilp--christmas .ilp-hero::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.55;
+  background-image: radial-gradient(rgba(231, 202, 106, 0.9) 1px, transparent 1.6px), radial-gradient(rgba(255, 255, 255, 0.7) 1px, transparent 1.4px);
+  background-size: 120px 120px, 190px 190px; background-position: 10px 30px, 70px 90px;
+  animation: ilp-twinkle 5s ease-in-out infinite;
+}
+/* Desktop: the invitation on the left, the words on the right. Phones: the
+   headline, then the invitation, then the rest. */
+.marketing-page .ilp-hero-inner { position: relative; max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: 'stage head' 'stage body'; column-gap: 56px; align-items: center; }
+.marketing-page .ilp-stage { grid-area: stage; }
+.marketing-page .ilp-copy-head { grid-area: head; align-self: end; }
+.marketing-page .ilp-copy-body { grid-area: body; align-self: start; }
+
+.marketing-page .ilp-stage { position: relative; height: 600px; }
+.marketing-page .ilp-phone { --ilp-screen-h: 520px; position: absolute; right: 2%; top: 20px; width: 270px; padding: 10px; border-radius: 40px; background: #1B1720; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.06); }
+.marketing-page .ilp-phone-screen { height: var(--ilp-screen-h); border-radius: 30px; overflow: hidden; background: #fff; }
+.marketing-page .ilp-scroll { display: block; width: 100%; height: auto; animation: ilp-scroll 26s ease-in-out infinite alternate; animation-delay: var(--ilp-delay, 0s); will-change: transform; }
+.marketing-page .ilp-invite { position: absolute; left: 0; top: 40px; width: min(380px, 62%); z-index: 2; transform: rotate(-5deg); animation: ilp-float 7s ease-in-out infinite; filter: drop-shadow(0 34px 40px rgba(0, 0, 0, 0.45)); }
+.marketing-page .ilp-invite .invitation-card { box-shadow: none !important; }
+.marketing-page .ilp-chip { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px; background: #fff; color: #241F2B; font-size: 13px; font-weight: 700; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.5); white-space: nowrap; animation: ilp-pop 4s ease-in-out infinite; }
+.marketing-page .ilp-chip svg { width: 16px; height: 16px; color: #2F7D4F; stroke-width: 2.4; }
+.marketing-page .ilp-chip--rsvp svg { stroke-width: 3; }
+.marketing-page .ilp-chip--rsvp { right: 0; top: 60px; }
+.marketing-page .ilp-chip--map { right: 30%; bottom: 70px; animation-delay: -1.3s; }
+.marketing-page .ilp-chip--photos { right: -2%; bottom: 150px; animation-delay: -2.6s; }
+
+.marketing-page .ilp-copy { max-width: 520px; }
+.marketing-page .ilp-eyebrow { display: inline-block; margin: 0 0 18px; padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; background: rgba(255, 255, 255, 0.14); color: var(--ilp-gold, var(--ilp-accent)); border: 1px solid currentColor; }
+.marketing-page.ilp--weddings .ilp-eyebrow { background: #fff; }
+.marketing-page .ilp-headline { font-family: var(--font-display); font-size: clamp(38px, 5vw, 62px); line-height: 1.05; font-weight: 400; margin: 0 0 18px; color: var(--ilp-hero-ink); letter-spacing: -0.5px; }
+.marketing-page .ilp-sub { font-size: 18px; line-height: 1.6; color: var(--ilp-hero-soft); margin: 0 0 22px; }
+.marketing-page .ilp-points { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 10px; }
+.marketing-page .ilp-points li { display: flex; align-items: flex-start; gap: 10px; font-size: 16px; line-height: 1.45; }
+.marketing-page .ilp-points svg { flex: none; width: 20px; height: 20px; margin-top: 1px; stroke-width: 2.6; color: var(--ilp-gold, #2F7D4F); }
+.marketing-page .ilp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 18px; }
+.marketing-page .ilp .btn-primary { background: var(--ilp-accent); text-decoration: none; display: inline-block; }
+.marketing-page .ilp-btn-big { font-size: 17px; padding: 18px 34px; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.55); }
+.marketing-page .ilp-link { font-size: 15px; font-weight: 700; color: inherit; text-decoration: none; border-bottom: 2px solid currentColor; padding-bottom: 2px; }
+.marketing-page .ilp-hero .ilp-link { color: var(--ilp-hero-ink); }
+.marketing-page .ilp-note { margin: 18px 0 0; font-size: 13px; color: var(--ilp-hero-soft); }
+
+/* ── sections ── */
+.marketing-page .ilp-section { padding: 96px 24px; }
+.marketing-page .ilp-wrap { max-width: 1160px; margin: 0 auto; }
+.marketing-page .ilp-title { font-family: var(--font-display); font-size: clamp(30px, 4vw, 46px); font-weight: 400; line-height: 1.1; text-align: center; margin: 0 0 14px; }
+.marketing-page .ilp-section-sub { max-width: 680px; margin: 0 auto 44px; text-align: center; font-size: 17px; line-height: 1.6; color: var(--ink-soft); }
+
+/* gallery: the invitations, in a grid of cards */
+.marketing-page .ilp-gallery { background: var(--ilp-gallery-bg); }
+.marketing-page .ilp-group { margin-top: 26px; }
+.marketing-page .ilp-group-title { font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--ilp-accent); text-align: center; margin: 30px 0 24px; }
+.marketing-page .ilp-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 28px 22px; }
+/* Off-screen cards skip layout and paint until they scroll near. */
+.marketing-page .ilp-cards > li { content-visibility: auto; contain-intrinsic-size: auto 380px; }
+.marketing-page .ilp-card { display: block; text-decoration: none; color: inherit; transition: transform 0.25s ease; }
+.marketing-page .ilp-card:hover { transform: translateY(-6px) rotate(-0.6deg); }
+.marketing-page .ilp-card-label { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-top: 12px; font-size: 14px; }
+.marketing-page .ilp-card-label span { color: var(--ilp-accent); font-weight: 700; font-size: 13px; white-space: nowrap; }
+
+/* themes: whole pages scrolling in phones */
+.marketing-page .ilp-themes { background: var(--ilp-themes-bg); }
+.marketing-page.ilp--christmas .ilp-themes { background: linear-gradient(180deg, #F6F2ED 0%, #EFE6DA 100%); }
+.marketing-page .ilp-theme-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 46px 30px; }
+.marketing-page .ilp-theme { content-visibility: auto; contain-intrinsic-size: auto 760px; text-align: center; }
+.marketing-page .ilp-phone--small { --ilp-screen-h: 460px; position: relative; right: auto; top: auto; width: 240px; margin: 0 auto 20px; }
+.marketing-page .ilp-theme-name { font-family: var(--font-display); font-size: 26px; font-weight: 400; margin: 0 0 6px; }
+.marketing-page .ilp-theme-desc { font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 16px; max-width: 300px; }
+.marketing-page .ilp-theme-actions { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.marketing-page .ilp-theme-actions .btn-primary { font-size: 14px; padding: 12px 22px; }
+
+.marketing-page .ilp-final { padding: 90px 24px 100px; text-align: center; background: var(--ilp-hero-bg); color: var(--ilp-hero-ink); }
+.marketing-page .ilp-final .ilp-section-sub { color: var(--ilp-hero-soft); margin-bottom: 30px; }
+
+@media (max-width: 900px) {
+  .marketing-page .ilp-hero { padding: 36px 18px 56px; }
+  .marketing-page .ilp-hero-inner { grid-template-columns: 1fr; grid-template-areas: 'head' 'stage' 'body'; row-gap: 22px; }
+  .marketing-page .ilp-copy { max-width: none; text-align: center; }
+  .marketing-page .ilp-headline { margin-bottom: 0; }
+  .marketing-page .ilp-points { justify-items: center; }
+  .marketing-page .ilp-points li { text-align: left; }
+  .marketing-page .ilp-actions { justify-content: center; }
+  .marketing-page .ilp-stage { height: 440px; max-width: 420px; width: 100%; margin: 0 auto; }
+  .marketing-page .ilp-phone { --ilp-screen-h: 400px; width: 210px; right: 0; top: 30px; border-radius: 32px; }
+  .marketing-page .ilp-phone-screen { border-radius: 24px; }
+  .marketing-page .ilp-invite { width: 64%; top: 30px; }
+  .marketing-page .ilp-chip { font-size: 12px; padding: 7px 11px; }
+  .marketing-page .ilp-chip--map { right: 36%; bottom: 20px; }
+  .marketing-page .ilp-chip--photos { display: none; }
+  .marketing-page .ilp-section { padding: 70px 16px; }
+  .marketing-page .ilp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
+  .marketing-page .ilp-cards > li { contain-intrinsic-size: auto 300px; }
+  .marketing-page .ilp-card-label { flex-direction: column; gap: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-page .ilp-scroll, .marketing-page .ilp-invite, .marketing-page .ilp-chip, .marketing-page.ilp--christmas .ilp-hero::before { animation: none !important; }
+  /* No auto-scroll: the page inside the phone can be scrolled by hand. */
+  .marketing-page .ilp-phone-screen { overflow-y: auto; }
+}

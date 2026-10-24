@@ -16,7 +16,7 @@ export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }>
   }
 
   const body = (await req.json().catch(() => null)) as { status?: unknown } | null;
-  if (!isPageStatus(body?.status)) {
+  if (!isPageStatus(body?.status) || body.status === 'draft') {
     return NextResponse.json({ error: "status must be 'active', 'inactive' or 'suspended'." }, { status: 400 });
   }
 

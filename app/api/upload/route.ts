@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/auth';
 import { isSafeImage, optimizeImage, isHeicUpload, HEIC_NOT_CONVERTED_ERROR } from '@/app/lib/image-processing';
+import { overRateLimit } from '@/app/lib/rate-limit';
+import { UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
 
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // Unverified accounts get a few uploads a day (app/lib/require-verified.ts).
+  if (!session.user.verifiedEmail && (await overRateLimit(`upload-unverified:${session.user.id}`, UNVERIFIED_UPLOADS_PER_DAY, 24 * 60 * 60 * 1000))) {
+    return NextResponse.json({ error: `You can upload ${UNVERIFIED_UPLOADS_PER_DAY} photos a day until you verify your email. Check your inbox for our link.` }, { status: 429 });
   }
 
   const formData = await request.formData();

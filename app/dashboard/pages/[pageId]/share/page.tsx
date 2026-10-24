@@ -33,6 +33,11 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
         </p>
       </div>
 
+      {userPage.status === 'draft' && (
+        <div role="alert" style={{ background: '#F3EFF9', border: '1px solid #D9CFEA', color: '#3F2E63', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
+          Your page is a draft, so anyone who opens the link will see &ldquo;not published yet&rdquo;. Publish it first — you&rsquo;ll need to verify your email if you haven&rsquo;t yet.
+        </div>
+      )}
       {(userPage.status === 'inactive' || userPage.status === 'suspended') && (
         <div role="alert" style={{ background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
           Your page is {userPage.status === 'suspended' ? 'suspended' : 'deactivated'}, so anyone who opens the link will see a &ldquo;page unavailable&rdquo; message.

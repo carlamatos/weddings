@@ -17,7 +17,7 @@ import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 import { appHref } from '@/app/lib/app-url';
-import { isPageOffline } from '@/app/lib/page-status';
+import { isPageDraft, isPageOffline } from '@/app/lib/page-status';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
@@ -124,9 +124,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const slug = (await params).slug;
   const [data, session] = await Promise.all([fetchEventData(slug), auth()]);
   if (!data) notFound();
-  if (isPageOffline(data.status)) return <PageUnavailable />;
-  const isPaid = data.plan_type === 'paid';
   const isOwner = session?.user?.id === data.user_id;
+  // A draft is only for its owner until it's published.
+  const ownDraft = isPageDraft(data.status) && isOwner;
+  if (isPageOffline(data.status) && !ownDraft) return <PageUnavailable draft={isPageDraft(data.status)} />;
+  const isPaid = data.plan_type === 'paid';
   const pageSettings = await fetchPageSettings(data.id);
 
   // Password protected (Plus): nothing about the event until the guest
@@ -161,6 +163,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
   return (
     <>
+      {ownDraft && (
+        <div role="status" style={{ position: 'sticky', top: 0, zIndex: 50, background: '#241F2B', color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 14, lineHeight: 1.5, padding: '10px 16px', textAlign: 'center' }}>
+          <strong>Draft</strong> — only you can see this page. Guests&rsquo; forms open once it&rsquo;s published.{' '}
+          <Link href={appHref('/dashboard')} style={{ color: '#F2C8BF', fontWeight: 600 }}>Publish it from your dashboard</Link>
+        </div>
+      )}
       {/* Edit button — visible to page owner only */}
       {isOwner && (
         <Link href={appHref('/dashboard')} className="edit-page-btn">

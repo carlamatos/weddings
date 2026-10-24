@@ -86,7 +86,7 @@ export const THEME_CARDS: ThemeCard[] = [
     desc: 'Midnight navy and snowflake gold with a red satin ribbon. A gold arch under hanging stars, swinging glass baubles and advent-window countdown — elegant for holiday parties.',
     sample: { heading: 'Merry & Bright', eventDate: '2026-12-18', city: 'Toronto', country: 'ON' } },
   { slug: 'gnomes', name: 'Gnomes', category: 'community', bg: '#F0E5DD',
-    desc: 'Watercolour gnomes in hat red, pine and sage with fairy lights, santa hats bobbing in the snow, a gnome postcard and polaroids — cozy and cute for holiday parties.',
+    desc: 'Watercolour gnomes in hat red, pine and sage with fairy lights, santa hats in the snow, a gnome postcard and polaroids — cozy and cute for holiday parties.',
     sample: { heading: 'Gnome for the Holidays', eventDate: '2026-12-12', city: 'Stratford', country: 'ON' } },
   { slug: 'dia-de-los-muertos', name: 'Día de los Muertos', category: 'community', bg: '#FBB813',
     desc: 'Deep plum and marigold with hot pink and teal, swaying papel picado, falling petals and dancing sugar skulls — joyful and colourful for remembrance celebrations.',

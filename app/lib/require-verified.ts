@@ -1,5 +1,4 @@
 import { auth } from '@/auth';
-import { sql } from '@vercel/postgres';
 import type { Session } from 'next-auth';
 
 // Mirrors getSuperAdmin()'s pattern (app/lib/admin.ts): a parent layout check
@@ -12,20 +11,21 @@ export async function requireEmailVerified(): Promise<{ id: string; email: strin
   return { id, email };
 }
 
-const VERIFICATION_GRACE_MS = 72 * 60 * 60 * 1000;
-
-// Soft-verification grace period: true once an unverified account is old
-// enough that the dashboard should hard-block it. There's no
-// users.created_at column; the first verification token (always issued at
-// signup) is used as a proxy for signup time instead of adding one.
-export async function verificationGracePeriodOver(userId: string): Promise<boolean> {
-  const result = await sql`
-    SELECT MIN(created_at) AS created_at FROM email_verification_tokens WHERE user_id = ${userId}
-  `;
-  const value = result.rows[0]?.created_at;
-  if (!value) return false;
-  return Date.now() - new Date(value).getTime() > VERIFICATION_GRACE_MS;
+// Until its email is verified an account can build everything — pages,
+// invitations, its guest list — but nothing that reaches anyone else:
+// publishing a page (new pages stay drafts), sending emails (invitations,
+// tests, Secret Santa), texting invitation links, connecting a domain, or
+// uploading more than a few photos. Each of those calls this and answers
+// with VERIFY_EMAIL_FIRST.
+export async function isEmailVerified(): Promise<boolean> {
+  const session = await auth();
+  return !!session?.user?.verifiedEmail;
 }
+
+export const VERIFY_EMAIL_FIRST = 'Please verify your email address first. Check your inbox for our link, or send a new one from the banner at the top of your dashboard.';
+
+// Photos an unverified account may upload in a day.
+export const UNVERIFIED_UPLOADS_PER_DAY = 20;
 
 // True once the account has 2FA enabled but hasn't completed the challenge
 // for this session (or it's stale — see auth.ts's TOTP_VERIFIED_TTL_MS).

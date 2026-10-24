@@ -5,12 +5,13 @@ import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
 import { sectionStatus } from '@/app/lib/section-status';
 import { fetchSetupCounts, setupSteps } from '@/app/lib/setup-progress';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
-import { verificationGracePeriodOver, needsTotpChallenge } from '@/app/lib/require-verified';
+import { needsTotpChallenge, UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
 import { PlusProvider } from '@/app/ui/dashboard/plus-gate';
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
+import PublishButton from '@/app/ui/dashboard/publish-button';
 import { greatVibes } from '@/app/ui/fonts';
 import { siteHref } from '@/app/lib/app-url';
 
@@ -37,13 +38,10 @@ export default async function DashboardShell({
     redirect('/verify-2fa');
   }
 
-  // Soft at first (banner below), hard block after a grace period — this is
-  // a UX nudge, not the security boundary. Sensitive API routes must call
-  // requireEmailVerified() themselves (app/lib/require-verified.ts).
+  // An unverified account can use the whole dashboard; what reaches other
+  // people is locked on the server until it verifies (app/lib/require-verified.ts),
+  // and the banner below says so.
   const verifiedEmail = session?.user?.verifiedEmail ?? true;
-  if (userId && !verifiedEmail && (await verificationGracePeriodOver(userId))) {
-    redirect('/verify-email-pending');
-  }
 
   const pages = userId && pageId !== undefined ? await listOwnedPages(userId) : [];
   const page = pageId !== undefined ? pages.find((p) => Number(p.id) === pageId) : undefined;
@@ -59,6 +57,7 @@ export default async function DashboardShell({
   const setup = page && counts ? setupSteps(page, counts) : undefined;
 
   const deactivated = page?.status === 'inactive';
+  const draft = page?.status === 'draft';
   const suspended = page?.status === 'suspended';
   const expired = !!page && hasExpiredPlan(page);
 
@@ -79,9 +78,27 @@ export default async function DashboardShell({
               }}
             >
               <span>
-                <strong>Please verify your email address.</strong> Check your inbox for the link we sent when you signed up.
+                <strong>Verify your email to unlock everything.</strong> We sent a link to {session?.user?.email ?? 'your email address'}.
+                Until you click it, your page stays a draft only you can see, and sending invitations, texting links to guests,
+                connecting a domain and uploading more than {UNVERIFIED_UPLOADS_PER_DAY} photos a day are locked. Everything else — your page, your
+                invitation, your guest list — you can build right now.
               </span>
               <ResendVerificationButton />
+            </div>
+          )}
+          {draft && page && verifiedEmail && (
+            <div
+              role="status"
+              style={{
+                background: '#F3EFF9', border: '1px solid #D9CFEA', color: '#3F2E63',
+                borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+              }}
+            >
+              <span>
+                <strong>Your page is a draft.</strong> Only you can see it. Publish it when you&rsquo;re ready for guests to open it and RSVP.
+              </span>
+              <PublishButton pageId={Number(page.id)} />
             </div>
           )}
           {deactivated && (

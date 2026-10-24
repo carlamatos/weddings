@@ -93,9 +93,11 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   );
 }
 
-// The page's status as guests see it. Pages go live when they're created;
-// the owner can take one offline (deactivate) and MyGala can suspend one.
+// The page's status as guests see it. Pages go live when they're created
+// (a draft first, until the account's email is verified); the owner can
+// take one offline (deactivate) and MyGala can suspend one.
 function pageStateOf(status?: string): { kind: 'live' | 'off' | 'suspended'; label: string; hint: string } {
+  if (status === 'draft') return { kind: 'off', label: 'Draft', hint: 'Draft: only you can see your page. Publish it from the banner above.' };
   if (status === 'suspended') return { kind: 'suspended', label: 'Suspended', hint: 'Suspended by MyGala: guests can’t open your page.' };
   if (status === 'inactive') return { kind: 'off', label: 'Offline', hint: 'Deactivated: guests see “page unavailable”. Reactivate it from your profile menu.' };
   return { kind: 'live', label: 'Live', hint: 'Live: guests can open your page.' };

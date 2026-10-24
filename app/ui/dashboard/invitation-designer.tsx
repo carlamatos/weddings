@@ -16,6 +16,8 @@ import {
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
 import { FontPicker } from '@/app/ui/dashboard/font-picker';
+import { OrnamentField } from '@/app/ui/dashboard/ornament-picker';
+import { ornamentOccasion, ornamentPalette } from '@/app/lib/invitation-ornaments';
 
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
@@ -58,6 +60,8 @@ export function InvitationDesigner({
   const frameRef = useRef<HTMLIFrameElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const dirty = JSON.stringify(design) !== saved;
+  const occasion = ornamentOccasion(themeSlug);
+  const palette = ornamentPalette(themeSlug, design);
 
   useEffect(() => {
     QRCode.toString(details.url, { type: 'svg', margin: 0, errorCorrectionLevel: 'M', color: { dark: '#241F2B', light: '#FFFFFF' } })
@@ -170,6 +174,23 @@ export function InvitationDesigner({
           <FontPicker id="inv-body-font" labelledBy="inv-body-font-label" value={design.bodyFont} onChange={(f) => set('bodyFont', f)} />
           <ColorField id="inv-text" text="Text colour" value={design.textColor} onChange={(v) => set('textColor', v)} />
           <ColorField id="inv-accent" text="Event name & accent colour" value={design.accentColor} onChange={(v) => set('accentColor', v)} />
+        </section>
+
+        <section style={panel}>
+          <h3 style={h3}>Decorations</h3>
+          {(['divider', 'frame'] as const).map((kind) => (
+            <OrnamentField
+              key={kind}
+              kind={kind}
+              value={design[kind]}
+              color={kind === 'divider' ? design.dividerColor : design.frameColor}
+              palette={palette}
+              occasion={occasion}
+              background={design.background.kind === 'image' && design.background.overlay ? design.background.overlayColor : design.background.color}
+              onChange={(id) => set(kind, id)}
+              onColor={(c) => set(kind === 'divider' ? 'dividerColor' : 'frameColor', c)}
+            />
+          ))}
         </section>
 
         <section style={panel}>

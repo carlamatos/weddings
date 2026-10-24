@@ -36,7 +36,7 @@ export async function POST(request: Request) {
     const phone = cleanPhone(phoneRaw);
 
     const [page, settings] = await Promise.all([
-      sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended') LIMIT 1`,
+      sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`,
       fetchPageSettings(pageId),
     ]);
     if (page.rows[0]?.plan_type !== 'paid' || !isGiftExchangeOn(settings)) {

@@ -1,8 +1,10 @@
-// Plus: the invitation designer. The host chooses fonts, wording, colours
+// The invitation designer (every plan). The host chooses fonts, wording, colours
 // and the background; the event's name, date, time and place always come
 // from the page (changed only in Edit Page). Stored as JSON in
 // user_page_settings under INVITATION_SETTING. Shared by the dashboard, the
 // server action and the print view, so no server-only imports.
+
+import { findOrnament } from './invitation-ornaments';
 
 export const INVITATION_SETTING = 'invitation_design';
 
@@ -42,6 +44,11 @@ export type InvitationDesign = {
     overlayOpacity: number; // 0–0.9
   };
   showQr: boolean; // QR code to the event page (for RSVPs)
+  // Decorations (app/lib/invitation-ornaments.ts): ids, '' for none.
+  divider: string; // under the event name, in place of the plain rule
+  dividerColor: string;
+  frame: string; // around the card's edge
+  frameColor: string;
 };
 
 export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160 } as const;
@@ -108,6 +115,10 @@ export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
     accentColor: p.accentColor,
     background: { kind: 'color', color: p.bg, imageUrl: '', overlay: true, overlayColor: '#000000', overlayOpacity: 0.35 },
     showQr: true,
+    divider: '',
+    dividerColor: p.accentColor,
+    frame: '',
+    frameColor: p.accentColor,
   };
 }
 
@@ -154,6 +165,10 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null): In
       overlayOpacity: Number.isFinite(opacity) ? Math.min(Math.max(opacity, 0), 0.9) : d.background.overlayOpacity,
     },
     showQr: typeof r.showQr === 'boolean' ? r.showQr : d.showQr,
+    divider: typeof r.divider === 'string' && findOrnament('divider', r.divider) ? r.divider : '',
+    dividerColor: color(r.dividerColor, color(r.accentColor, d.dividerColor)),
+    frame: typeof r.frame === 'string' && findOrnament('frame', r.frame) ? r.frame : '',
+    frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
   };
 }
 

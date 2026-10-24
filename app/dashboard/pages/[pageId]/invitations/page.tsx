@@ -2,7 +2,6 @@ import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
-import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
@@ -22,11 +21,11 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
 
   const pagePassword = invitationPassword(settings, true);
   const details = invitationDetails(page, pagePassword.password);
-  const hostName = (await auth())?.user?.name?.trim() || '';
+  const session = await auth();
+  const hostName = session?.user?.name?.trim() || '';
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <PlusSetupNote section="/invitations" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Invitations</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
@@ -48,7 +47,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
       />
 
       <div style={{ marginTop: 32 }}>
-        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} />
+        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} />
       </div>
     </div>
   );

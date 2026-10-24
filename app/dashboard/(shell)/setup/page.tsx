@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { fetchPageQuota, hasPrepaidPlus } from '@/app/lib/data';
 import SubscribeForm from "@/app/ui/subscribe-form";
+import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
 
@@ -14,15 +16,28 @@ export default async function Page() {
     const [quota, prepaid] = userId
         ? await Promise.all([fetchPageQuota(userId), hasPrepaidPlus(userId)])
         : [{ count: 0, limit: 1 }, false];
+    // The form asks for the host's first and last name until the account has both.
+    const owner = userId
+        ? (await sql<{ given_name: string | null; family_name: string | null }>`SELECT given_name, family_name FROM users WHERE id = ${userId}`).rows[0]
+        : undefined;
+    const needsName = !owner?.given_name?.trim() || !owner?.family_name?.trim();
 
     return (
         <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
             {quota.count > 0 && (
-                <div style={{ width: '100%', maxWidth: 620, marginBottom: 12 }}>
+                <div style={{ width: '100%', maxWidth: 1180, marginBottom: 12 }}>
                     <Link href="/dashboard" style={{ fontSize: 14, color: '#6B6470', textDecoration: 'none' }}>← Event pages</Link>
                 </div>
             )}
-            {quota.count >= quota.limit ? (
+            {!session?.user?.verifiedEmail && quota.count >= 1 ? (
+                <div style={{ maxWidth: 520, textAlign: 'center', fontFamily: 'system-ui, sans-serif', padding: '40px 24px' }}>
+                    <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>Verify your email to create another event</p>
+                    <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', lineHeight: 1.6 }}>
+                        Until your email is verified you can have one event page. Click the link we sent to {session?.user?.email ?? 'your email address'} — then you can create more, publish your page and send invitations.
+                    </p>
+                    <ResendVerificationButton />
+                </div>
+            ) : quota.count >= quota.limit ? (
                 <div style={{ maxWidth: 520, textAlign: 'center', fontFamily: 'system-ui, sans-serif', padding: '40px 24px' }}>
                     <p style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 10px' }}>You&rsquo;ve reached {quota.limit} event pages</p>
                     <p style={{ fontSize: 14, color: '#6B6470', margin: 0, lineHeight: 1.6 }}>
@@ -30,7 +45,7 @@ export default async function Page() {
                     </p>
                 </div>
             ) : (
-                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} />
+                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} needsName={needsName} ownerName={{ given: owner?.given_name?.trim() ?? '', family: owner?.family_name?.trim() ?? '' }} />
             )}
         </div>
     );

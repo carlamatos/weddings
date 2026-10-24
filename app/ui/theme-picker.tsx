@@ -4,6 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid';
 import { THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
 import type { EventCategory } from './themes/types';
+import { defaultInvitation, googleFontsHref } from '@/app/lib/invitation';
+import { InvitationCard } from './dashboard/invitation-card';
+import { eventWhen } from './themes/event-when';
+
+// Each theme's invitation in its starting design (what the host gets), with
+// the theme's sample event, and one font request for all of them.
+const INVITATIONS = Object.fromEntries(THEME_CARDS.map((t) => [t.slug, {
+  design: { ...defaultInvitation(t.slug), showQr: false },
+  details: { name: t.sample.heading, date: eventWhen({ eventDate: t.sample.eventDate }, 'en-US').date, time: '', venue: '', address: `${t.sample.city}, ${t.sample.country}`, url: '' },
+}]));
+const INVITATION_FONTS_HREF = googleFontsHref(Object.values(INVITATIONS).flatMap((i) => [i.design.headingFont, i.design.bodyFont]));
 
 // The create-event form's theme choice: a full-screen gallery of every
 // theme, filtered by type of event (All by default). Each card shows a
@@ -51,7 +62,10 @@ export function ThemePicker({
         <div className="tp-head-row">
           <div>
             <h2 id="tp-title" className="tp-title">Choose your theme</h2>
-            <p className="tp-sub">Every theme comes with the same sections — RSVP, countdown, photos and more. You can change it any time.</p>
+            <p className="tp-sub">
+              Each theme is a website and a matching invitation, with the same sections — RSVP, countdown, photos and more.
+              You can change the colours, fonts and design of both in the editor later, or switch themes any time.
+            </p>
           </div>
           <button type="button" className="tp-close" onClick={onClose} aria-label="Close">
             <XMarkIcon />
@@ -67,19 +81,27 @@ export function ThemePicker({
       </div>
 
       <div className="tp-body">
-        {/* Only the open gallery loads its pictures. */}
+        {/* Only the open gallery loads its pictures and fonts. */}
+        {open && <link rel="stylesheet" href={INVITATION_FONTS_HREF} />}
         {open && (
           <ul className="tp-grid">
             {shown.map((t) => {
               const isSelected = t.slug === selected;
               return (
                 <li key={t.slug} className={`tp-card${isSelected ? ' is-selected' : ''}`}>
-                  <div className="tp-shot-wrap">
-                    <div className="tp-shot" tabIndex={0} aria-label={`${t.name}: picture of the whole page`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={themePagePicture(t.slug)} alt={`The ${t.name} theme, the whole page`} loading="lazy" decoding="async" width={520} />
+                  <div className="tp-pair">
+                    <div className="tp-invite">
+                      <span className="tp-pair-label">Invitation</span>
+                      <InvitationCard design={INVITATIONS[t.slug].design} details={INVITATIONS[t.slug].details} />
                     </div>
-                    <span className="tp-shot-hint" aria-hidden="true" />
+                    <div className="tp-shot-wrap">
+                      <span className="tp-pair-label">Website</span>
+                      <div className="tp-shot" tabIndex={0} aria-label={`${t.name}: picture of the whole page`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={themePagePicture(t.slug)} alt={`The ${t.name} theme, the whole page`} loading="lazy" decoding="async" width={520} />
+                      </div>
+                      <span className="tp-shot-hint" aria-hidden="true" />
+                    </div>
                   </div>
                   <div className="tp-info">
                     <p className="tp-cat">{CATEGORY_LABELS[t.category]}</p>
