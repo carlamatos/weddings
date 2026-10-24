@@ -360,108 +360,6 @@
 }
 .setup-back:hover { border-color: var(--rose); color: var(--rose); }
 
-/* The theme gallery: full screen, filters stay at the top. */
-html:has(.tp-dialog[open]) { overflow: hidden; }
-.tp-dialog {
-  width: 100vw; height: 100vh; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: none;
-  background: #F6F2ED; color: #241F2B; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  overflow: hidden;
-}
-.tp-dialog[open] { display: flex; flex-direction: column; }
-.tp-dialog::backdrop { background: rgba(36, 31, 43, 0.5); }
-.tp-head { flex-shrink: 0; background: #fff; border-bottom: 1px solid #E6DCD3; padding: 18px 28px 14px; }
-.tp-head-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; max-width: 1320px; margin: 0 auto; }
-.tp-title { margin: 0; font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 28px; line-height: 1.2; }
-.tp-sub { margin: 4px 0 0; font-size: 14px; color: #6B6470; line-height: 1.5; }
-.tp-close {
-  flex-shrink: 0; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%;
-  border: 1px solid #DCD3C5; background: #fff; color: #241F2B; cursor: pointer;
-}
-.tp-close svg { width: 22px; height: 22px; }
-.tp-close:hover { border-color: #B6584A; color: #B6584A; }
-.tp-filters { display: flex; gap: 8px; max-width: 1320px; margin: 14px auto 0; overflow-x: auto; scrollbar-width: none; }
-.tp-filters::-webkit-scrollbar { display: none; }
-.tp-filter {
-  flex-shrink: 0; padding: 8px 16px; border-radius: 999px; border: 1.5px solid #DCD3C5; background: #fff;
-  font: 600 14px system-ui, -apple-system, 'Segoe UI', sans-serif; color: #4A4350; cursor: pointer; white-space: nowrap;
-}
-.tp-filter span { margin-left: 4px; font-weight: 500; opacity: 0.6; }
-.tp-filter:hover { border-color: #6B6470; }
-.tp-filter[aria-pressed='true'] { background: #241F2B; border-color: #241F2B; color: #fff; }
-.tp-body { flex: 1; overflow-y: auto; padding: 24px 28px 48px; overscroll-behavior: contain; }
-.tp-grid {
-  list-style: none; margin: 0 auto; padding: 0; max-width: 1320px;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px;
-}
-/* The invitation beside the website, on the card's top. */
-.tp-pair { display: grid; grid-template-columns: 42% 1fr; background: #EEE8E1; border-bottom: 1px solid #EEE5DD; }
-.tp-pair .tp-shot { border-bottom: none; }
-.tp-invite { display: flex; align-items: center; justify-content: center; padding: 30px 12px 16px; position: relative; }
-.tp-invite .invitation-card { box-shadow: 0 12px 26px -14px rgba(36, 31, 43, 0.45) !important; }
-.tp-pair-label {
-  position: absolute; top: 8px; left: 10px; z-index: 1; pointer-events: none; padding: 3px 8px; border-radius: 999px;
-  background: rgba(255, 255, 255, 0.9); color: #6B6470; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-}
-.tp-card {
-  display: flex; flex-direction: column; background: #fff; border: 1.5px solid #E6DCD3; border-radius: 14px; overflow: hidden;
-  transition: border-color 0.15s, box-shadow 0.15s;
-}
-.tp-card:hover { box-shadow: 0 14px 34px -18px rgba(36, 31, 43, 0.35); }
-.tp-card.is-selected { border-color: #B6584A; box-shadow: 0 0 0 2px #B6584A; }
-/* The whole page in a window: it scrolls down slowly on hover or focus; on
-   touch screens you swipe inside it. */
-.tp-shot-wrap { position: relative; }
-.tp-shot { height: 380px; overflow: hidden; background: #EEE8E1; border-bottom: 1px solid #EEE5DD; outline: none; }
-.tp-shot img {
-  display: block; width: 100%; height: auto;
-  transform: translateY(0); transition: transform 1.2s ease;
-}
-@media (hover: hover) {
-  .tp-shot:hover img, .tp-shot:focus-visible img { transform: translateY(calc(-100% + 380px)); transition: transform 9s linear; }
-}
-@media (hover: none) {
-  .tp-shot { overflow-y: auto; -webkit-overflow-scrolling: touch; }
-}
-.tp-shot:focus-visible { box-shadow: inset 0 0 0 3px #B6584A; }
-.tp-shot-hint {
-  position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); pointer-events: none;
-  padding: 5px 11px; border-radius: 999px; background: rgba(36, 31, 43, 0.72); color: #fff;
-  font-size: 12px; font-weight: 600; white-space: nowrap; transition: opacity 0.2s;
-}
-.tp-shot-hint::after { content: 'Hover to see the whole page'; }
-@media (hover: hover) {
-  .tp-shot:hover + .tp-shot-hint, .tp-shot:focus-visible + .tp-shot-hint { opacity: 0; }
-}
-@media (hover: none) {
-  .tp-shot-hint::after { content: 'Swipe up inside to see the whole page'; }
-}
-.tp-info { display: flex; flex-direction: column; flex: 1; padding: 16px 18px 18px; }
-.tp-cat { margin: 0 0 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #8B3A2A; }
-.tp-name { margin: 0 0 6px; font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: 22px; line-height: 1.2; }
-.tp-desc { margin: 0 0 16px; font-size: 14px; line-height: 1.55; color: #4A4350; flex: 1; }
-.tp-actions { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
-.tp-choose {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: 999px; border: none;
-  background: #B6584A; color: #fff; font: 600 14px system-ui, -apple-system, 'Segoe UI', sans-serif; cursor: pointer;
-}
-.tp-choose:hover { background: #9A4738; }
-.tp-choose[aria-pressed='true'] { background: #3D6B46; }
-.tp-choose svg { width: 17px; height: 17px; }
-.tp-live { align-self: center; display: inline-flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600; color: #6B6470; text-decoration: none; }
-.tp-live:hover { color: #B6584A; text-decoration: underline; }
-.tp-live svg { width: 14px; height: 14px; }
-@media (max-width: 600px) {
-  .tp-head { padding: 14px 16px 12px; }
-  .tp-title { font-size: 23px; }
-  .tp-sub { font-size: 13px; }
-  .tp-filters { flex-wrap: wrap; gap: 6px; }
-  .tp-filter { padding: 7px 13px; font-size: 13px; }
-  .tp-body { padding: 16px 16px 40px; }
-  .tp-grid { grid-template-columns: 1fr; gap: 18px; }
-  .tp-pair { grid-template-columns: 40% 1fr; }
-  .tp-shot { height: 340px; }
-  @media (hover: hover) { .tp-shot:hover img, .tp-shot:focus-visible img { transform: translateY(calc(-100% + 340px)); } }
-}
 
 /* Create form, step 2: the form beside previews of the invitation and the
    website. Desktop: three columns; tablet: the form, then both previews
@@ -508,9 +406,4 @@ html:has(.tp-dialog[open]) { overflow: hidden; }
   .setup-style__previews { grid-template-columns: 1fr; }
   .setup-preview .invitation-card { max-width: 320px; margin: 0 auto; }
   .setup-name-row { grid-template-columns: 1fr; gap: 0; }
-}
-/* Shorter hint for the narrower website half of a theme card. */
-.tp-pair .tp-shot-hint::after { content: 'Hover to scroll'; }
-@media (hover: none) {
-  .tp-pair .tp-shot-hint::after { content: 'Swipe to scroll'; }
 }

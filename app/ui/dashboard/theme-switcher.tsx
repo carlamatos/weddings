@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { SwatchIcon, CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { useState } from 'react';
+import { SwatchIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { updateTheme } from '@/app/lib/actions';
 import { EventTheme } from '@/app/lib/definitions';
+import { ThemePicker } from '@/app/ui/theme-picker';
 
 interface Props {
   pageId: number;
@@ -14,66 +15,40 @@ interface Props {
   label?: string;
 }
 
+// The page's theme. The button opens the full-screen gallery (the same one
+// as on the create form, app/ui/theme-picker.tsx): every theme's website and
+// invitation side by side, with a live preview; choosing one switches the
+// page to it. The page's own text, colours and backgrounds stay.
 export default function ThemeSwitcher({ pageId, currentThemeId, themes, label }: Props) {
   const current = themes.find((t) => t.theme_id === currentThemeId) ?? themes[0] ?? null;
   const [selected, setSelected] = useState<EventTheme | null>(current);
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const handleSelect = async (theme: EventTheme) => {
-    setSelected(theme);
+  const choose = async (slug: string) => {
+    const theme = themes.find((t) => t.slug === slug);
     setOpen(false);
+    if (!theme || theme.theme_id === selected?.theme_id) return;
+    setSelected(theme);
     await updateTheme(pageId, theme.theme_id);
   };
 
   if (!themes.length) return null;
 
   return (
-    <div className="dash-theme-switcher" ref={ref}>
+    // The phone menu closes on clicks inside it: keep the gallery's own
+    // clicks from reaching it.
+    <div className="dash-theme-switcher" onClick={(e) => e.stopPropagation()}>
       <button
         className="dash-theme-btn"
-        onClick={() => setOpen((o) => !o)}
+        onClick={() => setOpen(true)}
         type="button"
-        aria-expanded={open}
-        aria-haspopup="listbox"
+        aria-haspopup="dialog"
       >
         <SwatchIcon style={{ width: 14, height: 14 }} />
         <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? 'Choose theme'}</span>
-        <ChevronDownIcon style={{ width: 12, height: 12, transition: 'transform 0.15s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+        <ChevronRightIcon style={{ width: 12, height: 12 }} />
       </button>
-
-      {/* Every theme in its usual order; the current one is ticked. Three
-          columns in the top bar, one scrolling column in the mobile menu
-          (dashboard.css). */}
-      {open && (
-        <div className="dash-theme-dropdown" role="listbox" aria-label="Themes">
-          {themes.map((theme) => {
-            const active = theme.theme_id === selected?.theme_id;
-            return (
-              <button
-                key={theme.theme_id}
-                className={`dash-theme-option${active ? ' dash-theme-option--active' : ''}`}
-                onClick={() => (active ? setOpen(false) : handleSelect(theme))}
-                type="button"
-                role="option"
-                aria-selected={active}
-              >
-                {active && <CheckIcon style={{ width: 13, height: 13, flexShrink: 0 }} />}
-                {theme.name}
-              </button>
-            );
-          })}
-        </div>
-      )}
+      <ThemePicker open={open} selected={selected?.slug ?? ''} onChoose={choose} onClose={() => setOpen(false)} />
     </div>
   );
 }

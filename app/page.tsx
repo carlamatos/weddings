@@ -60,8 +60,8 @@ export default async function Page() {
         <div className="hero-wash" />
         <p className="hero-eyebrow hero-badge"><span className="hero-badge-free">Free</span><span>Event websites for weddings, birthdays &amp; every celebration</span></p>
         <p className="hero-tagline">A page as considered as the celebration itself.</p>
-        <h1 className="hero-headline">Set up your event page in minutes.</h1>
-        <p className="hero-sub">Pick a theme, add your details, and share one link with everyone you love. RSVPs, photos, and every detail, beautifully kept in one place.</p>
+        <h1 className="hero-headline">Set up your event in minutes.</h1>
+        <p className="hero-sub">Pick a theme, add your details, and share one link with everyone you love. Invitations, RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions">
           <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free event page</Link>
           {/* A full sample event page (wedding), built from the real theme. */}

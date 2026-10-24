@@ -103,8 +103,40 @@ const THEME_PRESETS: Record<string, Preset> = {
 
 const FALLBACK: Preset = THEME_PRESETS['the-day'];
 
+// The decorations a theme's invitation starts with
+// (app/lib/invitation-ornaments.ts), chosen for each theme's mood. Only the
+// starting design: saved invitations keep exactly what their host chose.
+const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
+  'the-day': { divider: 'wedding-scroll', frame: 'wedding-classic' },
+  'love': { divider: 'wedding-heart', frame: 'wedding-floral' },
+  'nature': { divider: 'wedding-vine', frame: 'wedding-vine' },
+  'wild-flores': { divider: 'wedding-vine', frame: 'wedding-floral' },
+  'terracotta-harvest': { divider: 'wedding-vine', frame: 'wedding-scallop' },
+  'midnight-botanical': { divider: 'wedding-scroll', frame: 'wedding-classic' },
+  'quiet-coastal': { divider: 'wedding-heart', frame: 'wedding-scallop' },
+  'vilma': { divider: 'wedding-scroll', frame: 'wedding-floral' },
+  'alegria': { divider: 'birthday-stars', frame: 'wedding-floral' },
+  'fun-party': { divider: 'birthday-confetti', frame: 'birthday-confetti' },
+  'balloons': { divider: 'birthday-balloons', frame: 'birthday-bunting' },
+  'baby-shower-girl': { divider: 'wedding-heart', frame: 'birthday-balloons' },
+  'baby-shower-neutral': { divider: 'birthday-stars', frame: 'wedding-scallop' },
+  'baby-shower-boy': { divider: 'birthday-stars', frame: 'birthday-balloons' },
+  'summit': { divider: 'birthday-stars', frame: 'wedding-classic' },
+  'nexus': { divider: 'birthday-stars', frame: 'wedding-classic' },
+  'dinner-gala': { divider: 'wedding-scroll', frame: 'wedding-classic' },
+  'community': { divider: 'birthday-stars', frame: 'birthday-bunting' },
+  'antique-cars': { divider: 'birthday-stars', frame: 'birthday-bunting' },
+  'christmas-party': { divider: 'christmas-evergreen', frame: 'christmas-garland' },
+  'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
+  'gnomes': { divider: 'christmas-holly', frame: 'christmas-holly' },
+  'merry': { divider: 'christmas-snowflake', frame: 'christmas-garland' },
+  'dia-de-los-muertos': { divider: 'birthday-confetti', frame: 'birthday-bunting' },
+  'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
+};
+
 export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
   const p = (themeSlug && THEME_PRESETS[themeSlug]) || FALLBACK;
+  const decor = (themeSlug && THEME_DECOR[themeSlug]) || THEME_DECOR['the-day'];
   return {
     headingFont: p.headingFont,
     bodyFont: p.bodyFont,
@@ -115,9 +147,9 @@ export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
     accentColor: p.accentColor,
     background: { kind: 'color', color: p.bg, imageUrl: '', overlay: true, overlayColor: '#000000', overlayOpacity: 0.35 },
     showQr: true,
-    divider: '',
+    divider: decor.divider,
     dividerColor: p.accentColor,
-    frame: '',
+    frame: decor.frame,
     frameColor: p.accentColor,
   };
 }

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid';
 import { THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
 import type { EventCategory } from './themes/types';
+import './theme-picker.css';
 import { defaultInvitation, googleFontsHref } from '@/app/lib/invitation';
 import { InvitationCard } from './dashboard/invitation-card';
 import { eventWhen } from './themes/event-when';
