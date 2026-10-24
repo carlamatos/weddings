@@ -1,5 +1,5 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
-import { INVITATION_FONTS, invitationOverlay, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
+import { INVITATION_FONTS, INVITATION_PAPERS, INVITATION_PICTURES, invitationOverlay, isInvitationPicture, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 
 // The invitation itself (5×7 portrait). Sized with container query units
@@ -16,6 +16,9 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
     const divider = findOrnament('divider', design.divider);
     const frame = findOrnament('frame', design.frame);
+    const picture = isInvitationPicture(design.picture) ? INVITATION_PICTURES[design.picture] : null;
+    // Our own papers can move the words right, clear of their artwork.
+    const textLeft = useImage ? INVITATION_PAPERS[bg.imageUrl]?.textLeft ?? 0 : 0;
     // On a photo, a colour wash strong enough for the words to read clearly.
     const overlay = invitationOverlay(design);
     // The name and closing in the accent, made readable when it's too faint.
@@ -33,7 +36,16 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         {frame && (
           <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.frameColor, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: ornamentSvg('frame', frame) }} />
         )}
-        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        {picture && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={picture.src} alt="" aria-hidden="true" loading="lazy" decoding="async"
+            style={{
+              position: 'absolute', width: `${picture.width}cqw`, height: 'auto', pointerEvents: 'none',
+              transform: `rotate(${picture.rotate}deg)`, filter: 'drop-shadow(0 1cqw 1.4cqw rgba(0,0,0,0.18))',
+              ...(picture.corner === 'top-right' ? { top: '5cqw', right: '5cqw' } : { bottom: '4.5cqw', left: '5.5cqw' }),
+            }} />
+        )}
+        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
           <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</h2>
