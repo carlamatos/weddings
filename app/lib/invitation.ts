@@ -92,7 +92,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'nexus': { bg: '#1D2124', textColor: '#E7E3DA', accentColor: '#E8A33D', headingFont: 'montserrat', bodyFont: 'lato' },
   'dinner-gala': { bg: '#0A1420', textColor: '#EDE3CC', accentColor: '#C9A24B', headingFont: 'cinzel', bodyFont: 'cormorant' },
   'community': { bg: '#F6E0BD', textColor: '#1F2E4D', accentColor: '#D9472B', headingFont: 'playfair', bodyFont: 'lato' },
-  'antique-cars': { bg: '#57C0B9', textColor: '#2E1A47', accentColor: '#F2C230', headingFont: 'cinzel', bodyFont: 'montserrat' },
+  'antique-cars': { bg: '#2E1A47', textColor: '#FFF4DC', accentColor: '#F2C230', headingFont: 'cinzel', bodyFont: 'montserrat' },
   'christmas-party': { bg: '#2C3138', textColor: '#F4EDE1', accentColor: '#C8372D', headingFont: 'dancing-script', bodyFont: 'lato' },
   'white-christmas': { bg: '#DAE4F0', textColor: '#23415E', accentColor: '#B89B4F', headingFont: 'cormorant', bodyFont: 'lato' },
   'gnomes': { bg: '#F0E5DD', textColor: '#476735', accentColor: '#D91D1A', headingFont: 'fredoka', bodyFont: 'poppins' },
@@ -107,31 +107,35 @@ const FALLBACK: Preset = THEME_PRESETS['the-day'];
 // (app/lib/invitation-ornaments.ts), chosen for each theme's mood. Only the
 // starting design: saved invitations keep exactly what their host chose.
 const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
+  // Weddings (and the formal business themes, from the same elegant set)
   'the-day': { divider: 'wedding-scroll', frame: 'wedding-classic' },
   'love': { divider: 'wedding-heart', frame: 'wedding-floral' },
-  'nature': { divider: 'wedding-vine', frame: 'wedding-vine' },
-  'wild-flores': { divider: 'wedding-vine', frame: 'wedding-floral' },
-  'terracotta-harvest': { divider: 'wedding-vine', frame: 'wedding-scallop' },
-  'midnight-botanical': { divider: 'wedding-scroll', frame: 'wedding-classic' },
-  'quiet-coastal': { divider: 'wedding-heart', frame: 'wedding-scallop' },
-  'vilma': { divider: 'wedding-scroll', frame: 'wedding-floral' },
-  'alegria': { divider: 'birthday-stars', frame: 'wedding-floral' },
+  'nature': { divider: 'wedding-fern', frame: 'wedding-fern' },
+  'wild-flores': { divider: 'wedding-vine', frame: 'wedding-vine' },
+  'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-eucalyptus' },
+  'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
+  'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
+  'vilma': { divider: 'wedding-rose', frame: 'wedding-rose' },
+  'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
+  'nexus': { divider: 'wedding-deco', frame: 'wedding-deco' },
+  'dinner-gala': { divider: 'wedding-laurel', frame: 'wedding-laurel' },
+  'community': { divider: 'wedding-bow', frame: 'wedding-arch' },
+  // Celebrations
+  'alegria': { divider: 'birthday-crown', frame: 'birthday-crown' },
   'fun-party': { divider: 'birthday-confetti', frame: 'birthday-confetti' },
   'balloons': { divider: 'birthday-balloons', frame: 'birthday-bunting' },
-  'baby-shower-girl': { divider: 'wedding-heart', frame: 'birthday-balloons' },
-  'baby-shower-neutral': { divider: 'birthday-stars', frame: 'wedding-scallop' },
-  'baby-shower-boy': { divider: 'birthday-stars', frame: 'birthday-balloons' },
-  'summit': { divider: 'birthday-stars', frame: 'wedding-classic' },
-  'nexus': { divider: 'birthday-stars', frame: 'wedding-classic' },
-  'dinner-gala': { divider: 'wedding-scroll', frame: 'wedding-classic' },
-  'community': { divider: 'birthday-stars', frame: 'birthday-bunting' },
-  'antique-cars': { divider: 'birthday-stars', frame: 'birthday-bunting' },
+  'baby-shower-girl': { divider: 'birthday-polka', frame: 'birthday-balloons' },
+  'baby-shower-neutral': { divider: 'birthday-cake', frame: 'birthday-polka' },
+  'baby-shower-boy': { divider: 'birthday-stars', frame: 'birthday-sparkle' },
+  'antique-cars': { divider: 'birthday-streamers', frame: 'birthday-streamers' },
+  // Christmas
   'christmas-party': { divider: 'christmas-evergreen', frame: 'christmas-garland' },
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
   'gnomes': { divider: 'christmas-holly', frame: 'christmas-holly' },
-  'merry': { divider: 'christmas-snowflake', frame: 'christmas-garland' },
-  'dia-de-los-muertos': { divider: 'birthday-confetti', frame: 'birthday-bunting' },
+  'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
+  // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
+  'dia-de-los-muertos': { divider: 'birthday-papel', frame: 'birthday-papel' },
 };
 
 export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
@@ -202,6 +206,46 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null): In
     frame: typeof r.frame === 'string' && findOrnament('frame', r.frame) ? r.frame : '',
     frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
   };
+}
+
+const hexRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const luminance = (hex: string) => {
+  const [r, g, b] = hexRgb(hex).map((v) => { const c = v / 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+const contrast = (a: string, b: string) => {
+  const x = luminance(a), y = luminance(b);
+  return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+};
+
+// The accent colour for words (the event name, the closing line), readable
+// on what's behind them: when the accent is too faint there (below 3.5:1 —
+// these are often thin script fonts), it's blended toward the text colour
+// just enough to read, keeping as much of its hue as it can. Frames and
+// dividers keep the accent as chosen.
+export function readableAccent(design: InvitationDesign): string {
+  const panel = invitationTextPanel(design);
+  const behind = panel ? (panel.startsWith('rgba(0, 0, 0') ? '#262626' : `#${panel.match(/\d+/g)!.slice(0, 3).map((v) => Number(v).toString(16).padStart(2, '0')).join('')}`) : design.background.color;
+  if (contrast(design.accentColor, behind) >= 3.5) return design.accentColor;
+  const [a, t] = [hexRgb(design.accentColor), hexRgb(design.textColor)];
+  for (let step = 1; step <= 10; step++) {
+    const mixed = `#${a.map((v, i) => Math.round(v + ((t[i] - v) * step) / 10).toString(16).padStart(2, '0')).join('')}`;
+    if (contrast(mixed, behind) >= 3.5) return mixed;
+  }
+  return design.textColor;
+}
+
+// On a photo, the text sits on a soft panel so it reads clearly whatever the
+// photo: a light one in the invitation's background colour for dark text, a
+// dark one for light text. null on a plain colour, which needs none. Shared
+// by the card (preview, print, PDF) and the email.
+export function invitationTextPanel(design: InvitationDesign): string | null {
+  const bg = design.background;
+  if (bg.kind !== 'image' || !bg.imageUrl) return null;
+  if (luminance(design.textColor) > 0.4) return 'rgba(0, 0, 0, 0.5)';
+  // Dark text: the background colour, or white when that's dark too.
+  const base = luminance(bg.color) > 0.4 ? bg.color : '#FFFFFF';
+  return `rgba(${hexRgb(base).join(', ')}, 0.84)`;
 }
 
 export function googleFontsHref(fonts: InvitationFont[]): string {
