@@ -118,13 +118,13 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
             { theme: 'gnomes', image: '/images/themes/gnomes/rsvp.jpeg', wash: { color: '#F7F1EC', opacity: 0.55 },
               design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#476735', accentColor: '#D91D1A', ...CHRISTMAS_COPY } },
             { theme: 'christmas-party', image: '/images/themes/christmas-party/registry.jpeg', wash: { color: '#7A1016', opacity: 0.35 },
-              design: { headingFont: 'great-vibes', bodyFont: 'lato', textColor: '#FFFFFF', accentColor: '#FFE3A3', divider: 'christmas-bells', frame: 'christmas-bells', dividerColor: '#FFE3A3', frameColor: '#FFE3A3', ...CHRISTMAS_COPY } },
+              design: { headingFont: 'great-vibes', bodyFont: 'lato', textColor: '#FFFFFF', accentColor: '#FFE3A3', divider: 'christmas-bells', frame: '', dividerColor: '#FFE3A3', ...CHRISTMAS_COPY } },
             { theme: 'white-christmas', image: heroPhoto('white-christmas'), wash: { color: '#EEF3F9', opacity: 0.35 },
-              design: { divider: 'christmas-mistletoe', frame: 'christmas-mistletoe', ...CHRISTMAS_COPY } },
+              design: { divider: 'christmas-mistletoe', frame: '', ...CHRISTMAS_COPY } },
             { theme: 'merry',
               design: { headingFont: 'great-vibes', bodyFont: 'montserrat', textColor: '#F3F6F9', accentColor: '#E7CA6A', divider: 'christmas-baubles', frame: 'christmas-baubles', dividerColor: '#E7CA6A', frameColor: '#E7CA6A', ...CHRISTMAS_COPY } },
             { theme: 'christmas-party', image: '/images/themes/christmas-party/rsvp.jpeg', wash: { color: '#0E1F17', opacity: 0.55 },
-              design: { headingFont: 'dancing-script', bodyFont: 'lato', textColor: '#FFF8EC', accentColor: '#F2C46D', divider: 'christmas-gift', frame: 'christmas-gift', dividerColor: '#F2C46D', frameColor: '#F2C46D', ...CHRISTMAS_COPY } },
+              design: { headingFont: 'dancing-script', bodyFont: 'lato', textColor: '#FFF8EC', accentColor: '#F2C46D', divider: 'christmas-gift', frame: '', dividerColor: '#F2C46D', ...CHRISTMAS_COPY } },
             { theme: 'gnomes', image: '/images/themes/christmas-party/bokeh.jpeg', wash: { color: '#2A1A12', opacity: 0.45 },
               design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#FFF4E8', accentColor: '#FABA61', divider: 'christmas-candy', frame: 'christmas-candy', dividerColor: '#FABA61', frameColor: '#FABA61', ...CHRISTMAS_COPY } },
           ],
@@ -178,8 +178,10 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         {
           items: WEDDING_THEMES.filter((s) => s !== 'the-day').map((slug): InvitationSample => {
             const preset = defaultInvitation(slug);
-            const image = heroPhoto(slug);
-            return { theme: slug, image, wash: image ? { color: preset.background.color, opacity: 0.7 } : undefined, design: WEDDING_COPY };
+            // Quiet Coastal: a plain white card. Love: a stronger wash over its photo.
+            const image = slug === 'quiet-coastal' ? undefined : heroPhoto(slug);
+            const opacity = slug === 'love' ? 0.85 : 0.7;
+            return { theme: slug, image, wash: image ? { color: preset.background.color, opacity } : undefined, design: WEDDING_COPY };
           }).concat([
             { theme: 'the-day', image: '/images/themes/the-day/photo-6.jpeg', wash: { color: '#F6F2E9', opacity: 0.55 },
               design: { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'wedding-rings', frame: 'wedding-ribbon', ...WEDDING_COPY } },
