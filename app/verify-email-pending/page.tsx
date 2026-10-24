@@ -22,7 +22,7 @@ export default async function VerifyEmailPendingPage({
         <p className="auth-subheading">
           {error === 'invalid'
             ? "That verification link is invalid or has expired. Send a new one below."
-            : "It's been a few days and we still don't have a confirmed email address for this account. Check your inbox for the verification link, or send a new one below."}
+            : "Check your inbox for the verification link we sent you, or send a new one below. Verifying unlocks publishing your page and sending invitations."}
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
           <ResendVerificationButton />

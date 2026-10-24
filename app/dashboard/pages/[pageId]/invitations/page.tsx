@@ -21,7 +21,8 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
 
   const pagePassword = invitationPassword(settings, true);
   const details = invitationDetails(page, pagePassword.password);
-  const hostName = (await auth())?.user?.name?.trim() || '';
+  const session = await auth();
+  const hostName = session?.user?.name?.trim() || '';
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
@@ -46,7 +47,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
       />
 
       <div style={{ marginTop: 32 }}>
-        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} />
+        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} />
       </div>
     </div>
   );

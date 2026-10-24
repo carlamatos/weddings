@@ -44,7 +44,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
 
-    const page = await sql`SELECT id FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended') LIMIT 1`;
+    const page = await sql`SELECT id FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`;
     if (!page.rows[0]) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }

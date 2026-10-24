@@ -9,9 +9,11 @@ import { alertError, buttonBase, c, dangerButton } from './styles';
 //   active    → Deactivate · Suspend
 //   inactive  → Reactivate · Suspend
 //   suspended → Reactivate · Deactivate
+//   draft     → Publish · Suspend
 // Deactivated pages can be turned back on by their owner; suspended ones only
-// by an admin.
-const CONFIRM: Record<PageStatus, string> = {
+// by an admin. Admins never set a page back to draft.
+type AdminStatus = Exclude<PageStatus, 'draft'>;
+const CONFIRM: Record<AdminStatus, string> = {
   active: 'Reactivate this page?\n\nGuests will be able to see it again.',
   inactive:
     'Deactivate this page?\n\nGuests will see a "page unavailable" message. The owner can still sign in and can reactivate it themselves.',
@@ -19,20 +21,20 @@ const CONFIRM: Record<PageStatus, string> = {
     'Suspend this page?\n\nGuests will see a "page unavailable" message and its forms and uploads close. The owner sees a "suspended by MyGala" notice and can’t reactivate it — only an admin can.',
 };
 
-const LABEL: Record<PageStatus, string> = { active: 'Reactivate', inactive: 'Deactivate', suspended: 'Suspend' };
+const LABEL: Record<AdminStatus, string> = { active: 'Reactivate', inactive: 'Deactivate', suspended: 'Suspend' };
 
 const suspendButton: React.CSSProperties = { ...buttonBase, color: '#fff', background: c.red, borderColor: c.red };
 
 export default function PageStatusToggle({ pageId, status }: { pageId: number; status: string }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<PageStatus | null>(null);
+  const [busy, setBusy] = useState<AdminStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const current: PageStatus = status === 'inactive' || status === 'suspended' ? status : 'active';
-  const options: PageStatus[] =
-    current === 'active' ? ['inactive', 'suspended'] : current === 'inactive' ? ['active', 'suspended'] : ['active', 'inactive'];
+  const current: PageStatus = status === 'inactive' || status === 'suspended' || status === 'draft' ? status : 'active';
+  const options: AdminStatus[] =
+    current === 'active' ? ['inactive', 'suspended'] : current === 'inactive' || current === 'draft' ? ['active', 'suspended'] : ['active', 'inactive'];
 
-  async function change(next: PageStatus) {
+  async function change(next: AdminStatus) {
     if (!window.confirm(CONFIRM[next])) return;
     setBusy(next);
     setError(null);

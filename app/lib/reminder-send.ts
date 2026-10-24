@@ -79,7 +79,7 @@ export async function sendDueReminders(now = new Date(), sql: Sql = poolSql): Pr
     LEFT JOIN event_themes et ON et.theme_id = up.theme_id
     WHERE up.plan_type = 'paid'
       AND (up.plan_expires_at IS NULL OR up.plan_expires_at > NOW())
-      AND COALESCE(up.status, 'active') NOT IN ('inactive', 'suspended')
+      AND COALESCE(up.status, 'active') NOT IN ('inactive', 'suspended', 'draft')
       AND up.event_date >= ${addDays(today, -1)}::date AND up.event_date <= ${horizon}::date
   `;
 

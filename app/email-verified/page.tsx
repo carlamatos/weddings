@@ -12,9 +12,11 @@ export default function EmailVerifiedPage() {
       </Link>
       <div className="auth-card">
         <h1 className="auth-heading">Email verified</h1>
-        <p className="auth-subheading">Your email address has been confirmed. You can now sign in to your account.</p>
-        <Link href="/login" className="auth-btn" style={{ textDecoration: 'none' }}>
-          Sign in <ArrowRightIcon style={{ width: 16, height: 16 }} />
+        <p className="auth-subheading">
+          Your email address is confirmed and everything is unlocked: publish your page, send your invitations and share your link.
+        </p>
+        <Link href="/dashboard" className="auth-btn" style={{ textDecoration: 'none' }}>
+          Go to my event <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </Link>
       </div>
     </main>

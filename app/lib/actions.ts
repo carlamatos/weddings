@@ -45,6 +45,7 @@ import { giftRevealUrl } from './gift-token';
 import { publicPageUrl } from './share';
 import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
+import { isEmailVerified, VERIFY_EMAIL_FIRST } from './require-verified';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
@@ -132,11 +133,15 @@ export type UserPageState = {
     // redirects, but that is only a UI courtesy — this action can be called directly.)
     const limitUserId = session?.user?.id;
     if (!limitUserId) return { message: 'Please sign in to create an event page.' };
+    // Until the email is verified the page starts as a draft only the owner
+    // sees (publishPage puts it live), and one page is the limit.
+    const verified = !!session?.user?.verifiedEmail;
     {
       const quota = await fetchPageQuota(limitUserId);
       if (quota.count >= quota.limit) {
         return { message: `You've reached the maximum of ${quota.limit} event pages for one account. Contact us if you need more.` };
       }
+      if (!verified && quota.count >= 1) return { message: `${VERIFY_EMAIL_FIRST} Then you can create more event pages.` };
     }
 
     const formSlug = formData.get('slug');
@@ -247,11 +252,11 @@ export type UserPageState = {
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address, venue_name, plan_type, plan_expires_at
+          place_id, formatted_address, venue_name, plan_type, plan_expires_at, status
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}
         )
         RETURNING id
       `;
@@ -967,6 +972,7 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
   if (!userId || pid === null) return { ok: false, error: 'Not signed in.' };
+  if (!session?.user?.verifiedEmail) return { ok: false, error: VERIFY_EMAIL_FIRST };
   const page = await fetchOwnedPage(userId, pid);
   if (!page) return { ok: false, error: 'Page not found.' };
   const [settings, user] = await Promise.all([
@@ -1116,6 +1122,7 @@ export async function saveInvitationNote(pageId: number, guestId: string, raw: s
 export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
   try {
     if (!UUID_RE.test(guestId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
+    if (!(await isEmailVerified())) return { ok: false };
     const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return { ok: false };
     const res = await sql`
@@ -1345,6 +1352,7 @@ export async function clearGiftDraw(pageId: number): Promise<PlusResult<null>> {
 // marking each batch as told once it's accepted.
 export async function sendGiftExchangeEmails(pageId: number, participantIds?: number[]): Promise<PlusResult<{ sent: number; skipped: number }>> {
   try {
+    if (!(await isEmailVerified())) return { ok: false, error: VERIFY_EMAIL_FIRST };
     const owned = await ownedPlusPageId(pageId);
     if (!owned.ok) return owned;
     const session = await auth();
@@ -1412,6 +1420,7 @@ export async function sendGiftExchangeEmails(pageId: number, participantIds?: nu
 export async function markGiftTexted(pageId: number, participantId: number, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
   try {
     if (!Number.isInteger(participantId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
+    if (!(await isEmailVerified())) return { ok: false };
     const owned = await ownedPlusPageId(pageId);
     if (!owned.ok) return { ok: false };
     await sql`
@@ -1535,6 +1544,7 @@ export async function sendTestReminder(pageId: number, message: string): Promise
   const email = session?.user?.email;
   const pid = parsePageId(pageId);
   if (!userId || !email || pid === null) return { ok: false, message: 'Not signed in.' };
+  if (!session?.user?.verifiedEmail) return { ok: false, message: VERIFY_EMAIL_FIRST };
   const limitKey = `reminder-test:${userId}`;
   if (await isRateLimited(limitKey, 5)) return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
   const page = await fetchOwnedPage(userId, pid);
@@ -1782,6 +1792,7 @@ export async function saveDomain(pageId: number, domain: string): Promise<{ erro
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { error: 'Not authenticated.' };
+  if (!session?.user?.verifiedEmail) return { error: VERIFY_EMAIL_FIRST };
   const pid = parsePageId(pageId);
   if (pid === null) return { error: 'Invalid page.' };
 
@@ -1836,6 +1847,8 @@ export async function setPageStatus(pageId: number, status: 'active' | 'inactive
   const pid = parsePageId(pageId);
   if (pid === null) return { error: 'Invalid page.' };
   if (status !== 'active' && status !== 'inactive') return { error: 'Invalid status.' };
+  // Going live — from offline or a draft — needs a verified email.
+  if (status === 'active' && !session?.user?.verifiedEmail) return { error: VERIFY_EMAIL_FIRST };
 
   const result = await sql`
     UPDATE user_page SET status = ${status}, status_changed_at = NOW()
@@ -1850,6 +1863,25 @@ export async function setPageStatus(pageId: number, status: 'active' | 'inactive
     return { error: 'Page not found.' };
   }
   revalidatePath(`/dashboard/pages/${pid}`);
+  return {};
+}
+
+// Puts a draft page live (app/lib/page-status.ts). Only for a verified email.
+export async function publishPage(pageId: number): Promise<{ error?: string }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { error: 'Not authenticated.' };
+  const pid = parsePageId(pageId);
+  if (pid === null) return { error: 'Invalid page.' };
+  if (!session?.user?.verifiedEmail) return { error: VERIFY_EMAIL_FIRST };
+  const result = await sql`
+    UPDATE user_page SET status = 'active', status_changed_at = NOW()
+    WHERE id = ${pid} AND user_id = ${userId} AND status = 'draft'
+    RETURNING slug
+  `;
+  if (!result.rows[0]) return { error: 'This page isn’t a draft any more — refresh to see where it is.' };
+  revalidatePath(`/${result.rows[0].slug}`);
+  revalidatePath('/dashboard', 'layout');
   return {};
 }
 
@@ -2112,5 +2144,14 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   }
 
   if (newUserId) await markSignUp('email');
+  // Signed in straight away and on to creating their event; the email can be
+  // verified later (until then their page stays a draft — app/lib/require-verified.ts).
+  // A successful signIn throws Next's redirect, so only AuthErrors are caught.
+  try {
+    await signIn('credentials', { email, password, redirectTo: '/dashboard/setup' });
+  } catch (error) {
+    if (!(error instanceof AuthError)) throw error;
+    console.error('Sign-in after sign-up failed:', error);
+  }
   redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'fr' ? '&lang=fr' : ''}`);
 }

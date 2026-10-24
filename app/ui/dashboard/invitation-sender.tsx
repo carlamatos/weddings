@@ -28,6 +28,7 @@ export function InvitationSender({
   language,
   hostName,
   guestListHref,
+  locked = false,
 }: {
   pageId: number;
   guests: Guest[];
@@ -36,6 +37,8 @@ export function InvitationSender({
   language?: string | null;
   hostName?: string;
   guestListHref: string;
+  // The account hasn't verified its email: nothing can be sent yet.
+  locked?: boolean;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -158,6 +161,13 @@ export function InvitationSender({
         <Link href={guestListHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>+ Add or import guests in Guest List</Link>
       </div>
 
+      {locked && (
+        <p role="status" style={{ background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, margin: '10px 0 14px' }}>
+          <strong>Verify your email to send invitations.</strong> Click the link we emailed you — then you can email, text and WhatsApp your
+          invitation from here, and publish your page so guests can RSVP. Until then you can design, print and save it as a PDF, and build your guest list.
+        </p>
+      )}
+
       {guests.length === 0 ? (
         <p style={{ fontSize: 14, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
           Your guest list is empty. <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>Add your guests</Link> — from a
@@ -182,8 +192,8 @@ export function InvitationSender({
               <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>Select not yet invited ({notInvited.length})</button>
               {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>Clear</button>}
               <span style={{ flex: '1 1 auto' }} />
-              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
-              <button type="button" style={{ ...primary, opacity: chosen.length ? 1 : 0.5 }} disabled={!chosen.length || sending !== null} onClick={sendToChosen}>
+              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
+              <button type="button" style={{ ...primary, opacity: chosen.length && !locked ? 1 : 0.5 }} disabled={locked || !chosen.length || sending !== null} onClick={sendToChosen}>
                 {sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Email ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Email invitations'}
               </button>
             </div>
@@ -231,13 +241,13 @@ export function InvitationSender({
                         <td style={{ ...cell, color: '#6B6470', minWidth: 150 }}>
                           <div style={{ marginBottom: 6, whiteSpace: 'nowrap' }}>{g.phone || '—'}</div>
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                            {g.phone && (
+                            {g.phone && !locked && (
                               <>
                                 <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
                                 <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
                               </>
                             )}
-                            <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>
+                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>}
                           </div>
                         </td>
                         <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>

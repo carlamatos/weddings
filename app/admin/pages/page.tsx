@@ -152,7 +152,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
                       color: p.status === 'suspended' ? c.red : p.status === 'inactive' ? c.amber : c.green,
                     }}
                   >
-                    {p.status === 'suspended' ? 'Suspended' : p.status === 'inactive' ? 'Inactive' : 'Active'}
+                    {p.status === 'suspended' ? 'Suspended' : p.status === 'inactive' ? 'Inactive' : p.status === 'draft' ? 'Draft' : 'Active'}
                   </span>
                 </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{formatDate(p.created_at)}</td>

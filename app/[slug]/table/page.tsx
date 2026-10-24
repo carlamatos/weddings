@@ -6,7 +6,7 @@ import { signPageId } from '@/app/lib/page-token';
 import { isPageLocked } from '@/app/lib/page-password';
 import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate';
 import { getTranslations } from '@/app/lib/translations';
-import { isPageOffline } from '@/app/lib/page-status';
+import { isPageDraft, isPageOffline } from '@/app/lib/page-status';
 import { isSeatingOn } from '@/app/lib/seating';
 import PagePasswordGate from '@/app/ui/page-password-gate';
 import PageUnavailable from '@/app/ui/page-unavailable';
@@ -31,9 +31,9 @@ export default async function FindTablePage({ params, searchParams }: {
   const [{ slug }, query, session] = await Promise.all([params, searchParams, auth()]);
   const page = await fetchUserPage(slug);
   if (!page) notFound();
-  if (isPageOffline(page.status || 'active')) return <PageUnavailable />;
-  const isPaid = page.plan_type === 'paid';
   const isOwner = session?.user?.id === page.user_id;
+  if (isPageOffline(page.status || 'active') && !(isPageDraft(page.status) && isOwner)) return <PageUnavailable draft={isPageDraft(page.status)} />;
+  const isPaid = page.plan_type === 'paid';
   const settings = await fetchPageSettings(page.id);
   const t = getTranslations(page.language || 'en');
 
