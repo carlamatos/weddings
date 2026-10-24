@@ -1,19 +1,25 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
-import { INVITATION_FONTS, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
+import { INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
 // when printed at 5in wide. bgImage: extra attributes for the background
-// photo (srcset, lazy loading) where many cards share a page.
-export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement> }>(
-  function InvitationCard({ design, details, qrSvg, bgImage }, ref) {
-    const heading = INVITATION_FONTS[design.headingFont].family;
-    const body = INVITATION_FONTS[design.bodyFont].family;
+// photo (srcset, lazy loading) where many cards share a page. fonts: the
+// font names to use instead of the Google Fonts ones (the landing pages serve
+// the fonts themselves, app/ui/marketing/invitation-landing-fonts.ts).
+export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement>; fonts?: Partial<Record<InvitationFont, string>> }>(
+  function InvitationCard({ design, details, qrSvg, bgImage, fonts }, ref) {
+    const heading = fonts?.[design.headingFont] ?? INVITATION_FONTS[design.headingFont].family;
+    const body = fonts?.[design.bodyFont] ?? INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
     const divider = findOrnament('divider', design.divider);
     const frame = findOrnament('frame', design.frame);
+    // A soft panel behind the text on a photo, so it reads clearly.
+    const panel = invitationTextPanel(design);
+    // The name and closing in the accent, made readable when it's too faint.
+    const accentText = readableAccent(design);
 
     return (
       <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
@@ -27,9 +33,10 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         {frame && (
           <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.frameColor, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: ornamentSvg('frame', frame) }} />
         )}
-        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
+        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw', ...(panel ? { background: panel, padding: frame ? '5cqw 5cqw' : '6cqw 6cqw', borderRadius: '2.5cqw', maxWidth: '100%', boxSizing: 'border-box' } : {}) }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
-          <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: design.accentColor, overflowWrap: 'anywhere' }}>{details.name}</h2>
+          <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</h2>
           {divider
             ? <div aria-hidden="true" style={{ width: '50cqw', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
             : <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />}
@@ -50,7 +57,8 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
               <p style={{ margin: 0, fontSize: '2.8cqw', opacity: 0.85, overflowWrap: 'anywhere' }}>{details.url.replace(/^https?:\/\//, '')}</p>
             </div>
           )}
-          {design.closing && <p style={{ margin: '1cqw 0 0', fontFamily: heading, fontSize: '5.6cqw', color: design.accentColor }}>{design.closing}</p>}
+          {design.closing && <p style={{ margin: '1cqw 0 0', fontFamily: heading, fontSize: '5.6cqw', color: accentText }}>{design.closing}</p>}
+        </div>
         </div>
       </div>
     );

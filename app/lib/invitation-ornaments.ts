@@ -236,6 +236,138 @@ function confetti(boxes: [number, number, number, number][], count: number, seed
   return s;
 }
 
+// A curve that sags (or arches, with a negative sag) between two points.
+const swag = (x0: number, x1: number, y: number, sag: number) => sample((t) => [x0 + (x1 - x0) * t, y + sag * Math.sin(Math.PI * t)], 46);
+
+// A laurel or olive branch along `pts`: pairs of leaves, smaller towards the tip.
+function branch(pts: Pt[], len: number, every = 3, attrs = F): string {
+  let out = line(pts, 'stroke-width="1"');
+  for (let i = 1; i < pts.length - 1; i += every) {
+    const [a, b] = [pts[i - 1], pts[i + 1]];
+    const ang = (Math.atan2(b[1] - a[1], b[0] - a[0]) * 180) / Math.PI;
+    const k = 1 - (0.5 * i) / pts.length;
+    out += leaf(pts[i][0], pts[i][1], ang - 38, len * k, attrs) + leaf(pts[i][0], pts[i][1], ang + 38, len * k, attrs);
+  }
+  return out;
+}
+
+// Eucalyptus: round leaves alternating along a stem.
+function eucalyptus(pts: Pt[], r: number, every = 4): string {
+  let out = line(pts, 'stroke-width="1"');
+  for (let i = 2, n = 0; i < pts.length - 1; i += every, n++) {
+    const [a, b] = [pts[i - 1], pts[i + 1]];
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) + (n % 2 ? 1 : -1) * rad(70);
+    const rr = r * (1 - (0.45 * i) / pts.length);
+    const cx = pts[i][0] + Math.cos(ang) * rr * 1.1, cy = pts[i][1] + Math.sin(ang) * rr * 1.1;
+    out += `<circle cx="${r2(cx)}" cy="${r2(cy)}" r="${r2(rr)}" ${SOFT}/>` + seg(`M${P(pts[i])}L${r2(cx)} ${r2(cy)}`, 'stroke-width=".7"');
+  }
+  return out;
+}
+
+// A fern frond from (x, y) pointing at `deg`, `len` long.
+function fern(x: number, y: number, deg: number, len: number): string {
+  let s = seg(`M0 0Q${r2(len * 0.5)} ${r2(-len * 0.06)} ${r2(len)} 0`, 'stroke-width="1"');
+  const n = 9;
+  for (let i = 1; i <= n; i++) {
+    const t = i / (n + 1), px = len * t, py = -len * 0.06 * 4 * t * (1 - t);
+    const l = len * 0.24 * (1 - t * 0.75);
+    s += leaf(px, py, -55, l, SOFT, 0.3) + leaf(px, py, 55, l, SOFT, 0.3);
+  }
+  return g(at(x, y, deg), s);
+}
+
+// A rose seen from above: a spiral heart in a ring of petals.
+function rose(x: number, y: number, r: number): string {
+  let petals = '';
+  for (let i = 0; i < 5; i++) petals += g(`rotate(${i * 72 + 18})`, seg(`M${r2(-r * 0.62)} ${r2(-r * 0.5)}Q0 ${r2(-r * 1.18)} ${r2(r * 0.62)} ${r2(-r * 0.5)}`, 'stroke-width="1"'));
+  return g(at(x, y), `<circle cx="0" cy="0" r="${r2(r * 0.95)}" ${SOFT} stroke="none"/>` + petals + line(spiral(0, 0, r * 0.55, r * 0.06, 0, 620, 40), 'stroke-width="1"'));
+}
+
+// Two rings, linked.
+const rings = (x: number, y: number, r: number) =>
+  `<circle cx="${r2(x - r * 0.42)}" cy="${r2(y)}" r="${r2(r)}" stroke-width="1.5"/><circle cx="${r2(x + r * 0.42)}" cy="${r2(y)}" r="${r2(r)}" stroke-width="1.5"/>` + star(x - r * 0.42, y - r - 2.5, 2.4, 0.4, 4, -90);
+
+// A row of pearls from big to small (or the other way).
+const pearls = (pts: Pt[], r0: number, r1: number) => pts.map((p, i) => `<circle cx="${r2(p[0])}" cy="${r2(p[1])}" r="${r2(r0 + ((r1 - r0) * i) / Math.max(pts.length - 1, 1))}" ${SOFT} stroke-width=".8"/>`).join('');
+
+// An art deco fan: rays in a half circle, opening upwards.
+function decoFan(x: number, y: number, r: number, rays = 7): string {
+  let s = seg(`M${r2(x - r)} ${y}A${r} ${r} 0 0 1 ${r2(x + r)} ${y}Z`, SOFT);
+  for (let i = 0; i <= rays; i++) {
+    const a = rad(180 + (180 * i) / rays);
+    s += seg(`M${x} ${y}L${r2(x + r * Math.cos(a))} ${r2(y + r * Math.sin(a))}`, 'stroke-width=".9"');
+  }
+  return s + seg(`M${r2(x - r * 0.55)} ${y}A${r2(r * 0.55)} ${r2(r * 0.55)} 0 0 1 ${r2(x + r * 0.55)} ${y}`, 'stroke-width=".9"');
+}
+
+// A diamond (rhombus) outline, w wide and h tall.
+const diamond = (x: number, y: number, w: number, h: number, attrs = '') => seg(`M${x} ${r2(y - h / 2)}L${r2(x + w / 2)} ${y}L${x} ${r2(y + h / 2)}L${r2(x - w / 2)} ${y}Z`, attrs);
+
+// A ribbon bow, knot at (x, y).
+function bow(x: number, y: number, s: number): string {
+  const k = (a: number, b: number) => `${r2(x + a * s)} ${r2(y + b * s)}`;
+  return seg(`M${k(0, 0)}C${k(-0.5, -0.65)} ${k(-1.15, -0.5)} ${k(-1, 0)}C${k(-1.15, 0.5)} ${k(-0.5, 0.65)} ${k(0, 0)}Z`, SOFT)
+    + seg(`M${k(0, 0)}C${k(0.5, -0.65)} ${k(1.15, -0.5)} ${k(1, 0)}C${k(1.15, 0.5)} ${k(0.5, 0.65)} ${k(0, 0)}Z`, SOFT)
+    + seg(`M${k(-0.08, 0.1)}Q${k(-0.3, 0.6)} ${k(-0.55, 1.05)}M${k(0.08, 0.1)}Q${k(0.3, 0.6)} ${k(0.55, 1.05)}`, 'stroke-width="1.1"')
+    + `<ellipse cx="${r2(x)}" cy="${r2(y)}" rx="${r2(s * 0.16)}" ry="${r2(s * 0.2)}" ${F}/>`;
+}
+
+// A two-loop filigree: an S of spirals.
+const filigree = (x: number, y: number, s: number, flip = 1) =>
+  line([...spiral(x - s * 0.55 * flip, y, s * 0.42, s * 0.08, flip > 0 ? 90 : 270, flip > 0 ? 420 : 600, 30)].reverse().concat(spiral(x + s * 0.55 * flip, y, s * 0.08, s * 0.42, flip > 0 ? 240 : 60, flip > 0 ? 570 : 390, 30)), 'stroke-width="1.1"');
+
+// Mistletoe: two leaves and three berries.
+const mistletoe = (x: number, y: number, deg: number, s: number) =>
+  g(at(x, y, deg), veinLeaf(0, 0, -30, s) + veinLeaf(0, 0, 30, s) + seg(`M0 0L${r2(-s * 0.35)} 0`) + berries(-s * 0.05, -s * 0.05, s * 0.12));
+
+// A bell, its mouth at (x, y + s/2).
+function bell(x: number, y: number, s: number): string {
+  const k = (a: number, b: number) => `${r2(x + a * s)} ${r2(y + b * s)}`;
+  return seg(`M${k(-0.5, 0.42)}C${k(-0.38, 0.3)} ${k(-0.4, -0.08)} ${k(-0.32, -0.25)}C${k(-0.25, -0.45)} ${k(0.25, -0.45)} ${k(0.32, -0.25)}C${k(0.4, -0.08)} ${k(0.38, 0.3)} ${k(0.5, 0.42)}Z`, SOFT)
+    + dot(x, y + s * 0.5, s * 0.08) + `<circle cx="${r2(x)}" cy="${r2(y - s * 0.48)}" r="${r2(s * 0.07)}" stroke-width=".9"/>`;
+}
+
+// A striped candy cane, hook at the top, `s` tall, hook opening to the right (dir 1) or left.
+function candyCane(x: number, y: number, s: number, dir = 1, deg = 0): string {
+  const r = s * 0.16, d = `M${x} ${r2(y + s)}V${r2(y + r)}A${r2(r)} ${r2(r)} 0 0 ${dir > 0 ? 1 : 0} ${r2(x + 2 * r * dir)} ${r2(y + r)}V${r2(y + r * 2.2)}`;
+  const w = Math.max(s * 0.09, 2.6);
+  return g(`rotate(${deg} ${x} ${y + s / 2})`, seg(d, `stroke-width="${r2(w)}" stroke-opacity=".25"`) + seg(d, `stroke-width="${r2(w)}" stroke-dasharray="${r2(w * 0.7)} ${r2(w * 0.9)}" stroke-linecap="butt"`));
+}
+
+// A wrapped present, w×h, centred on (x, y).
+function gift(x: number, y: number, w: number, h: number): string {
+  return `<rect x="${r2(x - w / 2)}" y="${r2(y - h / 2)}" width="${r2(w)}" height="${r2(h)}" rx="1" ${SOFT} stroke-width="1.1"/>`
+    + `<rect x="${r2(x - w / 2 - 1.5)}" y="${r2(y - h / 2 - 3)}" width="${r2(w + 3)}" height="4" rx="1" ${SOFT} stroke-width="1.1"/>`
+    + seg(`M${x} ${r2(y - h / 2 - 3)}V${r2(y + h / 2)}`, 'stroke-width="1.1"') + bow(x, y - h / 2 - 3, Math.min(w, h) * 0.32);
+}
+
+// A crown, its base at y.
+function crown(x: number, y: number, w: number, h: number): string {
+  const pts: Pt[] = [[-0.5, 0], [-0.5, -0.55], [-0.3, -0.25], [-0.15, -0.8], [0, -0.35], [0.15, -0.8], [0.3, -0.25], [0.5, -0.55], [0.5, 0]];
+  return seg(`M${pts.map(([a, b]) => P([x + a * w, y + b * h])).join('L')}Z`, SOFT + ' stroke-width="1.1"')
+    + dot(x - w * 0.5, y - h * 0.55 - 2.2, 1.8) + dot(x - w * 0.15, y - h * 0.8 - 2.2, 1.8) + dot(x + w * 0.15, y - h * 0.8 - 2.2, 1.8) + dot(x + w * 0.5, y - h * 0.55 - 2.2, 1.8)
+    + seg(`M${r2(x - w / 2)} ${r2(y - h * 0.12)}H${r2(x + w / 2)}`, 'stroke-width=".8"');
+}
+
+// A two-tier cake with candles, standing on y.
+function cake(x: number, y: number, s: number): string {
+  const k = (a: number, b: number) => [x + a * s, y + b * s] as Pt;
+  const tier = (w: number, top: number, h: number) => `<rect x="${r2(x - (w * s) / 2)}" y="${r2(y + top * s)}" width="${r2(w * s)}" height="${r2(h * s)}" rx="${r2(s * 0.06)}" ${SOFT} stroke-width="1.1"/>`;
+  const drips = line(sample((t) => k(-0.42 + 0.84 * t, -0.5 + 0.05 * Math.sin(Math.PI * 8 * t)), 24), 'stroke-width=".8"');
+  let candles = '';
+  for (const c of [-0.18, 0, 0.18]) candles += seg(`M${P(k(c, -0.95))}V${r2(y - 0.72 * s)}`, 'stroke-width="1.3"') + seg(`M${P(k(c, -1.12))}q${r2(s * 0.05)} ${r2(s * 0.08)} 0 ${r2(s * 0.12)}q${r2(-s * 0.05)} ${r2(-s * 0.04)} 0 ${r2(-s * 0.12)}Z`, F);
+  return tier(1, -0.4, 0.4) + tier(0.66, -0.72, 0.32) + drips + candles + seg(`M${P(k(-0.62, 0))}H${r2(x + 0.62 * s)}`, 'stroke-width="1.2"');
+}
+
+// A papel picado flag: a rectangle with a zigzag hem and cut-out shapes.
+function papel(x: number, y: number, w: number, h: number, variant = 0): string {
+  let hem = `M${r2(x - w / 2)} ${y}H${r2(x + w / 2)}V${r2(y + h * 0.82)}`;
+  for (let i = 0; i < 6; i++) hem += `L${r2(x + w / 2 - (w / 6) * (i + 0.5))} ${r2(y + h)}L${r2(x + w / 2 - (w / 6) * (i + 1))} ${r2(y + h * 0.82)}`;
+  const cx = x, cy = y + h * 0.42;
+  const cut = variant % 3 === 0 ? flower(cx, cy, h * 0.26, 6, 0) : variant % 3 === 1 ? seg(heartD(cx, cy, h * 0.2), F) : star(cx, cy, h * 0.24, 0.45, 5, -90);
+  return seg(`${hem}Z`, SOFT + ' stroke-width="1"') + cut + dot(x - w * 0.32, y + h * 0.16, 1.1) + dot(x + w * 0.32, y + h * 0.16, 1.1);
+}
+
 // ─── Dividers (240×40, centre 120,20) ───────────────────
 
 const scrollCurl = ribbon([[178, 20], [168, 19.2], [159, 16.5], ...spiral(148, 12.5, 7.5, 1.4, 25, -335, 44)], 3, (t) => (0.5 + 0.5 * Math.min(1, t * 3)) * (1 - 0.82 * t));
@@ -307,6 +439,91 @@ const DIVIDER_LIST: Ornament[] = [
     body: mirrorX([0, 1, 2].map((i) => seg(`M${136 + i * 28} 14Q${150 + i * 28} 23 ${164 + i * 28} 14`, 'stroke-width="1.1"')).join('') + seg('M136 14L132 14', 'stroke-width="1.1"') + dot(222, 14, 1.3))
       + seg('M120 3V12', 'stroke-width=".8"') + spider(120, 21, 9),
   },
+  // ── More for every occasion, so no two invitations look alike ──
+  {
+    id: 'wedding-laurel', name: 'Laurel', occasion: 'wedding',
+    body: mirrorX(branch(sample((t) => [127 + 96 * t, 21 - 3 * Math.sin(Math.PI * t)], 24), 13, 3, SOFT + ' stroke-width=".8"')) + dot(120, 21, 2.4),
+  },
+  {
+    id: 'wedding-rings', name: 'Rings', occasion: 'wedding',
+    body: mirrorX(seg('M140 20H210', 'stroke-width="1.1"') + dot(216, 20, 1.5) + dot(223, 20, 1)) + rings(120, 21, 8.5),
+  },
+  {
+    id: 'wedding-pearls', name: 'Pearls', occasion: 'wedding',
+    body: mirrorX(line(sample((t) => [128 + 96 * t, 20 + 3 * Math.sin(Math.PI * t)], 20), 'stroke-width=".6"') + pearls(sample((t) => [130 + 92 * t, 20 + 3 * Math.sin(Math.PI * t)], 9), 3.6, 1.4)) + `<circle cx="120" cy="20" r="5.2" ${SOFT} stroke-width="1.1"/>`,
+  },
+  {
+    id: 'wedding-deco', name: 'Art deco', occasion: 'wedding',
+    body: mirrorX(seg('M142 30H214M152 34.5H200M162 25.5H190', 'stroke-width="1"') + diamond(222, 30, 7, 7, F)) + decoFan(120, 30, 21, 10) + seg('M96 30H144', 'stroke-width="1.3"'),
+  },
+  {
+    id: 'wedding-eucalyptus', name: 'Eucalyptus', occasion: 'wedding',
+    body: mirrorX(eucalyptus(sample((t) => [126 + 98 * t, 20 + 3 * Math.sin(Math.PI * 1.6 * t)], 36), 4.2, 4)),
+  },
+  {
+    id: 'wedding-filigree', name: 'Filigree', occasion: 'wedding',
+    body: mirrorX(filigree(158, 20, 26) + seg('M184 20H222', 'stroke-width="1"') + dot(227, 20, 1.3)) + diamond(120, 20, 10, 14, F),
+  },
+  {
+    id: 'wedding-rose', name: 'Rose', occasion: 'wedding',
+    body: mirrorX(line([[131, 22], [150, 24], [172, 20], [200, 21], [222, 19]], 'stroke-width="1.1"') + veinLeaf(140, 23, 20, 11) + veinLeaf(158, 23, -24, 9) + bud(206, 21, -6, 12)) + rose(120, 20, 10),
+  },
+  {
+    id: 'wedding-fern', name: 'Fern', occasion: 'wedding',
+    body: mirrorX(fern(128, 21, -4, 92)) + dot(120, 21, 2),
+  },
+  {
+    id: 'wedding-diamond', name: 'Diamonds', occasion: 'wedding',
+    body: mirrorX(seg('M136 20H160M178 20H200', 'stroke-width="1"') + diamond(169, 20, 12, 12, 'stroke-width="1"') + diamond(209, 20, 8, 8, F) + dot(220, 20, 1.2)) + diamond(120, 20, 18, 18, 'stroke-width="1.2"') + diamond(120, 20, 8, 8, F),
+  },
+  {
+    id: 'wedding-bow', name: 'Bow', occasion: 'wedding',
+    body: mirrorX(line(wave(140, 222, 20, 2, 41), 'stroke-width="1.1"') + dot(226, 20, 1.3)) + bow(120, 17, 13),
+  },
+  {
+    id: 'christmas-mistletoe', name: 'Mistletoe', occasion: 'christmas',
+    body: mirrorX(seg('M140 20H212', 'stroke-width="1.1"') + dot(218, 20, 1.4) + dot(224, 20, 1)) + mistletoe(132, 20, 0, 22) + g('translate(240 0) scale(-1 1)', mistletoe(132, 20, 0, 22)),
+  },
+  {
+    id: 'christmas-baubles', name: 'Baubles', occasion: 'christmas',
+    body: mirrorX(line(swag(122, 226, 8, 8), 'stroke-width="1"') + seg('M152 13.5V18M196 13V17', 'stroke-width=".8"') + `<circle cx="152" cy="23" r="5" ${SOFT} stroke-width="1"/><circle cx="196" cy="21" r="4" ${SOFT} stroke-width="1"/>`) + `<circle cx="120" cy="22" r="8" ${SOFT} stroke-width="1.2"/>` + seg('M114 20Q120 24 126 20', 'stroke-width=".8"') + `<rect x="117.5" y="11" width="5" height="3.5" rx="1" ${F}/>`,
+  },
+  {
+    id: 'christmas-stars', name: 'Star garland', occasion: 'christmas',
+    body: mirrorX(line(swag(122, 226, 12, 10), 'stroke-width=".9"') + star(146, 19, 3.6) + star(170, 21.5, 4.4) + star(198, 19, 3.4) + dot(222, 13, 1.2)) + star(120, 14, 9),
+  },
+  {
+    id: 'christmas-bells', name: 'Bells', occasion: 'christmas',
+    body: mirrorX(seg('M144 20H214', 'stroke-width="1.1"') + dot(220, 20, 1.4)) + g('rotate(-14 112 20)', bell(112, 20, 18)) + g('rotate(14 128 20)', bell(128, 20, 18)) + bow(120, 9, 6.5),
+  },
+  {
+    id: 'christmas-gift', name: 'Gift', occasion: 'christmas',
+    body: mirrorX(seg('M138 22H212', 'stroke-width="1.1"') + line(spiral(218, 20, 3.4, 0.6, 180, 540, 18), 'stroke-width=".9"')) + gift(120, 24, 18, 13),
+  },
+  {
+    id: 'christmas-candy', name: 'Candy canes', occasion: 'christmas',
+    body: mirrorX(seg('M144 22H212', 'stroke-width="1.1"') + dot(218, 22, 1.5) + dot(225, 22, 1)) + candyCane(113, 6, 30, 1, -18) + g('translate(240 0) scale(-1 1)', candyCane(113, 6, 30, 1, -18)) + bow(120, 22, 7),
+  },
+  {
+    id: 'birthday-streamers', name: 'Streamers', occasion: 'birthday',
+    body: line(wave(22, 218, 15, 4, 30), 'stroke-width="1.3"') + line(wave(22, 218, 25, 4, 30, Math.PI), 'stroke-width="1"') + dot(120, 20, 2.4) + dot(18, 20, 1.4) + dot(222, 20, 1.4),
+  },
+  {
+    id: 'birthday-crown', name: 'Crown', occasion: 'birthday',
+    body: mirrorX(seg('M142 26H212', 'stroke-width="1.1"') + star(218, 26, 3.6)) + crown(120, 28, 30, 22),
+  },
+  {
+    id: 'birthday-polka', name: 'Polka dots', occasion: 'birthday',
+    body: mirrorX([0, 1, 2, 3, 4, 5, 6].map((i) => dot(132 + i * 14, 20 + (i % 2 ? 4 : -4), 2.6 - i * 0.25)).join('') + star(226, 20, 3)) + `<circle cx="120" cy="20" r="6" ${SOFT} stroke-width="1.2"/>`,
+  },
+  {
+    id: 'birthday-cake', name: 'Cake', occasion: 'birthday',
+    body: mirrorX(seg('M140 34H212', 'stroke-width="1.1"') + star(218, 30, 3.4) + dot(226, 24, 1.2)) + cake(120, 34, 26),
+  },
+  {
+    id: 'birthday-papel', name: 'Papel picado', occasion: 'birthday',
+    body: line(swag(14, 226, 6, 4), 'stroke-width="1"') + [0, 1, 2, 3, 4, 5, 6].map((i) => papel(32 + i * 29, 6 + 4 * Math.sin((Math.PI * (32 + i * 29 - 14)) / 212), 22, 26, i)).join(''),
+  },
 ];
 
 // ─── Frames (500×700, the card) ─────────────────────────
@@ -345,7 +562,6 @@ const scallops = (() => {
 })();
 
 // Christmas: an evergreen garland swagged across the top, with baubles.
-const swag = (x0: number, x1: number, y: number, sag: number) => sample((t) => [x0 + (x1 - x0) * t, y + sag * Math.sin(Math.PI * t)], 46);
 const bauble = (x: number, y: number, r: number, hang: number) =>
   seg(`M${x} ${y - hang}V${y - r - 2}`, 'stroke-width=".8"') + `<rect x="${r2(x - r * 0.3)}" y="${r2(y - r - 3.5)}" width="${r2(r * 0.6)}" height="3.5" rx="1" ${F}/>`
   + `<circle cx="${x}" cy="${y}" r="${r}" ${SOFT}/>` + seg(`M${r2(x - r * 0.55)} ${r2(y - r * 0.2)}Q${x} ${r2(y + r * 0.25)} ${r2(x + r * 0.55)} ${r2(y - r * 0.2)}`, 'stroke-width=".8"');
@@ -391,6 +607,114 @@ const batFlight = bat(84, 80, 40, -14) + bat(160, 54, 22, 8) + bat(56, 150, 18, 
   + bat(414, 84, 36, 12) + bat(340, 56, 18, -6) + bat(446, 156, 16, 20)
   + bat(96, 628, 20, -10) + bat(404, 636, 24, 10) + bat(250, 660, 14, 0);
 
+// ── For the frames added for variety ──
+
+// Dots along a rectangle's edges, `gap` apart.
+function rectDots(inset: number, gap: number, r: number, attrs = F): string {
+  let out = '';
+  const w = 500 - inset * 2, h = 700 - inset * 2;
+  const nx = Math.round(w / gap), ny = Math.round(h / gap);
+  for (let i = 0; i <= nx; i++) for (const y of [inset, 700 - inset]) out += `<circle cx="${r2(inset + (w * i) / nx)}" cy="${y}" r="${r}" ${attrs}/>`;
+  for (let i = 1; i < ny; i++) for (const x of [inset, 500 - inset]) out += `<circle cx="${x}" cy="${r2(inset + (h * i) / ny)}" r="${r}" ${attrs}/>`;
+  return out;
+}
+// A four-point sparkle.
+const sparkle = (x: number, y: number, r: number) => star(x, y, r, 0.22, 4, -90);
+
+// Wedding: laurel halves meeting at the top and bottom centres.
+const laurelHalf = branch(sample((t) => [244 - 196 * t, 46 + 26 * t * t], 30), 20, 3, SOFT + ' stroke-width=".9"');
+const laurelFrame = rect(24, 0, 'stroke-width=".9"') + mirrorX(laurelHalf, 500) + mirrorY(mirrorX(laurelHalf, 500), 700) + dot(250, 44, 3.2) + dot(250, 656, 3.2);
+
+// Wedding: art deco — fans at top and bottom, stepped corners.
+const decoCorner = seg('M36 120V36H120M50 106V50H106M64 92V64H92', 'stroke-width="1.1"') + diamond(36, 36, 12, 12, F) + diamond(78, 78, 8, 8, F);
+const decoFrame = rect(36, 0, 'stroke-width=".9"') + fourCorners(decoCorner) + g('translate(500 92) rotate(180)', decoFan(250, 56, 42, 12)) + decoFan(250, 644, 42, 12)
+  + seg('M150 36H350M150 664H350', 'stroke-width="1.6"');
+
+// Wedding: a string of pearls around the card, larger at the corners.
+const pearlFrame = rect(44, 0, 'stroke-width=".7"') + rectDots(30, 14, 2.4, `${SOFT} stroke-width=".8"`) + fourCorners(`<circle cx="30" cy="30" r="6.5" ${SOFT} stroke-width="1"/>` + dot(30, 30, 1.6));
+
+// Wedding: eucalyptus stems out of two corners.
+const eucalyptusCorner = eucalyptus(sample((t) => [40 + 240 * t, 44 + 8 * Math.sin(Math.PI * 2 * t)], 70), 9, 5) + eucalyptus(sample((t) => [44 + 8 * Math.sin(Math.PI * 2 * t), 40 + 300 * t], 80), 9, 5);
+const eucalyptusFrame = rect(24, 4, 'stroke-width=".9"') + oppositeCorner(eucalyptusCorner);
+
+// Wedding: an arched window, doubled, with a flower at the top.
+const archFrame = seg('M34 674V230A216 216 0 0 1 466 230V674Z', 'stroke-width="1.4"') + seg('M46 662V232A204 204 0 0 1 454 232V662Z', 'stroke-width=".8"')
+  + flower(250, 26, 10, 6, 0) + leaf(236, 30, 200, 16, SOFT) + leaf(264, 30, -20, 16, SOFT) + fourCorners(dot(34, 674, 0) + dot(18, 18, 0)) + dot(34, 680, 2) + dot(466, 680, 2);
+
+// Wedding: filigree loops in the corners and at the middle of each long side.
+const filigreeFrame = rect(28, 0, 'stroke-width="1.2"') + rect(34, 0, 'stroke-width=".6"')
+  + fourCorners(g('translate(64 64) rotate(45)', filigree(0, 0, 44)) + dot(46, 46, 2.2))
+  + g('translate(250 34)', filigree(0, 12, 50)) + g('translate(250 666) scale(1 -1)', filigree(0, 12, 50));
+
+// Wedding: roses with leaves in two corners.
+const roseCorner = rose(66, 66, 26) + rose(118, 46, 14) + rose(46, 118, 14)
+  + [[96, 82, 20, 26], [82, 96, 70, 26], [146, 40, -10, 20], [40, 146, 100, 20], [100, 112, 45, 16]].map(([x, y, a, l]) => veinLeaf(x, y, a, l)).join('')
+  + line([[160, 40], [200, 34], [236, 36]], 'stroke-width="1"') + bud(236, 36, 0, 14) + line([[40, 160], [34, 200], [36, 236]], 'stroke-width="1"') + bud(36, 236, 90, 14);
+const roseFrame = rect(22, 0, 'stroke-width="1"') + oppositeCorner(roseCorner);
+
+// Wedding: fern fronds rising up both sides.
+const fernFrame = rect(26, 0, 'stroke-width=".9"') + fern(44, 678, -84, 170) + fern(456, 678, -96, 170) + fern(52, 38, 70, 104) + fern(448, 38, 110, 104);
+
+// Wedding: diamonds at the corners and middles, double rule.
+const geoFrame = rect(24, 0, 'stroke-width="1.3"') + rect(40, 0, 'stroke-width=".7"')
+  + fourCorners(diamond(32, 32, 26, 26, `${SOFT} stroke-width="1"`) + diamond(32, 32, 10, 10, F) + seg('M58 32H110M32 58V110', 'stroke-width="1.1"'))
+  + diamond(250, 32, 22, 22, `${SOFT} stroke-width="1"`) + diamond(250, 668, 22, 22, `${SOFT} stroke-width="1"`) + diamond(32, 350, 22, 22, `${SOFT} stroke-width="1"`) + diamond(468, 350, 22, 22, `${SOFT} stroke-width="1"`);
+
+// Wedding: a bow at the top with its ribbon running along the edge.
+const ribbonFrame = rect(30, 0, 'stroke-width="1"') + ribbon(sample((t) => [238 - 200 * t, 40 + 8 * Math.sin(Math.PI * 3 * t)], 40), 5, (t) => 1 - t * 0.85)
+  + ribbon(sample((t) => [262 + 200 * t, 40 + 8 * Math.sin(Math.PI * 3 * t)], 40), 5, (t) => 1 - t * 0.85) + bow(250, 36, 30) + fourCorners(dot(30, 30, 2.4));
+
+// Christmas: mistletoe hanging from the top on ribbons, berries below.
+const mistletoeFrame = rect(22, 0, 'stroke-width="1.4"') + rect(29, 0, 'stroke-width=".7"')
+  + seg('M250 22V64M150 22V44M350 22V44', 'stroke-width=".9"') + bow(250, 64, 13) + mistletoe(250, 86, 90, 40) + mistletoe(150, 58, 90, 28) + mistletoe(350, 58, 90, 28)
+  + fourCorners(berries(48, 48, 4) + leaf(48, 48, 20, 22, SOFT) + leaf(48, 48, 70, 22, SOFT));
+
+// Christmas: baubles on strings of different lengths.
+const baublesFrame = rect(22, 0, 'stroke-width="1.2"') + seg('M22 22H478', 'stroke-width="2"')
+  + [[70, 70, 12], [118, 104, 16], [170, 58, 10], [330, 58, 10], [382, 104, 16], [430, 70, 12]].map(([x, y, r]) => bauble(x, y, r, y - 22)).join('')
+  + star(250, 48, 14) + seg('M250 22V34', 'stroke-width=".9"') + fourCorners(dot(38, 680, 0)) + snowflake(70, 640, 12) + snowflake(430, 640, 12) + snowflake(250, 662, 8);
+
+// Christmas: strings of stars swagged across the top and bottom.
+const starsLine = (y: number, sag: number) => { const pts = swag(22, 478, y, sag); return line(pts, 'stroke-width=".9"') + pts.filter((_, i) => i % 5 === 2).map((p, i) => star(p[0], p[1] + 6, i % 2 ? 5 : 7.5)).join(''); };
+const starsFrame = rect(22, 14, 'stroke-width="1.1"') + starsLine(36, 40) + starsLine(664, -30) + fourCorners(sparkle(46, 46, 9));
+
+// Christmas: a pair of bells with a bow at the top, small bells below.
+const bellsFrame = rect(20, 0, 'stroke-width="1.5"') + rect(27, 0, 'stroke-width=".7"')
+  + g('rotate(-16 232 70)', bell(232, 70, 48)) + g('rotate(16 268 70)', bell(268, 70, 48)) + bow(250, 40, 18)
+  + line([[150, 30], [200, 46], [230, 44]], 'stroke-width="1"') + line([[350, 30], [300, 46], [270, 44]], 'stroke-width="1"')
+  + bell(70, 646, 26) + bell(430, 646, 26) + holly(250, 658, 200, 18) + holly(250, 658, -20, 18) + berries(250, 656, 2.6);
+
+// Christmas: presents piled in the bottom corners, a bow at the top.
+const giftFrame = rect(24, 0, 'stroke-width="1.2"') + bow(250, 40, 26) + seg('M24 40H222M278 40H476', 'stroke-width="1.6"')
+  + gift(64, 644, 48, 40) + gift(112, 654, 34, 30) + gift(436, 644, 48, 40) + gift(388, 654, 34, 30);
+
+// Birthday: streamers curling down from the top corners.
+const streamer = (x: number, s: number) => line(sample((t) => [x + s * (9 * Math.sin(Math.PI * 5 * t) + 6 * t), 30 + 230 * t], 70), 'stroke-width="1.4"');
+const streamersFrame = rect(22, 10, 'stroke-width="1"') + line(wave(22, 478, 34, 6, 46), 'stroke-width="1.3"') + streamer(40, 1) + streamer(460, -1) + streamer(58, 0.6) + streamer(442, -0.6)
+  + confetti([[60, 646, 440, 682]], 30, 21, 1.4);
+
+// Birthday: a crown at the top over a dotted border.
+const crownFrame = rectDots(26, 12, 1.8) + rect(38, 8, 'stroke-width=".8"') + crown(250, 60, 74, 42) + sparkle(190, 44, 7) + sparkle(310, 44, 7) + fourCorners(sparkle(26, 26, 10));
+
+// Birthday: a band of polka dots inside a double edge.
+const polkaFrame = rect(20, 8, 'stroke-width="1.2"') + rect(58, 4, 'stroke-width=".8"') + (() => {
+  let s = '';
+  for (let y = 32; y < 690; y += 18) for (let x = 32; x < 490; x += 18) {
+    const inBand = x < 50 || x > 450 || y < 50 || y > 650;
+    if (inBand) s += dot(x + ((y / 18) % 2 ? 9 : 0) * 0, y, (Math.floor(x / 18) + Math.floor(y / 18)) % 2 ? 3.2 : 1.8);
+  }
+  return s;
+})();
+
+// Birthday: sparkles in the corners and scattered along the edges.
+const sparkleFrame = rect(24, 18, 'stroke-width="1.1"') + fourCorners(sparkle(54, 54, 20) + sparkle(96, 40, 8) + sparkle(40, 96, 8) + dot(80, 70, 1.8) + dot(70, 84, 1.4))
+  + (() => { const rnd = seeded(5); let s = ''; for (const [x, y] of [[180, 40], [320, 46], [460, 250], [40, 300], [460, 420], [40, 470], [200, 662], [300, 656]]) s += rnd() > 0.5 ? sparkle(x, y, 5 + rnd() * 3) : dot(x, y, 1.8); return s; })();
+
+// Birthday / Día de los Muertos: papel picado across the top, smaller below.
+const papelRow = (y: number, w: number, h: number, n: number, sag: number) =>
+  line(swag(22, 478, y, sag), 'stroke-width="1"') + Array.from({ length: n }, (_, i) => { const t = (i + 0.5) / n; const x = 22 + 456 * t; return papel(x, y + sag * Math.sin(Math.PI * t), w, h, i); }).join('');
+const papelFrame = rect(22, 0, 'stroke-width="1"') + papelRow(26, 46, 40, 8, 8) + papelRow(644, 30, 28, 10, 4);
+
 const FRAME_LIST: Ornament[] = [
   { id: 'wedding-classic', name: 'Classic scroll', occasion: 'wedding', body: rect(18, 0, 'stroke-width="1.6"') + rect(26, 0, 'stroke-width=".8"') + fourCorners(g('translate(-14 -14) scale(1.55)', classicCorner, 'stroke-width=".9"')) },
   { id: 'wedding-vine', name: 'Leafy vine', occasion: 'wedding', body: rect(30, 0, 'stroke-width="1.1"') + oppositeCorner(g('translate(-12 -12) scale(1.3)', vineCorner, 'stroke-width="1"'), 0.8) },
@@ -405,6 +729,28 @@ const FRAME_LIST: Ornament[] = [
   { id: 'halloween-webs', name: 'Cobwebs', occasion: 'halloween', body: rect(22, 0, 'stroke-width="1.1"') + g(at(22, 22), web(150)) + g('translate(478 22) scale(-1 1)', web(150)) + g('translate(22 678) scale(1 -1)', web(80)) + g('translate(478 678) scale(-1 -1)', web(80)) + seg('M446 50V140', 'stroke-width=".8"') + spider(446, 150, 11) },
   { id: 'halloween-bats', name: 'Bats', occasion: 'halloween', body: rect(20, 0, 'stroke-width="1.4"') + rect(27, 0, 'stroke-width=".7"') + batFlight },
   { id: 'halloween-pumpkins', name: 'Pumpkin patch', occasion: 'halloween', body: rect(24, 0, 'stroke-width="1.1"') + pumpkinPatch + g('scale(1.4)', vineCurl, 'stroke-width=".85"') + g('translate(500 0) scale(-1.4 1.4)', vineCurl, 'stroke-width=".85"') },
+  // ── More for every occasion, so no two invitations look alike ──
+  { id: 'wedding-laurel', name: 'Laurel', occasion: 'wedding', body: laurelFrame },
+  { id: 'wedding-deco', name: 'Art deco', occasion: 'wedding', body: decoFrame },
+  { id: 'wedding-pearls', name: 'Pearls', occasion: 'wedding', body: pearlFrame },
+  { id: 'wedding-eucalyptus', name: 'Eucalyptus', occasion: 'wedding', body: eucalyptusFrame },
+  { id: 'wedding-arch', name: 'Arch', occasion: 'wedding', body: archFrame },
+  { id: 'wedding-filigree', name: 'Filigree', occasion: 'wedding', body: filigreeFrame },
+  { id: 'wedding-rose', name: 'Roses', occasion: 'wedding', body: roseFrame },
+  { id: 'wedding-fern', name: 'Ferns', occasion: 'wedding', body: fernFrame },
+  { id: 'wedding-geometric', name: 'Diamonds', occasion: 'wedding', body: geoFrame },
+  { id: 'wedding-ribbon', name: 'Ribbon', occasion: 'wedding', body: ribbonFrame },
+  { id: 'christmas-mistletoe', name: 'Mistletoe', occasion: 'christmas', body: mistletoeFrame },
+  { id: 'christmas-baubles', name: 'Baubles', occasion: 'christmas', body: baublesFrame },
+  { id: 'christmas-stars', name: 'Star garland', occasion: 'christmas', body: starsFrame },
+  { id: 'christmas-bells', name: 'Bells', occasion: 'christmas', body: bellsFrame },
+  { id: 'christmas-gift', name: 'Presents', occasion: 'christmas', body: giftFrame },
+  { id: 'christmas-candy', name: 'Candy canes', occasion: 'christmas', body: rect(24, 0, 'stroke-width="1.1"') + rectDots(34, 16, 1.4) + fourCorners(candyCane(54, 40, 70, 1, -30) + candyCane(80, 46, 54, -1, 24) + bow(66, 104, 12)) },
+  { id: 'birthday-streamers', name: 'Streamers', occasion: 'birthday', body: streamersFrame },
+  { id: 'birthday-crown', name: 'Crown', occasion: 'birthday', body: crownFrame },
+  { id: 'birthday-polka', name: 'Polka dots', occasion: 'birthday', body: polkaFrame },
+  { id: 'birthday-sparkle', name: 'Sparkles', occasion: 'birthday', body: sparkleFrame },
+  { id: 'birthday-papel', name: 'Papel picado', occasion: 'birthday', body: papelFrame },
 ];
 
 // ─── Public API ─────────────────────────────────────────
@@ -449,7 +795,7 @@ const PALETTES: Record<string, string[]> = {
   'baby-shower-girl': ['#C9708A', '#B8578E', '#5B4A54', '#7F7A73', '#F7DEE5'],
   'baby-shower-neutral': ['#8A7FB5', '#7A6858', '#2E7BB8', '#4A5060', '#EDE6DC'],
   'baby-shower-boy': ['#B07A45', '#2A6FA6', '#244A63', '#F5C1AB', '#FFFFFF'],
-  'summit': ['#2F5DFF', '#C9A24B', '#E8ECF2', '#C1443A', '#5B6270'],
+  'summit': ['#CECECE', '#2F5DFF', '#C9A24B', '#E8ECF2', '#C1443A', '#5B6270'],
   'nexus': ['#E8A33D', '#4FB6A8', '#E7E3DA', '#C1443A', '#C6863F'],
   'dinner-gala': ['#C9A24B', '#D8B35A', '#EDE3CC', '#E2A15A', '#C9A96E'],
   'community': ['#D9472B', '#1A5B91', '#EDB044', '#405518', '#1F2E4D'],

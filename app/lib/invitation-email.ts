@@ -1,5 +1,5 @@
 import { escHtml } from './mail';
-import { googleFontsHref, INVITATION_FONTS, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
+import { googleFontsHref, INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
 import { companyMailingLine } from './company';
 import { findOrnament } from './invitation-ornaments';
 
@@ -105,10 +105,14 @@ export function invitationEmail({
   const solid = image && bg.overlay ? bg.overlayColor : bg.color;
   const wash = image && bg.overlay ? rgba(bg.overlayColor, bg.overlayOpacity) : 'transparent';
   const accent = design.accentColor;
+  // The name and closing: the accent, made readable when it's too faint.
+  const accentText = readableAccent(design);
   const text = design.textColor;
   const rsvpUrl = `${details.url}#rsvp`;
   const divider = findOrnament('divider', design.divider);
   const frame = findOrnament('frame', design.frame);
+  // On a photo, the words sit on a soft panel (as on the card).
+  const panel = invitationTextPanel(design);
 
   const p = (content: string, style = '') =>
     `<p style="margin: 0 0 14px; font-family: ${body}; color: ${text}; ${style}">${content}</p>`;
@@ -120,7 +124,7 @@ export function invitationEmail({
   const card = `
     ${guestName !== undefined ? p(escHtml(t.greeting(guestName)), 'font-size: 16px; margin-bottom: 22px;') : ''}
     ${design.eyebrow ? p(escHtml(design.eyebrow), 'font-size: 13px; letter-spacing: 3px; text-transform: uppercase;') : ''}
-    <h1 style="margin: 0 0 16px; font-family: ${heading}; font-weight: 400; font-size: 44px; line-height: 1.1; color: ${accent};">${escHtml(details.name)}</h1>
+    <h1 style="margin: 0 0 16px; font-family: ${heading}; font-weight: 400; font-size: 44px; line-height: 1.1; color: ${accentText};">${escHtml(details.name)}</h1>
     ${divider
       ? `<img src="${escHtml(`${siteBase}/api/invitation-ornament?kind=divider&id=${divider.id}&color=${design.dividerColor.slice(1)}`)}" width="240" height="40" alt="" style="display: block; width: 240px; max-width: 100%; height: auto; margin: 0 auto 20px; border: 0;" />`
       : `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 20px;"><tr><td style="width: 70px; height: 2px; background: ${accent}; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>`}
@@ -142,8 +146,12 @@ export function invitationEmail({
       </td></tr>
     </table>
     <p style="margin: 10px 0 0; font-family: ${body}; font-size: 13px;"><a href="${escHtml(details.url)}" style="color: ${text}; text-decoration: underline;">${t.viewPage}</a></p>
-    ${design.closing ? `<p style="margin: 26px 0 0; font-family: ${heading}; font-size: 26px; line-height: 1.3; color: ${accent};">${escHtml(design.closing)}</p>` : ''}
+    ${design.closing ? `<p style="margin: 26px 0 0; font-family: ${heading}; font-size: 26px; line-height: 1.3; color: ${accentText};">${escHtml(design.closing)}</p>` : ''}
   `;
+
+  const panelled = panel
+    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 32px 22px; text-align: center; background: ${panel}; border-radius: 8px;">${card}</td></tr></table>`
+    : card;
 
   const preheader = [design.eyebrow, details.name, details.date].filter(Boolean).join(' · ');
 
@@ -165,7 +173,7 @@ export function invitationEmail({
           <td bgcolor="${solid}" ${image ? `background="${escHtml(image)}"` : ''} style="background-color: ${solid}; ${image ? `background-image: url('${escHtml(image)}'); background-size: cover; background-position: center;` : ''}">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr><td align="center" style="padding: ${frame ? '16px' : '56px 36px 52px'}; text-align: center; background: ${wash};">
-                ${frame ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 40px 24px 36px; text-align: center; border: 4px double ${design.frameColor};">${card}</td></tr></table>` : card}
+                ${frame ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 40px 24px 36px; text-align: center; border: 4px double ${design.frameColor};">${panelled}</td></tr></table>` : panelled}
               </td></tr>
             </table>
           </td>

@@ -36,12 +36,13 @@ export const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.w
 export const themeCard = (slug: string): ThemeCard | undefined => THEME_CARDS.find((t) => t.slug === slug);
 
 export function ThemePicker({
-  open, selected, onChoose, onClose,
+  open, selected, onChoose, onClose, first = [],
 }: {
   open: boolean;
   selected: string;
   onChoose: (slug: string) => void;
   onClose: () => void;
+  first?: string[]; // themes to show first, in this order (from a landing page's occasion)
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -53,7 +54,10 @@ export function ThemePicker({
     if (!open && d.open) d.close();
   }, [open]);
 
-  const shown = filter === 'all' ? THEME_CARDS : THEME_CARDS.filter((t) => t.category === filter);
+  // The occasion's themes first (in `first` order), then the rest as usual.
+  const rank = (slug: string) => { const i = first.indexOf(slug); return i < 0 ? first.length : i; };
+  const ordered = first.length ? [...THEME_CARDS].sort((a, b) => rank(a.slug) - rank(b.slug)) : THEME_CARDS;
+  const shown = filter === 'all' ? ordered : ordered.filter((t) => t.category === filter);
   const count = (f: Filter) => (f === 'all' ? THEME_CARDS.length : THEME_CARDS.filter((t) => t.category === f).length);
 
   return (
