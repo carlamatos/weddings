@@ -449,7 +449,7 @@ const PALETTES: Record<string, string[]> = {
   'baby-shower-girl': ['#C9708A', '#B8578E', '#5B4A54', '#7F7A73', '#F7DEE5'],
   'baby-shower-neutral': ['#8A7FB5', '#7A6858', '#2E7BB8', '#4A5060', '#EDE6DC'],
   'baby-shower-boy': ['#B07A45', '#2A6FA6', '#244A63', '#F5C1AB', '#FFFFFF'],
-  'summit': ['#2F5DFF', '#C9A24B', '#E8ECF2', '#C1443A', '#5B6270'],
+  'summit': ['#CECECE', '#2F5DFF', '#C9A24B', '#E8ECF2', '#C1443A', '#5B6270'],
   'nexus': ['#E8A33D', '#4FB6A8', '#E7E3DA', '#C1443A', '#C6863F'],
   'dinner-gala': ['#C9A24B', '#D8B35A', '#EDE3CC', '#E2A15A', '#C9A96E'],
   'community': ['#D9472B', '#1A5B91', '#EDB044', '#405518', '#1F2E4D'],

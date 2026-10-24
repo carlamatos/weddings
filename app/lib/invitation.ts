@@ -88,7 +88,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'baby-shower-girl': { bg: '#F5D7DF', textColor: '#5B4A54', accentColor: '#C9708A', headingFont: 'dancing-script', bodyFont: 'poppins' },
   'baby-shower-neutral': { bg: '#E3E5E8', textColor: '#4A5060', accentColor: '#8A7FB5', headingFont: 'dancing-script', bodyFont: 'poppins' },
   'baby-shower-boy': { bg: '#D9EEFB', textColor: '#244A63', accentColor: '#B07A45', headingFont: 'dancing-script', bodyFont: 'poppins' },
-  'summit': { bg: '#14171C', textColor: '#E8ECF2', accentColor: '#2F5DFF', headingFont: 'space-grotesk', bodyFont: 'space-grotesk' },
+  'summit': { bg: '#14171C', textColor: '#E8ECF2', accentColor: '#CECECE', headingFont: 'space-grotesk', bodyFont: 'space-grotesk' },
   'nexus': { bg: '#1D2124', textColor: '#E7E3DA', accentColor: '#E8A33D', headingFont: 'montserrat', bodyFont: 'lato' },
   'dinner-gala': { bg: '#0A1420', textColor: '#EDE3CC', accentColor: '#C9A24B', headingFont: 'cinzel', bodyFont: 'cormorant' },
   'community': { bg: '#F6E0BD', textColor: '#1F2E4D', accentColor: '#D9472B', headingFont: 'playfair', bodyFont: 'lato' },
