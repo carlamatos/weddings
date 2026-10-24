@@ -116,9 +116,9 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
             <h2 className="ilp-title">{page.themes.title}</h2>
             <p className="ilp-section-sub">{page.themes.sub}</p>
             <ul className="ilp-theme-list">
-              {page.themes.slugs.map((slug, i) => (
+              {page.themes.slugs.map((slug) => (
                 <li key={slug} className="ilp-theme">
-                  <div className="ilp-phone ilp-phone--small" style={{ ['--ilp-delay' as string]: `${-i * 3}s` }}>
+                  <div className="ilp-phone ilp-phone--small">
                     <div className="ilp-phone-screen">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img className="ilp-scroll" {...previewImage(themePagePicture(slug), '240px')} alt={`The ${themeName(slug)} theme, the whole page`} />
