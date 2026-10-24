@@ -7,7 +7,19 @@ import { createUserPage, UserPageState } from '../lib/actions';
 import { themeRegistry } from './themes/registry';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
 import { CATEGORY_LABELS, ThemePicker, themeCard } from './theme-picker';
-import { clearStartIntent, readStartIntent } from '../lib/start-intent';
+import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
+import { THEME_CARDS } from '../lib/marketing/theme-cards';
+import { ornamentOccasion } from '../lib/invitation-ornaments';
+
+// Themes to show first in the gallery for a landing page's occasion: its
+// wedding or Christmas themes, the one the visitor clicked (if any) first.
+function occasionThemes(start: StartIntent | null): string[] {
+  if (!start?.occasion) return [];
+  const slugs = THEME_CARDS
+    .filter((t) => (start.occasion === 'wedding' ? t.category === 'wedding' : ornamentOccasion(t.slug) === 'christmas'))
+    .map((t) => t.slug);
+  return start.theme && slugs.includes(start.theme) ? [start.theme, ...slugs.filter((s) => s !== start.theme)] : slugs;
+}
 import { defaultInvitation, googleFontsHref } from '../lib/invitation';
 import { InvitationCard } from './dashboard/invitation-card';
 import { eventWhen } from './themes/event-when';
@@ -87,12 +99,14 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
   const [step, setStep] = useState<1 | 2>(1);
   const [picking, setPicking] = useState(false);
   const [forInvitation, setForInvitation] = useState(false);
+  const [firstThemes, setFirstThemes] = useState<string[]>([]);
   // Step 1 is the gallery itself: open it on arrival — unless a landing page
   // already chose the theme (browser storage is only readable after mount).
   useEffect(() => {
     const start = readStartIntent();
     /* eslint-disable react-hooks/set-state-in-effect -- the dialog opens after mount (showModal needs the DOM); the landing page's choice lives in browser storage */
     if (start?.intent === 'invitation') setForInvitation(true);
+    setFirstThemes(occasionThemes(start));
     if (start?.theme && themeRegistry[start.theme] && themeCard(start.theme)) {
       setThemeSlug(start.theme);
       setStep(2);
@@ -339,7 +353,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
         </>
       )}
 
-      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} />
+      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} first={firstThemes} />
     </div>
   );
 }

@@ -5,11 +5,11 @@ import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
 import { parseStartParams } from '@/app/lib/start-intent';
 
-export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string }> }) {
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string }> }) {
   const params = await searchParams;
   const lang = params.lang === 'fr' ? 'fr' : 'en';
   // From a landing page: start with an invitation or a website, maybe in a chosen theme.
-  const start = parseStartParams(params.start, params.theme);
+  const start = parseStartParams(params.start, params.theme, params.occasion);
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
       <Link href={siteHref('/')} className="auth-wordmark">

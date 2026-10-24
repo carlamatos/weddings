@@ -41,7 +41,8 @@ function fontsHref(cards: ReturnType<typeof sampleInvitation>[]): string {
 }
 
 export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
-  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme);
+  // The occasion puts its themes first in the gallery after sign-up.
+  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, page.key === 'christmas' ? 'christmas' : 'wedding');
   const cta = (where: string) => `ilp-${page.key}-${where}`;
   const hero = sampleInvitation(page.hero.invitation);
   const groups = page.gallery.groups.map((g) => ({ ...g, cards: g.items.map((s) => ({ sample: s, ...sampleInvitation(s) })) }));
