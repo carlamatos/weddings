@@ -1,5 +1,5 @@
 import { escHtml } from './mail';
-import { googleFontsHref, INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
+import { googleFontsHref, INVITATION_FONTS, invitationOverlay, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
 import { companyMailingLine } from './company';
 import { findOrnament } from './invitation-ornaments';
 
@@ -102,8 +102,10 @@ export function invitationEmail({
   const bg = design.background;
   const image = bg.kind === 'image' && bg.imageUrl ? absolute(bg.imageUrl, siteBase) : '';
   // What shows where the image can't (Outlook): the wash colour if there is one.
-  const solid = image && bg.overlay ? bg.overlayColor : bg.color;
-  const wash = image && bg.overlay ? rgba(bg.overlayColor, bg.overlayOpacity) : 'transparent';
+  // The photo's wash, strong enough for the words to read (as on the card).
+  const overlay = image ? invitationOverlay(design) : null;
+  const solid = overlay ? overlay.color : bg.color;
+  const wash = overlay ? rgba(overlay.color, overlay.opacity) : 'transparent';
   const accent = design.accentColor;
   // The name and closing: the accent, made readable when it's too faint.
   const accentText = readableAccent(design);
@@ -111,8 +113,6 @@ export function invitationEmail({
   const rsvpUrl = `${details.url}#rsvp`;
   const divider = findOrnament('divider', design.divider);
   const frame = findOrnament('frame', design.frame);
-  // On a photo, the words sit on a soft panel (as on the card).
-  const panel = invitationTextPanel(design);
 
   const p = (content: string, style = '') =>
     `<p style="margin: 0 0 14px; font-family: ${body}; color: ${text}; ${style}">${content}</p>`;
@@ -149,10 +149,6 @@ export function invitationEmail({
     ${design.closing ? `<p style="margin: 26px 0 0; font-family: ${heading}; font-size: 26px; line-height: 1.3; color: ${accentText};">${escHtml(design.closing)}</p>` : ''}
   `;
 
-  const panelled = panel
-    ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 32px 22px; text-align: center; background: ${panel}; border-radius: 8px;">${card}</td></tr></table>`
-    : card;
-
   const preheader = [design.eyebrow, details.name, details.date].filter(Boolean).join(' · ');
 
   const html = `<!doctype html>
@@ -173,7 +169,7 @@ export function invitationEmail({
           <td bgcolor="${solid}" ${image ? `background="${escHtml(image)}"` : ''} style="background-color: ${solid}; ${image ? `background-image: url('${escHtml(image)}'); background-size: cover; background-position: center;` : ''}">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
               <tr><td align="center" style="padding: ${frame ? '16px' : '56px 36px 52px'}; text-align: center; background: ${wash};">
-                ${frame ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 40px 24px 36px; text-align: center; border: 4px double ${design.frameColor};">${panelled}</td></tr></table>` : panelled}
+                ${frame ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 40px 24px 36px; text-align: center; border: 4px double ${design.frameColor};">${card}</td></tr></table>` : card}
               </td></tr>
             </table>
           </td>

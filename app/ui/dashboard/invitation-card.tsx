@@ -1,5 +1,5 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
-import { INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
+import { INVITATION_FONTS, invitationOverlay, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 
 // The invitation itself (5×7 portrait). Sized with container query units
@@ -16,8 +16,8 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
     const divider = findOrnament('divider', design.divider);
     const frame = findOrnament('frame', design.frame);
-    // A soft panel behind the text on a photo, so it reads clearly.
-    const panel = invitationTextPanel(design);
+    // On a photo, a colour wash strong enough for the words to read clearly.
+    const overlay = invitationOverlay(design);
     // The name and closing in the accent, made readable when it's too faint.
     const accentText = readableAccent(design);
 
@@ -27,14 +27,14 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bg.imageUrl} alt="" {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
-        {useImage && bg.overlay && (
-          <div style={{ position: 'absolute', inset: 0, background: bg.overlayColor, opacity: bg.overlayOpacity }} />
+        {overlay && (
+          <div style={{ position: 'absolute', inset: 0, background: overlay.color, opacity: overlay.opacity }} />
         )}
         {frame && (
           <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.frameColor, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: ornamentSvg('frame', frame) }} />
         )}
         <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw', ...(panel ? { background: panel, padding: frame ? '5cqw 5cqw' : '6cqw 6cqw', borderRadius: '2.5cqw', maxWidth: '100%', boxSizing: 'border-box' } : {}) }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
           <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</h2>
           {divider
