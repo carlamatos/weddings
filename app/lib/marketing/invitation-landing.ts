@@ -178,8 +178,10 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         {
           items: WEDDING_THEMES.filter((s) => s !== 'the-day').map((slug): InvitationSample => {
             const preset = defaultInvitation(slug);
-            const image = heroPhoto(slug);
-            return { theme: slug, image, wash: image ? { color: preset.background.color, opacity: 0.7 } : undefined, design: WEDDING_COPY };
+            // Quiet Coastal: a plain white card. Love: a stronger wash over its photo.
+            const image = slug === 'quiet-coastal' ? undefined : heroPhoto(slug);
+            const opacity = slug === 'love' ? 0.85 : 0.7;
+            return { theme: slug, image, wash: image ? { color: preset.background.color, opacity } : undefined, design: WEDDING_COPY };
           }).concat([
             { theme: 'the-day', image: '/images/themes/the-day/photo-6.jpeg', wash: { color: '#F6F2E9', opacity: 0.55 },
               design: { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'wedding-rings', frame: 'wedding-ribbon', ...WEDDING_COPY } },

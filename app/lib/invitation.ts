@@ -108,14 +108,14 @@ const FALLBACK: Preset = THEME_PRESETS['the-day'];
 // starting design: saved invitations keep exactly what their host chose.
 const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Weddings (and the formal business themes, from the same elegant set)
-  'the-day': { divider: 'wedding-scroll', frame: 'wedding-classic' },
-  'love': { divider: 'wedding-heart', frame: 'wedding-floral' },
+  'the-day': { divider: 'wedding-scroll', frame: '' },
+  'love': { divider: 'wedding-heart', frame: 'wedding-pearls' }, // the same pearls as Quiet Coastal
   'nature': { divider: 'wedding-fern', frame: '' }, // no frame: the fern divider alone
-  'wild-flores': { divider: 'wedding-vine', frame: 'wedding-vine' },
-  'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-eucalyptus' },
+  'wild-flores': { divider: 'wedding-vine', frame: '' },
+  'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
   'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
   'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
-  'vilma': { divider: 'wedding-rose', frame: 'wedding-rose' },
+  'vilma': { divider: 'wedding-rose', frame: '' },
   'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
   'nexus': { divider: 'wedding-deco', frame: 'wedding-deco' },
   'dinner-gala': { divider: 'wedding-laurel', frame: 'wedding-laurel' },
