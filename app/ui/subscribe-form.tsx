@@ -79,6 +79,9 @@ function slugify(text: string): string {
 // for them (required); ownerName fills in whatever part it does have.
 export default function Form({ prepaid = false, accountEmail = '', needsName = false, ownerName }: { prepaid?: boolean; accountEmail?: string; needsName?: boolean; ownerName?: { given: string; family: string } }) {
   const [eventName, setEventName] = useState('');
+  // Controlled, so a failed submit (the form resets) keeps what was typed.
+  const [givenName, setGivenName] = useState(ownerName?.given ?? '');
+  const [familyName, setFamilyName] = useState(ownerName?.family ?? '');
   const [eventDate, setEventDate] = useState('');
   const [themeSlug, setThemeSlug] = useState('');
   const [step, setStep] = useState<1 | 2>(1);
@@ -266,14 +269,14 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
                 <div className="auth-field">
                   <label className="auth-label" htmlFor="givenName">Your first name</label>
                   <div className="auth-input-wrap">
-                    <input className="auth-input" id="givenName" type="text" name="givenName" defaultValue={ownerName?.given ?? ''} maxLength={100} autoComplete="given-name" required />
+                    <input className="auth-input" id="givenName" type="text" name="givenName" value={givenName} onChange={(e) => setGivenName(e.target.value)} maxLength={100} autoComplete="given-name" required />
                   </div>
                   {state.errors?.given_name && <p className="auth-field-error">{state.errors.given_name[0]}</p>}
                 </div>
                 <div className="auth-field">
                   <label className="auth-label" htmlFor="familyName">Your last name</label>
                   <div className="auth-input-wrap">
-                    <input className="auth-input" id="familyName" type="text" name="familyName" defaultValue={ownerName?.family ?? ''} maxLength={100} autoComplete="family-name" required />
+                    <input className="auth-input" id="familyName" type="text" name="familyName" value={familyName} onChange={(e) => setFamilyName(e.target.value)} maxLength={100} autoComplete="family-name" required />
                   </div>
                   {state.errors?.family_name && <p className="auth-field-error">{state.errors.family_name[0]}</p>}
                 </div>

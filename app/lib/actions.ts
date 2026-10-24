@@ -46,6 +46,7 @@ import { publicPageUrl } from './share';
 import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
 import { isEmailVerified, VERIFY_EMAIL_FIRST } from './require-verified';
+import { THEME_CARDS } from './marketing/theme-cards';
 import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
 import { siteUrl } from './site-url';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
@@ -234,7 +235,19 @@ export type UserPageState = {
     let newPageId: number | string | undefined;
     try {
       // Resolve theme slug → theme_id
-      const themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
+      let themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
+      // A theme the app has but this database doesn't yet (an environment
+      // that hasn't run /api/migrate since the theme was added): add its row.
+      const card = THEME_CARDS.find((t) => t.slug === theme_slug);
+      if (!themeRow.rows[0] && card) {
+        themeRow = await sql`
+          INSERT INTO event_themes (name, description, slug)
+          SELECT ${card.name}, ${card.desc}, ${card.slug}
+          WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = ${card.slug})
+          RETURNING theme_id
+        `;
+        if (!themeRow.rows[0]) themeRow = await sql`SELECT theme_id FROM event_themes WHERE slug = ${theme_slug} LIMIT 1`;
+      }
       const theme_id = themeRow.rows[0]?.theme_id ?? null;
       if (theme_id === null) {
         return { errors: { theme_slug: ['Please choose a theme.'] }, message: 'Please choose a theme for your page.' };
