@@ -110,7 +110,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Weddings (and the formal business themes, from the same elegant set)
   'the-day': { divider: 'wedding-scroll', frame: 'wedding-classic' },
   'love': { divider: 'wedding-heart', frame: 'wedding-floral' },
-  'nature': { divider: 'wedding-fern', frame: 'wedding-fern' },
+  'nature': { divider: 'wedding-fern', frame: '' }, // no frame: the fern divider alone
   'wild-flores': { divider: 'wedding-vine', frame: 'wedding-vine' },
   'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-eucalyptus' },
   'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
@@ -219,33 +219,39 @@ const contrast = (a: string, b: string) => {
 };
 
 // The accent colour for words (the event name, the closing line), readable
-// on what's behind them: when the accent is too faint there (below 3.5:1 —
-// these are often thin script fonts), it's blended toward the text colour
+// on what's behind them: when the accent is too faint there (below 3.5:1 on
+// a plain colour, 4.5:1 on a photo — these are often thin script fonts), it's blended toward the text colour
 // just enough to read, keeping as much of its hue as it can. Frames and
 // dividers keep the accent as chosen.
 export function readableAccent(design: InvitationDesign): string {
-  const panel = invitationTextPanel(design);
-  const behind = panel ? (panel.startsWith('rgba(0, 0, 0') ? '#262626' : `#${panel.match(/\d+/g)!.slice(0, 3).map((v) => Number(v).toString(16).padStart(2, '0')).join('')}`) : design.background.color;
-  if (contrast(design.accentColor, behind) >= 3.5) return design.accentColor;
+  // On a photo, what's behind the words is mostly the wash's colour — but
+  // some of the photo shows through, so it needs more contrast (4.5:1).
+  const overlay = invitationOverlay(design);
+  const behind = overlay?.color ?? design.background.color;
+  const target = overlay ? 4.5 : 3.5;
+  if (contrast(design.accentColor, behind) >= target) return design.accentColor;
   const [a, t] = [hexRgb(design.accentColor), hexRgb(design.textColor)];
   for (let step = 1; step <= 10; step++) {
     const mixed = `#${a.map((v, i) => Math.round(v + ((t[i] - v) * step) / 10).toString(16).padStart(2, '0')).join('')}`;
-    if (contrast(mixed, behind) >= 3.5) return mixed;
+    if (contrast(mixed, behind) >= target) return mixed;
   }
   return design.textColor;
 }
 
-// On a photo, the text sits on a soft panel so it reads clearly whatever the
-// photo: a light one in the invitation's background colour for dark text, a
-// dark one for light text. null on a plain colour, which needs none. Shared
-// by the card (preview, print, PDF) and the email.
-export function invitationTextPanel(design: InvitationDesign): string | null {
+// The colour wash over a photo background, made strong enough for the words
+// to read clearly whatever the photo: at least 65%, in a colour that stands
+// apart from the text (dark for light text, light for dark text), and on even
+// when the host turned it off. null on a plain colour, which needs none.
+// Shared by the card (preview, print, PDF) and the email.
+export const MIN_PHOTO_WASH = 0.65;
+export function invitationOverlay(design: InvitationDesign): { color: string; opacity: number } | null {
   const bg = design.background;
   if (bg.kind !== 'image' || !bg.imageUrl) return null;
-  if (luminance(design.textColor) > 0.4) return 'rgba(0, 0, 0, 0.5)';
-  // Dark text: the background colour, or white when that's dark too.
-  const base = luminance(bg.color) > 0.4 ? bg.color : '#FFFFFF';
-  return `rgba(${hexRgb(base).join(', ')}, 0.84)`;
+  const lightText = luminance(design.textColor) > 0.4;
+  let color = bg.overlay ? bg.overlayColor : lightText ? '#000000' : bg.color;
+  if (contrast(color, design.textColor) < 4.5) color = lightText ? '#000000' : luminance(bg.color) > 0.4 ? bg.color : '#FFFFFF';
+  if (contrast(color, design.textColor) < 4.5) color = lightText ? '#000000' : '#FFFFFF';
+  return { color, opacity: Math.max(bg.overlay ? bg.overlayOpacity : 0, MIN_PHOTO_WASH) };
 }
 
 export function googleFontsHref(fonts: InvitationFont[]): string {
