@@ -15,18 +15,16 @@ import '@/app/ui/marketing/invitation-landing.css';
 
 // The invitation-first landing pages (data: app/lib/marketing/invitation-landing.ts).
 // Built to load fast: fully static (no session lookup), no client components
-// of its own, every movement is CSS, the invitation fonts come in one request
-// cut down to the letters the cards use, and only the banner's two images
-// load up front — the gallery's photos and the scrolling pages load as they
-// come into view.
+// of its own, every movement is CSS, the invitation fonts are served from our
+// own domain, and only the banner's two images load up front — the gallery's
+// photos and the scrolling pages load as they come into view. The gallery's
+// cards are laid out with the page, so their fonts download straight away and
+// are ready before the cards scroll into view.
 
 // The theme's whole demo page as one tall picture (made by scripts/theme-page-shots.mjs).
 const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.webp`;
 const themeName = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.name ?? slug;
 const themeDesc = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.desc ?? '';
-
-// One stylesheet request for every font the cards use, each cut down to just
-// the characters on the cards (Google Fonts' text= subsetting).
 
 export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
   // The occasion puts its themes first in the gallery after sign-up.
