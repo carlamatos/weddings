@@ -117,25 +117,25 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
   'vilma': { divider: 'wedding-rose', frame: '' },
   'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
-  'nexus': { divider: 'wedding-deco', frame: 'wedding-deco' },
-  'dinner-gala': { divider: 'wedding-laurel', frame: 'wedding-laurel' },
+  'nexus': { divider: 'wedding-deco', frame: '' },
+  'dinner-gala': { divider: 'wedding-laurel', frame: '' },
   'community': { divider: 'wedding-bow', frame: 'wedding-arch' },
   // Celebrations
-  'alegria': { divider: 'birthday-crown', frame: 'birthday-crown' },
-  'fun-party': { divider: 'birthday-confetti', frame: 'birthday-confetti' },
+  'alegria': { divider: 'birthday-stars', frame: '' },
+  'fun-party': { divider: 'birthday-confetti', frame: '' },
   'balloons': { divider: 'birthday-balloons', frame: 'birthday-bunting' },
   'baby-shower-girl': { divider: 'birthday-polka', frame: 'birthday-balloons' },
   'baby-shower-neutral': { divider: 'birthday-cake', frame: 'birthday-polka' },
   'baby-shower-boy': { divider: 'birthday-stars', frame: 'birthday-sparkle' },
-  'antique-cars': { divider: 'birthday-streamers', frame: 'birthday-streamers' },
+  'antique-cars': { divider: 'birthday-streamers', frame: '' },
   // Christmas
-  'christmas-party': { divider: 'christmas-evergreen', frame: 'christmas-garland' },
+  'christmas-party': { divider: 'christmas-evergreen', frame: '' },
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
   'gnomes': { divider: 'christmas-holly', frame: 'christmas-holly' },
   'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
   // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
-  'dia-de-los-muertos': { divider: 'birthday-papel', frame: 'birthday-papel' },
+  'dia-de-los-muertos': { divider: 'birthday-papel', frame: '' },
 };
 
 export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
