@@ -46,7 +46,7 @@
 .marketing-page .ilp-stage { position: relative; height: 600px; }
 .marketing-page .ilp-phone { --ilp-screen-h: 520px; position: absolute; right: 2%; top: 20px; width: 270px; padding: 10px; border-radius: 40px; background: #1B1720; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.06); }
 .marketing-page .ilp-phone-screen { height: var(--ilp-screen-h); border-radius: 30px; overflow: hidden; background: #fff; }
-.marketing-page .ilp-scroll { display: block; width: 100%; height: auto; animation: ilp-scroll 26s ease-in-out infinite alternate; animation-delay: var(--ilp-delay, 0s); will-change: transform; }
+.marketing-page .ilp-scroll { display: block; width: 100%; height: auto; animation: ilp-scroll 26s ease-in-out infinite alternate; will-change: transform; }
 .marketing-page .ilp-invite { position: absolute; left: 0; top: 40px; width: min(380px, 62%); z-index: 2; transform: rotate(-5deg); animation: ilp-float 7s ease-in-out infinite; filter: drop-shadow(0 34px 40px rgba(0, 0, 0, 0.45)); }
 .marketing-page .ilp-invite .invitation-card { box-shadow: none !important; }
 .marketing-page .ilp-chip { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px; background: #fff; color: #241F2B; font-size: 13px; font-weight: 700; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.5); white-space: nowrap; animation: ilp-pop 4s ease-in-out infinite; }
@@ -95,14 +95,14 @@
 .marketing-page .ilp-theme-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 46px 30px; }
 .marketing-page .ilp-theme { content-visibility: auto; contain-intrinsic-size: auto 760px; text-align: center; }
 .marketing-page .ilp-phone--small { --ilp-screen-h: 460px; position: relative; right: auto; top: auto; width: 240px; margin: 0 auto 20px; }
-/* Christmas page: each theme's page scrolls only while the mouse is on that
-   theme (it starts at the top and pauses where it is when the mouse leaves).
+/* Each theme's page scrolls only while the mouse is on that theme (it starts
+   at the top and pauses where it is when the mouse leaves).
    Touch screens have no hover: the page in the phone scrolls by hand. */
-.marketing-page.ilp--christmas .ilp-themes .ilp-scroll { animation-delay: 0s; animation-play-state: paused; }
-.marketing-page.ilp--christmas .ilp-themes .ilp-theme:hover .ilp-scroll { animation-play-state: running; }
+.marketing-page .ilp-themes .ilp-scroll { animation-delay: 0s; animation-play-state: paused; }
+.marketing-page .ilp-themes .ilp-theme:hover .ilp-scroll { animation-play-state: running; }
 @media (hover: none) {
-  .marketing-page.ilp--christmas .ilp-themes .ilp-scroll { animation: none; }
-  .marketing-page.ilp--christmas .ilp-themes .ilp-phone-screen { overflow-y: auto; }
+  .marketing-page .ilp-themes .ilp-scroll { animation: none; }
+  .marketing-page .ilp-themes .ilp-phone-screen { overflow-y: auto; }
 }
 .marketing-page .ilp-theme-name { font-family: var(--font-display); font-size: 26px; font-weight: 400; margin: 0 0 6px; }
 .marketing-page .ilp-theme-desc { font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0 auto 16px; max-width: 300px; }
