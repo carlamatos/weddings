@@ -1,5 +1,6 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
 import { INVITATION_FONTS, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
+import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
@@ -11,6 +12,8 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     const body = INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
+    const divider = findOrnament('divider', design.divider);
+    const frame = findOrnament('frame', design.frame);
 
     return (
       <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
@@ -21,10 +24,15 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         {useImage && bg.overlay && (
           <div style={{ position: 'absolute', inset: 0, background: bg.overlayColor, opacity: bg.overlayOpacity }} />
         )}
-        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '3cqw' }}>
+        {frame && (
+          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.frameColor, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: ornamentSvg('frame', frame) }} />
+        )}
+        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
           <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: design.accentColor, overflowWrap: 'anywhere' }}>{details.name}</h2>
-          <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />
+          {divider
+            ? <div aria-hidden="true" style={{ width: '50cqw', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
+            : <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />}
           {details.date && <p style={{ margin: 0, fontSize: '4.2cqw', fontWeight: 600 }}>{details.date}</p>}
           {details.time && <p style={{ margin: 0, fontSize: '3.8cqw' }}>{details.time}</p>}
           {(details.venue || details.address) && (
@@ -38,7 +46,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
           {design.message && <p style={{ margin: '1cqw 0 0', fontSize: '3.6cqw', lineHeight: 1.55, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
           {design.showQr && qrSvg && (
             <div style={{ marginTop: '1cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw' }}>
-              <div style={{ width: '20cqw', height: '20cqw', background: '#fff', padding: '1.2cqw', borderRadius: '1cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+              <div style={{ width: frame ? '16cqw' : '20cqw', height: frame ? '16cqw' : '20cqw', background: '#fff', padding: '1.2cqw', borderRadius: '1cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
               <p style={{ margin: 0, fontSize: '2.8cqw', opacity: 0.85, overflowWrap: 'anywhere' }}>{details.url.replace(/^https?:\/\//, '')}</p>
             </div>
           )}

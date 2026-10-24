@@ -1,13 +1,16 @@
 import { escHtml } from './mail';
 import { googleFontsHref, INVITATION_FONTS, type InvitationDesign, type InvitationDetails, type InvitationFont } from './invitation';
 import { companyMailingLine } from './company';
+import { findOrnament } from './invitation-ornaments';
 
 // The invitation email a guest receives (Invitations → Send). It carries the
 // host's saved design — colours, wording, fonts, background — rebuilt with
 // tables and inline styles so it renders in Gmail, Outlook and Apple Mail.
 // Apple Mail and iOS load the Google fonts; other apps fall back to a close
 // system font. Outlook on Windows ignores background images and shows the
-// background (or overlay) colour instead.
+// background (or overlay) colour instead. A chosen divider comes as a PNG
+// (/api/invitation-ornament); a frame becomes a double rule in its colour,
+// since the drawn frame can't stretch to an email's height.
 
 type Lang = 'en' | 'fr' | 'es';
 
@@ -104,6 +107,8 @@ export function invitationEmail({
   const accent = design.accentColor;
   const text = design.textColor;
   const rsvpUrl = `${details.url}#rsvp`;
+  const divider = findOrnament('divider', design.divider);
+  const frame = findOrnament('frame', design.frame);
 
   const p = (content: string, style = '') =>
     `<p style="margin: 0 0 14px; font-family: ${body}; color: ${text}; ${style}">${content}</p>`;
@@ -116,7 +121,9 @@ export function invitationEmail({
     ${guestName !== undefined ? p(escHtml(t.greeting(guestName)), 'font-size: 16px; margin-bottom: 22px;') : ''}
     ${design.eyebrow ? p(escHtml(design.eyebrow), 'font-size: 13px; letter-spacing: 3px; text-transform: uppercase;') : ''}
     <h1 style="margin: 0 0 16px; font-family: ${heading}; font-weight: 400; font-size: 44px; line-height: 1.1; color: ${accent};">${escHtml(details.name)}</h1>
-    <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 20px;"><tr><td style="width: 70px; height: 2px; background: ${accent}; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>
+    ${divider
+      ? `<img src="${escHtml(`${siteBase}/api/invitation-ornament?kind=divider&id=${divider.id}&color=${design.dividerColor.slice(1)}`)}" width="240" height="40" alt="" style="display: block; width: 240px; max-width: 100%; height: auto; margin: 0 auto 20px; border: 0;" />`
+      : `<table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 0 auto 20px;"><tr><td style="width: 70px; height: 2px; background: ${accent}; font-size: 0; line-height: 0;">&nbsp;</td></tr></table>`}
     ${details.date ? p(escHtml(details.date), 'font-size: 18px; font-weight: 600; margin-bottom: 6px;') : ''}
     ${details.time ? p(escHtml(details.time), 'font-size: 16px;') : ''}
     ${place ? p(place, 'font-size: 15px; line-height: 1.55; margin-top: 8px;') : ''}
@@ -157,8 +164,8 @@ export function invitationEmail({
         <tr>
           <td bgcolor="${solid}" ${image ? `background="${escHtml(image)}"` : ''} style="background-color: ${solid}; ${image ? `background-image: url('${escHtml(image)}'); background-size: cover; background-position: center;` : ''}">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-              <tr><td align="center" style="padding: 56px 36px 52px; text-align: center; background: ${wash};">
-                ${card}
+              <tr><td align="center" style="padding: ${frame ? '16px' : '56px 36px 52px'}; text-align: center; background: ${wash};">
+                ${frame ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding: 40px 24px 36px; text-align: center; border: 4px double ${design.frameColor};">${card}</td></tr></table>` : card}
               </td></tr>
             </table>
           </td>
