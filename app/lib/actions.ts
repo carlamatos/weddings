@@ -100,6 +100,8 @@ const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true }).refine
 export type UserPageState = {
     errors?: {
       event_name?: string[];
+      given_name?: string[];
+      family_name?: string[];
       description?: string[];
       event_date?: string[];
       event_time?: string[];
@@ -122,7 +124,7 @@ export type UserPageState = {
   };
 
 
-  export async function createUserPage(prevState: UserPageState, formData: FormData){
+  export async function createUserPage(prevState: UserPageState, formData: FormData): Promise<UserPageState> {
 
     const session = await auth();
 
@@ -196,6 +198,27 @@ export type UserPageState = {
 
     const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url: rawUrl, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
     const url = safeHttpUrl(rawUrl);
+
+    // The host's first and last name, asked for on this form when the
+    // account doesn't have both yet (and then required).
+    const givenName = String(formData.get('givenName') ?? '').trim().slice(0, 100);
+    const familyName = String(formData.get('familyName') ?? '').trim().slice(0, 100);
+    try {
+      const owner = await sql<{ given_name: string | null; family_name: string | null }>`SELECT given_name, family_name FROM users WHERE id = ${limitUserId}`;
+      const named = !!owner.rows[0]?.given_name?.trim() && !!owner.rows[0]?.family_name?.trim();
+      if (!named || givenName || familyName) {
+        if (!givenName || !familyName) {
+          const errors: NonNullable<UserPageState['errors']> = {};
+          if (!givenName) errors.given_name = ['Please enter your first name.'];
+          if (!familyName) errors.family_name = ['Please enter your last name.'];
+          return { errors, message: 'Please enter your first and last name.' };
+        }
+        await sql`UPDATE users SET given_name = ${givenName}, family_name = ${familyName}, name = ${`${givenName} ${familyName}`} WHERE id = ${limitUserId}`;
+      }
+    } catch (error) {
+      console.error('Failed to save the host’s name:', error);
+      return { message: 'Something went wrong creating your page. Please try again.' };
+    }
     const venue_name = (formData.get('venueName') as string) || null;
     const user_phone = cleanPhone(validatedFields.data.phone);
 

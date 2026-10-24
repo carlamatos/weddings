@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { fetchPageQuota, hasPrepaidPlus } from '@/app/lib/data';
 import SubscribeForm from "@/app/ui/subscribe-form";
@@ -14,11 +15,16 @@ export default async function Page() {
     const [quota, prepaid] = userId
         ? await Promise.all([fetchPageQuota(userId), hasPrepaidPlus(userId)])
         : [{ count: 0, limit: 1 }, false];
+    // The form asks for the host's first and last name until the account has both.
+    const owner = userId
+        ? (await sql<{ given_name: string | null; family_name: string | null }>`SELECT given_name, family_name FROM users WHERE id = ${userId}`).rows[0]
+        : undefined;
+    const needsName = !owner?.given_name?.trim() || !owner?.family_name?.trim();
 
     return (
         <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
             {quota.count > 0 && (
-                <div style={{ width: '100%', maxWidth: 620, marginBottom: 12 }}>
+                <div style={{ width: '100%', maxWidth: 1180, marginBottom: 12 }}>
                     <Link href="/dashboard" style={{ fontSize: 14, color: '#6B6470', textDecoration: 'none' }}>← Event pages</Link>
                 </div>
             )}
@@ -30,7 +36,7 @@ export default async function Page() {
                     </p>
                 </div>
             ) : (
-                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} />
+                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} needsName={needsName} ownerName={{ given: owner?.given_name?.trim() ?? '', family: owner?.family_name?.trim() ?? '' }} />
             )}
         </div>
     );
