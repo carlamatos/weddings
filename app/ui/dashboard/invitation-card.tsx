@@ -1,15 +1,17 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
-import { INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
+import { INVITATION_FONTS, invitationTextPanel, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
 // when printed at 5in wide. bgImage: extra attributes for the background
-// photo (srcset, lazy loading) where many cards share a page.
-export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement> }>(
-  function InvitationCard({ design, details, qrSvg, bgImage }, ref) {
-    const heading = INVITATION_FONTS[design.headingFont].family;
-    const body = INVITATION_FONTS[design.bodyFont].family;
+// photo (srcset, lazy loading) where many cards share a page. fonts: the
+// font names to use instead of the Google Fonts ones (the landing pages serve
+// the fonts themselves, app/ui/marketing/invitation-landing-fonts.ts).
+export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement>; fonts?: Partial<Record<InvitationFont, string>> }>(
+  function InvitationCard({ design, details, qrSvg, bgImage, fonts }, ref) {
+    const heading = fonts?.[design.headingFont] ?? INVITATION_FONTS[design.headingFont].family;
+    const body = fonts?.[design.bodyFont] ?? INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
     const divider = findOrnament('divider', design.divider);
