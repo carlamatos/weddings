@@ -93,7 +93,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         'Free to make and to send',
         'Send by email, text or WhatsApp',
         'RSVPs and guest counts come straight to you',
-        'Map, schedule, Secret Santa and a photo wall included',
+        'Map, schedule, RSVP and a photo wall included',
       ],
       secondary: { label: 'See a live invitation', theme: 'merry' },
       invitation: {
@@ -162,21 +162,21 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         'RSVPs with plus-ones and meal notes',
         'Schedule, map, guest photos and more',
       ],
-      secondary: { label: 'See a live wedding website', theme: 'wild-flores' },
+      secondary: { label: 'See a live wedding website', theme: 'the-day' },
       invitation: {
-        theme: 'wild-flores',
-        image: heroPhoto('wild-flores'),
-        wash: { color: '#EEE3DD', opacity: 0.2 },
-        design: { headingFont: 'parisienne', bodyFont: 'cormorant', textColor: '#3E3A2C', accentColor: '#6E7F3F', ...WEDDING_COPY },
+        theme: 'the-day',
+        image: heroPhoto('the-day'),
+        wash: { color: '#F6F2E9', opacity: 0.7 },
+        design: WEDDING_COPY,
       },
-      pageTheme: 'wild-flores',
+      pageTheme: 'the-day',
     },
     gallery: {
       title: 'Wedding invitations you can create',
       sub: 'Each one matches its wedding website. Change the words, fonts, colours and photo. Tap one to start with it.',
       groups: [
         {
-          items: WEDDING_THEMES.filter((s) => s !== 'wild-flores').map((slug): InvitationSample => {
+          items: WEDDING_THEMES.filter((s) => s !== 'the-day').map((slug): InvitationSample => {
             const preset = defaultInvitation(slug);
             const image = heroPhoto(slug);
             return { theme: slug, image, wash: image ? { color: preset.background.color, opacity: 0.7 } : undefined, design: WEDDING_COPY };
