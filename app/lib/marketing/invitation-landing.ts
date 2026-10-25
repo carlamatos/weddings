@@ -186,8 +186,10 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
           }).concat([
             { theme: 'the-day', image: '/images/themes/the-day/photo-6.jpeg', wash: { color: '#F6F2E9', opacity: 0.55 },
               design: { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'wedding-rings', frame: 'wedding-ribbon', ...WEDDING_COPY } },
-            { theme: 'love', image: '/images/themes/love/photo-5.jpeg', wash: { color: '#FBE4E2', opacity: 0.6 },
-              design: { divider: 'wedding-arrow', frame: 'wedding-scallop', ...WEDDING_COPY } },
+            // Love's monogram layout: the initials in a leaf wreath, all in its rose.
+            { theme: 'love',
+              design: { layout: 'monogram', bodyFont: 'libre-baskerville', divider: '', frame: '', textColor: '#B23A5B', accentColor: '#B23A5B',
+                eyebrow: 'You are joyfully invited to celebrate', message: '', closing: 'Reception to follow' } },
           ]),
         },
       ],

@@ -23,6 +23,7 @@ export const INVITATION_FONTS = {
   'space-grotesk': { label: 'Space Grotesk (tech sans)', family: "'Space Grotesk', sans-serif", google: 'Space+Grotesk:wght@400;600' },
   'fredoka': { label: 'Fredoka (playful)', family: "'Fredoka', sans-serif", google: 'Fredoka:wght@400;600' },
   'creepster': { label: 'Creepster (spooky)', family: "'Creepster', cursive", google: 'Creepster' },
+  'amatic': { label: 'Amatic SC (hand-lettered capitals)', family: "'Amatic SC', cursive", google: 'Amatic+SC:wght@400;700' },
 } as const;
 
 export type InvitationFont = keyof typeof INVITATION_FONTS;
@@ -51,7 +52,15 @@ export type InvitationDesign = {
   frameColor: string;
   // A picture from the theme in a corner (INVITATION_PICTURES), '' for none.
   picture: string;
+  // How the words are set out. classic: centred lines, the event name in the
+  // heading font. monogram (weddings): the couple's initials in a leaf
+  // wreath, "the WEDDING of" in the heading font and tall hand-lettered
+  // capitals, then the names, details and closing in the body font's capitals.
+  layout: InvitationLayout;
 };
+
+export const INVITATION_LAYOUTS = ['classic', 'monogram'] as const;
+export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn
 // under the words so they never hide any. width is a share of the card's
@@ -174,6 +183,7 @@ export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
     frame: decor.frame,
     frameColor: p.accentColor,
     picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
+    layout: 'classic',
   };
 }
 
@@ -234,6 +244,7 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null): In
     frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
     // Saved designs from before pictures existed keep looking as they did.
     picture: isInvitationPicture(r.picture) ? r.picture : '',
+    layout: INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
   };
 }
 
