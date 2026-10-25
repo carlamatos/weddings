@@ -44,7 +44,7 @@
 .marketing-page .ilp-copy-body { grid-area: body; align-self: start; }
 
 .marketing-page .ilp-stage { position: relative; height: 600px; }
-.marketing-page .ilp-phone { --ilp-screen-h: 520px; position: absolute; right: 2%; top: 20px; width: 270px; padding: 10px; border-radius: 40px; background: #1B1720; box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(255, 255, 255, 0.06); }
+.marketing-page .ilp-phone { --ilp-screen-h: 520px; position: absolute; right: 2%; top: 20px; width: 270px; padding: 10px; border-radius: 40px; background: #1B1720; box-shadow: 0 40px 60px -30px #0009, inset 0 0 0 2px #ffffff0f; }
 .marketing-page .ilp-phone-screen { height: var(--ilp-screen-h); border-radius: 30px; overflow: hidden; background: #fff; }
 .marketing-page .ilp-scroll { display: block; width: 100%; height: auto; animation: ilp-scroll 26s ease-in-out infinite alternate; will-change: transform; }
 .marketing-page .ilp-invite { position: absolute; left: 0; top: 40px; width: min(380px, 62%); z-index: 2; transform: rotate(-5deg); animation: ilp-float 7s ease-in-out infinite; filter: drop-shadow(0 34px 40px rgba(0, 0, 0, 0.45)); }
@@ -127,8 +127,9 @@
   .marketing-page .ilp-chip--photos { display: none; }
   .marketing-page .ilp-section { padding: 70px 16px; }
   .marketing-page .ilp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 14px; }
-  .marketing-page .ilp-cards > li { contain-intrinsic-size: auto 300px; }
   .marketing-page .ilp-card-label { flex-direction: column; gap: 2px; }
+  /* Room between each theme's phone and its name. */
+  .marketing-page .ilp-theme-name { font-family: var(--font-display); margin: 60px 0 0 6px; font-size: 26px; font-weight: 400; }
 }
 
 @media (prefers-reduced-motion: reduce) {

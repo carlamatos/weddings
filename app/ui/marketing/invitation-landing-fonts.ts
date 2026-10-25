@@ -1,5 +1,5 @@
 import {
-  Cinzel, Cormorant_Garamond, Creepster, Dancing_Script, Fredoka, Josefin_Sans, Lato,
+  Amatic_SC, Cinzel, Cormorant_Garamond, Creepster, Dancing_Script, Fredoka, Josefin_Sans, Lato,
   Libre_Baskerville, Montserrat, Parisienne, Playfair_Display, Poppins, Space_Grotesk,
 } from 'next/font/google';
 import type { InvitationFont } from '@/app/lib/invitation';
@@ -30,6 +30,7 @@ const poppins = Poppins({ subsets: ['latin'], display: 'swap', preload: false, w
 const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], display: 'swap', preload: false });
 const fredoka = Fredoka({ subsets: ['latin'], display: 'swap', preload: false });
 const creepster = Creepster({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
+const amatic = Amatic_SC({ subsets: ['latin'], display: 'swap', preload: false, weight: ['400', '700'] });
 
 export const LANDING_INVITATION_FONTS: Record<InvitationFont, string> = {
   'great-vibes': greatVibes.style.fontFamily,
@@ -46,4 +47,5 @@ export const LANDING_INVITATION_FONTS: Record<InvitationFont, string> = {
   'space-grotesk': spaceGrotesk.style.fontFamily,
   'fredoka': fredoka.style.fontFamily,
   'creepster': creepster.style.fontFamily,
+  'amatic': amatic.style.fontFamily,
 };
