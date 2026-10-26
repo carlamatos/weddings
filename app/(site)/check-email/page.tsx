@@ -2,6 +2,12 @@ import { greatVibes } from '@/app/ui/fonts';
 import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import type { Metadata } from 'next';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
+  return (await searchParams).lang === 'fr' ? AUTH_METADATA.checkEmailFr : AUTH_METADATA.checkEmail;
+}
 
 export default async function CheckEmailPage({
   searchParams,

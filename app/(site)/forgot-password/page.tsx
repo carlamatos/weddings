@@ -3,6 +3,9 @@ import ForgotPasswordForm from '@/app/ui/forgot-password-form';
 import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
+
+export const metadata = AUTH_METADATA.forgotPassword;
 
 export default function ForgotPasswordPage() {
   return (

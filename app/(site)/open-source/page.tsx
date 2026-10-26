@@ -1,7 +1,7 @@
 import LegalLayout from '@/app/ui/legal-layout';
 import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = pageMetadata('Open-Source Licences', 'The open-source software MyGala uses, with its licences and where to get the source code.', '/open-source');
+export const metadata = pageMetadata('Open-Source Licences', 'The open-source software behind MyGala, the Canadian event website platform: each library and tool we use, its licence, and where to download its source code.', '/open-source');
 
 const UPDATED = 'October 4, 2026';
 const CONTACT_EMAIL = 'info@mygala.ca';

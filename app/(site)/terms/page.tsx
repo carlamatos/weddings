@@ -5,7 +5,7 @@ import { COMPANY } from '@/app/lib/company';
 import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = pageMetadata('Terms of Service', `The terms governing your use of MyGala, the Canadian event website platform operated by ${COMPANY.legalName}`, '/terms');
+export const metadata = pageMetadata('Terms of Service', `The terms for using MyGala, the event website platform operated by ${COMPANY.legalName}: your account, your content, Plus payments and refunds, and custom domains.`, '/terms');
 
 const EFFECTIVE_DATE = 'October 4, 2026';
 const CONTACT_EMAIL = COMPANY.email;

@@ -3,6 +3,9 @@ import LoginForm from '@/app/ui/login-form';
 import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
+
+export const metadata = AUTH_METADATA.login;
 
 export default function LoginPage() {
   return (

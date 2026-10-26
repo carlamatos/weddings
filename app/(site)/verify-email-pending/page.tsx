@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { signOut } from '@/auth';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
+
+export const metadata = AUTH_METADATA.verifyEmailPending;
 
 export default async function VerifyEmailPendingPage({
   searchParams,

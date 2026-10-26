@@ -3,6 +3,9 @@ import Link from 'next/link';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
+
+export const metadata = AUTH_METADATA.emailVerified;
 
 export default function EmailVerifiedPage() {
   return (
