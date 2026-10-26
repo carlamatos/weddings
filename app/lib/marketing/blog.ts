@@ -1,7 +1,10 @@
+import type { StartOccasion } from '@/app/lib/start-intent';
 import type { Faq, SeoMeta } from './types';
 
 // Blog articles for the marketing site (/blog and /blog/[slug]). Newest
-// first: the blog index lists them in this order.
+// first: the blog index lists them in this order. A post with its own
+// `path` is a guide with its own page (e.g. /how-to-create-a-wedding-website)
+// instead of /blog/[slug]; it's still listed on the blog.
 //
 // Text in paragraphs, lists and notes may use two bits of markup:
 // [link text](/path) for a link and **bold** for emphasis.
@@ -13,6 +16,10 @@ export type ArticleBlock =
   | { type: 'checklist'; items: string[] } // shown as tick boxes
   | { type: 'note'; text: string } // a highlighted tip
   | { type: 'image'; src: string; alt: string; caption?: string }
+  // A MyGala screenshot, shown whole and zoomable; narrow for tall ones.
+  | { type: 'screenshot'; src: string; alt: string; caption: string; width: number; height: number; narrow?: boolean }
+  // A one-line "Try it free" sign-up link; occasion starts sign-up with that occasion's themes.
+  | { type: 'try'; text: string; occasion?: StartOccasion }
   | { type: 'templates'; slugs: string[] } // live theme previews
   | { type: 'cta'; title: string; text: string; button: string }; // sign-up box
 
@@ -20,6 +27,7 @@ export type ArticleSection = { heading?: string; blocks: ArticleBlock[] };
 
 export type BlogPost = {
   slug: string;
+  path?: string; // its own page, in place of /blog/[slug]
   seo: SeoMeta;
   eyebrow: string;
   title: string; // the article's <h1>
@@ -37,6 +45,107 @@ export type BlogPost = {
 const WEDDINGS = '/events/weddings';
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'how-to-create-a-wedding-website',
+    path: '/how-to-create-a-wedding-website',
+    seo: {
+      title: 'How to Create a Wedding Website: A Step-by-Step Guide',
+      description:
+        'How to create a wedding website in four steps, with screenshots: pick a template, add your date and venue, set up RSVPs and share your link. Free to start on MyGala.',
+      keywords: ['how to create a wedding website', 'create a wedding website', 'how to create a wedding website for free', 'wedding website step by step', 'wedding website with RSVP', 'free wedding website'],
+    },
+    eyebrow: 'Step-by-step guide',
+    title: 'How to create a wedding website',
+    lead:
+      'You can create a wedding website in about 20 minutes. This guide walks through the four steps on MyGala, with a screenshot of each one: pick a template, add your date and venue, set up RSVPs and share your link.',
+    summary: 'The four steps, with screenshots: pick a template, add your date and venue, set up RSVPs and share your link.',
+    cardImage: '/images/guides/how-to-create-a-wedding-website/step-2-what-guests-see.webp',
+    published: '2026-10-25',
+    readMinutes: 6,
+    sections: [
+      {
+        blocks: [
+          { type: 'p', text: 'We’ll follow one couple, Emma and Liam, as they make their page. Before you start, have your names, your wedding date and the venue’s address handy. Your guest list can come later.' },
+        ],
+      },
+      {
+        heading: 'Step 1: Pick a template',
+        blocks: [
+          { type: 'p', text: 'Every wedding website starts from a template. MyGala has 8 wedding designs, from ivory peonies to a candlelit forest, and each one comes with a [matching invitation](/features/invitations). Every template has the same features, so choose on looks alone. You can switch to another design at any time without losing your details.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-1-choose-a-template.webp', width: 1600, height: 1000, alt: 'The MyGala theme gallery filtered to Weddings, showing The Day, Love and Nature, each with its invitation and website side by side and a Choose button', caption: 'The theme gallery: each wedding design shows its invitation and its website side by side.' },
+          { type: 'p', text: 'Next, add your names and the date, and choose your web address. MyGala suggests a few from your names, such as **mygala.ca/emma-and-liam**. As you type, you see your invitation and your website update in the preview.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-1-names-date-address.webp', width: 1600, height: 1000, alt: 'The MyGala setup screen with the event name Emma & Liam, the date June 12, 2027, a choice of page addresses, and live previews of the invitation and website', caption: 'Your names, the date and your web address, with a live preview of your invitation and website.' },
+          { type: 'try', occasion: 'wedding', text: 'Pick your template and see your names on it' },
+        ],
+      },
+      {
+        heading: 'Step 2: Add your date, venue and directions',
+        blocks: [
+          { type: 'p', text: 'Your page opens in the editor. Click any text, button or photo on it to change it. A short checklist on the left suggests what to do next, starting with the time and place.' },
+          { type: 'p', text: 'Add the start and end time, then the venue’s name and address. Start typing the address and pick it from the list: that also sets the city and country on your banner, and gives guests a **Get directions** link to the map.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-2-date-and-location.webp', width: 1000, height: 1202, narrow: true, alt: 'The Edit the date & location dialog in MyGala with the date June 12, 2027, a 4:00 PM start and 11:00 PM end, and the venue Casa Loma at 1 Austin Terrace, Toronto', caption: 'The date and location editor: the time, the venue and its address.' },
+          { type: 'p', text: 'Here’s what guests see on their phone: your names and date on the banner, then the ceremony details with the venue, the address and directions.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-2-what-guests-see.webp', width: 1600, height: 1150, alt: 'Two phones showing Emma and Liam’s wedding website: the banner with their names, date and RSVP button, and the Date & location section for Casa Loma with a Get directions link', caption: 'What guests see: the banner, then the date, venue and directions.' },
+          { type: 'note', text: 'Got a ceremony, cocktail hour and dinner? Add each one to your **event program** so guests know when and where to be all day.' },
+          { type: 'try', occasion: 'wedding', text: 'Add your venue and see it on your page' },
+        ],
+      },
+      {
+        heading: 'Step 3: Set up RSVPs',
+        blocks: [
+          { type: 'p', text: 'RSVPs are switched on from the start. Guests fill in a short form on your website: their name and email, whether they’re coming, how many people are in their party, and a note for you, which is a handy place for meal requests and allergies.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-3-rsvp-form.webp', width: 1000, height: 1150, narrow: true, alt: 'The RSVP form on a phone, with fields for full name, email, phone, will you attend, number of guests and a note for the couple, and a Send RSVP button', caption: 'The RSVP form guests fill in on your website.' },
+          { type: 'p', text: 'Every reply lands on your RSVP page, with the number attending, the number declining and the total head count. You can also:' },
+          {
+            type: 'list',
+            items: [
+              '**Get an email** each time someone replies or changes their reply.',
+              '**Accept replies only from guests on your guest list,** so a forwarded link can’t add extra guests.',
+              '**Export every reply to a spreadsheet** to send final numbers to your caterer.',
+            ],
+          },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-3-rsvp-replies.webp', width: 1600, height: 1000, alt: 'The MyGala RSVP page showing 5 attending, 1 declining and 10 total guests, with each reply listed by name, status, guest count and note', caption: 'Every reply in one place, with the head count and each guest’s note.' },
+          { type: 'note', text: 'Set your RSVP deadline about 3 to 4 weeks before the wedding, so you have time to give final numbers to your caterer and venue.' },
+          { type: 'try', occasion: 'wedding', text: 'Turn on RSVPs for your wedding' },
+        ],
+      },
+      {
+        heading: 'Step 4: Share your link',
+        blocks: [
+          { type: 'p', text: 'When your page is ready, click **Share** at the top of the editor. Copy your link, or send it straight to WhatsApp, Facebook, email or a text message. Guests just open the link: they don’t need an app or an account.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-4-share-your-link.webp', width: 1600, height: 1000, alt: 'The MyGala Share menu open over Emma and Liam’s page, with a Copy link button and options for WhatsApp, Facebook, X, LinkedIn, Telegram, Email and Text message', caption: 'The Share menu: copy your link or send it by WhatsApp, email or text.' },
+          { type: 'p', text: 'For something more formal, design an [invitation](/features/invitations) that matches your website. Change the wording, fonts and colours, then send it by email, text message or WhatsApp, or print it. A QR code on the invitation takes guests straight to your RSVP form.' },
+          { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-4-matching-invitation.webp', width: 1600, height: 1000, alt: 'The MyGala invitation designer with Emma and Liam’s details, editable wording, and a preview of the matching invitation with a QR code', caption: 'The invitation designer: an invitation that matches your website, with a QR code for RSVPs.' },
+          { type: 'try', occasion: 'wedding', text: 'Create your wedding website and share it today' },
+        ],
+      },
+      {
+        heading: 'Before you share it',
+        blocks: [
+          {
+            type: 'checklist',
+            items: [
+              'Open your page on your phone the way a guest would',
+              'Check the date, the times and the venue’s address',
+              'Send yourself a test RSVP to make sure it reaches you',
+              'Add your welcome message and a banner photo you love',
+              'Put the link on your save-the-dates and invitations',
+            ],
+          },
+          { type: 'note', text: 'Not sure what else to put on your page? See [what to include on a wedding website](/blog/how-to-make-a-wedding-website), from the schedule to the registry and travel details.' },
+        ],
+      },
+    ],
+    faqs: [
+      { q: 'Can I create a wedding website for free?', a: 'Yes. On MyGala you can create and share a wedding website for free, with every template, RSVPs, the guest list, the countdown, the date and venue details and the schedule. Invitations by email, text and WhatsApp are free too. MyGala Plus, a one-time payment per wedding website, adds extras like reminders, the registry section and your own domain.' },
+      { q: 'How long does it take to create a wedding website?', a: 'About 20 minutes for the essentials: pick a template, add your names, date and venue, and turn on RSVPs. You can keep adding details, photos and the schedule as your plans come together.' },
+      { q: 'Can I change my template later?', a: 'Yes. You can switch to another design at any time, and your names, date, venue, RSVPs and other details stay as they are.' },
+      { q: 'Do guests need an app or an account to RSVP?', a: 'No. Guests open your link in any browser on their phone or computer and fill in the RSVP form. Nothing to download and no account to create.' },
+      { q: 'Can guests RSVP for their whole family?', a: 'Yes. The RSVP form asks how many people are in each guest’s party, so one person can reply for everyone, and your RSVP page shows the total head count.' },
+    ],
+    related: ['event-templates', 'invitations', 'event-reminder-emails', 'guest-photo-qr-code', 'custom-sections', 'custom-domain'],
+    cta: { title: 'Create your wedding website', text: 'Pick a template, add your date and venue, turn on RSVPs and share one link with every guest. It’s free to start.' },
+  },
   {
     slug: 'wedding-planning-checklist',
     seo: {
@@ -191,7 +300,7 @@ export const BLOG_POSTS: BlogPost[] = [
               'Get a good night’s sleep before the big day',
             ],
           },
-          { type: 'image', src: '/images/themes/midnight-botanical/wedding_reception.png', alt: 'A reception table set with white plates, menus and a centrepiece of white flowers and greenery', caption: 'Final headcount, seating chart and place cards come together in the last weeks.' },
+          { type: 'image', src: '/images/themes/midnight-botanical/wedding_reception.jpg', alt: 'A reception table set with white plates, menus and a centrepiece of white flowers and greenery', caption: 'Final headcount, seating chart and place cards come together in the last weeks.' },
         ],
       },
       {
@@ -227,16 +336,16 @@ export const BLOG_POSTS: BlogPost[] = [
   {
     slug: 'how-to-make-a-wedding-website',
     seo: {
-      title: 'How to Make a Wedding Website (and What to Include)',
+      title: 'What to Include on a Wedding Website: The Complete Checklist',
       description:
-        'How to make a wedding website step by step: pick a template, choose your web address, and add the RSVP form, schedule, map, registry, photos and everything else guests need.',
-      keywords: ['how to make a wedding website', 'wedding website', 'what to put on a wedding website', 'wedding website ideas', 'free wedding website', 'wedding RSVP website', 'wedding website templates'],
+        'What to include on a wedding website: the essentials every guest looks for (date, venue, schedule, RSVP), the extras they’ll thank you for, and a checklist to tick off.',
+      keywords: ['what to include on a wedding website', 'what to put on a wedding website', 'wedding website checklist', 'wedding website ideas', 'wedding website sections', 'wedding website templates'],
     },
     eyebrow: 'Wedding websites',
-    title: 'How to make a wedding website (and what to include)',
+    title: 'What to include on a wedding website',
     lead:
-      'A wedding website is the one link your guests come back to from the save-the-date to the morning after. Here’s how to make one in an afternoon, and everything it should include so guests never have to text you for the address again.',
-    summary: 'Pick a template, choose your web address, and add the RSVP form, schedule, map, registry and photos your guests need.',
+      'A wedding website is the one link your guests come back to from the save-the-date to the morning after. Here’s everything it should include, so guests never have to text you for the address again.',
+    summary: 'The essentials every guest looks for, the extras they’ll thank you for, and a checklist to tick off.',
     cardImage: '/images/themes/love/aisle.jpeg',
     published: '2026-08-20',
     readMinutes: 7,
@@ -246,26 +355,12 @@ export const BLOG_POSTS: BlogPost[] = [
         blocks: [
           { type: 'p', text: 'Paper invitations have room for the date, the venue and an RSVP card. Your guests need much more than that: where to stay, what to wear, when the shuttle leaves, whether kids are invited and where to find the registry. A [wedding website](/events/weddings) puts all of it in one place, and you can update it any time without reprinting anything.' },
           { type: 'p', text: 'It saves you time too. Instead of answering the same questions by text, you send a link. Instead of tracking RSVPs across emails and phone calls, every reply lands in one guest list.' },
+          { type: 'note', text: 'Haven’t made yours yet? Our [step-by-step guide to creating a wedding website](/how-to-create-a-wedding-website) walks through it with screenshots, from picking a template to sharing your link.' },
           { type: 'image', src: '/images/themes/love/aisle.jpeg', alt: 'A seaside ceremony aisle lined with chairs and gold flower stands, leading to a floral arch by the ocean', caption: 'Destination or local, guests need the same details in one place.' },
         ],
       },
       {
-        heading: 'Step 1: Pick a template that matches your wedding',
-        blocks: [
-          { type: 'p', text: 'Start with the look. Choose a design that suits your venue and style, from classic ivory florals to a candlelit forest or a breezy beach ceremony. On MyGala every [wedding template](/features/event-templates) includes every feature, so you choose on looks alone, and you can switch designs at any time without losing your details.' },
-          { type: 'templates', slugs: ['the-day', 'love', 'nature', 'quiet-coastal', 'midnight-botanical', 'vilma'] },
-          { type: 'p', text: 'Open any template above for a full live preview of how your page will look to guests.' },
-          { type: 'cta', title: 'Create your wedding website', text: 'Pick a template, add your names and date, and your page is ready to share. It’s free to start.', button: 'Create your wedding website' },
-        ],
-      },
-      {
-        heading: 'Step 2: Choose your web address',
-        blocks: [
-          { type: 'p', text: 'Your web address is what goes on your save-the-dates and invitations, so keep it short and easy to type. Every MyGala page gets a free address like **mygala.ca/emma-and-liam**. If you’d like your own, such as emmaandliam.com, you can connect a [custom domain](/features/custom-domain) with Plus.' },
-        ],
-      },
-      {
-        heading: 'Step 3: Add what every wedding website has to include',
+        heading: 'The essentials every wedding website should include',
         blocks: [
           { type: 'p', text: 'These are the sections guests look for first. Each one is included free on every MyGala [wedding website](/events/weddings).' },
           {
@@ -284,7 +379,7 @@ export const BLOG_POSTS: BlogPost[] = [
         ],
       },
       {
-        heading: 'Step 4: Add the extras guests will thank you for',
+        heading: 'The extras guests will thank you for',
         blocks: [
           { type: 'p', text: 'These features make the weeks before the wedding, and the day itself, easier for everyone. They come with MyGala Plus, a one-time payment per wedding website.' },
           {
@@ -303,11 +398,26 @@ export const BLOG_POSTS: BlogPost[] = [
         ],
       },
       {
-        heading: 'Step 5: Preview it, then share the link',
+        heading: 'A design that matches your wedding',
+        blocks: [
+          { type: 'p', text: 'The design sets the mood before guests read a word. Choose one that suits your venue and style, from classic ivory florals to a candlelit forest or a breezy beach ceremony. On MyGala every [wedding template](/features/event-templates) includes every feature, so you choose on looks alone, and you can switch designs at any time without losing your details.' },
+          { type: 'templates', slugs: ['the-day', 'love', 'nature', 'quiet-coastal', 'midnight-botanical', 'vilma'] },
+          { type: 'p', text: 'Open any template above for a full live preview of how your page will look to guests.' },
+          { type: 'cta', title: 'Create your wedding website', text: 'Pick a template, add your names and date, and your page is ready to share. It’s free to start.', button: 'Create your wedding website' },
+        ],
+      },
+      {
+        heading: 'A web address that’s easy to type',
+        blocks: [
+          { type: 'p', text: 'Your web address is what goes on your save-the-dates and invitations, so keep it short and easy to type. Every MyGala page gets a free address like **mygala.ca/emma-and-liam**. If you’d like your own, such as emmaandliam.com, you can connect a [custom domain](/features/custom-domain) with Plus.' },
+        ],
+      },
+      {
+        heading: 'Check it, then share the link',
         blocks: [
           { type: 'p', text: 'Before you share, open your page on your phone the way a guest would. Check the date, the times and the addresses, and send a test RSVP to make sure it reaches you.' },
           { type: 'p', text: 'Then share the link everywhere: on your save-the-dates and invitations, in your group chats and by email. Set your RSVP deadline about 3 to 4 weeks before the wedding so you have time to give final numbers to your caterer.' },
-          { type: 'image', src: '/images/themes/midnight-botanical/wedding_venue.png', alt: 'A garden ceremony with pink drapes over a wooden arch and white chairs on the lawn' },
+          { type: 'image', src: '/images/themes/midnight-botanical/wedding_venue.jpg', alt: 'A garden ceremony with pink drapes over a wooden arch and white chairs on the lawn' },
         ],
       },
       {
@@ -334,7 +444,7 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     faqs: [
       { q: 'How much does a wedding website cost?', a: 'A MyGala wedding website is free to create and share, with every template, RSVPs, the guest list, the countdown, event details and the schedule. Invitations by email, text and WhatsApp are free too. MyGala Plus is a one-time payment per wedding website (not a subscription) that adds features like reminders, livestream, the registry section, a custom domain and room for up to 500 guest photos (free pages get 50).' },
-      { q: 'How long does it take to make a wedding website?', a: 'You can have a page ready to share in an afternoon: pick a template, add your names, date and venue, and turn on RSVPs. You can keep adding details as your plans come together.' },
+      { q: 'What should the first section of a wedding website say?', a: 'Your names, the date and the city, with a photo you love and a line or two of welcome. Guests should see at a glance whose wedding it is and when, with an RSVP button close by.' },
       { q: 'When should our wedding website go live?', a: 'Ideally before your save-the-dates go out, about 8 to 12 months before the wedding, so you can put the link on them. Start with the date and location, and add the rest as you book it.' },
       { q: 'Can we keep our wedding website after the wedding?', a: 'Yes. Your page stays online as a keepsake after the wedding.' },
     ],
@@ -343,8 +453,13 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
+// Only the posts that live under /blog/[slug].
 export function getBlogPost(slug: string): BlogPost | undefined {
-  return BLOG_POSTS.find((p) => p.slug === slug);
+  return BLOG_POSTS.find((p) => p.slug === slug && !p.path);
+}
+
+export function postPath(post: BlogPost): string {
+  return post.path ?? `/blog/${post.slug}`;
 }
 
 // "October 15, 2026" — parsed as a calendar date so no time zone shifts it.
@@ -367,6 +482,7 @@ export function postText(post: BlogPost): string[] {
         case 'p': case 'h3': case 'note': return [plainText(b.text)];
         case 'list': case 'checklist': return b.items.map(plainText);
         case 'image': return [b.alt, b.caption ?? ''];
+        case 'screenshot': return [b.alt, b.caption];
         case 'cta': return [b.title, b.text];
         default: return [];
       }

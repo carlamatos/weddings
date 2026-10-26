@@ -2,9 +2,11 @@ import { Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import { appHref } from '@/app/lib/app-url';
 import type { ArticleBlock, ArticleSection } from '@/app/lib/marketing/blog';
+import { startQuery } from '@/app/lib/start-intent';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { previewImage } from '@/app/ui/themes/preview-image';
 import { ThemeGrid } from './theme-grid';
+import { ZoomableScreenshot } from './zoomable-screenshot';
 
 // Renders the article markup described in app/lib/marketing/blog.ts:
 // [link text](/path) and **bold**.
@@ -48,6 +50,21 @@ function Block({ block }: { block: ArticleBlock }) {
           <img {...previewImage(block.src, '(max-width: 820px) 100vw, 780px')} alt={block.alt} />
           {block.caption && <figcaption>{block.caption}</figcaption>}
         </figure>
+      );
+    case 'screenshot':
+      return (
+        <div className={block.narrow ? 'mk-article-shot mk-article-shot--narrow' : 'mk-article-shot'}>
+          <ZoomableScreenshot shot={block} />
+        </div>
+      );
+    case 'try':
+      return (
+        <p className="mk-try">
+          <Link href={appHref('/register') + startQuery('website', undefined, block.occasion)} data-cta="guide-try">
+            Try it free <span aria-hidden="true">→</span>
+          </Link>
+          <span>{block.text}</span>
+        </p>
       );
     case 'templates': {
       const themes = block.slugs.map((s) => THEME_CARDS.find((t) => t.slug === s)).filter((t) => t !== undefined);

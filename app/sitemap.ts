@@ -4,7 +4,7 @@ import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { LANDING_PAGES } from '@/app/lib/marketing/landing';
 import { INVITATION_LANDING_PAGES } from '@/app/lib/marketing/invitation-landing';
-import { BLOG_POSTS } from '@/app/lib/marketing/blog';
+import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
 import { themeRegistry } from '@/app/ui/themes/registry';
 
 // The sitemap is generated once per deploy, and every listed page is
@@ -33,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry('/faq', 0.7),
     // Articles carry their publish date; the blog index changes when the newest one is published.
     entry('/blog', 0.6, 'weekly', new Date(Math.max(...BLOG_POSTS.map((p) => Date.parse(p.published))))),
-    ...BLOG_POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, 'monthly', new Date(p.published))),
+    ...BLOG_POSTS.map((p) => entry(postPath(p), 0.6, 'monthly', new Date(p.published))),
     ...Object.keys(themeRegistry).map((slug) => entry(`/themes/${slug}`, 0.5)),
     entry('/about', 0.5),
     entry('/contact', 0.4),

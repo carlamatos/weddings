@@ -2,7 +2,7 @@ import { siteUrl } from '@/app/lib/site-url';
 import { COMPANY } from '@/app/lib/company';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
-import { BLOG_POSTS } from '@/app/lib/marketing/blog';
+import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
 import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 // /llms.txt — a plain-language summary of MyGala for AI assistants and LLM
@@ -46,7 +46,7 @@ export function GET() {
     '## Blog',
     '',
     link('Blog', '/blog', 'Wedding and event planning guides'),
-    ...BLOG_POSTS.map((p) => link(p.title, `/blog/${p.slug}`, p.seo.description)),
+    ...BLOG_POSTS.map((p) => link(p.title, postPath(p), p.seo.description)),
     '',
     '## Help and policies',
     '',
