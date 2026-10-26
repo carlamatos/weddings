@@ -21,7 +21,11 @@ const googleTags = [
   'https://*.google-analytics.com', 'https://*.analytics.google.com', 'https://analytics.google.com',
   'https://*.googletagmanager.com',
   'https://*.g.doubleclick.net', 'https://ad.doubleclick.net', 'https://www.googleadservices.com',
-  'https://google.com', 'https://*.google.com', 'https://www.google.ca',
+  'https://google.com', 'https://*.google.com',
+  // Ads also pings the visitor's own country's Google (www.google.<tld>),
+  // which CSP can't wildcard: the countries visitors come from.
+  ...['ca', 'co.uk', 'com.au', 'co.nz', 'ie', 'fr', 'de', 'es', 'it', 'nl', 'be', 'ch', 'pt', 'com.br', 'com.mx', 'co.in', 'com.ph']
+    .map((tld) => `https://www.google.${tld}`),
 ].join(' ');
 
 // The Pinterest tag (added in Tag Manager): its scripts and pixels come from
