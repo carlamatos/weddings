@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 // Newsletter sign-up in the marketing footer. The 10%-off Plus code is
 // emailed (app/api/newsletter), not shown here.
@@ -64,7 +65,7 @@ export default function NewsletterForm() {
             <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Subscribing…' : 'Subscribe'}</button>
           </form>
           {status === 'error' && <p className="newsletter-error" role="alert">{error}</p>}
-          <p className="newsletter-fine">No spam — unsubscribe anytime. See our <a href="/privacy">Privacy Policy</a>.</p>
+          <p className="newsletter-fine">No spam — unsubscribe anytime. See our <Link href="/privacy">Privacy Policy</Link>.</p>
         </>
       )}
     </section>

@@ -7,7 +7,11 @@ import { Suspense } from 'react';
 import PurchaseConversion from '@/app/ui/purchase-conversion';
 import SignupTracker from '@/app/ui/signup-tracker';
 
-export const metadata: Metadata = {
+// The <html> and <body> every page shares. The site has two root layouts so
+// each page's <html lang> matches its language: English for everything in
+// app/(site), French for app/fr (where its hreflang says fr-CA).
+
+export const rootMetadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
     default: 'MyGala',
@@ -20,13 +24,9 @@ export const metadata: Metadata = {
 // local dev), so test visits never reach the live container.
 const GTM_ID = process.env.VERCEL_ENV === 'production' ? 'GTM-NKSF95VQ' : null;
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function RootDocument({ lang, children }: { lang: string; children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang={lang}>
       <body className={`${inter.className} antialiased`}>
         {GTM_ID && (
           <noscript>

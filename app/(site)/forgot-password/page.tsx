@@ -1,16 +1,19 @@
 import { greatVibes } from '@/app/ui/fonts';
-import LoginForm from '@/app/ui/login-form';
+import ForgotPasswordForm from '@/app/ui/forgot-password-form';
 import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
+import { AUTH_METADATA } from '@/app/lib/auth-metadata';
 
-export default function LoginPage() {
+export const metadata = AUTH_METADATA.forgotPassword;
+
+export default function ForgotPasswordPage() {
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
       <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
-      <LoginForm />
+      <ForgotPasswordForm />
     </main>
   );
 }

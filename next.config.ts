@@ -75,7 +75,9 @@ const nextConfig: NextConfig = {
   // CSS goes in the page's <head> instead of separate render-blocking files:
   // first visits (most ad traffic) paint ~0.2–0.4 s sooner on phones. Applies
   // to every page; the cost is no cross-page CSS caching.
-  experimental: { inlineCss: true },
+  // globalNotFound: the 404 for unmatched addresses (app/global-not-found.tsx),
+  // needed because the site has two root layouts (English and French).
+  experimental: { inlineCss: true, globalNotFound: true },
   images: {
     remotePatterns: [
       {
@@ -95,6 +97,13 @@ const nextConfig: NextConfig = {
         // so verified custom domains can frame it (app/api/turnstile/frame).
         source: '/((?!api/turnstile/frame$).*)',
         headers: securityHeaders,
+      },
+      {
+        // Sign-up, sign-in and account screens stay out of search results:
+        // /register alone is linked with dozens of ?start=&theme= variants,
+        // all the same page. Links on them are still followed.
+        source: '/:path(register|login|forgot-password|reset-password|check-email|email-verified|verify-email-pending|verify-2fa|construction)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
       },
     ];
   },

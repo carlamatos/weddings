@@ -4,6 +4,13 @@ import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
 import { parseStartParams } from '@/app/lib/start-intent';
+import type { Metadata } from 'next';
+import { registerMetadata } from '@/app/lib/auth-metadata';
+
+export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string }> }): Promise<Metadata> {
+  const params = await searchParams;
+  return registerMetadata(params.lang === 'fr' ? 'fr' : 'en', parseStartParams(params.start, params.theme, params.occasion));
+}
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string }> }) {
   const params = await searchParams;
