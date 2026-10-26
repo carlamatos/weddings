@@ -75,7 +75,9 @@ const nextConfig: NextConfig = {
   // CSS goes in the page's <head> instead of separate render-blocking files:
   // first visits (most ad traffic) paint ~0.2–0.4 s sooner on phones. Applies
   // to every page; the cost is no cross-page CSS caching.
-  experimental: { inlineCss: true },
+  // globalNotFound: the 404 for unmatched addresses (app/global-not-found.tsx),
+  // needed because the site has two root layouts (English and French).
+  experimental: { inlineCss: true, globalNotFound: true },
   images: {
     remotePatterns: [
       {

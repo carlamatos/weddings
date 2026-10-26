@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import Link from 'next/link';
-import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '../lib/data';
+import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
