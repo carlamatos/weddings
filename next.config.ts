@@ -98,6 +98,13 @@ const nextConfig: NextConfig = {
         source: '/((?!api/turnstile/frame$).*)',
         headers: securityHeaders,
       },
+      {
+        // Sign-up, sign-in and account screens stay out of search results:
+        // /register alone is linked with dozens of ?start=&theme= variants,
+        // all the same page. Links on them are still followed.
+        source: '/:path(register|login|forgot-password|reset-password|check-email|email-verified|verify-email-pending|verify-2fa|construction)',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, follow' }],
+      },
     ];
   },
   async redirects() {
