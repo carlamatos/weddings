@@ -4,7 +4,7 @@
 // form's availability check.
 export const RESERVED_SLUGS = new Set([
   'about', 'admin', 'api', 'blog', 'check-email', 'christmas-invitations', 'construction', 'contact', 'dashboard', 'email-verified', 'events',
-  'faq', 'features', 'forgot-password', 'fr', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
+  'faq', 'features', 'forgot-password', 'fr', 'how-to-create-a-wedding-website', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
   'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-website',
 ]);
 

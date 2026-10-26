@@ -797,6 +797,14 @@
   .marketing-page .site-footer-cols { grid-template-columns: 1fr 1fr; }
 }
 
+/* Guides: screenshots in the article (tall ones narrower), and the
+   one-line "Try it free" link that ends each step. */
+.marketing-page .mk-article-shot .mk-shot { margin: 24px 0 28px; }
+.marketing-page .mk-article-shot--narrow { max-width: 460px; margin: 0 auto; }
+.marketing-page .mk-block .mk-try { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 24px 0 8px; padding: 16px 20px; border-radius: 14px; background: #fff; border: 1px solid var(--line); font-size: 15px; color: var(--ink-soft); }
+.marketing-page .mk-block .mk-try a { display: inline-block; padding: 10px 18px; border-radius: 999px; background: var(--rose); color: #fff; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.marketing-page .mk-block .mk-try a:hover { filter: brightness(0.94); }
+
 /* A product screenshot on a feature page (zoomable-screenshot.tsx): click
    to see it full size. On small screens the full-size view keeps the
    screenshot wide enough to read and scrolls sideways. */

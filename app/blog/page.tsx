@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { BLOG_POSTS, formatPostDate } from '@/app/lib/marketing/blog';
+import { BLOG_POSTS, formatPostDate, postPath } from '@/app/lib/marketing/blog';
 import { blogJsonLd, breadcrumbJsonLd, marketingMetadata } from '@/app/lib/marketing/seo';
 import type { SeoMeta } from '@/app/lib/marketing/types';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
@@ -22,7 +22,7 @@ export default function BlogIndex() {
   const crumbs = [{ name: 'Home', path: '/' }, { name: 'Blog', path: '/blog' }];
   return (
     <MarketingShell>
-      <JsonLd data={blogJsonLd(SEO, '/blog', BLOG_POSTS.map((p) => ({ title: p.title, path: `/blog/${p.slug}`, published: p.published, image: p.cardImage })))} />
+      <JsonLd data={blogJsonLd(SEO, '/blog', BLOG_POSTS.map((p) => ({ title: p.title, path: postPath(p), published: p.published, image: p.cardImage })))} />
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <header className="mk-hero">
         <div className="wrap">
@@ -36,7 +36,7 @@ export default function BlogIndex() {
         <section className="mk-related" style={{ paddingTop: 48 }}>
           <div className="mk-cards">
             {BLOG_POSTS.map((p) => (
-              <Link key={p.slug} href={`/blog/${p.slug}`} className="mk-card mk-post-card">
+              <Link key={p.slug} href={postPath(p)} className="mk-card mk-post-card">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img {...previewImage(p.cardImage, '(max-width: 760px) 100vw, 360px', { eager: true })} alt="" className="mk-post-card-img" />
                 <span className="mk-post-meta">{p.eyebrow} · {formatPostDate(p.published)}</span>
