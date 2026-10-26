@@ -22,10 +22,11 @@ const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const MAX_LOGIN_ATTEMPTS = 5;
 const MAX_ACCOUNT_LOGIN_ATTEMPTS = 10;
 
-async function getUser(email: string): Promise<DBUser | undefined> {
+// null: no such account. undefined: the lookup itself failed.
+async function getUser(email: string): Promise<DBUser | null | undefined> {
   try {
     const user = await sql<DBUser>`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0];
+    return user.rows[0] ?? null;
   } catch (error) {
     console.error('Failed to fetch user:', error);
     //throw new Error('Failed to fetch user.');
@@ -116,7 +117,7 @@ const nextAuth = NextAuth({
       }
 
       const oauthProviders = ['google', 'apple', 'facebook'];
-      if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub && token?.id) {
+      if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub) {
         const providerName = account.provider.charAt(0).toUpperCase() + account.provider.slice(1);
         const given_name = (profile.given_name as string) ?? (profile.name as string)?.split(' ')[0] ?? '';
         const family_name = (profile.family_name as string) ?? (profile.name as string)?.split(' ').slice(1).join(' ') ?? '';
@@ -151,7 +152,7 @@ const nextAuth = NextAuth({
       // Pass token data to the session object
       if (token?.email && session?.user) {
         const localuser = await getUser(token.email);  
-        if (localuser !== undefined){
+        if (localuser){
           session.user.id = localuser.id;
         }
         session.user.name = token.name as string;
@@ -163,7 +164,10 @@ const nextAuth = NextAuth({
         const totpRequired = token.totpRequired ?? !!localuser?.totp_enabled_at;
         session.user.totpPending = isTotpPending({ ...token, totpRequired });
         session.user.totpVerified = !session.user.totpPending && totpRequired;
-        session.user.revoked = signedInBefore(token.signedInAt, localuser?.password_changed_at);
+        // No account row (deleted, or never created) counts as signed out,
+        // like the proxy's isSessionRevoked, so /dashboard and /login can't
+        // bounce the visitor between them.
+        session.user.revoked = localuser === null || signedInBefore(token.signedInAt, localuser?.password_changed_at);
       }
 
       return session;

@@ -16,12 +16,14 @@ export function signedInBefore(signedInAt: number | undefined, passwordChangedAt
 }
 
 // For the proxy, which only has the token: looks the account up by email.
+// A session for an email with no account is revoked too.
 // Fails open (not revoked) if the column doesn't exist yet — run
 // POST /api/migrate after deploying.
 export async function isSessionRevoked(email: string | null | undefined, signedInAt: number | undefined): Promise<boolean> {
   if (!email) return false;
   try {
     const result = await sql`SELECT password_changed_at FROM users WHERE email = ${email} LIMIT 1`;
+    if (!result.rows[0]) return true; // the account doesn't exist (any more)
     return signedInBefore(signedInAt, result.rows[0]?.password_changed_at);
   } catch {
     return false;
