@@ -3,8 +3,8 @@
 // can't drift apart. Terracotta Harvest has no default: it draws an
 // illustration instead (see its DefaultHero export).
 export const HERO_DEFAULTS = {
-  'quiet-coastal': '/images/themes/quiet-coastal/coastal.png',
-  'midnight-botanical': '/images/themes/midnight-botanical/woods.png',
+  'quiet-coastal': '/images/themes/quiet-coastal/coastal.jpg',
+  'midnight-botanical': '/images/themes/midnight-botanical/woods.jpg',
   vilma: '/images/themes/vilma/hero-bg.jpg',
   alegria: '/images/themes/alegria/hero.jpeg',
   'fun-party': '/images/themes/fun-party/hero.png',
