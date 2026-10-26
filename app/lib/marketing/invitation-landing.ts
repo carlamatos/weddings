@@ -99,7 +99,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
       invitation: {
         theme: 'merry',
         image: '/images/invitations/merry-village.jpeg',
-        design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#F3F6F9', accentColor: '#E7CA6A', ...CHRISTMAS_COPY },
+        design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#F3F6F9', accentColor: '#E7CA6A', frame: '', ...CHRISTMAS_COPY },
         details: { name: 'Merry & Bright', address: '100 Front St W, Toronto' },
       },
       pageTheme: 'merry',
