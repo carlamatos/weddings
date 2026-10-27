@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRightIcon } from '@heroicons/react/20/solid';
+import { ArrowRightIcon, SwatchIcon } from '@heroicons/react/20/solid';
 import { appHref } from '@/app/lib/app-url';
 import { START_NAME_MAX, startQuery, type StartOccasion } from '@/app/lib/start-intent';
 import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from '@/app/ui/theme-picker';
@@ -90,7 +90,10 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion }: { initialT
         {card && (
           <div className="setup-style__previews">
             <StylePreviews themeSlug={card.slug} eventName={eventName} eventDate={eventDate} />
-            <p className="setup-style__note">After you sign up you can change the colours, fonts, wording and photos of both.</p>
+            <p className="setup-style__note try-invite__note">
+              <SwatchIcon aria-hidden="true" />
+              After you sign up you can change the colours, fonts, wording and photos of both.
+            </p>
           </div>
         )}
       </div>

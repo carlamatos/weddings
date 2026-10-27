@@ -8,3 +8,11 @@
 @media (max-width: 640px) {
   .try-invite__card { padding: 22px 16px; }
 }
+/* "You can change everything after signing up": a highlighted note, not fine print. */
+.try-invite .try-invite__note {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  margin: 4px 0 0; padding: 14px 18px; border-radius: 12px;
+  background: #FBEDEA; border: 1px solid #EBC5BE;
+  font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.45;
+}
+.try-invite__note svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--rose); }
