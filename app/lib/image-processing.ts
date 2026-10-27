@@ -12,7 +12,26 @@ const MODERATION_UNAVAILABLE = {
   reason: 'Photo moderation is temporarily unavailable. Please try again shortly.',
 };
 
+// Photo formats uploads may be, told apart by their first bytes (the
+// browser's file type is whatever the sender says): ones the moderation
+// check can read. Anything else, SVG above all, never reaches the image
+// library. The upload forms already convert photos to JPEG or WebP.
+const UNSUPPORTED_FORMAT = { safe: false, reason: 'Please upload a JPEG, PNG, WebP or GIF photo.' };
+
+function isPhotoFormat(b: Buffer): boolean {
+  const ascii = (start: number, end: number) => b.subarray(start, end).toString('latin1');
+  return (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) // JPEG
+    || ascii(0, 8) === '\x89PNG\r\n\x1a\n'
+    || ascii(0, 4) === 'GIF8'
+    || (ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP');
+}
+
+// Pixels the image library will decode, so a tiny file that unpacks into a
+// huge picture can't use up the server's memory (a 48 MP phone photo fits).
+const MAX_INPUT_PIXELS = 60_000_000;
+
 export async function isSafeImage(buffer: Buffer): Promise<{ safe: boolean; reason?: string }> {
+  if (!isPhotoFormat(buffer)) return UNSUPPORTED_FORMAT;
   const apiKey = process.env.GOOGLE_VISION_API_KEY;
   if (!apiKey) {
     console.error('GOOGLE_VISION_API_KEY is not set; rejecting upload (fail closed)');
@@ -43,7 +62,13 @@ export async function isSafeImage(buffer: Buffer): Promise<{ safe: boolean; reas
   }
 
   const data = await res.json();
-  const { adult, violence, racy } = data.responses?.[0]?.safeSearchAnnotation ?? {};
+  const annotation = data.responses?.[0]?.safeSearchAnnotation;
+  // No verdict (e.g. Vision couldn't read the picture): not checked, so not allowed.
+  if (!annotation) {
+    console.error('Vision API gave no verdict:', data.responses?.[0]?.error);
+    return { safe: false, reason: 'We couldn’t read this photo. Please try another one, as a JPEG or PNG.' };
+  }
+  const { adult, violence, racy } = annotation;
 
   if (LIKELIHOOD_RANK[adult] >= LIKELIHOOD_RANK['LIKELY'])
     return { safe: false, reason: 'Image contains explicit content and cannot be uploaded.' };
@@ -57,7 +82,8 @@ export async function isSafeImage(buffer: Buffer): Promise<{ safe: boolean; reas
 
 export async function optimizeImage(buffer: Buffer): Promise<Buffer> {
   const sharp = (await import('sharp')).default;
-  return sharp(buffer)
+  if (!isPhotoFormat(buffer)) throw new Error('Unsupported image format');
+  return sharp(buffer, { limitInputPixels: MAX_INPUT_PIXELS })
     .rotate()
     .resize({ width: 1920, withoutEnlargement: true })
     .webp({ quality: 82 })

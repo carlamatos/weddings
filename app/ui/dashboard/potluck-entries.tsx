@@ -1,5 +1,6 @@
 'use client';
 
+import { csvCell } from '@/app/lib/csv';
 import { useState } from 'react';
 import { deletePotluckEntry } from '@/app/lib/actions';
 import type { PotluckEntry } from '@/app/lib/potluck';
@@ -8,7 +9,6 @@ import { csvBlob } from '@/app/lib/guest-import';
 const cell: React.CSSProperties = { padding: '10px 12px', borderBottom: '1px solid #EDE8E3', fontSize: 14, color: '#241F2B', verticalAlign: 'top', textAlign: 'left' };
 const btn: React.CSSProperties = { padding: '7px 14px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', color: '#241F2B' };
 
-const csvCell = (v: string) => `"${v.replace(/"/g, '""')}"`;
 
 export function PotluckEntries({ pageId, initialEntries }: { pageId: number; initialEntries: PotluckEntry[] }) {
   const [entries, setEntries] = useState(initialEntries);
