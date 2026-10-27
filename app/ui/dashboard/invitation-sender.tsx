@@ -8,12 +8,11 @@ import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } fr
 import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import type { Guest } from '@/app/lib/definitions';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
+import { LocalDate } from './local-date';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Guests the invitation can be emailed to.
 const canEmail = (g: Guest) => !!g.email && EMAIL_RE.test(g.email.trim()) && !g.email_opt_out;
-const sentOn = (iso: string) => new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
 const phoneBtn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 999, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 600, textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
 
 // Guests → Invitations (every plan): send the designed invitation to the guest
@@ -255,11 +254,11 @@ export function InvitationSender({
                           {g.email_opt_out ? 'Unsubscribed'
                             : !g.email ? 'No email'
                             : !emailOk ? 'Invalid email'
-                            : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }} suppressHydrationWarning>✓ Emailed {sentOn(g.invited_at)}</span>
+                            : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }}>✓ Emailed <LocalDate iso={g.invited_at} options={{ month: 'short', day: 'numeric' }} /></span>
                             : 'Not emailed'}
                           {texted && (
-                            <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }} suppressHydrationWarning>
-                              ✓ {texted === 'whatsapp' ? 'WhatsApp' : 'Texted'} {sentOn(textedNow[g.id] || !g.texted_at ? new Date().toISOString() : g.texted_at)}
+                            <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }}>
+                              ✓ {texted === 'whatsapp' ? 'WhatsApp' : 'Texted'} <LocalDate iso={textedNow[g.id] || !g.texted_at ? new Date().toISOString() : g.texted_at} options={{ month: 'short', day: 'numeric' }} />
                             </div>
                           )}
                         </td>

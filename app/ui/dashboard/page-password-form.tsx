@@ -41,7 +41,7 @@ export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialH
       kind: 'ok',
       text: !plus.paid ? 'Password saved. It protects your page once this event is on Plus.'
         : next.password
-        ? result.value.enabled ? 'Password saved. Guests now need it to open your page.' : 'Password saved.'
+        ? result.value.enabled ? 'Password saved. Protection is on: guests now need it to open your page.' : 'Password saved. Protection is off, so anyone with the link can still open your page. Turn it on above to make it private.'
         : result.value.enabled ? 'Protection is on.' : 'Protection is off — anyone with the link can open your page.',
     });
   }
@@ -79,7 +79,9 @@ export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialH
         </span>
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); if (password && !tooShort) save({ enabled, password }); }}>
+      {/* The first password saved turns protection on (a host setting one
+          expects the page to be private); changing it later keeps the switch. */}
+      <form onSubmit={(e) => { e.preventDefault(); if (password && !tooShort) save({ enabled: enabled || !hasPassword, password }); }}>
         <label style={labelStyle} htmlFor="page-password">{hasPassword ? 'Change the password' : 'Set a password'}</label>
         <div style={{ display: 'flex', gap: 8 }}>
           <input

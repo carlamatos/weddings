@@ -598,7 +598,7 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
       ) : (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <button type="button" onClick={(e) => { e.stopPropagation(); openEdit(); }} title="Rename, change seats or delete"
+            <button type="button" onClick={(e) => { e.stopPropagation(); if (picking) onPick(); else openEdit(); }} title={picking ? 'Seat here' : 'Rename, change seats or delete'}
               style={{ flex: '1 1 auto', minWidth: 0, display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', padding: '2px 0', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
               <span style={{ fontSize: 15, fontWeight: 600, color: '#241F2B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{table.name}</span>
               <PencilSquareIcon aria-label="Edit table" style={{ width: 15, height: 15, color: '#9A929F', flexShrink: 0 }} />

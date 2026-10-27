@@ -155,7 +155,9 @@ const nextAuth = NextAuth({
         if (localuser){
           session.user.id = localuser.id;
         }
-        session.user.name = token.name as string;
+        // The account's current name (an email sign-up adds it during setup,
+        // after the sign-in that issued the token).
+        session.user.name = localuser?.name?.trim() || (token.name as string);
         session.user.email = token.email as string;
         session.user.image = token.picture as string;
         session.user.verifiedEmail = !!localuser?.email_verified_at;

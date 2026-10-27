@@ -30,7 +30,8 @@ export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, se
       {/* Filled by the early script below; emptied once SectionBackgrounds has taken over. */}
       {early && <style id={EARLY_STYLE_ID} dangerouslySetInnerHTML={{ __html: '' }} suppressHydrationWarning />}
       {/* The theme is the first element in here: the script and SectionBackgrounds find it from their place, right after. */}
-      <div data-mg-theme style={{ display: 'contents' }}>
+      {/* lang: the page's own language (the site's <html> says English), for screen readers and search engines. */}
+      <div data-mg-theme lang={props.language || 'en'} style={{ display: 'contents' }}>
         <Page {...props} />
       </div>
       {early && <script dangerouslySetInnerHTML={{ __html: sectionBackgroundsScript(sectionBackgrounds!) }} />}
