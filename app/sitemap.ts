@@ -30,6 +30,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),
     entry('/fr/mariage', 0.8),
     ...Object.values(INVITATION_LANDING_PAGES).map((p) => entry(p.path, 0.9)),
+    entry('/design-your-invitation', 0.8),
     entry('/faq', 0.7),
     // Articles carry their publish date; the blog index changes when the newest one is published.
     entry('/blog', 0.6, 'weekly', new Date(Math.max(...BLOG_POSTS.map((p) => Date.parse(p.published))))),

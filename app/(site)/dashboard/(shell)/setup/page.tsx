@@ -6,10 +6,15 @@ import SubscribeForm from "@/app/ui/subscribe-form";
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
+import { parseStartParams } from '@/app/lib/start-intent';
 
 // Create an event page. Every new event goes through the full setup — type,
 // name, dates, location, theme, address and its own Free/Plus choice.
-export default async function Page() {
+// A signed-in host coming from /design-your-invitation brings the theme,
+// name and date chosen there in the address (app/lib/start-intent.ts).
+export default async function Page({ searchParams }: { searchParams: Promise<{ start?: string; theme?: string; occasion?: string; name?: string; date?: string }> }) {
+    const params = await searchParams;
+    const start = parseStartParams(params.start, params.theme, params.occasion, { name: params.name, date: params.date });
     const session = await auth();
     const userId = session?.user?.id;
 
@@ -45,7 +50,7 @@ export default async function Page() {
                     </p>
                 </div>
             ) : (
-                <SubscribeForm prepaid={prepaid} accountEmail={session?.user?.email ?? ''} needsName={needsName} ownerName={{ given: owner?.given_name?.trim() ?? '', family: owner?.family_name?.trim() ?? '' }} />
+                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} needsName={needsName} ownerName={{ given: owner?.given_name?.trim() ?? '', family: owner?.family_name?.trim() ?? '' }} />
             )}
         </div>
     );
