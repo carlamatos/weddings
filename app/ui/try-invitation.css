@@ -33,3 +33,15 @@
 @media (max-width: 860px) {
   .marketing-page .try-invite__related .mk-cards { grid-template-columns: 1fr; }
 }
+
+/* Phones: the invitation first (many visitors don't scroll), then the form,
+   then the website and the note. The previews' box steps aside so its
+   pieces can sit around the form. */
+@media (max-width: 600px) {
+  .try-invite .setup-style { gap: 28px; }
+  .try-invite .setup-style__previews { display: contents; }
+  .try-invite .setup-style__previews > .setup-preview:first-of-type { order: -1; }
+  .try-invite .setup-style__form { order: 0; }
+  .try-invite .setup-style__previews > .setup-preview:nth-of-type(2) { order: 1; }
+  .try-invite .setup-style__previews > .try-invite__note { order: 2; }
+}
