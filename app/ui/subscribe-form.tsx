@@ -6,58 +6,9 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { createUserPage, UserPageState } from '../lib/actions';
 import { themeRegistry } from './themes/registry';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
-import { CATEGORY_LABELS, ThemePicker, themeCard } from './theme-picker';
+import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme-picker';
 import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
-import { THEME_CARDS } from '../lib/marketing/theme-cards';
-import { ornamentOccasion } from '../lib/invitation-ornaments';
-
-// Themes to show first in the gallery for a landing page's occasion: its
-// wedding or Christmas themes, the one the visitor clicked (if any) first.
-function occasionThemes(start: StartIntent | null): string[] {
-  if (!start?.occasion) return [];
-  const slugs = THEME_CARDS
-    .filter((t) => (start.occasion === 'wedding' ? t.category === 'wedding' : ornamentOccasion(t.slug) === 'christmas'))
-    .map((t) => t.slug);
-  return start.theme && slugs.includes(start.theme) ? [start.theme, ...slugs.filter((s) => s !== start.theme)] : slugs;
-}
-import { defaultInvitation, googleFontsHref } from '../lib/invitation';
-import { InvitationCard } from './dashboard/invitation-card';
-import { eventWhen } from './themes/event-when';
-
-// Step 2's previews of the chosen theme: the invitation in its starting
-// design with the event's name and date, and the whole event page in a
-// phone, which scrolls while the pointer is over it (swipe on touch screens).
-function StylePreviews({ themeSlug, eventName, eventDate }: { themeSlug: string; eventName: string; eventDate: string }) {
-  const design = defaultInvitation(themeSlug);
-  const card = themeCard(themeSlug);
-  const details = {
-    name: eventName.trim() || card?.sample.heading || 'Your event',
-    date: eventWhen({ eventDate: eventDate || card?.sample.eventDate }, 'en-US').date,
-    time: '',
-    venue: '',
-    address: '',
-    url: '',
-  };
-  return (
-    <>
-      <link rel="stylesheet" href={googleFontsHref([design.headingFont, design.bodyFont])} />
-      <figure className="setup-preview">
-        <figcaption>Your invitation</figcaption>
-        <InvitationCard design={{ ...design, showQr: false }} details={details} />
-      </figure>
-      <figure className="setup-preview">
-        <figcaption>Your website</figcaption>
-        <div className="setup-phone">
-          <div className="setup-phone__screen" tabIndex={0} aria-label={`${card?.name ?? 'Theme'}: picture of the whole page`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/images/theme-pages/${themeSlug}.webp`} alt={`The ${card?.name ?? ''} theme, the whole page`} width={520} decoding="async" />
-          </div>
-          <span className="setup-phone__hint" aria-hidden="true" />
-        </div>
-      </figure>
-    </>
-  );
-}
+import { StylePreviews } from './style-previews';
 
 function slugify(text: string): string {
   return text
@@ -89,7 +40,10 @@ function slugify(text: string): string {
 // invitation designer instead of the page editor.
 // needsName: the account has no first and last name yet, so step 2 asks
 // for them (required); ownerName fills in whatever part it does have.
-export default function Form({ prepaid = false, accountEmail = '', needsName = false, ownerName }: { prepaid?: boolean; accountEmail?: string; needsName?: boolean; ownerName?: { given: string; family: string } }) {
+// start: the same choice, from the address instead of browser storage (a
+// signed-in host coming from /design-your-invitation); it also brings the
+// event's name and date typed there.
+export default function Form({ prepaid = false, accountEmail = '', needsName = false, ownerName, start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; needsName?: boolean; ownerName?: { given: string; family: string }; start?: StartIntent | null }) {
   const [eventName, setEventName] = useState('');
   // Controlled, so a failed submit (the form resets) keeps what was typed.
   const [givenName, setGivenName] = useState(ownerName?.given ?? '');
@@ -103,10 +57,12 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
   // Step 1 is the gallery itself: open it on arrival — unless a landing page
   // already chose the theme (browser storage is only readable after mount).
   useEffect(() => {
-    const start = readStartIntent();
+    const start = startFromAddress ?? readStartIntent();
     /* eslint-disable react-hooks/set-state-in-effect -- the dialog opens after mount (showModal needs the DOM); the landing page's choice lives in browser storage */
     if (start?.intent === 'invitation') setForInvitation(true);
-    setFirstThemes(occasionThemes(start));
+    if (start?.name) setEventName(start.name);
+    if (start?.date) setEventDate(start.date);
+    setFirstThemes(occasionThemes(start?.occasion, start?.theme));
     if (start?.theme && themeRegistry[start.theme] && themeCard(start.theme)) {
       setThemeSlug(start.theme);
       setStep(2);
@@ -114,7 +70,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
       setPicking(true);
     }
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, []);
+  }, [startFromAddress]);
   const [themeMissing, setThemeMissing] = useState(false);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
   const eventType = themeRegistry[themeSlug]?.category ?? '';
