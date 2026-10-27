@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { formatPostDate, postPath, type BlogPost } from '@/app/lib/marketing/blog';
-import { articleMetadata, blogPostingJsonLd, breadcrumbJsonLd, faqPageJsonLd } from '@/app/lib/marketing/seo';
+import { articleMetadata, blogPostingJsonLd, breadcrumbJsonLd, faqPageJsonLd, webApplicationJsonLd } from '@/app/lib/marketing/seo';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { FeatureCards, FinalCta } from '@/app/ui/marketing/content-blocks';
@@ -12,7 +12,7 @@ import { ArticleSections } from '@/app/ui/marketing/article-blocks';
 // its own path.
 
 export function articlePageMetadata(post: BlogPost): Metadata {
-  return articleMetadata(post.seo, postPath(post), post.published, { src: post.cardImage, alt: post.title });
+  return articleMetadata(post.seo, postPath(post), post.published, { src: post.cardImage, alt: post.cardAlt ?? post.title });
 }
 
 export function ArticlePage({ post }: { post: BlogPost }) {
@@ -28,6 +28,7 @@ export function ArticlePage({ post }: { post: BlogPost }) {
       <JsonLd data={blogPostingJsonLd(post.seo, post.title, path, post.published, post.cardImage)} />
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       {post.faqs && <JsonLd data={faqPageJsonLd(post.faqs)} />}
+      {post.app && <JsonLd data={webApplicationJsonLd(post.app, path, post.cardImage)} />}
 
       <header className="mk-hero">
         <div className="wrap">

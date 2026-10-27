@@ -21,9 +21,10 @@ export type ArticleBlock =
   // A one-line "Try it free" sign-up link; occasion starts sign-up with that occasion's themes.
   | { type: 'try'; text: string; occasion?: StartOccasion }
   | { type: 'templates'; slugs: string[] } // live theme previews
+  | { type: 'palette-tool' } // the wedding colour palette generator
   | { type: 'cta'; title: string; text: string; button: string }; // sign-up box
 
-export type ArticleSection = { heading?: string; blocks: ArticleBlock[] };
+export type ArticleSection = { heading?: string; id?: string; blocks: ArticleBlock[] };
 
 export type BlogPost = {
   slug: string;
@@ -34,6 +35,9 @@ export type BlogPost = {
   lead: string;
   summary: string; // card text on the blog index
   cardImage: string; // card photo on the blog index
+  cardAlt?: string; // its alt text when shared (else the title)
+  // An interactive tool on the page, described to search engines as a free web app.
+  app?: { name: string; description: string };
   published: string; // YYYY-MM-DD
   readMinutes: number;
   sections: ArticleSection[];
@@ -45,6 +49,164 @@ export type BlogPost = {
 const WEDDINGS = '/events/weddings';
 
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'wedding-colour-palette',
+    path: '/wedding-colour-palette',
+    seo: {
+      title: 'Wedding Colour Palette Generator and Guide',
+      description:
+        'Build your wedding colour palette: pick one of 20 styles and a colour you love, and get matching colours. Plus how many colours to use and which ones cost more.',
+      keywords: ['wedding colour palette', 'wedding color palette', 'wedding color palette generator', 'wedding colours', 'how to choose wedding colors', 'wedding color schemes', 'how many wedding colors'],
+    },
+    eyebrow: 'Wedding colours',
+    title: 'How to choose your wedding colour palette',
+    lead:
+      'Not sure where to begin? Answer three quick questions, pick a style and one colour you love, and the generator below builds the rest of your palette. Then read on for what to think about first, how many colours to use and which ones cost more.',
+    summary: 'A palette generator with 20 wedding styles, plus what to consider, how many colours to use and which ones cost more.',
+    cardImage: '/images/guides/wedding-colour-palette/palette-generator.jpg',
+    cardAlt: 'A wedding colour palette in dusty rose, peach and sage shown on an invitation for Emma and Liam and on five bridesmaid dresses',
+    app: {
+      name: 'Wedding colour palette generator',
+      description: 'Pick a wedding style and a main colour, and get a matching palette: a second colour, an accent, greenery, a neutral and a metal, previewed on an invitation and bridesmaid dresses.',
+    },
+    published: '2026-10-26',
+    readMinutes: 9,
+    sections: [
+      {
+        heading: 'Wedding colour palette generator',
+        blocks: [
+          { type: 'palette-tool' },
+          { type: 'note', text: 'Copy the link to your palette and send it to your partner, your wedding party or your florist. It opens with your exact colours.' },
+        ],
+      },
+      {
+        heading: 'Before you choose: 8 things to consider',
+        blocks: [
+          { type: 'p', text: 'Your colours will show up in your flowers, your wedding party, your invitations and every photo, so it’s worth a little thought first. Start with the things you can’t change, then add what you love.' },
+          { type: 'h3', text: '1. Your venue' },
+          { type: 'p', text: 'Your venue already has colours: the carpet, walls, chairs, curtains and the view. Look at photos of other weddings there and build around what you can’t change. A ballroom with a patterned red carpet will fight a pastel palette, while a garden or a white tent goes with almost anything.' },
+          { type: 'h3', text: '2. The season' },
+          { type: 'p', text: 'Each season suggests its own colours: pastels in spring, brights and blues in summer, warm oranges and burgundy in fall, deep tones, silver and evergreen in winter. You can go against the season, but flowers that are in season in your colours are easier to find and usually cost less.' },
+          { type: 'h3', text: '3. The time of day and the light' },
+          { type: 'p', text: 'Daylight shows colours as they are. In the evening, under warm lights and candles, blues and purples look darker and greys can look muddy, while warm colours glow. If most of your wedding happens after dark, look at your colours under warm light before you decide.' },
+          { type: 'h3', text: '4. The feel you want' },
+          { type: 'p', text: 'Soft, muted colours feel romantic and relaxed. Deep colours feel formal and dramatic. Bright colours feel fun. Decide on the mood first, and the colours become easier to choose.' },
+          { type: 'h3', text: '5. Your wedding party' },
+          { type: 'p', text: 'Your wedding party will wear your colours in almost every photo. Mid-tones like dusty blue, sage, mauve and dusty rose suit most skin tones, while very pale shades and neon brights suit fewer people. Many bridesmaid dress brands offer the same colours across all their styles, so check that your shade exists before you fall in love with it.' },
+          { type: 'h3', text: '6. How it will look in photos' },
+          { type: 'p', text: 'Your photos last the longest. Very pale palettes can disappear in bright sun, neon colours can look harsh, and very dark ones lose detail at night. Mid-tones with one deeper colour photograph well almost anywhere. Trendy colours can date your photos faster than classic ones.' },
+          { type: 'h3', text: '7. Your budget' },
+          { type: 'p', text: 'Some colours take more effort to get right, especially in flowers and rentals. See [which colours cost more](#colours-and-budget) below.' },
+          { type: 'h3', text: '8. What it means to you' },
+          { type: 'p', text: 'Your colours can tell a story: the flowers from your first date, the place you got engaged, your heritage or your home team. Colours also carry meaning in many cultures. Red is lucky at Chinese and Indian weddings, for example, while white is a colour of mourning in some traditions. If your families come from different backgrounds, it’s worth asking.' },
+        ],
+      },
+      {
+        heading: 'How many colours should a wedding palette have?',
+        blocks: [
+          { type: 'p', text: '**Three to five.** Most wedding palettes have:' },
+          {
+            type: 'list',
+            items: [
+              '**One or two main colours,** the ones guests see the most: the wedding party, the flowers, the invitations.',
+              '**One accent,** used in small touches: ribbons, boutonnières, the cake, signage.',
+              '**A neutral,** like ivory, white, cream or grey, for linens, paper and backdrops.',
+            ],
+          },
+          { type: 'p', text: 'Greenery and metals like gold, brass or silver don’t usually count as colours. They go with everything and tie the palette together.' },
+          { type: 'h3', text: 'The 60-30-10 rule' },
+          { type: 'p', text: 'Designers often split a room into about 60% of one colour, 30% of a second and 10% of an accent. At a wedding, that usually means mostly neutral linens and paper, your main colour in the flowers and the wedding party, and your accent in the details. The bar under your palette in the generator shows the same idea.' },
+          { type: 'p', text: 'Two colours can look simple and elegant. More than five usually looks busy, unless that’s the point, like a wildflower or rainbow wedding.' },
+        ],
+      },
+      {
+        heading: 'Which wedding colours cost more (and which cost less)?',
+        id: 'colours-and-budget',
+        blocks: [
+          { type: 'p', text: 'No colour is expensive on its own, but some need more specialty items, or more searching, to get right. These are the places where your colours affect your budget the most.' },
+          { type: 'h3', text: 'Flowers' },
+          { type: 'p', text: 'White, ivory and blush flowers are the easiest to find all year, and greenery fills a lot of space for little money. True blue flowers are rare (delphinium, hydrangea and cornflower are the main ones), so blue palettes often bring in the blue with ribbons and linens instead. Very dark blooms, like deep burgundy or near-black, are limited and often cost more, and so do dyed or painted flowers. Ask your florist which flowers in your colours will be in season on your date: local, in-season flowers almost always cost less than imported ones.' },
+          { type: 'h3', text: 'Linens and rentals' },
+          { type: 'p', text: 'Rental companies stock white, ivory and black in large quantities, so they’re usually the cheapest. Specialty colours, velvet, sequins and prints are rarer and often cost more to rent. A common trick: keep the tablecloths neutral and add your colours with napkins and runners.' },
+          { type: 'h3', text: 'Invitations and stationery' },
+          { type: 'p', text: 'Printing in colour costs about the same as printing in black, but metallic foil, letterpress, coloured envelopes and coloured ink add to the cost of every piece. A digital [invitation](/features/invitations) and a wedding website show your full palette at no extra cost, so you can save the foil for a few printed pieces.' },
+          { type: 'h3', text: 'Wedding party attire' },
+          { type: 'p', text: 'Dresses in a brand’s standard colours cost the least. Custom dyes, or matching one exact shade across different brands, cost more and take longer. Asking your wedding party to wear any dress in your colour family (any shade of green, for example) is easier on their budgets and looks lovely in photos.' },
+          { type: 'h3', text: 'The cake' },
+          { type: 'p', text: 'Coloured icing, hand-painted details and sugar flowers add hours of work. A white or neutral cake decorated with a few flowers in your colours is usually the budget-friendly choice.' },
+          { type: 'note', text: '**The cheapest colours are the ones your venue already has.** Green gardens, dark wood, white walls or a lake view are free décor: build your palette around them and you’ll need less of everything else.' },
+        ],
+      },
+      {
+        heading: 'How to use your palette',
+        blocks: [
+          { type: 'p', text: 'Once you have your palette, here’s where your colours will show up:' },
+          {
+            type: 'list',
+            items: [
+              'Save-the-dates, invitations and your wedding website',
+              'Wedding party attire, ties and pocket squares',
+              'Flowers and greenery',
+              'Linens, napkins and table runners',
+              'The cake and the dessert table',
+              'Signs, menus and place cards',
+              'Candles and lighting',
+            ],
+          },
+          { type: 'h3', text: 'Share the same colour codes' },
+          { type: 'p', text: 'Every colour in the generator has a six-character code, like #C99A93. Send the codes to your florist, stationer and planner along with a picture of your palette, so everyone works from the same colours.' },
+          { type: 'h3', text: 'Look at real swatches' },
+          { type: 'p', text: 'Screens show colours differently. Before you order dresses or linens, get fabric swatches and look at them together, in daylight and under warm light.' },
+          { type: 'h3', text: 'Coordinate, don’t match' },
+          { type: 'p', text: 'Not everything has to be the exact same shade. A few shades of one colour, like blush, dusty rose and mauve, look richer than a perfect match, and they’re much easier to find.' },
+          { type: 'h3', text: 'Tell your guests' },
+          { type: 'p', text: 'If you’d like guests to wear your colours, or to avoid them, say so next to the dress code on your wedding website. Here’s [how to create a wedding website](/how-to-create-a-wedding-website) in about 20 minutes.' },
+        ],
+      },
+      {
+        heading: 'Popular wedding colour palettes by season',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              '**Spring:** blush and sage, lilac and butter yellow, dusty blue and peach.',
+              '**Summer:** coral and sea blue, cornflower and buttercup, cobalt and lemon.',
+              '**Fall:** burnt orange and burgundy, terracotta and dusty pink, forest green and rust.',
+              '**Winter:** burgundy and gold, navy and silver, emerald and champagne.',
+            ],
+          },
+          { type: 'p', text: 'Want to see one of these? Pick the matching style in the [generator](#palette-tool) and choose the colour as your main colour.' },
+        ],
+      },
+      {
+        heading: 'Your colour palette checklist',
+        blocks: [
+          {
+            type: 'checklist',
+            items: [
+              'Look at photos of your venue in the season you’re getting married',
+              'Pick a style and one main colour you love',
+              'Add a second colour, an accent and a neutral',
+              'Look at fabric swatches in daylight and under warm light',
+              'Ask your florist which flowers in your colours are in season',
+              'Share your palette with your partner, wedding party and vendors',
+              'Use your colours on your save-the-dates, invitations and wedding website',
+            ],
+          },
+        ],
+      },
+    ],
+    faqs: [
+      { q: 'How many colours should a wedding have?', a: 'Three to five: one or two main colours, an accent and a neutral like ivory or white. Greenery and metals like gold or silver don’t usually count as colours.' },
+      { q: 'How do I choose my wedding colours?', a: 'Start with what you can’t change, your venue and the season. Then pick a style and one colour you love, and build around it with a second colour, an accent and a neutral. The generator on this page does that for you.' },
+      { q: 'What are the most timeless wedding colours?', a: 'Ivory, white, blush, champagne, greenery and gold have been popular for decades, and navy, burgundy and emerald are classic deeper colours. They suit most venues and seasons and won’t date your photos.' },
+      { q: 'When should we choose our wedding colours?', a: 'After you book your venue and set your date, usually 9 to 12 months before the wedding. Choose them before you book your florist or order invitations and dresses.' },
+      { q: 'Which wedding colours are the most budget-friendly?', a: 'White, ivory and greenery, plus colours that are in season on your date. Rental linens in white, ivory and black are the most common and usually the cheapest, and digital invitations show any colour at no extra cost.' },
+      { q: 'Can guests wear our wedding colours?', a: 'Some couples love it, and others prefer guests to avoid them so the wedding party stands out. Either way, let guests know with your dress code on your wedding website.' },
+    ],
+    related: ['invitations', 'event-templates', 'custom-sections', 'guest-photo-qr-code', 'event-reminder-emails', 'custom-domain'],
+    cta: { title: 'Bring your colours to life', text: 'Choose a template for your invitation and wedding website, set its colours to match your palette and share it with your guests. It’s free to start.' },
+  },
   {
     slug: 'how-to-create-a-wedding-website',
     path: '/how-to-create-a-wedding-website',
@@ -201,6 +363,7 @@ export const BLOG_POSTS: BlogPost[] = [
               'Book your caterer, if the venue doesn’t provide one',
               'Book your band or DJ',
               'Start shopping for wedding attire; gowns can take 6 to 9 months to arrive',
+              'Choose your wedding colours with our [colour palette generator](/wedding-colour-palette)',
               `Create a [wedding website](${WEDDINGS}) with your date, venue, travel details and FAQs`,
               'Reserve hotel room blocks for out-of-town guests',
               'Book an engagement photo session, if you want one',
@@ -400,7 +563,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: 'A design that matches your wedding',
         blocks: [
-          { type: 'p', text: 'The design sets the mood before guests read a word. Choose one that suits your venue and style, from classic ivory florals to a candlelit forest or a breezy beach ceremony. On MyGala every [wedding template](/features/event-templates) includes every feature, so you choose on looks alone, and you can switch designs at any time without losing your details.' },
+          { type: 'p', text: 'The design sets the mood before guests read a word. Choose one that suits your venue and style, from classic ivory florals to a candlelit forest or a breezy beach ceremony. On MyGala every [wedding template](/features/event-templates) includes every feature, so you choose on looks alone, and you can switch designs at any time without losing your details. Still deciding on your colours? Try our [wedding colour palette generator](/wedding-colour-palette).' },
           { type: 'templates', slugs: ['the-day', 'love', 'nature', 'quiet-coastal', 'midnight-botanical', 'vilma'] },
           { type: 'p', text: 'Open any template above for a full live preview of how your page will look to guests.' },
           { type: 'cta', title: 'Create your wedding website', text: 'Pick a template, add your names and date, and your page is ready to share. It’s free to start.', button: 'Create your wedding website' },

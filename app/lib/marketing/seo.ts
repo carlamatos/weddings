@@ -188,6 +188,25 @@ export function blogJsonLd(seo: SeoMeta, path: string, posts: { title: string; p
   };
 }
 
+// A free tool on a page (the colour palette generator).
+export function webApplicationJsonLd(app: { name: string; description: string }, path: string, image: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: app.name,
+    description: app.description,
+    url: absoluteUrl(path),
+    image: absoluteUrl(image),
+    applicationCategory: 'DesignApplication',
+    operatingSystem: 'Any',
+    browserRequirements: 'Requires JavaScript',
+    inLanguage: 'en',
+    isAccessibleForFree: true,
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'CAD' },
+    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/') },
+  };
+}
+
 export function blogPostingJsonLd(seo: SeoMeta, headline: string, path: string, published: string, image: string) {
   return {
     '@context': 'https://schema.org',
