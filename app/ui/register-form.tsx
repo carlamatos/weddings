@@ -8,7 +8,7 @@ import Link from 'next/link';
 import GoogleButton from '@/app/ui/google-button';
 import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
 
-// Just an email and a password: every extra field costs sign-ups. Names and
+// Just an email and a password (typed twice): every extra field costs sign-ups. Names and
 // phone can be added later in the profile. French when the visitor comes
 // from the French landing page (/register?lang=fr). start: how a landing
 // page's visitor wants to begin (see app/lib/start-intent.ts) — kept for the
@@ -21,6 +21,9 @@ const TEXT = {
     email: 'Email',
     password: 'Password',
     passwordHint: 'At least 8 characters',
+    confirmPassword: 'Confirm password',
+    confirmHint: 'Type your password again',
+    mismatch: 'Passwords don’t match.',
     show: 'Show password',
     hide: 'Hide password',
     submit: 'Create my free account',
@@ -34,6 +37,9 @@ const TEXT = {
     email: 'Courriel',
     password: 'Mot de passe',
     passwordHint: 'Au moins 8 caractères',
+    confirmPassword: 'Confirmer le mot de passe',
+    confirmHint: 'Retapez votre mot de passe',
+    mismatch: 'Les mots de passe ne correspondent pas.',
     show: 'Afficher le mot de passe',
     hide: 'Masquer le mot de passe',
     submit: 'Créer mon compte gratuit',
@@ -55,6 +61,20 @@ export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en
   const initialState: RegisterState = { message: null, errors: {} };
   const [state, formAction, isPending] = useActionState(registerUser, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [mismatch, setMismatch] = useState(false);
+
+  // Stop the sign-up when the two passwords differ (the server checks too).
+  function checkMatch(e: React.FormEvent<HTMLFormElement>) {
+    const form = e.currentTarget;
+    const password = (form.elements.namedItem('password') as HTMLInputElement).value;
+    const confirm = (form.elements.namedItem('confirmPassword') as HTMLInputElement).value;
+    if (password !== confirm) {
+      e.preventDefault();
+      setMismatch(true);
+      (form.elements.namedItem('confirmPassword') as HTMLInputElement).focus();
+    }
+  }
+  const confirmError = mismatch ? t.mismatch : state.errors?.confirmPassword?.[0];
 
   return (
     <div className="auth-card" lang={lang}>
@@ -72,7 +92,7 @@ export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en
         </div>
       )}
 
-      <form action={formAction}>
+      <form action={formAction} onSubmit={checkMatch}>
         <input type="hidden" name="lang" value={lang} />
 
         <div className="auth-field">
@@ -96,6 +116,7 @@ export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en
               autoComplete="new-password"
               required
               minLength={8}
+              onChange={() => setMismatch(false)}
             />
             <button
               type="button"
@@ -108,6 +129,26 @@ export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en
             </button>
           </div>
           {state.errors?.password && <p className="auth-field-error">{state.errors.password[0]}</p>}
+        </div>
+
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="confirmPassword">{t.confirmPassword}</label>
+          <div className="auth-input-wrap">
+            <input
+              className="auth-input"
+              id="confirmPassword"
+              type={showPassword ? 'text' : 'password'}
+              name="confirmPassword"
+              placeholder={t.confirmHint}
+              autoComplete="new-password"
+              required
+              minLength={8}
+              onChange={() => setMismatch(false)}
+              aria-invalid={confirmError ? true : undefined}
+              aria-describedby={confirmError ? 'confirmPassword-error' : undefined}
+            />
+          </div>
+          {confirmError && <p className="auth-field-error" id="confirmPassword-error" role="alert">{confirmError}</p>}
         </div>
 
         <button className="auth-btn" type="submit" disabled={isPending}>

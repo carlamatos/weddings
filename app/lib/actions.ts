@@ -2069,6 +2069,7 @@ const REGISTER_MESSAGES = {
   en: {
     email: 'Please enter a valid email address.',
     password: 'Password must be at least 8 characters.',
+    confirmPassword: 'Passwords don’t match.',
     fix: 'Please fix the errors below.',
     exists: 'An account with this email already exists.',
     rateLimited: 'Too many sign-ups from this connection. Please try again later.',
@@ -2078,6 +2079,7 @@ const REGISTER_MESSAGES = {
   fr: {
     email: 'Veuillez entrer une adresse courriel valide.',
     password: 'Le mot de passe doit contenir au moins 8 caractères.',
+    confirmPassword: 'Les mots de passe ne correspondent pas.',
     fix: 'Veuillez corriger les erreurs ci-dessous.',
     exists: 'Un compte existe déjà avec cette adresse courriel.',
     rateLimited: 'Trop d’inscriptions depuis cette connexion. Veuillez réessayer plus tard.',
@@ -2090,6 +2092,7 @@ export type RegisterState = {
   errors?: {
     email?: string[];
     password?: string[];
+    confirmPassword?: string[];
   };
   message?: string | null;
 };
@@ -2097,6 +2100,11 @@ export type RegisterState = {
 export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
   const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
   const m = REGISTER_MESSAGES[lang];
+  // The form checks this too; checked here before the rate limit so a typo
+  // doesn't use up an attempt.
+  if (formData.get('password') !== formData.get('confirmPassword')) {
+    return { errors: { confirmPassword: [m.confirmPassword] }, message: m.fix };
+  }
   // Mass sign-ups (and the verification emails they send) are capped per IP.
   if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
     return { message: m.rateLimited };
