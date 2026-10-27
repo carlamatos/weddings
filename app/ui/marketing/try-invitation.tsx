@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { appHref } from '@/app/lib/app-url';
-import { START_NAME_MAX, startQuery } from '@/app/lib/start-intent';
-import { CATEGORY_LABELS, ThemePicker, themeCard } from '@/app/ui/theme-picker';
+import { START_NAME_MAX, startQuery, type StartOccasion } from '@/app/lib/start-intent';
+import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from '@/app/ui/theme-picker';
 import { StylePreviews } from '@/app/ui/style-previews';
 
 // /design-your-invitation: try an invitation before signing up. Pick a
@@ -13,7 +13,24 @@ import { StylePreviews } from '@/app/ui/style-previews';
 // the choices to sign-up in its address (app/lib/start-intent.ts), and the
 // create-event form starts with them after the visitor signs in. A host who
 // is already signed in goes straight to that form.
-export function TryInvitation({ initialTheme, isLoggedIn }: { initialTheme: string; isLoggedIn: boolean }) {
+// occasion: Christmas (/design-your-christmas-invitation) words it for a
+// party and lists the Christmas themes first, here and in the create-event
+// form's gallery.
+const TEXT = {
+  default: {
+    heading: 'Design your invitation',
+    sub: 'Pick a design, add the name and the date, and see your invitation and its matching website. No account needed to try it.',
+    example: 'Sofia & James',
+  },
+  christmas: {
+    heading: 'Design your Christmas invitation',
+    sub: 'Pick a festive design, add your party’s name and date, and see your invitation and its matching party page. No account needed to try it.',
+    example: 'The Smiths’ Christmas Party',
+  },
+} as const;
+
+export function TryInvitation({ initialTheme, isLoggedIn, occasion }: { initialTheme: string; isLoggedIn: boolean; occasion?: StartOccasion }) {
+  const t = occasion === 'christmas' ? TEXT.christmas : TEXT.default;
   const [themeSlug, setThemeSlug] = useState(initialTheme);
   const [picking, setPicking] = useState(false);
   const [eventName, setEventName] = useState('');
@@ -21,14 +38,12 @@ export function TryInvitation({ initialTheme, isLoggedIn }: { initialTheme: stri
   const card = themeCard(themeSlug);
 
   const href = appHref(isLoggedIn ? '/dashboard/setup' : '/register')
-    + startQuery('invitation', themeSlug, undefined, { name: eventName, date: eventDate });
+    + startQuery('invitation', themeSlug, occasion, { name: eventName, date: eventDate });
 
   return (
     <div className="auth-card setup-card--wide try-invite__card">
-      <h1 className="auth-heading">Design your invitation</h1>
-      <p className="auth-subheading">
-        Pick a design, add the name and the date, and see your invitation and its matching website. No account needed to try it.
-      </p>
+      <h1 className="auth-heading">{t.heading}</h1>
+      <p className="auth-subheading">{t.sub}</p>
 
       <div className="setup-style">
         <div className="setup-style__form">
@@ -50,7 +65,7 @@ export function TryInvitation({ initialTheme, isLoggedIn }: { initialTheme: stri
             <div className="auth-input-wrap">
               <input className="auth-input" id="tryEventName" type="text" value={eventName}
                 onChange={(e) => setEventName(e.target.value)}
-                placeholder={`e.g. ${card?.sample.heading ?? 'Sofia & James'}`} maxLength={START_NAME_MAX} />
+                placeholder={`e.g. ${occasion === 'christmas' ? t.example : card?.sample.heading ?? t.example}`} maxLength={START_NAME_MAX} />
             </div>
           </div>
 
@@ -80,7 +95,7 @@ export function TryInvitation({ initialTheme, isLoggedIn }: { initialTheme: stri
         )}
       </div>
 
-      <ThemePicker open={picking} selected={themeSlug} onChoose={(slug) => { setThemeSlug(slug); setPicking(false); }} onClose={() => setPicking(false)} />
+      <ThemePicker open={picking} selected={themeSlug} onChoose={(slug) => { setThemeSlug(slug); setPicking(false); }} onClose={() => setPicking(false)} first={occasionThemes(occasion)} />
     </div>
   );
 }

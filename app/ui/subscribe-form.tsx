@@ -6,20 +6,8 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { createUserPage, UserPageState } from '../lib/actions';
 import { themeRegistry } from './themes/registry';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
-import { CATEGORY_LABELS, ThemePicker, themeCard } from './theme-picker';
+import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme-picker';
 import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
-import { THEME_CARDS } from '../lib/marketing/theme-cards';
-import { ornamentOccasion } from '../lib/invitation-ornaments';
-
-// Themes to show first in the gallery for a landing page's occasion: its
-// wedding or Christmas themes, the one the visitor clicked (if any) first.
-function occasionThemes(start: StartIntent | null): string[] {
-  if (!start?.occasion) return [];
-  const slugs = THEME_CARDS
-    .filter((t) => (start.occasion === 'wedding' ? t.category === 'wedding' : ornamentOccasion(t.slug) === 'christmas'))
-    .map((t) => t.slug);
-  return start.theme && slugs.includes(start.theme) ? [start.theme, ...slugs.filter((s) => s !== start.theme)] : slugs;
-}
 import { StylePreviews } from './style-previews';
 
 function slugify(text: string): string {
@@ -74,7 +62,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
     if (start?.intent === 'invitation') setForInvitation(true);
     if (start?.name) setEventName(start.name);
     if (start?.date) setEventDate(start.date);
-    setFirstThemes(occasionThemes(start));
+    setFirstThemes(occasionThemes(start?.occasion, start?.theme));
     if (start?.theme && themeRegistry[start.theme] && themeCard(start.theme)) {
       setThemeSlug(start.theme);
       setStep(2);

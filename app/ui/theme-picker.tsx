@@ -8,6 +8,8 @@ import './theme-picker.css';
 import { defaultInvitation, googleFontsHref } from '@/app/lib/invitation';
 import { InvitationCard } from './dashboard/invitation-card';
 import { eventWhen } from './themes/event-when';
+import { ornamentOccasion } from '@/app/lib/invitation-ornaments';
+import type { StartOccasion } from '@/app/lib/start-intent';
 
 // Each theme's invitation in its starting design (what the host gets), with
 // the theme's sample event, and one font request for all of them.
@@ -34,6 +36,17 @@ type Filter = (typeof FILTERS)[number];
 
 export const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.webp`;
 export const themeCard = (slug: string): ThemeCard | undefined => THEME_CARDS.find((t) => t.slug === slug);
+
+// Themes to show first in the gallery for an occasion (a landing page's, or
+// the Christmas "design your invitation" page): its wedding or Christmas
+// themes, the given one (if any) first.
+export function occasionThemes(occasion?: StartOccasion, theme?: string): string[] {
+  if (!occasion) return [];
+  const slugs = THEME_CARDS
+    .filter((t) => (occasion === 'wedding' ? t.category === 'wedding' : ornamentOccasion(t.slug) === 'christmas'))
+    .map((t) => t.slug);
+  return theme && slugs.includes(theme) ? [theme, ...slugs.filter((s) => s !== theme)] : slugs;
+}
 
 export function ThemePicker({
   open, selected, onChoose, onClose, first = [],
