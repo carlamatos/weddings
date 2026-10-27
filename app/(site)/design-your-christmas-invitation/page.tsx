@@ -8,8 +8,8 @@ import { TryInvitation } from '@/app/ui/marketing/try-invitation';
 import '@/app/ui/auth.css';
 import '@/app/ui/try-invitation.css';
 
-// The Christmas version of /design-your-invitation: Christmas wording, a
-// Christmas theme to start, and the Christmas themes first in the gallery.
+// The Christmas version of /design-your-invitation: Christmas wording, the
+// Christmas Party theme to start, and the Christmas themes first in the gallery.
 export const metadata: Metadata = pageMetadata(
   'Design Your Christmas Party Invitation Free — Try It Now',
   'Pick a festive design, add your party’s name and date, and see your Christmas invitation and matching party page instantly. No account needed to try it.',
@@ -18,7 +18,7 @@ export const metadata: Metadata = pageMetadata(
 
 export default async function DesignYourChristmasInvitationPage({ searchParams }: { searchParams: Promise<{ theme?: string }> }) {
   const { theme } = await searchParams;
-  const initialTheme = theme && themeRegistry[theme] && THEME_CARDS.some((c) => c.slug === theme) ? theme : 'merry';
+  const initialTheme = theme && themeRegistry[theme] && THEME_CARDS.some((c) => c.slug === theme) ? theme : 'christmas-party';
   const session = await auth();
   return (
     <MarketingShell>
