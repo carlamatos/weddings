@@ -15,7 +15,7 @@ import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
 // create-event form, and an invitation heading here.
 const TEXT = {
   en: {
-    heading: 'Create your free event page',
+    heading: 'Create your free event',
     sub: 'Free to start — no credit card needed.',
     divider: 'or sign up with email',
     email: 'Email',
