@@ -10,6 +10,7 @@ import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { RsvpGuestListOption } from '@/app/ui/dashboard/rsvp-guest-list-option';
 import { auth } from '@/auth';
+import { LocalDate } from '@/app/ui/dashboard/local-date';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -88,7 +89,8 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
                     {g.message || '—'}
                   </td>
                   <td style={{ padding: '14px 16px', color: '#9A8F8C', whiteSpace: 'nowrap', fontSize: 13 }}>
-                    {new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    {/* When they replied; for guests yet to reply, when they were added. */}
+                    <LocalDate iso={g.responded_at ?? g.created_at} />
                   </td>
                 </tr>
               ))}

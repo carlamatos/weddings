@@ -1,5 +1,6 @@
 'use client';
 
+import { csvCell } from '@/app/lib/csv';
 import type { Guest } from '@/app/lib/definitions';
 import { csvBlob } from '@/app/lib/guest-import';
 
@@ -21,11 +22,11 @@ export function RsvpActions({ guests }: { pageId: number; guests: Guest[] }) {
       g.status === 'not_attending' ? '' : String(g.guests || 1),
       g.receive_updates ? 'Yes' : 'No',
       g.message ?? '',
-      new Date(g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      new Date(g.responded_at ?? g.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
     ]);
 
     const csv = [headers, ...rows]
-      .map((row) => row.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(','))
+      .map((row) => row.map(csvCell).join(','))
       .join('\n');
 
     const a = document.createElement('a');

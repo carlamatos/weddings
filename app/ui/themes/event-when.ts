@@ -1,6 +1,7 @@
 // Date/time wording for events with an optional end date and end time.
-// Times stay in the 12-hour en-US style the themes already used; dates follow
-// the page language (with the same es/fr capitalization as localizeDate).
+// Dates and times follow the page language (4:00 PM in English, 16:00 in
+// French and Spanish, as in the event program), with the same es/fr
+// capitalization as localizeDate.
 import { capitalizeDateWords, localizeDate } from '@/app/lib/translations';
 
 export type EventWhenInput = {
@@ -14,8 +15,8 @@ const toDate = (iso: string) => new Date(iso + 'T00:00:00');
 // Keep "Oct 18, 2:00 PM" on one line so a narrow card wraps at the dash.
 const nowrap = (s: string) => s.replace(/ /g, '\u00A0');
 
-export function formatTime12(hhmm: string): string {
-  return new Date(`1970-01-01T${hhmm}`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+function formatTime(hhmm: string, locale: string): string {
+  return new Date(`1970-01-01T${hhmm}`).toLocaleTimeString(locale, { hour: 'numeric', minute: '2-digit' });
 }
 
 export function isMultiDay(eventDate?: string, eventEndDate?: string): eventEndDate is string {
@@ -39,8 +40,8 @@ export function formatDateRange(
 //   time — "4:00 PM – 11:00 PM" (same day) or "Oct 16, 4:00 PM – Oct 18, 2:00 PM" (multi-day)
 //   date — "Friday, October 16, 2026" or "Friday, October 16 – Sunday, October 18, 2026"
 export function eventWhen({ eventDate, eventTime, eventEndDate, eventEndTime }: EventWhenInput, locale: string) {
-  const start = eventTime ? formatTime12(eventTime) : '';
-  const end = eventEndTime ? formatTime12(eventEndTime) : '';
+  const start = eventTime ? formatTime(eventTime, locale) : '';
+  const end = eventEndTime ? formatTime(eventEndTime, locale) : '';
   const date = eventDate
     ? formatDateRange(eventDate, eventEndDate, locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : '';
