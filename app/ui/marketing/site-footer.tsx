@@ -14,6 +14,8 @@ export default function SiteFooter() {
         <div>
           <p className="site-footer-heading">Features</p>
           {FEATURES.map((f) => <Link key={f.slug} href={`/features/${f.slug}`}>{f.navLabel}</Link>)}
+          <Link href="/design-your-invitation">Invitation Maker</Link>
+          <Link href="/design-your-christmas-invitation">Christmas Invitation Maker</Link>
         </div>
         <div>
           <p className="site-footer-heading">Events</p>

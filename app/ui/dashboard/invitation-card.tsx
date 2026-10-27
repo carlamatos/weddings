@@ -9,8 +9,11 @@ import { MONOGRAM_WREATH_SVG, monogramNames } from '@/app/lib/invitation-monogra
 // photo (srcset, lazy loading) where many cards share a page. fonts: the
 // font names to use instead of the Google Fonts ones (the landing pages serve
 // the fonts themselves, app/ui/marketing/invitation-landing-fonts.ts).
-export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement>; fonts?: Partial<Record<InvitationFont, string>> }>(
-  function InvitationCard({ design, details, qrSvg, bgImage, fonts }, ref) {
+// nameAs: 'p' where the card is a preview inside a page with its own
+// headings (the "design your invitation" pages), so search engines don't
+// read the sample names as one.
+export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement>; fonts?: Partial<Record<InvitationFont, string>>; nameAs?: 'h2' | 'p' }>(
+  function InvitationCard({ design, details, qrSvg, bgImage, fonts, nameAs: Name = 'h2' }, ref) {
     const heading = fonts?.[design.headingFont] ?? INVITATION_FONTS[design.headingFont].family;
     const body = fonts?.[design.bodyFont] ?? INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
@@ -47,12 +50,12 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
             }} />
         )}
         {design.layout === 'monogram' ? (
-          <MonogramWords design={design} details={details} heading={heading} body={body} display={fonts?.amatic ?? INVITATION_FONTS.amatic.family} accentText={accentText} framed={!!frame} />
+          <MonogramWords Name={Name} design={design} details={details} heading={heading} body={body} display={fonts?.amatic ?? INVITATION_FONTS.amatic.family} accentText={accentText} framed={!!frame} />
         ) : (
         <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
-          <h2 style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</h2>
+          <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</Name>
           {divider
             ? <div aria-hidden="true" style={{ width: '50cqw', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
             : <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />}
@@ -85,8 +88,8 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
 // The monogram layout: the initials in a leaf wreath, "the WEDDING of", the
 // names in capitals with "and" between rules, then the details and closing.
 // display: the tall hand-lettered capitals (Amatic SC).
-function MonogramWords({ design, details, heading, body, display, accentText, framed }: {
-  design: InvitationDesign; details: InvitationDetails; heading: string; body: string; display: string; accentText: string; framed: boolean;
+function MonogramWords({ Name, design, details, heading, body, display, accentText, framed }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; body: string; display: string; accentText: string; framed: boolean;
 }) {
   const { names, initials } = monogramNames(details.name);
   const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.25cqw' } as const;
@@ -103,11 +106,11 @@ function MonogramWords({ design, details, heading, body, display, accentText, fr
         <span style={{ fontFamily: display, fontSize: '17cqw', fontWeight: 700, letterSpacing: '0.3cqw' }}>WEDDING</span>
         <span style={{ fontFamily: heading, fontSize: '9cqw' }}>of</span>
       </p>
-      <h2 style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[0]}</h2>
+      <Name style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[0]}</Name>
       {names[1] && (
         <>
           <p style={{ ...caps, display: 'flex', alignItems: 'center', gap: '2cqw', fontSize: '2.8cqw', fontWeight: 600 }}>{rule}and{rule}</p>
-          <h2 style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[1]}</h2>
+          <Name style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[1]}</Name>
         </>
       )}
       <div style={{ marginTop: '1.4cqw' }}>

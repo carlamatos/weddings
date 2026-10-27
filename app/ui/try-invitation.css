@@ -16,3 +16,20 @@
   font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.45;
 }
 .try-invite__note svg { width: 22px; height: 22px; flex-shrink: 0; color: var(--rose); }
+
+/* Above the tool: the breadcrumb and a small label over the heading. */
+.try-invite__crumbs { width: 100%; max-width: 1180px; }
+.try-invite__crumbs .mk-breadcrumbs ol { margin-bottom: 14px; }
+.try-invite__eyebrow { margin: 0 0 8px; font: 700 12px var(--font-sans); letter-spacing: 0.1em; text-transform: uppercase; color: var(--rose); }
+
+/* Below the tool: how it works, the designs and questions. */
+.marketing-page .try-invite__content { padding-top: 8px; padding-bottom: 72px; }
+.marketing-page .try-invite__content .mk-block > p,
+.marketing-page .try-invite__content .mk-list,
+.marketing-page .try-invite__content .mk-steps,
+.marketing-page .try-invite__content .faq-item { max-width: 780px; }
+.marketing-page .try-invite__content .mk-chips { margin-top: 8px; }
+.marketing-page .try-invite__related { padding-top: 48px; }
+@media (max-width: 860px) {
+  .marketing-page .try-invite__related .mk-cards { grid-template-columns: 1fr; }
+}
