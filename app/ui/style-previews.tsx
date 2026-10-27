@@ -9,7 +9,8 @@ import { themeCard } from './theme-picker';
 // /design-your-invitation: the invitation in its starting design with the
 // event's name and date, and the whole event page in a phone, which scrolls
 // while the pointer is over it (swipe on touch screens).
-export function StylePreviews({ themeSlug, eventName, eventDate }: { themeSlug: string; eventName: string; eventDate: string }) {
+// nameAs: see InvitationCard.
+export function StylePreviews({ themeSlug, eventName, eventDate, nameAs }: { themeSlug: string; eventName: string; eventDate: string; nameAs?: 'h2' | 'p' }) {
   const design = defaultInvitation(themeSlug);
   const card = themeCard(themeSlug);
   const details = {
@@ -25,7 +26,7 @@ export function StylePreviews({ themeSlug, eventName, eventDate }: { themeSlug: 
       <link rel="stylesheet" href={googleFontsHref([design.headingFont, design.bodyFont])} />
       <figure className="setup-preview">
         <figcaption>Your invitation</figcaption>
-        <InvitationCard design={{ ...design, showQr: false }} details={details} />
+        <InvitationCard design={{ ...design, showQr: false }} details={details} nameAs={nameAs} />
       </figure>
       <figure className="setup-preview">
         <figcaption>Your website</figcaption>
