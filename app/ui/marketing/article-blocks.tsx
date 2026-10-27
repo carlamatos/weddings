@@ -5,6 +5,7 @@ import type { ArticleBlock, ArticleSection } from '@/app/lib/marketing/blog';
 import { startQuery } from '@/app/lib/start-intent';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { previewImage } from '@/app/ui/themes/preview-image';
+import PaletteTool from './palette-tool';
 import { ThemeGrid } from './theme-grid';
 import { ZoomableScreenshot } from './zoomable-screenshot';
 
@@ -70,6 +71,8 @@ function Block({ block }: { block: ArticleBlock }) {
       const themes = block.slugs.map((s) => THEME_CARDS.find((t) => t.slug === s)).filter((t) => t !== undefined);
       return <div className="mk-article-templates"><ThemeGrid themes={themes} columns={2} /></div>;
     }
+    case 'palette-tool':
+      return <PaletteTool />;
     case 'cta':
       return (
         <div className="mk-article-cta">
@@ -85,7 +88,7 @@ export function ArticleSections({ sections }: { sections: ArticleSection[] }) {
   return (
     <>
       {sections.map((s, i) => (
-        <section className="mk-block" key={s.heading ?? i}>
+        <section className="mk-block" id={s.id} key={s.heading ?? i}>
           {s.heading && <h2 className="mk-h2">{s.heading}</h2>}
           {s.blocks.map((b, j) => <Block key={j} block={b} />)}
         </section>
