@@ -1,13 +1,18 @@
 import type { StartOccasion } from '@/app/lib/start-intent';
 import type { Faq, SeoMeta, Step } from './types';
+import { THEME_CARDS } from './theme-cards';
 
-// The two "design your invitation" pages (/design-your-invitation and
-// /design-your-christmas-invitation): the try-it tool at the top
+// The "design your invitation" pages (/design-your-invitation, its
+// Christmas and wedding versions): the try-it tool at the top
 // (app/ui/marketing/try-invitation.tsx), then how it works, what you can
 // change, the themes and questions — the words search engines read.
 
 export type TryInvitationPage = {
   path: string;
+  // What the new event opens on after sign-up: its invitation designer, or
+  // (weddings, from /wedding-website) the page editor.
+  intent: 'invitation' | 'website';
+  saveLabel: string;
   occasion?: StartOccasion;
   defaultTheme: string;
   seo: SeoMeta;
@@ -39,9 +44,11 @@ const SHARED_FAQS: Faq[] = [
   { q: 'How do I send the invitation to my guests?', a: 'Email it to the guests you tick on your guest list, with an RSVP button that opens your page, or tap Text or WhatsApp next to a guest’s phone number to send it from your own phone. You can also print it or save it as a PDF at 5×7 inches.' },
 ];
 
-export const TRY_INVITATION_PAGES: Record<'default' | 'christmas', TryInvitationPage> = {
+export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding', TryInvitationPage> = {
   default: {
     path: '/design-your-invitation',
+    intent: 'invitation',
+    saveLabel: 'Save my invitation',
     defaultTheme: 'the-day',
     seo: {
       title: 'Free Online Invitation Maker: Design Your Invitation',
@@ -99,6 +106,8 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas', TryInvitation
 
   christmas: {
     path: '/design-your-christmas-invitation',
+    intent: 'invitation',
+    saveLabel: 'Save my invitation',
     occasion: 'christmas',
     defaultTheme: 'christmas-party',
     seo: {
@@ -156,6 +165,66 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas', TryInvitation
         { label: 'Christmas invitations', href: '/christmas-invitations', text: 'Ideas and designs for Christmas party invitations.' },
         { label: 'Gift exchange (Secret Santa)', href: '/features/gift-exchange', text: 'Draw names for your Secret Santa online.' },
         { label: 'Potluck sign-up', href: '/features/potluck', text: 'Let guests sign up for what they’ll bring.' },
+      ],
+    },
+  },
+
+  wedding: {
+    path: '/design-your-wedding-invitation',
+    intent: 'website',
+    saveLabel: 'Save my wedding website',
+    occasion: 'wedding',
+    defaultTheme: 'the-day',
+    seo: {
+      title: 'Free Wedding Invitation Maker with a Matching Website',
+      description: 'Design your wedding invitation and wedding website free. Pick a theme, add your names and date, and see both instantly. No sign-up needed to try.',
+      keywords: ['wedding invitation maker', 'free wedding invitations', 'online wedding invitations', 'wedding website and invitations', 'digital wedding invitation', 'design your own wedding invitation'],
+    },
+    breadcrumb: 'Wedding invitation maker',
+    eyebrow: 'Free wedding website & invitations',
+    h1: 'Design your wedding invitation and website',
+    intro: 'Pick a theme, add your names and wedding date, and see your invitation and the wedding website it opens into. No account needed to try it.',
+    example: 'Sofia & James',
+    app: {
+      name: 'MyGala Wedding Invitation Maker',
+      description: 'Free online wedding invitation maker: choose a theme, add your names and wedding date, and preview your invitation and matching wedding website. Send it by email, text or WhatsApp, or print it.',
+    },
+    steps: [
+      { title: 'Pick your wedding theme', text: 'Choose from our wedding themes: classic, romantic, rustic, botanical, coastal and more. Each one is a wedding website and a matching invitation.' },
+      { title: 'Add your names and date', text: 'Type your names and your wedding date and watch your invitation update as you type.' },
+      { title: 'Save it with a free account', text: 'Create your account with your email or Google. Your theme, names and date come with you, so you only choose your website’s address.' },
+      { title: 'Finish your website and invite everyone', text: 'Add the venue, schedule and your story, then email, text or WhatsApp your invitation. Guests RSVP in one tap on your wedding website.' },
+    ],
+    blocks: [
+      {
+        heading: 'One design for your website and your invitations',
+        paragraphs: [
+          'Every MyGala wedding invitation opens into your wedding website in the same design: RSVPs with plus-ones and meal notes, your love story, the schedule, the venue with a map, a countdown and a photo wall where guests share their pictures. Guests need no account and no app, just your link.',
+        ],
+      },
+      {
+        heading: 'Make it yours after you sign up',
+        paragraphs: ['The invitation designer shows a live 5×7 preview as you work. You can change:'],
+        bullets: CHANGE_LATER,
+      },
+      {
+        heading: 'Send it any way you like',
+        paragraphs: [
+          'Email your invitation to the guests you choose, each greeted by name, with an RSVP button. Or send it as a text or WhatsApp message from your own phone, so it comes from your number. Prefer paper? Print it or save it as a PDF, with a QR code that opens your wedding website.',
+        ],
+      },
+    ],
+    themes: { heading: 'Wedding themes', text: 'See any theme as a full wedding website before you choose it.', slugs: THEME_CARDS.filter((t) => t.category === 'wedding').map((t) => t.slug) },
+    faqs: [
+      ...SHARED_FAQS,
+      { q: 'Can guests RSVP for their plus-ones?', a: 'Yes. Guests RSVP on your wedding website for themselves and the people with them, and you see every answer in your guest list.' },
+    ],
+    related: {
+      heading: 'More for your wedding',
+      links: [
+        { label: 'Wedding websites', href: '/wedding-website', text: 'Every wedding theme, scrolling, with matching invitations.' },
+        { label: 'Wedding colour palettes', href: '/wedding-colour-palette', text: 'Find the colours for your wedding.' },
+        { label: 'Online invitations', href: '/features/invitations', text: 'How designing and sending invitations works.' },
       ],
     },
   },

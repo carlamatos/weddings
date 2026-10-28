@@ -30,6 +30,10 @@ export type InvitationLandingPage = {
   path: string;
   seo: SeoMeta;
   start: 'invitation' | 'website'; // how sign-up starts (app/lib/start-intent.ts)
+  // Buttons go here (with ?theme=) to choose a theme and try it before
+  // signing up, instead of straight to sign-up.
+  tryPath?: string;
+  themesFirst?: boolean; // the scrolling websites before the invitation gallery
   cta: string;
   hero: {
     eyebrow: string;
@@ -151,6 +155,8 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         'Create your free wedding website and matching invitations in minutes. Beautiful templates, RSVPs with guest counts, schedule, map, guest photos — share one link by email, text or WhatsApp.',
     },
     start: 'website',
+    tryPath: '/design-your-wedding-invitation',
+    themesFirst: true,
     cta: 'Create my free wedding website',
     hero: {
       eyebrow: 'Free wedding websites & invitations',
@@ -195,8 +201,8 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
       ],
     },
     themes: {
-      title: 'Every invitation opens into your wedding website',
-      sub: 'RSVPs, your love story, the schedule, the venue with a map, a photo wall and more. Here are the wedding websites, scrolling.',
+      title: 'Choose the theme you love',
+      sub: 'Each theme is a wedding website with an invitation to match: RSVPs, your love story, the schedule, the venue with a map, a photo wall and more. Scroll through them and pick your favourite.',
       slugs: WEDDING_THEMES,
     },
     final: {

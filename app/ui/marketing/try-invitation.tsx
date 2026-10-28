@@ -16,11 +16,12 @@ import { StylePreviews } from '@/app/ui/style-previews';
 // text: the page's heading, intro and example name
 // (app/lib/marketing/try-invitation.ts). occasion: Christmas lists the
 // Christmas themes first, here and in the create-event form's gallery.
+// intent: what the new event opens on after sign-up (start-intent.ts).
 export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
   initialTheme: string;
   isLoggedIn: boolean;
   occasion?: StartOccasion;
-  text: { eyebrow: string; h1: string; intro: string; example: string };
+  text: { intent: 'invitation' | 'website'; saveLabel: string; eyebrow: string; h1: string; intro: string; example: string };
 }) {
   const [themeSlug, setThemeSlug] = useState(initialTheme);
   const [picking, setPicking] = useState(false);
@@ -29,7 +30,7 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
   const card = themeCard(themeSlug);
 
   const href = appHref(isLoggedIn ? '/dashboard/setup' : '/register')
-    + startQuery('invitation', themeSlug, occasion, { name: eventName, date: eventDate });
+    + startQuery(text.intent, themeSlug, occasion, { name: eventName, date: eventDate });
 
   return (
     <div className="auth-card setup-card--wide try-invite__card">
@@ -70,7 +71,7 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
           </div>
 
           <a className="auth-btn try-invite__save" href={href} data-cta="try-invitation">
-            Save my invitation <ArrowRightIcon style={{ width: 16, height: 16 }} />
+            {text.saveLabel} <ArrowRightIcon style={{ width: 16, height: 16 }} />
           </a>
           <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
             {isLoggedIn
