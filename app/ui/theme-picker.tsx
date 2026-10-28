@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid';
-import { THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
+import { CELEBRATION_THEMES, THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
 import type { EventCategory } from './themes/types';
 import './theme-picker.css';
 import { defaultInvitation, googleFontsHref } from '@/app/lib/invitation';
@@ -38,11 +38,11 @@ export const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.w
 export const themeCard = (slug: string): ThemeCard | undefined => THEME_CARDS.find((t) => t.slug === slug);
 
 // Themes to show first in the gallery for an occasion (a landing page's, or
-// the Christmas "design your invitation" page): its wedding or Christmas
+// a "design your invitation" page's): its wedding, Christmas or celebration
 // themes, the given one (if any) first.
 export function occasionThemes(occasion?: StartOccasion, theme?: string): string[] {
   if (!occasion) return [];
-  const slugs = THEME_CARDS
+  const slugs = occasion === 'celebration' ? CELEBRATION_THEMES : THEME_CARDS
     .filter((t) => (occasion === 'wedding' ? t.category === 'wedding' : ornamentOccasion(t.slug) === 'christmas'))
     .map((t) => t.slug);
   return theme && slugs.includes(theme) ? [theme, ...slugs.filter((s) => s !== theme)] : slugs;

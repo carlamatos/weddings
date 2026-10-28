@@ -1,9 +1,9 @@
 import type { StartOccasion } from '@/app/lib/start-intent';
 import type { Faq, SeoMeta, Step } from './types';
-import { THEME_CARDS } from './theme-cards';
+import { CELEBRATION_THEMES, THEME_CARDS } from './theme-cards';
 
 // The "design your invitation" pages (/design-your-invitation, its
-// Christmas and wedding versions): the try-it tool at the top
+// Christmas, wedding and party versions): the try-it tool at the top
 // (app/ui/marketing/try-invitation.tsx), then how it works, what you can
 // change, the themes and questions — the words search engines read.
 
@@ -52,7 +52,7 @@ const SHARED_FAQS: Faq[] = [
   { q: 'How do I send the invitation to my guests?', a: 'Email it to the guests you tick on your guest list, with an RSVP button that opens your page, or tap Text or WhatsApp next to a guest’s phone number to send it from your own phone. You can also print it or save it as a PDF at 5×7 inches.' },
 ];
 
-export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding', TryInvitationPage> = {
+export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 'celebration', TryInvitationPage> = {
   default: {
     path: '/design-your-invitation',
     intent: 'invitation',
@@ -238,6 +238,71 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding', T
         { label: 'Wedding websites', href: '/wedding-website', text: 'Every wedding theme, scrolling, with matching invitations.' },
         { label: 'Wedding colour palettes', href: '/wedding-colour-palette', text: 'Find the colours for your wedding.' },
         { label: 'Online invitations', href: '/features/invitations', text: 'How designing and sending invitations works.' },
+      ],
+    },
+  },
+
+  celebration: {
+    path: '/design-your-party-invitation',
+    intent: 'invitation',
+    saveLabel: 'Save my invitation',
+    dateLabel: 'Party date',
+    inlineSignup: true,
+    liveWebsite: true,
+    websiteFirst: true,
+    occasion: 'celebration',
+    defaultTheme: 'christmas-party',
+    seo: {
+      title: 'Free Party Invitation Maker with a Matching Party Page',
+      description: 'Design your party invitation free: Christmas, birthdays, baby showers or Halloween. Add the name and date and see your invitation and party page instantly.',
+      keywords: ['party invitation maker', 'free party invitations', 'birthday invitation maker', 'baby shower invitation maker', 'halloween invitation maker', 'christmas party invitation maker'],
+    },
+    breadcrumb: 'Party invitation maker',
+    eyebrow: 'Free party invitations',
+    h1: 'Design your party invitation and party page',
+    intro: 'Pick a theme, add your party’s name and date, and watch your party page and invitation fill in. No account needed to try it.',
+    example: 'Emma’s 30th Birthday',
+    app: {
+      name: 'MyGala Party Invitation Maker',
+      description: 'Free online party invitation maker for Christmas parties, birthdays, baby showers and Halloween: choose a theme, add the name and date, and preview your invitation and matching party page. Send it by email, text or WhatsApp, or print it.',
+    },
+    steps: [
+      { title: 'Pick your party theme', text: 'Start with a Christmas, birthday, baby shower or Halloween theme, or any other. Each one is a party page and a matching invitation.' },
+      { title: 'Add the name and date', text: 'Type your party’s name and date and watch your party page and invitation update as you type.' },
+      { title: 'Save it with a free account', text: 'Create your account right on this page. Your theme, name and date are saved, and your party page is ready to finish.' },
+      { title: 'Finish it and send it', text: 'Add the time and place, adjust the wording and colours, then email, text or WhatsApp your invitation. Guests RSVP in one tap on your party page.' },
+    ],
+    blocks: [
+      {
+        heading: 'For every celebration',
+        paragraphs: [
+          'Christmas dinners and office holiday parties, birthdays and milestone birthdays, baby showers and gender reveals, Halloween costume parties and Día de los Muertos gatherings, quinceañeras, sweet 16s and every get-together in between. Every invitation opens into a party page in the same design, with the date and place, a countdown, RSVPs and a photo wall, so guests have everything in one link.',
+        ],
+      },
+      {
+        heading: 'Make it yours after you sign up',
+        paragraphs: ['The invitation designer shows a live 5×7 preview as you work. You can change:'],
+        bullets: CHANGE_LATER,
+      },
+      {
+        heading: 'Send it any way you like',
+        paragraphs: [
+          'Email your invitation to the guests you choose, each greeted by name, with an RSVP button. Or send it as a text or WhatsApp message from your own phone, so it comes from your number. Prefer paper? Print it or save it as a PDF, with a QR code that opens your party page.',
+        ],
+      },
+    ],
+    themes: { heading: 'Party themes', text: 'See any theme as a full party page before you choose it.', slugs: CELEBRATION_THEMES },
+    faqs: [
+      ...SHARED_FAQS,
+      { q: 'What kinds of parties is it for?', a: 'Christmas and holiday parties, birthdays, baby showers, Halloween and Día de los Muertos, quinceañeras and sweet 16s, and any other celebration. Every theme works for any event; these are listed first.' },
+      { q: 'Can I run a Secret Santa or a potluck from the party page?', a: 'Yes, with Plus. Add a gift exchange and guests sign up with gift ideas, then you draw names with one click. Add a potluck sign-up and guests choose what they’ll bring.' },
+    ],
+    related: {
+      heading: 'More for your party',
+      links: [
+        { label: 'Party invitations', href: '/party-invitations', text: 'Every party theme, scrolling, with matching invitations.' },
+        { label: 'Gift exchange (Secret Santa)', href: '/features/gift-exchange', text: 'Draw names for your Secret Santa online.' },
+        { label: 'Potluck sign-up', href: '/features/potluck', text: 'Let guests sign up for what they’ll bring.' },
       ],
     },
   },

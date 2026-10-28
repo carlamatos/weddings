@@ -28,7 +28,8 @@ const themeDesc = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.de
 
 export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
   // The occasion puts its themes first in the gallery after sign-up.
-  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, page.key === 'christmas' ? 'christmas' : 'wedding');
+  const occasion = page.key === 'christmas' ? 'christmas' : page.key === 'celebrations' ? 'celebration' : 'wedding';
+  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, occasion);
   // A theme's buttons: try it first (choose, then sign up) where the page has a try page.
   const start = (theme?: string) => (page.tryPath ? `${page.tryPath}${theme ? `?theme=${theme}` : ''}` : register(theme));
   const cta = (where: string) => `ilp-${page.key}-${where}`;

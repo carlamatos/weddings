@@ -99,3 +99,12 @@ export const THEME_CARDS: ThemeCard[] = [
 export function themeCardsFor(category: EventCategory): ThemeCard[] {
   return THEME_CARDS.filter((t) => t.category === category);
 }
+
+// The celebration pages' themes (/party-invitations, /design-your-party-invitation),
+// in their order: Christmas, birthdays, baby showers, then Halloween.
+export const CELEBRATION_THEMES = [
+  'christmas-party', 'white-christmas', 'merry', 'gnomes',
+  'balloons', 'fun-party', 'alegria',
+  'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy',
+  'halloween-party', 'dia-de-los-muertos',
+];

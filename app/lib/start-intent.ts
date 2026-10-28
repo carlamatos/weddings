@@ -10,7 +10,7 @@
 // starts filled in.
 // Browser storage only: a per-visitor convenience that's fine to lose.
 
-export type StartOccasion = 'wedding' | 'christmas';
+export type StartOccasion = 'wedding' | 'christmas' | 'celebration';
 export type StartIntent = { intent: 'invitation' | 'website'; theme?: string; occasion?: StartOccasion; name?: string; date?: string };
 export type StartDetails = { name?: string | null; date?: string | null };
 
@@ -28,7 +28,7 @@ export function parseStartParams(start?: string | null, theme?: string | null, o
   return {
     intent: start,
     ...(theme && SLUG_RE.test(theme) && theme.length <= 60 ? { theme } : {}),
-    ...(occasion === 'wedding' || occasion === 'christmas' ? { occasion } : {}),
+    ...(occasion === 'wedding' || occasion === 'christmas' || occasion === 'celebration' ? { occasion } : {}),
     ...(name ? { name } : {}),
     ...(date ? { date } : {}),
   };

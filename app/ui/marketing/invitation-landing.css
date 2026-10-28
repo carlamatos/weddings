@@ -1,6 +1,7 @@
-/* Invitation-first landing pages: /christmas-invitations and /wedding-website
+/* Invitation-first landing pages: /christmas-invitations, /wedding-website
+   and /party-invitations
    (app/ui/marketing/invitation-landing-view.tsx). Christmas in deep pine and
-   gold, weddings in warm linen; every movement is CSS and stops under
+   gold, weddings and parties in warm linen; every movement is CSS and stops under
    prefers-reduced-motion. */
 
 .marketing-page.ilp {
@@ -58,7 +59,7 @@
 
 .marketing-page .ilp-copy { max-width: 520px; }
 .marketing-page .ilp-eyebrow { display: inline-block; margin: 0 0 18px; padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; background: rgba(255, 255, 255, 0.14); color: var(--ilp-gold, var(--ilp-accent)); border: 1px solid currentColor; }
-.marketing-page.ilp--weddings .ilp-eyebrow { background: #fff; }
+.marketing-page.ilp--weddings .ilp-eyebrow, .marketing-page.ilp--celebrations .ilp-eyebrow { background: #fff; }
 .marketing-page .ilp-headline { font-family: var(--font-display); font-size: clamp(38px, 5vw, 62px); line-height: 1.05; font-weight: 400; margin: 0 0 18px; color: var(--ilp-hero-ink); letter-spacing: -0.5px; }
 .marketing-page .ilp-sub { font-size: 18px; line-height: 1.6; color: var(--ilp-hero-soft); margin: 0 0 22px; }
 .marketing-page .ilp-points { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 10px; }

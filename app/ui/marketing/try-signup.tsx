@@ -127,7 +127,7 @@ export function TrySignup({ choices, setupPath, heading, onBack }: {
   return (
     <div className="try-signup">
       <h2 className="try-signup__title">{heading}</h2>
-      <p className="try-signup__sub">Create your free account. Your design, names and date are saved with it. No credit card needed.</p>
+      <p className="try-signup__sub">Create your free account. Everything you chose here is saved with it. No credit card needed.</p>
 
       <GoogleButton next={setupPath} />
       <div className="auth-divider">or with your email</div>
