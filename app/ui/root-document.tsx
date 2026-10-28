@@ -18,6 +18,8 @@ export const rootMetadata: Metadata = {
     template: '%s | MyGala',
   },
   description: 'Beautiful event websites made easy.',
+  // Bing Webmaster Tools site verification.
+  verification: { other: { 'msvalidate.01': 'AE77ECCD7DD0A74107D9A0D6D41DFF4A' } },
 };
 
 // Google Tag Manager runs on the live site only (not staging, previews or
