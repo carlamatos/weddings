@@ -62,8 +62,9 @@
   transform: scale(0.6); transform-origin: top left;
 }
 .setup-phone__frame--next { opacity: 0; pointer-events: none; }
-.setup-phone__hint--live::after { content: 'Scroll inside to see the whole page' !important; }
-.setup-phone--live .setup-phone__hint { opacity: 1 !important; }
+.setup-phone__caption { margin: 12px 0 0; font-size: 13px; color: var(--ink-soft); text-align: center; }
+.setup-phone__caption::after { content: 'Scroll on the phone to see your whole website'; }
+@media (hover: none) { .setup-phone__caption::after { content: 'Swipe on the phone to see your whole website'; } }
 
 /* The sign-up step, in place of the form. */
 .try-signup__title { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); margin: 0 0 6px; }

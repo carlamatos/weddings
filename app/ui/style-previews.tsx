@@ -59,7 +59,8 @@ export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = 
 // The theme's page in a phone, as a phone shows it (390px wide, scaled to
 // fit), with the typed name and date. It reloads once typing pauses; the
 // page already showing stays until the new one has loaded, so it doesn't
-// flash. Swipe or scroll inside it.
+// flash. It scrolls like a phone, without a scrollbar; the line under it
+// says so.
 function LiveWebsite({ themeSlug, eventName, eventDate, label }: { themeSlug: string; eventName: string; eventDate: string; label: string }) {
   const src = (name: string, date: string) => {
     const q = new URLSearchParams();
@@ -79,15 +80,17 @@ function LiveWebsite({ themeSlug, eventName, eventDate, label }: { themeSlug: st
     return () => clearTimeout(timer);
   }, [wanted, frames.shown, frames.loading]);
   return (
-    <div className="setup-phone setup-phone--live">
-      <div className="setup-phone__screen">
-        <iframe key={frames.shown} src={frames.shown} title={label} className="setup-phone__frame" loading="lazy" />
-        {frames.loading && (
-          <iframe key={frames.loading} src={frames.loading} title={label} className="setup-phone__frame setup-phone__frame--next" aria-hidden="true"
-            onLoad={() => setFrames((f) => (f.loading ? { shown: f.loading, loading: null } : f))} />
-        )}
+    <>
+      <div className="setup-phone setup-phone--live">
+        <div className="setup-phone__screen">
+          <iframe key={frames.shown} src={frames.shown} title={label} className="setup-phone__frame" loading="lazy" />
+          {frames.loading && (
+            <iframe key={frames.loading} src={frames.loading} title={label} className="setup-phone__frame setup-phone__frame--next" aria-hidden="true"
+              onLoad={() => setFrames((f) => (f.loading ? { shown: f.loading, loading: null } : f))} />
+          )}
+        </div>
       </div>
-      <span className="setup-phone__hint setup-phone__hint--live" aria-hidden="true" />
-    </div>
+      <p className="setup-phone__caption" aria-hidden="true" />
+    </>
   );
 }

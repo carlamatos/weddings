@@ -22,7 +22,8 @@ export default async function ThemePreviewFrame({ params, searchParams }: {
   const eventProgram = demo.eventProgram?.map((p) => (eventDate && p.event_date === demo.eventDate ? { ...p, event_date: eventDate } : p));
   return (
     <>
-      <style>{'.mg-preview-topbar{display:none!important}a,button,input,select,textarea,label{pointer-events:none!important}'}</style>
+      {/* No MyGala bar, nothing clickable, and no scrollbar (it still scrolls). */}
+      <style>{'.mg-preview-topbar{display:none!important}a,button,input,select,textarea,label{pointer-events:none!important}html{scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}'}</style>
       <ThemeRenderer themeSlug={slug} {...demo} heading={heading} eventDate={eventDate} eventProgram={eventProgram} demo />
     </>
   );
