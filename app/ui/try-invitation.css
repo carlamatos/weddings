@@ -35,13 +35,41 @@
 }
 
 /* Phones: the invitation first (many visitors don't scroll), then the form,
-   then the website and the note. The previews' box steps aside so its
+   then the website and the note (weddings: the website first). The previews' box steps aside so its
    pieces can sit around the form. */
 @media (max-width: 600px) {
   .try-invite .setup-style { gap: 28px; }
   .try-invite .setup-style__previews { display: contents; }
-  .try-invite .setup-style__previews > .setup-preview:first-of-type { order: -1; }
+  .try-invite .setup-preview--invitation { order: -1; }
   .try-invite .setup-style__form { order: 0; }
-  .try-invite .setup-style__previews > .setup-preview:nth-of-type(2) { order: 1; }
+  .try-invite .setup-preview--website { order: 1; }
   .try-invite .setup-style__previews > .try-invite__note { order: 2; }
+  /* Weddings: the website first, then the form, then the invitation. */
+  .try-invite__card--website-first .setup-preview--website { order: -1; }
+  .try-invite__card--website-first .setup-preview--invitation { order: 1; }
+  /* Signing up: the step comes first, the website steps aside. */
+  .try-invite__card.is-signing-up .setup-preview--website { display: none; }
 }
+
+/* The live website (wedding page): the theme's real page as a phone shows
+   it, 390px wide scaled to the phone's 234px screen. The next version loads
+   unseen behind the one showing. */
+.setup-phone--live { width: 250px; max-width: none; box-sizing: border-box; }
+.setup-phone--live .setup-phone__screen { position: relative; width: 234px; }
+.setup-phone__frame {
+  position: absolute; top: 0; left: 0; border: 0; background: #fff;
+  width: 390px; height: calc(var(--setup-screen-h) / 0.6);
+  transform: scale(0.6); transform-origin: top left;
+}
+.setup-phone__frame--next { opacity: 0; pointer-events: none; }
+.setup-phone__hint--live::after { content: 'Scroll inside to see the whole page' !important; }
+.setup-phone--live .setup-phone__hint { opacity: 1 !important; }
+
+/* The sign-up step, in place of the form. */
+.try-signup__title { font-family: var(--font-display); font-size: 22px; font-weight: 500; color: var(--ink); margin: 0 0 6px; }
+.try-signup__sub { font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0 0 18px; }
+.try-signup .auth-divider { margin: 18px 0; }
+.try-signup__foot { font-size: 13px; color: var(--ink-soft); text-align: center; margin: 14px 0 6px; }
+.try-signup__foot a, .try-signup .auth-field-error a { color: var(--rose); font-weight: 600; }
+.try-signup__back { display: block; margin: 10px auto 0; }
+.try-invite .setup-style__form { scroll-margin-top: 84px; } /* clear of the sticky top bar */

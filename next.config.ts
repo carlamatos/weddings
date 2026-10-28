@@ -36,6 +36,7 @@ const pinterestTag = 'https://s.pinimg.com https://ct.pinterest.com';
 const securityHeaders = [
   // frame-src also lists the livestream players the Live Stream section embeds
   // (app/lib/livestream.ts); Facebook's is already allowed for sign-in.
+  // 'self': the live theme previews (app/(frame)/theme-preview).
   {
     key: 'Content-Security-Policy',
     value: [
@@ -50,7 +51,7 @@ const securityHeaders = [
       // page can create those.
       "worker-src 'self' blob:",
       `connect-src 'self' https://maps.googleapis.com https://accounts.google.com https://vercel.com https://*.blob.vercel-storage.com ${googleTags} https://pagead2.googlesyndication.com ${pinterestTag}${vercelLive('https://vercel.live wss://ws-us3.pusher.com')}`,
-      `frame-src https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv https://td.doubleclick.net https://www.googletagmanager.com https://ct.pinterest.com ${mainSite}${vercelLive('https://vercel.live')}`,
+      `frame-src 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com https://www.google.com https://maps.googleapis.com https://challenges.cloudflare.com https://www.youtube-nocookie.com https://player.vimeo.com https://vimeo.com https://player.twitch.tv https://td.doubleclick.net https://www.googletagmanager.com https://ct.pinterest.com ${mainSite}${vercelLive('https://vercel.live')}`,
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self' https://accounts.google.com https://appleid.apple.com https://www.facebook.com",
@@ -73,6 +74,17 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(self)',
   },
+];
+
+// The live theme previews (app/(frame)/theme-preview) are shown inside our
+// own "design your invitation" pages, so they may be framed by this site
+// only; everything else can't be framed at all.
+const framedByUsHeaders = [
+  ...securityHeaders.map((h) =>
+    h.key === 'Content-Security-Policy' ? { ...h, value: h.value.replace("frame-ancestors 'none'", "frame-ancestors 'self'") }
+      : h.key === 'X-Frame-Options' ? { ...h, value: 'SAMEORIGIN' }
+      : h),
+  { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
 ];
 
 const nextConfig: NextConfig = {
@@ -98,9 +110,14 @@ const nextConfig: NextConfig = {
     return [
       {
         // Everything except the Turnstile bridge, which sets its own headers
-        // so verified custom domains can frame it (app/api/turnstile/frame).
-        source: '/((?!api/turnstile/frame$).*)',
+        // so verified custom domains can frame it (app/api/turnstile/frame),
+        // and the live theme previews (below).
+        source: '/((?!api/turnstile/frame$|theme-preview/).*)',
         headers: securityHeaders,
+      },
+      {
+        source: '/theme-preview/:slug',
+        headers: framedByUsHeaders,
       },
       {
         // Sign-up, sign-in and account screens stay out of search results:

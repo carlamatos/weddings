@@ -7,7 +7,9 @@ import { authenticate } from '@/app/lib/actions';
 import GoogleButton from '@/app/ui/google-button';
 import Link from 'next/link';
 
-export default function LoginForm() {
+// next: where to go after logging in — only the create-event form with a
+// "design your invitation" page's choices (checked again on the server).
+export default function LoginForm({ next }: { next?: string }) {
   const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
 
   return (
@@ -23,6 +25,7 @@ export default function LoginForm() {
       )}
 
       <form action={formAction}>
+        {next && <input type="hidden" name="next" value={next} />}
         <div className="auth-field">
           <label className="auth-label" htmlFor="email">Email</label>
           <div className="auth-input-wrap">
@@ -66,7 +69,7 @@ export default function LoginForm() {
 
       <div className="auth-divider">or continue with</div>
 
-      <GoogleButton />
+      <GoogleButton next={next} />
 
       <p className="auth-footer">
         Don&apos;t have an account?{' '}

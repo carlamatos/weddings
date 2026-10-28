@@ -13,6 +13,14 @@ export type TryInvitationPage = {
   // (weddings, from /wedding-website) the page editor.
   intent: 'invitation' | 'website';
   saveLabel: string;
+  // The fields' labels ("Event name" and "Event date" without them).
+  nameLabel?: string;
+  dateLabel?: string;
+  // Sign up on the page itself, a live website preview with their names and
+  // date, the website before the invitation (app/ui/marketing/try-invitation.tsx).
+  inlineSignup?: boolean;
+  liveWebsite?: boolean;
+  websiteFirst?: boolean;
   occasion?: StartOccasion;
   defaultTheme: string;
   seo: SeoMeta;
@@ -173,6 +181,11 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding', T
     path: '/design-your-wedding-invitation',
     intent: 'website',
     saveLabel: 'Save my wedding website',
+    nameLabel: 'Your names',
+    dateLabel: 'Wedding date',
+    inlineSignup: true,
+    liveWebsite: true,
+    websiteFirst: true,
     occasion: 'wedding',
     defaultTheme: 'the-day',
     seo: {
@@ -183,7 +196,7 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding', T
     breadcrumb: 'Wedding invitation maker',
     eyebrow: 'Free wedding website & invitations',
     h1: 'Design your wedding invitation and website',
-    intro: 'Pick a theme, add your names and wedding date, and see your invitation and the wedding website it opens into. No account needed to try it.',
+    intro: 'Pick a theme, add your names and wedding date, and watch your wedding website and invitation fill in. No account needed to try it.',
     example: 'Sofia & James',
     app: {
       name: 'MyGala Wedding Invitation Maker',

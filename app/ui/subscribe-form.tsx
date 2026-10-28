@@ -9,16 +9,7 @@ import { PLAN_TERM_MONTHS } from '../lib/plans';
 import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme-picker';
 import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
 import { StylePreviews } from './style-previews';
-
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/&/g, 'and')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
-}
+import { slugify } from '../lib/slugify';
 
 // Create an event page in two steps: 1. the theme, from the full-screen
 // gallery (theme-picker.tsx, which opens straight away; the type of event

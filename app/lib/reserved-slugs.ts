@@ -5,7 +5,7 @@
 export const RESERVED_SLUGS = new Set([
   'about', 'admin', 'api', 'blog', 'check-email', 'christmas-invitations', 'construction', 'contact', 'dashboard', 'design-your-christmas-invitation', 'design-your-invitation', 'design-your-wedding-invitation', 'email-verified', 'events',
   'faq', 'features', 'forgot-password', 'fr', 'how-to-create-a-wedding-website', 'login', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
-  'site', 'sitemap.xml', 'terms', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-colour-palette', 'wedding-website',
+  'site', 'sitemap.xml', 'terms', 'theme-preview', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-colour-palette', 'wedding-website',
 ]);
 
 export function isReservedSlug(slug: string): boolean {

@@ -7,6 +7,7 @@ import { appHref } from '@/app/lib/app-url';
 export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boolean; backToThemes?: boolean }) {
   return (
     <div
+      className="mg-preview-topbar"
       style={{
         position: 'sticky',
         top: 0,
