@@ -5,7 +5,7 @@ import MarketingReveal from '@/app/ui/marketing-reveal';
 import ThemeFilter from '@/app/ui/theme-filter';
 import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
-import { ThemePagePhone } from '@/app/ui/marketing/theme-page-phone';
+import { ThemePagePicture } from '@/app/ui/marketing/theme-page-picture';
 import type { Metadata } from 'next';
 import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { faqPageJsonLd, marketingMetadata, organizationJsonLd, productJsonLd, webSiteJsonLd } from '@/app/lib/marketing/seo';
@@ -115,42 +115,42 @@ export default async function Page() {
               <h3 className="theme-category-title reveal">Celebrations</h3>
               <div className="theme-grid">
                 <a href="/themes/alegria" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="alegria" />
+                  <ThemePagePicture slug="alegria" />
                   <div className="theme-info">
                     <p className="theme-name">Alegría</p>
                     <p className="theme-desc">Blush, lilac, and gold. Romantic and joyful — built for quinceañeras and sweet 16 celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/fun-party" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="fun-party" />
+                  <ThemePagePicture slug="fun-party" />
                   <div className="theme-info">
                     <p className="theme-name">Fun Party</p>
                     <p className="theme-desc">Hot pink, cyan, and neon yellow on a graffiti backdrop. Bold and rebellious — built for sweet 16s and quinceañeras that want to stand out.</p>
                   </div>
                 </a>
                 <a href="/themes/balloons" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="balloons" />
+                  <ThemePagePicture slug="balloons" />
                   <div className="theme-info">
                     <p className="theme-name">Balloons</p>
                     <p className="theme-desc">Bright red, blue, and gold with floating balloons and confetti. Fun and festive — built for birthday parties and kids&apos; celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/baby-shower-girl" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="baby-shower-girl" />
+                  <ThemePagePicture slug="baby-shower-girl" />
                   <div className="theme-info">
                     <p className="theme-name">Girl Baby Shower</p>
                     <p className="theme-desc">Soft greys and blush pinks with a baby elephant, a flying stork, rising balloons and hearts — built for baby showers welcoming a little girl.</p>
                   </div>
                 </a>
                 <a href="/themes/baby-shower-neutral" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="baby-shower-neutral" />
+                  <ThemePagePicture slug="baby-shower-neutral" />
                   <div className="theme-info">
                     <p className="theme-name">Neutral Baby Shower</p>
                     <p className="theme-desc">Whitewashed wood, soft blues and lavender with a baby elephant, a swinging crib mobile and little footprints — built for baby showers before the big reveal.</p>
                   </div>
                 </a>
                 <a href="/themes/baby-shower-boy" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="baby-shower-boy" />
+                  <ThemePagePicture slug="baby-shower-boy" />
                   <div className="theme-info">
                     <p className="theme-name">Boy Baby Shower</p>
                     <p className="theme-desc">Sky blues and warm caramel with a swimming whale, rising balloons and rolling waves — built for baby showers welcoming a little boy.</p>
@@ -164,21 +164,21 @@ export default async function Page() {
               <h3 className="theme-category-title reveal">Business Events</h3>
               <div className="theme-grid">
                 <a href="/themes/summit" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="summit" />
+                  <ThemePagePicture slug="summit" />
                   <div className="theme-info">
                     <p className="theme-name">Summit</p>
                     <p className="theme-desc">Cobalt and ink with a confident, modern edge — built for conferences, galas, and company celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/nexus" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="nexus" />
+                  <ThemePagePicture slug="nexus" />
                   <div className="theme-info">
                     <p className="theme-name">Nexus</p>
                     <p className="theme-desc">Charcoal and amber with a teal accent. Professional and innovative — built for team offsites and summits.</p>
                   </div>
                 </a>
                 <a href="/themes/dinner-gala" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="dinner-gala" />
+                  <ThemePagePicture slug="dinner-gala" />
                   <div className="theme-info">
                     <p className="theme-name">Dinner Gala</p>
                     <p className="theme-desc">Deep navy and warm gold, sober and refined — built for galas, fundraisers, and formal corporate dinners.</p>
@@ -192,56 +192,56 @@ export default async function Page() {
               <h3 className="theme-category-title reveal">Weddings</h3>
               <div className="theme-grid">
                 <a href="/themes/the-day" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="the-day" />
+                  <ThemePagePicture slug="the-day" />
                   <div className="theme-info">
                     <p className="theme-name">The Day</p>
                     <p className="theme-desc">Ivory peonies and a white bouquet with sage-to-evergreen greenery and gold accents. Timeless and refined — built for classic, elegant weddings.</p>
                   </div>
                 </a>
                 <a href="/themes/love" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="love" />
+                  <ThemePagePicture slug="love" />
                   <div className="theme-info">
                     <p className="theme-name">Love</p>
                     <p className="theme-desc">Blush, rose and raspberry with peach and soft greens. Romantic script, arched cards and rising hearts — built for warm, heartfelt weddings.</p>
                   </div>
                 </a>
                 <a href="/themes/nature" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="nature" />
+                  <ThemePagePicture slug="nature" />
                   <div className="theme-info">
                     <p className="theme-name">Nature</p>
                     <p className="theme-desc">Walnut, oak and leaf green with candlelight, coral and daisy-gold accents. Falling leaves and fireflies — built for forest, barn and outdoor weddings.</p>
                   </div>
                 </a>
                 <a href="/themes/wild-flores" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="wild-flores" />
+                  <ThemePagePicture slug="wild-flores" />
                   <div className="theme-info">
                     <p className="theme-name">Wild Flowers</p>
                     <p className="theme-desc">Linen and sage green with marigold and lilac, pressed wildflowers and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.</p>
                   </div>
                 </a>
               <a href="/themes/terracotta-harvest" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                <ThemePagePhone slug="terracotta-harvest" />
+                <ThemePagePicture slug="terracotta-harvest" />
                 <div className="theme-info">
                   <p className="theme-name">Terracotta Harvest</p>
                   <p className="theme-desc">Warm rust, ochre, and linen. Golden-hour, earthy, and intimate — built for outdoor and orchard weddings.</p>
                 </div>
               </a>
               <a href="/themes/midnight-botanical" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                <ThemePagePhone slug="midnight-botanical" />
+                <ThemePagePicture slug="midnight-botanical" />
                 <div className="theme-info">
                   <p className="theme-name">Midnight Botanical</p>
                   <p className="theme-desc">Deep emerald and antique gold. Formal and candlelit — built for evening affairs and manor venues.</p>
                 </div>
               </a>
               <a href="/themes/quiet-coastal" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                <ThemePagePhone slug="quiet-coastal" />
+                <ThemePagePicture slug="quiet-coastal" />
                 <div className="theme-info">
                   <p className="theme-name">Quiet Coastal</p>
                   <p className="theme-desc">Sage, sand, and chalk. Airy and minimal — built for beach ceremonies and destination weddings.</p>
                 </div>
               </a>
               <a href="/themes/vilma" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-3" style={{ textDecoration: 'none' }}>
-                <ThemePagePhone slug="vilma" />
+                <ThemePagePicture slug="vilma" />
                 <div className="theme-info">
                   <p className="theme-name">Vilma</p>
                   <p className="theme-desc">Watercolour washes, steel blue, and amber accents. Soft and romantic — built for garden and manor weddings.</p>
@@ -255,56 +255,56 @@ export default async function Page() {
               <h3 className="theme-category-title reveal">General Events</h3>
               <div className="theme-grid">
                 <a href="/themes/community" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="community" />
+                  <ThemePagePicture slug="community" />
                   <div className="theme-info">
                     <p className="theme-name">Community Day</p>
                     <p className="theme-desc">Warm cream and navy with a rainbow of festival bunting. Fun and elegant at once — built for block parties, fairs, and neighborhood celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/antique-cars" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="antique-cars" />
+                  <ThemePagePicture slug="antique-cars" />
                   <div className="theme-info">
                     <p className="theme-name">Antique Cars</p>
                     <p className="theme-desc">Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page — built for antique and classic car shows.</p>
                   </div>
                 </a>
                 <a href="/themes/christmas-party" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="christmas-party" />
+                  <ThemePagePicture slug="christmas-party" />
                   <div className="theme-info">
                     <p className="theme-name">Christmas Party</p>
                     <p className="theme-desc">Forest green, bauble red and golden light with falling snow, twinkling string lights and a swinging bauble countdown — cozy and cute for holiday parties.</p>
                   </div>
                 </a>
                 <a href="/themes/white-christmas" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="white-christmas" />
+                  <ThemePagePicture slug="white-christmas" />
                   <div className="theme-info">
                     <p className="theme-name">White Christmas</p>
                     <p className="theme-desc">Icy winter blues with gold stars, silver and pine, gold-framed cards and gently falling snow — classic and elegant for holiday celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/gnomes" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="gnomes" />
+                  <ThemePagePicture slug="gnomes" />
                   <div className="theme-info">
                     <p className="theme-name">Gnomes</p>
                     <p className="theme-desc">Watercolour gnomes in hat red, pine and sage with fairy lights and santa hats in the snow — cozy and cute for holiday parties.</p>
                   </div>
                 </a>
                 <a href="/themes/merry" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="merry" />
+                  <ThemePagePicture slug="merry" />
                   <div className="theme-info">
                     <p className="theme-name">Merry</p>
                     <p className="theme-desc">Midnight navy and snowflake gold with a red satin ribbon, a gold arch under hanging stars and swinging glass baubles — elegant for holiday parties.</p>
                   </div>
                 </a>
                 <a href="/themes/dia-de-los-muertos" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="dia-de-los-muertos" />
+                  <ThemePagePicture slug="dia-de-los-muertos" />
                   <div className="theme-info">
                     <p className="theme-name">Día de los Muertos</p>
                     <p className="theme-desc">Deep plum and marigold with hot pink and teal, swaying papel picado, falling petals and dancing sugar skulls — joyful and colourful for remembrance celebrations.</p>
                   </div>
                 </a>
                 <a href="/themes/halloween-party" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
-                  <ThemePagePhone slug="halloween-party" />
+                  <ThemePagePicture slug="halloween-party" />
                   <div className="theme-info">
                     <p className="theme-name">Halloween Party</p>
                     <p className="theme-desc">Midnight charcoal and pumpkin orange with flying bats, dangling spiders, rolling fog and a creeping witch&rsquo;s hand — scary, but fun.</p>

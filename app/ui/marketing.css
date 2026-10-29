@@ -625,20 +625,20 @@
 .marketing-page .theme-preview.tc { background: var(--tc-cream); }
 .marketing-page .theme-preview.mb { background: var(--mb-ink); }
 .marketing-page .theme-preview.qc { background: #FFFFFF; border-bottom: 1px solid var(--line); }
-/* Homepage cards: the theme's whole page in a phone (app/ui/marketing/theme-page-phone.tsx).
-   No auto-scroll: visitors scroll or swipe inside it, without a scrollbar. */
-.marketing-page .theme-preview--page { height: auto; flex-direction: column; padding: 26px 0 14px; border-bottom: 1px solid var(--line); }
-.marketing-page .theme-page-phone { width: 180px; padding: 7px; border-radius: 28px; background: #1B1720; box-shadow: 0 18px 36px -18px rgba(36, 31, 43, 0.55); }
+/* Homepage cards: the theme's whole page, the card's full width
+   (app/ui/marketing/theme-page-picture.tsx). No auto-scroll: visitors scroll
+   or swipe inside it, without a scrollbar; the line under it says so. */
+.marketing-page .theme-preview--page { height: auto; display: block; border-bottom: 1px solid var(--line); }
 .marketing-page .theme-page-screen {
-  height: 330px; border-radius: 22px; overflow-y: auto; overscroll-behavior: contain; background: #EEE8E1; outline: none;
+  height: 360px; overflow-y: auto; overscroll-behavior: contain; outline: none;
   scrollbar-width: none; -webkit-overflow-scrolling: touch;
 }
 .marketing-page .theme-page-screen::-webkit-scrollbar { display: none; }
-.marketing-page .theme-page-screen:focus-visible { box-shadow: 0 0 0 3px var(--rose); }
+.marketing-page .theme-page-screen:focus-visible { box-shadow: inset 0 0 0 3px var(--rose); }
 .marketing-page .theme-page-screen img { display: block; width: 100%; height: auto; }
-.marketing-page .theme-page-hint { margin: 12px 0 0; font-size: 12px; font-weight: 600; color: var(--ink-soft); background: rgba(255, 255, 255, 0.85); padding: 4px 10px; border-radius: 999px; }
-.marketing-page .theme-page-hint::after { content: 'Scroll on the phone to see the whole page'; }
-@media (hover: none) { .marketing-page .theme-page-hint::after { content: 'Swipe on the phone to see the whole page'; } }
+.marketing-page .theme-page-hint { margin: 0; padding: 9px 12px; font-size: 12px; font-weight: 600; color: var(--ink-soft); background: #FFFFFF; text-align: center; border-top: 1px solid var(--line); }
+.marketing-page .theme-page-hint::after { content: 'Scroll on the picture to see the whole page'; }
+@media (hover: none) { .marketing-page .theme-page-hint::after { content: 'Swipe on the picture to see the whole page'; } }
 .marketing-page .theme-info { padding: 22px 24px 26px; }
 .marketing-page .theme-name { font-size: 17px; font-weight: 600; color: var(--ink); margin: 0 0 6px; }
 .marketing-page .theme-desc { font-size: 14px; color: var(--ink-soft); margin: 0; line-height: 1.6; }
