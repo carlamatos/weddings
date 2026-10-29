@@ -3,7 +3,7 @@ import { defaultInvitation, type InvitationDesign, type InvitationDetails } from
 import { THEME_DEMOS } from '@/app/ui/themes/demo-content';
 import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
 import { eventWhen } from '@/app/ui/themes/event-when';
-import { THEME_CARDS } from './theme-cards';
+import { CELEBRATION_THEMES, THEME_CARDS } from './theme-cards';
 
 // Invitation-first landing pages: /christmas-invitations (lead with the
 // invitation; the page it opens into is the bonus) and /wedding-website
@@ -26,10 +26,14 @@ export type InvitationSample = {
 };
 
 export type InvitationLandingPage = {
-  key: 'christmas' | 'weddings';
+  key: 'christmas' | 'weddings' | 'celebrations';
   path: string;
   seo: SeoMeta;
   start: 'invitation' | 'website'; // how sign-up starts (app/lib/start-intent.ts)
+  // Buttons go here (with ?theme=) to choose a theme and try it before
+  // signing up, instead of straight to sign-up.
+  tryPath?: string;
+  themesFirst?: boolean; // the scrolling websites before the invitation gallery
   cta: string;
   hero: {
     eyebrow: string;
@@ -65,16 +69,48 @@ const heroPhoto = (slug: string) => (HERO_DEFAULTS as Record<string, string>)[sl
 const CHRISTMAS_THEMES = ['merry', 'gnomes', 'white-christmas', 'christmas-party'];
 const WEDDING_THEMES = THEME_CARDS.filter((t) => t.category === 'wedding').map((t) => t.slug);
 
+// The Christmas invitations in the gallery (the Christmas and celebration pages).
+const CHRISTMAS_GALLERY: InvitationSample[] = [
+      { theme: 'white-christmas', image: '/images/themes/white-christmas/bauble.jpeg', wash: { color: '#10251C', opacity: 0.38 },
+        design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#FFFFFF', accentColor: '#EBC595', ...CHRISTMAS_COPY } },
+      { theme: 'christmas-party', image: heroPhoto('christmas-party'), wash: { color: '#1F2A36', opacity: 0.25 },
+        design: { textColor: '#F4EDE1', accentColor: '#F2C46D', ...CHRISTMAS_COPY } },
+      { theme: 'gnomes', image: '/images/themes/gnomes/rsvp.jpeg', wash: { color: '#F7F1EC', opacity: 0.55 },
+        design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#476735', accentColor: '#D91D1A', ...CHRISTMAS_COPY } },
+      { theme: 'christmas-party', image: '/images/themes/christmas-party/registry.jpeg', wash: { color: '#7A1016', opacity: 0.35 },
+        design: { headingFont: 'great-vibes', bodyFont: 'lato', textColor: '#FFFFFF', accentColor: '#FFE3A3', divider: 'christmas-bells', frame: '', dividerColor: '#FFE3A3', ...CHRISTMAS_COPY } },
+      { theme: 'white-christmas', image: heroPhoto('white-christmas'), wash: { color: '#EEF3F9', opacity: 0.35 },
+        design: { divider: 'christmas-mistletoe', frame: '', ...CHRISTMAS_COPY } },
+      { theme: 'merry',
+        design: { headingFont: 'great-vibes', bodyFont: 'montserrat', textColor: '#F3F6F9', accentColor: '#E7CA6A', divider: 'christmas-baubles', frame: 'christmas-baubles', dividerColor: '#E7CA6A', frameColor: '#E7CA6A', ...CHRISTMAS_COPY } },
+      { theme: 'christmas-party', image: '/images/themes/christmas-party/rsvp.jpeg', wash: { color: '#0E1F17', opacity: 0.55 },
+        design: { headingFont: 'dancing-script', bodyFont: 'lato', textColor: '#FFF8EC', accentColor: '#F2C46D', divider: 'christmas-gift', frame: '', dividerColor: '#F2C46D', ...CHRISTMAS_COPY } },
+      { theme: 'gnomes', image: '/images/themes/christmas-party/bokeh.jpeg', wash: { color: '#2A1A12', opacity: 0.45 },
+        design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#FFF4E8', accentColor: '#FABA61', divider: 'christmas-candy', frame: 'christmas-candy', dividerColor: '#FABA61', frameColor: '#FABA61', ...CHRISTMAS_COPY } },
+    ];
+
+// A theme's starting design on its own banner photo under a wash of its own colour.
+const onBanner = (slug: string): InvitationSample => {
+  const preset = defaultInvitation(slug);
+  const image = heroPhoto(slug);
+  return { theme: slug, image, wash: image ? { color: preset.background.color, opacity: 0.76 } : undefined, design: EVERYDAY_COPY };
+};
+
 // Every other theme, on its own banner photo under a wash of its own colour.
 const OTHER_OCCASIONS: InvitationSample[] = THEME_CARDS
   .filter((t) => !CHRISTMAS_THEMES.includes(t.slug) && t.category !== 'wedding')
-  .map((t) => {
-    const preset = defaultInvitation(t.slug);
-    const image = heroPhoto(t.slug);
-    return { theme: t.slug, image, wash: image ? { color: preset.background.color, opacity: 0.76 } : undefined, design: EVERYDAY_COPY };
-  });
+  .map((t) => onBanner(t.slug));
 
-export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', InvitationLandingPage> = {
+// The celebration page's groups (CELEBRATION_THEMES' order), and
+// everything else that isn't a wedding.
+const BIRTHDAY_THEMES = ['balloons', 'fun-party', 'alegria'];
+const BABY_SHOWER_THEMES = ['baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy'];
+const HALLOWEEN_THEMES = ['halloween-party', 'dia-de-los-muertos'];
+const MORE_OCCASIONS: InvitationSample[] = THEME_CARDS
+  .filter((t) => !CELEBRATION_THEMES.includes(t.slug) && t.category !== 'wedding')
+  .map((t) => onBanner(t.slug));
+
+export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebrations', InvitationLandingPage> = {
   christmas: {
     key: 'christmas',
     path: '/christmas-invitations',
@@ -110,24 +146,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
       groups: [
         {
           title: 'Christmas & holiday parties',
-          items: [
-            { theme: 'white-christmas', image: '/images/themes/white-christmas/bauble.jpeg', wash: { color: '#10251C', opacity: 0.38 },
-              design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#FFFFFF', accentColor: '#EBC595', ...CHRISTMAS_COPY } },
-            { theme: 'christmas-party', image: heroPhoto('christmas-party'), wash: { color: '#1F2A36', opacity: 0.25 },
-              design: { textColor: '#F4EDE1', accentColor: '#F2C46D', ...CHRISTMAS_COPY } },
-            { theme: 'gnomes', image: '/images/themes/gnomes/rsvp.jpeg', wash: { color: '#F7F1EC', opacity: 0.55 },
-              design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#476735', accentColor: '#D91D1A', ...CHRISTMAS_COPY } },
-            { theme: 'christmas-party', image: '/images/themes/christmas-party/registry.jpeg', wash: { color: '#7A1016', opacity: 0.35 },
-              design: { headingFont: 'great-vibes', bodyFont: 'lato', textColor: '#FFFFFF', accentColor: '#FFE3A3', divider: 'christmas-bells', frame: '', dividerColor: '#FFE3A3', ...CHRISTMAS_COPY } },
-            { theme: 'white-christmas', image: heroPhoto('white-christmas'), wash: { color: '#EEF3F9', opacity: 0.35 },
-              design: { divider: 'christmas-mistletoe', frame: '', ...CHRISTMAS_COPY } },
-            { theme: 'merry',
-              design: { headingFont: 'great-vibes', bodyFont: 'montserrat', textColor: '#F3F6F9', accentColor: '#E7CA6A', divider: 'christmas-baubles', frame: 'christmas-baubles', dividerColor: '#E7CA6A', frameColor: '#E7CA6A', ...CHRISTMAS_COPY } },
-            { theme: 'christmas-party', image: '/images/themes/christmas-party/rsvp.jpeg', wash: { color: '#0E1F17', opacity: 0.55 },
-              design: { headingFont: 'dancing-script', bodyFont: 'lato', textColor: '#FFF8EC', accentColor: '#F2C46D', divider: 'christmas-gift', frame: '', dividerColor: '#F2C46D', ...CHRISTMAS_COPY } },
-            { theme: 'gnomes', image: '/images/themes/christmas-party/bokeh.jpeg', wash: { color: '#2A1A12', opacity: 0.45 },
-              design: { headingFont: 'fredoka', bodyFont: 'poppins', textColor: '#FFF4E8', accentColor: '#FABA61', divider: 'christmas-candy', frame: 'christmas-candy', dividerColor: '#FABA61', frameColor: '#FABA61', ...CHRISTMAS_COPY } },
-          ],
+          items: CHRISTMAS_GALLERY,
         },
         { title: 'And for every other occasion', items: OTHER_OCCASIONS },
       ],
@@ -151,6 +170,8 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
         'Create your free wedding website and matching invitations in minutes. Beautiful templates, RSVPs with guest counts, schedule, map, guest photos — share one link by email, text or WhatsApp.',
     },
     start: 'website',
+    tryPath: '/design-your-wedding-invitation',
+    themesFirst: true,
     cta: 'Create my free wedding website',
     hero: {
       eyebrow: 'Free wedding websites & invitations',
@@ -195,12 +216,60 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings', Invitati
       ],
     },
     themes: {
-      title: 'Every invitation opens into your wedding website',
-      sub: 'RSVPs, your love story, the schedule, the venue with a map, a photo wall and more. Here are the wedding websites, scrolling.',
+      title: 'Choose the theme you love',
+      sub: 'Each theme is a wedding website with an invitation to match: RSVPs, your love story, the schedule, the venue with a map, a photo wall and more. Scroll through them and pick your favourite.',
       slugs: WEDDING_THEMES,
     },
     final: {
       title: 'Your wedding website, ready in minutes',
+      text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',
+    },
+  },
+  celebrations: {
+    key: 'celebrations',
+    path: '/party-celebrations',
+    seo: {
+      title: 'Free Party Website with Invitations & RSVP',
+      description:
+        'Create a free party website for a birthday, baby shower, Halloween or Christmas party, with invitations to match. RSVPs, the map, a countdown and guest photos in one link.',
+      keywords: ['party website', 'birthday party website', 'baby shower website', 'event website for a party', 'online party invitations', 'party rsvp website'],
+    },
+    start: 'website',
+    tryPath: '/design-your-party-invitation',
+    themesFirst: true,
+    cta: 'Create my free party website',
+    hero: {
+      eyebrow: 'Free party websites & invitations',
+      headline: 'Your party website, with invitations to match',
+      sub: 'Birthdays, baby showers, Halloween, Christmas and every celebration in between. Choose a design, add the date, and share one link to your own party website, with RSVPs, the map, a countdown and everyone’s photos.',
+      points: [
+        'Free party website and invitations',
+        'RSVPs and guest counts come straight to you',
+        'Map, schedule, countdown and a photo wall',
+        'Share it by email, text or WhatsApp',
+      ],
+      secondary: { label: 'See a live party website', theme: 'balloons' },
+      invitation: onBanner('balloons'),
+      pageTheme: 'balloons',
+    },
+    gallery: {
+      title: 'Invitations to match your website',
+      sub: 'Every party website comes with an invitation in the same design. Change the words, fonts, colours and photo. Tap one to start with it.',
+      groups: [
+        { title: 'Birthdays', items: BIRTHDAY_THEMES.map(onBanner) },
+        { title: 'Baby showers', items: BABY_SHOWER_THEMES.map(onBanner) },
+        { title: 'Halloween', items: HALLOWEEN_THEMES.map(onBanner) },
+        { title: 'More occasions', items: MORE_OCCASIONS },
+        { title: 'Christmas & holiday parties', items: CHRISTMAS_GALLERY },
+      ],
+    },
+    themes: {
+      title: 'Choose the theme you love',
+      sub: 'Each theme is a whole party website: RSVPs, the map, the schedule, a countdown, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
+      slugs: CELEBRATION_THEMES,
+    },
+    final: {
+      title: 'Your party website, ready in minutes',
       text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',
     },
   },

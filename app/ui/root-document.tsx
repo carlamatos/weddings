@@ -24,9 +24,13 @@ export const rootMetadata: Metadata = {
 
 // Google Tag Manager runs on the live site only (not staging, previews or
 // local dev), so test visits never reach the live container.
-const GTM_ID = process.env.VERCEL_ENV === 'production' ? 'GTM-NKSF95VQ' : null;
+const LIVE_GTM_ID = process.env.VERCEL_ENV === 'production' ? 'GTM-NKSF95VQ' : null;
 
-export function RootDocument({ lang, children }: { lang: string; children: React.ReactNode }) {
+// tags={false}: no Tag Manager or conversion tracking, for pages shown only
+// inside another page (the live theme previews, app/(frame)), so they
+// don't count as visits.
+export function RootDocument({ lang, children, tags = true }: { lang: string; children: React.ReactNode; tags?: boolean }) {
+  const GTM_ID = tags ? LIVE_GTM_ID : null;
   return (
     <html lang={lang}>
       <body className={`${inter.className} antialiased`}>
@@ -41,10 +45,12 @@ export function RootDocument({ lang, children }: { lang: string; children: React
           </noscript>
         )}
         {children}
-        <Suspense fallback={null}>
-          <PurchaseConversion />
-          <SignupTracker />
-        </Suspense>
+        {tags && (
+          <Suspense fallback={null}>
+            <PurchaseConversion />
+            <SignupTracker />
+          </Suspense>
+        )}
         {/* One Google tag install: the GTM container already holds the GA4
             tag (G-5MD6D8FQ6X), so gtag.js isn't loaded separately. The queue
             and gtag() are set up at once, so the visit's start time and any

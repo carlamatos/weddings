@@ -1,12 +1,21 @@
+'use client';
+
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
+import { tryPagePath } from '@/app/lib/marketing/theme-cards';
 
 // MyGala top bar (logo, login/dashboard, "Back to themes"), shown only on
 // theme demos (/themes/<slug>). Live event pages and the owner's preview
-// have no MyGala bar — the page belongs to the event.
+// have no MyGala bar — the page belongs to the event. "Start your event
+// page" (and "Sign up" on phones) opens the "design your invitation" page
+// in the theme being viewed.
 export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boolean; backToThemes?: boolean }) {
+  const slug = /^\/themes\/([a-z0-9-]+)$/.exec(usePathname() ?? '')?.[1];
+  const start = slug ? tryPagePath(slug) : appHref('/register');
   return (
     <div
+      className="mg-preview-topbar"
       style={{
         position: 'sticky',
         top: 0,
@@ -60,16 +69,14 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
               Log in
             </Link>
             <Link
-              href={appHref('/login')}
-              rel="nofollow"
+              href={start}
               className="mg-start-page"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >
               Start your event page
             </Link>
             <Link
-              href={appHref('/register')}
-              rel="nofollow"
+              href={start}
               className="mg-sign-up"
               style={{ fontSize: 13, fontWeight: 600, letterSpacing: 0.3, padding: '8px 18px', borderRadius: 999, border: 'none', background: '#B6584A', color: '#fff', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >

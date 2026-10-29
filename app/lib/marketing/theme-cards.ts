@@ -99,3 +99,23 @@ export const THEME_CARDS: ThemeCard[] = [
 export function themeCardsFor(category: EventCategory): ThemeCard[] {
   return THEME_CARDS.filter((t) => t.category === category);
 }
+
+// The celebration pages' themes (/party-celebrations, /design-your-party-invitation),
+// in their order: birthdays, baby showers, Halloween, then Christmas.
+export const CELEBRATION_THEMES = [
+  'balloons', 'fun-party', 'alegria',
+  'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy',
+  'halloween-party', 'dia-de-los-muertos',
+  'christmas-party', 'white-christmas', 'merry', 'gnomes',
+];
+
+// Where a theme's "Start your event page" button goes (the theme demos' top
+// bar): the "design your invitation" page for its kind of event, in that
+// theme — weddings and parties try it and sign up right there.
+export function tryPagePath(slug: string): string {
+  const card = THEME_CARDS.find((t) => t.slug === slug);
+  const page = card?.category === 'wedding' ? '/design-your-wedding-invitation'
+    : CELEBRATION_THEMES.includes(slug) ? '/design-your-party-invitation'
+    : '/design-your-invitation';
+  return card ? `${page}?theme=${slug}` : page;
+}

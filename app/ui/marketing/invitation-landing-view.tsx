@@ -28,10 +28,70 @@ const themeDesc = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.de
 
 export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
   // The occasion puts its themes first in the gallery after sign-up.
-  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, page.key === 'christmas' ? 'christmas' : 'wedding');
+  const occasion = page.key === 'christmas' ? 'christmas' : page.key === 'celebrations' ? 'celebration' : 'wedding';
+  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, occasion);
+  // A theme's buttons: try it first (choose, then sign up) where the page has a try page.
+  const start = (theme?: string) => (page.tryPath ? `${page.tryPath}${theme ? `?theme=${theme}` : ''}` : register(theme));
   const cta = (where: string) => `ilp-${page.key}-${where}`;
   const hero = sampleInvitation(page.hero.invitation);
   const groups = page.gallery.groups.map((g) => ({ ...g, cards: g.items.map((s) => ({ sample: s, ...sampleInvitation(s) })) }));
+
+  // The invitations they can make.
+  const gallerySection = (
+    <section className="ilp-section ilp-gallery" id="invitations">
+      <div className="ilp-wrap">
+        <h2 className="ilp-title">{page.gallery.title}</h2>
+        <p className="ilp-section-sub">{page.gallery.sub}</p>
+        {groups.map((g, gi) => (
+          <div className="ilp-group" key={g.title ?? gi}>
+            {g.title && <h3 className="ilp-group-title">{g.title}</h3>}
+            <ul className="ilp-cards">
+              {g.cards.map(({ sample, design, details }, i) => (
+                <li key={`${sample.theme}-${i}`}>
+                  <a href={start(sample.theme)} className="ilp-card" data-cta={cta(`card-${sample.theme}`)}>
+                    <InvitationCard fonts={LANDING_INVITATION_FONTS} design={design} details={details}
+                      bgImage={design.background.kind === 'image' ? previewImage(design.background.imageUrl, '(max-width: 640px) 46vw, 230px') : undefined} />
+                    <span className="ilp-card-label">
+                      <strong>{themeName(sample.theme)}</strong>
+                      <span>Use this design →</span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+
+  // The pages the invitations open into, scrolling.
+  const themesSection = (
+    <section className="ilp-section ilp-themes" id="themes">
+      <div className="ilp-wrap">
+        <h2 className="ilp-title">{page.themes.title}</h2>
+        <p className="ilp-section-sub">{page.themes.sub}</p>
+        <ul className="ilp-theme-list">
+          {page.themes.slugs.map((slug) => (
+            <li key={slug} className="ilp-theme">
+              <div className="ilp-phone ilp-phone--small">
+                <div className="ilp-phone-screen">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="ilp-scroll" {...previewImage(themePagePicture(slug), '240px')} alt={`The ${themeName(slug)} theme, the whole page`} />
+                </div>
+              </div>
+              <h3 className="ilp-theme-name">{themeName(slug)}</h3>
+              <p className="ilp-theme-desc">{themeDesc(slug)}</p>
+              <div className="ilp-theme-actions">
+                <a href={start(slug)} className="btn-primary" data-cta={cta(`theme-${slug}`)}>Start with {themeName(slug)}</a>
+                <a href={`/themes/${slug}`} className="ilp-link" data-cta={cta(`demo-${slug}`)}>Live demo →</a>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
 
   return (
     <div className={`marketing-page ilp ilp--${page.key} ${greatVibes.variable}`}>
@@ -58,7 +118,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                 <InvitationCard fonts={LANDING_INVITATION_FONTS} design={hero.design} details={hero.details}
                   bgImage={previewImage(hero.design.background.imageUrl, '(max-width: 900px) 64vw, 380px', { priority: true })} />
               </div>
-              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP · 2 guests</span>
+              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP</span>
               <span className="ilp-chip ilp-chip--map"><MapPinIcon />Map &amp; directions</span>
               <span className="ilp-chip ilp-chip--photos"><CameraIcon />Photo wall</span>
             </div>
@@ -73,7 +133,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                 {page.hero.points.map((p) => <li key={p}><CheckIcon aria-hidden="true" />{p}</li>)}
               </ul>
               <div className="ilp-actions">
-                <a href={register(page.hero.invitation.theme)} className="btn-primary ilp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
+                <a href={start(page.hero.invitation.theme)} className="btn-primary ilp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
                 <a href={`/themes/${page.hero.secondary.theme}`} className="ilp-link" data-cta={cta('hero-demo')}>{page.hero.secondary.label} →</a>
               </div>
               <p className="ilp-note">Free · no credit card · guests don’t need an app</p>
@@ -81,63 +141,14 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
           </div>
         </section>
 
-        {/* 2. The invitations they can make. */}
-        <section className="ilp-section ilp-gallery" id="invitations">
-          <div className="ilp-wrap">
-            <h2 className="ilp-title">{page.gallery.title}</h2>
-            <p className="ilp-section-sub">{page.gallery.sub}</p>
-            {groups.map((g, gi) => (
-              <div className="ilp-group" key={g.title ?? gi}>
-                {g.title && <h3 className="ilp-group-title">{g.title}</h3>}
-                <ul className="ilp-cards">
-                  {g.cards.map(({ sample, design, details }, i) => (
-                    <li key={`${sample.theme}-${i}`}>
-                      <a href={register(sample.theme)} className="ilp-card" data-cta={cta(`card-${sample.theme}`)}>
-                        <InvitationCard fonts={LANDING_INVITATION_FONTS} design={design} details={details}
-                          bgImage={design.background.kind === 'image' ? previewImage(design.background.imageUrl, '(max-width: 640px) 46vw, 230px') : undefined} />
-                        <span className="ilp-card-label">
-                          <strong>{themeName(sample.theme)}</strong>
-                          <span>Use this design →</span>
-                        </span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* 3. The pages the invitations open into, scrolling. */}
-        <section className="ilp-section ilp-themes" id="themes">
-          <div className="ilp-wrap">
-            <h2 className="ilp-title">{page.themes.title}</h2>
-            <p className="ilp-section-sub">{page.themes.sub}</p>
-            <ul className="ilp-theme-list">
-              {page.themes.slugs.map((slug) => (
-                <li key={slug} className="ilp-theme">
-                  <div className="ilp-phone ilp-phone--small">
-                    <div className="ilp-phone-screen">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img className="ilp-scroll" {...previewImage(themePagePicture(slug), '240px')} alt={`The ${themeName(slug)} theme, the whole page`} />
-                    </div>
-                  </div>
-                  <h3 className="ilp-theme-name">{themeName(slug)}</h3>
-                  <p className="ilp-theme-desc">{themeDesc(slug)}</p>
-                  <div className="ilp-theme-actions">
-                    <a href={register(slug)} className="btn-primary" data-cta={cta(`theme-${slug}`)}>Start with {themeName(slug)}</a>
-                    <a href={`/themes/${slug}`} className="ilp-link" data-cta={cta(`demo-${slug}`)}>Live demo →</a>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
+        {/* 2–3. The invitations they can make, and the pages they open into
+            (weddings: the pages first, to choose a theme). */}
+        {page.themesFirst ? <>{themesSection}{gallerySection}</> : <>{gallerySection}{themesSection}</>}
 
         <section className="ilp-final">
           <h2 className="ilp-title">{page.final.title}</h2>
           <p className="ilp-section-sub">{page.final.text}</p>
-          <a href={register(page.hero.invitation.theme)} className="btn-primary ilp-btn-big" data-cta={cta('final')}>{page.cta}</a>
+          <a href={start(page.hero.invitation.theme)} className="btn-primary ilp-btn-big" data-cta={cta('final')}>{page.cta}</a>
         </section>
       </main>
 

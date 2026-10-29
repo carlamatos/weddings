@@ -2029,7 +2029,11 @@ export async function authenticate(
   }
 
   try {
-    await signIn('credentials', { ...Object.fromEntries(formData), redirectTo: '/dashboard' });
+    // next: the create-event form with a "design your invitation" page's
+    // choices; anywhere else goes to the dashboard as usual.
+    const next = formData.get('next');
+    formData.delete('next');
+    await signIn('credentials', { ...Object.fromEntries(formData), redirectTo: typeof next === 'string' && next ? safeSetupPath(next) : '/dashboard' });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
@@ -2050,6 +2054,12 @@ export async function GoogleSignIn() {
   await signIn("google", { redirectTo: '/dashboard' });
 }
 
+// From a "design your invitation" page: back to the create-event form with
+// the visitor's choices in its address (app/lib/start-intent.ts).
+export async function GoogleSignInTo(next: string) {
+  await signIn("google", { redirectTo: safeSetupPath(next) });
+}
+
 export async function AppleSignIn() {
   await signIn("apple", { redirectTo: '/dashboard' });
 }
@@ -2065,6 +2075,11 @@ export async function FacebookSignIn() {
 // Sign-up asks only for an email and a password; names and phone can be
 // added later in the profile. The form comes in English and French (the
 // French wedding landing page sends ?lang=fr), so its messages do too.
+// Only the create-event form (with its query string) — never another site.
+function safeSetupPath(next: string): string {
+  return /^\/dashboard\/setup(\?[\w=&%.+\-]*)?$/.test(next) ? next : '/dashboard';
+}
+
 const REGISTER_MESSAGES = {
   en: {
     email: 'Please enter a valid email address.',
@@ -2097,17 +2112,20 @@ export type RegisterState = {
   message?: string | null;
 };
 
-export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+// A new email-and-password account, for the sign-up page and the "design
+// your invitation" pages' own sign-up step: checks, the account, and its
+// verification email. A state to show when something's wrong.
+async function createCredentialsAccount(formData: FormData): Promise<{ email: string; password: string } | { state: RegisterState }> {
   const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
   const m = REGISTER_MESSAGES[lang];
   // The form checks this too; checked here before the rate limit so a typo
   // doesn't use up an attempt.
   if (formData.get('password') !== formData.get('confirmPassword')) {
-    return { errors: { confirmPassword: [m.confirmPassword] }, message: m.fix };
+    return { state: { errors: { confirmPassword: [m.confirmPassword] }, message: m.fix } };
   }
   // Mass sign-ups (and the verification emails they send) are capped per IP.
   if (await overRateLimit(`register:${clientIp(await headers())}`, 5, 60 * 60 * 1000)) {
-    return { message: m.rateLimited };
+    return { state: { message: m.rateLimited } };
   }
   const validatedFields = z.object({
     email: z.string().email({ message: m.email }),
@@ -2118,10 +2136,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   });
 
   if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: m.fix,
-    };
+    return { state: { errors: validatedFields.error.flatten().fieldErrors, message: m.fix } };
   }
 
   const { email, password } = validatedFields.data;
@@ -2129,11 +2144,11 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   try {
     const existing = await sql`SELECT id FROM users WHERE email = ${email}`;
     if (existing.rows.length > 0) {
-      return { errors: { email: [m.exists] }, message: m.exists };
+      return { state: { errors: { email: [m.exists] }, message: m.exists } };
     }
   } catch (error) {
     console.error('Sign-up lookup failed:', error);
-    return { message: m.lookupFailed };
+    return { state: { message: m.lookupFailed } };
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -2149,7 +2164,7 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     newUserId = result.rows[0]?.id;
   } catch (error) {
     console.error('Failed to create account:', error);
-    return { message: m.createFailed };
+    return { state: { message: m.createFailed } };
   }
 
   if (newUserId) {
@@ -2165,6 +2180,30 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   }
 
   if (newUserId) await markSignUp('email');
+  return { email, password };
+}
+
+// The "design your invitation" pages' sign-up step: the account, signed in
+// without leaving the page, which then creates the event itself
+// (createUserPage). ok: signed in.
+export async function registerOnTryPage(prevState: RegisterState & { ok?: boolean }, formData: FormData): Promise<RegisterState & { ok?: boolean }> {
+  const account = await createCredentialsAccount(formData);
+  if ('state' in account) return account.state;
+  try {
+    await signIn('credentials', { email: account.email, password: account.password, redirect: false });
+  } catch (error) {
+    if (!(error instanceof AuthError)) throw error;
+    console.error('Sign-in after sign-up failed:', error);
+    return { message: 'Your account is ready, but we couldn’t sign you in. Please log in to continue.' };
+  }
+  return { ok: true };
+}
+
+export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
+  const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
+  const account = await createCredentialsAccount(formData);
+  if ('state' in account) return account.state;
+  const { email, password } = account;
   // Signed in straight away and on to creating their event; the email can be
   // verified later (until then their page stays a draft — app/lib/require-verified.ts).
   // A successful signIn throws Next's redirect, so only AuthErrors are caught.

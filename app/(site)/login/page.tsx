@@ -7,13 +7,17 @@ import { AUTH_METADATA } from '@/app/lib/auth-metadata';
 
 export const metadata = AUTH_METADATA.login;
 
-export default function LoginPage() {
+// ?next=: from a "design your invitation" page, back to the create-event
+// form with the visitor's choices after logging in.
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const { next } = await searchParams;
+  const setupNext = typeof next === 'string' && next.startsWith('/dashboard/setup') ? next : undefined;
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
       <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
-      <LoginForm />
+      <LoginForm next={setupNext} />
     </main>
   );
 }

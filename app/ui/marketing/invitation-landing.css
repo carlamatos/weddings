@@ -1,6 +1,7 @@
-/* Invitation-first landing pages: /christmas-invitations and /wedding-website
+/* Invitation-first landing pages: /christmas-invitations, /wedding-website
+   and /party-celebrations
    (app/ui/marketing/invitation-landing-view.tsx). Christmas in deep pine and
-   gold, weddings in warm linen; every movement is CSS and stops under
+   gold, weddings and parties in warm linen; every movement is CSS and stops under
    prefers-reduced-motion. */
 
 .marketing-page.ilp {
@@ -58,7 +59,7 @@
 
 .marketing-page .ilp-copy { max-width: 520px; }
 .marketing-page .ilp-eyebrow { display: inline-block; margin: 0 0 18px; padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: 0.4px; background: rgba(255, 255, 255, 0.14); color: var(--ilp-gold, var(--ilp-accent)); border: 1px solid currentColor; }
-.marketing-page.ilp--weddings .ilp-eyebrow { background: #fff; }
+.marketing-page.ilp--weddings .ilp-eyebrow, .marketing-page.ilp--celebrations .ilp-eyebrow { background: #fff; }
 .marketing-page .ilp-headline { font-family: var(--font-display); font-size: clamp(38px, 5vw, 62px); line-height: 1.05; font-weight: 400; margin: 0 0 18px; color: var(--ilp-hero-ink); letter-spacing: -0.5px; }
 .marketing-page .ilp-sub { font-size: 18px; line-height: 1.6; color: var(--ilp-hero-soft); margin: 0 0 22px; }
 .marketing-page .ilp-points { list-style: none; margin: 0 0 30px; padding: 0; display: grid; gap: 10px; }
@@ -136,4 +137,17 @@
   .marketing-page .ilp-scroll, .marketing-page .ilp-invite, .marketing-page .ilp-chip, .marketing-page.ilp--christmas .ilp-hero::before { animation: none !important; }
   /* No auto-scroll: the page inside the phone can be scrolled by hand. */
   .marketing-page .ilp-phone-screen { overflow-y: auto; }
+}
+
+/* Party page: the invitations in each group sit centred, so a group that
+   doesn't fill its last row (3 birthdays, 2 Halloween) isn't pushed left.
+   About the grid's card widths: 4 a row, 3 a row a bit narrower, 2 at
+   900px and below (where the gap is 14px). */
+.marketing-page.ilp--celebrations .ilp-cards { display: flex; flex-wrap: wrap; justify-content: center; }
+.marketing-page.ilp--celebrations .ilp-cards > li { flex: 0 0 calc((100% - 3 * 22px) / 4); min-width: 0; }
+@media (max-width: 1000px) {
+  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 2 * 22px) / 3); }
+}
+@media (max-width: 900px) {
+  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 14px) / 2); }
 }
