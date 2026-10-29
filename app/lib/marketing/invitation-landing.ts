@@ -101,8 +101,8 @@ const OTHER_OCCASIONS: InvitationSample[] = THEME_CARDS
   .filter((t) => !CHRISTMAS_THEMES.includes(t.slug) && t.category !== 'wedding')
   .map((t) => onBanner(t.slug));
 
-// The celebration page's groups after Christmas (CELEBRATION_THEMES' order),
-// then everything else that isn't a wedding.
+// The celebration page's groups (CELEBRATION_THEMES' order), and
+// everything else that isn't a wedding.
 const BIRTHDAY_THEMES = ['balloons', 'fun-party', 'alegria'];
 const BABY_SHOWER_THEMES = ['baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy'];
 const HALLOWEEN_THEMES = ['halloween-party', 'dia-de-los-muertos'];
@@ -227,50 +227,50 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
   },
   celebrations: {
     key: 'celebrations',
-    path: '/party-invitations',
+    path: '/party-celebrations',
     seo: {
-      title: 'Free Online Party Invitations with RSVP',
+      title: 'Free Party Website with Invitations & RSVP',
       description:
-        'Free online invitations for Christmas parties, birthdays, baby showers and Halloween, each with its own party page. Guests RSVP, see the map and share photos.',
-      keywords: ['online party invitations', 'free party invitations', 'birthday invitations', 'baby shower invitations', 'halloween party invitations', 'christmas party invitations'],
+        'Create a free party website for a birthday, baby shower, Halloween or Christmas party, with invitations to match. RSVPs, the map, a countdown and guest photos in one link.',
+      keywords: ['party website', 'birthday party website', 'baby shower website', 'event website for a party', 'online party invitations', 'party rsvp website'],
     },
-    start: 'invitation',
+    start: 'website',
     tryPath: '/design-your-party-invitation',
     themesFirst: true,
-    cta: 'Create my free invitation',
+    cta: 'Create my free party website',
     hero: {
-      eyebrow: 'Free party invitations',
-      headline: 'Party invitations, with a party page to match',
-      sub: 'Christmas parties, birthdays, baby showers, Halloween and every celebration in between. Choose a design, add the date, and send an invitation that opens into your own party page, with RSVPs, the map and everyone’s photos.',
+      eyebrow: 'Free party websites & invitations',
+      headline: 'Your party website, with invitations to match',
+      sub: 'Birthdays, baby showers, Halloween, Christmas and every celebration in between. Choose a design, add the date, and share one link to your own party website, with RSVPs, the map, a countdown and everyone’s photos.',
       points: [
-        'Free to make and to send',
-        'Send by email, text or WhatsApp',
+        'Free party website and invitations',
         'RSVPs and guest counts come straight to you',
-        'Map, schedule, RSVP and a photo wall included',
+        'Map, schedule, countdown and a photo wall',
+        'Share it by email, text or WhatsApp',
       ],
-      secondary: { label: 'See a live party page', theme: 'balloons' },
+      secondary: { label: 'See a live party website', theme: 'balloons' },
       invitation: onBanner('balloons'),
       pageTheme: 'balloons',
     },
     gallery: {
-      title: 'Invitations you can create',
-      sub: 'Every design is yours to change: the words, fonts, colours and photo. Tap one to start with it.',
+      title: 'Invitations to match your website',
+      sub: 'Every party website comes with an invitation in the same design. Change the words, fonts, colours and photo. Tap one to start with it.',
       groups: [
-        { title: 'Christmas & holiday parties', items: CHRISTMAS_GALLERY },
         { title: 'Birthdays', items: BIRTHDAY_THEMES.map(onBanner) },
         { title: 'Baby showers', items: BABY_SHOWER_THEMES.map(onBanner) },
         { title: 'Halloween', items: HALLOWEEN_THEMES.map(onBanner) },
-        { title: 'And for every other occasion', items: MORE_OCCASIONS },
+        { title: 'More occasions', items: MORE_OCCASIONS },
+        { title: 'Christmas & holiday parties', items: CHRISTMAS_GALLERY },
       ],
     },
     themes: {
       title: 'Choose the theme you love',
-      sub: 'Each theme is a party page with an invitation to match: RSVPs, the map, the schedule, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
+      sub: 'Each theme is a whole party website: RSVPs, the map, the schedule, a countdown, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
       slugs: CELEBRATION_THEMES,
     },
     final: {
-      title: 'Your party invitation, ready in minutes',
-      text: 'Free to create and send. Guests need no account and no app — just your link.',
+      title: 'Your party website, ready in minutes',
+      text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',
     },
   },
 };
