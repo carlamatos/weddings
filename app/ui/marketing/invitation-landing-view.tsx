@@ -118,7 +118,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                 <InvitationCard fonts={LANDING_INVITATION_FONTS} design={hero.design} details={hero.details}
                   bgImage={previewImage(hero.design.background.imageUrl, '(max-width: 900px) 64vw, 380px', { priority: true })} />
               </div>
-              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP · 2 guests</span>
+              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP</span>
               <span className="ilp-chip ilp-chip--map"><MapPinIcon />Map &amp; directions</span>
               <span className="ilp-chip ilp-chip--photos"><CameraIcon />Photo wall</span>
             </div>
