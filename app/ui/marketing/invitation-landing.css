@@ -138,3 +138,16 @@
   /* No auto-scroll: the page inside the phone can be scrolled by hand. */
   .marketing-page .ilp-phone-screen { overflow-y: auto; }
 }
+
+/* Party page: the invitations in each group sit centred, so a group that
+   doesn't fill its last row (3 birthdays, 2 Halloween) isn't pushed left.
+   About the grid's card widths: 4 a row, 3 a row a bit narrower, 2 at
+   900px and below (where the gap is 14px). */
+.marketing-page.ilp--celebrations .ilp-cards { display: flex; flex-wrap: wrap; justify-content: center; }
+.marketing-page.ilp--celebrations .ilp-cards > li { flex: 0 0 calc((100% - 3 * 22px) / 4); min-width: 0; }
+@media (max-width: 1000px) {
+  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 2 * 22px) / 3); }
+}
+@media (max-width: 900px) {
+  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 14px) / 2); }
+}
