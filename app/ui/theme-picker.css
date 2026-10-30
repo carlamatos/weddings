@@ -93,7 +93,8 @@ html:has(.tp-dialog[open]) { overflow: hidden; }
   .tp-head { padding: 14px 16px 12px; }
   .tp-title { font-size: 23px; }
   .tp-sub { font-size: 13px; }
-  .tp-sub--wide-only { display: none; }
+  .tp-dialog--compact .tp-sub, .tp-dialog--compact .tp-invite { display: none; }
+  .tp-dialog--compact .tp-pair { grid-template-columns: 1fr; }
   .tp-filters { flex-wrap: wrap; gap: 6px; }
   .tp-filter { padding: 7px 13px; font-size: 13px; }
   .tp-body { padding: 16px 16px 40px; }
