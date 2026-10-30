@@ -95,6 +95,9 @@ html:has(.tp-dialog[open]) { overflow: hidden; }
   .tp-sub { font-size: 13px; }
   .tp-dialog--compact .tp-sub, .tp-dialog--compact .tp-invite { display: none; }
   .tp-dialog--compact .tp-pair { grid-template-columns: 1fr; }
+  /* Full width, the phone picture shows more of the page in a taller window. */
+  .tp-dialog--compact .tp-shot { height: 480px; }
+  @media (hover: hover) { .tp-dialog--compact .tp-shot:hover img, .tp-dialog--compact .tp-shot:focus-visible img { transform: translateY(calc(-100% + 480px)); } }
   .tp-filters { flex-wrap: wrap; gap: 6px; }
   .tp-filter { padding: 7px 13px; font-size: 13px; }
   .tp-body { padding: 16px 16px 40px; }
