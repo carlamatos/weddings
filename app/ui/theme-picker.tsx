@@ -21,8 +21,11 @@ const INVITATION_FONTS_HREF = googleFontsHref(Object.values(INVITATIONS).flatMap
 
 // The create-event form's theme choice: a full-screen gallery of every
 // theme, filtered by type of event (All by default). Each card shows a
-// picture of the whole demo page (scrolls through on hover; swipe inside it
-// on a phone), so hosts can choose without opening the live preview.
+// picture of the whole demo page (it scrolls through on hover), so hosts can
+// choose without opening the live preview. Tapping or clicking the picture
+// opens it full screen to scroll through, with the Choose button: on phones
+// and tablets the card's picture doesn't scroll itself, so a swipe always
+// scrolls the gallery.
 // Pictures: public/images/theme-pages, made by scripts/theme-page-shots.mjs.
 
 export const CATEGORY_LABELS: Record<EventCategory, string> = {
@@ -64,6 +67,15 @@ export function ThemePicker({
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  // The theme whose whole page is open full screen, and the picture that
+  // opened it (focus goes back there).
+  const [viewing, setViewing] = useState<ThemeCard | null>(null);
+  const opener = useRef<HTMLButtonElement | null>(null);
+
+  function closeView() {
+    setViewing(null);
+    opener.current?.focus();
+  }
 
   useEffect(() => {
     const d = dialog.current;
@@ -80,7 +92,10 @@ export function ThemePicker({
 
   return (
     // onClose: Esc (and close()) — keep the parent's state in step.
-    <dialog ref={dialog} className={compactOnPhones ? 'tp-dialog tp-dialog--compact' : 'tp-dialog'} aria-labelledby="tp-title" onClose={onClose}>
+    // Esc with a page open full screen just closes that page.
+    <dialog ref={dialog} className={compactOnPhones ? 'tp-dialog tp-dialog--compact' : 'tp-dialog'} aria-labelledby="tp-title"
+      onClose={() => { setViewing(null); onClose(); }}
+      onCancel={(e) => { if (viewing) { e.preventDefault(); closeView(); } }}>
       <div className="tp-head">
         <div className="tp-head-row">
           <div>
@@ -119,12 +134,13 @@ export function ThemePicker({
                     </div>
                     <div className="tp-shot-wrap">
                       <span className="tp-pair-label">Website</span>
-                      <div className="tp-shot" tabIndex={0} aria-label={`${t.name}: picture of the whole page`}>
+                      <button type="button" className="tp-shot" aria-label={`${t.name}: see the whole page`}
+                        onClick={(e) => { opener.current = e.currentTarget; setViewing(t); }}>
                         <picture>
                           <source media="(max-width: 600px)" srcSet={themePhonePicture(t.slug)} />
                           <img src={themePagePicture(t.slug)} alt={`The ${t.name} theme, the whole page`} loading="lazy" decoding="async" width={520} />
                         </picture>
-                      </div>
+                      </button>
                       <span className="tp-shot-hint" aria-hidden="true" />
                     </div>
                   </div>
@@ -147,6 +163,26 @@ export function ThemePicker({
           </ul>
         )}
       </div>
+
+      {open && viewing && (
+        <div className="tp-view" role="dialog" aria-modal="true" aria-label={`${viewing.name}: the whole page`}>
+          <div className="tp-view-scroll">
+            <picture>
+              <source media="(max-width: 600px)" srcSet={themePhonePicture(viewing.slug)} />
+              <img src={themePagePicture(viewing.slug)} alt={`The ${viewing.name} theme, the whole page`} decoding="async" width={520} />
+            </picture>
+          </div>
+          <div className="tp-view-bar">
+            <button type="button" className="tp-view-back" onClick={closeView} autoFocus>
+              <XMarkIcon aria-hidden="true" /> Close
+            </button>
+            <button type="button" className="tp-choose" aria-pressed={viewing.slug === selected}
+              onClick={() => { setViewing(null); onChoose(viewing.slug); }}>
+              {viewing.slug === selected ? <><CheckIcon aria-hidden="true" /> Chosen</> : `Choose ${viewing.name}`}
+            </button>
+          </div>
+        </div>
+      )}
     </dialog>
   );
 }
