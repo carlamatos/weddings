@@ -35,6 +35,8 @@ const FILTERS = ['all', 'wedding', 'birthdays', 'business', 'community'] as cons
 type Filter = (typeof FILTERS)[number];
 
 export const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.webp`;
+// The same page in its phone layout, shown on phones.
+const themePhonePicture = (slug: string) => `/images/theme-pages/phone/${slug}.webp`;
 export const themeCard = (slug: string): ThemeCard | undefined => THEME_CARDS.find((t) => t.slug === slug);
 
 // Themes to show first in the gallery for an occasion (a landing page's, or
@@ -118,8 +120,10 @@ export function ThemePicker({
                     <div className="tp-shot-wrap">
                       <span className="tp-pair-label">Website</span>
                       <div className="tp-shot" tabIndex={0} aria-label={`${t.name}: picture of the whole page`}>
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={themePagePicture(t.slug)} alt={`The ${t.name} theme, the whole page`} loading="lazy" decoding="async" width={520} />
+                        <picture>
+                          <source media="(max-width: 600px)" srcSet={themePhonePicture(t.slug)} />
+                          <img src={themePagePicture(t.slug)} alt={`The ${t.name} theme, the whole page`} loading="lazy" decoding="async" width={520} />
+                        </picture>
                       </div>
                       <span className="tp-shot-hint" aria-hidden="true" />
                     </div>
