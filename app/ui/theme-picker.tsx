@@ -49,13 +49,14 @@ export function occasionThemes(occasion?: StartOccasion, theme?: string): string
 }
 
 export function ThemePicker({
-  open, selected, onChoose, onClose, first = [],
+  open, selected, onChoose, onClose, first = [], introOnPhones = true,
 }: {
   open: boolean;
   selected: string;
   onChoose: (slug: string) => void;
   onClose: () => void;
   first?: string[]; // themes to show first, in this order (from a landing page's occasion)
+  introOnPhones?: boolean; // false: the intro under the title only on tablets and desktops
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -80,7 +81,7 @@ export function ThemePicker({
         <div className="tp-head-row">
           <div>
             <h2 id="tp-title" className="tp-title">Choose your theme</h2>
-            <p className="tp-sub">
+            <p className={introOnPhones ? 'tp-sub' : 'tp-sub tp-sub--wide-only'}>
               Each theme is a website and a matching invitation, with the same sections — RSVP, countdown, photos and more.
               You can change the colours, fonts and design of both in the editor later, or switch themes any time.
             </p>
