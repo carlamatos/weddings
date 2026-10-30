@@ -21,10 +21,10 @@ import { AuthDateInput } from '@/app/ui/auth-date-input';
 // intent: what the new event opens on after sign-up (start-intent.ts).
 // inlineSignup: "Save" opens the sign-up step right here (try-signup.tsx)
 // instead of the sign-up page; then the name and date are required.
-// liveWebsite / websiteFirst: see StylePreviews.
+// liveWebsite / websiteFirst / rsvpPreview: see StylePreviews.
 export type TryText = {
   intent: 'invitation' | 'website'; saveLabel: string; eyebrow: string; h1: string; intro: string; example: string;
-  nameLabel?: string; dateLabel?: string; inlineSignup?: boolean; liveWebsite?: boolean; websiteFirst?: boolean;
+  nameLabel?: string; dateLabel?: string; inlineSignup?: boolean; liveWebsite?: boolean; websiteFirst?: boolean; rsvpPreview?: boolean;
 };
 
 export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
@@ -120,7 +120,7 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
 
         {card && (
           <div className="setup-style__previews">
-            <StylePreviews themeSlug={card.slug} eventName={eventName} eventDate={eventDate} nameAs="p" live={text.liveWebsite} websiteFirst={text.websiteFirst} />
+            <StylePreviews themeSlug={card.slug} eventName={eventName} eventDate={eventDate} nameAs="p" live={text.liveWebsite} websiteFirst={text.websiteFirst} rsvp={text.rsvpPreview} />
             <p className="setup-style__note try-invite__note">
               <SwatchIcon aria-hidden="true" />
               After you sign up you can change the colours, fonts, wording and photos of both.
