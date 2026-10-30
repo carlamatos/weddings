@@ -300,7 +300,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
         </>
       )}
 
-      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} first={firstThemes} />
+      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} first={firstThemes} introOnPhones={false} />
     </div>
   );
 }
