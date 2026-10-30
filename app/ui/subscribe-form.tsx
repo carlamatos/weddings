@@ -10,6 +10,7 @@ import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme
 import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
 import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
+import { AuthDateInput } from './auth-date-input';
 
 // Create an event page in two steps: 1. the theme, from the full-screen
 // gallery (theme-picker.tsx, which opens straight away; the type of event
@@ -218,10 +219,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
 
             <div className="auth-field">
               <label className="auth-label" htmlFor="eventDate">Event Date</label>
-              <div className="auth-input-wrap">
-                <input className="auth-input" id="eventDate" type="date" name="eventDate"
-                  value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
-              </div>
+              <AuthDateInput id="eventDate" name="eventDate" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
               {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
             </div>
 
