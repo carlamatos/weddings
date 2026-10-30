@@ -15,7 +15,7 @@ import { movePageToTrash } from './page-trash-core';
 import { runInTransaction } from './trash-core';
 
 import { headers } from 'next/headers';
-import { markSignUp } from './signup-signal';
+import { markPageCreated, markSignUp } from './signup-signal';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
@@ -300,6 +300,7 @@ export type UserPageState = {
 
     // Let the super admins know (never blocks or fails the request).
     if (newPageId) {
+      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free' });
       await notifyAdminsOfNewPage(newPageId, prepaid ? 'Plus (prepaid)' : wantsPlus ? 'Free — chose Plus, sent to checkout' : 'Free');
     }
 
