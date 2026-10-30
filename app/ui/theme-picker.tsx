@@ -49,14 +49,16 @@ export function occasionThemes(occasion?: StartOccasion, theme?: string): string
 }
 
 export function ThemePicker({
-  open, selected, onChoose, onClose, first = [], introOnPhones = true,
+  open, selected, onChoose, onClose, first = [], compactOnPhones = false,
 }: {
   open: boolean;
   selected: string;
   onChoose: (slug: string) => void;
   onClose: () => void;
   first?: string[]; // themes to show first, in this order (from a landing page's occasion)
-  introOnPhones?: boolean; // false: the intro under the title only on tablets and desktops
+  // On phones: no intro under the title, and each theme shows just its
+  // website (the setup page); tablets and desktops show everything.
+  compactOnPhones?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
@@ -76,12 +78,12 @@ export function ThemePicker({
 
   return (
     // onClose: Esc (and close()) — keep the parent's state in step.
-    <dialog ref={dialog} className="tp-dialog" aria-labelledby="tp-title" onClose={onClose}>
+    <dialog ref={dialog} className={compactOnPhones ? 'tp-dialog tp-dialog--compact' : 'tp-dialog'} aria-labelledby="tp-title" onClose={onClose}>
       <div className="tp-head">
         <div className="tp-head-row">
           <div>
             <h2 id="tp-title" className="tp-title">Choose your theme</h2>
-            <p className={introOnPhones ? 'tp-sub' : 'tp-sub tp-sub--wide-only'}>
+            <p className="tp-sub">
               Each theme is a website and a matching invitation, with the same sections — RSVP, countdown, photos and more.
               You can change the colours, fonts and design of both in the editor later, or switch themes any time.
             </p>
