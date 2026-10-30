@@ -21,6 +21,7 @@ export type TryInvitationPage = {
   inlineSignup?: boolean;
   liveWebsite?: boolean;
   websiteFirst?: boolean;
+  rsvpPreview?: boolean; // the RSVP form in place of the invitation preview
   occasion?: StartOccasion;
   defaultTheme: string;
   seo: SeoMeta;
@@ -245,11 +246,12 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
   celebration: {
     path: '/design-your-party-invitation',
     intent: 'website',
-    saveLabel: 'Save my party website',
-    dateLabel: 'Party date',
+    saveLabel: 'Save my event website',
+    dateLabel: 'Event date',
     inlineSignup: true,
     liveWebsite: true,
     websiteFirst: true,
+    rsvpPreview: true,
     occasion: 'celebration',
     defaultTheme: 'balloons',
     seo: {
@@ -258,9 +260,9 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
       keywords: ['party website maker', 'free party website', 'birthday party website', 'baby shower website', 'party invitation maker', 'halloween party website'],
     },
     breadcrumb: 'Party website maker',
-    eyebrow: 'Free party websites & invitations',
-    h1: 'Design your party website and invitation',
-    intro: 'Pick a theme, add your party’s name and date, and watch your party website and invitation fill in. No account needed to try it.',
+    eyebrow: 'Free event websites & invitations',
+    h1: 'Setup your event',
+    intro: 'Pick a theme, add your event’s name and date, and watch your event website and RSVP form fill in. No account needed to try it.',
     example: 'Emma’s 30th Birthday',
     app: {
       name: 'MyGala Party Website Maker',

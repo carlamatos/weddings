@@ -7,6 +7,7 @@ import { sampleInvitation, type InvitationLandingPage } from '@/app/lib/marketin
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
 import { previewImage } from '@/app/ui/themes/preview-image';
+import { RsvpPreview } from '@/app/ui/rsvp-preview';
 import { LANDING_INVITATION_FONTS } from './invitation-landing-fonts';
 import SiteFooter from './site-footer';
 import '@/app/ui/marketing.css';
@@ -114,10 +115,16 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                   <img className="ilp-scroll" {...previewImage(themePagePicture(page.hero.pageTheme), '(max-width: 900px) 210px, 270px', { eager: true })} fetchPriority="low" alt="" />
                 </div>
               </div>
-              <div className="ilp-invite">
-                <InvitationCard fonts={LANDING_INVITATION_FONTS} design={hero.design} details={hero.details}
-                  bgImage={previewImage(hero.design.background.imageUrl, '(max-width: 900px) 64vw, 380px', { priority: true })} />
-              </div>
+              {page.hero.rsvp ? (
+                <div className="ilp-invite ilp-invite--rsvp">
+                  <RsvpPreview fonts={LANDING_INVITATION_FONTS} design={hero.design} name={hero.details.name} date={hero.details.date} />
+                </div>
+              ) : (
+                <div className="ilp-invite">
+                  <InvitationCard fonts={LANDING_INVITATION_FONTS} design={hero.design} details={hero.details}
+                    bgImage={previewImage(hero.design.background.imageUrl, '(max-width: 900px) 64vw, 380px', { priority: true })} />
+                </div>
+              )}
               <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP</span>
               <span className="ilp-chip ilp-chip--map"><MapPinIcon />Map &amp; directions</span>
               <span className="ilp-chip ilp-chip--photos"><CameraIcon />Photo wall</span>

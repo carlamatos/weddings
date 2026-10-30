@@ -404,7 +404,7 @@
 @media (max-width: 600px) {
   .auth-card.setup-card--wide { padding: 28px 20px; }
   .setup-style__previews { grid-template-columns: 1fr; }
-  .setup-preview .invitation-card { max-width: 320px; margin: 0 auto; }
+  .setup-preview .invitation-card, .setup-preview .rsvp-preview { max-width: 320px; margin: 0 auto; }
   .setup-name-row { grid-template-columns: 1fr; gap: 0; }
 }
 

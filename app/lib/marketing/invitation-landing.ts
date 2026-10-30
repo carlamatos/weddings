@@ -43,6 +43,10 @@ export type InvitationLandingPage = {
     secondary: { label: string; theme: string }; // "See a live invitation"
     invitation: InvitationSample;
     pageTheme: string; // the page the invitation opens into
+    // The RSVP form beside the phone instead of the invitation (RSVP is what
+    // these pages' visitors search for). The invitation still gives its theme,
+    // name and date.
+    rsvp?: boolean;
   };
   gallery: { title: string; sub: string; groups: { title?: string; items: InvitationSample[] }[] };
   themes: { title: string; sub: string; slugs: string[] };
@@ -191,6 +195,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
         design: WEDDING_COPY,
       },
       pageTheme: 'the-day',
+      rsvp: true,
     },
     gallery: {
       title: 'Wedding invitations you can create',
@@ -237,39 +242,40 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
     start: 'website',
     tryPath: '/design-your-party-invitation',
     themesFirst: true,
-    cta: 'Create my free party website',
+    cta: 'Create my free event website',
     hero: {
-      eyebrow: 'Free party websites & invitations',
-      headline: 'Your party website, with invitations to match',
-      sub: 'Birthdays, baby showers, Halloween, Christmas and every celebration in between. Choose a design, add the date, and share one link to your own party website, with RSVPs, the map, a countdown and everyone’s photos.',
+      eyebrow: 'Free event websites & invitations',
+      headline: 'Your event website, with invitations to match',
+      sub: 'Birthdays, baby showers, Halloween, Christmas and every celebration in between. Choose a design, add the date, and share one link to your own event website, with RSVPs, the map, a countdown and everyone’s photos.',
       points: [
-        'Free party website and invitations',
+        'Free event website and invitations',
         'RSVPs and guest counts come straight to you',
         'Map, schedule, countdown and a photo wall',
         'Share it by email, text or WhatsApp',
       ],
-      secondary: { label: 'See a live party website', theme: 'balloons' },
+      secondary: { label: 'See a live event website', theme: 'balloons' },
       invitation: onBanner('balloons'),
       pageTheme: 'balloons',
+      rsvp: true,
     },
     gallery: {
       title: 'Invitations to match your website',
-      sub: 'Every party website comes with an invitation in the same design. Change the words, fonts, colours and photo. Tap one to start with it.',
+      sub: 'Every event website comes with an invitation in the same design. Change the words, fonts, colours and photo. Tap one to start with it.',
       groups: [
         { title: 'Birthdays', items: BIRTHDAY_THEMES.map(onBanner) },
         { title: 'Baby showers', items: BABY_SHOWER_THEMES.map(onBanner) },
         { title: 'Halloween', items: HALLOWEEN_THEMES.map(onBanner) },
         { title: 'More occasions', items: MORE_OCCASIONS },
-        { title: 'Christmas & holiday parties', items: CHRISTMAS_GALLERY },
+        { title: 'Christmas & holiday events', items: CHRISTMAS_GALLERY },
       ],
     },
     themes: {
       title: 'Choose the theme you love',
-      sub: 'Each theme is a whole party website: RSVPs, the map, the schedule, a countdown, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
+      sub: 'Each theme is a whole event website: RSVPs, the map, the schedule, a countdown, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
       slugs: CELEBRATION_THEMES,
     },
     final: {
-      title: 'Your party website, ready in minutes',
+      title: 'Your event website, ready in minutes',
       text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',
     },
   },

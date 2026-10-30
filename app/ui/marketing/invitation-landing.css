@@ -50,6 +50,9 @@
 .marketing-page .ilp-scroll { display: block; width: 100%; height: auto; animation: ilp-scroll 26s ease-in-out infinite alternate; will-change: transform; }
 .marketing-page .ilp-invite { position: absolute; left: 0; top: 40px; width: min(380px, 62%); z-index: 2; transform: rotate(-5deg); animation: ilp-float 7s ease-in-out infinite; filter: drop-shadow(0 34px 40px rgba(0, 0, 0, 0.45)); }
 .marketing-page .ilp-invite .invitation-card { box-shadow: none !important; }
+/* The RSVP form in place of the invitation (/wedding-website, /party-celebrations). */
+.marketing-page .ilp-invite--rsvp { width: min(330px, 56%); top: 30px; }
+.marketing-page .ilp-invite--rsvp .rsvp-preview { box-shadow: none !important; }
 .marketing-page .ilp-chip { position: absolute; z-index: 3; display: inline-flex; align-items: center; gap: 6px; padding: 9px 14px; border-radius: 999px; background: #fff; color: #241F2B; font-size: 13px; font-weight: 700; box-shadow: 0 14px 30px -14px rgba(0, 0, 0, 0.5); white-space: nowrap; animation: ilp-pop 4s ease-in-out infinite; }
 .marketing-page .ilp-chip svg { width: 16px; height: 16px; color: #2F7D4F; stroke-width: 2.4; }
 .marketing-page .ilp-chip--rsvp svg { stroke-width: 3; }
@@ -123,6 +126,7 @@
   .marketing-page .ilp-phone { --ilp-screen-h: 400px; width: 210px; right: 0; top: 30px; border-radius: 32px; }
   .marketing-page .ilp-phone-screen { border-radius: 24px; }
   .marketing-page .ilp-invite { width: 64%; top: 30px; }
+  .marketing-page .ilp-invite--rsvp { width: 60%; top: 14px; }
   .marketing-page .ilp-chip { font-size: 12px; padding: 7px 11px; }
   .marketing-page .ilp-chip--map { right: 36%; bottom: 20px; }
   .marketing-page .ilp-chip--photos { display: none; }

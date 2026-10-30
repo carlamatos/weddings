@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { defaultInvitation, googleFontsHref } from '../lib/invitation';
 import { InvitationCard } from './dashboard/invitation-card';
+import { RsvpPreview } from './rsvp-preview';
 import { eventWhen } from './themes/event-when';
 import { themeCard } from './theme-picker';
 
@@ -12,9 +13,10 @@ import { themeCard } from './theme-picker';
 // while the pointer is over it (swipe on touch screens).
 // nameAs: see InvitationCard. live: the website is the theme's real page
 // with this name and date (app/(frame)/theme-preview) instead of its
-// picture. websiteFirst: the website before the invitation.
-export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = false, websiteFirst = false }: {
-  themeSlug: string; eventName: string; eventDate: string; nameAs?: 'h2' | 'p'; live?: boolean; websiteFirst?: boolean;
+// picture. websiteFirst: the website before the invitation. rsvp: the RSVP
+// form guests fill in, in place of the invitation (the party try page).
+export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = false, websiteFirst = false, rsvp = false }: {
+  themeSlug: string; eventName: string; eventDate: string; nameAs?: 'h2' | 'p'; live?: boolean; websiteFirst?: boolean; rsvp?: boolean;
 }) {
   const design = defaultInvitation(themeSlug);
   const card = themeCard(themeSlug);
@@ -26,7 +28,14 @@ export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = 
     address: '',
     url: '',
   };
-  const invitation = (
+  const invitation = rsvp ? (
+    <figure className="setup-preview setup-preview--invitation setup-preview--rsvp" key="invitation">
+      <figcaption>Your RSVP form</figcaption>
+      <div role="img" aria-label={`The RSVP form on your website: ${details.name}`}>
+        <RsvpPreview design={design} name={details.name} date={details.date} />
+      </div>
+    </figure>
+  ) : (
     <figure className="setup-preview setup-preview--invitation" key="invitation">
       <figcaption>Your invitation</figcaption>
       <InvitationCard design={{ ...design, showQr: false }} details={details} nameAs={nameAs} />
