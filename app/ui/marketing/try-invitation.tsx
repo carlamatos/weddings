@@ -7,6 +7,7 @@ import { START_NAME_MAX, startQuery, type StartOccasion } from '@/app/lib/start-
 import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from '@/app/ui/theme-picker';
 import { StylePreviews } from '@/app/ui/style-previews';
 import { TrySignup } from './try-signup';
+import { AuthDateInput } from '@/app/ui/auth-date-input';
 
 // /design-your-invitation: try an invitation before signing up. Pick a
 // theme, type the event's name and date, and see the invitation and the
@@ -101,10 +102,8 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
 
             <div className="auth-field">
               <label className="auth-label" htmlFor="tryEventDate">{text.dateLabel ?? 'Event date'}</label>
-              <div className="auth-input-wrap">
-                <input className="auth-input" id="tryEventDate" type="date" value={eventDate}
-                  onChange={(e) => { setEventDate(e.target.value); setMissing((m) => ({ ...m, date: false })); }} aria-invalid={missing.date || undefined} />
-              </div>
+              <AuthDateInput id="tryEventDate" value={eventDate}
+                onChange={(e) => { setEventDate(e.target.value); setMissing((m) => ({ ...m, date: false })); }} aria-invalid={missing.date || undefined} />
               {missing.date && <p className="auth-field-error" role="alert">Please add the date to save it.</p>}
             </div>
 
