@@ -86,6 +86,15 @@ export async function POST(request: Request) {
   `;
   await sql`UPDATE event_themes SET name = 'Wild Flowers' WHERE slug = 'wild-flores' AND name = 'Wild Flores'`;
 
+  // Western theme (Weddings category, key 'wedding').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Western',
+           'Saddle leather, canvas and rust with brass-gold accents, set in Rye, Libre Baskerville and Oswald. Desert buttes at sundown, a dirt-road countdown, a nailed-up parchment RSVP, a roundup timeline and a jukebox playlist. For ranch, barn and country weddings.',
+           'western'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'western')
+  `;
+
   // Christmas Party theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)

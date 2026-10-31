@@ -20,6 +20,7 @@ export const HERO_DEFAULTS = {
   love: '/images/themes/love/hero.jpeg',
   nature: '/images/themes/nature/hero.jpeg',
   'wild-flores': '/images/themes/wild-flores/hero.jpeg',
+  western: '/images/themes/western/hero.jpeg',
   'christmas-party': '/images/themes/christmas-party/hero.jpeg',
   'white-christmas': '/images/themes/white-christmas/hero.jpeg',
   'dia-de-los-muertos': '/images/themes/dia-de-los-muertos/hero.jpeg',

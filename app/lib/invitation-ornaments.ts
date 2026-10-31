@@ -785,6 +785,7 @@ const PALETTES: Record<string, string[]> = {
   'love': ['#B23A5B', '#5A2D3A', '#E49763', '#E7C6CC', '#FFFFFF'],
   'nature': ['#2D4130', '#9C4A3F', '#BFA55B', '#C8857A', '#2A231E'],
   'wild-flores': ['#BE7922', '#3E3A2C', '#CE9BC8', '#7D8B5A', '#FFFFFF'],
+  'western': ['#A4452B', '#2B1B12', '#C9A26B', '#E2B36B', '#F4EADB'],
   'terracotta-harvest': ['#BC5A38', '#CC9A3E', '#7A6451', '#3D2B1F', '#A9C4DE'],
   'midnight-botanical': ['#C9A75D', '#F5EEDC', '#8C7440', '#B25A4A', '#D9B96E'],
   'quiet-coastal': ['#7D8F84', '#3F4A45', '#5C6B61', '#DCD4C0', '#A0524A'],
