@@ -26,7 +26,7 @@ function isoDay(d: unknown): string | undefined {
 }
 
 function normalizePage(page: UserPage): UserPage {
-  page.event_date = isoDay(page.event_date) ?? page.event_date;
+  page.event_date = isoDay(page.event_date) ?? '';
   page.event_end_date = isoDay(page.event_end_date) || undefined;
   page.event_end_time = page.event_end_time || undefined;
   return page;

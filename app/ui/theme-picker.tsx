@@ -54,7 +54,7 @@ export function occasionThemes(occasion?: StartOccasion, theme?: string): string
 }
 
 export function ThemePicker({
-  open, selected, onChoose, onClose, first = [], compactOnPhones = false,
+  open, selected, onChoose, onClose, first = [], compactOnPhones = false, limit,
 }: {
   open: boolean;
   selected: string;
@@ -64,9 +64,14 @@ export function ThemePicker({
   // On phones: no intro under the title, and each theme shows just its
   // website (the setup page); tablets and desktops show everything.
   compactOnPhones?: boolean;
+  // A short list first: only the first `limit` themes (in `first` order),
+  // with no filters, and a button to see every theme.
+  limit?: number;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [filter, setFilter] = useState<Filter>('all');
+  const [showAll, setShowAll] = useState(false);
+  const short = !!limit && !showAll;
   // The theme whose whole page is open full screen, and the picture that
   // opened it (focus goes back there).
   const [viewing, setViewing] = useState<ThemeCard | null>(null);
@@ -87,14 +92,14 @@ export function ThemePicker({
   // The occasion's themes first (in `first` order), then the rest as usual.
   const rank = (slug: string) => { const i = first.indexOf(slug); return i < 0 ? first.length : i; };
   const ordered = first.length ? [...THEME_CARDS].sort((a, b) => rank(a.slug) - rank(b.slug)) : THEME_CARDS;
-  const shown = filter === 'all' ? ordered : ordered.filter((t) => t.category === filter);
+  const shown = short ? ordered.slice(0, limit) : filter === 'all' ? ordered : ordered.filter((t) => t.category === filter);
   const count = (f: Filter) => (f === 'all' ? THEME_CARDS.length : THEME_CARDS.filter((t) => t.category === f).length);
 
   return (
     // onClose: Esc (and close()) — keep the parent's state in step.
     // Esc with a page open full screen just closes that page.
     <dialog ref={dialog} className={compactOnPhones ? 'tp-dialog tp-dialog--compact' : 'tp-dialog'} aria-labelledby="tp-title"
-      onClose={() => { setViewing(null); onClose(); }}
+      onClose={() => { setViewing(null); setShowAll(false); onClose(); }}
       onCancel={(e) => { if (viewing) { e.preventDefault(); closeView(); } }}>
       <div className="tp-head">
         <div className="tp-head-row">
@@ -109,13 +114,13 @@ export function ThemePicker({
             <XMarkIcon />
           </button>
         </div>
-        <div className="tp-filters" role="group" aria-label="Type of event">
+        {!short && <div className="tp-filters" role="group" aria-label="Type of event">
           {FILTERS.map((f) => (
             <button key={f} type="button" className="tp-filter" aria-pressed={filter === f} onClick={() => setFilter(f)}>
               {f === 'all' ? 'All' : CATEGORY_LABELS[f]} <span>{count(f)}</span>
             </button>
           ))}
-        </div>
+        </div>}
       </div>
 
       <div className="tp-body">
@@ -161,6 +166,13 @@ export function ThemePicker({
               );
             })}
           </ul>
+        )}
+        {open && short && (
+          <div className="tp-more">
+            <button type="button" className="tp-more-btn" onClick={() => setShowAll(true)}>
+              See all {THEME_CARDS.length} themes
+            </button>
+          </div>
         )}
       </div>
 

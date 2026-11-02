@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { PAGE_CREATED_COOKIE, SIGNUP_COOKIE } from '@/app/lib/signup-cookie';
+import { noteBrowsing } from '@/app/lib/start-intent';
 
 // Google Ads "Sign up" conversion, once it's created in Google Ads:
 // NEXT_PUBLIC_GOOGLE_ADS_SIGNUP_SEND_TO = 'AW-…/…' (the snippet's send_to).
@@ -32,6 +33,10 @@ function takeCookie(name: string): string | null {
 //   Tag Manager.
 export default function SignupTracker() {
   const pathname = usePathname();
+
+  // The landing page or theme the visitor is looking at, for the
+  // create-event form's starting theme (app/lib/start-intent.ts).
+  useEffect(() => { noteBrowsing(pathname); }, [pathname]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {

@@ -5,7 +5,8 @@ import type { EditorTarget } from '@/app/ui/themes/open-editor';
 // "Your page is 3/6 ready": the steps that turn a new page into one worth
 // sharing, each with the dashboard screen where it's done. Shown at the top
 // of the sidebar with the next step suggested. The create form asks only for
-// the basics, so the time, place and the owner's name come in here.
+// the name (the date is optional), so the date, time, place and the owner's
+// name come in here.
 // action 'profile' opens the profile (name and phone, kept on the account, so
 // that step is done for every page once it's filled in). Steps done in the
 // page editor name the popup to open there (app/ui/themes/open-editor.ts).
@@ -40,8 +41,8 @@ export function setupSteps(page: UserPage, counts: SetupCounts): SetupStep[] {
   const filled = (v?: string | null) => !!v && v.trim() !== '';
   return [
     {
-      label: 'Add the time and place',
-      done: filled(page.event_time) && (page.location === 'virtual' ? filled(page.url) : filled(page.formatted_address) || filled(page.venue_name)),
+      label: filled(page.event_date) ? 'Add the time and place' : 'Add the date, time and place',
+      done: filled(page.event_date) && filled(page.event_time) && (page.location === 'virtual' ? filled(page.url) : filled(page.formatted_address) || filled(page.venue_name)),
       section: '',
       open: 'location',
     },

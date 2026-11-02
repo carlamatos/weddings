@@ -63,12 +63,13 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
 
   const UserPageSchema = z.object({
     id: z.string(),
-    // The create form asks only for the type, name, date and theme (and the
-    // page address); the time, place, welcome message and contact details
-    // are added afterwards from the page editor (see setup-progress.ts).
+    // The create form asks only for the name (with the theme and page
+    // address already picked) and, optionally, the date; the time, place,
+    // welcome message and contact details are added afterwards from the page
+    // editor (see setup-progress.ts).
     event_name: z.string().trim().min(1, { message: 'Please give your event a name.' }).max(200),
     description: z.string().max(5000),
-    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please choose the date of your event.' }),
+    event_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Please choose a valid date.' }).optional(),
     event_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid time.' }).optional(),
     event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
     event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
@@ -102,8 +103,6 @@ const CreateUserPage = UserPageSchema.omit({ id: true, create_at: true }).refine
 export type UserPageState = {
     errors?: {
       event_name?: string[];
-      given_name?: string[];
-      family_name?: string[];
       description?: string[];
       event_date?: string[];
       event_time?: string[];
@@ -126,6 +125,30 @@ export type UserPageState = {
   };
 
 
+// The first of `slug`, `slug-1234`, … that no page uses and isn't reserved
+// (the slug itself if the check fails: creating the page re-checks it).
+async function freeSlug(slug: string): Promise<string> {
+  try {
+    for (let i = 0; i < 6; i++) {
+      const candidate = i === 0 ? slug : `${slug.slice(0, 180)}-${randomInt(1000, 100000)}`;
+      if (!isReservedSlug(candidate) && (await fetchUserPage(candidate)) === undefined) return candidate;
+    }
+  } catch {
+    // Fall through.
+  }
+  return slug;
+}
+
+// Pages can be made before the date is known (the create form's "We haven't
+// picked a date yet"), so event_date may be empty. Done on first use, so a
+// database that hasn't run /api/migrate since still works (it's there too).
+let optionalDateReady: Promise<unknown> | null = null;
+function ensureOptionalEventDate(): Promise<unknown> {
+  optionalDateReady ??= sql`ALTER TABLE user_page ALTER COLUMN event_date DROP NOT NULL`
+    .catch((error) => { optionalDateReady = null; throw error; });
+  return optionalDateReady;
+}
+
   export async function createUserPage(prevState: UserPageState, formData: FormData): Promise<UserPageState> {
 
     const session = await auth();
@@ -145,10 +168,15 @@ export type UserPageState = {
       if (!verified && quota.count >= 1) return { message: `${VERIFY_EMAIL_FIRST} Then you can create more event pages.` };
     }
 
-    const formSlug = formData.get('slug');
+    let formSlug = formData.get('slug');
 
     // Addresses used by the site's own pages (mygala.ca/faq, /features, …)
-    // would hide the event page, so they can't be claimed.
+    // would hide the event page, so they can't be claimed. An address the
+    // host didn't pick themselves (slugAuto: the form's first suggestion)
+    // gets a number added instead of an error when it's reserved or taken.
+    if (typeof formSlug === 'string' && formSlug.trim() !== '' && formData.get('slugAuto') === '1') {
+      formSlug = await freeSlug(formSlug);
+    }
     if (typeof formSlug === 'string' && isReservedSlug(formSlug)) {
       return {
         errors: { slug: [`The URL '${formSlug}' is reserved, please choose another`] },
@@ -173,7 +201,8 @@ export type UserPageState = {
 
     const validatedFields = CreateUserPage.safeParse({
       event_name: formData.get('eventName'),
-      event_date: formData.get('eventDate'),
+      // "We haven't picked a date yet": no date until it's added in the editor.
+      event_date: (formData.get('eventDate') as string) || undefined,
       event_time: (formData.get('eventTime') as string) || undefined,
       event_end_date: (formData.get('eventEndDate') as string) || undefined,
       event_end_time: (formData.get('eventEndTime') as string) || undefined,
@@ -183,7 +212,7 @@ export type UserPageState = {
       // The page's contact email starts as the account's; changed in the editor.
       email: (formData.get('email') as string) || session?.user?.email || '',
       phone: (formData.get('phone') as string) ?? '',
-      slug: formData.get('slug'),
+      slug: formSlug,
       description: (formData.get('description') as string) ?? '',
       url: (formData.get('url') as string) ?? '',
       street_address: (formData.get('streetAddress') as string) ?? '',
@@ -205,26 +234,6 @@ export type UserPageState = {
     const { event_name, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_slug, location, email, slug, url: rawUrl, street_address, unit_number, postal_code, city, country, place_id, formatted_address } = validatedFields.data;
     const url = safeHttpUrl(rawUrl);
 
-    // The host's first and last name, asked for on this form when the
-    // account doesn't have both yet (and then required).
-    const givenName = String(formData.get('givenName') ?? '').trim().slice(0, 100);
-    const familyName = String(formData.get('familyName') ?? '').trim().slice(0, 100);
-    try {
-      const owner = await sql<{ given_name: string | null; family_name: string | null }>`SELECT given_name, family_name FROM users WHERE id = ${limitUserId}`;
-      const named = !!owner.rows[0]?.given_name?.trim() && !!owner.rows[0]?.family_name?.trim();
-      if (!named || givenName || familyName) {
-        if (!givenName || !familyName) {
-          const errors: NonNullable<UserPageState['errors']> = {};
-          if (!givenName) errors.given_name = ['Please enter your first name.'];
-          if (!familyName) errors.family_name = ['Please enter your last name.'];
-          return { errors, message: 'Please enter your first and last name.' };
-        }
-        await sql`UPDATE users SET given_name = ${givenName}, family_name = ${familyName}, name = ${`${givenName} ${familyName}`} WHERE id = ${limitUserId}`;
-      }
-    } catch (error) {
-      console.error('Failed to save the host’s name:', error);
-      return { message: 'Something went wrong creating your page. Please try again.' };
-    }
     const venue_name = (formData.get('venueName') as string) || null;
     const user_phone = cleanPhone(validatedFields.data.phone);
 
@@ -256,6 +265,7 @@ export type UserPageState = {
       // Plus is bought per page after it's created (below). The one exception
       // is a purchase made before the account had any page, which carries
       // over to this first page.
+      if (!event_date) await ensureOptionalEventDate();
       prepaid = user_id ? await hasPrepaidPlus(user_id) : false;
       const planRow = prepaid ? await sql`SELECT plan_expires_at FROM user_plans WHERE user_id = ${user_id} LIMIT 1` : null;
       const plan_type = prepaid ? 'paid' : 'free';
@@ -267,7 +277,7 @@ export type UserPageState = {
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
           place_id, formatted_address, venue_name, plan_type, plan_expires_at, status
         ) VALUES (
-          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
+          ${user_id}, ${event_name}, ${description}, ${description}, ${event_date ?? null}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
           ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}
         )

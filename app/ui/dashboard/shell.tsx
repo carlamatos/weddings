@@ -68,22 +68,28 @@ export default async function DashboardShell({
       <div className="dash-main">
         <TopNav page={page} status={status} setup={setup} />
         <div className="dash-content">
+          {/* One line, so it doesn't fill a phone's screen; what's locked is
+              behind "What's locked?" (each locked action also says so). */}
           {userId && !verifiedEmail && (
             <div
               role="alert"
               style={{
                 background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800',
-                borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+                borderRadius: 10, padding: '10px 14px', fontSize: 14, lineHeight: 1.5, marginTop: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px 16px', flexWrap: 'wrap',
               }}
             >
-              <span>
-                <strong>Verify your email to unlock everything.</strong> We sent a link to {session?.user?.email ?? 'your email address'}.
-                Until you click it, your page stays a draft only you can see, and sending invitations, texting links to guests,
-                connecting a domain and uploading more than {UNVERIFIED_UPLOADS_PER_DAY} photos a day are locked. Everything else — your page, your
-                invitation, your guest list — you can build right now.
-              </span>
-              <ResendVerificationButton />
+              <details style={{ flex: '1 1 240px', minWidth: 0 }}>
+                <summary style={{ cursor: 'pointer', overflowWrap: 'anywhere' }}>
+                  <strong>Verify your email</strong> — we sent a link to {session?.user?.email ?? 'your email address'}.{' '}
+                  <span style={{ textDecoration: 'underline', textUnderlineOffset: 2, whiteSpace: 'nowrap' }}>What&rsquo;s locked?</span>
+                </summary>
+                <p style={{ margin: '6px 0 0' }}>
+                  Until then your page is a draft only you can see, and sending invitations, texting guests, connecting a domain
+                  and uploading more than {UNVERIFIED_UPLOADS_PER_DAY} photos a day are locked. Everything else you can build now.
+                </p>
+              </details>
+              <ResendVerificationButton label="Resend email" />
             </div>
           )}
           {draft && page && verifiedEmail && (

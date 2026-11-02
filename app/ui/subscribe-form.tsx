@@ -7,63 +7,63 @@ import { createUserPage, UserPageState } from '../lib/actions';
 import { themeRegistry } from './themes/registry';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
 import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme-picker';
-import { clearStartIntent, readStartIntent, type StartIntent } from '../lib/start-intent';
+import { clearStartIntent, readBrowsing, readStartIntent, type StartIntent, type StartOccasion } from '../lib/start-intent';
 import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
 import { AuthDateInput } from './auth-date-input';
 
-// Create an event page in two steps: 1. the theme, from the full-screen
-// gallery (theme-picker.tsx, which opens straight away; the type of event
-// comes from the theme); 2. the event's name, its date, the host's own name
-// (only until the account has one) and the page address (suggested from the
-// name; the host picks one), beside previews of the invitation and the
-// website in that theme. Everything else — the time, the place, the
-// welcome message and the contact details — comes after,
-// from the page editor and the setup checklist (app/lib/setup-progress.ts),
-// so a new host sees their page straight away. Pages start Free; Plus is an
-// upgrade from the dashboard.
+// Create an event page on one screen, asking as little as possible: the
+// event's name is the only required field. The theme starts chosen — the
+// landing page's (app/lib/start-intent.ts), else the theme page or landing
+// page the visitor last browsed, else the occasion's first theme — and
+// "Change theme" opens a short list of that occasion's themes (with "See
+// all"). The date is optional ("We haven't picked a date yet"), and the page
+// address is the first free suggestion from the name, with "Change" to pick
+// another. Everything else — the date if skipped, the time, the place, the
+// host's name, the welcome message — comes after, from the page editor and
+// the setup checklist (app/lib/setup-progress.ts), so a new host sees their
+// page straight away. Pages start Free; Plus is an upgrade from the dashboard.
 // accountEmail: the signed-in account's email — the page's contact email
 // starts as this, and can be changed in the editor.
 // prepaid: Plus was already bought before this account had a page, so this
 // page gets it without another payment.
-// From a landing page (app/lib/start-intent.ts): the theme the visitor
-// picked there is already chosen (straight to step 2), and when they came to
-// make an invitation the wording says so and the new page opens on its
-// invitation designer instead of the page editor.
-// needsName: the account has no first and last name yet, so step 2 asks
-// for them (required); ownerName fills in whatever part it does have.
-// start: the same choice, from the address instead of browser storage (a
-// signed-in host coming from /design-your-invitation); it also brings the
-// event's name and date typed there.
-export default function Form({ prepaid = false, accountEmail = '', needsName = false, ownerName, start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; needsName?: boolean; ownerName?: { given: string; family: string }; start?: StartIntent | null }) {
+// When the host came to make an invitation the wording says so and the new
+// page opens on its invitation designer instead of the page editor.
+// start: the landing page's choice, from the address instead of browser
+// storage (a signed-in host coming from /design-your-invitation); it also
+// brings the event's name and date typed there.
+const DEFAULT_OCCASION: StartOccasion = 'wedding';
+const SHORT_LIST = 6;
+
+export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null }) {
   const [eventName, setEventName] = useState('');
-  // Controlled, so a failed submit (the form resets) keeps what was typed.
-  const [givenName, setGivenName] = useState(ownerName?.given ?? '');
-  const [familyName, setFamilyName] = useState(ownerName?.family ?? '');
   const [eventDate, setEventDate] = useState('');
+  const [noDate, setNoDate] = useState(false);
   const [themeSlug, setThemeSlug] = useState('');
-  const [step, setStep] = useState<1 | 2>(1);
   const [picking, setPicking] = useState(false);
   const [forInvitation, setForInvitation] = useState(false);
   const [firstThemes, setFirstThemes] = useState<string[]>([]);
-  // Step 1 is the gallery itself: open it on arrival — unless a landing page
-  // already chose the theme (browser storage is only readable after mount).
+  const [changingSlug, setChangingSlug] = useState(false);
+  // The starting theme and the short list, after mount (browser storage).
   useEffect(() => {
     const start = startFromAddress ?? readStartIntent();
-    /* eslint-disable react-hooks/set-state-in-effect -- the dialog opens after mount (showModal needs the DOM); the landing page's choice lives in browser storage */
+    const browsed = readBrowsing();
+    const known = (slug?: string) => !!slug && !!themeRegistry[slug] && !!themeCard(slug);
+    /* eslint-disable react-hooks/set-state-in-effect -- the landing page's choice and the browsing history live in browser storage */
     if (start?.intent === 'invitation') setForInvitation(true);
     if (start?.name) setEventName(start.name);
     if (start?.date) setEventDate(start.date);
-    setFirstThemes(occasionThemes(start?.occasion, start?.theme));
-    if (start?.theme && themeRegistry[start.theme] && themeCard(start.theme)) {
-      setThemeSlug(start.theme);
-      setStep(2);
-    } else {
-      setPicking(true);
-    }
+    // A landing page's own occasion beats a theme browsed elsewhere.
+    const occasion = start?.occasion ?? browsed.occasion ?? DEFAULT_OCCASION;
+    const browsedTheme = start?.occasion ? undefined : browsed.theme;
+    const list = occasionThemes(occasion);
+    const theme = [start?.theme, browsedTheme, ...list].find(known) ?? list[0];
+    setThemeSlug(theme);
+    // The short list: the chosen theme first, then the occasion's.
+    const ordered = occasionThemes(occasion, theme);
+    setFirstThemes(ordered.includes(theme) ? ordered : [theme, ...ordered]);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [startFromAddress]);
-  const [themeMissing, setThemeMissing] = useState(false);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
   const eventType = themeRegistry[themeSlug]?.category ?? '';
   const [selectedSlug, setSelectedSlug] = useState<string>('');
@@ -86,7 +86,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
   // taken ones can be skipped.
   const slugCandidates = useMemo(() => {
     const base = slugify(eventName) || 'your-event';
-    const year = eventDate ? eventDate.slice(0, 4) : '';
+    const year = eventDate && !noDate ? eventDate.slice(0, 4) : '';
     const all = [
       { id: 'name',    value: base,                                       label: 'Event name only' },
       { id: 'date',    value: year ? `${base}-${year}` : `${base}-year`,   label: 'Event name + year' },
@@ -94,7 +94,7 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
       { id: 'random2', value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: 'Event name + unique number' },
     ];
     return all.filter((o, i) => all.findIndex((x) => x.value === o.value) === i);
-  }, [eventName, eventDate, randomSuffix, randomSuffix2]);
+  }, [eventName, eventDate, noDate, randomSuffix, randomSuffix2]);
 
   // Ask which suggestions are taken, once typing pauses.
   useEffect(() => {
@@ -130,175 +130,131 @@ export default function Form({ prepaid = false, accountEmail = '', needsName = f
   const activeSlug = slugOptions.some((o) => o.value === selectedSlug) ? selectedSlug : slugOptions[0].value;
   const chooseTheme = (slug: string) => {
     setThemeSlug(slug);
-    setThemeMissing(false);
     setPicking(false);
-    setStep(2);
   };
 
   return (
-    <div className={`auth-card${step === 2 ? ' setup-card--wide' : ''}`} style={step === 2 ? undefined : { maxWidth: 620 }}>
-      <ol className="setup-steps" aria-label="Create your event">
-        <li className={step === 1 ? 'is-current' : 'is-done'} aria-current={step === 1 ? 'step' : undefined}>
-          <span className="setup-steps__num">1</span>Theme
-        </li>
-        <li className={step === 2 ? 'is-current' : undefined} aria-current={step === 2 ? 'step' : undefined}>
-          <span className="setup-steps__num">2</span>Style, name &amp; address
-        </li>
-      </ol>
+    <div className="auth-card setup-card--wide">
+      <h1 className="auth-heading">{forInvitation ? 'Create your invitation' : 'Create your event page'}</h1>
+      <p className="auth-subheading">
+        {forInvitation
+          ? 'Give your event a name to start. Next you’ll finish your invitation, add the time and place, and share the link.'
+          : <>Give your event a name to start. You&rsquo;ll add the date, the place and everything else on your page.</>}
+      </p>
 
-      {step === 1 ? (
-        <>
-          <h1 className="auth-heading">{forInvitation ? 'Choose your invitation design' : 'Choose your theme'}</h1>
-          <p className="auth-subheading">
-            {forInvitation
-              ? 'Pick a design. Your invitation and the page it opens to will match. You can change it any time.'
-              : 'Pick the design for your event page. You can change it any time.'}
-          </p>
-          <button
-            type="button"
-            id="choose-theme"
-            className={`setup-choose-theme${themeMissing ? ' is-missing' : ''}`}
-            onClick={() => setPicking(true)}
-          >
-            <span className="setup-choose-theme__title">{chosenTheme ? `Chosen: ${chosenTheme.name}` : 'Browse the themes'}</span>
-            <span className="setup-choose-theme__sub">See all {Object.keys(themeRegistry).length} designs — weddings, celebrations, business and more</span>
-          </button>
-          {chosenTheme && (
-            <button className="auth-btn" type="button" style={{ marginTop: 16 }} onClick={() => setStep(2)}>
-              Next <ArrowRightIcon style={{ width: 16, height: 16 }} />
-            </button>
-          )}
-        </>
-      ) : (
-        <>
-          <h1 className="auth-heading">Choose your style for your invitations and website</h1>
-          <p className="auth-subheading">
-            {forInvitation
-              ? 'Your invitation and the website it opens to share one design. Add the name and the date. Next you’ll add the time and place, finish your invitation and share the link.'
-              : <>Your invitations and website share one design. Add the name, the date and your website&rsquo;s address. You&rsquo;ll add the time, place and the rest on your page.</>}
-          </p>
-
-          {state.message && (
-            <div className="auth-error">
-              <ExclamationCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
-              {state.message}
-            </div>
-          )}
-          {state.errors?.theme_slug && <p className="auth-field-error">{state.errors.theme_slug[0]}</p>}
-          {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
-
-          <div className="setup-style">
-          <form
-            className="setup-style__form"
-            action={formAction}
-            // The theme is required, but it's a hidden field the browser can't check.
-            onSubmit={(e) => {
-              if (themeSlug) { clearStartIntent(); return; }
-              e.preventDefault();
-              setThemeMissing(true);
-              setStep(1);
-            }}
-          >
-            <input type="hidden" name="eventType" value={eventType} />
-            <input type="hidden" name="themeSlug" value={themeSlug} />
-            <input type="hidden" name="slug" value={activeSlug} />
-            <input type="hidden" name="plan" value="free" />
-            <input type="hidden" name="location" value="address" />
-            <input type="hidden" name="email" value={accountEmail} />
-            {forInvitation && <input type="hidden" name="next" value="invitations" />}
-
-            <div className="auth-field">
-              <label className="auth-label" htmlFor="eventName">Event Name</label>
-              <div className="auth-input-wrap">
-                <input className="auth-input" id="eventName" type="text" name="eventName"
-                  value={eventName} onChange={(e) => setEventName(e.target.value)}
-                  placeholder={`e.g. ${chosenTheme?.sample.heading ?? (forInvitation ? 'The Smiths’ Christmas Party' : 'Sofia & James Wedding')}`} maxLength={200} autoFocus required />
-              </div>
-              {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
-            </div>
-
-            <div className="auth-field">
-              <label className="auth-label" htmlFor="eventDate">Event Date</label>
-              <AuthDateInput id="eventDate" name="eventDate" value={eventDate} onChange={(e) => setEventDate(e.target.value)} required />
-              {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
-            </div>
-
-            {needsName && (
-              <div className="setup-name-row">
-                <div className="auth-field">
-                  <label className="auth-label" htmlFor="givenName">Your first name</label>
-                  <div className="auth-input-wrap">
-                    <input className="auth-input" id="givenName" type="text" name="givenName" value={givenName} onChange={(e) => setGivenName(e.target.value)} maxLength={100} autoComplete="given-name" required />
-                  </div>
-                  {state.errors?.given_name && <p className="auth-field-error">{state.errors.given_name[0]}</p>}
-                </div>
-                <div className="auth-field">
-                  <label className="auth-label" htmlFor="familyName">Your last name</label>
-                  <div className="auth-input-wrap">
-                    <input className="auth-input" id="familyName" type="text" name="familyName" value={familyName} onChange={(e) => setFamilyName(e.target.value)} maxLength={100} autoComplete="family-name" required />
-                  </div>
-                  {state.errors?.family_name && <p className="auth-field-error">{state.errors.family_name[0]}</p>}
-                </div>
-              </div>
-            )}
-
-            {/* Page address: suggestions from the name, taken ones left out. */}
-            <div className="auth-field">
-              <p className="auth-label">Your page address</p>
-              <div className="setup-slug-options" role="radiogroup" aria-label="Your page address">
-                {slugOptions.map((opt) => (
-                  <label
-                    key={opt.id}
-                    className={`setup-slug-option${activeSlug === opt.value ? ' setup-slug-option--active' : ''}`}
-                  >
-                    <input
-                      type="radio"
-                      name="slugRadio"
-                      value={opt.value}
-                      checked={activeSlug === opt.value}
-                      onChange={() => setSelectedSlug(opt.value)}
-                    />
-                    <span className="setup-slug-option__value">mygala.ca/{opt.value}</span>
-                    <span className="setup-slug-option__label">{opt.label}</span>
-                  </label>
-                ))}
-              </div>
-              {state.errors?.slug && <p className="auth-field-error">{state.errors.slug[0]}</p>}
-            </div>
-
-            <div className="setup-nav">
-              <button type="button" className="setup-back" onClick={() => setStep(1)}>← Back</button>
-              <button className="auth-btn" type="submit" disabled={isPending}>
-                {isPending ? 'Creating…' : forInvitation ? 'Design my invitation' : 'Create my event page'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
-              </button>
-            </div>
-            <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
-              {prepaid
-                ? <><strong>Plus is already paid</strong> — this page includes every Plus feature for {PLAN_TERM_MONTHS} months.</>
-                : 'Free to start. Upgrade this event to Plus any time from your dashboard.'}
-            </p>
-          </form>
-
-          {chosenTheme && (
-            <div className="setup-style__previews">
-              <StylePreviews themeSlug={chosenTheme.slug} eventName={eventName} eventDate={eventDate} />
-              <div className="setup-chosen-theme__row setup-style__theme">
-                <span>
-                  <strong>{chosenTheme.name}</strong>
-                  <span className="setup-chosen-theme__cat">{CATEGORY_LABELS[chosenTheme.category]}</span>
-                </span>
-                <button type="button" className="setup-theme-change" onClick={() => setPicking(true)}>
-                  Change theme
-                </button>
-              </div>
-              <p className="setup-style__note">You can change the colours, fonts and design of your invitation and website in the editor later.</p>
-            </div>
-          )}
-          </div>
-        </>
+      {state.message && (
+        <div className="auth-error">
+          <ExclamationCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
+          {state.message}
+        </div>
       )}
+      {state.errors?.theme_slug && <p className="auth-field-error">{state.errors.theme_slug[0]}</p>}
+      {state.errors?.event_type && <p className="auth-field-error">{state.errors.event_type[0]}</p>}
 
-      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} first={firstThemes} compactOnPhones />
+      <div className="setup-style">
+      <form
+        className="setup-style__form"
+        action={formAction}
+        onSubmit={() => clearStartIntent()}
+      >
+        <input type="hidden" name="eventType" value={eventType} />
+        <input type="hidden" name="themeSlug" value={themeSlug} />
+        <input type="hidden" name="slug" value={activeSlug} />
+        {/* Not picked by the host: if it's taken by the time the page is made, another is chosen. */}
+        {!selectedSlug && <input type="hidden" name="slugAuto" value="1" />}
+        <input type="hidden" name="plan" value="free" />
+        <input type="hidden" name="location" value="address" />
+        <input type="hidden" name="email" value={accountEmail} />
+        {forInvitation && <input type="hidden" name="next" value="invitations" />}
+
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="eventName">Event Name</label>
+          <div className="auth-input-wrap">
+            <input className="auth-input" id="eventName" type="text" name="eventName"
+              value={eventName} onChange={(e) => setEventName(e.target.value)}
+              placeholder={`e.g. ${chosenTheme?.sample.heading ?? (forInvitation ? 'The Smiths’ Christmas Party' : 'Sofia & James Wedding')}`} maxLength={200} autoFocus required />
+          </div>
+          {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
+        </div>
+
+        <div className="auth-field">
+          <label className="auth-label" htmlFor="eventDate">Event Date <span className="auth-label-optional">(optional)</span></label>
+          {!noDate && <AuthDateInput id="eventDate" name="eventDate" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />}
+          <label className="setup-date-tbd">
+            <input type="checkbox" checked={noDate} onChange={(e) => setNoDate(e.target.checked)} />
+            We haven&rsquo;t picked a date yet
+          </label>
+          {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
+        </div>
+
+        {/* Phones show the previews under the form: the theme, up here too. */}
+        {chosenTheme && (
+          <div className="setup-slug-line setup-theme-line">
+            <span>Theme: <strong>{chosenTheme.name}</strong></span>
+            <button type="button" className="setup-slug-change" onClick={() => setPicking(true)}>Change your theme</button>
+          </div>
+        )}
+
+        {/* Page address: the first free suggestion, or another one after "Change". */}
+        <div className="auth-field">
+          <p className="auth-label">Your page address</p>
+          <div className="setup-slug-line">
+            <strong>mygala.ca/{activeSlug}</strong>
+            <button type="button" className="setup-slug-change" aria-expanded={changingSlug} onClick={() => setChangingSlug((v) => !v)}>
+              {changingSlug ? 'Done' : 'Change'}
+            </button>
+          </div>
+          {changingSlug && (
+            <div className="setup-slug-options" role="radiogroup" aria-label="Your page address">
+              {slugOptions.map((opt) => (
+                <label
+                  key={opt.id}
+                  className={`setup-slug-option${activeSlug === opt.value ? ' setup-slug-option--active' : ''}`}
+                >
+                  <input
+                    type="radio"
+                    name="slugRadio"
+                    value={opt.value}
+                    checked={activeSlug === opt.value}
+                    onChange={() => setSelectedSlug(opt.value)}
+                  />
+                  <span className="setup-slug-option__value">mygala.ca/{opt.value}</span>
+                  <span className="setup-slug-option__label">{opt.label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+          {state.errors?.slug && <p className="auth-field-error">{state.errors.slug[0]}</p>}
+        </div>
+
+        <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>
+          {isPending ? 'Creating…' : forInvitation ? 'Design my invitation' : 'Create my event page'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
+        </button>
+        <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
+          {prepaid
+            ? <><strong>Plus is already paid</strong> — this page includes every Plus feature for {PLAN_TERM_MONTHS} months.</>
+            : 'Free to start. Upgrade this event to Plus any time from your dashboard.'}
+        </p>
+      </form>
+
+      {chosenTheme && (
+        <div className="setup-style__previews">
+          <StylePreviews themeSlug={chosenTheme.slug} eventName={eventName} eventDate={noDate ? '' : eventDate} />
+          <div className="setup-chosen-theme__row setup-style__theme">
+            <span>
+              <strong>{chosenTheme.name}</strong>
+              <span className="setup-chosen-theme__cat">{CATEGORY_LABELS[chosenTheme.category]}</span>
+            </span>
+            <button type="button" className="setup-theme-change" onClick={() => setPicking(true)}>
+              Change theme
+            </button>
+          </div>
+          <p className="setup-style__note">You can change the colours, fonts and design of your invitation and website in the editor later.</p>
+        </div>
+      )}
+      </div>
+
+      <ThemePicker open={picking} selected={themeSlug} onChoose={chooseTheme} onClose={() => setPicking(false)} first={firstThemes} limit={SHORT_LIST} compactOnPhones />
     </div>
   );
 }
