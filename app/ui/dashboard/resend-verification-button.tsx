@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-export default function ResendVerificationButton() {
+export default function ResendVerificationButton({ label = 'Resend verification email' }: { label?: string }) {
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   async function handleClick() {
@@ -19,12 +19,12 @@ export default function ResendVerificationButton() {
       onClick={handleClick}
       disabled={state !== 'idle'}
       style={{
-        padding: '9px 18px', borderRadius: 8, border: '1px solid #8A6800',
+        padding: '7px 14px', borderRadius: 8, border: '1px solid #8A6800',
         background: 'transparent', color: '#8A6800', fontSize: 13, fontWeight: 600,
         cursor: state === 'idle' ? 'pointer' : 'default', whiteSpace: 'nowrap',
       }}
     >
-      {state === 'sent' ? 'Email sent' : state === 'sending' ? 'Sending…' : 'Resend verification email'}
+      {state === 'sent' ? 'Email sent' : state === 'sending' ? 'Sending…' : label}
     </button>
   );
 }
