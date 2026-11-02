@@ -1018,6 +1018,21 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .theme-edit-bar p { flex: 1 1 260px; margin: 0; font-size: 14px; line-height: 1.45; color: #4A4350; }
 .theme-edit-bar p strong { color: #241F2B; }
+/* Unverified accounts: a slim line above the bar (not pinned) — the link
+   that shows what's locked, the Resend button, and the details. */
+.theme-edit-verify-strip { padding: 5px 16px; background: #FFF8E7; border-bottom: 1px solid #E8D9A8; font-family: system-ui, sans-serif; }
+.theme-edit-verify-row { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: nowrap; }
+.theme-edit-verify {
+  border: none; background: none; padding: 0; cursor: pointer; font: 13px/1.4 system-ui, sans-serif; color: #8A6800;
+  text-decoration: underline; text-underline-offset: 2px; text-align: left; white-space: nowrap;
+}
+.theme-edit-verify-short { display: none; }
+.theme-edit-locked { max-width: 720px; margin: 4px auto 2px; font-size: 12px; line-height: 1.45; color: #8A6800; text-align: center; }
+@media (max-width: 600px) {
+  .theme-edit-verify-long { display: none; }
+  .theme-edit-verify-short { display: inline; }
+}
+@media (max-width: 380px) { .theme-edit-verify-why { display: none; } }
 .theme-edit-modes { display: inline-flex; padding: 3px; border-radius: 10px; background: #F3EEEA; }
 .theme-edit-modes button {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; border-radius: 8px;
