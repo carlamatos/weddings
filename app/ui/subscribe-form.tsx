@@ -7,7 +7,7 @@ import { createUserPage, UserPageState } from '../lib/actions';
 import { themeRegistry } from './themes/registry';
 import { PLAN_TERM_MONTHS } from '../lib/plans';
 import { CATEGORY_LABELS, ThemePicker, occasionThemes, themeCard } from './theme-picker';
-import { clearStartIntent, readBrowsing, readStartIntent, type StartIntent, type StartOccasion } from '../lib/start-intent';
+import { clearStartIntent, readBrowsing, readStartIntent, type StartIntent } from '../lib/start-intent';
 import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
 import { AuthDateInput } from './auth-date-input';
@@ -15,9 +15,9 @@ import { AuthDateInput } from './auth-date-input';
 // Create an event page on one screen, asking as little as possible: the
 // event's name is the only required field. The theme starts chosen — the
 // landing page's (app/lib/start-intent.ts), else the theme page or landing
-// page the visitor last browsed, else the occasion's first theme — and
-// "Change theme" opens a short list of that occasion's themes (with "See
-// all"). The date is optional ("We haven't picked a date yet"), and the page
+// page the visitor last browsed, else that occasion's first theme, else
+// "Simple", the neutral theme — and "Change your theme" opens a short list
+// of that occasion's themes, or one of each kind of event (with "See all"). The date is optional ("We haven't picked a date yet"), and the page
 // address is the first free suggestion from the name, with "Change" to pick
 // another. Everything else — the date if skipped, the time, the place, the
 // host's name, the welcome message — comes after, from the page editor and
@@ -32,7 +32,9 @@ import { AuthDateInput } from './auth-date-input';
 // start: the landing page's choice, from the address instead of browser
 // storage (a signed-in host coming from /design-your-invitation); it also
 // brings the event's name and date typed there.
-const DEFAULT_OCCASION: StartOccasion = 'wedding';
+const DEFAULT_THEME = 'simple';
+// The short list without an occasion: the neutral theme, then one of each kind.
+const MIXED_THEMES = [DEFAULT_THEME, 'the-day', 'balloons', 'summit', 'community', 'christmas-party'];
 const SHORT_LIST = 6;
 
 export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null }) {
@@ -44,6 +46,18 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const [forInvitation, setForInvitation] = useState(false);
   const [firstThemes, setFirstThemes] = useState<string[]>([]);
   const [changingSlug, setChangingSlug] = useState(false);
+  // The previews only beside the form (wide screens). Phones and tablets would
+  // show them under the Create button, mostly unseen, so they aren't rendered
+  // there at all and their pictures and fonts don't load; the new page opens
+  // right after anyway, and the theme line above the button names the design.
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia('(min-width: 1100px)');
+    const update = () => setWide(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
   // The starting theme and the short list, after mount (browser storage).
   useEffect(() => {
     const start = startFromAddress ?? readStartIntent();
@@ -54,14 +68,13 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     if (start?.name) setEventName(start.name);
     if (start?.date) setEventDate(start.date);
     // A landing page's own occasion beats a theme browsed elsewhere.
-    const occasion = start?.occasion ?? browsed.occasion ?? DEFAULT_OCCASION;
+    const occasion = start?.occasion ?? browsed.occasion;
     const browsedTheme = start?.occasion ? undefined : browsed.theme;
-    const list = occasionThemes(occasion);
-    const theme = [start?.theme, browsedTheme, ...list].find(known) ?? list[0];
+    const list = occasion ? occasionThemes(occasion) : MIXED_THEMES;
+    const theme = [start?.theme, browsedTheme, ...list].find(known) ?? DEFAULT_THEME;
     setThemeSlug(theme);
-    // The short list: the chosen theme first, then the occasion's.
-    const ordered = occasionThemes(occasion, theme);
-    setFirstThemes(ordered.includes(theme) ? ordered : [theme, ...ordered]);
+    // The short list: the chosen theme first, then the occasion's (or the mix).
+    setFirstThemes([theme, ...list.filter((s) => s !== theme)]);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [startFromAddress]);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
@@ -187,7 +200,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
           {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
         </div>
 
-        {/* Phones show the previews under the form: the theme, up here too. */}
+        {/* Phones and tablets have no previews: the theme is named here instead. */}
         {chosenTheme && (
           <div className="setup-slug-line setup-theme-line">
             <span>Theme: <strong>{chosenTheme.name}</strong></span>
@@ -237,7 +250,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         </p>
       </form>
 
-      {chosenTheme && (
+      {chosenTheme && wide && (
         <div className="setup-style__previews">
           <StylePreviews themeSlug={chosenTheme.slug} eventName={eventName} eventDate={noDate ? '' : eventDate} />
           <div className="setup-chosen-theme__row setup-style__theme">

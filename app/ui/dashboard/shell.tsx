@@ -5,12 +5,11 @@ import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
 import { sectionStatus } from '@/app/lib/section-status';
 import { fetchSetupCounts, setupSteps } from '@/app/lib/setup-progress';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
-import { needsTotpChallenge, UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
+import { needsTotpChallenge } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
 import TopNav from '@/app/ui/dashboard/topnav';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
 import { PlusProvider } from '@/app/ui/dashboard/plus-gate';
-import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import PublishButton from '@/app/ui/dashboard/publish-button';
 import { greatVibes } from '@/app/ui/fonts';
 import { siteHref } from '@/app/lib/app-url';
@@ -68,30 +67,6 @@ export default async function DashboardShell({
       <div className="dash-main">
         <TopNav page={page} status={status} setup={setup} />
         <div className="dash-content">
-          {/* One line, so it doesn't fill a phone's screen; what's locked is
-              behind "What's locked?" (each locked action also says so). */}
-          {userId && !verifiedEmail && (
-            <div
-              role="alert"
-              style={{
-                background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800',
-                borderRadius: 10, padding: '10px 14px', fontSize: 14, lineHeight: 1.5, marginTop: 16,
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px 16px', flexWrap: 'wrap',
-              }}
-            >
-              <details style={{ flex: '1 1 240px', minWidth: 0 }}>
-                <summary style={{ cursor: 'pointer', overflowWrap: 'anywhere' }}>
-                  <strong>Verify your email</strong> — we sent a link to {session?.user?.email ?? 'your email address'}.{' '}
-                  <span style={{ textDecoration: 'underline', textUnderlineOffset: 2, whiteSpace: 'nowrap' }}>What&rsquo;s locked?</span>
-                </summary>
-                <p style={{ margin: '6px 0 0' }}>
-                  Until then your page is a draft only you can see, and sending invitations, texting guests, connecting a domain
-                  and uploading more than {UNVERIFIED_UPLOADS_PER_DAY} photos a day are locked. Everything else you can build now.
-                </p>
-              </details>
-              <ResendVerificationButton label="Resend email" />
-            </div>
-          )}
           {draft && page && verifiedEmail && (
             <div
               role="status"

@@ -24,11 +24,15 @@ import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
 import EditorCanvas from '@/app/ui/themes/EditorCanvas';
+import { auth } from '@/auth';
+import { UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { areGuestPhotosOn } from '@/app/lib/guest-photos';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
+  // Unverified accounts see "Verify your email to publish your event." in the editor bar.
+  const verifiedEmail = (await auth())?.user?.verifiedEmail ?? true;
   const pageId = Number(userPage.id);
   const isPaid = isPagePaidAndLive(userPage);
   const [galleryImages, guestPhotosResult, guestSongsResult, pageSettings, eventProgram] = await Promise.all([
@@ -78,7 +82,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'Baby on the way!'
       : userPage.theme_slug === 'baby-shower-boy'
       ? "It's a boy!"
-      : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas' || userPage.theme_slug === 'merry' || userPage.theme_slug === 'gnomes'
+      : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas' || userPage.theme_slug === 'merry' || userPage.theme_slug === 'gnomes' || userPage.theme_slug === 'simple'
       ? "You're invited"
       : userPage.theme_slug === 'dia-de-los-muertos'
       ? 'Celebrate with us'
@@ -169,7 +173,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
 
   return (
     <div className="dash-editor-bleed">
-      <EditorCanvas>
+      <EditorCanvas unverified={verifiedEmail ? undefined : { uploadsPerDay: UNVERIFIED_UPLOADS_PER_DAY }}>
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         themeSlug={userPage.theme_slug}

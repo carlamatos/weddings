@@ -1,4 +1,5 @@
 import type { EventCategory } from '@/app/ui/themes/types';
+import { startQuery } from '@/app/lib/start-intent';
 
 // Showcase copy and sample hero content for each theme, used by the event
 // type pages (/events/...). Same wording as the homepage cards.
@@ -73,6 +74,9 @@ export const THEME_CARDS: ThemeCard[] = [
     sample: { heading: 'The Annual Gala Dinner', eventDate: '2027-03-20', city: 'Toronto', country: 'CA' } },
 
   // General events
+  { slug: 'simple', name: 'Simple', category: 'community', bg: '#FAF8F4',
+    desc: 'Ivory, stone and charcoal with clean type and plenty of space. Quiet and timeless, it suits any kind of event — add your own photo or keep it plain.',
+    sample: { heading: 'Our Summer Gathering', eventDate: '2027-07-17', city: 'Vancouver', country: 'BC' } },
   { slug: 'community', name: 'Community Day', category: 'community', bg: '#F6E0BD',
     desc: 'Warm cream and navy with a rainbow of festival bunting. Fun and elegant at once — built for block parties, fairs, and neighborhood celebrations.',
     sample: { heading: 'Maple Street Block Party', eventDate: '2027-06-19', city: 'Portland', country: 'OR' } },
@@ -113,12 +117,11 @@ export const CELEBRATION_THEMES = [
 ];
 
 // Where a theme's "Start your event page" button goes (the theme demos' top
-// bar): the "design your invitation" page for its kind of event, in that
-// theme — weddings and parties try it and sign up right there.
-export function tryPagePath(slug: string): string {
+// bar): the regular sign-up, keeping the theme (and its kind of event, for
+// the create form's short list of themes) — app/lib/start-intent.ts.
+export function signUpPath(slug: string): string {
   const card = THEME_CARDS.find((t) => t.slug === slug);
-  const page = card?.category === 'wedding' ? '/design-your-wedding-invitation'
-    : CELEBRATION_THEMES.includes(slug) ? '/design-your-party-invitation'
-    : '/design-your-invitation';
-  return card ? `${page}?theme=${slug}` : page;
+  if (!card) return '/register';
+  const occasion = card.category === 'wedding' ? 'wedding' : CELEBRATION_THEMES.includes(slug) ? 'celebration' : undefined;
+  return `/register${startQuery('website', slug, occasion)}`;
 }

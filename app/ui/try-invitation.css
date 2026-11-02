@@ -34,20 +34,19 @@
   .marketing-page .try-invite__related .mk-cards { grid-template-columns: 1fr; }
 }
 
-/* Phones: the invitation first (many visitors don't scroll), then the form,
-   then the website and the note (weddings: the website first). The previews' box steps aside so its
-   pieces can sit around the form. */
+/* Phones: the form first, then the previews under it — the invitation,
+   then the website and the note (weddings and parties: the website first).
+   The previews' box steps aside so its pieces can be ordered. */
 @media (max-width: 600px) {
   .try-invite .setup-style { gap: 28px; }
   .try-invite .setup-style__previews { display: contents; }
-  .try-invite .setup-preview--invitation { order: -1; }
-  .try-invite .setup-style__form { order: 0; }
+  .try-invite .setup-style__form { order: -1; }
+  .try-invite .setup-preview--invitation { order: 0; }
   .try-invite .setup-preview--website { order: 1; }
   .try-invite .setup-style__previews > .try-invite__note { order: 2; }
-  /* Weddings: the website first, then the form, then the invitation. */
-  .try-invite__card--website-first .setup-preview--website { order: -1; }
+  .try-invite__card--website-first .setup-preview--website { order: 0; }
   .try-invite__card--website-first .setup-preview--invitation { order: 1; }
-  /* Signing up: the step comes first, the website steps aside. */
+  /* Signing up: the website steps aside, the invitation stays under the step. */
   .try-invite__card.is-signing-up .setup-preview--website { display: none; }
 }
 

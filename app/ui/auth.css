@@ -240,7 +240,7 @@
   font-size: 14px; color: var(--ink-soft); line-height: 1.4;
 }
 .setup-slug-line strong { color: var(--ink); overflow-wrap: anywhere; }
-/* The theme line, only when the previews sit under the form (phones, tablets). */
+/* The theme line, on phones and tablets (no previews there). */
 .setup-theme-line { display: none; margin-bottom: 18px; }
 @media (max-width: 1099px) { .setup-theme-line { display: flex; } }
 /* The create form's optional date. */

@@ -27,6 +27,7 @@ import Merry, { HeroPreview as MerryPreview, MerryDefaultHero } from './Merry';
 import Gnomes, { HeroPreview as GnomesPreview, GnomesDefaultHero } from './Gnomes';
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
 import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
+import Simple, { HeroPreview as SimplePreview, SimpleDefaultHero } from './Simple';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -63,6 +64,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'nexus':              { Page: Nexus,             Preview: NexusPreview,  category: 'business',    label: 'Nexus' },
   'balloons':           { Page: Balloons,          Preview: BalloonsPreview, category: 'birthdays', label: 'Balloons' },
   'dinner-gala':        { Page: DinnerGala,        Preview: DinnerGalaPreview, category: 'business', label: 'Dinner Gala' },
+  'simple':             { Page: Simple,            Preview: SimplePreview, category: 'community', label: 'Simple', FallbackHero: SimpleDefaultHero },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
   'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', label: 'Christmas Party' },

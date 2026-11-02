@@ -95,6 +95,16 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'western')
   `;
 
+  // Simple theme (General Events category, key 'community'): the create
+  // form's starting theme when the visitor didn't come from a themed page.
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Simple',
+           'Ivory, stone and charcoal, set in Playfair Display and Lato, with thin rules and plenty of space. A plain framed banner until the host adds a photo. Quiet and timeless for any kind of event.',
+           'simple'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'simple')
+  `;
+
   // Christmas Party theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)
