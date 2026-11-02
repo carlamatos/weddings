@@ -117,6 +117,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'summit': { bg: '#14171C', textColor: '#E8ECF2', accentColor: '#CECECE', headingFont: 'space-grotesk', bodyFont: 'space-grotesk' },
   'nexus': { bg: '#1D2124', textColor: '#E7E3DA', accentColor: '#E8A33D', headingFont: 'montserrat', bodyFont: 'lato' },
   'dinner-gala': { bg: '#0A1420', textColor: '#EDE3CC', accentColor: '#C9A24B', headingFont: 'cinzel', bodyFont: 'cormorant' },
+  'simple': { bg: '#FAF8F4', textColor: '#26231F', accentColor: '#8C7B6B', headingFont: 'playfair', bodyFont: 'lato' },
   'community': { bg: '#F6E0BD', textColor: '#1F2E4D', accentColor: '#D9472B', headingFont: 'playfair', bodyFont: 'lato' },
   'antique-cars': { bg: '#2E1A47', textColor: '#FFF4DC', accentColor: '#F2C230', headingFont: 'cinzel', bodyFont: 'montserrat' },
   'christmas-party': { bg: '#2C3138', textColor: '#F4EDE1', accentColor: '#C8372D', headingFont: 'dancing-script', bodyFont: 'lato' },
@@ -146,6 +147,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
   'nexus': { divider: 'wedding-deco', frame: '' },
   'dinner-gala': { divider: 'wedding-laurel', frame: '' },
+  'simple': { divider: 'wedding-diamond', frame: '' }, // a small diamond, nothing more
   'community': { divider: 'wedding-bow', frame: 'wedding-arch' },
   // Celebrations
   'alegria': { divider: 'birthday-stars', frame: '' },

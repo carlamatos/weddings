@@ -366,6 +366,24 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
   }),
 
   // ─── General events ───
+  simple: demo('simple', {
+    heading: 'Our Summer Gathering',
+    heroEyebrow: 'You’re invited',
+    description: 'Once a year we gather the people we love for a long afternoon of good food, conversation and catching up. Bring your appetite and your stories — children, partners and old friends are all welcome. We can’t wait to see you.',
+    eventDate: '2027-07-17', eventTime: '14:00', eventEndTime: '20:00',
+    venueName: 'Kitsilano Beach Park Pavilion', streetAddress: '1499 Arbutus Street', city: 'Vancouver', country: 'BC',
+    formattedAddress: '1499 Arbutus Street, Vancouver, BC',
+    userEmail: 'hello@oursummergathering.example',
+    registryDescription: 'No gifts needed — just come. If you’d like to help, bring a dish to share or a lawn game for the kids.',
+    eventProgram: program([
+      ['2027-07-17', 'Welcome & drinks', '14:00', null, 'The pavilion'],
+      ['2027-07-17', 'Lunch', '15:00', null, 'Under the trees'],
+      ['2027-07-17', 'Games & a walk on the beach', '16:30', null, null],
+      ['2027-07-17', 'Sunset & goodbyes', '19:00', '20:00', 'The pavilion'],
+    ]),
+    guestSongs: songs([['Here Comes the Sun', 'The Beatles', 'Grandma Ruth'], ['September', 'Earth, Wind & Fire', 'Leo']]),
+    shareHashtag: 'OurSummerGathering',
+  }),
   community: demo('community', {
     heading: 'Maple Street Block Party',
     heroEyebrow: "You're part of it",

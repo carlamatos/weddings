@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
-import { tryPagePath } from '@/app/lib/marketing/theme-cards';
+import { signUpPath } from '@/app/lib/marketing/theme-cards';
 
 // MyGala top bar (logo, login/dashboard, "Back to themes"), shown only on
 // theme demos (/themes/<slug>). Live event pages and the owner's preview
 // have no MyGala bar — the page belongs to the event. "Start your event
-// page" (and "Sign up" on phones) opens the "design your invitation" page
-// in the theme being viewed.
+// page" (and "Sign up" on phones) opens the regular sign-up, which then goes
+// to the create-event form in the theme being viewed.
 export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boolean; backToThemes?: boolean }) {
   const slug = /^\/themes\/([a-z0-9-]+)$/.exec(usePathname() ?? '')?.[1];
-  const start = slug ? tryPagePath(slug) : appHref('/register');
+  const start = appHref(slug ? signUpPath(slug) : '/register');
   return (
     <div
       className="mg-preview-topbar"
