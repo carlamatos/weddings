@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { fetchPageQuota, hasPrepaidPlus } from '@/app/lib/data';
 import SubscribeForm from "@/app/ui/subscribe-form";
@@ -8,8 +7,8 @@ import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
 import { parseStartParams } from '@/app/lib/start-intent';
 
-// Create an event page. Every new event goes through the full setup — type,
-// name, dates, location, theme, address and its own Free/Plus choice.
+// Create an event page: one short form (app/ui/subscribe-form.tsx) — the
+// rest is filled in afterwards on the page.
 // A signed-in host coming from /design-your-invitation brings the theme,
 // name and date chosen there in the address (app/lib/start-intent.ts).
 export default async function Page({ searchParams }: { searchParams: Promise<{ start?: string; theme?: string; occasion?: string; name?: string; date?: string }> }) {
@@ -21,11 +20,6 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     const [quota, prepaid] = userId
         ? await Promise.all([fetchPageQuota(userId), hasPrepaidPlus(userId)])
         : [{ count: 0, limit: 1 }, false];
-    // The form asks for the host's first and last name until the account has both.
-    const owner = userId
-        ? (await sql<{ given_name: string | null; family_name: string | null }>`SELECT given_name, family_name FROM users WHERE id = ${userId}`).rows[0]
-        : undefined;
-    const needsName = !owner?.given_name?.trim() || !owner?.family_name?.trim();
 
     return (
         <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
@@ -50,7 +44,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     </p>
                 </div>
             ) : (
-                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} needsName={needsName} ownerName={{ given: owner?.given_name?.trim() ?? '', family: owner?.family_name?.trim() ?? '' }} />
+                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} />
             )}
         </div>
     );

@@ -62,6 +62,47 @@ export function readStartIntent(): StartIntent | null {
   }
 }
 
+// Where a visitor was browsing before signing up from a link that says
+// nothing (the top bar's "Sign up", the home page): the occasion of the last
+// landing page they saw, and the last theme page they looked at. The
+// create-event form starts in that theme, or that occasion's first theme.
+// Noted on every page view by SignupTracker. Same storage rules as above.
+export type Browsing = { occasion?: StartOccasion; theme?: string };
+const BROWSED_KEY = 'mygala:browsed';
+const OCCASION_PATHS: [RegExp, StartOccasion][] = [
+  [/^\/(wedding-website|how-to-create-a-wedding-website|design-your-wedding-invitation|wedding-colour-palette|fr\/mariage)(\/|$)/, 'wedding'],
+  [/^\/(christmas-invitations|design-your-christmas-invitation|secret-santa)(\/|$)/, 'christmas'],
+  [/^\/(party-celebrations|design-your-party-invitation)(\/|$)/, 'celebration'],
+];
+
+export function noteBrowsing(pathname: string) {
+  const occasion = OCCASION_PATHS.find(([re]) => re.test(pathname))?.[1];
+  const theme = /^\/themes\/([a-z0-9-]{1,60})\/?$/.exec(pathname)?.[1];
+  if (!occasion && !theme) return;
+  try {
+    const prev = readBrowsing();
+    // A landing page replaces the theme seen before it; a theme page keeps
+    // the occasion (the theme wins when the form picks).
+    const next: Browsing = occasion ? { occasion } : { ...prev, theme };
+    localStorage.setItem(BROWSED_KEY, JSON.stringify({ ...next, at: Date.now() }));
+  } catch {
+    // Storage blocked: the form starts with the default theme.
+  }
+}
+
+export function readBrowsing(): Browsing {
+  try {
+    const raw = JSON.parse(localStorage.getItem(BROWSED_KEY) ?? 'null') as (Browsing & { at?: number }) | null;
+    if (!raw || typeof raw.at !== 'number' || Date.now() - raw.at > MAX_AGE_MS) return {};
+    return {
+      ...(raw.occasion === 'wedding' || raw.occasion === 'christmas' || raw.occasion === 'celebration' ? { occasion: raw.occasion } : {}),
+      ...(typeof raw.theme === 'string' && SLUG_RE.test(raw.theme) ? { theme: raw.theme } : {}),
+    };
+  } catch {
+    return {};
+  }
+}
+
 export function clearStartIntent() {
   try {
     localStorage.removeItem(KEY);

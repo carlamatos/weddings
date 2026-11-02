@@ -308,6 +308,10 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS totp_enabled_at TIMESTAMPTZ`;
   // Sessions that signed in before this are signed out (app/lib/session-revocation.ts).
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`;
+  // The one "Your event page is one step away" email (app/lib/setup-reminder.ts).
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS setup_reminder_sent_at TIMESTAMPTZ`;
+  // Pages made before the date is picked (the create form's date is optional).
+  await sql`ALTER TABLE user_page ALTER COLUMN event_date DROP NOT NULL`;
 
   await sql`
     CREATE TABLE IF NOT EXISTS email_verification_tokens (
