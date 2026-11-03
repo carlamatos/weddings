@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
@@ -54,6 +54,26 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
   const close = () => setOpen(false);
 
+  // The Features mega menu is centred under its link, then nudged sideways
+  // (--mega-shift) so it never runs off the edge of the window.
+  const megaRef = useRef<HTMLDivElement>(null);
+  const placeMega = () => {
+    const panel = megaRef.current;
+    const item = panel?.parentElement;
+    if (!panel || !item) return;
+    const r = item.getBoundingClientRect();
+    const w = panel.offsetWidth;
+    const left = r.left + r.width / 2 - w / 2;
+    const margin = 24;
+    const clamped = Math.min(Math.max(left, margin), window.innerWidth - margin - w);
+    panel.style.setProperty('--mega-shift', `${Math.round(clamped - left)}px`);
+  };
+  useEffect(() => {
+    placeMega();
+    window.addEventListener('resize', placeMega);
+    return () => window.removeEventListener('resize', placeMega);
+  }, []);
+
   return (
     <div className="topbar">
       <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
@@ -65,9 +85,9 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               {EVENT_LINKS.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
             </div>
           </div>
-          <div className="nav-item nav-item--mega">
+          <div className="nav-item nav-item--mega" onMouseEnter={placeMega} onFocus={placeMega}>
             <Link href="/features" className="nav-link">Features</Link>
-            <div className="nav-dropdown nav-mega">
+            <div className="nav-dropdown nav-mega" ref={megaRef}>
               <div className="nav-mega-cols">
                 {FEATURE_GROUPS.map((g) => (
                   <div key={g.title} className="nav-mega-col">

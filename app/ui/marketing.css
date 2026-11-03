@@ -1033,19 +1033,28 @@
 .marketing-page .mk-jump a { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; }
 .marketing-page .mk-jump a:hover { border-color: var(--rose); color: var(--rose); }
 
-/* Features mega menu (desktop): every feature in grouped columns. It hangs
-   from the whole (sticky) top bar rather than the Features link, so it
-   stays on screen at every desktop width. */
-.marketing-page .nav-item--mega { position: static; }
+/* Features mega menu (desktop): every feature in grouped columns, opening
+   right under the Features link like the other dropdowns. --mega-shift
+   (set by site-topbar.tsx) nudges it sideways to keep it on screen. */
 .marketing-page .nav-dropdown.nav-mega {
-  top: 100%;
-  left: 50%;
   width: min(940px, calc(100vw - 48px));
   padding: 22px 22px 0;
   display: block;
+  transform: translate(calc(-50% + var(--mega-shift, 0px)), 6px);
+  /* A moment's grace before it closes, so a slightly crooked path from
+     the link into the panel doesn't lose it. */
+  visibility: hidden;
+  pointer-events: auto; /* hidden already ignores the mouse */
+  transition: opacity 0.15s ease 0.2s, transform 0.15s ease 0.2s, visibility 0s linear 0.35s;
 }
-/* Keeps the hover alive across the gap between the link and the panel. */
-.marketing-page .nav-mega::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 26px; }
+.marketing-page .nav-item--mega:hover .nav-mega,
+.marketing-page .nav-item--mega:focus-within .nav-mega {
+  transform: translate(calc(-50% + var(--mega-shift, 0px)), 0);
+  visibility: visible;
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0s;
+}
+/* Bridges the small gap between the link and the panel. */
+.marketing-page .nav-mega::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 14px; }
 .marketing-page .nav-mega-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 22px; }
 .marketing-page .nav-mega-heading { margin: 0 0 6px; padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rose); }
 .marketing-page .nav-dropdown a.nav-mega-link { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 3px; padding: 10px 12px; white-space: normal; }
