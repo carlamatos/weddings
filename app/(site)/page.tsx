@@ -8,12 +8,14 @@ import SiteTopbar from '@/app/ui/site-topbar';
 import { ThemePagePicture } from '@/app/ui/marketing/theme-page-picture';
 import type { Metadata } from 'next';
 import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
-import { faqPageJsonLd, marketingMetadata, organizationJsonLd, productJsonLd, webSiteJsonLd } from '@/app/lib/marketing/seo';
+import { faqPageJsonLd, marketingMetadata, organizationJsonLd, productJsonLd, videoObjectJsonLd, webSiteJsonLd } from '@/app/lib/marketing/seo';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
 import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
+import { HomeVideo } from '@/app/ui/marketing/home-video';
+import type { Video } from '@/app/lib/marketing/types';
 
 const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn more';
 
@@ -36,6 +38,19 @@ const HOME_FAQS = [
   { q: 'Is Plus a subscription?', a: `No — it’s a single one-time payment of ${PLAN_PRICE_PLUS_TAX} per event that unlocks every feature for that event for ${PLAN_TERM_MONTHS} months. No recurring charge, and no card kept on file.` },
 ];
 
+// "How MyGala works", right after the hero: the steps and the features in a minute.
+const HOME_VIDEO: Video = {
+  src: '/videos/mygala-how-it-works.mp4',
+  poster: '/videos/mygala-how-it-works.webp',
+  title: 'How MyGala works',
+  description: 'Pick a theme, get your event website, send invitations, collect RSVPs, and on the day share guest photos, find your table, request songs and watch live. All in one minute.',
+  caption: 'Pick a theme, send invitations, collect RSVPs, and party. All in one minute.',
+  width: 1280,
+  height: 720,
+  duration: 'PT1M',
+  uploadDate: '2026-11-02',
+};
+
 export default async function Page() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
@@ -46,6 +61,7 @@ export default async function Page() {
       <JsonLd data={webSiteJsonLd()} />
       <JsonLd data={productJsonLd()} />
       <JsonLd data={faqPageJsonLd(HOME_FAQS)} />
+      <JsonLd data={videoObjectJsonLd(HOME_VIDEO, '/')} />
 
       {/* TOP BAR */}
       <SiteTopbar isLoggedIn={isLoggedIn} />
@@ -60,21 +76,39 @@ export default async function Page() {
         <p className="hero-sub">Pick a theme, add your details, and share one link with everyone you love. Invitations, RSVPs, photos, and every detail, beautifully kept in one place.</p>
         <div className="hero-actions">
           <Link href={appHref('/register')} className="btn-primary" data-cta="hero">Create your free event page</Link>
-          {/* A full sample event page (wedding), built from the real theme. */}
-          <Link href="/themes/the-day" className="btn-secondary btn-demo" data-cta="hero-demo">
+          {/* Scrolls to the video below and starts it (home-video.tsx). */}
+          <a href="#how-it-works" className="btn-secondary btn-demo" data-cta="hero-video">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="10" />
               <path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" />
             </svg>
+            Watch how it works
+          </a>
+          {/* A full sample event page (wedding), built from the real theme. */}
+          <Link href="/themes/the-day" className="btn-secondary btn-demo" data-cta="hero-demo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
             See a live demo
           </Link>
-          <a href="#themes" className="btn-secondary" data-cta="hero-themes">See the themes</a>
         </div>
         <p className="hero-note"><span>Free to start</span> · <span>No credit card</span> · <span>No design skills needed</span></p>
 
       </div>
 
-{/* VALUE PROPS */}
+      {/* HOW IT WORKS VIDEO */}
+      <div className="wrap" id="how-it-works">
+        <div className="section home-video-section">
+          <div className="reveal" style={{ maxWidth: '600px', marginBottom: '36px' }}>
+            <p className="eyebrow">See it in a minute</p>
+            <h2 className="section-title">From &ldquo;let&rsquo;s celebrate&rdquo; to party time.</h2>
+          </div>
+          <HomeVideo video={HOME_VIDEO} />
+        </div>
+      </div>
+
+      {/* VALUE PROPS */}
       <div className="wrap">
         <div className="section">
           <div className="reveal" style={{ maxWidth: '600px', marginBottom: '50px' }}>

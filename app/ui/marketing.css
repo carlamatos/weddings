@@ -841,6 +841,32 @@
 }
 .marketing-page .mk-video figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; color: var(--ink-soft); text-align: center; }
 
+/* The homepage's "how it works" video (home-video.tsx): the poster with a
+   play button; the player takes its place when pressed. */
+.marketing-page .home-video-section { padding-bottom: 0; } /* the value props' section below brings the gap */
+.marketing-page .home-video { margin: 0; }
+.marketing-page .home-video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 18px; overflow: hidden; background: var(--ink); box-shadow: 0 30px 60px -30px rgba(36, 31, 43, 0.45); }
+.marketing-page .home-video-frame video { display: block; width: 100%; height: 100%; }
+.marketing-page .home-video-play { display: block; position: relative; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: pointer; }
+.marketing-page .home-video-play img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.marketing-page .home-video-play:hover img { transform: scale(1.02); }
+.marketing-page .home-video-btn {
+  position: absolute; left: 50%; bottom: 7%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 24px 14px 18px; border-radius: 999px; background: var(--rose); color: #fff; font: 700 17px var(--font-sans); white-space: nowrap;
+  box-shadow: 0 12px 30px -10px rgba(182, 88, 74, 0.7); transition: transform 0.15s ease;
+}
+.marketing-page .home-video-play:hover .home-video-btn { transform: translateX(-50%) scale(1.05); }
+.marketing-page .home-video-play:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+.marketing-page .home-video-len { font-weight: 500; opacity: 0.85; }
+.marketing-page .home-video figcaption { margin-top: 14px; font-size: 14px; line-height: 1.6; color: var(--ink-soft); text-align: center; }
+@media (max-width: 600px) {
+  .marketing-page .home-video-frame { border-radius: 12px; }
+  .marketing-page .home-video-section { padding-top: 48px; }
+  .marketing-page .home-video-btn { bottom: 3%; gap: 6px; padding: 6px 14px 6px 10px; font-size: 13px; }
+  .marketing-page .home-video-btn svg { width: 16px; height: 16px; }
+  .marketing-page .home-video-len { display: none; }
+}
+
 /* A product screenshot on a feature page (zoomable-screenshot.tsx): click
    to see it full size. On small screens the full-size view keeps the
    screenshot wide enough to read and scrolls sideways. */
