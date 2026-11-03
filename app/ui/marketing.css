@@ -819,6 +819,28 @@
 .marketing-page .mk-block .mk-try a { display: inline-block; padding: 10px 18px; border-radius: 999px; background: var(--rose); color: #fff; font-weight: 700; text-decoration: none; white-space: nowrap; }
 .marketing-page .mk-block .mk-try a:hover { filter: brightness(0.94); }
 
+/* An explainer video on a feature page (feature-video.tsx). */
+.marketing-page .mk-btn-video { display: inline-flex; align-items: center; gap: 8px; }
+.marketing-page .mk-video { margin: 40px 0 8px; scroll-margin-top: 96px; }
+.marketing-page .mk-video-frame { position: relative; }
+.marketing-page .mk-video video {
+  display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 1px solid var(--line); border-radius: 14px;
+  background: var(--ink); box-shadow: 0 18px 40px -24px rgba(36, 31, 43, 0.35);
+}
+/* Top corner, clear of the player's own control bar at the bottom. */
+.marketing-page .mk-video-sound {
+  position: absolute; top: 14px; right: 14px; display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 16px 9px 13px; border: none; border-radius: 999px; cursor: pointer;
+  background: rgba(36, 31, 43, 0.72); color: #fff; font: 600 14px var(--font-sans);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background 0.15s ease;
+}
+.marketing-page .mk-video-sound:hover { background: rgba(36, 31, 43, 0.88); }
+.marketing-page .mk-video-sound:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .marketing-page .mk-video-sound { top: 8px; right: 8px; padding: 7px 12px 7px 10px; font-size: 13px; }
+}
+.marketing-page .mk-video figcaption { margin-top: 12px; font-size: 14px; line-height: 1.6; color: var(--ink-soft); text-align: center; }
+
 /* A product screenshot on a feature page (zoomable-screenshot.tsx): click
    to see it full size. On small screens the full-size view keeps the
    screenshot wide enough to read and scrolls sideways. */

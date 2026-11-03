@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { appHref } from '@/app/lib/app-url';
 import { FEATURES, getFeature } from '@/app/lib/marketing/features';
-import { breadcrumbJsonLd, faqPageJsonLd, marketingMetadata, webPageJsonLd } from '@/app/lib/marketing/seo';
+import { breadcrumbJsonLd, faqPageJsonLd, marketingMetadata, videoObjectJsonLd, webPageJsonLd } from '@/app/lib/marketing/seo';
 import { PLAN_PRICE_PLUS_TAX } from '@/app/lib/plans';
 import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { Blocks, FeatureCards, FinalCta, Steps } from '@/app/ui/marketing/content-blocks';
 import { FaqList } from '@/app/ui/marketing/faq-list';
+import { FeatureVideo } from '@/app/ui/marketing/feature-video';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { ZoomableScreenshot } from '@/app/ui/marketing/zoomable-screenshot';
 
@@ -38,6 +39,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
       <JsonLd data={webPageJsonLd(feature.seo, path)} />
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
       <JsonLd data={faqPageJsonLd(feature.faqs)} />
+      {feature.video && <JsonLd data={videoObjectJsonLd(feature.video, path)} />}
 
       <header className="mk-hero">
         <div className="wrap">
@@ -53,6 +55,12 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           <div className="mk-cta-row">
             <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
             <a href="#how-to" className="btn-secondary">How to set it up</a>
+            {feature.video && (
+              <a href="#video" className="btn-secondary mk-btn-video">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
+                Watch a video
+              </a>
+            )}
           </div>
         </div>
       </header>
@@ -66,6 +74,8 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
             </div>
           ))}
         </div>
+
+        {feature.video && <FeatureVideo video={feature.video} />}
 
         {feature.screenshot && <ZoomableScreenshot shot={feature.screenshot} />}
 
