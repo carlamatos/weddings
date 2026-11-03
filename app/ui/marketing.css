@@ -808,6 +808,9 @@
 @media (max-width: 640px) {
   .marketing-page .mk-hero { padding: 36px 0 36px; }
   .marketing-page .mk-lead { font-size: 16px; }
+  /* Feature page hero: the buttons centred on phones. */
+  .marketing-page .mk-cta-row--hero { justify-content: center; }
+  .marketing-page .mk-cta-row--hero > * { justify-content: center; }
   .marketing-page .site-footer-cols { grid-template-columns: 1fr 1fr; }
 }
 

@@ -52,15 +52,15 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           </p>
           <h1 className="mk-h1">{feature.h1}</h1>
           <p className="mk-lead">{feature.lead}</p>
-          <div className="mk-cta-row">
+          <div className="mk-cta-row mk-cta-row--hero">
             <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
-            <a href="#how-to" className="btn-secondary">How to set it up</a>
             {feature.video && (
               <a href="#video" className="btn-secondary mk-btn-video">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
                 Watch a video
               </a>
             )}
+            <a href="#how-to" className="btn-secondary">How to set it up</a>
           </div>
         </div>
       </header>
