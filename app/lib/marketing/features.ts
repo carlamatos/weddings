@@ -701,6 +701,18 @@ export const FEATURES: Feature[] = [
       { title: 'Couples kept apart', text: 'Mark couples (or anyone) who shouldn’t draw each other, and the draw respects it.' },
       { title: 'Private results', text: 'Each person only sees their own match — even you, if you’re playing too.' },
     ],
+    video: {
+      src: '/videos/features/gift-exchange.mp4',
+      poster: '/videos/features/gift-exchange.jpg',
+      title: 'How the MyGala Gift Exchange (Secret Santa) works',
+      description:
+        'Switch on the Gift Exchange in your MyGala dashboard and set the budget, date and a note. Guests join from your event page with gift ideas, you keep couples apart and draw names in one click, and everyone finds out privately by email who they’re buying for.',
+      caption: 'Switch it on, guests join with gift ideas, draw names in one click, and everyone finds out privately.',
+      width: 1920,
+      height: 1080,
+      duration: 'PT47S',
+      uploadDate: '2026-11-03',
+    },
     blocks: [
       {
         heading: 'How it works',
