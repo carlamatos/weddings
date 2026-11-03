@@ -7,7 +7,8 @@ import { auth } from '@/auth';
 import SiteTopbar from '@/app/ui/site-topbar';
 import { ThemePagePicture } from '@/app/ui/marketing/theme-page-picture';
 import type { Metadata } from 'next';
-import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { PricingCards } from '@/app/ui/marketing/pricing-cards';
 import { faqPageJsonLd, marketingMetadata, organizationJsonLd, productJsonLd, videoObjectJsonLd, webSiteJsonLd } from '@/app/lib/marketing/seo';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
@@ -24,11 +25,8 @@ const HOME_SEO = {
   description: `Create an event website in minutes: RSVPs, guest list, invitations, guest photos, livestream and reminders. Free to start.`,
 };
 
-export const metadata: Metadata = {
-  ...marketingMetadata(HOME_SEO, '/'),
-  // The homepage title already leads with the brand: no " | MyGala" suffix.
-  title: { absolute: HOME_SEO.title },
-};
+// The title already leads with the brand, so marketingMetadata adds no " | MyGala".
+export const metadata: Metadata = marketingMetadata(HOME_SEO, '/');
 
 // Shown on the page and marked up as FAQPage for search engines and AI assistants.
 const HOME_FAQS = [
@@ -112,7 +110,7 @@ export default async function Page() {
       <div className="wrap">
         <div className="section">
           <div className="reveal" style={{ maxWidth: '600px', marginBottom: '50px' }}>
-            <p className="eyebrow">Why hosts choose Gala</p>
+            <p className="eyebrow">Why hosts choose MyGala</p>
             <h2 className="section-title">Everything your event page needs, nothing it doesn&apos;t.</h2>
           </div>
           <div className="props-grid">
@@ -367,32 +365,9 @@ export default async function Page() {
             <h2 className="section-title">Start free. Upgrade when you&apos;re ready.</h2>
             <p className="section-sub" style={{ margin: '0 auto' }}>One payment, no recurring charges, no surprises as your event gets closer.</p>
           </div>
-          <div className="pricing-grid">
-            <div className="price-card reveal">
-              <p className="price-tier">Free</p>
-              <p className="price-amount">$0</p>
-              <p className="price-desc">Everything you need to get started.</p>
-              <ul className="price-features">
-                {PLAN_FEATURES.free.map((f) => <li key={f}>{f}</li>)}
-              </ul>
-              <Link href={appHref('/register')} className="btn-secondary" style={{ textAlign: 'center' }} data-cta="pricing-free">Get started free</Link>
-            </div>
-            <div className="price-card featured reveal delay-1">
-              <span className="price-badge">Most popular</span>
-              <p className="price-tier">Plus</p>
-              <p className="price-amount">${PLAN_ONE_TIME_PRICE}<span className="per"> {PLAN_CURRENCY} + tax, one-time, per event</span></p>
-              <p className="price-desc">Get all the perks from mygala.</p>
-              <ul className="price-features">
-                {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
-              </ul>
-              <Link href={appHref('/register')} className="btn-primary" style={{ textAlign: 'center' }} data-cta="pricing-plus">Start your event page</Link>
-            </div>
-          </div>
-          {/* What Stripe and card networks expect next to a price: who processes
-              payment, accepted cards, the currency, and the refund policy. */}
-          <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.7, margin: '28px auto 0', maxWidth: 640 }}>
-            🔒 Secure checkout by Stripe · Visa, Mastercard and American Express accepted · Prices in Canadian dollars ({PLAN_CURRENCY}); GST/HST and provincial sales tax are added at checkout.{' '}
-            <Link href="/terms#refunds" style={{ color: 'var(--rose)' }}>Refund &amp; cancellation policy</Link>
+          <PricingCards reveal />
+          <p style={{ textAlign: 'center', marginTop: 18 }}>
+            <Link href="/pricing" className="learn-more-link">Compare the plans in detail →</Link>
           </p>
         </div>
       </div>

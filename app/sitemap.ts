@@ -25,6 +25,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     entry('/', 1, 'weekly'),
     entry('/features', 0.9),
+    entry('/events', 0.9),
+    entry('/pricing', 0.9),
     ...FEATURES.map((f) => entry(`/features/${f.slug}`, 0.8)),
     ...EVENT_TYPES.map((e) => entry(`/events/${e.slug}`, 0.8)),
     ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),

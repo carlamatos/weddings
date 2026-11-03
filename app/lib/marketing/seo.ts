@@ -13,11 +13,18 @@ export function absoluteUrl(path: string): string {
   return `${siteUrl()}${path}`;
 }
 
+// "Pricing" → "Pricing | MyGala", but a title that already names the brand
+// ("MyGala — Event Websites…") is used as is, so it isn't doubled.
+function withBrand(title: string): string {
+  return /\bMyGala\b/.test(title) ? title : `${title} | MyGala`;
+}
+
 export function marketingMetadata(seo: SeoMeta, path: string): Metadata {
   const url = absoluteUrl(path);
+  const title = withBrand(seo.title);
   return {
-    // The root layout appends " | MyGala".
-    title: seo.title,
+    // Absolute, so the root layout's " | MyGala" template isn't added twice.
+    title: { absolute: title },
     description: seo.description,
     ...(seo.keywords?.length ? { keywords: seo.keywords } : {}),
     alternates: { canonical: url },
@@ -26,13 +33,13 @@ export function marketingMetadata(seo: SeoMeta, path: string): Metadata {
       siteName: 'MyGala',
       locale: 'en_CA',
       url,
-      title: `${seo.title} | MyGala`,
+      title,
       description: seo.description,
       images: [{ url: absoluteUrl(OG_IMAGE), alt: 'MyGala — event websites made easy' }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${seo.title} | MyGala`,
+      title,
       description: seo.description,
       images: [absoluteUrl(OG_IMAGE)],
     },
@@ -112,9 +119,12 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     '@id': absoluteUrl('/#organization'),
     name: COMPANY.tradeName,
+    alternateName: COMPANY.alternateNames,
     legalName: COMPANY.legalName,
     url: absoluteUrl('/'),
-    logo: absoluteUrl('/icon.png'),
+    logo: { '@type': 'ImageObject', url: absoluteUrl('/images/mygala-logo-email.png') },
+    image: absoluteUrl('/opengraph-image.png'),
+    ...(COMPANY.profiles.length ? { sameAs: COMPANY.profiles } : {}),
     email: COMPANY.email,
     ...(COMPANY.phone ? { telephone: COMPANY.phone } : {}),
     ...(COMPANY.address.length
@@ -137,7 +147,8 @@ export function webSiteJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     '@id': absoluteUrl('/#website'),
-    name: 'MyGala',
+    name: COMPANY.tradeName,
+    alternateName: COMPANY.alternateNames,
     url: absoluteUrl('/'),
     inLanguage: 'en',
     publisher: { '@id': absoluteUrl('/#organization') },
@@ -164,7 +175,7 @@ export function productJsonLd() {
         price: PLAN_ONE_TIME_PRICE.toFixed(2),
         priceCurrency: PLAN_CURRENCY,
         description: `One-time payment per event page (not a subscription) that unlocks every Plus feature for ${PLAN_TERM_MONTHS} months.`,
-        url: absoluteUrl('/#pricing'),
+        url: absoluteUrl('/pricing'),
       },
     ],
   };

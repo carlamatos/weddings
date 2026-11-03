@@ -88,7 +88,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
             {feature.plan === 'Plus' && (
               <p className="mk-note">
                 {feature.navLabel} is part of MyGala Plus: a one-time payment of {PLAN_PRICE_PLUS_TAX} per event page that unlocks every
-                premium feature for 15 months. No subscription. <Link href="/#pricing">Compare plans</Link>.
+                premium feature for 15 months. No subscription. <Link href="/pricing">Compare plans</Link>.
               </p>
             )}
           </section>

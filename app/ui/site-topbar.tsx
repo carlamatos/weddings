@@ -4,15 +4,36 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { appHref } from '@/app/lib/app-url';
-import { FEATURES } from '@/app/lib/marketing/features';
+import { FEATURES, getFeature } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import SiteSearch from '@/app/ui/marketing/site-search';
 
 const EVENT_LINKS = EVENT_TYPES.map((e) => ({ href: `/events/${e.slug}`, label: e.name }));
-const FEATURE_LINKS = FEATURES.map((f) => ({ href: `/features/${f.slug}`, label: f.navLabel }));
+// The desktop Features mega menu: every feature, grouped. A feature not
+// listed here still shows, at the end of the last group.
+const FEATURE_GROUPS = (() => {
+  const groups = [
+    { title: 'Invite & plan', slugs: ['invitations', 'event-reminder-emails', 'potluck', 'gift-exchange'] },
+    { title: 'On the day', slugs: ['guest-photo-qr-code', 'find-your-table', 'livestream'] },
+    { title: 'Your page', slugs: ['event-templates', 'custom-sections', 'event-page-translations', 'password-protection', 'custom-domain'] },
+  ];
+  const listed = new Set(groups.flatMap((g) => g.slugs));
+  groups[groups.length - 1].slugs.push(...FEATURES.filter((f) => !listed.has(f.slug)).map((f) => f.slug));
+  return groups.map((g) => ({ title: g.title, features: g.slugs.map((slug) => getFeature(slug)!) }));
+})();
+// The phone menu lists the most-used features; the rest are one click away
+// under "All features".
+const MENU_FEATURES = ['invitations', 'guest-photo-qr-code', 'find-your-table', 'livestream', 'event-reminder-emails', 'event-page-translations', 'gift-exchange', 'custom-domain'];
+const FEATURE_LINKS = MENU_FEATURES.map((slug) => ({ href: `/features/${slug}`, label: getFeature(slug)!.navLabel }));
+// After the two dropdowns. About, Contact and the legal pages are in the footer.
+const PAGE_LINKS = [
+  { href: '/pricing', label: 'Pricing' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/faq', label: 'FAQ' },
+];
 
 // The marketing pages' top bar (homepage, About, Contact, Privacy, Terms,
-// features, event types, FAQ, blog). Desktop shows the nav inline with hover
+// features, events, pricing, FAQ, blog). Desktop shows the nav inline with hover
 // dropdowns; narrower screens get a menu button that opens the same links
 // as a panel, since touch has no hover.
 export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
@@ -39,22 +60,37 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
       <div className="topbar-right">
         <nav className="topbar-nav" aria-label="Main">
           <div className="nav-item">
-            <Link href="/#themes" className="nav-link">Events</Link>
+            <Link href="/events" className="nav-link">Events</Link>
             <div className="nav-dropdown">
               {EVENT_LINKS.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
             </div>
           </div>
-          <div className="nav-item">
+          <div className="nav-item nav-item--mega">
             <Link href="/features" className="nav-link">Features</Link>
-            <div className="nav-dropdown">
-              {FEATURE_LINKS.map((l) => <Link key={l.href} href={l.href}>{l.label}</Link>)}
-              <Link href="/features" className="nav-dropdown-all">All features →</Link>
+            <div className="nav-dropdown nav-mega">
+              <div className="nav-mega-cols">
+                {FEATURE_GROUPS.map((g) => (
+                  <div key={g.title} className="nav-mega-col">
+                    <p className="nav-mega-heading">{g.title}</p>
+                    {g.features.map((f) => (
+                      <Link key={f.slug} href={`/features/${f.slug}`} className="nav-mega-link">
+                        <span className="nav-mega-name">
+                          {f.navLabel}
+                          {f.plan === 'Plus' && <span className="nav-mega-plus">Plus</span>}
+                        </span>
+                        <span className="nav-mega-summary">{f.summary}</span>
+                      </Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="nav-mega-foot">
+                <Link href="/features" className="nav-mega-all">All features →</Link>
+                <Link href="/pricing" className="nav-mega-all">Compare Free and Plus →</Link>
+              </div>
             </div>
           </div>
-          <Link href="/faq" className="nav-link">FAQ</Link>
-          <Link href="/blog" className="nav-link">Blog</Link>
-          <Link href="/about" className="nav-link">About Us</Link>
-          <Link href="/contact" className="nav-link">Contact</Link>
+          {PAGE_LINKS.map((l) => <Link key={l.href} href={l.href} className="nav-link">{l.label}</Link>)}
         </nav>
         <div className="topbar-actions">
           <SiteSearch />
@@ -83,7 +119,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
 
       {open && (
         <nav id="mobile-nav" className="mobile-nav" aria-label="Main">
-          <Link href="/#themes" className="mobile-nav-link" onClick={close}>Events</Link>
+          <Link href="/events" className="mobile-nav-link" onClick={close}>Events</Link>
           {EVENT_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={close}>{l.label}</Link>
           ))}
@@ -91,10 +127,10 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
           {FEATURE_LINKS.map((l) => (
             <Link key={l.href} href={l.href} className="mobile-nav-sublink" onClick={close}>{l.label}</Link>
           ))}
-          <Link href="/faq" className="mobile-nav-link" onClick={close}>FAQ</Link>
-          <Link href="/blog" className="mobile-nav-link" onClick={close}>Blog</Link>
-          <Link href="/about" className="mobile-nav-link" onClick={close}>About Us</Link>
-          <Link href="/contact" className="mobile-nav-link" onClick={close}>Contact</Link>
+          <Link href="/features" className="mobile-nav-sublink" onClick={close}>All features →</Link>
+          {PAGE_LINKS.map((l) => (
+            <Link key={l.href} href={l.href} className="mobile-nav-link" onClick={close}>{l.label}</Link>
+          ))}
           {!isLoggedIn && (
             // The smallest phones hide the top bar's Log in button.
             <Link href={appHref('/login')} className="mobile-nav-link" onClick={close}>Log in</Link>

@@ -67,7 +67,7 @@ export function FinalCta({ title, text }: { title: string; text: string }) {
       <p className="hero-sub">{text}</p>
       <div className="mk-cta-row">
         <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
-        <Link href="/#pricing" className="mk-btn-ghost">See pricing</Link>
+        <Link href="/pricing" className="mk-btn-ghost">See pricing</Link>
       </div>
     </div>
   );

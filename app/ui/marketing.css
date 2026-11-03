@@ -670,7 +670,7 @@
 }
 .marketing-page .price-tier { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--ink-soft); font-weight: 600; margin: 0 0 14px; }
 .marketing-page .price-amount { font-family: var(--font-display); font-size: 44px; color: var(--ink); margin: 0 0 4px; }
-.marketing-page .price-amount .per { font-size: 15px; font-family: var(--font-sans); color: var(--ink-soft); font-weight: 400; }
+.marketing-page .price-amount .per { display: block; margin-top: 4px; font-size: 15px; line-height: 1.4; font-family: var(--font-sans); color: var(--ink-soft); font-weight: 400; }
 .marketing-page .price-desc { font-size: 14px; color: var(--ink-soft); margin: 0 0 28px; }
 .marketing-page .price-features { list-style: none; padding: 0; margin: 0 0 28px; flex: 1; }
 .marketing-page .price-features li { font-size: 14px; color: var(--ink); padding: 9px 0; border-bottom: 1px solid var(--line); display: flex; gap: 10px; }
@@ -1001,4 +1001,61 @@
   .marketing-page .pt-previews figure + figure { max-width: 340px; }
   .marketing-page .pt-starter { width: 64px; }
   .marketing-page .pt-starter > span { width: 46px; height: 46px; }
+}
+
+/* /pricing: the plan cards, then Free vs Plus row by row. */
+.marketing-page .mk-pricing { padding: 0 0 8px; }
+.marketing-page .mk-pricing .pricing-grid { margin-top: 44px; }
+.marketing-page .mk-compare-wrap { max-width: 860px; margin: 0 auto; padding-top: 56px; }
+.marketing-page .mk-compare-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.marketing-page .mk-compare { width: 100%; border-collapse: collapse; font-size: 15px; color: var(--ink); }
+.marketing-page .mk-compare th, .marketing-page .mk-compare td { padding: 13px 18px; border-bottom: 1px solid var(--line); text-align: center; line-height: 1.45; }
+.marketing-page .mk-compare tbody tr:last-child th, .marketing-page .mk-compare tbody tr:last-child td { border-bottom: 0; }
+.marketing-page .mk-compare thead th { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); background: var(--paper); }
+.marketing-page .mk-compare thead th:last-child { color: var(--rose); }
+.marketing-page .mk-compare tbody th { text-align: left; font-weight: 500; }
+.marketing-page .mk-compare tbody th a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.marketing-page .mk-compare tbody th a:hover { color: var(--rose); text-decoration-color: currentColor; }
+.marketing-page .mk-compare td { width: 24%; white-space: nowrap; color: var(--ink-soft); }
+.marketing-page .mk-check { color: var(--rose); font-weight: 700; font-size: 17px; }
+.marketing-page .mk-dash { color: var(--line); }
+@media (max-width: 600px) {
+  .marketing-page .mk-compare { font-size: 14px; }
+  .marketing-page .mk-compare th, .marketing-page .mk-compare td { padding: 11px 10px; }
+  .marketing-page .mk-compare td { white-space: normal; }
+}
+
+/* /events: one section per event type, with its themes. */
+.marketing-page .mk-event-type { padding: 56px 0 8px; border-bottom: 1px solid var(--line); }
+.marketing-page .mk-event-type:last-of-type { border-bottom: 0; }
+.marketing-page .mk-event-type .mk-sub { max-width: 680px; }
+.marketing-page .mk-jump { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 0; padding: 0; list-style: none; }
+.marketing-page .mk-jump a { display: inline-block; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink); font-size: 14px; font-weight: 600; text-decoration: none; }
+.marketing-page .mk-jump a:hover { border-color: var(--rose); color: var(--rose); }
+
+/* Features mega menu (desktop): every feature in grouped columns. It hangs
+   from the whole (sticky) top bar rather than the Features link, so it
+   stays on screen at every desktop width. */
+.marketing-page .nav-item--mega { position: static; }
+.marketing-page .nav-dropdown.nav-mega {
+  top: 100%;
+  left: 50%;
+  width: min(940px, calc(100vw - 48px));
+  padding: 22px 22px 0;
+  display: block;
+}
+/* Keeps the hover alive across the gap between the link and the panel. */
+.marketing-page .nav-mega::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: 26px; }
+.marketing-page .nav-mega-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px 22px; }
+.marketing-page .nav-mega-heading { margin: 0 0 6px; padding: 0 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--rose); }
+.marketing-page .nav-dropdown a.nav-mega-link { display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 3px; padding: 10px 12px; white-space: normal; }
+.marketing-page .nav-mega-name { display: block; font-size: 14px; font-weight: 600; color: var(--ink); }
+.marketing-page .nav-mega-link:hover .nav-mega-name { color: var(--rose); }
+.marketing-page .nav-mega-plus { display: inline-block; margin-left: 8px; vertical-align: 1px; padding: 2px 7px; border-radius: 999px; background: var(--paper-deep); color: var(--rose); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.marketing-page .nav-mega-link:hover .nav-mega-plus { background: #fff; }
+.marketing-page .nav-mega-summary { font-size: 12.5px; font-weight: 400; line-height: 1.45; color: var(--ink-soft); }
+.marketing-page .nav-mega-foot { display: flex; gap: 8px; justify-content: space-between; margin: 14px -22px 0; padding: 8px 22px; border-top: 1px solid var(--line); background: var(--paper); border-radius: 0 0 12px 12px; }
+.marketing-page .nav-dropdown a.nav-mega-all { color: var(--rose); }
+@media (max-width: 1100px) {
+  .marketing-page .nav-mega-summary { display: none; }
 }
