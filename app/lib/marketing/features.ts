@@ -1,4 +1,4 @@
-import type { ContentBlock, Faq, Screenshot, SeoMeta, Step } from './types';
+import type { ContentBlock, Faq, Screenshot, SeoMeta, Step, Video } from './types';
 
 // The feature pages under /features/<slug>. Order here is the order of the
 // Features menu and the /features index. Facts (limits, plans, services)
@@ -14,7 +14,8 @@ export type Feature = {
   lead: string; // hero paragraph
   summary: string; // one-liner for cards and the /features index
   highlights: { title: string; text: string }[];
-  screenshot?: Screenshot; // under the highlights
+  video?: Video; // under the highlights
+  screenshot?: Screenshot; // under the highlights (and the video)
   blocks: ContentBlock[];
   steps: Step[];
   faqs: Faq[];
@@ -117,6 +118,18 @@ export const FEATURES: Feature[] = [
       { title: 'Ready-to-print cards', text: 'Print four table cards per page or one large sign for the entrance or photo booth. Add your own title and message.' },
       { title: 'Every photo in one place', text: 'Photos appear on your event page’s Guest Photo Wall, and you can download all of them at once.' },
     ],
+    video: {
+      src: '/videos/features/guest-photo-qr-code.mp4',
+      poster: '/videos/features/guest-photo-qr-code.jpg',
+      title: 'How the MyGala guest photo QR code works',
+      description:
+        'Switch on Guest Photos in your MyGala dashboard and print QR table cards. Guests scan the code with their phone camera and upload photos to your event page with no app or account, and you download every photo in one click.',
+      caption: 'Switch on Guest Photos, print the QR cards, and guests upload from their phones. Every photo lands in your dashboard.',
+      width: 1920,
+      height: 1080,
+      duration: 'PT35S',
+      uploadDate: '2026-11-02',
+    },
     blocks: [
       {
         heading: 'How the guest photo QR code works',

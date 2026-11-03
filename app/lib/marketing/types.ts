@@ -17,3 +17,17 @@ export type SeoMeta = {
 
 // A product screenshot shown on a page (click to enlarge). src is under public/.
 export type Screenshot = { src: string; alt: string; caption: string; width: number; height: number };
+
+// A short explainer video shown on a page. src and poster are under public/;
+// duration is ISO 8601 (PT34S) and uploadDate YYYY-MM-DD, for search engines.
+export type Video = {
+  src: string;
+  poster: string;
+  title: string;
+  description: string;
+  caption: string;
+  width: number;
+  height: number;
+  duration: string;
+  uploadDate: string;
+};

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { siteUrl } from '@/app/lib/site-url';
-import type { Faq, SeoMeta } from './types';
+import type { Faq, SeoMeta, Video } from './types';
 import { COMPANY } from '@/app/lib/company';
 import { PLAN_CURRENCY, PLAN_ONE_TIME_PRICE, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
@@ -76,6 +76,25 @@ export function webPageJsonLd(seo: SeoMeta, path: string) {
     url: absoluteUrl(path),
     inLanguage: 'en',
     isPartOf: { '@type': 'WebSite', name: 'MyGala', url: absoluteUrl('/') },
+    publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
+  };
+}
+
+// A product video, so search engines can show it in video results.
+export function videoObjectJsonLd(video: Video, path: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: video.title,
+    description: video.description,
+    thumbnailUrl: absoluteUrl(video.poster),
+    contentUrl: absoluteUrl(video.src),
+    uploadDate: video.uploadDate,
+    duration: video.duration,
+    width: video.width,
+    height: video.height,
+    inLanguage: 'en',
+    url: absoluteUrl(path),
     publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
   };
 }
