@@ -7,6 +7,9 @@ import type { Video } from '@/app/lib/marketing/types';
 // screen (unless the visitor prefers reduced motion) and pauses when it
 // scrolls away; the sound button turns the voiceover on. Until it's near the
 // screen only the poster and metadata load.
+// The hero's "Watch a video" button (a link to #video) is a choice to watch:
+// it scrolls here and plays from the start with sound, which the sound
+// button can turn off again (muted only if the browser refuses sound).
 export function FeatureVideo({ video }: { video: Video }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
@@ -20,6 +23,24 @@ export function FeatureVideo({ video }: { video: Video }) {
     }, { threshold: 0.5 });
     io.observe(el);
     return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onClick = (e: MouseEvent) => {
+      const el = ref.current;
+      if (!el || !(e.target as Element).closest?.('a[href="#video"]')) return;
+      e.preventDefault();
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      el.closest('figure')?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
+      el.currentTime = 0;
+      el.muted = false;
+      el.play().catch(() => {
+        el.muted = true;
+        el.play().catch(() => {});
+      });
+    };
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
   }, []);
 
   // Keeps the button in step when the sound is changed from the player's own controls.
@@ -55,16 +76,23 @@ export function FeatureVideo({ video }: { video: Video }) {
         >
           <a href={video.src}>Watch the video: {video.title}</a>
         </video>
-        <button type="button" className="mk-video-sound" onClick={toggleSound} aria-pressed={!muted}>
-          {muted ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="m23 9-6 6M17 9l6 6" /></svg>
-          ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></svg>
-          )}
-          {muted ? 'Turn sound on' : 'Sound on'}
-        </button>
+        <SoundButton muted={muted} onClick={toggleSound} />
       </div>
       <figcaption>{video.caption}</figcaption>
     </figure>
+  );
+}
+
+// The "Turn sound on / Sound on" button over a playing video.
+export function SoundButton({ muted, onClick }: { muted: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className="mk-video-sound" onClick={onClick} aria-pressed={!muted}>
+      {muted ? (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="m23 9-6 6M17 9l6 6" /></svg>
+      ) : (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></svg>
+      )}
+      {muted ? 'Turn sound on' : 'Sound on'}
+    </button>
   );
 }
