@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { getImageProps } from 'next/image';
 import type { Video } from '@/app/lib/marketing/types';
 
 // The homepage's "how MyGala works" video. Only the poster loads with the
@@ -9,8 +10,13 @@ import type { Video } from '@/app/lib/marketing/types';
 // with sound (muted only if the browser refuses sound).
 // The hero's "Watch how it works" button (a link to #how-it-works) scrolls
 // here and starts it too.
+// The poster goes through Next's image optimizer, sized to the frame: the
+// page's width less its side padding (marketing.css .wrap), at most 1056px.
+const POSTER_SIZES = '(max-width: 640px) calc(100vw - 40px), (max-width: 1120px) calc(100vw - 64px), 1056px';
+
 export function HomeVideo({ video }: { video: Video }) {
   const [playing, setPlaying] = useState(false);
+  const { props: poster } = getImageProps({ src: video.poster, alt: '', width: video.width, height: video.height, sizes: POSTER_SIZES, quality: 75 });
   const frame = useRef<HTMLDivElement>(null);
   const player = useRef<HTMLVideoElement>(null);
 
@@ -46,7 +52,7 @@ export function HomeVideo({ video }: { video: Video }) {
         ) : (
           <button type="button" className="home-video-play" onClick={() => setPlaying(true)} data-cta="home-video">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={video.poster} alt="" width={video.width} height={video.height} loading="lazy" decoding="async" />
+            <img {...poster} alt="" loading="lazy" decoding="async" />
             <span className="home-video-btn">
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" /></svg>
               Watch how it works <span className="home-video-len">1 min</span>
