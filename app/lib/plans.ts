@@ -27,7 +27,7 @@ export const PLAN_FEATURES = {
     'Countdown & event details',
     'Event Program',
     'Guest photo wall & table QR codes (up to 50 photos)',
-    'Gala URL (mygala.ca/yourname)',
+    'MyGala URL (mygala.ca/yourname)',
   ],
   plus: [
     'Everything in Free',

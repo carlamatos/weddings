@@ -20,9 +20,11 @@ export default function SiteFooter() {
         <div>
           <p className="site-footer-heading">Events</p>
           {EVENT_TYPES.map((e) => <Link key={e.slug} href={`/events/${e.slug}`}>{e.name}</Link>)}
+          <Link href="/events">All event types</Link>
         </div>
         <div>
           <p className="site-footer-heading">MyGala</p>
+          <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
           <Link href="/faq">FAQ</Link>
           <Link href="/blog">Blog</Link>

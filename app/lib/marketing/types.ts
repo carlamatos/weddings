@@ -10,7 +10,7 @@ export type Step = { title: string; text: string; dashboard?: string; linkLabel?
 export type ContentBlock = { heading: string; paragraphs?: string[]; bullets?: string[] };
 
 export type SeoMeta = {
-  title: string; // <title>, without the "| MyGala" suffix
+  title: string; // <title>, without the "| MyGala" suffix (added unless it already names MyGala)
   description: string; // meta description, ~150–160 characters
   keywords?: string[];
 };

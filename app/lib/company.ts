@@ -6,6 +6,7 @@
 export type Company = {
   legalName: string;
   tradeName: string;
+  alternateNames: string[];
   website: string;
   email: string;
   incorporatedUnder: string;
@@ -13,11 +14,14 @@ export type Company = {
   phone: string;
   corporationNumber: string;
   privacyOfficer: string;
+  profiles: string[];
 };
 
 export const COMPANY: Company = {
   legalName: 'MYGALA INC.',
   tradeName: 'MyGala',
+  // Other ways people write the name, for search engines (schema.org alternateName).
+  alternateNames: ['My Gala', 'mygala.ca'],
   website: 'mygala.ca',
   email: 'info@mygala.ca',
   // e.g. 'the Canada Business Corporations Act' or 'the Business Corporations Act (British Columbia)'
@@ -31,6 +35,10 @@ export const COMPANY: Company = {
   corporationNumber: '',
   // The person (or title) accountable for privacy under PIPEDA.
   privacyOfficer: 'Privacy Officer',
+  // MyGala's own profile pages elsewhere (Pinterest, AlternativeTo, Instagram…),
+  // full URLs. Search engines use them (schema.org sameAs) to tie the
+  // profiles to the brand.
+  profiles: [],
 };
 
 export const COPYRIGHT_YEAR_START = 2026;

@@ -43,7 +43,7 @@ export function PreviewTopBar({ isLoggedIn, backToThemes }: { isLoggedIn?: boole
         {backToThemes && (
           <>
             <Link
-              href="/#themes"
+              href="/events"
               className="mg-back-to-themes"
               style={{ fontSize: 13, fontWeight: 600, color: '#6B6470', textDecoration: 'none', whiteSpace: 'nowrap' }}
             >

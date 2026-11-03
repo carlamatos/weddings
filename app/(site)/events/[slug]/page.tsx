@@ -29,7 +29,7 @@ export default async function EventTypePage({ params }: { params: Promise<{ slug
   const path = `/events/${type.slug}`;
   const crumbs = [
     { name: 'Home', path: '/' },
-    { name: 'Events', path: '/#themes' },
+    { name: 'Events', path: '/events' },
     { name: type.name, path },
   ];
   const themes = themeCardsFor(type.category);

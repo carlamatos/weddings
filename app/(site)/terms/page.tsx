@@ -41,7 +41,7 @@ export default function TermsPage() {
 
       <h2 style={h2}>4. The Service</h2>
       <p>
-        MyGala lets you create a publicly accessible website for your event — such as a wedding, celebration, business or community event — collect RSVPs, keep a guest list, send invitations, share photos and event details, and, with Plus, use additional features such as guest photo uploads, reminders, invitations by email and a custom domain. The Service is offered on a free plan and a paid &ldquo;Plus&rdquo; plan. What each plan includes is described on our <Link href="/#pricing" style={link}>pricing page</Link>.
+        MyGala lets you create a publicly accessible website for your event — such as a wedding, celebration, business or community event — collect RSVPs, keep a guest list, send invitations, share photos and event details, and, with Plus, use additional features such as guest photo uploads, reminders, invitations by email and a custom domain. The Service is offered on a free plan and a paid &ldquo;Plus&rdquo; plan. What each plan includes is described on our <Link href="/pricing" style={link}>pricing page</Link>.
       </p>
 
       <h2 style={h2}>5. Acceptable use</h2>
