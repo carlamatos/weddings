@@ -19,7 +19,8 @@ export type SeoMeta = {
 export type Screenshot = { src: string; alt: string; caption: string; width: number; height: number };
 
 // A short explainer video shown on a page. src and poster are under public/;
-// duration is ISO 8601 (PT34S) and uploadDate YYYY-MM-DD, for search engines.
+// duration is ISO 8601 (PT34S) and uploadDate YYYY-MM-DD (videoObjectJsonLd
+// adds the time and time zone), for search engines.
 export type Video = {
   src: string;
   poster: string;
