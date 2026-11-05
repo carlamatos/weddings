@@ -503,6 +503,18 @@ export const FEATURES: Feature[] = [
       { title: 'Same tools in every theme', text: 'RSVP, countdown, schedule, map, gallery and every Plus feature work in every template.' },
       { title: 'Switch anytime', text: 'Change themes in one click. Your text, photos, RSVPs and settings stay put.' },
     ],
+    video: {
+      src: '/videos/features/change-theme.mp4',
+      poster: '/videos/features/change-theme.jpg',
+      title: 'How to change your theme in the MyGala dashboard',
+      description:
+        'Open your event in the MyGala dashboard and tap Themes. Filter the gallery by type of event, tap a picture to see the whole page, and tap Choose: your page switches right away, and your names, dates, text and photos stay.',
+      caption: 'Tap Themes, pick one from the gallery, and tap Choose. Only the look changes.',
+      width: 1920,
+      height: 1080,
+      duration: 'PT42S',
+      uploadDate: '2026-11-04',
+    },
     blocks: [
       {
         heading: 'Templates by type of event',
