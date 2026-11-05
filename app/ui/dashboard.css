@@ -1463,6 +1463,8 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 640px) {
   /* Phones: just "● Live" and the arrow; the address is in the share menu. */
   .dash-page-status-url { display: none; }
+  /* Don't let the name beside it squeeze the arrow against the border. */
+  .dash-page-status { flex-shrink: 0; padding-right: 14px; }
 }
 
 .dash-share-tabs {
