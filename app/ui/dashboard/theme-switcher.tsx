@@ -13,13 +13,16 @@ interface Props {
   // Shown before the theme's name ("Theme: Fun Party"), so the button reads
   // as the theme picker.
   label?: string;
+  // The top bar's short "Themes" button (phones and tablets), beside the
+  // menu button: it just opens the gallery.
+  quick?: boolean;
 }
 
 // The page's theme. The button opens the full-screen gallery (the same one
 // as on the create form, app/ui/theme-picker.tsx): every theme's website and
 // invitation side by side, with a live preview; choosing one switches the
 // page to it. The page's own text, colours and backgrounds stay.
-export default function ThemeSwitcher({ pageId, currentThemeId, themes, label }: Props) {
+export default function ThemeSwitcher({ pageId, currentThemeId, themes, label, quick = false }: Props) {
   const current = themes.find((t) => t.theme_id === currentThemeId) ?? themes[0] ?? null;
   const [selected, setSelected] = useState<EventTheme | null>(current);
   const [open, setOpen] = useState(false);
@@ -37,18 +40,25 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes, label }:
   return (
     // The phone menu closes on clicks inside it: keep the gallery's own
     // clicks from reaching it.
-    <div className="dash-theme-switcher" onClick={(e) => e.stopPropagation()}>
-      <button
-        className="dash-theme-btn"
-        onClick={() => setOpen(true)}
-        type="button"
-        aria-haspopup="dialog"
-      >
-        <SwatchIcon style={{ width: 14, height: 14 }} />
-        <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? 'Choose theme'}</span>
-        <ChevronRightIcon style={{ width: 12, height: 12 }} />
-      </button>
-      <ThemePicker open={open} selected={selected?.slug ?? ''} onChoose={choose} onClose={() => setOpen(false)} />
+    <div className={quick ? 'dash-theme-switcher dash-themes-quick' : 'dash-theme-switcher'} onClick={(e) => e.stopPropagation()}>
+      {quick ? (
+        <button className="dash-theme-btn" onClick={() => setOpen(true)} type="button" aria-haspopup="dialog">
+          <SwatchIcon style={{ width: 14, height: 14 }} />
+          <span>Themes</span>
+        </button>
+      ) : (
+        <button
+          className="dash-theme-btn"
+          onClick={() => setOpen(true)}
+          type="button"
+          aria-haspopup="dialog"
+        >
+          <SwatchIcon style={{ width: 14, height: 14 }} />
+          <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? 'Choose theme'}</span>
+          <ChevronRightIcon style={{ width: 12, height: 12 }} />
+        </button>
+      )}
+      <ThemePicker open={open} selected={selected?.slug ?? ''} onChoose={choose} onClose={() => setOpen(false)} gridOnPhones />
     </div>
   );
 }
