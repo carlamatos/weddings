@@ -87,6 +87,12 @@ export function webPageJsonLd(seo: SeoMeta, path: string) {
   };
 }
 
+// Google wants uploadDate as a date and time with a time zone: a plain
+// YYYY-MM-DD becomes noon, Pacific time (MyGala is in British Columbia).
+function videoUploadDate(date: string): string {
+  return /^\d{4}-\d{2}-\d{2}$/.test(date) ? `${date}T12:00:00-08:00` : date;
+}
+
 // A product video, so search engines can show it in video results.
 export function videoObjectJsonLd(video: Video, path: string) {
   return {
@@ -96,7 +102,7 @@ export function videoObjectJsonLd(video: Video, path: string) {
     description: video.description,
     thumbnailUrl: absoluteUrl(video.poster),
     contentUrl: absoluteUrl(video.src),
-    uploadDate: video.uploadDate,
+    uploadDate: videoUploadDate(video.uploadDate),
     duration: video.duration,
     width: video.width,
     height: video.height,
