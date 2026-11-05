@@ -40,7 +40,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
       <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} status={status} setup={setup} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
       {pageId !== undefined && userPage && themes.length > 0 && (
-        <ThemeSwitcher pageId={pageId} currentThemeId={userPage.theme_id ?? null} themes={themes} quick />
+        <ThemeSwitcher pageId={pageId} currentThemeId={userPage.theme_id ?? null} themes={themes} quick nudge />
       )}
 
       {pageId !== undefined && userPage && (
@@ -51,6 +51,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
               currentThemeId={userPage.theme_id ?? null}
               themes={themes}
               label="Theme"
+              nudge
             />
           )}
           <LanguageSwitcher pageId={pageId} currentLanguage={userPage.language ?? 'en'} />

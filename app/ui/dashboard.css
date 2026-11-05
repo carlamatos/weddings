@@ -745,6 +745,35 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 1024px) {
   .dash-theme-switcher.dash-themes-quick { display: block; }
 }
+/* The editor's nudge (theme-switcher.tsx): three soft pulses round the
+   button, and a tip under it until it's closed or the gallery opened. */
+.dash-theme-switcher.is-nudging > .dash-theme-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
+@keyframes dash-themes-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(182, 88, 74, 0.45); }
+  70% { box-shadow: 0 0 0 12px rgba(182, 88, 74, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(182, 88, 74, 0); }
+}
+.dash-themes-tip {
+  position: absolute; top: calc(100% + 12px); left: 0; z-index: 100; width: max-content; max-width: min(280px, calc(100vw - 72px));
+  display: flex; align-items: flex-start; gap: 8px; padding: 12px 10px 12px 14px; border-radius: 12px;
+  background: var(--ink); color: #fff; box-shadow: 0 12px 28px -12px rgba(36, 31, 43, 0.55);
+  animation: dash-themes-tip-in 0.3s ease-out 0.4s both;
+}
+.dash-themes-tip::before {
+  content: ''; position: absolute; top: -6px; left: 22px; width: 12px; height: 12px; background: var(--ink); transform: rotate(45deg); border-radius: 2px;
+}
+.dash-themes-tip p { margin: 0; font-size: 13px; line-height: 1.45; white-space: normal; }
+.dash-themes-tip strong { display: block; font-weight: 700; }
+.dash-themes-tip button {
+  flex-shrink: 0; display: grid; place-items: center; width: 24px; height: 24px; margin: -4px -2px 0 0; padding: 0;
+  border: none; border-radius: 50%; background: transparent; color: rgba(255, 255, 255, 0.75); cursor: pointer;
+}
+.dash-themes-tip button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
+.dash-themes-tip button svg { width: 16px; height: 16px; }
+@keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-themes-tip { animation: none; }
+}
 
 .dash-theme-dropdown {
   position: absolute;
