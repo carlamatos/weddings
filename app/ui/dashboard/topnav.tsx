@@ -39,6 +39,10 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
     <header className="dash-topnav">
       <MobileMenu pageId={pageId} pageName={userPage?.heading} isPaid={isPaid} status={status} setup={setup} themes={themes} currentThemeId={userPage?.theme_id ?? null} currentLanguage={userPage?.language ?? 'en'} />
 
+      {pageId !== undefined && userPage && themes.length > 0 && (
+        <ThemeSwitcher pageId={pageId} currentThemeId={userPage.theme_id ?? null} themes={themes} quick />
+      )}
+
       {pageId !== undefined && userPage && (
         <div className="dash-topnav-actions">
           {themes.length > 0 && (

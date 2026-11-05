@@ -113,6 +113,32 @@ html:has(.tp-dialog[open]) { overflow: hidden; }
   .tp-shot { height: 340px; }
   @media (hover: hover) { .tp-shot:hover img, .tp-shot:focus-visible img { transform: translateY(calc(-100% + 340px)); } }
 }
+/* The dashboard's gallery on phones: two themes a row, each just the top of
+   its website (no scrolling inside it), and a hint that more themes follow. */
+.tp-scroll-hint { display: none; }
+@media (max-width: 600px) {
+  .tp-dialog--grid .tp-sub, .tp-dialog--grid .tp-invite, .tp-dialog--grid .tp-pair-label,
+  .tp-dialog--grid .tp-shot-hint, .tp-dialog--grid .tp-cat, .tp-dialog--grid .tp-desc,
+  .tp-dialog--grid .tp-live, .tp-dialog--grid .tp-choose-name { display: none; }
+  .tp-dialog--grid .tp-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tp-dialog--grid .tp-pair { grid-template-columns: 1fr; }
+  .tp-dialog--grid .tp-shot { height: 250px; }
+  .tp-dialog--grid .tp-shot img, .tp-dialog--grid .tp-shot:hover img, .tp-dialog--grid .tp-shot:focus-visible img { transform: none; transition: none; }
+  .tp-dialog--grid .tp-info { padding: 10px 10px 12px; }
+  .tp-dialog--grid .tp-name { font-size: 16px; margin-bottom: 10px; flex: 1; }
+  .tp-dialog--grid .tp-choose { padding: 8px 10px; font-size: 13px; }
+  .tp-dialog--grid .tp-body { padding-bottom: 72px; }
+  .tp-dialog--grid .tp-scroll-hint {
+    position: absolute; left: 50%; bottom: calc(18px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 2;
+    display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 9px 16px; border-radius: 999px; pointer-events: none;
+    background: rgba(36, 31, 43, 0.85); color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap;
+    box-shadow: 0 8px 20px -8px rgba(36, 31, 43, 0.5); animation: tp-nudge 1.6s ease-in-out infinite;
+  }
+  .tp-dialog--grid .tp-scroll-hint svg { width: 16px; height: 16px; }
+}
+@keyframes tp-nudge { 0%, 100% { translate: 0 0; } 50% { translate: 0 4px; } }
+@media (prefers-reduced-motion: reduce) { .tp-scroll-hint { animation: none !important; } }
+
 /* Shorter hint for the narrower website half of a theme card. */
 .tp-pair .tp-shot-hint::after { content: 'Hover to scroll'; }
 @media (hover: none) {

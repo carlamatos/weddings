@@ -739,6 +739,12 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   white-space: nowrap;
 }
 .dash-theme-btn:hover { border-color: var(--ink-soft); background: var(--paper); }
+/* The top bar's "Themes" button: phones and tablets only (desktops have
+   the "Theme: name" button). */
+.dash-themes-quick { display: none; flex-shrink: 0; }
+@media (max-width: 1024px) {
+  .dash-theme-switcher.dash-themes-quick { display: block; }
+}
 
 .dash-theme-dropdown {
   position: absolute;
@@ -1457,6 +1463,8 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 @media (max-width: 640px) {
   /* Phones: just "● Live" and the arrow; the address is in the share menu. */
   .dash-page-status-url { display: none; }
+  /* Don't let the name beside it squeeze the arrow against the border. */
+  .dash-page-status { flex-shrink: 0; padding-right: 14px; }
 }
 
 .dash-share-tabs {

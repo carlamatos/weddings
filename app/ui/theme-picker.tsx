@@ -54,7 +54,7 @@ export function occasionThemes(occasion?: StartOccasion, theme?: string): string
 }
 
 export function ThemePicker({
-  open, selected, onChoose, onClose, first = [], compactOnPhones = false, limit,
+  open, selected, onChoose, onClose, first = [], compactOnPhones = false, gridOnPhones = false, limit,
 }: {
   open: boolean;
   selected: string;
@@ -64,6 +64,10 @@ export function ThemePicker({
   // On phones: no intro under the title, and each theme shows just its
   // website (the setup page); tablets and desktops show everything.
   compactOnPhones?: boolean;
+  // On phones: two themes a row, each just its website's top (the picture
+  // doesn't scroll; tap it to see the whole page), with a "scroll for more"
+  // hint until the gallery is scrolled (the dashboard's theme switcher).
+  gridOnPhones?: boolean;
   // A short list first: only the first `limit` themes (in `first` order),
   // with no filters, and a button to see every theme.
   limit?: number;
@@ -76,6 +80,7 @@ export function ThemePicker({
   // opened it (focus goes back there).
   const [viewing, setViewing] = useState<ThemeCard | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
   function closeView() {
     setViewing(null);
@@ -98,8 +103,8 @@ export function ThemePicker({
   return (
     // onClose: Esc (and close()) — keep the parent's state in step.
     // Esc with a page open full screen just closes that page.
-    <dialog ref={dialog} className={compactOnPhones ? 'tp-dialog tp-dialog--compact' : 'tp-dialog'} aria-labelledby="tp-title"
-      onClose={() => { setViewing(null); setShowAll(false); onClose(); }}
+    <dialog ref={dialog} className={`tp-dialog${compactOnPhones ? ' tp-dialog--compact' : ''}${gridOnPhones ? ' tp-dialog--grid' : ''}`} aria-labelledby="tp-title"
+      onClose={() => { setViewing(null); setShowAll(false); setScrolled(false); onClose(); }}
       onCancel={(e) => { if (viewing) { e.preventDefault(); closeView(); } }}>
       <div className="tp-head">
         <div className="tp-head-row">
@@ -123,7 +128,7 @@ export function ThemePicker({
         </div>}
       </div>
 
-      <div className="tp-body">
+      <div className="tp-body" onScroll={gridOnPhones && !scrolled ? (e) => { if (e.currentTarget.scrollTop > 60) setScrolled(true); } : undefined}>
         {/* Only the open gallery loads its pictures and fonts. */}
         {open && <link rel="stylesheet" href={INVITATION_FONTS_HREF} />}
         {open && (
@@ -155,7 +160,7 @@ export function ThemePicker({
                     <p className="tp-desc">{t.desc}</p>
                     <div className="tp-actions">
                       <button type="button" className="tp-choose" onClick={() => onChoose(t.slug)} aria-pressed={isSelected}>
-                        {isSelected ? <><CheckIcon aria-hidden="true" /> Chosen</> : `Choose ${t.name}`}
+                        {isSelected ? <><CheckIcon aria-hidden="true" /> Chosen</> : <>Choose<span className="tp-choose-name"> {t.name}</span></>}
                       </button>
                       <a className="tp-live" href={`/themes/${t.slug}`} target="_blank" rel="noopener noreferrer">
                         Live preview <ArrowTopRightOnSquareIcon aria-hidden="true" />
@@ -175,6 +180,13 @@ export function ThemePicker({
           </div>
         )}
       </div>
+
+      {open && gridOnPhones && !scrolled && !viewing && (
+        <p className="tp-scroll-hint" aria-hidden="true">
+          Scroll down for more themes
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 3a.75.75 0 0 1 .75.75v10.638l3.96-4.158a.75.75 0 1 1 1.08 1.04l-5.25 5.5a.75.75 0 0 1-1.08 0l-5.25-5.5a.75.75 0 1 1 1.08-1.04l3.96 4.158V3.75A.75.75 0 0 1 10 3Z" clipRule="evenodd" /></svg>
+        </p>
+      )}
 
       {open && viewing && (
         <div className="tp-view" role="dialog" aria-modal="true" aria-label={`${viewing.name}: the whole page`}>
