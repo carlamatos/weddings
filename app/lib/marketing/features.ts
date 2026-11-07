@@ -211,6 +211,18 @@ export const FEATURES: Feature[] = [
       width: 1920,
       height: 911,
     },
+    video: {
+      src: '/videos/features/find-your-table.mp4',
+      poster: '/videos/features/find-your-table.jpg',
+      title: 'How Find Your Table works in MyGala',
+      description:
+        'Add your tables in the MyGala dashboard and drag your guests onto them, or paste your seating chart from a spreadsheet. Switch it on and print the QR sign: guests scan it, type their name and see their table, and changes show up right away with nothing to reprint.',
+      caption: 'Seat your guests in the dashboard, print the QR sign, and guests look up their own table.',
+      width: 1920,
+      height: 1080,
+      duration: 'PT42S',
+      uploadDate: '2026-11-06',
+    },
     highlights: [
       { title: 'A drag-and-drop seating map', text: 'Add your tables, then drag guests onto them. Seats fill in as you go, so you always see where there’s room.' },
       { title: 'Nothing to reprint', text: 'Move a guest the night before and the change is live straight away. Your sign never goes out of date.' },
