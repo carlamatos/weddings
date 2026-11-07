@@ -1,17 +1,19 @@
 import { verifyUnsubscribe } from '@/app/lib/unsubscribe-token';
 import { guestEventName, unsubscribeGuest } from '@/app/lib/unsubscribe';
 import { isNewsletterSubscriber, unsubscribeFromNewsletter, verifyNewsletterUnsubscribe } from '@/app/lib/newsletter';
+import { unsubscribeUser, userEmailPreference, verifyUserUnsubscribe } from '@/app/lib/admin-email';
 import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
 
 export const metadata = { title: 'Unsubscribe', robots: { index: false, follow: false } };
 
-// Linked from the footer of reminder emails (?g=<guest id>) and newsletter
-// emails (?n=<email>). Asks for a click rather than
+// Linked from the footer of reminder emails (?g=<guest id>), newsletter
+// emails (?n=<email>) and emails from the admin email sender (?u=<user id>). Asks for a click rather than
 // unsubscribing on page load, so link-scanning mail filters can't do it.
-export default async function UnsubscribePage({ searchParams }: { searchParams: Promise<{ g?: string; n?: string; t?: string; done?: string }> }) {
-  const { g, n, t, done } = await searchParams;
+export default async function UnsubscribePage({ searchParams }: { searchParams: Promise<{ g?: string; n?: string; u?: string; t?: string; done?: string }> }) {
+  const { g, n, u, t, done } = await searchParams;
   if (n !== undefined) return <NewsletterUnsubscribe n={n} t={t} done={!!done} />;
+  if (u !== undefined) return <UserUnsubscribe u={u} t={t} done={!!done} />;
   const guestId = verifyUnsubscribe(g ?? null, t ?? null);
   const guest = guestId ? await guestEventName(guestId) : null;
 
@@ -69,6 +71,46 @@ async function NewsletterUnsubscribe({ n, t, done }: { n: string; t?: string; do
     body = (
       <>
         <p className="auth-subheading">Stop sending the MyGala newsletter to <strong>{email}</strong>?</p>
+        <form action={confirm}>
+          <button className="auth-btn" type="submit">Unsubscribe</button>
+        </form>
+      </>
+    );
+  }
+
+  return (
+    <main className={`auth-page ${greatVibes.variable}`}>
+      <div className="auth-card" style={{ maxWidth: 440, textAlign: 'center' }}>
+        <p className="auth-wordmark">My<span className="accent">Gala</span></p>
+        <h1 className="auth-heading">Email preferences</h1>
+        {body}
+      </div>
+    </main>
+  );
+}
+
+// MyGala's own emails to an account holder (tips, news, help with their page).
+// Account emails they need (password resets, RSVPs) aren't affected.
+async function UserUnsubscribe({ u, t, done }: { u: string; t?: string; done: boolean }) {
+  const userId = verifyUserUnsubscribe(u, t ?? null);
+  const pref = userId ? await userEmailPreference(userId) : null;
+
+  async function confirm() {
+    'use server';
+    if (userId) await unsubscribeUser(userId);
+    const { redirect } = await import('next/navigation');
+    redirect(`/unsubscribe?u=${u}&t=${t}&done=1`);
+  }
+
+  let body: React.ReactNode;
+  if (!pref) {
+    body = <p className="auth-subheading">This unsubscribe link isn&apos;t valid anymore. If you keep getting emails you didn&apos;t ask for, write to us at info@mygala.ca and we&apos;ll sort it out.</p>;
+  } else if (done || !pref.subscribed) {
+    body = <p className="auth-subheading">You&apos;re unsubscribed. <strong>{pref.email}</strong> won&apos;t receive news or tips from MyGala anymore. We&apos;ll still send emails about your account, like password resets and new RSVPs.</p>;
+  } else {
+    body = (
+      <>
+        <p className="auth-subheading">Stop receiving news and tips from MyGala at <strong>{pref.email}</strong>? You&apos;ll still get emails about your account, like password resets and new RSVPs.</p>
         <form action={confirm}>
           <button className="auth-btn" type="submit">Unsubscribe</button>
         </form>

@@ -117,9 +117,30 @@ export async function POST() {
     )
   `;
 
+  // The admin email sender (app/lib/admin-email.ts, which also creates
+  // these on first use).
+  await sql`
+    CREATE TABLE IF NOT EXISTS user_email_opt_outs (
+      user_id UUID PRIMARY KEY,
+      opted_out_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`
+    CREATE TABLE IF NOT EXISTS admin_email_log (
+      id SERIAL PRIMARY KEY,
+      user_id UUID NOT NULL,
+      email TEXT NOT NULL,
+      template TEXT NOT NULL,
+      subject TEXT NOT NULL,
+      sent_by TEXT,
+      sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await sql`CREATE INDEX IF NOT EXISTS admin_email_log_user_idx ON admin_email_log (user_id, sent_at DESC)`;
+
   return NextResponse.json({
     ok: true,
     message:
-      'Tables ready: user_plans, user_cancellations, deleted_users, deleted_pages, page_purges, newsletter_subscribers. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
+      'Tables ready: user_plans, user_cancellations, deleted_users, deleted_pages, page_purges, newsletter_subscribers, user_email_opt_outs, admin_email_log. Columns ready: user_page.status, user_page.status_changed_at, user_plans.current_period_end, user_plans.cancel_at_period_end.',
   });
 }
