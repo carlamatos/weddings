@@ -7,6 +7,7 @@ export type ThemeCard = {
   slug: string;
   name: string;
   category: EventCategory;
+  also?: EventCategory[]; // more categories it's shown under
   desc: string;
   sample: { heading: string; eventDate: string; city: string; country: string };
   bg: string;
@@ -83,18 +84,21 @@ export const THEME_CARDS: ThemeCard[] = [
   { slug: 'antique-cars', name: 'Antique Cars', category: 'community', bg: '#57C0B9',
     desc: 'Teal, deep purple, and golden yellow with checkered flags, wire wheels, and a classic car cruising the page — built for antique and classic car shows.',
     sample: { heading: 'Classic Car Show', eventDate: '2027-06-19', city: 'Maple Ridge', country: 'BC' } },
-  { slug: 'christmas-party', name: 'Christmas Party', category: 'community', bg: '#2C3138',
+  { slug: 'christmas-party', name: 'Christmas Party', category: 'community', also: ['birthdays'], bg: '#2C3138',
     desc: 'Forest green, bauble red and golden light with falling snow, twinkling string lights and a swinging bauble countdown — cozy and cute for holiday parties.',
     sample: { heading: 'Christmas Party', eventDate: '2026-12-19', city: 'Banff', country: 'AB' } },
-  { slug: 'white-christmas', name: 'White Christmas', category: 'community', bg: '#DAE4F0',
+  { slug: 'white-christmas', name: 'White Christmas', category: 'community', also: ['birthdays'], bg: '#DAE4F0',
     desc: 'Icy winter blues with gold stars, silver and pine, gold-framed cards and gently falling snow — classic and elegant for holiday celebrations.',
     sample: { heading: 'White Christmas', eventDate: '2026-12-12', city: 'Lake Louise', country: 'AB' } },
-  { slug: 'merry', name: 'Merry', category: 'community', bg: '#101A25',
+  { slug: 'merry', name: 'Merry', category: 'community', also: ['birthdays'], bg: '#101A25',
     desc: 'Midnight navy and snowflake gold with a red satin ribbon. A gold arch under hanging stars, swinging glass baubles and advent-window countdown — elegant for holiday parties.',
     sample: { heading: 'Merry & Bright', eventDate: '2026-12-18', city: 'Toronto', country: 'ON' } },
-  { slug: 'gnomes', name: 'Gnomes', category: 'community', bg: '#F0E5DD',
+  { slug: 'gnomes', name: 'Gnomes', category: 'community', also: ['birthdays'], bg: '#F0E5DD',
     desc: 'Watercolour gnomes in hat red, pine and sage with fairy lights, santa hats in the snow, a gnome postcard and polaroids — cozy and cute for holiday parties.',
     sample: { heading: 'Gnome for the Holidays', eventDate: '2026-12-12', city: 'Stratford', country: 'ON' } },
+  { slug: 'new-years-eve', name: 'New Year’s Eve', category: 'community', also: ['birthdays'], bg: '#181509',
+    desc: 'Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight on gold glitter — elegant and festive for New Year’s Eve parties.',
+    sample: { heading: 'New Year’s Eve', eventDate: '2026-12-31', city: 'Toronto', country: 'ON' } },
   { slug: 'dia-de-los-muertos', name: 'Día de los Muertos', category: 'community', bg: '#FBB813',
     desc: 'Deep plum and marigold with hot pink and teal, swaying papel picado, falling petals and dancing sugar skulls — joyful and colourful for remembrance celebrations.',
     sample: { heading: 'Día de los Muertos', eventDate: '2026-11-01', city: 'Toronto', country: 'ON' } },
@@ -103,17 +107,22 @@ export const THEME_CARDS: ThemeCard[] = [
     sample: { heading: 'Halloween Party', eventDate: '2026-10-31', city: 'Niagara-on-the-Lake', country: 'ON' } },
 ];
 
+// Whether a theme is shown under a category: its own, or one it's also under.
+export const inCategory = (t: Pick<ThemeCard, 'category' | 'also'>, category: EventCategory): boolean =>
+  t.category === category || !!t.also?.includes(category);
+
 export function themeCardsFor(category: EventCategory): ThemeCard[] {
-  return THEME_CARDS.filter((t) => t.category === category);
+  return THEME_CARDS.filter((t) => inCategory(t, category));
 }
 
 // The celebration pages' themes (/party-celebrations, /design-your-party-invitation),
-// in their order: birthdays, baby showers, Halloween, then Christmas.
+// in their order: birthdays, baby showers, Halloween, Christmas, then New Year's Eve.
 export const CELEBRATION_THEMES = [
   'balloons', 'fun-party', 'alegria',
   'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy',
   'halloween-party', 'dia-de-los-muertos',
   'christmas-party', 'white-christmas', 'merry', 'gnomes',
+  'new-years-eve',
 ];
 
 // Where a theme's "Start your event page" button goes (the theme demos' top

@@ -774,6 +774,7 @@ export function ornamentSvg(kind: OrnamentKind, ornament: Ornament, color = 'cur
 const OCCASION_BY_THEME: Record<string, OrnamentOccasion> = {
   'merry': 'christmas', 'gnomes': 'christmas', 'white-christmas': 'christmas', 'christmas-party': 'christmas',
   'halloween-party': 'halloween', 'dia-de-los-muertos': 'halloween',
+  'new-years-eve': 'birthday',
   'fun-party': 'birthday', 'balloons': 'birthday', 'alegria': 'birthday', 'antique-cars': 'birthday',
   'baby-shower-girl': 'birthday', 'baby-shower-neutral': 'birthday', 'baby-shower-boy': 'birthday',
 };
@@ -806,6 +807,7 @@ const PALETTES: Record<string, string[]> = {
   'white-christmas': ['#B89B4F', '#23415E', '#D6AB7C', '#FFFFFF', '#C7CBD7'],
   'merry': ['#D3B560', '#DC3E36', '#A4191F', '#F3F6F9', '#24506B'],
   'gnomes': ['#D91D1A', '#476735', '#34502A', '#FABA61', '#F57774'],
+  'new-years-eve': ['#C59F5E', '#E8BC76', '#D0BFA0', '#AD741E', '#F7F1E6'],
   'dia-de-los-muertos': ['#FBB813', '#EB247B', '#F0562C', '#FCDE11', '#FDF3E1'],
   'halloween-party': ['#F07F1E', '#EDE4D3', '#FF5A6E', '#FEA132', '#3D3839'],
 };

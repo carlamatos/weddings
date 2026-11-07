@@ -141,6 +141,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'merry')
   `;
 
+  // New Year's Eve theme (General Events, key 'community'; also shown under Celebrations).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'New Year''s Eve',
+           'Espresso, bronze and champagne with polished gold. A sweep of gold sparkles and falling confetti over sparklers, the new year in tall gold outline, a countdown to midnight on gold glitter and an RSVP under raining glitter. Elegant and festive for New Year''s Eve parties.',
+           'new-years-eve'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'new-years-eve')
+  `;
+
   // Día de los Muertos theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)

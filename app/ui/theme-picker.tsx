@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, XMarkIcon, ArrowTopRightOnSquareIcon } from '@heroicons/react/20/solid';
-import { CELEBRATION_THEMES, THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
+import { CELEBRATION_THEMES, THEME_CARDS, inCategory, type ThemeCard } from '@/app/lib/marketing/theme-cards';
 import type { EventCategory } from './themes/types';
 import './theme-picker.css';
 import { defaultInvitation, googleFontsHref } from '@/app/lib/invitation';
@@ -97,8 +97,8 @@ export function ThemePicker({
   // The occasion's themes first (in `first` order), then the rest as usual.
   const rank = (slug: string) => { const i = first.indexOf(slug); return i < 0 ? first.length : i; };
   const ordered = first.length ? [...THEME_CARDS].sort((a, b) => rank(a.slug) - rank(b.slug)) : THEME_CARDS;
-  const shown = short ? ordered.slice(0, limit) : filter === 'all' ? ordered : ordered.filter((t) => t.category === filter);
-  const count = (f: Filter) => (f === 'all' ? THEME_CARDS.length : THEME_CARDS.filter((t) => t.category === f).length);
+  const shown = short ? ordered.slice(0, limit) : filter === 'all' ? ordered : ordered.filter((t) => inCategory(t, filter));
+  const count = (f: Filter) => (f === 'all' ? THEME_CARDS.length : THEME_CARDS.filter((t) => inCategory(t, f)).length);
 
   return (
     // onClose: Esc (and close()) — keep the parent's state in step.
