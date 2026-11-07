@@ -3,32 +3,56 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Video } from '@/app/lib/marketing/types';
 
+// The players' own words, in English or Spanish (the /es pages).
+export const VIDEO_UI = {
+  en: { watch: 'Watch the video', soundOff: 'Turn sound on', soundOn: 'Sound on', howItWorks: 'Watch how it works' },
+  es: { watch: 'Ver el video', soundOff: 'Activar sonido', soundOn: 'Sonido activado', howItWorks: 'Mira cómo funciona' },
+} as const;
+export type VideoLang = keyof typeof VIDEO_UI;
+
 // A short explainer video on a feature page. It plays muted while it's on
 // screen (unless the visitor prefers reduced motion) and pauses when it
 // scrolls away; the sound button turns the voiceover on. Until it's near the
 // screen only the poster and metadata load.
-// The hero's "Watch a video" button (a link to #video) is a choice to watch:
+// The hero's "Watch a video" button (a link to #video, or to the id given)
+// is a choice to watch:
 // it scrolls here and plays from the start with sound, which the sound
 // button can turn off again (muted only if the browser refuses sound).
-export function FeatureVideo({ video }: { video: Video }) {
+// soundOnPlay: pressing play turns the sound on too (/es/funciones); the
+// muted play while it's on screen doesn't.
+export function FeatureVideo({ video, lang = 'en', id = 'video', soundOnPlay = false }: { video: Video; lang?: VideoLang; id?: string; soundOnPlay?: boolean }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
+  // Set while the video starts by itself, so that play isn't taken for a press.
+  const autoplaying = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const io = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) el.play().catch(() => {});
-      else el.pause();
+      if (entry.isIntersecting) {
+        autoplaying.current = true;
+        el.play().catch(() => {}).finally(() => { autoplaying.current = false; });
+      } else el.pause();
     }, { threshold: 0.5 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
   useEffect(() => {
+    const el = ref.current;
+    if (!soundOnPlay || !el) return;
+    const onPlay = () => {
+      if (!autoplaying.current) el.muted = false;
+    };
+    el.addEventListener('play', onPlay);
+    return () => el.removeEventListener('play', onPlay);
+  }, [soundOnPlay]);
+
+  useEffect(() => {
     const onClick = (e: MouseEvent) => {
       const el = ref.current;
-      if (!el || !(e.target as Element).closest?.('a[href="#video"]')) return;
+      if (!el || !(e.target as Element).closest?.(`a[href="#${id}"]`)) return;
       e.preventDefault();
       const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       el.closest('figure')?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
@@ -41,7 +65,7 @@ export function FeatureVideo({ video }: { video: Video }) {
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, []);
+  }, [id]);
 
   // Keeps the button in step when the sound is changed from the player's own controls.
   useEffect(() => {
@@ -60,7 +84,7 @@ export function FeatureVideo({ video }: { video: Video }) {
   }
 
   return (
-    <figure className="mk-video" id="video">
+    <figure className="mk-video" id={id}>
       <div className="mk-video-frame">
         <video
           ref={ref}
@@ -74,9 +98,9 @@ export function FeatureVideo({ video }: { video: Video }) {
           preload="metadata"
           aria-label={video.title}
         >
-          <a href={video.src}>Watch the video: {video.title}</a>
+          <a href={video.src}>{VIDEO_UI[lang].watch}: {video.title}</a>
         </video>
-        <SoundButton muted={muted} onClick={toggleSound} />
+        <SoundButton muted={muted} onClick={toggleSound} lang={lang} />
       </div>
       <figcaption>{video.caption}</figcaption>
     </figure>
@@ -84,7 +108,7 @@ export function FeatureVideo({ video }: { video: Video }) {
 }
 
 // The "Turn sound on / Sound on" button over a playing video.
-export function SoundButton({ muted, onClick }: { muted: boolean; onClick: () => void }) {
+export function SoundButton({ muted, onClick, lang = 'en' }: { muted: boolean; onClick: () => void; lang?: VideoLang }) {
   return (
     <button type="button" className="mk-video-sound" onClick={onClick} aria-pressed={!muted}>
       {muted ? (
@@ -92,7 +116,7 @@ export function SoundButton({ muted, onClick }: { muted: boolean; onClick: () =>
       ) : (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5Z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14" /></svg>
       )}
-      {muted ? 'Turn sound on' : 'Sound on'}
+      {muted ? VIDEO_UI[lang].soundOff : VIDEO_UI[lang].soundOn}
     </button>
   );
 }

@@ -2084,8 +2084,9 @@ export async function FacebookSignIn() {
 
 
 // Sign-up asks only for an email and a password; names and phone can be
-// added later in the profile. The form comes in English and French (the
-// French wedding landing page sends ?lang=fr), so its messages do too.
+// added later in the profile. The form comes in English, French and Spanish
+// (the French wedding landing page sends ?lang=fr, the Spanish pages
+// ?lang=es), so its messages do too.
 // Only the create-event form (with its query string) — never another site.
 function safeSetupPath(next: string): string {
   return /^\/dashboard\/setup(\?[\w=&%.+\-]*)?$/.test(next) ? next : '/dashboard';
@@ -2112,7 +2113,23 @@ const REGISTER_MESSAGES = {
     lookupFailed: 'Une erreur est survenue. Veuillez réessayer.',
     createFailed: 'Une erreur est survenue lors de la création de votre compte. Veuillez réessayer.',
   },
+  es: {
+    email: 'Escribe un correo electrónico válido.',
+    password: 'La contraseña debe tener al menos 8 caracteres.',
+    confirmPassword: 'Las contraseñas no coinciden.',
+    fix: 'Corrige los errores de abajo.',
+    exists: 'Ya existe una cuenta con este correo electrónico.',
+    rateLimited: 'Demasiados registros desde esta conexión. Inténtalo de nuevo más tarde.',
+    lookupFailed: 'Algo salió mal. Inténtalo de nuevo.',
+    createFailed: 'Algo salió mal al crear tu cuenta. Inténtalo de nuevo.',
+  },
 } as const;
+
+// The sign-up form's language (its hidden lang field).
+const registerLang = (formData: FormData): keyof typeof REGISTER_MESSAGES => {
+  const lang = formData.get('lang');
+  return lang === 'fr' || lang === 'es' ? lang : 'en';
+};
 
 export type RegisterState = {
   errors?: {
@@ -2127,7 +2144,7 @@ export type RegisterState = {
 // your invitation" pages' own sign-up step: checks, the account, and its
 // verification email. A state to show when something's wrong.
 async function createCredentialsAccount(formData: FormData): Promise<{ email: string; password: string } | { state: RegisterState }> {
-  const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
+  const lang = registerLang(formData);
   const m = REGISTER_MESSAGES[lang];
   // The form checks this too; checked here before the rate limit so a typo
   // doesn't use up an attempt.
@@ -2211,7 +2228,7 @@ export async function registerOnTryPage(prevState: RegisterState & { ok?: boolea
 }
 
 export async function registerUser(prevState: RegisterState, formData: FormData): Promise<RegisterState> {
-  const lang = formData.get('lang') === 'fr' ? 'fr' : 'en';
+  const lang = registerLang(formData);
   const account = await createCredentialsAccount(formData);
   if ('state' in account) return account.state;
   const { email, password } = account;
@@ -2224,5 +2241,5 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
     if (!(error instanceof AuthError)) throw error;
     console.error('Sign-in after sign-up failed:', error);
   }
-  redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'fr' ? '&lang=fr' : ''}`);
+  redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'en' ? '' : `&lang=${lang}`}`);
 }

@@ -33,10 +33,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { ...meta, openGraph: { ...meta.openGraph, images: [image] }, twitter: { ...meta.twitter, images: [image.url] } };
 }
 
-export default async function ThemePreviewPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+// ?lang=es or ?lang=fr shows MyGala's own words on the page in that language
+// (the Spanish pages link here); the sample text stays as it is.
+export default async function ThemePreviewPage({ params, searchParams }: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const [{ slug }, { lang }] = await Promise.all([params, searchParams]);
   const demo = THEME_DEMOS[slug];
   if (!demo || !themeRegistry[slug]) notFound();
   const session = await auth();
-  return <ThemeRenderer themeSlug={slug} {...demo} demo isLoggedIn={!!session?.user} />;
+  const language = lang === 'es' || lang === 'fr' ? lang : demo.language;
+  return <ThemeRenderer themeSlug={slug} {...demo} language={language} demo isLoggedIn={!!session?.user} />;
 }

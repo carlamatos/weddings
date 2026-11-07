@@ -1,0 +1,163 @@
+/* The Spanish pages (/es): what they add to marketing.css. */
+
+.es-page .es-lang {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--ink-soft); text-decoration: none;
+  padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff;
+}
+.es-page .es-lang:hover { color: var(--rose); border-color: var(--rose); }
+.es-page .nav-link[aria-current="page"] { color: var(--rose); }
+.es-page .mobile-nav-link[aria-current="page"] { color: var(--rose); }
+.es-page .es-fine { text-align: center; font-size: 13px; color: var(--ink-soft); line-height: 1.7; margin: 28px auto 0; max-width: 640px; }
+.es-page .es-fine a { color: var(--rose); }
+.es-page .es-center { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+.es-page .es-center .eyebrow { text-align: center; }
+.es-page .es-center .section-sub { margin: 0 auto; }
+
+/* Four steps, joined by a line */
+.es-page .es-steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; position: relative; counter-reset: es-step; }
+.es-page .es-steps::before { content: ''; position: absolute; left: 28px; right: 28px; top: 27px; height: 1px; background: linear-gradient(90deg, var(--rose), var(--line)); }
+.es-page .es-steps li { position: relative; counter-increment: es-step; }
+.es-page .es-steps li::before {
+  content: counter(es-step); display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%;
+  background: var(--paper); border: 1.5px solid var(--rose); color: var(--rose); font-family: var(--font-display); font-size: 24px; margin-bottom: 22px; position: relative;
+}
+.es-page .es-steps h3 { font-family: var(--font-display); font-weight: 400; font-size: 23px; margin: 0 0 10px; color: var(--ink); }
+.es-page .es-steps p { font-size: 15px; line-height: 1.7; color: var(--ink-soft); margin: 0; }
+@media (max-width: 900px) {
+  .es-page .es-steps { grid-template-columns: 1fr 1fr; gap: 36px 28px; }
+  .es-page .es-steps::before { display: none; }
+}
+@media (max-width: 560px) { .es-page .es-steps { grid-template-columns: 1fr; } }
+
+/* A dark band: the page in Spanish */
+.es-page .es-band { background: var(--ink); color: var(--paper); padding: 96px 0; overflow: hidden; }
+.es-page .es-band .wrap { display: grid; grid-template-columns: 1.05fr 1fr; gap: 64px; align-items: center; }
+.es-page .es-band .eyebrow { color: #F3D9CF; }
+.es-page .es-band .section-title { color: var(--paper); }
+.es-page .es-band .section-sub { color: rgba(246, 242, 237, 0.72); }
+.es-page .es-band .es-check li { color: rgba(246, 242, 237, 0.9); }
+.es-page .es-band .es-check li::before { background: rgba(243, 217, 207, 0.16); color: #F3D9CF; }
+.es-page .es-words { display: grid; gap: 14px; }
+.es-page .es-word { display: flex; align-items: center; gap: 16px; padding: 16px 20px; border-radius: 16px; background: rgba(246, 242, 237, 0.06); border: 1px solid rgba(246, 242, 237, 0.12); }
+.es-page .es-word span { font-size: 13px; color: rgba(246, 242, 237, 0.55); min-width: 120px; text-decoration: line-through; text-decoration-color: rgba(243, 217, 207, 0.5); }
+.es-page .es-word svg { flex-shrink: 0; color: #F3D9CF; }
+.es-page .es-word b { font-family: var(--font-display); font-weight: 400; font-size: 24px; color: #fff; }
+@media (max-width: 900px) { .es-page .es-band .wrap { grid-template-columns: 1fr; gap: 40px; } }
+
+/* A list with round ticks */
+.es-page .es-check { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 12px; }
+.es-page .es-check li { position: relative; padding-left: 34px; font-size: 15px; line-height: 1.6; color: var(--ink); }
+.es-page .es-check li::before {
+  content: '✓'; position: absolute; left: 0; top: 1px; width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(182, 88, 74, 0.12); color: var(--rose); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+}
+
+/* A page header with a phone beside it */
+.es-page .es-split { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 56px; align-items: center; }
+.es-page .es-split .mk-lead { max-width: 560px; }
+@media (max-width: 900px) {
+  .es-page .es-split { grid-template-columns: 1fr; gap: 40px; }
+  .es-page .es-split .es-phone { margin: 0 auto; }
+}
+
+/* A phone showing a theme's whole page, slowly scrolling */
+.es-page .es-phone {
+  position: relative; width: 290px; height: 590px; border-radius: 44px; background: #1b1719; padding: 11px;
+  box-shadow: 0 40px 80px -30px rgba(60, 40, 30, 0.45), inset 0 0 0 2px #3a3236; justify-self: center;
+}
+.es-page .es-phone::before { content: ''; position: absolute; top: 20px; left: 50%; width: 82px; height: 24px; margin-left: -41px; border-radius: 14px; background: #000; z-index: 2; }
+.es-page .es-phone-screen { width: 100%; height: 100%; border-radius: 34px; overflow: hidden; background: var(--paper-deep); }
+.es-page .es-phone-screen img { width: 100%; display: block; animation: es-scroll 26s ease-in-out infinite alternate; }
+@keyframes es-scroll { 0%, 8% { transform: translateY(0); } 92%, 100% { transform: translateY(calc(-100% + 568px)); } }
+@media (prefers-reduced-motion: reduce) { .es-page .es-phone-screen img { animation: none; } }
+.es-page .es-phone-tag {
+  position: absolute; left: -46px; bottom: 70px; background: #fff; border-radius: 16px; padding: 12px 16px; box-shadow: 0 18px 40px -16px rgba(60, 40, 30, 0.4);
+  font-size: 13px; line-height: 1.4; color: var(--ink-soft); z-index: 3;
+}
+.es-page .es-phone-tag b { display: block; font-family: var(--font-display); font-weight: 400; font-size: 19px; color: var(--ink); }
+@media (max-width: 480px) { .es-page .es-phone-tag { left: -12px; } }
+
+/* The quinceañera section */
+.es-page .es-quince { background: linear-gradient(180deg, #F8E9EC 0%, #F3E3EF 55%, var(--paper) 100%); padding: 100px 0; position: relative; overflow: hidden; }
+.es-page .es-quince::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(600px 300px at 12% 8%, rgba(201, 167, 93, 0.16), transparent 70%), radial-gradient(500px 300px at 92% 30%, rgba(182, 88, 74, 0.1), transparent 70%);
+}
+.es-page .es-quince .wrap { position: relative; }
+.es-page .es-quince-head { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 56px; align-items: center; margin-bottom: 56px; }
+.es-page .es-quince-script { font-family: var(--font-great-vibes, 'Great Vibes', cursive); font-size: clamp(44px, 7vw, 76px); line-height: 1; color: #9E2B5A; margin: 0 0 10px; }
+.es-page .es-qgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.es-page .es-qcard { background: rgba(255, 255, 255, 0.78); border: 1px solid rgba(158, 43, 90, 0.14); border-radius: 18px; padding: 26px 24px; backdrop-filter: blur(4px); }
+.es-page .es-qcard h3 { font-family: var(--font-display); font-weight: 400; font-size: 21px; margin: 0 0 8px; color: var(--ink); }
+.es-page .es-qcard p { font-size: 14.5px; line-height: 1.65; color: var(--ink-soft); margin: 0; }
+.es-page .es-qcard .es-qnum { font-family: var(--font-display); font-size: 14px; color: #9E2B5A; letter-spacing: 0.12em; margin: 0 0 12px; }
+@media (max-width: 900px) {
+  .es-page .es-quince-head { grid-template-columns: 1fr; gap: 36px; }
+  .es-page .es-qgrid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) { .es-page .es-qgrid { grid-template-columns: 1fr; } }
+
+/* Feature rows: the video on one side, the words on the other */
+.es-page .es-chipnav { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 30px 0 0; }
+.es-page .es-chipnav a { display: block; padding: 8px 16px; border-radius: 999px; background: #fff; border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-size: 14px; font-weight: 600; }
+.es-page .es-chipnav a:hover { border-color: var(--rose); color: var(--rose); }
+.es-page .es-row { display: grid; grid-template-columns: 1.25fr 1fr; gap: 56px; align-items: center; padding: 72px 0; border-bottom: 1px solid var(--line); scroll-margin-top: 90px; }
+.es-page .es-row:last-child { border-bottom: none; }
+.es-page .es-row:nth-child(even) .es-row-media { order: 2; }
+.es-page .es-row .mk-video { margin: 0; }
+.es-page .es-row h2 { font-family: var(--font-display); font-weight: 400; font-size: clamp(28px, 3.4vw, 38px); line-height: 1.15; margin: 0 0 16px; color: var(--ink); }
+.es-page .es-row p.es-row-text { font-size: 16px; line-height: 1.75; color: var(--ink-soft); margin: 0; }
+.es-page .es-kicker { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #8E3A2C; margin: 0 0 14px; }
+.es-page .es-kicker .mk-badge { margin-left: 0; letter-spacing: 0.06em; }
+@media (max-width: 900px) {
+  .es-page .es-row { grid-template-columns: 1fr; gap: 28px; padding: 56px 0; }
+  .es-page .es-row:nth-child(even) .es-row-media { order: 0; }
+}
+
+/* "And so much more" */
+.es-page .es-more { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.es-page .es-more-card { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px; display: flex; flex-direction: column; gap: 8px; }
+.es-page .es-more-card svg { width: 26px; height: 26px; color: var(--rose); margin-bottom: 4px; }
+.es-page .es-more-card h3 { font-size: 16px; font-weight: 600; margin: 0; color: var(--ink); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.es-page .es-more-card h3 .mk-badge { margin-left: 0; }
+.es-page .es-more-card p { font-size: 14px; line-height: 1.6; color: var(--ink-soft); margin: 0; }
+@media (max-width: 1000px) { .es-page .es-more { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 760px) { .es-page .es-more { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .es-page .es-more { grid-template-columns: 1fr; } }
+
+/* Contact */
+.es-page .es-contact { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 40px; align-items: start; padding: 64px 0 96px; }
+.es-page .es-card { background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 36px; box-shadow: 0 30px 60px -40px rgba(60, 40, 30, 0.35); }
+.es-page .es-card h2 { font-family: var(--font-display); font-weight: 400; font-size: 28px; margin: 0 0 6px; color: var(--ink); }
+.es-page .es-card > p { font-size: 15px; line-height: 1.7; color: var(--ink-soft); margin: 0 0 26px; }
+.es-page .es-info { background: var(--ink); color: var(--paper); border-radius: 20px; padding: 34px; }
+.es-page .es-info h2 { font-family: var(--font-display); font-weight: 400; font-size: 26px; margin: 0 0 14px; color: #fff; }
+.es-page .es-info > p { font-size: 15px; line-height: 1.75; color: rgba(246, 242, 237, 0.78); margin: 0 0 22px; }
+.es-page .es-info dl { margin: 0; display: grid; gap: 18px; padding-top: 22px; border-top: 1px solid rgba(246, 242, 237, 0.14); }
+.es-page .es-info dt { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #F3D9CF; margin: 0 0 4px; }
+.es-page .es-info dd { margin: 0; font-size: 15px; line-height: 1.6; color: #fff; }
+.es-page .es-info a { color: #fff; }
+.es-page .es-links { margin-top: 20px; display: grid; gap: 10px; }
+.es-page .es-links a { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-radius: 14px; background: #fff; border: 1px solid var(--line); color: var(--ink); text-decoration: none; font-weight: 600; font-size: 15px; }
+.es-page .es-links a:hover { border-color: var(--rose); color: var(--rose); }
+.es-page .es-links small { display: block; font-weight: 400; font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+@media (max-width: 900px) { .es-page .es-contact { grid-template-columns: 1fr; padding: 40px 0 72px; } }
+@media (max-width: 560px) {
+  .es-page .es-card, .es-page .es-info { padding: 26px 22px; }
+  /* The form's name and email fields, one under the other. */
+  .es-page .es-card form > div:first-child { grid-template-columns: 1fr !important; }
+}
+
+/* The theme pictures' hint (marketing.css), in Spanish */
+.es-page .theme-page-hint::after { content: 'Desplázate para ver la página completa'; }
+@media (hover: none) { .es-page .theme-page-hint::after { content: 'Desliza para ver la página completa'; } }
+
+/* The top bar: the Spanish links are longer, so the menu button takes over
+   sooner, and on phones Iniciar sesión and EN move into the menu. */
+@media (max-width: 1140px) {
+  .es-page .topbar-nav { display: none; }
+  .es-page .topbar-menu-btn { display: inline-flex; }
+}
+@media (max-width: 560px) {
+  .es-page .topbar-login, .es-page .es-lang { display: none; }
+}

@@ -2,7 +2,24 @@
 
 import { useState } from 'react';
 
-export default function ContactForm() {
+// The form's words, in English or Spanish (/es/contacto).
+const TEXT = {
+  en: {
+    name: 'Name', namePh: 'Your name', email: 'Email', subject: 'Subject', subjectPh: 'What’s this about?',
+    message: 'Message', messagePh: 'Tell us how we can help…', send: 'Send message', sending: 'Sending…',
+    sent: 'Message sent!', thanks: 'Thanks for reaching out. We’ll reply to', within: 'within one business day.', yourEmail: 'your email',
+    another: 'Send another message', failed: 'Something went wrong.', network: 'Network error. Please try again.',
+  },
+  es: {
+    name: 'Nombre', namePh: 'Tu nombre', email: 'Correo electrónico', subject: 'Asunto', subjectPh: '¿De qué se trata?',
+    message: 'Mensaje', messagePh: 'Cuéntanos cómo podemos ayudarte…', send: 'Enviar mensaje', sending: 'Enviando…',
+    sent: '¡Mensaje enviado!', thanks: 'Gracias por escribirnos. Te responderemos a', within: 'en un día hábil.', yourEmail: 'tu correo',
+    another: 'Enviar otro mensaje', failed: 'Algo salió mal.', network: 'Error de conexión. Inténtalo de nuevo.',
+  },
+} as const;
+
+export default function ContactForm({ lang = 'en' }: { lang?: 'en' | 'es' }) {
+  const t = TEXT[lang];
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -19,18 +36,18 @@ export default function ContactForm() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, subject, message }),
+        body: JSON.stringify({ name, email, subject, message, lang }),
       });
       const data = await res.json();
       if (res.ok) {
         setStatus('success');
         setName(''); setEmail(''); setSubject(''); setMessage('');
       } else {
-        setErrorMsg(data.error || 'Something went wrong.');
+        setErrorMsg(data.error || t.failed);
         setStatus('error');
       }
     } catch {
-      setErrorMsg('Network error. Please try again.');
+      setErrorMsg(t.network);
       setStatus('error');
     }
   }
@@ -41,33 +58,33 @@ export default function ContactForm() {
       borderRadius: 14, textAlign: 'center',
     }}>
       <p style={{ fontSize: 24, margin: '0 0 8px' }}>✓</p>
-      <p style={{ fontSize: 18, fontWeight: 600, color: '#3D6B46', margin: '0 0 8px' }}>Message sent!</p>
+      <p style={{ fontSize: 18, fontWeight: 600, color: '#3D6B46', margin: '0 0 8px' }}>{t.sent}</p>
       <p style={{ fontSize: 14, color: '#3D6B46', margin: '0 0 20px' }}>
-        Thanks for reaching out. We&apos;ll reply to <strong>{email || 'your email'}</strong> within one business day.
+        {t.thanks} <strong>{email || t.yourEmail}</strong> {t.within}
       </p>
       <button
         onClick={() => setStatus('idle')}
         style={{ padding: '9px 20px', borderRadius: 8, border: '1px solid #B2D4B8', background: '#fff', color: '#3D6B46', fontSize: 13, fontWeight: 500, cursor: 'pointer' }}
       >
-        Send another message
+        {t.another}
       </button>
     </div>
   ) : (
     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div>
-          <label style={labelStyle}>Name <span style={{ color: 'var(--rose)' }}>*</span></label>
+          <label style={labelStyle}>{t.name} <span style={{ color: 'var(--rose)' }}>*</span></label>
           <input
             type="text"
             value={name}
             onChange={e => setName(e.target.value)}
             required
-            placeholder="Your name"
+            placeholder={t.namePh}
             style={inputStyle}
           />
         </div>
         <div>
-          <label style={labelStyle}>Email <span style={{ color: 'var(--rose)' }}>*</span></label>
+          <label style={labelStyle}>{t.email} <span style={{ color: 'var(--rose)' }}>*</span></label>
           <input
             type="email"
             value={email}
@@ -80,23 +97,23 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label style={labelStyle}>Subject</label>
+        <label style={labelStyle}>{t.subject}</label>
         <input
           type="text"
           value={subject}
           onChange={e => setSubject(e.target.value)}
-          placeholder="What's this about?"
+          placeholder={t.subjectPh}
           style={inputStyle}
         />
       </div>
 
       <div>
-        <label style={labelStyle}>Message <span style={{ color: 'var(--rose)' }}>*</span></label>
+        <label style={labelStyle}>{t.message} <span style={{ color: 'var(--rose)' }}>*</span></label>
         <textarea
           value={message}
           onChange={e => setMessage(e.target.value)}
           required
-          placeholder="Tell us how we can help…"
+          placeholder={t.messagePh}
           rows={6}
           style={{ ...inputStyle, resize: 'vertical', minHeight: 140 }}
         />
@@ -117,7 +134,7 @@ export default function ContactForm() {
           opacity: status === 'sending' ? 0.6 : 1,
         }}
       >
-        {status === 'sending' ? 'Sending…' : 'Send message'}
+        {status === 'sending' ? t.sending : t.send}
       </button>
     </form>
   );

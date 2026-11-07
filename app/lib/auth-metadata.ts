@@ -23,6 +23,10 @@ export const AUTH_METADATA = {
     title: 'Check your email',
     description: 'We’ve emailed you a link to confirm your address. Open it to verify your MyGala account, then publish your event page and share it with your guests.',
   },
+  checkEmailEs: {
+    title: 'Revisa tu correo',
+    description: 'Te enviamos un enlace para confirmar tu correo. Ábrelo para verificar tu cuenta de MyGala y luego comparte tu página con tus invitados.',
+  },
   checkEmailFr: {
     title: 'Vérifiez vos courriels',
     description: 'Nous vous avons envoyé un lien pour confirmer votre adresse. Ouvrez-le pour vérifier votre compte MyGala, puis partagez votre page avec vos invités.',
@@ -42,8 +46,14 @@ export const AUTH_METADATA = {
 } satisfies Record<string, Metadata & { title: string; description: string }>;
 
 // /register: the words follow where the visitor came from (a wedding
-// website, a Christmas invitation, a chosen design, or the French page).
-export function registerMetadata(lang: 'en' | 'fr', start?: StartIntent | null): Metadata {
+// website, a Christmas invitation, a chosen design, or the French or Spanish pages).
+export function registerMetadata(lang: 'en' | 'fr' | 'es', start?: StartIntent | null): Metadata {
+  if (lang === 'es') {
+    return {
+      title: 'Crea tu cuenta gratis',
+      description: 'Crea tu cuenta gratis de MyGala y la página de tu evento en minutos: elige un tema, agrega la fecha y el lugar, y recibe las confirmaciones de tus invitados.',
+    };
+  }
   if (lang === 'fr') {
     return {
       title: 'Créer votre compte gratuit',

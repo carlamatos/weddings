@@ -74,14 +74,14 @@ export function breadcrumbJsonLd(crumbs: Crumb[]) {
   };
 }
 
-export function webPageJsonLd(seo: SeoMeta, path: string) {
+export function webPageJsonLd(seo: SeoMeta, path: string, lang = 'en') {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
     name: seo.title,
     description: seo.description,
     url: absoluteUrl(path),
-    inLanguage: 'en',
+    inLanguage: lang,
     isPartOf: { '@type': 'WebSite', name: 'MyGala', url: absoluteUrl('/') },
     publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
   };
@@ -94,7 +94,7 @@ function videoUploadDate(date: string): string {
 }
 
 // A product video, so search engines can show it in video results.
-export function videoObjectJsonLd(video: Video, path: string) {
+export function videoObjectJsonLd(video: Video, path: string, lang = 'en') {
   return {
     '@context': 'https://schema.org',
     '@type': 'VideoObject',
@@ -106,7 +106,7 @@ export function videoObjectJsonLd(video: Video, path: string) {
     duration: video.duration,
     width: video.width,
     height: video.height,
-    inLanguage: 'en',
+    inLanguage: lang,
     url: absoluteUrl(path),
     publisher: { '@type': 'Organization', name: 'MyGala', url: absoluteUrl('/'), logo: absoluteUrl('/images/mygala-logo-email.png') },
   };

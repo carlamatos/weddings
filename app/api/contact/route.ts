@@ -2,13 +2,32 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
+// The replies, in the form's language (English, or Spanish from /es/contacto).
+const ERRORS = {
+  en: {
+    tooMany: 'Too many messages. Please try again later or email info@mygala.ca.',
+    required: 'Please fill in all required fields.',
+    email: 'Please enter a valid email address.',
+    failed: 'Failed to send message. Please try again.',
+  },
+  es: {
+    tooMany: 'Demasiados mensajes. Inténtalo más tarde o escríbenos a info@mygala.ca.',
+    required: 'Completa todos los campos obligatorios.',
+    email: 'Escribe un correo electrónico válido.',
+    failed: 'No se pudo enviar el mensaje. Inténtalo de nuevo.',
+  },
+} as const;
+
 export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const lang = body?.lang === 'es' ? 'es' : 'en';
+  const t = ERRORS[lang];
+
   // Each message lands in the team inbox: a few per visitor per hour.
   if (await overRateLimit(`contact:${clientIp(req.headers)}`, 5, 60 * 60 * 1000)) {
-    return NextResponse.json({ error: 'Too many messages. Please try again later or email info@mygala.ca.' }, { status: 429 });
+    return NextResponse.json({ error: t.tooMany }, { status: 429 });
   }
 
-  const body = await req.json().catch(() => ({}));
   const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
   const name = field(body?.name, 120);
   const email = field(body?.email, 254);
@@ -16,12 +35,12 @@ export async function POST(req: Request) {
   const message = field(body?.message, 5000);
 
   if (!name || !email || !message) {
-    return NextResponse.json({ error: 'Please fill in all required fields.' }, { status: 400 });
+    return NextResponse.json({ error: t.required }, { status: 400 });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
-    return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
+    return NextResponse.json({ error: t.email }, { status: 400 });
   }
 
   try {
@@ -33,7 +52,8 @@ export async function POST(req: Request) {
       from: 'MyGala Contact <no-reply@mygala.ca>',
       to: 'info@mygala.ca',
       replyTo: email,
-      subject: subject?.trim() ? `[Contact] ${subject.trim()}` : `[Contact] Message from ${name.trim()}`,
+      // Messages from the Spanish page are marked, so they're answered in Spanish.
+      subject: `[${lang === 'es' ? 'Contact · Español' : 'Contact'}] ${subject?.trim() || `Message from ${name.trim()}`}`,
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 600px; color: #241F2B;">
           <h2 style="margin: 0 0 24px; font-size: 20px;">New contact form submission</h2>
@@ -56,14 +76,14 @@ export async function POST(req: Request) {
               <td style="padding: 10px 0; white-space: pre-wrap;">${escHtml(message)}</td>
             </tr>
           </table>
-          <p style="margin: 32px 0 0; font-size: 12px; color: #9A8F8C;">Sent via mygala.ca/contact</p>
+          <p style="margin: 32px 0 0; font-size: 12px; color: #9A8F8C;">Sent via mygala.ca/${lang === 'es' ? 'es/contacto' : 'contact'}</p>
         </div>
       `,
     });
 
     return NextResponse.json({ ok: true });
   } catch {
-    return NextResponse.json({ error: 'Failed to send message. Please try again.' }, { status: 500 });
+    return NextResponse.json({ error: t.failed }, { status: 500 });
   }
 }
 

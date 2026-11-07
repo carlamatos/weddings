@@ -6,7 +6,8 @@ import type { Metadata } from 'next';
 import { AUTH_METADATA } from '@/app/lib/auth-metadata';
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string }> }): Promise<Metadata> {
-  return (await searchParams).lang === 'fr' ? AUTH_METADATA.checkEmailFr : AUTH_METADATA.checkEmail;
+  const { lang } = await searchParams;
+  return lang === 'fr' ? AUTH_METADATA.checkEmailFr : lang === 'es' ? AUTH_METADATA.checkEmailEs : AUTH_METADATA.checkEmail;
 }
 
 export default async function CheckEmailPage({
@@ -34,6 +35,19 @@ export default async function CheckEmailPage({
             </p>
             <p className="auth-footer">
               Déjà vérifié? <Link href="/login">Se connecter</Link>
+            </p>
+          </div>
+        ) : lang === 'es' ? (
+          // Visitors from the Spanish pages (/register?lang=es).
+          <div lang="es">
+            <h1 className="auth-heading">Revisa tu correo</h1>
+            <p className="auth-subheading">
+              {email
+                ? <>Te enviamos un enlace de verificación a <strong>{email}</strong>. Haz clic en él para confirmar tu cuenta.</>
+                : 'Te enviamos un enlace de verificación a tu correo electrónico. Haz clic en él para confirmar tu cuenta.'}
+            </p>
+            <p className="auth-footer">
+              ¿Ya lo verificaste? <Link href="/login">Inicia sesión</Link>
             </p>
           </div>
         ) : (
