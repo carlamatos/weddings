@@ -6,6 +6,7 @@ import {
   ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import { NETWORKS } from './share-buttons';
+import { markLinkShared } from '@/app/lib/actions';
 
 const enc = encodeURIComponent;
 
@@ -13,11 +14,15 @@ const enc = encodeURIComponent;
 // (Pinterest, Reddit, Threads…) are on the full Share page.
 const QUICK = ['WhatsApp', 'Facebook', 'Messenger', 'X', 'LinkedIn', 'Telegram'];
 
-export type ShareTarget = { url: string; title: string; heading: string; sharePageHref: string };
+// pageId: copying or sharing the link counts as inviting guests on the
+// page's setup checklist (markLinkShared).
+export type ShareTarget = { url: string; title: string; heading: string; sharePageHref: string; pageId?: number };
 
 // The share options themselves: the link with Copy, then the apps.
 // `onDone` closes whatever holds the panel.
-export function SharePanel({ url, title, heading, sharePageHref, onDone }: ShareTarget & { onDone: () => void }) {
+export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone }: ShareTarget & { onDone: () => void }) {
+  const shared = () => { if (pageId !== undefined) markLinkShared(pageId).catch(() => {}); };
+  const sharedAndDone = () => { shared(); onDone(); };
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +37,7 @@ export function SharePanel({ url, title, heading, sharePageHref, onDone }: Share
   async function copy() {
     try {
       await navigator.clipboard.writeText(url);
+      shared();
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -42,6 +48,7 @@ export function SharePanel({ url, title, heading, sharePageHref, onDone }: Share
   async function nativeShare() {
     try {
       await navigator.share({ title, text: title, url });
+      shared();
     } catch {
       // Dismissed by the user — nothing to do.
     }
@@ -68,16 +75,16 @@ export function SharePanel({ url, title, heading, sharePageHref, onDone }: Share
 
       <div className="dash-share-grid">
         {networks.map((n) => (
-          <a key={n.name} href={n.href(params)} target="_blank" rel="noopener noreferrer" className="dash-share-option" onClick={onDone}>
+          <a key={n.name} href={n.href(params)} target="_blank" rel="noopener noreferrer" className="dash-share-option" onClick={sharedAndDone}>
             <span className="dash-share-dot" style={{ background: n.color }} aria-hidden="true" />
             {n.name}
           </a>
         ))}
-        <a href={`mailto:?subject=${enc(title)}&body=${enc(url)}`} className="dash-share-option" onClick={onDone}>
+        <a href={`mailto:?subject=${enc(title)}&body=${enc(url)}`} className="dash-share-option" onClick={sharedAndDone}>
           <EnvelopeIcon />
           Email
         </a>
-        <a href={`sms:?&body=${enc(text)}`} className="dash-share-option" onClick={onDone}>
+        <a href={`sms:?&body=${enc(text)}`} className="dash-share-option" onClick={sharedAndDone}>
           <ChatBubbleLeftIcon />
           Text message
         </a>

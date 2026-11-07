@@ -63,7 +63,7 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
         <SectionToggle pageId={pageId} settingName="show_in_search" initialOn={isSectionOn(settings, 'show_in_search')} label="Show this page in search results" />
       </section>
 
-      <ShareButtons url={url} title={title} description={description} image={image} shareImage={socialImageFor(userPage)} hashtag={hashtag || undefined} />
+      <ShareButtons url={url} title={title} description={description} image={image} shareImage={socialImageFor(userPage)} hashtag={hashtag || undefined} pageId={pageId} />
 
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 16, lineHeight: 1.6 }}>
         {usingBanner

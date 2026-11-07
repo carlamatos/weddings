@@ -1,6 +1,7 @@
 "use server"
 
 import { z } from 'zod';
+import { LINK_SHARED_SETTING } from './setup-progress';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
@@ -1116,6 +1117,57 @@ export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean;
   } catch (error) {
     console.error('Failed to send test invitation:', error);
     return { ok: false, message: 'Couldn’t send the test. Please try again.' };
+  }
+}
+
+// The invitation email as one guest will see it (their name and note), or
+// as a generic guest, for the preview beside the Send button.
+export async function previewInvitationEmail(pageId: number, guestId?: string): Promise<{ ok: true; subject: string; html: string } | { ok: false; error: string }> {
+  try {
+    const ctx = await invitationContext(pageId);
+    if (!ctx.ok) return ctx;
+    const { page, design, hostName, details } = ctx.value;
+    let guest: { name: string; invitation_note: string | null } | undefined;
+    if (guestId && UUID_RE.test(guestId)) {
+      const res = await sql<{ name: string; invitation_note: string | null }>`
+        SELECT name, invitation_note FROM event_guests WHERE id = ${guestId}::uuid AND user_page_id = ${page.id}
+      `;
+      guest = res.rows[0];
+    }
+    const { subject, html } = invitationEmail({
+      design,
+      details,
+      language: page.language,
+      hostName,
+      guestName: guest?.name?.trim() || '',
+      note: guest?.invitation_note,
+      siteBase: siteUrl(),
+    });
+    return { ok: true, subject, html };
+  } catch (error) {
+    console.error('Failed to preview invitation:', error);
+    return { ok: false, error: 'Couldn’t load the preview. Please try again.' };
+  }
+}
+
+// Records the first time the owner copies or shares their page's link from
+// the dashboard: sharing it in a group chat counts as inviting guests on the
+// setup checklist (app/lib/setup-progress.ts).
+export async function markLinkShared(pageId: number): Promise<void> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  const pid = parsePageId(pageId);
+  if (!userId || pid === null) return;
+  try {
+    // The SELECT only returns a row when the page belongs to this user.
+    const res = await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      SELECT id, ${LINK_SHARED_SETTING}::text, ${new Date().toISOString()}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
+      ON CONFLICT (user_page_id, setting_name) DO NOTHING
+    `;
+    if (res.rowCount) revalidatePath('/dashboard', 'layout');
+  } catch (error) {
+    console.error('Failed to record link share:', error);
   }
 }
 

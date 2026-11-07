@@ -7,6 +7,8 @@ import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
 import { invitationPassword } from '@/app/lib/page-password';
 import { auth } from '@/auth';
+import { publicPageUrl } from '@/app/lib/share';
+import { QuickShare } from '@/app/ui/dashboard/quick-share';
 
 export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -33,6 +35,8 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
           as a PDF, or send it to your guests by email, text message or WhatsApp.
         </p>
       </div>
+
+      <QuickShare pageId={pageId} url={publicPageUrl(page)} title={page.heading || 'our event'} draft={page.status === 'draft'} />
 
       {pagePassword.state !== 'none' && (
         <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
