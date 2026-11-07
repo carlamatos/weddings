@@ -374,6 +374,18 @@ export const FEATURES: Feature[] = [
       { title: 'One click to switch', text: 'Change the language from your dashboard at any time. Your own content stays exactly as you wrote it.' },
       { title: 'Free on every plan', text: 'Translations are included on the free plan and on Plus.' },
     ],
+    video: {
+      src: '/videos/features/change-language.mp4',
+      poster: '/videos/features/change-language.jpg',
+      title: 'How to change your event page’s language in MyGala',
+      description:
+        'Open your event in the MyGala dashboard, tap the menu and choose a language: English, Español or Français. Headings, buttons, the RSVP form, dates, the countdown and reminder emails switch right away, and your own text stays as you wrote it.',
+      caption: 'Tap the menu, find Language and pick Español or Français. Your own words stay as you wrote them.',
+      width: 1920,
+      height: 1080,
+      duration: 'PT39S',
+      uploadDate: '2026-11-06',
+    },
     blocks: [
       {
         heading: 'What gets translated',
@@ -404,7 +416,7 @@ export const FEATURES: Feature[] = [
     ],
     steps: [
       { title: 'Open your page editor', text: 'Log in and open Edit Page for your event.', dashboard: '/dashboard/edit', linkLabel: 'Open the page editor' },
-      { title: 'Pick a language', text: 'Use the language menu in the top bar of the dashboard and choose English, Español or Français.' },
+      { title: 'Pick a language', text: 'Use the language menu in the top bar of the dashboard (on a phone, tap the menu button and find Language) and choose English, Español or Français.' },
       { title: 'Write your own text in that language', text: 'Update your description, schedule and any custom sections so everything matches.' },
       { title: 'Preview and share', text: 'Click Preview page to check the result, then share your link as usual.' },
     ],
