@@ -27,8 +27,8 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   // One Share button: the page, or straight to its RSVP form.
   const shareChoices: ShareChoice[] | undefined = userPage
     ? [
-        { tab: 'Your page', target: { url: pageUrl, title, heading: 'Share your page', sharePageHref: pagePath(userPage.id, '/share') } },
-        { tab: 'RSVP form', target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: 'Share your RSVP form', sharePageHref: pagePath(userPage.id, '/share') } },
+        { tab: 'Your page', target: { url: pageUrl, title, heading: 'Share your page', sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
+        { tab: 'RSVP form', target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: 'Share your RSVP form', sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
       ]
     : undefined;
   // Whether guests can see the page, with its address beside it.

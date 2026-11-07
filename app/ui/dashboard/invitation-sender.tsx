@@ -3,7 +3,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { markGuestTexted, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
+import { markGuestTexted, previewInvitationEmail, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
 import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
 import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import type { Guest } from '@/app/lib/definitions';
@@ -51,6 +51,10 @@ export function InvitationSender({
   // Texts opened this session, shown before the server refresh comes back.
   const [textedNow, setTextedNow] = useState<Record<string, 'sms' | 'whatsapp'>>({});
   const [copied, setCopied] = useState<string | null>(null);
+  // The email preview: open, for which guest ('' = a generic guest), and its content.
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewGuest, setPreviewGuest] = useState('');
+  const [preview, setPreview] = useState<{ subject: string; html: string } | { error: string } | null>(null);
 
   const messageFor = (g: Guest) => invitationText({ design, details, language, guestName: g.name, note: g.invitation_note, hostName });
 
@@ -60,6 +64,31 @@ export function InvitationSender({
   // Not yet emailed or texted.
   const notInvited = emailable.filter((g) => !g.invited_at && !g.texted_at && !textedNow[g.id]);
   const allChosen = emailable.length > 0 && chosen.length === emailable.length;
+  // Nobody invited yet: the preview and test come first.
+  const firstTime = !guests.some((g) => g.invited_at || g.texted_at);
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    let live = true;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPreview(null);
+    previewInvitationEmail(pageId, previewGuest || undefined)
+      .then((r) => { if (live) setPreview(r.ok ? { subject: r.subject, html: r.html } : { error: r.error }); })
+      .catch(() => { if (live) setPreview({ error: 'Couldn’t load the preview. Please check your connection.' }); });
+    return () => { live = false; };
+  }, [previewOpen, previewGuest, pageId]);
+
+  useEffect(() => {
+    if (!previewOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPreviewOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [previewOpen]);
+
+  function openPreview() {
+    setPreviewGuest(chosen[0]?.id ?? '');
+    setPreviewOpen(true);
+  }
 
   useEffect(() => {
     if (allBoxRef.current) allBoxRef.current.indeterminate = chosen.length > 0 && !allChosen;
@@ -191,13 +220,54 @@ export function InvitationSender({
               <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>Select not yet invited ({notInvited.length})</button>
               {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>Clear</button>}
               <span style={{ flex: '1 1 auto' }} />
-              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
+              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked} onClick={openPreview}>Preview email</button>
+              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
               <button type="button" style={{ ...primary, opacity: chosen.length && !locked ? 1 : 0.5 }} disabled={locked || !chosen.length || sending !== null} onClick={sendToChosen}>
                 {sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Email ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Email invitations'}
               </button>
             </div>
+            {firstTime && !locked && (
+              <p style={{ fontSize: 13, margin: '10px 0 0', color: '#6B6470', lineHeight: 1.5 }}>
+                Sending for the first time? <strong>Preview the email</strong> or <strong>send yourself a test</strong> to see exactly what your guests will receive.
+              </p>
+            )}
             {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
           </div>
+
+          {previewOpen && (
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-label="Invitation email preview"
+              onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
+              style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(36,31,43,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+            >
+              <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, maxHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 60px rgba(36,31,43,0.25)' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid #EDE8E3', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: 12, color: '#9A8F8C' }}>What your guests will receive</p>
+                    <p style={{ margin: '2px 0 0', fontSize: 15, fontWeight: 600, color: '#241F2B', overflowWrap: 'anywhere' }}>
+                      {preview && 'subject' in preview ? preview.subject : 'Loading…'}
+                    </p>
+                  </div>
+                  <select aria-label="Preview as" value={previewGuest} onChange={(e) => setPreviewGuest(e.target.value)} style={{ ...input, padding: '6px 8px', fontSize: 13, maxWidth: '100%' }}>
+                    <option value="">As any guest</option>
+                    {emailable.map((g) => <option key={g.id} value={g.id}>As {g.name}</option>)}
+                  </select>
+                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Close the preview" style={{ ...btn, padding: '6px 12px' }}>Close</button>
+                </div>
+                {preview && 'error' in preview ? (
+                  <p role="alert" style={{ margin: 0, padding: 24, fontSize: 14, color: '#B91C1C' }}>{preview.error}</p>
+                ) : (
+                  <iframe title="Invitation email" sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
+                )}
+                <div style={{ padding: '12px 18px', borderTop: '1px solid #EDE8E3', display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>Links in the preview are turned off.</span>
+                  <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={() => { setPreviewOpen(false); sendTest(); }}>Send me a test</button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>

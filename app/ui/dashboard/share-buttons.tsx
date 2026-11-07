@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { EnvelopeIcon, ChatBubbleLeftIcon, LinkIcon, CheckIcon, ArrowUpOnSquareIcon } from '@heroicons/react/24/outline';
+import { markLinkShared } from '@/app/lib/actions';
 
 export type Network = {
   name: string;
@@ -35,13 +36,14 @@ const btn: React.CSSProperties = {
 const outlineBtn: React.CSSProperties = { ...btn, background: '#fff', color: '#241F2B', border: '1px solid #DDD5CE' };
 const iconSize = { width: 18, height: 18 };
 
-export function ShareButtons({ url, title, description, image, shareImage, hashtag }: {
+export function ShareButtons({ url, title, description, image, shareImage, hashtag, pageId }: {
   url: string;
   title: string;
   description?: string;
   image: string; // shown in the preview card (may be a site path)
   shareImage: string; // absolute URL, for networks that take the image directly
   hashtag?: string; // no leading '#'
+  pageId?: number; // copying or sharing counts as inviting guests (markLinkShared)
 }) {
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
@@ -79,8 +81,13 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
   // Messenger's share intent only works from the mobile app.
   const networks = NETWORKS.filter((n) => n.name !== 'Messenger' || isMobile);
 
+  // Any share or copy button counts as inviting guests on the setup checklist.
+  const onShareClick = (e: React.MouseEvent) => {
+    if (pageId !== undefined && (e.target as HTMLElement).closest('a, button')) markLinkShared(pageId).catch(() => {});
+  };
+
   return (
-    <div>
+    <div onClickCapture={onShareClick}>
       {/* Link preview, roughly as social networks will draw it */}
       <div style={{ border: '1px solid #EDE8E3', borderRadius: 12, overflow: 'hidden', background: '#fff', maxWidth: 520, marginBottom: 24 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
