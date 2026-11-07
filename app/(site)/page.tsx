@@ -188,6 +188,41 @@ export default async function Page() {
                     <p className="theme-desc">Sky blues and warm caramel with a swimming whale, rising balloons and rolling waves — built for baby showers welcoming a little boy.</p>
                   </div>
                 </a>
+                <a href="/themes/christmas-party" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="christmas-party" />
+                  <div className="theme-info">
+                    <p className="theme-name">Christmas Party</p>
+                    <p className="theme-desc">Forest green, bauble red and golden light with falling snow, twinkling string lights and a swinging bauble countdown — cozy and cute for holiday parties.</p>
+                  </div>
+                </a>
+                <a href="/themes/white-christmas" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="white-christmas" />
+                  <div className="theme-info">
+                    <p className="theme-name">White Christmas</p>
+                    <p className="theme-desc">Icy winter blues with gold stars, silver and pine, gold-framed cards and gently falling snow — classic and elegant for holiday celebrations.</p>
+                  </div>
+                </a>
+                <a href="/themes/merry" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="merry" />
+                  <div className="theme-info">
+                    <p className="theme-name">Merry</p>
+                    <p className="theme-desc">Midnight navy and snowflake gold with a red satin ribbon, a gold arch under hanging stars and swinging glass baubles — elegant for holiday parties.</p>
+                  </div>
+                </a>
+                <a href="/themes/gnomes" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="gnomes" />
+                  <div className="theme-info">
+                    <p className="theme-name">Gnomes</p>
+                    <p className="theme-desc">Watercolour gnomes in hat red, pine and sage with fairy lights and santa hats in the snow — cozy and cute for holiday parties.</p>
+                  </div>
+                </a>
+                <a href="/themes/new-years-eve" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="new-years-eve" />
+                  <div className="theme-info">
+                    <p className="theme-name">New Year&rsquo;s Eve</p>
+                    <p className="theme-desc">Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight — elegant and festive for New Year&rsquo;s Eve parties.</p>
+                  </div>
+                </a>
               </div>
               <Link href="/events/celebrations" className="learn-more-link">{learnMore('celebrations')} →</Link>
             </div>
@@ -333,6 +368,13 @@ export default async function Page() {
                   <div className="theme-info">
                     <p className="theme-name">Merry</p>
                     <p className="theme-desc">Midnight navy and snowflake gold with a red satin ribbon, a gold arch under hanging stars and swinging glass baubles — elegant for holiday parties.</p>
+                  </div>
+                </a>
+                <a href="/themes/new-years-eve" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="new-years-eve" />
+                  <div className="theme-info">
+                    <p className="theme-name">New Year&rsquo;s Eve</p>
+                    <p className="theme-desc">Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight — elegant and festive for New Year&rsquo;s Eve parties.</p>
                   </div>
                 </a>
                 <a href="/themes/dia-de-los-muertos" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>

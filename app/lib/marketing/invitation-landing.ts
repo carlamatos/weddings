@@ -266,7 +266,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
         { title: 'Baby showers', items: BABY_SHOWER_THEMES.map(onBanner) },
         { title: 'Halloween', items: HALLOWEEN_THEMES.map(onBanner) },
         { title: 'More occasions', items: MORE_OCCASIONS },
-        { title: 'Christmas & holiday events', items: CHRISTMAS_GALLERY },
+        { title: 'Christmas & holiday events', items: [...CHRISTMAS_GALLERY, onBanner('new-years-eve')] },
       ],
     },
     themes: {

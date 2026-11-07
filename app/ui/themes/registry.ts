@@ -28,6 +28,7 @@ import Gnomes, { HeroPreview as GnomesPreview, GnomesDefaultHero } from './Gnome
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
 import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 import Simple, { HeroPreview as SimplePreview, SimpleDefaultHero } from './Simple';
+import NewYearsEve, { HeroPreview as NewYearsEvePreview } from './NewYearsEve';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -37,13 +38,15 @@ import Simple, { HeroPreview as SimplePreview, SimpleDefaultHero } from './Simpl
 //      - optional named export `YourThemeDefaultHero`: hero background shown
 //        when there's no uploaded banner AND no entry in hero-defaults.ts
 //   2. Add one entry below with its category (drives the setup wizard's
-//      category picker — see app/ui/subscribe-form.tsx) and display label
+//      category picker — see app/ui/subscribe-form.tsx) and display label;
+//      `also` lists more categories it's shown under (theme-cards.ts too)
 // ─────────────────────────────────────────────────────────
 
 export interface ThemeEntry {
   Page: ComponentType<ThemeProps>;
   Preview: ComponentType<ThemePreviewProps>;
   category: EventCategory;
+  also?: EventCategory[];
   label: string;
   FallbackHero?: ComponentType;
 }
@@ -67,10 +70,11 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'simple':             { Page: Simple,            Preview: SimplePreview, category: 'community', label: 'Simple', FallbackHero: SimpleDefaultHero },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
-  'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', label: 'Christmas Party' },
-  'white-christmas':    { Page: WhiteChristmas,    Preview: WhiteChristmasPreview, category: 'community', label: 'White Christmas' },
-  'merry':              { Page: Merry,             Preview: MerryPreview, category: 'community', label: 'Merry', FallbackHero: MerryDefaultHero },
-  'gnomes':             { Page: Gnomes,            Preview: GnomesPreview, category: 'community', label: 'Gnomes', FallbackHero: GnomesDefaultHero },
+  'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', also: ['birthdays'], label: 'Christmas Party' },
+  'white-christmas':    { Page: WhiteChristmas,    Preview: WhiteChristmasPreview, category: 'community', also: ['birthdays'], label: 'White Christmas' },
+  'merry':              { Page: Merry,             Preview: MerryPreview, category: 'community', also: ['birthdays'], label: 'Merry', FallbackHero: MerryDefaultHero },
+  'gnomes':             { Page: Gnomes,            Preview: GnomesPreview, category: 'community', also: ['birthdays'], label: 'Gnomes', FallbackHero: GnomesDefaultHero },
+  'new-years-eve':      { Page: NewYearsEve,       Preview: NewYearsEvePreview, category: 'community', also: ['birthdays'], label: 'New Year’s Eve' },
   'dia-de-los-muertos': { Page: DiaDeLosMuertos,   Preview: DiaDeLosMuertosPreview, category: 'community', label: 'Día de los Muertos' },
   'halloween-party':    { Page: HalloweenParty,    Preview: HalloweenPartyPreview, category: 'community', label: 'Halloween Party' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
@@ -86,6 +90,6 @@ export function getTheme(slug?: string): ThemeEntry {
 
 export function themesByCategory(category: EventCategory): Array<{ slug: string } & ThemeEntry> {
   return Object.entries(themeRegistry)
-    .filter(([, entry]) => entry.category === category)
+    .filter(([, entry]) => entry.category === category || entry.also?.includes(category))
     .map(([slug, entry]) => ({ slug, ...entry }));
 }
