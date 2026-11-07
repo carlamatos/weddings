@@ -9,8 +9,9 @@ import GoogleButton from '@/app/ui/google-button';
 import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
 
 // Just an email and a password (typed twice): every extra field costs sign-ups. Names and
-// phone can be added later in the profile. French when the visitor comes
-// from the French landing page (/register?lang=fr). start: how a landing
+// phone can be added later in the profile. French or Spanish when the
+// visitor comes from the French landing page or the Spanish pages
+// (/register?lang=fr, ?lang=es). start: how a landing
 // page's visitor wants to begin (see app/lib/start-intent.ts) — kept for the
 // create-event form, and an invitation heading here.
 const TEXT = {
@@ -46,14 +47,31 @@ const TEXT = {
     haveAccount: 'Vous avez déjà un compte?',
     login: 'Se connecter',
   },
+  es: {
+    heading: 'Crea tu página gratis',
+    sub: 'Gratis para empezar, sin tarjeta de crédito.',
+    divider: 'o regístrate con tu correo',
+    email: 'Correo electrónico',
+    password: 'Contraseña',
+    passwordHint: 'Al menos 8 caracteres',
+    confirmPassword: 'Confirma la contraseña',
+    confirmHint: 'Escribe tu contraseña otra vez',
+    mismatch: 'Las contraseñas no coinciden.',
+    show: 'Mostrar la contraseña',
+    hide: 'Ocultar la contraseña',
+    submit: 'Crear mi cuenta gratis',
+    haveAccount: '¿Ya tienes una cuenta?',
+    login: 'Inicia sesión',
+  },
 } as const;
 
 const INVITATION_HEADING = {
   en: { heading: 'Create your free invitation', sub: 'Design it, share one link, and watch the RSVPs come in. No credit card needed.' },
   fr: { heading: 'Créez votre invitation gratuite', sub: 'Créez-la, partagez un seul lien et recevez les réponses. Sans carte de crédit.' },
+  es: { heading: 'Crea tu invitación gratis', sub: 'Diséñala, comparte un solo enlace y recibe las confirmaciones. Sin tarjeta de crédito.' },
 } as const;
 
-export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en' | 'fr'; start?: StartIntent | null }) {
+export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en' | 'fr' | 'es'; start?: StartIntent | null }) {
   const t = start?.intent === 'invitation' ? { ...TEXT[lang], ...INVITATION_HEADING[lang] } : TEXT[lang];
   useEffect(() => {
     if (start) saveStartIntent(start);

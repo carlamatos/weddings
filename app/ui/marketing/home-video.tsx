@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { getImageProps } from 'next/image';
 import type { Video } from '@/app/lib/marketing/types';
-import { SoundButton } from './feature-video';
+import { SoundButton, VIDEO_UI, type VideoLang } from './feature-video';
 
 // The homepage's "how MyGala works" video. Only the poster loads with the
 // page; the video file isn't fetched until the visitor presses play, so the
@@ -16,7 +16,9 @@ import { SoundButton } from './feature-video';
 // page's width less its side padding (marketing.css .wrap), at most 1056px.
 const POSTER_SIZES = '(max-width: 640px) calc(100vw - 40px), (max-width: 1120px) calc(100vw - 64px), 1056px';
 
-export function HomeVideo({ video }: { video: Video }) {
+// anchor: the section the hero's button links to (#how-it-works, or
+// #como-funciona on /es).
+export function HomeVideo({ video, lang = 'en', anchor = 'how-it-works' }: { video: Video; lang?: VideoLang; anchor?: string }) {
   const [playing, setPlaying] = useState(false);
   const [muted, setMuted] = useState(false);
   const { props: poster } = getImageProps({ src: video.poster, alt: '', width: video.width, height: video.height, sizes: POSTER_SIZES, quality: 75 });
@@ -25,7 +27,7 @@ export function HomeVideo({ video }: { video: Video }) {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (!(e.target as Element).closest?.('a[href="#how-it-works"]')) return;
+      if (!(e.target as Element).closest?.(`a[href="#${anchor}"]`)) return;
       e.preventDefault();
       const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       frame.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto', block: 'center' });
@@ -34,7 +36,7 @@ export function HomeVideo({ video }: { video: Video }) {
     };
     document.addEventListener('click', onClick);
     return () => document.removeEventListener('click', onClick);
-  }, []);
+  }, [anchor]);
 
   // Keeps the button in step when the sound is changed from the player's own controls.
   useEffect(() => {
@@ -61,9 +63,10 @@ export function HomeVideo({ video }: { video: Video }) {
         {playing ? (
           <>
             <video ref={player} src={video.src} width={video.width} height={video.height} controls playsInline aria-label={video.title}>
-              <a href={video.src}>Watch the video: {video.title}</a>
+              <a href={video.src}>{VIDEO_UI[lang].watch}: {video.title}</a>
             </video>
             <SoundButton
+              lang={lang}
               muted={muted}
               onClick={() => {
                 const el = player.current;
@@ -79,7 +82,7 @@ export function HomeVideo({ video }: { video: Video }) {
             <img {...poster} alt="" loading="lazy" decoding="async" />
             <span className="home-video-btn">
               <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor" /></svg>
-              Watch how it works <span className="home-video-len">1 min</span>
+              {VIDEO_UI[lang].howItWorks} <span className="home-video-len">1 min</span>
             </span>
           </button>
         )}

@@ -9,12 +9,12 @@ import { registerMetadata } from '@/app/lib/auth-metadata';
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string; name?: string; date?: string }> }): Promise<Metadata> {
   const params = await searchParams;
-  return registerMetadata(params.lang === 'fr' ? 'fr' : 'en', parseStartParams(params.start, params.theme, params.occasion));
+  return registerMetadata(params.lang === 'fr' || params.lang === 'es' ? params.lang : 'en', parseStartParams(params.start, params.theme, params.occasion));
 }
 
 export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string; name?: string; date?: string }> }) {
   const params = await searchParams;
-  const lang = params.lang === 'fr' ? 'fr' : 'en';
+  const lang = params.lang === 'fr' || params.lang === 'es' ? params.lang : 'en';
   // From a landing page: start with an invitation or a website, maybe in a
   // chosen theme (and, from /design-your-invitation, the event's name and date).
   const start = parseStartParams(params.start, params.theme, params.occasion, { name: params.name, date: params.date });

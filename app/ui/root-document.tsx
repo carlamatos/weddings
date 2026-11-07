@@ -7,9 +7,10 @@ import { Suspense } from 'react';
 import PurchaseConversion from '@/app/ui/purchase-conversion';
 import SignupTracker from '@/app/ui/signup-tracker';
 
-// The <html> and <body> every page shares. The site has two root layouts so
-// each page's <html lang> matches its language: English for everything in
-// app/(site), French for app/fr (where its hreflang says fr-CA).
+// The <html> and <body> every page shares. The site has a root layout per
+// language so each page's <html lang> matches it: English for everything in
+// app/(site), French for app/fr (where its hreflang says fr-CA), Spanish
+// for app/es.
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(siteUrl()),

@@ -6,6 +6,7 @@ import { LANDING_PAGES } from '@/app/lib/marketing/landing';
 import { INVITATION_LANDING_PAGES } from '@/app/lib/marketing/invitation-landing';
 import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
 import { themeRegistry } from '@/app/ui/themes/registry';
+import { ES_PAGES } from '@/app/lib/marketing/es';
 
 // The sitemap is generated once per deploy, and every listed page is
 // built from the code being deployed — so the deploy time is an honest
@@ -31,6 +32,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...EVENT_TYPES.map((e) => entry(`/events/${e.slug}`, 0.8)),
     ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),
     entry('/fr/mariage', 0.8),
+    ...Object.values(ES_PAGES).map((p) => entry(p.path, p.path === '/es' ? 0.9 : 0.8)),
     ...Object.values(INVITATION_LANDING_PAGES).map((p) => entry(p.path, 0.9)),
     entry('/design-your-invitation', 0.8),
     entry('/design-your-christmas-invitation', 0.8),
