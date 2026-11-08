@@ -5,7 +5,10 @@ import type { ArticleBlock, ArticleSection } from '@/app/lib/marketing/blog';
 import { startQuery } from '@/app/lib/start-intent';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { previewImage } from '@/app/ui/themes/preview-image';
+import BudgetTool from './budget-tool';
+import GuestTool from './guest-tool';
 import PaletteTool from './palette-tool';
+import RsvpTool from './rsvp-tool';
 import { ThemeGrid } from './theme-grid';
 import { ZoomableScreenshot } from './zoomable-screenshot';
 
@@ -73,6 +76,8 @@ function Block({ block }: { block: ArticleBlock }) {
     }
     case 'palette-tool':
       return <PaletteTool />;
+    case 'tool':
+      return block.tool === 'budget' ? <BudgetTool /> : block.tool === 'rsvp' ? <RsvpTool /> : <GuestTool />;
     case 'cta':
       return (
         <div className="mk-article-cta">

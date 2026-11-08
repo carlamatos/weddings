@@ -224,8 +224,8 @@ export function blogJsonLd(seo: SeoMeta, path: string, posts: { title: string; p
   };
 }
 
-// A free tool on a page (the colour palette generator).
-export function webApplicationJsonLd(app: { name: string; description: string }, path: string, image: string) {
+// A free tool on a page (the colour palette generator, the budget calculator…).
+export function webApplicationJsonLd(app: { name: string; description: string; category?: string }, path: string, image: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
@@ -233,7 +233,7 @@ export function webApplicationJsonLd(app: { name: string; description: string },
     description: app.description,
     url: absoluteUrl(path),
     image: absoluteUrl(image),
-    applicationCategory: 'DesignApplication',
+    applicationCategory: app.category ?? 'DesignApplication',
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript',
     inLanguage: 'en',

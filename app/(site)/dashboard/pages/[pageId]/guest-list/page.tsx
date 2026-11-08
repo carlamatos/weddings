@@ -3,6 +3,7 @@ import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { LINK_SHARED_SETTING } from '@/app/lib/setup-progress';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
+import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
 
 // Guests → Guest List: on every plan. Sending invitations to the list is on
 // the Invitations screen (Plus).
@@ -53,6 +54,12 @@ export default async function GuestListPage({ params }: { params: Promise<{ page
           </Link>
         </div>
       )}
+      <PlanningToolTip
+        href="/guest-count-planner"
+        title="Not everyone you invite will come."
+        text="Our free guest count planner estimates how many will, and whether they fit your venue."
+        cta="Guest count planner"
+      />
       <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} />
     </div>
   );

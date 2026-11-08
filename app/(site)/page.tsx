@@ -14,6 +14,7 @@ import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { appHref } from '@/app/lib/app-url';
 import { getEventType } from '@/app/lib/marketing/events';
 import SiteFooter from '@/app/ui/marketing/site-footer';
+import { FreeToolsStrip } from '@/app/ui/marketing/free-tools-strip';
 import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
 import { HomeVideo } from '@/app/ui/marketing/home-video';
 import type { Video } from '@/app/lib/marketing/types';
@@ -444,6 +445,11 @@ export default async function Page() {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* FREE PLANNING TOOLS */}
+      <div className="reveal">
+        <FreeToolsStrip title="Planning something? Start here." sub="Work out your budget, guest count, RSVP deadline and colours in a few minutes. Free, no sign-up needed." />
       </div>
 
       {/* FINAL CTA */}

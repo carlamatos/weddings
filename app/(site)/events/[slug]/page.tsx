@@ -9,6 +9,7 @@ import MarketingShell from '@/app/ui/marketing/marketing-shell';
 import { Breadcrumbs } from '@/app/ui/marketing/breadcrumbs';
 import { Blocks, FeatureCards, FinalCta } from '@/app/ui/marketing/content-blocks';
 import { FaqList } from '@/app/ui/marketing/faq-list';
+import { FreeToolsStrip } from '@/app/ui/marketing/free-tools-strip';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { ThemeGrid } from '@/app/ui/marketing/theme-grid';
 
@@ -99,6 +100,10 @@ export default async function EventTypePage({ params }: { params: Promise<{ slug
           <FeatureCards slugs={type.featureSlugs} />
         </section>
       </div>
+
+      {type.slug === 'weddings' && (
+        <FreeToolsStrip eyebrow="Free wedding tools" title="Plan it with our free tools" sub="Set your budget, see how many guests will come, pick your RSVP deadline and find your colours." />
+      )}
 
       <FinalCta title={type.cta.title} text={type.cta.text} />
     </MarketingShell>
