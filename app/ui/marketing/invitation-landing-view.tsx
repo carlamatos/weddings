@@ -10,6 +10,7 @@ import { previewImage } from '@/app/ui/themes/preview-image';
 import { RsvpPreview } from '@/app/ui/rsvp-preview';
 import { LANDING_INVITATION_FONTS } from './invitation-landing-fonts';
 import SiteFooter from './site-footer';
+import { FreeToolsStrip } from './free-tools-strip';
 import '@/app/ui/marketing.css';
 import '@/app/ui/marketing/landing.css';
 import '@/app/ui/marketing/invitation-landing.css';
@@ -151,6 +152,8 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
         {/* 2–3. The invitations they can make, and the pages they open into
             (weddings: the pages first, to choose a theme). */}
         {page.themesFirst ? <>{themesSection}{gallerySection}</> : <>{gallerySection}{themesSection}</>}
+
+        {page.freeTools && <FreeToolsStrip eyebrow="Free wedding tools" title={page.freeTools.title} sub={page.freeTools.sub} />}
 
         <section className="ilp-final">
           <h2 className="ilp-title">{page.final.title}</h2>

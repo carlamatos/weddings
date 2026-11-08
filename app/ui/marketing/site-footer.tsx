@@ -2,10 +2,11 @@ import Link from 'next/link';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { COMPANY, copyrightLine } from '@/app/lib/company';
+import { FREE_TOOLS } from '@/app/lib/marketing/blog';
 import NewsletterForm from './newsletter-form';
 
 // Footer for every marketing page: links to each feature and event type
-// page, plus the company pages, under the newsletter sign-up.
+// page, the free planning tools and the company pages, under the newsletter sign-up.
 export default function SiteFooter() {
   return (
     <footer className="footer site-footer">
@@ -21,6 +22,11 @@ export default function SiteFooter() {
           <p className="site-footer-heading">Events</p>
           {EVENT_TYPES.map((e) => <Link key={e.slug} href={`/events/${e.slug}`}>{e.name}</Link>)}
           <Link href="/events">All event types</Link>
+        </div>
+        <div>
+          <p className="site-footer-heading">Free tools</p>
+          {FREE_TOOLS.map((t) => <Link key={t.path} href={t.path}>{t.name}</Link>)}
+          <Link href="/tools">All free tools</Link>
         </div>
         <div>
           <p className="site-footer-heading">MyGala</p>

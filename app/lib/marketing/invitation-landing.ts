@@ -50,6 +50,8 @@ export type InvitationLandingPage = {
   };
   gallery: { title: string; sub: string; groups: { title?: string; items: InvitationSample[] }[] };
   themes: { title: string; sub: string; slugs: string[] };
+  // The free planning tools (budget, guest count, RSVP deadline…) above the final call to action.
+  freeTools?: { title: string; sub: string };
   final: { title: string; text: string };
 };
 
@@ -225,6 +227,7 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
       sub: 'Each theme is a wedding website with an invitation to match: RSVPs, your love story, the schedule, the venue with a map, a photo wall and more. Scroll through them and pick your favourite.',
       slugs: WEDDING_THEMES,
     },
+    freeTools: { title: 'Plan it with our free tools', sub: 'Set your budget, see how many guests will come, pick your RSVP deadline and find your colours. Free, no sign-up needed.' },
     final: {
       title: 'Your wedding website, ready in minutes',
       text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',

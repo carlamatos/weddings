@@ -4,8 +4,8 @@
 // form's availability check.
 export const RESERVED_SLUGS = new Set([
   'about', 'admin', 'api', 'blog', 'check-email', 'christmas-invitations', 'construction', 'contact', 'dashboard', 'design-your-christmas-invitation', 'design-your-invitation', 'design-your-party-invitation', 'design-your-wedding-invitation', 'email-verified', 'events',
-  'faq', 'features', 'forgot-password', 'fr', 'how-to-create-a-wedding-website', 'login', 'party-celebrations', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt',
-  'site', 'sitemap.xml', 'terms', 'theme-preview', 'themes', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-colour-palette', 'wedding-website',
+  'faq', 'features', 'forgot-password', 'fr', 'guest-count-planner', 'how-to-create-a-wedding-website', 'login', 'party-celebrations', 'pricing', 'privacy', 'register', 'reset-password', 'robots.txt', 'rsvp-deadline-calculator',
+  'site', 'sitemap.xml', 'terms', 'theme-preview', 'themes', 'tools', 'unsubscribe', 'verify-2fa', 'verify-email-pending', 'wedding-budget-calculator', 'wedding-colour-palette', 'wedding-website',
 ]);
 
 export function isReservedSlug(slug: string): boolean {

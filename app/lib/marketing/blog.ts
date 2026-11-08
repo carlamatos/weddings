@@ -22,6 +22,7 @@ export type ArticleBlock =
   | { type: 'try'; text: string; occasion?: StartOccasion }
   | { type: 'templates'; slugs: string[] } // live theme previews
   | { type: 'palette-tool' } // the wedding colour palette generator
+  | { type: 'tool'; tool: 'budget' | 'rsvp' | 'guests' } // the budget, RSVP deadline and guest count tools
   | { type: 'cta'; title: string; text: string; button: string }; // sign-up box
 
 export type ArticleSection = { heading?: string; id?: string; blocks: ArticleBlock[] };
@@ -37,7 +38,7 @@ export type BlogPost = {
   cardImage: string; // card photo on the blog index
   cardAlt?: string; // its alt text when shared (else the title)
   // An interactive tool on the page, described to search engines as a free web app.
-  app?: { name: string; description: string };
+  app?: { name: string; description: string; category?: string };
   published: string; // YYYY-MM-DD
   readMinutes: number;
   sections: ArticleSection[];
@@ -48,7 +49,340 @@ export type BlogPost = {
 
 const WEDDINGS = '/events/weddings';
 
+// The free planning tools, so each tool's page links to the others.
+export const FREE_TOOLS = [
+  { path: '/wedding-budget-calculator', name: 'Wedding budget calculator', text: 'Split your budget across every part of your wedding, with your must-haves.' },
+  { path: '/guest-count-planner', name: 'Guest count planner', text: 'See how many of the people you invite will likely come, and if they fit your venue.' },
+  { path: '/rsvp-deadline-calculator', name: 'RSVP deadline calculator', text: 'Get your RSVP deadline and when to send save-the-dates, invitations and reminders.' },
+  { path: '/wedding-colour-palette', name: 'Wedding colour palette generator', text: 'Pick a style and a colour you love, and get a matching palette.' },
+];
+
+function MORE_TOOLS(except: string): ArticleSection {
+  return {
+    heading: 'More free planning tools',
+    blocks: [
+      { type: 'list', items: FREE_TOOLS.filter((t) => t.path !== except).map((t) => `**[${t.name}](${t.path}):** ${t.text}`).concat('**[All free tools](/tools)**') },
+    ],
+  };
+}
+
 export const BLOG_POSTS: BlogPost[] = [
+  {
+    slug: 'wedding-budget-calculator',
+    path: '/wedding-budget-calculator',
+    seo: {
+      title: 'Wedding Budget Calculator: How to Split Your Budget',
+      description:
+        'Free wedding budget calculator: enter your total and guest count, pick your must-haves and see what to spend on the venue, food, photos, flowers and more.',
+      keywords: ['wedding budget calculator', 'wedding budget breakdown', 'how to budget for a wedding', 'wedding budget percentages', 'average wedding cost per guest', 'wedding budget planner', 'wedding cost calculator'],
+    },
+    eyebrow: 'Wedding budget',
+    title: 'Wedding budget calculator',
+    lead:
+      'Enter your total budget and your guest count, and the calculator splits it across every part of your wedding the way most couples do. Pick up to three must-haves to give them more, or skip what you don’t need. Then read on for how to set your number, where the money really goes and how to save.',
+    summary: 'Split your budget across the venue, food, photos, flowers and more, with your must-haves, plus how to set your number and where to save.',
+    cardImage: '/images/guides/free-tools/wedding-budget-calculator.jpg',
+    cardAlt: 'The MyGala wedding budget calculator showing a 30,000 dollar budget for 100 guests split into food and drink, venue, photography and other categories',
+    app: {
+      name: 'Wedding budget calculator',
+      description: 'Enter a total wedding budget and guest count, choose up to three must-haves and anything to skip, and get the amount for each category, the cost per guest and a buffer for surprises.',
+      category: 'FinanceApplication',
+    },
+    published: '2026-11-07',
+    readMinutes: 8,
+    sections: [
+      {
+        heading: 'Wedding budget calculator',
+        blocks: [
+          { type: 'tool', tool: 'budget' },
+          { type: 'note', text: 'Copy the link and send it to your partner or whoever is helping to pay. It opens with your exact numbers.' },
+        ],
+      },
+      {
+        heading: 'How to set your wedding budget',
+        blocks: [
+          { type: 'p', text: 'Start with what you have, not with what weddings cost. Three numbers decide your budget:' },
+          {
+            type: 'list',
+            items: [
+              '**What you’ve saved** and can spend without touching your emergency fund.',
+              '**What you can save** each month between now and the wedding.',
+              '**What family will give,** if anyone offers. Ask early, and ask whether it’s a set amount or for something specific, like the dress or the bar.',
+            ],
+          },
+          { type: 'p', text: 'Add them up and that’s your total. Then decide your guest count, because it shapes everything else: food, drinks, chairs, tables, invitations, favours and often the venue are all priced per person.' },
+          { type: 'h3', text: 'The cost per guest' },
+          { type: 'p', text: 'Divide your budget by your guest count to see what each guest can cost, all in. The calculator shows this number at the top. If it looks low for the kind of wedding you want, you have two levers: a bigger budget or a shorter guest list. Cutting 20 guests usually saves more than any other change.' },
+          { type: 'note', text: 'Not sure how many people will come? The [guest count planner](/guest-count-planner) estimates it group by group, so you can budget for the guests who will actually be there.' },
+        ],
+      },
+      {
+        heading: 'Where the money goes: a typical wedding budget breakdown',
+        blocks: [
+          { type: 'p', text: 'These are the shares the calculator starts from, based on what couples in Canada, the US and the UK report spending. Your wedding will be different, but they’re a good first draft.' },
+          {
+            type: 'list',
+            items: [
+              '**Food and drink: about 28%.** The biggest line, and it grows with every guest. Bar packages, service staff and gratuities are part of it.',
+              '**Venue and rentals: about 18%.** Some venues include tables, chairs and linens; others charge for each one.',
+              '**Photography and video: about 12%.** The photos are what you keep. Many couples make this a must-have.',
+              '**Attire and beauty: about 8%.** Dress or suit, alterations, shoes, hair and makeup.',
+              '**Flowers and decor: about 8%.** Centrepieces add up fast, because there’s one on every table.',
+              '**Music and entertainment: about 6%.** A DJ or band, plus ceremony music.',
+              '**Planner or coordinator: about 3%.** Even a day-of coordinator takes a lot off your plate.',
+              '**Rings, cake, stationery, transport, favours and the officiant: about 12% together.**',
+              '**A buffer for surprises: 5%.** Taxes, delivery fees, overtime and the things everyone forgets.',
+            ],
+          },
+          { type: 'h3', text: 'Don’t forget taxes and tips' },
+          { type: 'p', text: 'Quotes often leave out sales tax, service charges (often 15 to 22% for catering) and tips for vendors. Ask for every quote “all in”, or the buffer will be gone before the wedding day.' },
+        ],
+      },
+      {
+        heading: '9 ways to save on your wedding',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              '**Invite fewer people.** Every guest you don’t invite saves the full cost per guest.',
+              '**Choose a Friday, a Sunday or the off-season.** Venues often charge much less outside Saturdays from May to October.',
+              '**Pick a venue that includes the basics,** like tables, chairs, linens and setup, so you don’t rent them separately.',
+              '**Serve a smart menu.** Family-style or stations can cost less than plated dinners, and a limited bar (beer, wine and one signature drink) costs less than a full one.',
+              '**Use in-season flowers and more greenery.** Ask your florist what’s at its best on your date.',
+              '**Move ceremony flowers to the reception,** so they’re paid for once.',
+              '**Go digital for save-the-dates and invitations.** No printing or postage, and guests RSVP in one tap. A [wedding website](/wedding-website) holds every detail in one link.',
+              '**Book a photographer for fewer hours.** Most of the key moments happen in six or seven.',
+              '**Skip what your guests won’t miss.** Favours, extra welcome signs and chair covers are easy to drop.',
+            ],
+          },
+          { type: 'try', occasion: 'wedding', text: 'Create your free wedding website and invitations' },
+        ],
+      },
+      {
+        heading: 'Your wedding budget checklist',
+        blocks: [
+          {
+            type: 'checklist',
+            items: [
+              'Agree on a total with your partner and anyone contributing',
+              'Draft your guest list and work out your cost per guest',
+              'Pick your three must-haves',
+              'Put 5% aside for surprises',
+              'Ask every vendor for an all-in quote with taxes and service charges',
+              'Track deposits and due dates in one place',
+              'Review the budget each month and move money between categories as quotes come in',
+            ],
+          },
+        ],
+      },
+      MORE_TOOLS('/wedding-budget-calculator'),
+    ],
+    faqs: [
+      { q: 'How should I split my wedding budget?', a: 'A common split is about 28% for food and drink, 18% for the venue and rentals, 12% for photography and video, 8% each for attire and flowers, 6% for music, and the rest for rings, the planner, cake, stationery, transport, favours and the officiant, with 5% kept as a buffer. The calculator on this page adjusts the split for your must-haves.' },
+      { q: 'What is the biggest wedding expense?', a: 'Food and drink, followed by the venue. Together they usually take close to half of the budget, and both grow with the guest count.' },
+      { q: 'How much does a wedding cost per guest?', a: 'It depends on where and how you celebrate. Divide your total budget by your guest count to see your own number. The calculator shows it, along with what you can spend on food and drink per guest.' },
+      { q: 'How much should we keep as a buffer?', a: 'About 5% of your total. It covers taxes, service charges, delivery fees, overtime and last-minute extras, which almost every wedding has.' },
+      { q: 'What can we cut from a wedding budget?', a: 'The guest list saves the most. After that: an off-peak date, a venue that includes rentals, a limited bar, in-season flowers, digital invitations and skipping favours.' },
+      { q: 'Who pays for the wedding?', a: 'There’s no fixed rule any more. Many couples pay for most of it themselves, and families often contribute a set amount or pay for something specific. Talk about it early so everyone knows what to expect.' },
+    ],
+    related: ['invitations', 'event-templates', 'event-reminder-emails', 'find-your-table', 'guest-photo-qr-code', 'custom-domain'],
+    cta: { title: 'Save on invitations and the guest list', text: 'Send beautiful digital invitations, collect RSVPs and keep every detail on one free wedding website.' },
+  },
+  {
+    slug: 'rsvp-deadline-calculator',
+    path: '/rsvp-deadline-calculator',
+    seo: {
+      title: 'RSVP Deadline Calculator: When Should RSVPs Be Due?',
+      description:
+        'Free RSVP deadline calculator: get your RSVP deadline from your event date, plus when to send save-the-dates, invitations and reminders.',
+      keywords: ['rsvp deadline calculator', 'when should rsvp be due', 'rsvp deadline wedding', 'how far in advance to send wedding invitations', 'rsvp date', 'when to send invitations', 'rsvp by date'],
+    },
+    eyebrow: 'RSVPs',
+    title: 'RSVP deadline calculator',
+    lead:
+      'Pick your event date and tell the calculator when your caterer or venue needs the final numbers. It sets your RSVP deadline, with time to chase late replies, and works out when to send save-the-dates, invitations and reminders. Copy the wording for your invitation or add every date to your calendar.',
+    summary: 'Get your RSVP deadline and when to send save-the-dates, invitations and reminders, with a calendar of every date.',
+    cardImage: '/images/guides/free-tools/rsvp-deadline-calculator.jpg',
+    cardAlt: 'The MyGala RSVP deadline calculator showing an RSVP deadline and a timeline from save-the-dates to the wedding day',
+    app: {
+      name: 'RSVP deadline calculator',
+      description: 'Enter an event date, the type of event and when the caterer needs final numbers, and get the RSVP deadline, the dates to send save-the-dates, invitations and reminders, invitation wording and a calendar file.',
+      category: 'UtilitiesApplication',
+    },
+    published: '2026-11-07',
+    readMinutes: 6,
+    sections: [
+      {
+        heading: 'RSVP deadline calculator',
+        blocks: [
+          { type: 'tool', tool: 'rsvp' },
+          { type: 'note', text: '“Add these dates to my calendar” downloads a file that works with Google Calendar, Apple Calendar and Outlook.' },
+        ],
+      },
+      {
+        heading: 'When should RSVPs be due?',
+        blocks: [
+          { type: 'p', text: '**For most weddings, 3 to 4 weeks before the date.** For parties, 1 to 2 weeks. The right deadline isn’t about the wedding day, though; it’s about the day your caterer and venue need your final numbers. Work back from that:' },
+          {
+            type: 'list',
+            items: [
+              '**Find out when the final count is due.** Most caterers ask 7 to 14 days before; destination venues and hotels can ask for 3 weeks or more. It’s in your contract.',
+              '**Give yourself a week before that.** Some guests always miss the deadline, and you’ll need a few days to call them, then place everyone on your seating chart.',
+              '**Avoid weekend deadlines.** A Friday or a weekday is easier to remember, and you can start following up the next day.',
+            ],
+          },
+          { type: 'note', text: 'The calculator does this for you, and moves a deadline that lands on a weekend back to the Friday before.' },
+        ],
+      },
+      {
+        heading: 'When to send invitations',
+        blocks: [
+          { type: 'p', text: 'Guests need about four weeks to answer. Send invitations early enough that they have it:' },
+          {
+            type: 'list',
+            items: [
+              '**Weddings:** invitations 6 to 8 weeks before, save-the-dates 6 to 8 months before.',
+              '**Destination weddings:** invitations about 12 weeks before, save-the-dates 9 to 12 months before, so guests can book travel.',
+              '**Parties and celebrations:** invitations 3 to 4 weeks before. Save-the-dates are optional.',
+              '**Galas and corporate events:** invitations about 6 weeks before, save-the-dates about 3 months before.',
+            ],
+          },
+          { type: 'p', text: 'Sending around a holiday? Add a week or two, because people are busy and travelling.' },
+        ],
+      },
+      {
+        heading: 'How to word your RSVP deadline',
+        blocks: [
+          { type: 'p', text: 'Keep it short and put it where guests can’t miss it: on the invitation, the RSVP card and your event page. A few ways to say it:' },
+          {
+            type: 'list',
+            items: [
+              '“Kindly reply by Friday, May 7”',
+              '“Please RSVP by May 7 so we can save you a seat”',
+              '“The favour of a reply is requested by the seventh of May” (formal)',
+              '“Let us know by May 7!” (casual)',
+            ],
+          },
+          { type: 'p', text: 'Including the day of the week makes the date easier to remember. If you ask for meal choices or allergies, say so next to the deadline.' },
+        ],
+      },
+      {
+        heading: 'Getting late RSVPs in',
+        blocks: [
+          { type: 'p', text: 'Expect 10 to 20% of guests to miss the deadline. That’s normal, and it’s why the deadline comes a week before your final count. To get answers faster:' },
+          {
+            type: 'list',
+            items: [
+              '**Make replying easy.** An online RSVP takes guests seconds, from any phone, without stamps or envelopes.',
+              '**Send a reminder a week before the deadline.** On MyGala, [reminder emails](/features/event-reminder-emails) can go out on their own.',
+              '**Then follow up personally.** A text or call the day after the deadline gets an answer almost every time.',
+              '**Count a non-answer as a no** only after you’ve tried to reach them, and let them know.',
+            ],
+          },
+          { type: 'try', text: 'Collect RSVPs online for free' },
+        ],
+      },
+      MORE_TOOLS('/rsvp-deadline-calculator'),
+    ],
+    faqs: [
+      { q: 'How long before a wedding should the RSVP deadline be?', a: 'About 3 to 4 weeks before the wedding, or one week before your caterer and venue need the final count. That leaves time to follow up with late guests and finish the seating chart.' },
+      { q: 'How far in advance should I send wedding invitations?', a: '6 to 8 weeks before the wedding, so guests have about four weeks to reply before the RSVP deadline. For a destination wedding, send them about 12 weeks before.' },
+      { q: 'When should the RSVP deadline be for a party?', a: 'About 1 to 2 weeks before, depending on when your venue or caterer needs numbers. Send the invitations 3 to 4 weeks before the party.' },
+      { q: 'What if guests don’t RSVP by the deadline?', a: 'Contact them personally the day after the deadline, with a text, call or email. Most people simply forgot. Planning the deadline a week before your final count gives you time to do this.' },
+      { q: 'Should the RSVP deadline be on a weekend?', a: 'It’s better on a weekday, often a Friday. People remember it more easily, and you can follow up with late guests on the next working day.' },
+      { q: 'Can guests RSVP online?', a: 'Yes. With an event page or wedding website on MyGala, guests RSVP from any phone or computer, without an app or an account, and you see every reply and the head count in one place.' },
+    ],
+    related: ['invitations', 'event-reminder-emails', 'find-your-table', 'event-templates', 'custom-sections', 'password-protection'],
+    cta: { title: 'Collect every RSVP in one place', text: 'Send invitations with an RSVP button, remind guests automatically and see your head count at a glance. It’s free to start.' },
+  },
+  {
+    slug: 'guest-count-planner',
+    path: '/guest-count-planner',
+    seo: {
+      title: 'Guest Count Planner: How Many Guests Will Actually Come?',
+      description:
+        'Free guest count planner: see how many invited guests will likely come, whether they fit your venue, and how many tables and meals you need.',
+      keywords: ['guest count calculator', 'how many wedding guests will come', 'wedding guest list calculator', 'wedding attendance rate', 'how many people to invite to a wedding', 'what percentage of wedding guests attend', 'guest list planner'],
+    },
+    eyebrow: 'Guest list',
+    title: 'Guest count planner',
+    lead:
+      'Not everyone you invite will come, and how many say yes depends on who they are and how far they travel. Enter how many people you’ll invite from each group, and the planner estimates how many will be there, checks it against your venue and works out tables and catering. Then read on for how to build your guest list.',
+    summary: 'See how many invited guests will likely come, whether they fit your venue, and how many tables and how much catering you need.',
+    cardImage: '/images/guides/free-tools/guest-count-planner.jpg',
+    cardAlt: 'The MyGala guest count planner estimating how many of the invited guests will come, with a venue capacity meter',
+    app: {
+      name: 'Guest count planner',
+      description: 'Enter how many people are invited from each group (family, friends, coworkers, plus-ones, children) and how far they travel, and get the expected number of guests with a likely range, room left at the venue, tables needed and the catering cost.',
+      category: 'UtilitiesApplication',
+    },
+    published: '2026-11-07',
+    readMinutes: 6,
+    sections: [
+      {
+        heading: 'Guest count planner',
+        blocks: [
+          { type: 'tool', tool: 'guests' },
+          { type: 'note', text: 'Plan for the high end of the range. If more people come than expected, you’ll still have a seat and a meal for everyone.' },
+        ],
+      },
+      {
+        heading: 'What percentage of guests actually come?',
+        blocks: [
+          { type: 'p', text: 'For a local wedding, **about 75 to 85% of the people you invite** usually say yes. The number varies a lot by group, which is why the planner asks for each one:' },
+          {
+            type: 'list',
+            items: [
+              '**Immediate family: about 95%.** They’ll be there.',
+              '**Close friends: about 90%.**',
+              '**Extended family: about 80%.**',
+              '**Other friends: about 75%.**',
+              '**Your parents’ friends: about 70%.**',
+              '**Coworkers: about 60%.**',
+            ],
+          },
+          { type: 'h3', text: 'Travel changes everything' },
+          { type: 'p', text: 'When guests have to fly or book a hotel, fewer can come. With about half your guests travelling, expect around 10% fewer yeses; for a destination wedding, often only 50 to 70% attend. Immediate family is the exception, because they come almost whatever the distance.' },
+          { type: 'p', text: 'Dates matter too. Holiday weekends, the middle of winter and short notice all lower the numbers, while a Saturday in summer with plenty of notice raises them.' },
+        ],
+      },
+      {
+        heading: 'How to build your guest list',
+        blocks: [
+          {
+            type: 'list',
+            items: [
+              '**Start with your number.** Your budget and your venue set a limit. Divide your budget by your cost per guest, and check the venue’s capacity. The [wedding budget calculator](/wedding-budget-calculator) shows your cost per guest.',
+              '**Write everyone down first,** then sort them into groups: must-invite, would like to invite, and nice to have.',
+              '**Split the list fairly.** A common way is half for the couple and a quarter for each family, or a third each.',
+              '**Set rules and keep them.** For example: no coworkers you don’t see outside work, plus-ones only for guests in a relationship, or no children except family. Rules make hard conversations easier.',
+              '**Use an A-list and a B-list.** Send the B-list invitations as no’s come in, at least 6 weeks before the wedding so it doesn’t look like an afterthought.',
+            ],
+          },
+          { type: 'note', text: 'Count each person, not each invitation. A family of four is four guests, four meals and four chairs.' },
+        ],
+      },
+      {
+        heading: 'Tables, chairs and catering',
+        blocks: [
+          { type: 'p', text: 'Round tables usually seat 8 or 10. The planner divides your likely high end by the table size, so you don’t run out of seats. Remember the extra tables: a head or sweetheart table, a kids’ table and a table for vendors’ meals if your contract includes them.' },
+          { type: 'p', text: 'Caterers charge for the final count you give them, even if fewer people come. That’s why a firm [RSVP deadline](/rsvp-deadline-calculator) matters: it turns your estimate into a real number before the final count is due.' },
+          { type: 'try', text: 'Track your guest list and RSVPs for free' },
+        ],
+      },
+      MORE_TOOLS('/guest-count-planner'),
+    ],
+    faqs: [
+      { q: 'What percentage of invited wedding guests attend?', a: 'For a local wedding, usually about 75 to 85%. Family and close friends come more often than coworkers and distant acquaintances, and fewer people come when they have to travel. For a destination wedding, 50 to 70% is common.' },
+      { q: 'How many people should I invite to get 100 guests?', a: 'For a local wedding, about 120 to 130 invitations. For a destination wedding, closer to 150. The planner on this page gives you a more precise number based on who you invite.' },
+      { q: 'Should I plan for everyone I invite?', a: 'Plan your venue for the high end of the likely range, not for everyone. If your venue can only fit the number you invite, it’s safest to invite no more than it holds.' },
+      { q: 'Do plus-ones and children count as guests?', a: 'Yes. Count every person who will need a seat and a meal. Children may get a cheaper meal, but they still need a chair.' },
+      { q: 'How many guests usually don’t RSVP?', a: 'About 10 to 20% miss the deadline. Most of them will answer when you follow up with a text or a call.' },
+      { q: 'How can I keep track of who’s coming?', a: 'Collect RSVPs online. On MyGala, guests reply on your event page or wedding website, and you see every answer, the number of people in each party and the total head count in one place.' },
+    ],
+    related: ['invitations', 'find-your-table', 'event-reminder-emails', 'event-templates', 'password-protection', 'guest-photo-qr-code'],
+    cta: { title: 'Turn your guest list into replies', text: 'Send invitations, collect RSVPs with the number in each party and see your real head count. It’s free to start.' },
+  },
   {
     slug: 'wedding-colour-palette',
     path: '/wedding-colour-palette',
@@ -195,6 +529,7 @@ export const BLOG_POSTS: BlogPost[] = [
           },
         ],
       },
+      MORE_TOOLS('/wedding-colour-palette'),
     ],
     faqs: [
       { q: 'How many colours should a wedding have?', a: 'Three to five: one or two main colours, an accent and a neutral like ivory or white. Greenery and metals like gold or silver don’t usually count as colours.' },
@@ -267,7 +602,7 @@ export const BLOG_POSTS: BlogPost[] = [
             ],
           },
           { type: 'screenshot', src: '/images/guides/how-to-create-a-wedding-website/step-3-rsvp-replies.webp', width: 1600, height: 1000, alt: 'The MyGala RSVP page showing 5 attending, 1 declining and 10 total guests, with each reply listed by name, status, guest count and note', caption: 'Every reply in one place, with the head count and each guest’s note.' },
-          { type: 'note', text: 'Set your RSVP deadline about 3 to 4 weeks before the wedding, so you have time to give final numbers to your caterer and venue.' },
+          { type: 'note', text: 'Set your RSVP deadline about 3 to 4 weeks before the wedding, so you have time to give final numbers to your caterer and venue. The [RSVP deadline calculator](/rsvp-deadline-calculator) works out the exact date for you.' },
           { type: 'try', occasion: 'wedding', text: 'Turn on RSVPs for your wedding' },
         ],
       },
@@ -333,7 +668,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: '12+ months before: lay the foundation',
         blocks: [
-          { type: 'p', text: 'Every later decision depends on three numbers: your budget, your guest count and your date. Settle those first.' },
+          { type: 'p', text: 'Every later decision depends on three numbers: your budget, your guest count and your date. Settle those first. The free [wedding budget calculator](/wedding-budget-calculator) splits your budget across every category, and the [guest count planner](/guest-count-planner) estimates how many of the people you invite will come.' },
           {
             type: 'checklist',
             items: [
@@ -417,7 +752,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: '1 to 3 months before: invitations out, plans firm up',
         blocks: [
-          { type: 'p', text: 'Invitations usually go out 6 to 8 weeks ahead, with an RSVP deadline about 3 to 4 weeks before the wedding.' },
+          { type: 'p', text: 'Invitations usually go out 6 to 8 weeks ahead, with an RSVP deadline about 3 to 4 weeks before the wedding. The [RSVP deadline calculator](/rsvp-deadline-calculator) works out your exact dates.' },
           {
             type: 'checklist',
             items: [

@@ -11,6 +11,7 @@ import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { RsvpGuestListOption } from '@/app/ui/dashboard/rsvp-guest-list-option';
 import { auth } from '@/auth';
 import { LocalDate } from '@/app/ui/dashboard/local-date';
+import { PlanningToolTip, rsvpCalculatorHref } from '@/app/ui/dashboard/planning-tool-tip';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -44,6 +45,13 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         initialOn={isRsvpGuestListOnly(settings)}
         guestCount={guests.length}
         guestListHref={pagePath(pageId, '/guest-list')}
+      />
+
+      <PlanningToolTip
+        href={rsvpCalculatorHref(page)}
+        title="When should replies be due?"
+        text="Our free calculator works out your RSVP deadline from your event date, plus when to send invitations and reminders."
+        cta="RSVP deadline calculator"
       />
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
