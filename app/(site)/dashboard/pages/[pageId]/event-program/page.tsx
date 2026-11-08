@@ -2,6 +2,7 @@ import { fetchEventProgram, fetchPageSettings, isSectionOn } from '@/app/lib/dat
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { EventProgramManager } from '@/app/ui/dashboard/event-program-manager';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function EventProgramPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -18,6 +19,7 @@ export default async function EventProgramPage({ params }: { params: Promise<{ p
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Event Program</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
           Build the schedule for your event — rehearsal dinner, ceremony, reception, and anything else your guests should know about.
+          {' '}<HelpLink guide="plan-your-event-program" />
         </p>
       </div>
 

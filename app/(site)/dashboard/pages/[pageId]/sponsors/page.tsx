@@ -4,6 +4,7 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { SponsorsManager } from '@/app/ui/dashboard/sponsors-manager';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function SponsorsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -20,6 +21,7 @@ export default async function SponsorsPage({ params }: { params: Promise<{ pageI
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
           Thank the people and businesses supporting your event. Each sponsor gets an image (such as their logo) and a short description,
           shown after your gallery. You can rename the section&apos;s heading in the page editor.
+          {' '}<HelpLink guide="add-sponsors" />
         </p>
       </div>
 

@@ -6,6 +6,7 @@ import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { parseReminderSchedule } from '@/app/lib/reminders';
 import { reminderEmail } from '@/app/lib/reminder-email';
 import { RemindersForm } from '@/app/ui/dashboard/reminders-form';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function RemindersPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -46,6 +47,7 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Event Reminders</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, lineHeight: 1.6 }}>
           Automatically email your guests before the event with the date, location, and a personal note from you.
+          {' '}<HelpLink guide="send-reminder-emails" />
         </p>
       </div>
 

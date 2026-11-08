@@ -1,20 +1,22 @@
 import type { UserPage } from '@/app/lib/definitions';
 import { themeRegistry } from '@/app/ui/themes/registry';
+import { siteHref } from '@/app/lib/app-url';
 
 // A quiet pointer to one of the free planning tools (/tools) on the dashboard
 // screen where a host needs it: the RSVP deadline calculator on RSVP, the
-// guest count planner on Guest List. Opens in a new tab so the dashboard
-// stays put.
+// guest count planner on Guest List. Sits at the bottom of the screen so it
+// never pushes the screen's own tools down, and opens in a new tab so the
+// dashboard stays put.
 export function PlanningToolTip({ href, title, text, cta }: { href: string; title: string; text: string; cta: string }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap',
-      background: '#F7F4F1', border: '1px solid #EDE8E3', borderRadius: 10, padding: '12px 16px', margin: '0 0 20px', fontFamily: 'system-ui, sans-serif',
+      background: '#F7F4F1', border: '1px solid #EDE8E3', borderRadius: 10, padding: '12px 16px', margin: '28px 0 0', fontFamily: 'system-ui, sans-serif',
     }}>
       <span style={{ fontSize: 14, lineHeight: 1.55, color: '#6B6470' }}>
         <strong style={{ color: '#241F2B' }}>{title}</strong> {text}
       </span>
-      <a href={href} target="_blank" rel="noopener" style={{ fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+      <a href={siteHref(href)} target="_blank" rel="noopener" style={{ fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none', whiteSpace: 'nowrap' }}>
         {cta} ↗
       </a>
     </div>

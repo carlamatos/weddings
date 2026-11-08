@@ -8,6 +8,7 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { QrSignCard } from '@/app/ui/dashboard/photo-qr-card';
 import { SeatingPlanner } from '@/app/ui/dashboard/seating-planner';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 // On the day → Find Your Table (Plus): seat the guest list, then put the QR
 // sign at the entrance. Guests type their name at <page>/table and see their
@@ -29,6 +30,7 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
           No seating chart to print or fix at the last minute. Give each guest a table here, put the QR sign at the entrance, and
           guests scan it, type their name and see their table. Change a table any time — guests always see the latest.
           Set up your tables on the seating map and drag your guests onto them.
+          {' '}<HelpLink guide="seat-your-guests" />
         </p>
       </div>
 

@@ -8,6 +8,7 @@ import { DashboardGuestPhotos } from '@/app/ui/themes/GuestPhotoSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PhotoQrCard } from '@/app/ui/dashboard/photo-qr-card';
 import { GuestPhotoAllowance } from '@/app/ui/dashboard/guest-photo-allowance';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 // Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Plus raises the
 // limit. Free pages start with the section off.
@@ -31,6 +32,7 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
           Guests share their photos straight from your event page, and everyone can browse them. You can delete any photo,
           and download them all at once.
+          {' '}<HelpLink guide="collect-guest-photos" />
         </p>
       </div>
 

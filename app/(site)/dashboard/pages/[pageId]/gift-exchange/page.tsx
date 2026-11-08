@@ -6,6 +6,7 @@ import { giftRevealUrl } from '@/app/lib/gift-token';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { GiftExchangeManager, type GiftRow } from '@/app/ui/dashboard/gift-exchange-manager';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function GiftExchangePage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -39,6 +40,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
           Run a Secret Santa: guests join from your page, you draw names, and everyone finds out who they&rsquo;re buying a gift
           for — by email, text or WhatsApp. Nobody draws their own name. The section appears on your page right after the RSVP.
+          {' '}<HelpLink guide="run-a-gift-exchange" />
         </p>
       </div>
       <SectionToggle pageId={pageId} settingName="show_gift_exchange" plusSection="/gift-exchange" initialOn={isGiftExchangeOn(settings)} />

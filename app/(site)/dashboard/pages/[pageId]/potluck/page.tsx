@@ -4,6 +4,7 @@ import { arePotluckEntriesPublic, isPotluckOn } from '@/app/lib/potluck';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { PotluckEntries } from '@/app/ui/dashboard/potluck-entries';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function PotluckPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -20,6 +21,7 @@ export default async function PotluckPage({ params }: { params: Promise<{ pageId
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640, lineHeight: 1.6 }}>
           Guests tell you what they&rsquo;re bringing with their name and email. If a guest sends the form again with the same email,
           their entry is updated. The section appears on your page right after the RSVP.
+          {' '}<HelpLink guide="organize-a-potluck" />
         </p>
       </div>
 

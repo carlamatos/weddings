@@ -2,6 +2,7 @@ import { fetchPageSettings } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { PagePasswordForm } from '@/app/ui/dashboard/page-password-form';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function PasswordPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -18,6 +19,7 @@ export default async function PasswordPage({ params }: { params: Promise<{ pageI
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640, lineHeight: 1.6 }}>
           Keep your event private. When protection is on, visitors see a password screen instead of your page, and only guests who
           know the password can open it, RSVP or share photos. When you&rsquo;re signed in, you always see your page at its mygala.ca address.
+          {' '}<HelpLink guide="protect-your-page-with-a-password" />
         </p>
       </div>
       <PagePasswordForm

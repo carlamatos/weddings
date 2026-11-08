@@ -3,6 +3,7 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { CustomSectionsManager } from '@/app/ui/dashboard/custom-sections-manager';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function CustomSectionsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -19,6 +20,7 @@ export default async function CustomSectionsPage({ params }: { params: Promise<{
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
           Up to three sections of your own, shown after Date &amp; Location. Give each an optional title and add text and images.
           Empty sections stay hidden.
+          {' '}<HelpLink guide="add-custom-sections" />
         </p>
       </div>
 

@@ -12,6 +12,7 @@ import { RsvpGuestListOption } from '@/app/ui/dashboard/rsvp-guest-list-option';
 import { auth } from '@/auth';
 import { LocalDate } from '@/app/ui/dashboard/local-date';
 import { PlanningToolTip, rsvpCalculatorHref } from '@/app/ui/dashboard/planning-tool-tip';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -29,7 +30,11 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 20px', fontFamily: 'system-ui' }}>RSVP</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px', fontFamily: 'system-ui' }}>RSVP</h1>
+      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 20px', maxWidth: 680, lineHeight: 1.6, fontFamily: 'system-ui' }}>
+        See who&rsquo;s coming, how many guests they&rsquo;re bringing and their notes to you, and change a reply when someone tells you in person.
+        {' '}<HelpLink guide="manage-rsvps" />
+      </p>
 
       <SectionToggle
         pageId={pageId}
@@ -47,12 +52,6 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         guestListHref={pagePath(pageId, '/guest-list')}
       />
 
-      <PlanningToolTip
-        href={rsvpCalculatorHref(page)}
-        title="When should replies be due?"
-        text="Our free calculator works out your RSVP deadline from your event date, plus when to send invitations and reminders."
-        cta="RSVP deadline calculator"
-      />
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
         <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />
@@ -106,6 +105,12 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
           </table>
         </div>
       )}
+      <PlanningToolTip
+        href={rsvpCalculatorHref(page)}
+        title="When should replies be due?"
+        text="Our free calculator works out your RSVP deadline from your event date, plus when to send invitations and reminders."
+        cta="RSVP deadline calculator"
+      />
     </div>
   );
 }

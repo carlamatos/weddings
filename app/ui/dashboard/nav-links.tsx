@@ -3,7 +3,7 @@
 import {
   DocumentIcon, GiftTopIcon, UsersIcon, ClipboardDocumentListIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
   CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
-  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon,
+  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
@@ -14,6 +14,7 @@ import { FREE_GUEST_PHOTO_LIMIT } from '@/app/lib/guest-photos';
 import type { SetupStep } from '@/app/lib/setup-progress';
 import { openProfile } from './user-menu';
 import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
+import { siteHref } from '@/app/lib/app-url';
 
 type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
@@ -130,6 +131,11 @@ export default function NavLinks({
           </div>
         );
       })}
+      {/* Every screen's how-to guides (/help), in a new tab. */}
+      <a href={siteHref('/help')} target="_blank" rel="noopener" className="dash-nav-link dash-nav-help">
+        <QuestionMarkCircleIcon />
+        Help centre
+      </a>
     </>
   );
 }

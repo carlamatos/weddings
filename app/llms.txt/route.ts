@@ -3,6 +3,7 @@ import { COMPANY } from '@/app/lib/company';
 import { FEATURES } from '@/app/lib/marketing/features';
 import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
+import { HELP_GUIDES } from '@/app/lib/marketing/help';
 import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
 // /llms.txt — a plain-language summary of MyGala for AI assistants and LLM
@@ -52,6 +53,8 @@ export function GET() {
     '## Help and policies',
     '',
     link('FAQ', '/faq', 'Answers about pricing, RSVPs, privacy, photos, languages and custom domains'),
+    link('Help centre', '/help', 'Step-by-step guides for every MyGala feature'),
+    ...HELP_GUIDES.map((g) => link(g.title, `/help/${g.slug}`, g.summary)),
     link('About MyGala', '/about'),
     link('Contact', '/contact'),
     link('Terms of Service', '/terms', 'Including Plus payment, refund and cancellation terms (section 8)'),

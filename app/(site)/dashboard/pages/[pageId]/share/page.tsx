@@ -7,6 +7,7 @@ import { isCardImage, plainDescription, publicPageUrl, socialImageFor, socialIma
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { HashtagForm } from '@/app/ui/dashboard/hashtag-form';
 import { ShareButtons } from '@/app/ui/dashboard/share-buttons';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 // Available on every plan. Paid pages with a verified custom domain share
 // that domain; everyone else shares their MyGala URL.
@@ -30,6 +31,7 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Share</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
           Send your event page to guests on social media, messaging apps, or email. Links show your top banner image as the preview.
+          {' '}<HelpLink guide="share-your-page" />
         </p>
       </div>
 

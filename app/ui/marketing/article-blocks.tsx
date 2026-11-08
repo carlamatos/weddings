@@ -14,7 +14,7 @@ import { ZoomableScreenshot } from './zoomable-screenshot';
 
 // Renders the article markup described in app/lib/marketing/blog.ts:
 // [link text](/path) and **bold**.
-function Rich({ text }: { text: string }) {
+export function Rich({ text }: { text: string }) {
   const parts: ReactNode[] = [];
   const re = /\[([^\]]+)\]\(([^)]+)\)|\*\*(.+?)\*\*/g;
   let last = 0;
