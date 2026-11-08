@@ -1,6 +1,7 @@
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import DomainForm from './DomainForm';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function DomainPage({
   params,
@@ -21,6 +22,7 @@ export default async function DomainPage({
       <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Custom Domain</h1>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 32px' }}>
         Point your own domain to your event page. Guests will see your domain instead of mygala.ca.
+        {' '}<HelpLink guide="use-your-own-domain" />
       </p>
 
       {justUpgraded && (

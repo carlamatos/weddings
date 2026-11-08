@@ -25,7 +25,7 @@ export default function FaqPage() {
           <h1 className="mk-h1">Frequently asked questions</h1>
           <p className="mk-lead">
             Everything hosts ask before creating an event page — from pricing and RSVPs to privacy, photos and what happens after the
-            event. Can’t find your answer? <Link href="/contact">Contact us</Link>.
+            event. For step-by-step instructions, see the <Link href="/help">help centre</Link>. Can’t find your answer? <Link href="/contact">Contact us</Link>.
           </p>
           <nav aria-label="FAQ topics">
             <ul className="mk-chips mk-chips--links">

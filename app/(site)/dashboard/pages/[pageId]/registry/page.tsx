@@ -3,6 +3,7 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { RegistryForm } from '@/app/ui/dashboard/registry-form';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function RegistryPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -19,6 +20,7 @@ export default async function RegistryPage({ params }: { params: Promise<{ pageI
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
           Point guests to your gift registry, and add a message for anything else they should know. The section shows on your page
           once it has a link or a message.
+          {' '}<HelpLink guide="add-a-registry" />
         </p>
       </div>
 

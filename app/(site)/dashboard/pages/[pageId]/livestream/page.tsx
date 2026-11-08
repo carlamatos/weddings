@@ -4,6 +4,7 @@ import { LIVESTREAM_SETTINGS } from '@/app/lib/livestream';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { LivestreamForm } from '@/app/ui/dashboard/livestream-form';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function LivestreamPage({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);
@@ -20,6 +21,7 @@ export default async function LivestreamPage({ params }: { params: Promise<{ pag
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
           Let guests who can&rsquo;t make it watch along. Paste the link to your stream, or the embed code your streaming
           service gives you. The section shows on your page once it has a link.
+          {' '}<HelpLink guide="livestream-your-event" />
         </p>
       </div>
 

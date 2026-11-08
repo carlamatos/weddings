@@ -4,6 +4,7 @@ import { LINK_SHARED_SETTING } from '@/app/lib/setup-progress';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
 import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 // Guests → Guest List: on every plan. Sending invitations to the list is on
 // the Invitations screen (Plus).
@@ -33,6 +34,7 @@ export default async function GuestListPage({ params }: { params: Promise<{ page
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
           Keep everyone you&rsquo;re inviting in one place — import them from a spreadsheet or your phone&rsquo;s contacts, or add them
           one by one. Their replies show up on your RSVP screen.
+          {' '}<HelpLink guide="add-your-guests" />
         </p>
       </div>
       {prompt && (
@@ -54,13 +56,13 @@ export default async function GuestListPage({ params }: { params: Promise<{ page
           </Link>
         </div>
       )}
+      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} />
       <PlanningToolTip
         href="/guest-count-planner"
         title="Not everyone you invite will come."
         text="Our free guest count planner estimates how many will, and whether they fit your venue."
         cta="Guest count planner"
       />
-      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} />
     </div>
   );
 }

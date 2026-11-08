@@ -90,6 +90,7 @@ body:has(.dash-shell) {
 /* Groups of links: Page, Guests, On the day, Settings */
 .dash-nav-section { display: flex; flex-direction: column; gap: 1px; }
 .dash-nav-section .dash-nav-link { padding-top: 8px; padding-bottom: 8px; }
+.dash-nav-help { margin-top: 10px; border-top: 1px solid #EDE8E3; border-radius: 0; padding-top: 14px; }
 /* Beside a link: "On" = live on the page for guests. On a free page, a
    small gold sparkle marks a Plus feature (it can still be opened and set
    up), and "50 free" marks Guest Photos. A group that's all Plus says so

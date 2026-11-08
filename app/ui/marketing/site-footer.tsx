@@ -32,6 +32,7 @@ export default function SiteFooter() {
           <p className="site-footer-heading">MyGala</p>
           <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
+          <Link href="/help">Help centre</Link>
           <Link href="/faq">FAQ</Link>
           <Link href="/blog">Blog</Link>
           <Link href="/contact">Contact</Link>

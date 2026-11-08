@@ -7,6 +7,7 @@ import { INVITATION_LANDING_PAGES } from '@/app/lib/marketing/invitation-landing
 import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
 import { themeRegistry } from '@/app/ui/themes/registry';
 import { ES_PAGES } from '@/app/lib/marketing/es';
+import { HELP_GUIDES } from '@/app/lib/marketing/help';
 
 // The sitemap is generated once per deploy, and every listed page is
 // built from the code being deployed — so the deploy time is an honest
@@ -40,6 +41,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry('/design-your-party-invitation', 0.8),
     entry('/tools', 0.8),
     entry('/faq', 0.7),
+    entry('/help', 0.7),
+    ...HELP_GUIDES.map((g) => entry(`/help/${g.slug}`, 0.5)),
     // Articles carry their publish date; the blog index changes when the newest one is published.
     entry('/blog', 0.6, 'weekly', new Date(Math.max(...BLOG_POSTS.map((p) => Date.parse(p.published))))),
     ...BLOG_POSTS.map((p) => entry(postPath(p), 0.6, 'monthly', new Date(p.published))),

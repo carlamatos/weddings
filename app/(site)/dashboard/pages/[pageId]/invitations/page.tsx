@@ -9,6 +9,7 @@ import { invitationPassword } from '@/app/lib/page-password';
 import { auth } from '@/auth';
 import { publicPageUrl } from '@/app/lib/share';
 import { QuickShare } from '@/app/ui/dashboard/quick-share';
+import { HelpLink } from '@/app/ui/dashboard/help-link';
 
 export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -33,6 +34,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
           Design an invitation that matches your page — choose fonts, wording, colours and a background — then print it, save it
           as a PDF, or send it to your guests by email, text message or WhatsApp.
+          {' '}<HelpLink guide="send-invitations" />
         </p>
       </div>
 
