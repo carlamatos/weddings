@@ -150,6 +150,15 @@ export async function POST(request: Request) {
     WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'new-years-eve')
   `;
 
+  // Fireworks theme (General Events, key 'community'; also shown under Celebrations).
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Fireworks',
+           'Night violet with coral, mint, lilac, peach and champagne gold. A glowing tree in the snow with fireworks bursting, a countdown beside a midnight clock, a date ticket on paper white and an RSVP under a sky of fireworks. Festive for New Year''s Eve and any night worth lighting up.',
+           'fireworks'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'fireworks')
+  `;
+
   // Día de los Muertos theme (General Events category, key 'community').
   await sql`
     INSERT INTO event_themes (name, description, slug)

@@ -29,6 +29,7 @@ import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeL
 import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 import Simple, { HeroPreview as SimplePreview, SimpleDefaultHero } from './Simple';
 import NewYearsEve, { HeroPreview as NewYearsEvePreview } from './NewYearsEve';
+import Fireworks, { HeroPreview as FireworksPreview } from './Fireworks';
 
 // ─────────────────────────────────────────────────────────
 // Theme registry — to add a new theme:
@@ -75,6 +76,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'merry':              { Page: Merry,             Preview: MerryPreview, category: 'community', also: ['birthdays'], label: 'Merry', FallbackHero: MerryDefaultHero },
   'gnomes':             { Page: Gnomes,            Preview: GnomesPreview, category: 'community', also: ['birthdays'], label: 'Gnomes', FallbackHero: GnomesDefaultHero },
   'new-years-eve':      { Page: NewYearsEve,       Preview: NewYearsEvePreview, category: 'community', also: ['birthdays'], label: 'New Year’s Eve' },
+  'fireworks':          { Page: Fireworks,         Preview: FireworksPreview, category: 'community', also: ['birthdays'], label: 'Fireworks' },
   'dia-de-los-muertos': { Page: DiaDeLosMuertos,   Preview: DiaDeLosMuertosPreview, category: 'community', label: 'Día de los Muertos' },
   'halloween-party':    { Page: HalloweenParty,    Preview: HalloweenPartyPreview, category: 'community', label: 'Halloween Party' },
   'baby-shower-girl':   { Page: BabyShowerGirl,    Preview: BabyShowerGirlPreview, category: 'birthdays', label: 'Girl Baby Shower' },
