@@ -223,6 +223,13 @@ export default async function Page() {
                     <p className="theme-desc">Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight — elegant and festive for New Year&rsquo;s Eve parties.</p>
                   </div>
                 </a>
+                <a href="/themes/fireworks" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="fireworks" />
+                  <div className="theme-info">
+                    <p className="theme-name">Fireworks</p>
+                    <p className="theme-desc">Night violet with coral, mint, lilac and champagne gold, fireworks bursting over sparklers and a countdown beside a midnight clock — festive for New Year&rsquo;s Eve and every night worth lighting up.</p>
+                  </div>
+                </a>
               </div>
               <Link href="/events/celebrations" className="learn-more-link">{learnMore('celebrations')} →</Link>
             </div>
@@ -375,6 +382,13 @@ export default async function Page() {
                   <div className="theme-info">
                     <p className="theme-name">New Year&rsquo;s Eve</p>
                     <p className="theme-desc">Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight — elegant and festive for New Year&rsquo;s Eve parties.</p>
+                  </div>
+                </a>
+                <a href="/themes/fireworks" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="fireworks" />
+                  <div className="theme-info">
+                    <p className="theme-name">Fireworks</p>
+                    <p className="theme-desc">Night violet with coral, mint, lilac and champagne gold, fireworks bursting over sparklers and a countdown beside a midnight clock — festive for New Year&rsquo;s Eve and every night worth lighting up.</p>
                   </div>
                 </a>
                 <a href="/themes/dia-de-los-muertos" target="_blank" rel="noopener noreferrer" className="theme-card reveal" style={{ textDecoration: 'none' }}>

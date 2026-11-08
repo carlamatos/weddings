@@ -124,6 +124,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'white-christmas': { bg: '#DAE4F0', textColor: '#23415E', accentColor: '#B89B4F', headingFont: 'cormorant', bodyFont: 'lato' },
   'gnomes': { bg: '#F0E5DD', textColor: '#476735', accentColor: '#D91D1A', headingFont: 'fredoka', bodyFont: 'poppins' },
   'merry': { bg: '#101A25', textColor: '#F3F6F9', accentColor: '#D3B560', headingFont: 'playfair', bodyFont: 'montserrat' },
+  'fireworks': { bg: '#0E0B14', textColor: '#FCF7EB', accentColor: '#EF9488', headingFont: 'playfair', bodyFont: 'josefin' },
   'new-years-eve': { bg: '#181509', textColor: '#F7F1E6', accentColor: '#C59F5E', headingFont: 'cormorant', bodyFont: 'montserrat' },
   'dia-de-los-muertos': { bg: '#3B1E4A', textColor: '#FDF3E1', accentColor: '#FBB813', headingFont: 'fredoka', bodyFont: 'poppins' },
   'halloween-party': { bg: '#1F1D1E', textColor: '#EDE4D3', accentColor: '#F07F1E', headingFont: 'creepster', bodyFont: 'poppins' },
@@ -163,8 +164,9 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
   'gnomes': { divider: 'christmas-holly', frame: '' }, // the gnome picture instead
   'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
-  // New Year's Eve
-  'new-years-eve': { divider: 'birthday-stars', frame: 'wedding-deco' }, // gold stars in an Art Deco frame
+  // New Year's Eve and Fireworks
+  'new-years-eve': { divider: 'birthday-stars', frame: 'wedding-deco' },
+  'fireworks': { divider: 'birthday-confetti', frame: 'birthday-sparkle' }, // confetti and a sparkle border
   // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
   'dia-de-los-muertos': { divider: 'birthday-papel', frame: '' },

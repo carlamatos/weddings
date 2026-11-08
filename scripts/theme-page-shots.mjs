@@ -40,6 +40,13 @@ for (const slug of slugs) {
   });
   await page.evaluate(() => document.querySelector('.mg-topbar-actions')?.parentElement?.remove());
   await page.addStyleTag({ content: '*,*::before,*::after{animation-play-state:paused!important;transition:none!important} nextjs-portal{display:none!important}' });
+  // A hero video that builds up (like the Fireworks tree) is shown at its fullest, not its first frame.
+  await page.evaluate(() => Promise.all([...document.querySelectorAll('video')].map((v) => new Promise((r) => {
+    v.pause();
+    const go = () => { v.addEventListener('seeked', r, { once: true }); v.currentTime = v.duration * 0.8; };
+    if (v.readyState >= 1) go(); else { v.addEventListener('loadedmetadata', go, { once: true }); v.load(); }
+    setTimeout(r, 5000);
+  }))));
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(800);
   const png = await page.screenshot({ fullPage: true });

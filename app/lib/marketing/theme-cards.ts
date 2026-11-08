@@ -99,6 +99,9 @@ export const THEME_CARDS: ThemeCard[] = [
   { slug: 'new-years-eve', name: 'New Year’s Eve', category: 'community', also: ['birthdays'], bg: '#181509',
     desc: 'Espresso, champagne and gold with a sweep of gold sparkles, falling confetti and a countdown to midnight on gold glitter — elegant and festive for New Year’s Eve parties.',
     sample: { heading: 'New Year’s Eve', eventDate: '2026-12-31', city: 'Toronto', country: 'ON' } },
+  { slug: 'fireworks', name: 'Fireworks', category: 'community', also: ['birthdays'], bg: '#0E0B14',
+    desc: 'Night violet with coral, mint, lilac and champagne gold. Fireworks bursting over sparklers, a countdown beside a midnight clock and an RSVP under a sky of colour — festive for New Year’s Eve and every night worth lighting up.',
+    sample: { heading: 'Fireworks', eventDate: '2026-12-31', city: 'Vancouver', country: 'BC' } },
   { slug: 'dia-de-los-muertos', name: 'Día de los Muertos', category: 'community', bg: '#FBB813',
     desc: 'Deep plum and marigold with hot pink and teal, swaying papel picado, falling petals and dancing sugar skulls — joyful and colourful for remembrance celebrations.',
     sample: { heading: 'Día de los Muertos', eventDate: '2026-11-01', city: 'Toronto', country: 'ON' } },
@@ -116,13 +119,13 @@ export function themeCardsFor(category: EventCategory): ThemeCard[] {
 }
 
 // The celebration pages' themes (/party-celebrations, /design-your-party-invitation),
-// in their order: birthdays, baby showers, Halloween, Christmas, then New Year's Eve.
+// in their order: birthdays, baby showers, Halloween, Christmas, then New Year's Eve and Fireworks.
 export const CELEBRATION_THEMES = [
   'balloons', 'fun-party', 'alegria',
   'baby-shower-girl', 'baby-shower-neutral', 'baby-shower-boy',
   'halloween-party', 'dia-de-los-muertos',
   'christmas-party', 'white-christmas', 'merry', 'gnomes',
-  'new-years-eve',
+  'new-years-eve', 'fireworks',
 ];
 
 // Where a theme's "Start your event page" button goes (the theme demos' top
