@@ -367,6 +367,84 @@ export const FEATURES: Feature[] = [
   },
 
   {
+    slug: 'live-photo-slideshow',
+    navLabel: 'Live Photo Slideshow',
+    plan: 'Plus',
+    seo: {
+      title: 'Live Photo Slideshow of Guest Photos for Your Event',
+      description:
+        'Play your guests’ photos full screen on a TV or projector. New photos appear seconds after they’re shared, with a QR code so everyone can add theirs. No app.',
+      keywords: ['live photo slideshow', 'wedding photo slideshow on TV', 'guest photo slideshow', 'event photo wall projector', 'real-time photo slideshow', 'QR code photo slideshow', 'party photo screen'],
+    },
+    eyebrow: 'Live photo slideshow',
+    h1: 'A live slideshow of your guests’ photos on the big screen',
+    lead:
+      'Put the photos your guests are taking on a TV or projector while the party is still going. The MyGala slideshow plays every photo shared to your event page and adds new ones within seconds, with a QR code in the corner so the rest of the room can join in. Open one link in any browser: there’s nothing to install.',
+    summary: 'Guests’ photos play full screen on a TV or projector, with new ones added as they’re shared.',
+    highlights: [
+      { title: 'New photos in seconds', text: 'A photo a guest shares shows up next on the screen, marked “Just shared”, then joins the loop.' },
+      { title: 'Just a link', text: 'Open it on the laptop plugged into the projector or in a smart TV’s browser. No app, no extra hardware.' },
+      { title: 'A QR code on screen', text: 'The corner of the slideshow shows your photo QR code, so guests who see it can add their own photos.' },
+    ],
+    screenshot: {
+      src: '/images/features/live-photo-slideshow.webp',
+      alt: 'The MyGala live photo slideshow playing a wedding photo full screen, with the couple’s names in the corner and a QR code inviting guests to share their photos',
+      caption: 'The slideshow on a venue screen: each photo fills the screen, and the QR code invites everyone to add theirs.',
+      width: 1600,
+      height: 900,
+    },
+    blocks: [
+      {
+        heading: 'How the live photo slideshow works',
+        paragraphs: [
+          'Guests share photos on your event page’s Guest Photo Wall, from the page itself or by scanning your guest photo QR code. The slideshow shows those same photos, one at a time, with a soft crossfade between them. It checks for new photos every few seconds, so a photo taken on the dance floor is on the screen a moment later.',
+          'Photos keep their shape: portrait shots from phones sit on a blurred copy of themselves instead of being cropped. Once every photo has been shown, the slideshow starts again from the beginning, with the new ones included.',
+        ],
+      },
+      {
+        heading: 'Where to use it',
+        bullets: [
+          'Wedding receptions — on the projector during dinner, or a TV by the bar.',
+          'Birthday parties, anniversaries and reunions — on the living-room TV.',
+          'Galas, conferences and company parties — on the screens between talks.',
+          'Graduations, showers and holiday parties — anywhere guests gather.',
+        ],
+      },
+      {
+        heading: 'Made to run all night',
+        bullets: [
+          'Fills the screen with one key (F), and the controls hide when the mouse is still.',
+          'Keeps the screen awake while it plays.',
+          'Pause, go back or skip with the space bar and arrow keys.',
+          'Choose how long each photo stays on screen: 5, 8 or 12 seconds.',
+          'Delete a photo in your dashboard and it leaves the slideshow within seconds.',
+        ],
+        paragraphs: [
+          'If your page is password protected, so is the slideshow. If your page uses your own domain, the slideshow link and its QR code use it too.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Switch on Guest Photos', text: 'The slideshow plays the photos guests share on your page. Turn on Guest Photos and print your QR table cards.', dashboard: '/dashboard/guest-photos', linkLabel: 'Open Guest Photos' },
+      { title: 'Open the slideshow', text: 'Choose Photo Slideshow in the left menu, then click Open the slideshow or copy its link.', dashboard: '/dashboard/slideshow', linkLabel: 'Open Photo Slideshow' },
+      { title: 'Put it on the screen', text: 'Open the link on the computer connected to the TV or projector, or in a smart TV’s browser, and press F to fill the screen.' },
+      { title: 'Let it play', text: 'Leave it running. New photos come up next as guests share them, and the slideshow loops through all of them.' },
+    ],
+    faqs: [
+      { q: 'How do I show guest photos on a TV at my wedding?', a: 'Switch on Guest Photos on your MyGala page, then open the Photo Slideshow link on a laptop connected to the TV or projector, or in the TV’s own web browser. Press F to fill the screen. It plays every guest photo and adds new ones as they arrive.' },
+      { q: 'How quickly do new photos appear?', a: 'Within a few seconds. The slideshow checks for new photos regularly and shows each new one next, marked “Just shared”, before going back to the loop.' },
+      { q: 'Do I need an app or special equipment?', a: 'No. The slideshow is a web page. Any computer, tablet or smart TV with a browser and an internet connection can play it.' },
+      { q: 'Do guests need an app to add photos?', a: 'No. Guests scan the QR code on the screen or on your table cards with their phone camera and upload photos from the browser, with no app and no account.' },
+      { q: 'Can I remove a photo from the slideshow?', a: 'Yes. Delete it in Guest Photos in your dashboard and it leaves the slideshow within seconds, without restarting it.' },
+      { q: 'How many photos can the slideshow play?', a: 'Every photo on your Guest Photo Wall — up to 500 with MyGala Plus.' },
+      { q: 'Is the photo slideshow free?', a: 'The slideshow is part of MyGala Plus, a one-time payment with no subscription. You can open it and try it before upgrading; only you can see it until your page is on Plus.' },
+      { q: 'Can people outside the venue open the slideshow?', a: 'The slideshow link shows the same photos as your Guest Photo Wall. If your page has a password, the slideshow asks for it too.' },
+    ],
+    cta: { title: 'Put the party on the big screen', text: 'Create your event page, switch on Guest Photos, and open the slideshow on any TV or projector.' },
+    related: ['guest-photo-qr-code', 'find-your-table', 'livestream'],
+  },
+
+  {
     slug: 'event-page-translations',
     navLabel: 'Translations (EN · ES · FR)',
     plan: 'Free',
@@ -505,6 +583,220 @@ export const FEATURES: Feature[] = [
     ],
     cta: { title: 'Fewer no-shows, zero chasing', text: 'Create your event page, collect RSVPs, and let reminders go out on their own.' },
     related: ['event-page-translations', 'livestream', 'custom-sections'],
+  },
+
+  {
+    slug: 'rsvp-meal-choices',
+    navLabel: 'Meal Choices on the RSVP',
+    plan: 'Free',
+    seo: {
+      title: 'RSVP Meal Choices and Dietary Needs for Your Event',
+      description:
+        'Ask each guest to choose a meal and note allergies when they RSVP. See the count per meal, then copy it for your caterer or download a CSV. Free with your page.',
+      keywords: ['RSVP meal choice', 'wedding RSVP meal options', 'RSVP with dietary restrictions', 'meal selection for wedding guests', 'catering meal count', 'allergy question on RSVP', 'online RSVP with menu choice'],
+    },
+    eyebrow: 'Meal choices',
+    h1: 'Meal choices and dietary needs, right on your RSVP',
+    lead:
+      'Your caterer needs to know how many chicken, how many fish and who can’t eat nuts — and chasing guests for it is nobody’s favourite job. Switch on meal choices and your MyGala RSVP form asks each guest coming for their meal and any allergies, in the same reply. You get the totals, ready for the caterer.',
+    summary: 'Each guest picks a meal and notes allergies when they RSVP; you get the counts for your caterer.',
+    highlights: [
+      { title: 'One meal per person', text: 'A party of four gets four rows, so each person, kids included, picks their own meal.' },
+      { title: 'Allergies with the reply', text: 'Next to each meal, guests note allergies or dietary needs: vegan, gluten-free, no shellfish.' },
+      { title: 'Counts for the caterer', text: 'See how many of each meal, copy the list for your caterer, or download it as a CSV.' },
+    ],
+    screenshot: {
+      src: '/images/features/rsvp-meal-choices.webp',
+      alt: 'A MyGala RSVP form with meal choices on: the guest picks roasted salmon, and the second guest in the party picks mushroom risotto and notes a nut allergy',
+      caption: 'The RSVP form with meal choices on: one row per person, each with a meal and any allergies.',
+      width: 733,
+      height: 1036,
+    },
+    blocks: [
+      {
+        heading: 'How meal choices work',
+        paragraphs: [
+          'Meal choices are off until you switch them on, so they only appear on events with a seated meal. Once they’re on, the RSVP form shows a row for each person coming: the guest and everyone in their party. Each row has a menu to choose a meal and a box for allergies or dietary needs.',
+          'Choosing a meal is optional for guests. Anyone who isn’t sure yet can still reply, and their meal shows as “not chosen” in your dashboard so you know who to ask.',
+        ],
+      },
+      {
+        heading: 'Your menu, your words',
+        bullets: [
+          'Start with chicken, fish, vegetarian and a kids’ meal, or write your own.',
+          'Offer up to 8 meals, each with a name of up to 40 characters, like “Braised short rib” or “Mushroom risotto (V)”.',
+          'Write the meals in your page’s language: English, French or Spanish.',
+          'Renaming a meal later doesn’t change what guests already chose.',
+        ],
+      },
+      {
+        heading: 'Everything your caterer asks for',
+        bullets: [
+          'A count for each meal, updated as replies come in.',
+          'Every allergy and dietary note, with the guest’s name.',
+          'Copy for the caterer: a ready-to-paste list for an email.',
+          'Download CSV: one line per person, for a spreadsheet.',
+          'A meal column on your RSVP list, and on each table in Find Your Table, so the caterer knows what goes where.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Open RSVP', text: 'In your dashboard, choose RSVP in the left menu and tick “Ask guests to choose a meal”.', dashboard: '/dashboard/rsvp', linkLabel: 'Open RSVP' },
+      { title: 'Write your menu', text: 'Edit the meals guests choose from, then click Save meals.' },
+      { title: 'Share your page', text: 'Guests choose a meal for each person coming when they RSVP, and note any allergies.' },
+      { title: 'Send the counts', text: 'Under “Meals for your caterer”, click Copy for the caterer or Download CSV.' },
+    ],
+    faqs: [
+      { q: 'How do I add meal choices to my wedding RSVP?', a: 'In your MyGala dashboard, open RSVP and tick “Ask guests to choose a meal”. Edit the meal names, save, and your RSVP form asks each guest coming for a meal and any dietary needs.' },
+      { q: 'Do guests have to choose a meal?', a: 'No. The meal is optional on the form, so guests can reply even if they haven’t decided. Your dashboard shows who hasn’t chosen yet.' },
+      { q: 'Can each person in a party choose their own meal?', a: 'Yes. A guest replying for four people gets four rows, one per person, each with its own meal and dietary note.' },
+      { q: 'How many meal options can I offer?', a: 'Up to 8, such as a meat, a fish, a vegetarian and a kids’ meal.' },
+      { q: 'How do I give the meal count to my caterer?', a: 'Open RSVP in your dashboard. Under “Meals for your caterer”, see the count per meal and every allergy, then copy the list into an email or download it as a CSV.' },
+      { q: 'Is the RSVP meal choice free?', a: 'Yes. Meal choices and dietary needs are part of the free RSVP on every MyGala event page.' },
+      { q: 'Can I see meals on my seating chart?', a: 'Yes. Seat guests in Find Your Table and each table shows its meals, so the caterer knows what to serve where.' },
+    ],
+    cta: { title: 'Get the meal count without the chasing', text: 'Create your free event page, switch on meal choices, and let the RSVPs do the work.' },
+    related: ['invitations', 'find-your-table', 'event-reminder-emails'],
+  },
+
+  {
+    slug: 'wedding-budget-tracker',
+    navLabel: 'Budget Tracker',
+    plan: 'Free',
+    seo: {
+      title: 'Free Wedding Budget Tracker with Payment Reminders',
+      description:
+        'Track your wedding budget online: estimates against what you’ve spent, deposits and payments due, and an email before each due date. Free with your event page.',
+      keywords: ['wedding budget tracker', 'free wedding budget tracker', 'wedding budget planner online', 'track wedding expenses', 'wedding vendor payment reminders', 'event budget tracker', 'wedding deposit tracker'],
+    },
+    eyebrow: 'Budget tracker',
+    h1: 'Track your wedding budget, deposits and payments in one place',
+    lead:
+      'Plan your budget with the free wedding budget calculator, click “Save to my MyGala”, and it becomes a tracker in your dashboard. Compare each estimate with what you’ve actually spent, keep track of deposits and payments still to make, and get an email before each one is due.',
+    summary: 'Estimates against what you’ve spent, with deposits due and an email before each payment.',
+    highlights: [
+      { title: 'Estimate against actual', text: 'See at a glance where you’re over, where you’re under, and what’s left of your total.' },
+      { title: 'Deposits and payments due', text: 'Note the next payment for each vendor and its due date, then mark it paid.' },
+      { title: 'Reminders before they’re due', text: 'We email you a week before each payment is due, and again on the day.' },
+    ],
+    screenshot: {
+      src: '/images/features/wedding-budget-tracker.webp',
+      alt: 'The MyGala budget tracker: the total budget, amount spent and what’s left at the top, the payments due with Mark as paid buttons, and each category with its estimate, amount spent and next payment',
+      caption: 'The budget tracker: what you’ve spent, the payments coming up, and every category against its estimate.',
+      width: 1200,
+      height: 1040,
+    },
+    blocks: [
+      {
+        heading: 'From calculator to tracker in one click',
+        paragraphs: [
+          'The free wedding budget calculator splits your total across venue, catering, photography, attire and every other category, with room for your must-haves. When the split looks right, click “Save to my MyGala”. Your plan is saved to your event page, and each category becomes a line you can track.',
+          'Already have a budget saved? Saving a new plan from the calculator updates the estimates and keeps what you’ve spent, your payments and your notes. You can also start a budget from scratch in your dashboard.',
+        ],
+      },
+      {
+        heading: 'What you can track',
+        bullets: [
+          'An estimate and the amount spent for each category, with the difference.',
+          'The next payment for each vendor: a deposit or a balance, with its due date.',
+          'A note under each category for the vendor’s name, contract or phone number.',
+          'Your own categories, up to 40 in all.',
+          'Totals at the top: your budget, what you’ve spent, and what’s still due.',
+        ],
+      },
+      {
+        heading: 'Never miss a vendor payment',
+        paragraphs: [
+          'Deposits and balances are easy to lose track of when you have a dozen vendors. Give a payment a due date and MyGala emails you a week before and on the day. Mark it as paid and the reminders stop. Everything saves as you type.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Plan your budget', text: 'Open the free wedding budget calculator, enter your total and adjust the split.' },
+      { title: 'Save to your MyGala', text: 'Click Save to my MyGala. Sign up for free if you’re new, then choose your event page.' },
+      { title: 'Track as you go', text: 'Choose Budget in the left menu. Update estimates as quotes come in and enter what you spend.', dashboard: '/dashboard/budget', linkLabel: 'Open Budget' },
+      { title: 'Add payments due', text: 'Enter each deposit or balance with its due date, and click Mark as paid when it’s done.' },
+    ],
+    faqs: [
+      { q: 'Is the wedding budget tracker free?', a: 'Yes. The budget tracker and payment reminders are free with every MyGala event page, as is the wedding budget calculator.' },
+      { q: 'How do I save my budget from the calculator?', a: 'Click “Save to my MyGala” under the calculator. If you’re signed in, choose your event page and save. If you’re new, sign up for free and your plan is waiting for you in the dashboard.' },
+      { q: 'Will I get reminders for vendor payments?', a: 'Yes. Give a payment a due date and MyGala emails you a week before it’s due and on the day, until you mark it paid.' },
+      { q: 'Can I add my own categories?', a: 'Yes. Click Add a category for anything the calculator doesn’t cover, up to 40 categories, and rename or remove any of them.' },
+      { q: 'What happens if I save a new plan from the calculator?', a: 'The estimates change to match the new plan, and everything else stays: what you’ve spent, your payments, due dates and notes.' },
+      { q: 'Can I use the budget tracker for other events?', a: 'Yes. It works for any MyGala event page: birthdays, showers, galas and company parties.' },
+      { q: 'Who can see my budget?', a: 'Only you. The budget lives in your dashboard and never appears on your event page.' },
+    ],
+    cta: { title: 'Know where every dollar goes', text: 'Plan your budget with the free calculator, save it to MyGala, and track every payment until the big day.' },
+    related: ['rsvp-timeline-reminders', 'rsvp-meal-choices', 'invitations'],
+  },
+
+  {
+    slug: 'rsvp-timeline-reminders',
+    navLabel: 'RSVP Timeline',
+    plan: 'Free',
+    seo: {
+      title: 'RSVP Timeline with Email Reminders for Your Event',
+      description:
+        'Save your RSVP dates from the free calculator and get an email on each one: save-the-dates, invitations, the RSVP deadline and the final count for your caterer.',
+      keywords: ['RSVP timeline', 'wedding RSVP timeline', 'when to send wedding invitations', 'RSVP deadline reminder', 'wedding planning timeline', 'final headcount reminder', 'wedding invitation timeline'],
+    },
+    eyebrow: 'RSVP timeline',
+    h1: 'Your RSVP dates, with a reminder on each one',
+    lead:
+      'The free RSVP deadline calculator works out when to send save-the-dates and invitations, when to set the RSVP deadline and when your caterer needs the final count. Click “Save to my MyGala” and those dates become a timeline in your dashboard, with an email on the morning of each step.',
+    summary: 'Every RSVP date from the free calculator, with an email reminder on the morning of each step.',
+    highlights: [
+      { title: 'Every date worked out', text: 'Save-the-dates, invitations, a nudge for late replies, the RSVP deadline and the final count.' },
+      { title: 'An email on the day', text: 'A short reminder on the morning of each step, with a link to the screen where it’s done.' },
+      { title: 'Moves with your event', text: 'Change your event date and the timeline offers to move every step with it.' },
+    ],
+    screenshot: {
+      src: '/images/features/rsvp-timeline-reminders.webp',
+      alt: 'The MyGala RSVP timeline: the RSVP deadline and next step at the top, then dated steps from sending save-the-dates and invitations to the final count for the caterer, each with a link to the screen where it’s done',
+      caption: 'The timeline: every date from save-the-dates to the final count, with a reminder email on each one.',
+      width: 900,
+      height: 1072,
+    },
+    blocks: [
+      {
+        heading: 'From calculator to timeline',
+        paragraphs: [
+          'Enter your event date and the kind of event in the RSVP deadline calculator, and it lays out every date that matters: when to send save-the-dates, when to send invitations, when to remind guests who haven’t replied, the RSVP deadline, when to finish your seating chart, and when to give the final count to your caterer and venue.',
+          'Click “Save to my MyGala” and the dates are saved to your event page as a timeline. New to MyGala? Sign up for free and the plan is waiting for you in your dashboard.',
+        ],
+      },
+      {
+        heading: 'Reminders that point to the next step',
+        bullets: [
+          'One short email on the morning of each date — never more than one a day.',
+          'Each step links to the screen where it’s done: invitations, reminder emails, RSVPs or seating.',
+          'Tick a step off when it’s done and its reminder isn’t sent.',
+          'Turn the emails off at any time with “Email me on each date”.',
+        ],
+      },
+      {
+        heading: 'Plan the guest count too',
+        paragraphs: [
+          'Not sure how many will come? The free guest count planner estimates how many of your invited guests will say yes. Save it to MyGala as well, and it sits on your Guest List next to your real replies.',
+        ],
+      },
+    ],
+    steps: [
+      { title: 'Work out your dates', text: 'Open the free RSVP deadline calculator and enter your event date.' },
+      { title: 'Save to your MyGala', text: 'Click Save to my MyGala, choose your event page and click Save.' },
+      { title: 'Check your timeline', text: 'Choose Timeline in the left menu. Leave “Email me on each date” ticked to get the reminders.', dashboard: '/dashboard/timeline', linkLabel: 'Open Timeline' },
+      { title: 'Tick off each step', text: 'Mark each step done as you go. Its reminder won’t be sent.' },
+    ],
+    faqs: [
+      { q: 'When should I send wedding invitations?', a: 'Send invitations about eight weeks before the wedding (twelve for a destination wedding), and save-the-dates about six months ahead (nine for a destination wedding). The free RSVP deadline calculator works out the exact dates for your event.' },
+      { q: 'When should the RSVP deadline be?', a: 'A few days before your caterer or venue needs the final count, which is usually one to three weeks before the event. That leaves time to chase late replies. The calculator works it out from the date your caterer gives you.' },
+      { q: 'How do I get reminders for my RSVP dates?', a: 'Click “Save to my MyGala” under the RSVP deadline calculator and save the dates to your event page. MyGala emails you on the morning of each step.' },
+      { q: 'Is the RSVP timeline free?', a: 'Yes. The calculator, the timeline and the reminder emails are free with every MyGala event page.' },
+      { q: 'What if my event date changes?', a: 'Change the date on your event page and the timeline offers to move every step with it.' },
+      { q: 'Can I stop the reminder emails?', a: 'Yes. Untick “Email me on each date” on the Timeline screen, or tick off a step to skip just its reminder.' },
+    ],
+    cta: { title: 'Never miss an RSVP date', text: 'Work out your dates with the free calculator, save them to MyGala, and get a reminder on each one.' },
+    related: ['wedding-budget-tracker', 'event-reminder-emails', 'invitations'],
   },
 
   {

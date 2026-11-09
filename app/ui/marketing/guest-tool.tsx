@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { GUEST_GROUPS, TRAVEL, estimateGuests, guestHash, parseGuestHash, type Travel } from '@/app/lib/marketing/guest-count';
 import { CURRENCIES, CURRENCY_NAMES, DEFAULT_CURRENCY, currencySymbol, formatMoney, isCurrency, type Currency } from '@/app/lib/marketing/tool-money';
-import { CopyLinkButton, NumberField } from './tool-fields';
+import { CopyLinkButton, NumberField, SavePlanButton } from './tool-fields';
 
 // The guest count planner in the guest count guide: the host enters how many
 // people they'll invite from each group, and sees how many are likely to
@@ -119,7 +119,8 @@ export default function GuestTool() {
         </div>
         <p className="pt-tip">Next: set an RSVP deadline that gives you time to chase late replies with the <Link href="/rsvp-deadline-calculator">RSVP deadline calculator</Link>, and see what your guest count means for the rest of your spending with the <Link href="/wedding-budget-calculator">wedding budget calculator</Link>.</p>
         <div className="pt-actions">
-          <CopyLinkButton hash={guestHash(counts, rates, travel, capacity, table, cost, currency)} />
+          <SavePlanButton hash={guestHash(counts, rates, travel, capacity, table, cost, currency)} what="guest count plan" />
+          <CopyLinkButton hash={guestHash(counts, rates, travel, capacity, table, cost, currency)} label="Copy link" />
           <button type="button" className="pt-btn" onClick={() => { setCounts(Object.fromEntries(GUEST_GROUPS.map((g) => [g.id, 0]))); setRates(DEFAULT_RATES); }}>Start from zero</button>
         </div>
       </div>

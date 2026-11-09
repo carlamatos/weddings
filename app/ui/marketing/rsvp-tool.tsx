@@ -5,7 +5,7 @@ import Link from 'next/link';
 import {
   RSVP_EVENT_TYPES, addMonths, daysBetween, formatDay, isDate, rsvpCalendar, rsvpPlan, type RsvpEventType,
 } from '@/app/lib/marketing/rsvp-deadline';
-import { CopyLinkButton, NumberField } from './tool-fields';
+import { CopyLinkButton, NumberField, SavePlanButton } from './tool-fields';
 
 // The RSVP deadline calculator in the RSVP guide: from the event date, the
 // kind of event and when the caterer needs final numbers, it sets the RSVP
@@ -137,7 +137,8 @@ export default function RsvpTool() {
               })}
             </ol>
             <div className="pt-actions">
-              <button type="button" className="pt-btn pt-btn--main" onClick={downloadCalendar}>Add these dates to my calendar</button>
+              <SavePlanButton hash={`#rsvp=${eventDate}.${type}.${finalDays}.${seating ? 1 : 0}`} what="RSVP timeline" />
+              <button type="button" className="pt-btn" onClick={downloadCalendar}>Add these dates to my calendar</button>
               <CopyLinkButton hash={`#rsvp=${eventDate}.${type}.${finalDays}.${seating ? 1 : 0}`} label="Copy link" />
             </div>
           </>

@@ -23,6 +23,7 @@ import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
 import { heroStyleFromSettings } from '@/app/ui/themes/hero-style';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { areGuestPhotosOn } from '@/app/lib/guest-photos';
 
 interface EventData {
@@ -182,6 +183,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
 
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
+        rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
         themeSlug={data.theme_slug}
         heading={data.heading}
         description={data.description || undefined}

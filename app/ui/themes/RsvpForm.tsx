@@ -32,13 +32,19 @@ function onRootDomain(hostname: string): boolean {
 }
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
-  const { guestListOnly } = useRsvpOptions();
+  const { guestListOnly, meals: mealOptions } = useRsvpOptions();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<'attending' | 'not_attending'>('attending');
   const [guests, setGuests] = useState(1);
   const [message, setMessage] = useState('');
+  // Meal choices, one row per person in the party (when the host asks).
+  const [party, setParty] = useState<{ name: string; meal: string; diet: string }[]>(
+    () => Array.from({ length: 4 }, () => ({ name: '', meal: '', diet: '' })),
+  );
+  const setPerson = (i: number, patch: Partial<{ name: string; meal: string; diet: string }>) =>
+    setParty((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   // Ticked by default; guests can untick it, and every email links to /unsubscribe.
   const [receiveUpdates, setReceiveUpdates] = useState(true);
   const [honeypot, setHoneypot] = useState('');
@@ -118,7 +124,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -226,6 +232,34 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
             <option value={3}>3 {t.guests}</option>
             <option value={4}>4 {t.guests}</option>
           </select>
+        </div>
+      )}
+      {status === 'attending' && mealOptions && (
+        <div className="rsvp-meals" role="group" aria-labelledby="rsvp-meals-label">
+          {/* A label like the form's others, so it takes the theme's look. */}
+          <label className="field-label" id="rsvp-meals-label" htmlFor="rsvp-meal-0">{t.mealsHeading}</label>
+          <p className="check-hint" style={{ margin: '0 0 10px' }}>{t.mealsHint}</p>
+          <div style={{ display: 'grid', gap: 14 }}>
+            {party.slice(0, guests).map((row, i) => (
+              <div key={i} className="rsvp-meal-person" style={{ display: 'grid', gap: 8 }}>
+                {guests > 1 && (
+                  i === 0 ? (
+                    <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95em' }}>{t.mealsYou}{name.trim() ? ` · ${name.trim()}` : ''}</p>
+                  ) : (
+                    <label style={{ display: 'grid', gap: 4 }}>
+                      <span style={{ fontWeight: 600, fontSize: '0.95em' }}>{t.mealsGuestLabel.replace('{{n}}', String(i + 1))}</span>
+                      <input type="text" value={row.name} maxLength={80} placeholder={t.mealsGuestNamePlaceholder} onChange={(e) => setPerson(i, { name: e.target.value })} />
+                    </label>
+                  )
+                )}
+                <select id={`rsvp-meal-${i}`} value={row.meal} aria-label={`${t.mealsHeading}${guests > 1 ? ` · ${i === 0 ? t.mealsYou : t.mealsGuestLabel.replace('{{n}}', String(i + 1))}` : ''}`} onChange={(e) => setPerson(i, { meal: e.target.value })}>
+                  <option value="">{t.mealsChoose}</option>
+                  {mealOptions.map((m) => <option key={m} value={m}>{m}</option>)}
+                </select>
+                <input type="text" value={row.diet} maxLength={200} aria-label={t.mealsDiet} placeholder={`${t.mealsDiet}: ${t.mealsDietPlaceholder}`} onChange={(e) => setPerson(i, { diet: e.target.value })} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
       <div>

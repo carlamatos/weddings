@@ -12,7 +12,8 @@ export type HelpCategory = { id: string; title: string; text: string };
 export const HELP_CATEGORIES: HelpCategory[] = [
   { id: 'start', title: 'Getting started', text: 'Create your page, make it yours and publish it.' },
   { id: 'guests', title: 'Guests and invitations', text: 'Your guest list, invitations, sharing and RSVPs.' },
-  { id: 'day', title: 'On the day', text: 'Guest photos, Find Your Table, the livestream and song requests.' },
+  { id: 'day', title: 'On the day', text: 'Guest photos, the photo slideshow, Find Your Table, the livestream and song requests.' },
+  { id: 'planning', title: 'Planning', text: 'Your budget, your timeline and plans saved from the free tools.' },
   { id: 'extras', title: 'More sections', text: 'Registry, sponsors, potluck, gift exchange and your own sections.' },
   { id: 'account', title: 'Plans and your account', text: 'Plus, more than one event, and after the event.' },
 ];
@@ -226,6 +227,27 @@ export const HELP_GUIDES: HelpGuide[] = [
     related: ['send-reminder-emails', 'add-your-guests', 'seat-your-guests'],
   },
   {
+    slug: 'ask-for-meal-choices',
+    category: 'guests',
+    title: 'How do guests choose their meal?',
+    summary: 'Ask each guest to pick a meal and note allergies on the RSVP, then send the counts to your caterer.',
+    intro: 'Meal choices are off until you switch them on. Guests don’t have to pick one: it’s optional on the form.',
+    steps: [
+      'Choose **RSVP** in the left menu and tick **Ask guests to choose a meal**.',
+      'Edit the meals guests choose from (chicken, fish, vegetarian and a kids’ meal to start), then click **Save meals**.',
+      'Your RSVP form now asks each person coming for a meal and any allergies or dietary needs.',
+      'Under **Meals for your caterer**, see the count per meal and everyone’s allergies. Click **Copy for the caterer** or **Download CSV**.',
+    ],
+    tips: [
+      'A party of four gets four rows on the form, so each person picks their own meal.',
+      'Seat your guests in **Find Your Table** and each table shows its meals, so the caterer knows what goes where.',
+      'Write the meals in your page’s language. Renaming a meal doesn’t change what guests already chose.',
+    ],
+    dashboard: { label: 'Open RSVP', path: '/dashboard/rsvp' },
+    feature: 'rsvp-meal-choices',
+    related: ['manage-rsvps', 'seat-your-guests'],
+  },
+  {
     slug: 'send-reminder-emails',
     category: 'guests',
     title: 'How do I send reminder emails to guests?',
@@ -275,7 +297,29 @@ export const HELP_GUIDES: HelpGuide[] = [
     videoFrom: 'guest-photo-qr-code',
     dashboard: { label: 'Open Guest Photos', path: '/dashboard/guest-photos' },
     feature: 'guest-photo-qr-code',
-    related: ['seat-your-guests', 'after-your-event'],
+    related: ['show-a-photo-slideshow', 'seat-your-guests', 'after-your-event'],
+  },
+  {
+    slug: 'show-a-photo-slideshow',
+    category: 'day',
+    title: 'How do I show guests’ photos on a screen?',
+    summary: 'Play a live slideshow of your guests’ photos on a TV or projector, with new photos appearing as they’re shared.',
+    plan: 'Plus',
+    intro: 'The photo slideshow plays every photo your guests share, full screen, and adds new ones as they arrive. A QR code in the corner invites everyone else to add theirs.',
+    steps: [
+      'Make sure **Guest Photos** is switched on, so guests can share their photos.',
+      'Choose **Photo Slideshow** in the left menu and click **Open the slideshow**, or copy the link.',
+      'On the computer connected to the TV or projector (or the smart TV’s browser), open the link and press **F** to fill the screen.',
+      'Leave it running. New photos show up next, marked **Just shared**, and the slideshow loops through all of them.',
+    ],
+    tips: [
+      'Move the mouse to pause, go back, or choose how long each photo stays on screen: 5, 8 or 12 seconds.',
+      'Delete a photo in **Guest Photos** and it leaves the slideshow within a few seconds.',
+      'You can try the slideshow before upgrading. Only you can see it until the event is on Plus.',
+    ],
+    dashboard: { label: 'Open Photo Slideshow', path: '/dashboard/slideshow' },
+    feature: 'live-photo-slideshow',
+    related: ['collect-guest-photos', 'seat-your-guests'],
   },
   {
     slug: 'seat-your-guests',
@@ -326,6 +370,48 @@ export const HELP_GUIDES: HelpGuide[] = [
     ],
     dashboard: { label: 'Open Song Requests', path: '/dashboard/song-requests' },
     related: ['plan-your-event-program', 'collect-guest-photos'],
+  },
+
+  // Planning
+  {
+    slug: 'track-your-budget',
+    category: 'planning',
+    title: 'How do I track my budget?',
+    summary: 'Keep your budget in your dashboard: estimates, what you’ve spent, and payments as they come due.',
+    intro: 'Plan your budget with the free wedding budget calculator and click **Save to my MyGala**, or start one in your dashboard.',
+    steps: [
+      'Choose **Budget** in the left menu. If you haven’t saved one yet, type your total and click **Start my budget**.',
+      'Change any estimate to match your quotes, and enter what you’ve spent as you pay.',
+      'For a deposit or a payment still to make, enter the amount in **Next payment** and its due date.',
+      'When it’s paid, click **Mark as paid**. Everything saves as you type.',
+    ],
+    tips: [
+      'We email you a week before each payment is due, and on the day.',
+      'Saving a new plan from the calculator changes the estimates but keeps what you’ve spent, your payments and notes.',
+      'Add your own categories with **Add a category**, and use the note under each one for the vendor’s name or contact.',
+    ],
+    dashboard: { label: 'Open Budget', path: '/dashboard/budget' },
+    feature: 'wedding-budget-tracker',
+    related: ['plan-your-rsvp-timeline', 'add-your-guests'],
+  },
+  {
+    slug: 'plan-your-rsvp-timeline',
+    category: 'planning',
+    title: 'How do I get reminders for my RSVP dates?',
+    summary: 'Save your RSVP dates from the free calculator and get an email on each one: invitations, deadline, final count.',
+    steps: [
+      'Open the free **RSVP deadline calculator**, enter your event date and click **Save to my MyGala**.',
+      'Choose your event and click **Save**. Your dates appear under **Timeline** in the left menu.',
+      'Leave **Email me on each date** ticked to get a short reminder the morning of each step.',
+      'Tick off each step when it’s done, and its reminder won’t be sent.',
+    ],
+    tips: [
+      'If you change your event’s date, the Timeline offers to move every date with it.',
+      'Each step links to the screen where it’s done: invitations, reminders, RSVPs or seating.',
+    ],
+    dashboard: { label: 'Open Timeline', path: '/dashboard/timeline' },
+    feature: 'rsvp-timeline-reminders',
+    related: ['send-invitations', 'manage-rsvps', 'track-your-budget'],
   },
 
   // More sections

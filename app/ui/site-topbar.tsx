@@ -13,8 +13,8 @@ const EVENT_LINKS = EVENT_TYPES.map((e) => ({ href: `/events/${e.slug}`, label: 
 // listed here still shows, at the end of the last group.
 const FEATURE_GROUPS = (() => {
   const groups = [
-    { title: 'Invite & plan', slugs: ['invitations', 'event-reminder-emails', 'potluck', 'gift-exchange'] },
-    { title: 'On the day', slugs: ['guest-photo-qr-code', 'find-your-table', 'livestream'] },
+    { title: 'Invite & plan', slugs: ['invitations', 'rsvp-meal-choices', 'event-reminder-emails', 'wedding-budget-tracker', 'rsvp-timeline-reminders', 'potluck', 'gift-exchange'] },
+    { title: 'On the day', slugs: ['guest-photo-qr-code', 'live-photo-slideshow', 'find-your-table', 'livestream'] },
     { title: 'Your page', slugs: ['event-templates', 'custom-sections', 'event-page-translations', 'password-protection', 'custom-domain'] },
   ];
   const listed = new Set(groups.flatMap((g) => g.slugs));

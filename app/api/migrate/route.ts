@@ -312,6 +312,19 @@ export async function POST(request: Request) {
   // Find Your Table (Plus): the guest's table, which guests look up at
   // <page>/table. Also added on first use (app/lib/seating-data.ts).
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS seating_table TEXT`;
+  // Plans saved from the free planning tools (saved-plans.ts).
+  await sql`
+    CREATE TABLE IF NOT EXISTS event_plans (
+      user_page_id INTEGER NOT NULL REFERENCES user_page(id) ON DELETE CASCADE,
+      tool TEXT NOT NULL,
+      data JSONB NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (user_page_id, tool)
+    )
+  `;
+  // Meal choices and dietary needs per person in the party (rsvp-meals.ts).
+  await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS meals JSONB`;
 
   await sql`CREATE INDEX IF NOT EXISTS idx_reminder_deliveries_email ON event_reminder_deliveries (user_page_id, lower(email), reminder_key, event_date)`;
 

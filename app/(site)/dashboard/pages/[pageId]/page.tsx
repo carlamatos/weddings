@@ -27,6 +27,7 @@ import EditorCanvas from '@/app/ui/themes/EditorCanvas';
 import { auth } from '@/auth';
 import { UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { areGuestPhotosOn } from '@/app/lib/guest-photos';
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
@@ -176,6 +177,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       <EditorCanvas unverified={verifiedEmail ? undefined : { uploadsPerDay: UNVERIFIED_UPLOADS_PER_DAY }}>
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
+        rsvpMeals={mealOptionsFromSettings(pageSettings, userPage.language)}
         themeSlug={userPage.theme_slug}
         heading={userPage.heading || ''}
         description={userPage.description || undefined}
