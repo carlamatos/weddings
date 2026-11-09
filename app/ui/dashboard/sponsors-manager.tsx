@@ -6,6 +6,8 @@ import { addSponsor, deleteSponsor, reorderSponsors, updateSponsor } from '@/app
 import { SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT } from '@/app/lib/custom-sections';
 import { uploadImage } from './upload-image';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 const inputStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14,
   fontFamily: 'inherit', color: '#241F2B', outline: 'none', width: '100%', boxSizing: 'border-box',
@@ -43,6 +45,7 @@ function ImageField({ url, bg, onChange, onBgChange, onError }: {
   onBgChange: (bg: string | null) => void;
   onError: (text: string) => void;
 }) {
+  const d = useDashText();
   const [uploading, setUploading] = useState(false);
   // Remembers the last colour picked, so switching the background off and on keeps it.
   const [lastBg, setLastBg] = useState(bg ?? '#FFFFFF');
@@ -56,7 +59,7 @@ function ImageField({ url, bg, onChange, onBgChange, onError }: {
     try {
       onChange(await uploadImage(file));
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
+      onError(err instanceof Error ? err.message : d.sponsorsManager.uploadFailedPleaseTryAgain);
     } finally {
       setUploading(false);
     }
@@ -69,26 +72,26 @@ function ImageField({ url, bg, onChange, onBgChange, onError }: {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt="" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         ) : (
-          <span style={{ fontSize: 12, color: '#6B6470' }}>{uploading ? 'Uploading…' : 'No image'}</span>
+          <span style={{ fontSize: 12, color: '#6B6470' }}>{uploading ? d.sponsorsManager.uploading : d.sponsorsManager.noImage}</span>
         )}
       </div>
       <div style={{ display: 'flex', gap: 6 }}>
         <button type="button" style={{ ...btnGhost, flex: 1, padding: '6px 8px', fontSize: 12 }} onClick={() => fileRef.current?.click()} disabled={uploading}>
-          {uploading ? 'Uploading…' : url ? 'Replace' : 'Upload image'}
+          {uploading ? d.sponsorsManager.uploading : url ? d.sponsorsManager.replace : d.sponsorsManager.uploadImage}
         </button>
         {url && !uploading && (
-          <button type="button" style={{ ...btnGhost, padding: '6px 8px', fontSize: 12 }} onClick={() => { onChange(null); onBgChange(null); }}>Remove</button>
+          <button type="button" style={{ ...btnGhost, padding: '6px 8px', fontSize: 12 }} onClick={() => { onChange(null); onBgChange(null); }}>{d.sponsorsManager.remove}</button>
         )}
       </div>
       {url && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#241F2B' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
             <input type="checkbox" checked={!!bg} onChange={(e) => onBgChange(e.target.checked ? lastBg : null)} />
-            Background
+            {d.sponsorsManager.background}
           </label>
           <input
             type="color"
-            aria-label="Background colour"
+            aria-label={d.sponsorsManager.backgroundColour}
             value={bg ?? lastBg}
             disabled={!bg}
             onChange={(e) => { setLastBg(e.target.value); onBgChange(e.target.value); }}
@@ -102,15 +105,16 @@ function ImageField({ url, bg, onChange, onBgChange, onError }: {
 }
 
 function DescriptionField({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
+  const d = useDashText();
   return (
     <div style={{ flex: 1, minWidth: 200 }}>
-      <label style={labelStyle} htmlFor={id}>Short description</label>
+      <label style={labelStyle} htmlFor={id}>{d.sponsorsManager.shortDescription}</label>
       <textarea
         id={id}
         style={{ ...inputStyle, minHeight: 84, resize: 'vertical' }}
         value={value}
         maxLength={SPONSOR_DESCRIPTION_MAX}
-        placeholder="e.g. Harbour Hotel — thank you for hosting our guests"
+        placeholder={d.sponsorsManager.eGHarbourHotelThank}
         onChange={(e) => onChange(e.target.value)}
       />
       <p style={{ fontSize: 11, color: '#6B6470', margin: '4px 0 0', textAlign: 'right' }}>{value.length} / {SPONSOR_DESCRIPTION_MAX}</p>
@@ -119,6 +123,7 @@ function DescriptionField({ id, value, onChange }: { id: string; value: string; 
 }
 
 export function SponsorsManager({ pageId, initialSponsors }: { pageId: number; initialSponsors: Sponsor[] }) {
+  const d = useDashText();
   const [sponsors, setSponsors] = useState<Sponsor[]>(initialSponsors);
   const [listMessage, setListMessage] = useState<Message>(null);
 
@@ -138,20 +143,20 @@ export function SponsorsManager({ pageId, initialSponsors }: { pageId: number; i
   }
 
   async function remove(sponsor: Sponsor) {
-    if (!window.confirm('Remove this sponsor from your page?')) return;
+    if (!window.confirm(d.sponsorsManager.removeThisSponsorFromYour)) return;
     const result = await deleteSponsor(pageId, sponsor.id);
     if (!result.ok) {
       setListMessage({ kind: 'error', text: result.error });
       return;
     }
     setSponsors((prev) => prev.filter((s) => s.id !== sponsor.id));
-    setListMessage({ kind: 'ok', text: 'Sponsor removed.' });
+    setListMessage({ kind: 'ok', text: d.sponsorsManager.sponsorRemoved });
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 760 }}>
       {sponsors.length === 0 && (
-        <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>No sponsors yet. Add the first one below — the section appears on your page once there is at least one.</p>
+        <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>{d.sponsorsManager.noSponsorsYetAddThe}</p>
       )}
       {sponsors.map((sponsor, i) => (
         <SponsorRow
@@ -170,7 +175,7 @@ export function SponsorsManager({ pageId, initialSponsors }: { pageId: number; i
       {sponsors.length < SPONSOR_MAX_COUNT ? (
         <NewSponsorForm pageId={pageId} onAdded={(s) => { setSponsors((prev) => [...prev, s]); setListMessage(null); }} />
       ) : (
-        <p style={{ fontSize: 13, color: '#6B6470', margin: 0 }}>You’ve reached the limit of {SPONSOR_MAX_COUNT} sponsors.</p>
+        <p style={{ fontSize: 13, color: '#6B6470', margin: 0 }}>{fill(d.sponsorsManager.youVeReachedTheLimit, { SPONSOR_MAX_COUNT })}</p>
       )}
     </div>
   );
@@ -187,6 +192,7 @@ function SponsorRow({
   onRemove: () => void;
   onSaved: (s: Sponsor) => void;
 }) {
+  const d = useDashText();
   const [imageUrl, setImageUrl] = useState<string | null>(sponsor.image_url);
   const [imageBg, setImageBg] = useState<string | null>(sponsor.image_bg);
   const [description, setDescription] = useState(sponsor.description ?? '');
@@ -206,7 +212,7 @@ function SponsorRow({
     setDescription(result.value.description ?? '');
     setImageBg(result.value.image_bg);
     onSaved(result.value);
-    setMessage({ kind: 'ok', text: 'Saved.' });
+    setMessage({ kind: 'ok', text: d.sponsorsManager.saved });
   }
 
   return (
@@ -221,9 +227,9 @@ function SponsorRow({
         />
         <DescriptionField id={`sponsor-${sponsor.id}`} value={description} onChange={(v) => { setDescription(v); setMessage(null); }} />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <button type="button" style={iconBtn} onClick={() => onMove(-1)} disabled={isFirst} aria-label="Move up" title="Move up">↑</button>
-          <button type="button" style={iconBtn} onClick={() => onMove(1)} disabled={isLast} aria-label="Move down" title="Move down">↓</button>
-          <button type="button" style={{ ...iconBtn, color: '#B91C1C' }} onClick={onRemove} aria-label="Remove sponsor" title="Remove sponsor">✕</button>
+          <button type="button" style={iconBtn} onClick={() => onMove(-1)} disabled={isFirst} aria-label={d.sponsorsManager.moveUp} title={d.sponsorsManager.moveUp}>↑</button>
+          <button type="button" style={iconBtn} onClick={() => onMove(1)} disabled={isLast} aria-label={d.sponsorsManager.moveDown} title={d.sponsorsManager.moveDown}>↓</button>
+          <button type="button" style={{ ...iconBtn, color: '#B91C1C' }} onClick={onRemove} aria-label={d.sponsorsManager.removeSponsor} title={d.sponsorsManager.removeSponsor}>✕</button>
         </div>
       </div>
       {(dirty || message) && (
@@ -231,7 +237,7 @@ function SponsorRow({
           <MessageText message={message} />
           {dirty && (
             <button type="button" style={{ ...btnPrimary, opacity: saving ? 0.6 : 1 }} onClick={save} disabled={saving}>
-              {saving ? 'Saving…' : 'Save changes'}
+              {saving ? d.sponsorsManager.saving : d.sponsorsManager.saveChanges}
             </button>
           )}
         </div>
@@ -241,6 +247,7 @@ function SponsorRow({
 }
 
 function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Sponsor) => void }) {
+  const d = useDashText();
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [imageBg, setImageBg] = useState<string | null>(null);
   const [description, setDescription] = useState('');
@@ -261,12 +268,12 @@ function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Spon
     setImageUrl(null);
     setImageBg(null);
     setDescription('');
-    setMessage({ kind: 'ok', text: 'Sponsor added.' });
+    setMessage({ kind: 'ok', text: d.sponsorsManager.sponsorAdded });
   }
 
   return (
     <div style={{ ...cardStyle, borderStyle: 'dashed', background: '#faf8f6' }}>
-      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#241F2B', margin: '0 0 14px' }}>Add a sponsor</h2>
+      <h2 style={{ fontSize: 15, fontWeight: 600, color: '#241F2B', margin: '0 0 14px' }}>{d.sponsorsManager.addASponsor}</h2>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
         <ImageField
           url={imageUrl}
@@ -280,7 +287,7 @@ function NewSponsorForm({ pageId, onAdded }: { pageId: number; onAdded: (s: Spon
       <div style={{ display: 'flex', gap: 12, alignItems: 'center', justifyContent: 'flex-end', marginTop: 12 }}>
         <MessageText message={message} />
         <button type="button" style={{ ...btnPrimary, opacity: !canAdd || saving ? 0.55 : 1 }} onClick={add} disabled={!canAdd || saving}>
-          {saving ? 'Adding…' : 'Add sponsor'}
+          {saving ? d.sponsorsManager.adding : d.sponsorsManager.addSponsor}
         </button>
       </div>
     </div>

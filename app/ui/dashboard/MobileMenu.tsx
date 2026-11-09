@@ -11,6 +11,7 @@ import type { EventTheme } from '@/app/lib/definitions';
 import { siteHref } from '@/app/lib/app-url';
 import type { SetupStep } from '@/app/lib/setup-progress';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 interface Props {
   pageId?: number;
   pageName?: string;
@@ -23,11 +24,12 @@ interface Props {
 }
 
 export default function MobileMenu({ pageId, pageName, isPaid, status, setup, themes, currentThemeId, currentLanguage = 'en' }: Props) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <button className="mobile-burger" onClick={() => setOpen(true)} aria-label="Open menu">
+      <button className="mobile-burger" onClick={() => setOpen(true)} aria-label={d.mobileMenu.openMenu}>
         <Bars3Icon />
       </button>
 
@@ -41,7 +43,7 @@ export default function MobileMenu({ pageId, pageName, isPaid, status, setup, th
                   My<span className="accent">Gala</span>
                 </span>
               </Link>
-              <button className="mobile-menu-close" onClick={() => setOpen(false)} aria-label="Close menu">
+              <button className="mobile-menu-close" onClick={() => setOpen(false)} aria-label={d.mobileMenu.closeMenu}>
                 <XMarkIcon />
               </button>
             </div>
@@ -52,13 +54,13 @@ export default function MobileMenu({ pageId, pageName, isPaid, status, setup, th
 
             {pageId !== undefined && themes.length > 0 && (
               <div className="mobile-menu-theme">
-                <p className="mobile-menu-theme-label">Theme</p>
+                <p className="mobile-menu-theme-label">{d.mobileMenu.theme}</p>
                 <ThemeSwitcher pageId={pageId} currentThemeId={currentThemeId} themes={themes} />
               </div>
             )}
             {pageId !== undefined && (
               <div className="mobile-menu-theme">
-                <p className="mobile-menu-theme-label">Language</p>
+                <p className="mobile-menu-theme-label">{d.mobileMenu.language}</p>
                 <LanguageSwitcher pageId={pageId} currentLanguage={currentLanguage} />
               </div>
             )}
@@ -66,7 +68,7 @@ export default function MobileMenu({ pageId, pageName, isPaid, status, setup, th
             <div className="dash-sidebar-footer">
               <button className="dash-signout-btn" onClick={() => signOut()}>
                 <PowerIcon />
-                Sign Out
+                {d.mobileMenu.signOut}
               </button>
             </div>
           </aside>

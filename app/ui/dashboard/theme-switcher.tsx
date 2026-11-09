@@ -7,6 +7,8 @@ import { updateTheme } from '@/app/lib/actions';
 import { EventTheme } from '@/app/lib/definitions';
 import { ThemePicker } from '@/app/ui/theme-picker';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { rich } from '@/app/ui/dashboard/rich';
 interface Props {
   pageId: number;
   currentThemeId: string | null;
@@ -71,6 +73,7 @@ function useThemesNudge(enabled: boolean) {
 // invitation side by side, with a live preview; choosing one switches the
 // page to it. The page's own text, colours and backgrounds stay.
 export default function ThemeSwitcher({ pageId, currentThemeId, themes, label, quick = false, nudge = false }: Props) {
+  const d = useDashText();
   const current = themes.find((t) => t.theme_id === currentThemeId) ?? themes[0] ?? null;
   const [selected, setSelected] = useState<EventTheme | null>(current);
   const [open, setOpen] = useState(false);
@@ -94,7 +97,7 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes, label, q
       {quick ? (
         <button className="dash-theme-btn" onClick={openPicker} type="button" aria-haspopup="dialog">
           <SwatchIcon style={{ width: 14, height: 14 }} />
-          <span>Themes</span>
+          <span>{d.themeSwitcher.themes}</span>
         </button>
       ) : (
         <button
@@ -104,14 +107,14 @@ export default function ThemeSwitcher({ pageId, currentThemeId, themes, label, q
           aria-haspopup="dialog"
         >
           <SwatchIcon style={{ width: 14, height: 14 }} />
-          <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? 'Choose theme'}</span>
+          <span>{label && <span className="dash-theme-btn-label">{label}: </span>}{selected?.name ?? d.themeSwitcher.chooseTheme}</span>
           <ChevronRightIcon style={{ width: 12, height: 12 }} />
         </button>
       )}
       {nudging && (
         <div className="dash-themes-tip" role="status">
-          <p><strong>Try a different look.</strong> Pick another theme: your text and photos stay.</p>
-          <button type="button" onClick={dismiss} aria-label="Close tip"><XMarkIcon /></button>
+          <p>{rich(d.themeSwitcher.tryADifferentLookPick, { t0: (s) => <strong>{s}</strong> })}</p>
+          <button type="button" onClick={dismiss} aria-label={d.themeSwitcher.closeTip}><XMarkIcon /></button>
         </div>
       )}
       <ThemePicker open={open} selected={selected?.slug ?? ''} onChoose={choose} onClose={() => setOpen(false)} gridOnPhones />

@@ -1,6 +1,7 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 
 const subscribe = () => () => {};
 
@@ -11,7 +12,8 @@ export function LocalDate({ iso, options = { month: 'short', day: 'numeric', yea
   iso: string;
   options?: Intl.DateTimeFormatOptions;
 }) {
+  const { locale } = useDashText().meta;
   const inBrowser = useSyncExternalStore(subscribe, () => true, () => false);
-  const text = new Date(iso).toLocaleDateString('en-US', inBrowser ? options : { ...options, timeZone: 'UTC' });
+  const text = new Date(iso).toLocaleDateString(locale, inBrowser ? options : { ...options, timeZone: 'UTC' });
   return <span suppressHydrationWarning>{text}</span>;
 }

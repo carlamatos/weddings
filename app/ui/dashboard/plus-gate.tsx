@@ -7,6 +7,8 @@ import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { startPlusCheckout } from './upgrade-button';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 // Plus on a free page: hosts set every Plus feature up fully, and only the
 // step that reaches guests (turning a section on, sending, connecting a
 // domain) asks them to upgrade — by then the upgrade finishes their work
@@ -34,6 +36,7 @@ export function PlusProvider({ pageId, paid, expired, children }: { pageId?: num
 }
 
 function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pageId: number; expired: boolean; onClose: () => void }) {
+  const d = useDashText();
   const feature = PLUS_FEATURES[section];
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -54,34 +57,34 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
     const enable = turnOn ? feature?.setting : undefined;
     if (!(await startPlusCheckout(pageId, { enable }))) {
       setLoading(false);
-      setError('Couldn’t open checkout. Please try again.');
+      setError(d.plusGate.couldnTOpenCheckoutPlease);
     }
   }
 
-  const name = feature?.name ?? 'This feature';
-  const title = turnOn ? `Turn on ${name} for your guests` : `${name} is part of Plus`;
+  const name = feature?.name ?? d.plusGate.thisFeature;
+  const title = turnOn ? fill(d.plusGate.turnOnForYourGuests, { name }) : fill(d.plusGate.isPartOfPlus, { name });
 
   return createPortal(
     <div className="dash-plus-backdrop" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="dash-plus-dialog" role="dialog" aria-modal="true" aria-labelledby="dash-plus-title" tabIndex={-1} ref={ref}>
-        <button type="button" className="dash-plus-x" onClick={onClose} aria-label="Close"><XMarkIcon /></button>
+        <button type="button" className="dash-plus-x" onClick={onClose} aria-label={d.plusGate.close}><XMarkIcon /></button>
         <span className="dash-plus-icon" aria-hidden="true"><SparklesIcon /></span>
         <h2 id="dash-plus-title">{title}</h2>
         <p className="dash-plus-lead">
-          <strong>Everything you’ve set up is saved.</strong>{' '}
-          {expired ? 'Extend Plus' : 'Upgrade this page to Plus'} and {feature?.goesLive ?? 'it goes live for your guests'}
-          {turnOn && feature?.setting ? ' — we’ll switch it on for you right after.' : '.'}
+          <strong>{d.plusGate.everythingYouVeSetUp}</strong>{' '}
+          {expired ? d.plusGate.extendPlus : d.plusGate.upgradeThisPageToPlus} {d.plusGate.and} {feature?.goesLive ?? d.plusGate.itGoesLiveForYour}
+          {turnOn && feature?.setting ? d.plusGate.weLlSwitchItOn : '.'}
         </p>
         <ul className="dash-plus-list">
-          <li><CheckIcon />Every Plus feature for this event: reminders, potluck, find-your-table, up to 500 guest photos and more</li>
-          <li><CheckIcon />One payment of {PLAN_PRICE_PLUS_TAX}, for {PLAN_TERM_MONTHS} months — no subscription</li>
-          <li><CheckIcon />You come straight back here when you’re done</li>
+          <li><CheckIcon />{d.plusGate.everyPlusFeatureForThis}</li>
+          <li><CheckIcon />{fill(d.plusGate.onePaymentOfForMonths, { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS })}</li>
+          <li><CheckIcon />{d.plusGate.youComeStraightBackHere}</li>
         </ul>
         {error && <p className="dash-plus-error" role="alert">{error}</p>}
         <div className="dash-plus-actions">
-          <button type="button" className="dash-plus-later" onClick={onClose}>Not now</button>
+          <button type="button" className="dash-plus-later" onClick={onClose}>{d.plusGate.notNow}</button>
           <button type="button" className="dash-plus-go" onClick={upgrade} disabled={loading}>
-            {loading ? 'Opening checkout…' : turnOn && feature?.setting ? `${expired ? 'Extend' : 'Upgrade'} and turn it on` : expired ? 'Extend Plus' : 'Upgrade to Plus'}
+            {loading ? d.plusGate.openingCheckout : turnOn && feature?.setting ? fill(d.plusGate.andTurnItOn, { v1: expired ? d.plusGate.extend : d.plusGate.upgrade }) : expired ? d.plusGate.extendPlus : d.plusGate.upgradeToPlus}
           </button>
         </div>
       </div>
@@ -93,6 +96,7 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
 // At the top of a Plus screen on a free page: it's all usable, and when it
 // goes live. Nothing on a paid page.
 export function PlusSetupNote({ section }: { section: string }) {
+  const d = useDashText();
   const { paid, expired, pageId } = usePlus();
   const [loading, setLoading] = useState(false);
   if (paid) return null;
@@ -101,10 +105,10 @@ export function PlusSetupNote({ section }: { section: string }) {
     <div className="dash-plus-note">
       <span className="dash-plus-badge">Plus</span>
       <p>
-        {expired ? <strong>Your Plus term has ended. </strong> : <strong>Set it all up now — everything you add is saved. </strong>}
+        {expired ? <strong>{d.plusGate.yourPlusTermHasEnded} </strong> : <strong>{d.plusGate.setItAllUpNow} </strong>}
         {feature?.setting
-          ? `${feature.name} shows on your page once this event is on Plus.`
-          : `${feature?.name ?? 'This'} works once this event is on Plus.`}
+          ? fill(d.plusGate.showsOnYourPageOnce, { name: feature.name })
+          : fill(d.plusGate.worksOnceThisEventIs, { v1: feature?.name ?? d.plusGate.this })}
       </p>
       <button
         type="button"
@@ -112,7 +116,7 @@ export function PlusSetupNote({ section }: { section: string }) {
         disabled={loading}
         onClick={async () => { setLoading(true); if (!(await startPlusCheckout(pageId))) setLoading(false); }}
       >
-        {loading ? 'Opening checkout…' : expired ? 'Extend Plus' : 'Upgrade to Plus'}
+        {loading ? d.plusGate.openingCheckout : expired ? d.plusGate.extendPlus : d.plusGate.upgradeToPlus}
       </button>
     </div>
   );
@@ -120,7 +124,8 @@ export function PlusSetupNote({ section }: { section: string }) {
 
 // A small lock for a button that needs Plus on a free page.
 export function PlusLock() {
+  const d = useDashText();
   const { paid } = usePlus();
   if (paid) return null;
-  return <LockClosedIcon aria-label="Needs Plus" style={{ width: 14, height: 14, marginRight: 6, verticalAlign: '-2px' }} />;
+  return <LockClosedIcon aria-label={d.plusGate.needsPlus} style={{ width: 14, height: 14, marginRight: 6, verticalAlign: '-2px' }} />;
 }

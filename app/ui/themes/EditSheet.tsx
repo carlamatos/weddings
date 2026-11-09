@@ -4,6 +4,7 @@ import { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import type { ThemeLook } from './theme-look';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 // The full-screen white editor that every editable piece of a page opens,
 // so the owner sees clearly what they're changing: a title, a line on what
 // it is, labelled fields with instructions, and Save / Cancel at the bottom.
@@ -15,8 +16,8 @@ export default function EditSheet({
   onSave,
   saving,
   saveDisabled,
-  saveLabel = 'Save',
-  closeLabel = 'Cancel',
+  saveLabel,
+  closeLabel,
   children,
 }: {
   title: string;
@@ -30,6 +31,9 @@ export default function EditSheet({
   closeLabel?: string;
   children: React.ReactNode;
 }) {
+  const d = useDashText();
+  saveLabel ??= d.editSheet.save;
+  closeLabel ??= d.editSheet.cancel;
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
@@ -62,7 +66,7 @@ export default function EditSheet({
     >
       <header className="theme-sheet-head">
         <h2 id={titleId}>{title}</h2>
-        <button type="button" className="theme-sheet-x" onClick={onClose} aria-label="Close without saving">
+        <button type="button" className="theme-sheet-x" onClick={onClose} aria-label={d.editSheet.closeWithoutSaving}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
             <path d="M6 6l12 12M18 6L6 18" />
           </svg>
@@ -80,11 +84,11 @@ export default function EditSheet({
             <>
               <button type="button" className="theme-sheet-btn" onClick={onClose}>{closeLabel}</button>
               <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={onSave} disabled={saving || saveDisabled}>
-                {saving ? 'Saving…' : saveLabel}
+                {saving ? d.editSheet.saving : saveLabel}
               </button>
             </>
           ) : (
-            <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={onClose}>Done</button>
+            <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={onClose}>{d.editSheet.done}</button>
           )}
         </div>
       </footer>
@@ -107,12 +111,13 @@ export function SheetField({
   optional?: boolean;
   children: React.ReactNode;
 }) {
+  const d = useDashText();
   const Label = htmlFor ? 'label' : 'p';
   return (
     <div className="theme-sheet-field">
       <Label className="theme-sheet-label" {...(htmlFor ? { htmlFor } : {})}>
         {label}
-        {optional && <span className="theme-sheet-optional"> (optional)</span>}
+        {optional && <span className="theme-sheet-optional"> {d.editSheet.optional}</span>}
       </Label>
       {hint && <p className="theme-sheet-hint">{hint}</p>}
       {children}
@@ -134,6 +139,7 @@ export function SheetSection({ title, children }: { title: string; children: Rea
 // the theme's own colour and type as read from the page — on a light and a
 // dark background, since banner text sits on a photo that can be either.
 export function TextPreview({ text, color, look, large }: { text: string; color: string; look?: ThemeLook; large?: boolean }) {
+  const d = useDashText();
   const shown = color || look?.color;
   const style = (fallback: string): React.CSSProperties => ({
     ...look?.font,
@@ -143,7 +149,7 @@ export function TextPreview({ text, color, look, large }: { text: string; color:
   });
   return (
     <div className="theme-sheet-field">
-      <p className="theme-sheet-label">Preview</p>
+      <p className="theme-sheet-label">{d.editSheet.preview}</p>
       <div className="theme-sheet-preview">
         <span className="theme-sheet-preview-light" style={style('#241F2B')}>{text || ' '}</span>
         <span className="theme-sheet-preview-dark" style={style('#ffffff')}>{text || ' '}</span>

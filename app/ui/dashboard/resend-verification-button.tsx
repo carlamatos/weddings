@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 // compact: a small button for slim bars (the editor's verify line).
-export default function ResendVerificationButton({ label = 'Resend verification email', compact = false }: { label?: string; compact?: boolean }) {
+export default function ResendVerificationButton({ label, compact = false }: { label?: string; compact?: boolean }) {
+  const d = useDashText();
+  label ??= d.resendVerificationButton.resendVerificationEmail;
   const [state, setState] = useState<'idle' | 'sending' | 'sent'>('idle');
 
   async function handleClick() {
@@ -25,7 +28,7 @@ export default function ResendVerificationButton({ label = 'Resend verification 
         cursor: state === 'idle' ? 'pointer' : 'default', whiteSpace: 'nowrap',
       }}
     >
-      {state === 'sent' ? 'Email sent' : state === 'sending' ? 'Sending…' : label}
+      {state === 'sent' ? d.resendVerificationButton.emailSent : state === 'sending' ? d.resendVerificationButton.sending : label}
     </button>
   );
 }

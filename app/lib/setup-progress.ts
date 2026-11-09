@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres';
 import type { UserPage } from './definitions';
 import type { EditorTarget } from '@/app/ui/themes/open-editor';
+import type { DashText } from '@/app/lib/dash-text/en';
 
 // "Your page is 3/7 ready": the steps that turn a new page into one worth
 // sharing, each with the dashboard screen where it's done. Shown at the top
@@ -46,22 +47,22 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
   }
 }
 
-export function setupSteps(page: UserPage, counts: SetupCounts): SetupStep[] {
+export function setupSteps(page: UserPage, counts: SetupCounts, t: DashText['setupSteps']): SetupStep[] {
   const filled = (v?: string | null) => !!v && v.trim() !== '';
   return [
     {
-      label: filled(page.event_date) ? 'Add the time and place' : 'Add the date, time and place',
+      label: filled(page.event_date) ? t.addTheTimeAndPlace : t.addTheDateTimeAndPlace,
       done: filled(page.event_date) && filled(page.event_time) && (page.location === 'virtual' ? filled(page.url) : filled(page.formatted_address) || filled(page.venue_name)),
       section: '',
       open: 'location',
     },
-    { label: 'Add your name', done: counts.named, section: '', action: 'profile' },
-    { label: 'Write a welcome message', done: filled(page.description), section: '', open: 'description' },
+    { label: t.addYourName, done: counts.named, section: '', action: 'profile' },
+    { label: t.writeAWelcomeMessage, done: filled(page.description), section: '', open: 'description' },
     // The gallery is empty until the host adds photos (it's hidden till then).
-    { label: 'Add photos to your gallery', done: counts.gallery > 0, section: '', open: 'gallery' },
-    { label: 'Plan the day in the Event Program', done: counts.program > 0, section: '/event-program' },
-    { label: 'Add your guests', done: counts.guests > 0, section: '/guest-list' },
+    { label: t.addPhotosToYourGallery, done: counts.gallery > 0, section: '', open: 'gallery' },
+    { label: t.planTheDay, done: counts.program > 0, section: '/event-program' },
+    { label: t.addYourGuests, done: counts.guests > 0, section: '/guest-list' },
     // The finish line: invitations emailed or texted, or the link shared.
-    { label: 'Invite your guests', done: counts.invited > 0 || counts.shared, section: '/invitations' },
+    { label: t.inviteYourGuests, done: counts.invited > 0 || counts.shared, section: '/invitations' },
   ];
 }

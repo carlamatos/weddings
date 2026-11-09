@@ -12,6 +12,9 @@ import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
 import { AuthDateInput } from './auth-date-input';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 // Create an event page on one screen, asking as little as possible: the
 // event's name is the only required field. The theme starts chosen — the
 // landing page's (app/lib/start-intent.ts), else the theme page or landing
@@ -38,6 +41,7 @@ const MIXED_THEMES = [DEFAULT_THEME, 'the-day', 'balloons', 'summit', 'community
 const SHORT_LIST = 6;
 
 export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null }) {
+  const d = useDashText();
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
   const [noDate, setNoDate] = useState(false);
@@ -101,13 +105,13 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     const base = slugify(eventName) || 'your-event';
     const year = eventDate && !noDate ? eventDate.slice(0, 4) : '';
     const all = [
-      { id: 'name',    value: base,                                       label: 'Event name only' },
-      { id: 'date',    value: year ? `${base}-${year}` : `${base}-year`,   label: 'Event name + year' },
-      { id: 'random',  value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`,   label: 'Event name + unique number' },
-      { id: 'random2', value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: 'Event name + unique number' },
+      { id: 'name',    value: base,                                       label: d.subscribeForm.eventNameOnly },
+      { id: 'date',    value: year ? `${base}-${year}` : `${base}-year`,   label: d.subscribeForm.eventNameYear },
+      { id: 'random',  value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`,   label: d.subscribeForm.eventNameUniqueNumber },
+      { id: 'random2', value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: d.subscribeForm.eventNameUniqueNumber },
     ];
     return all.filter((o, i) => all.findIndex((x) => x.value === o.value) === i);
-  }, [eventName, eventDate, noDate, randomSuffix, randomSuffix2]);
+  }, [eventName, eventDate, noDate, randomSuffix, randomSuffix2, d]);
 
   // Ask which suggestions are taken, once typing pauses.
   useEffect(() => {
@@ -148,11 +152,11 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
 
   return (
     <div className="auth-card setup-card--wide">
-      <h1 className="auth-heading">{forInvitation ? 'Create your invitation' : 'Create your event page'}</h1>
+      <h1 className="auth-heading">{forInvitation ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
       <p className="auth-subheading">
         {forInvitation
-          ? 'Give your event a name to start. Next you’ll finish your invitation, add the time and place, and share the link.'
-          : <>Give your event a name to start. You&rsquo;ll add the date, the place and everything else on your page.</>}
+          ? d.subscribeForm.giveYourEventAName
+          : <>{d.subscribeForm.giveYourEventAName2}</>}
       </p>
 
       {state.message && (
@@ -181,21 +185,21 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         {forInvitation && <input type="hidden" name="next" value="invitations" />}
 
         <div className="auth-field">
-          <label className="auth-label" htmlFor="eventName">Event Name</label>
+          <label className="auth-label" htmlFor="eventName">{d.subscribeForm.eventName}</label>
           <div className="auth-input-wrap">
             <input className="auth-input" id="eventName" type="text" name="eventName"
               value={eventName} onChange={(e) => setEventName(e.target.value)}
-              placeholder={`e.g. ${chosenTheme?.sample.heading ?? (forInvitation ? 'The Smiths’ Christmas Party' : 'Sofia & James Wedding')}`} maxLength={200} autoFocus required />
+              placeholder={`e.g. ${chosenTheme?.sample.heading ?? (forInvitation ? d.subscribeForm.theSmithsChristmasParty : d.subscribeForm.sofiaJamesWedding)}`} maxLength={200} autoFocus required />
           </div>
           {state.errors?.event_name && <p className="auth-field-error">{state.errors.event_name[0]}</p>}
         </div>
 
         <div className="auth-field">
-          <label className="auth-label" htmlFor="eventDate">Event Date <span className="auth-label-optional">(optional)</span></label>
+          <label className="auth-label" htmlFor="eventDate">{rich(d.subscribeForm.eventDateOptional, { t0: (s) => <span className="auth-label-optional">{s}</span> })}</label>
           {!noDate && <AuthDateInput id="eventDate" name="eventDate" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />}
           <label className="setup-date-tbd">
             <input type="checkbox" checked={noDate} onChange={(e) => setNoDate(e.target.checked)} />
-            We haven&rsquo;t picked a date yet
+            {d.subscribeForm.weHavenTPickedA}
           </label>
           {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
         </div>
@@ -203,22 +207,22 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         {/* Phones and tablets have no previews: the theme is named here instead. */}
         {chosenTheme && (
           <div className="setup-slug-line setup-theme-line">
-            <span>Theme: <strong>{chosenTheme.name}</strong></span>
-            <button type="button" className="setup-slug-change" onClick={() => setPicking(true)}>Change your theme</button>
+            <span>{rich(fill(d.subscribeForm.theme, { name: chosenTheme.name }), { t0: (s) => <strong>{s}</strong> })}</span>
+            <button type="button" className="setup-slug-change" onClick={() => setPicking(true)}>{d.subscribeForm.changeYourTheme}</button>
           </div>
         )}
 
         {/* Page address: the first free suggestion, or another one after "Change". */}
         <div className="auth-field">
-          <p className="auth-label">Your page address</p>
+          <p className="auth-label">{d.subscribeForm.yourPageAddress}</p>
           <div className="setup-slug-line">
             <strong>mygala.ca/{activeSlug}</strong>
             <button type="button" className="setup-slug-change" aria-expanded={changingSlug} onClick={() => setChangingSlug((v) => !v)}>
-              {changingSlug ? 'Done' : 'Change'}
+              {changingSlug ? d.subscribeForm.done : d.subscribeForm.change}
             </button>
           </div>
           {changingSlug && (
-            <div className="setup-slug-options" role="radiogroup" aria-label="Your page address">
+            <div className="setup-slug-options" role="radiogroup" aria-label={d.subscribeForm.yourPageAddress}>
               {slugOptions.map((opt) => (
                 <label
                   key={opt.id}
@@ -241,12 +245,12 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         </div>
 
         <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>
-          {isPending ? 'Creating…' : forInvitation ? 'Design my invitation' : 'Create my event page'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
+          {isPending ? d.subscribeForm.creating : forInvitation ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>
         <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
           {prepaid
-            ? <><strong>Plus is already paid</strong> — this page includes every Plus feature for {PLAN_TERM_MONTHS} months.</>
-            : 'Free to start. Upgrade this event to Plus any time from your dashboard.'}
+            ? <>{rich(fill(d.subscribeForm.plusIsAlreadyPaidThis, { PLAN_TERM_MONTHS }), { t0: (s) => <strong>{s}</strong> })}</>
+            : d.subscribeForm.freeToStartUpgradeThis}
         </p>
       </form>
 
@@ -259,10 +263,10 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
               <span className="setup-chosen-theme__cat">{CATEGORY_LABELS[chosenTheme.category]}</span>
             </span>
             <button type="button" className="setup-theme-change" onClick={() => setPicking(true)}>
-              Change theme
+              {d.subscribeForm.changeTheme}
             </button>
           </div>
-          <p className="setup-style__note">You can change the colours, fonts and design of your invitation and website in the editor later.</p>
+          <p className="setup-style__note">{d.subscribeForm.youCanChangeTheColours}</p>
         </div>
       )}
       </div>

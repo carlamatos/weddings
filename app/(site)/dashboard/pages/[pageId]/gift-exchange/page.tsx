@@ -7,8 +7,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { GiftExchangeManager, type GiftRow } from '@/app/ui/dashboard/gift-exchange-manager';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Gift Exchange' };
 
 export default async function GiftExchangePage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
@@ -36,10 +41,9 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/gift-exchange" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Gift Exchange</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.giftExchange.giftExchange}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
-          Run a Secret Santa: guests join from your page, you draw names, and everyone finds out who they&rsquo;re buying a gift
-          for — by email, text or WhatsApp. Nobody draws their own name. The section appears on your page right after the RSVP.
+          {d.giftExchange.runASecretSantaGuests}
           {' '}<HelpLink guide="run-a-gift-exchange" />
         </p>
       </div>
@@ -51,7 +55,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
         guests={guests.map((g) => ({ id: g.id, name: g.name, email: g.email, inExchange: inExchange.has(g.id) || (!!g.email && emails.has(g.email.toLowerCase())) }))}
         drawn={drawn}
         exclusions={exclusions.map((e) => ({ id: e.id, a: e.a_id, b: e.b_id }))}
-        eventName={page.heading || 'the event'}
+        eventName={page.heading || d.giftExchange.theEvent}
         language={page.language}
         hostName={(await auth())?.user?.name?.trim() || ''}
       />

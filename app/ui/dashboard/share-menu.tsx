@@ -8,6 +8,7 @@ import {
 import { NETWORKS } from './share-buttons';
 import { markLinkShared } from '@/app/lib/actions';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 const enc = encodeURIComponent;
 
 // The networks offered in the top bar's quick menu, in this order; the rest
@@ -21,6 +22,7 @@ export type ShareTarget = { url: string; title: string; heading: string; sharePa
 // The share options themselves: the link with Copy, then the apps.
 // `onDone` closes whatever holds the panel.
 export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone }: ShareTarget & { onDone: () => void }) {
+  const d = useDashText();
   const shared = () => { if (pageId !== undefined) markLinkShared(pageId).catch(() => {}); };
   const sharedAndDone = () => { shared(); onDone(); };
   const [copied, setCopied] = useState(false);
@@ -41,7 +43,7 @@ export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone 
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      window.prompt('Copy this link:', url);
+      window.prompt(d.shareMenu.copyThisLink, url);
     }
   }
 
@@ -66,10 +68,10 @@ export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone 
     <>
       <p className="dash-share-title">{heading}</p>
       <div className="dash-share-link">
-        <input readOnly value={url} aria-label="Link to share" onFocus={(e) => e.currentTarget.select()} />
+        <input readOnly value={url} aria-label={d.shareMenu.linkToShare} onFocus={(e) => e.currentTarget.select()} />
         <button type="button" onClick={copy} className={copied ? 'is-copied' : undefined}>
           {copied ? <CheckIcon /> : <LinkIcon />}
-          {copied ? 'Copied!' : 'Copy link'}
+          {copied ? d.shareMenu.copied : d.shareMenu.copyLink}
         </button>
       </div>
 
@@ -82,22 +84,22 @@ export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone 
         ))}
         <a href={`mailto:?subject=${enc(title)}&body=${enc(url)}`} className="dash-share-option" onClick={sharedAndDone}>
           <EnvelopeIcon />
-          Email
+          {d.shareMenu.email}
         </a>
         <a href={`sms:?&body=${enc(text)}`} className="dash-share-option" onClick={sharedAndDone}>
           <ChatBubbleLeftIcon />
-          Text message
+          {d.shareMenu.textMessage}
         </a>
         {canNativeShare && (
           <button type="button" onClick={nativeShare} className="dash-share-option">
             <ArrowUpOnSquareIcon />
-            More apps…
+            {d.shareMenu.moreApps}
           </button>
         )}
       </div>
 
       <Link href={sharePageHref} className="dash-share-more" onClick={onDone}>
-        More sharing options &amp; link preview
+        {d.shareMenu.moreSharingOptionsLinkPreview}
         <ChevronRightIcon />
       </Link>
     </>
@@ -126,12 +128,13 @@ function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLE
 export type ShareChoice = { tab: string; target: ShareTarget };
 
 function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () => void }) {
+  const d = useDashText();
   const [index, setIndex] = useState(0);
   const current = choices[index] ?? choices[0];
   return (
     <>
       {choices.length > 1 && (
-        <div className="dash-share-tabs" role="tablist" aria-label="What to share">
+        <div className="dash-share-tabs" role="tablist" aria-label={d.shareMenu.whatToShare}>
           {choices.map((c, i) => (
             <button
               key={c.tab}
@@ -153,6 +156,7 @@ function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () =
 
 // The top bar's Share button, with the share options beneath it.
 export default function ShareMenu({ choices }: { choices: ShareChoice[] }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
@@ -162,10 +166,10 @@ export default function ShareMenu({ choices }: { choices: ShareChoice[] }) {
     <div className="dash-share" ref={ref}>
       <button type="button" className="dash-share-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
         <ShareIcon />
-        Share
+        {d.shareMenu.share}
       </button>
       {open && (
-        <div className="dash-share-panel" role="dialog" aria-label="Share">
+        <div className="dash-share-panel" role="dialog" aria-label={d.shareMenu.share}>
           <ChoicePanel choices={choices} onDone={close} />
         </div>
       )}
@@ -176,10 +180,11 @@ export default function ShareMenu({ choices }: { choices: ShareChoice[] }) {
 // The same options opened from elsewhere (the profile menu on phones), as a
 // panel under the top bar.
 export function ShareSheet({ onClose, choices }: { onClose: () => void; choices: ShareChoice[] }) {
+  const d = useDashText();
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(true, onClose, ref);
   return (
-    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label="Share" ref={ref}>
+    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label={d.shareMenu.share} ref={ref}>
       <ChoicePanel choices={choices} onDone={onClose} />
     </div>
   );

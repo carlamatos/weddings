@@ -6,6 +6,9 @@ import { EyeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { OPEN_PARAM } from './open-editor';
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 // The page in the editor, with a bar above it: how to edit (click anything),
 // and an Edit / Preview switch. Preview shows the page clean, as guests see
 // it, with nothing clickable (dashboard.css, .theme-edit-canvas). The choice
@@ -17,6 +20,7 @@ import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-but
 const KEY = 'mygala-editor-mode';
 
 export default function EditorCanvas({ children, unverified }: { children: React.ReactNode; unverified?: { uploadsPerDay: number } }) {
+  const d = useDashText();
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [showLocked, setShowLocked] = useState(false);
   const params = useSearchParams();
@@ -53,15 +57,14 @@ export default function EditorCanvas({ children, unverified }: { children: React
         <div className="theme-edit-verify-strip">
           <div className="theme-edit-verify-row">
             <button type="button" className="theme-edit-verify" aria-expanded={showLocked} onClick={() => setShowLocked((v) => !v)}>
-              <span className="theme-edit-verify-long">Verify your email to publish your event.</span>
-              <span className="theme-edit-verify-short">Verify your email<span className="theme-edit-verify-why"> to publish</span>.</span>
+              <span className="theme-edit-verify-long">{d.editorCanvas.verifyYourEmailToPublish}</span>
+              <span className="theme-edit-verify-short">{rich(d.editorCanvas.verifyYourEmailToPublish2, { t0: (s) => <span className="theme-edit-verify-why">{s}</span> })}</span>
             </button>
-            <ResendVerificationButton label="Resend email" compact />
+            <ResendVerificationButton label={d.editorCanvas.resendEmail} compact />
           </div>
           {showLocked && (
             <p className="theme-edit-locked">
-              Until you click the link we emailed you, your page is a draft only you can see, and sending invitations, texting guests,
-              connecting a domain and uploading more than {unverified.uploadsPerDay} photos a day are locked. Everything else you can build now.
+              {fill(d.editorCanvas.untilYouClickTheLink, { uploadsPerDay: unverified.uploadsPerDay })}
             </p>
           )}
         </div>
@@ -69,12 +72,12 @@ export default function EditorCanvas({ children, unverified }: { children: React
       <div className="theme-edit-bar">
         <p>
           {mode === 'edit'
-            ? <><strong>Click or tap any text, button or photo to change it.</strong>{unverified ? '' : ' Switch to Preview to see your page as guests will.'}</>
-            : <><strong>This is how guests see your page.</strong>{unverified ? '' : ' Switch to Edit to make changes.'}</>}
+            ? <><strong>{d.editorCanvas.clickOrTapAnyText}</strong>{unverified ? '' : d.editorCanvas.switchToPreviewToSee}</>
+            : <><strong>{d.editorCanvas.thisIsHowGuestsSee}</strong>{unverified ? '' : d.editorCanvas.switchToEditToMake}</>}
         </p>
-        <div className="theme-edit-modes" role="group" aria-label="Editor mode">
-          <button type="button" aria-pressed={mode === 'edit'} onClick={() => choose('edit')}><PencilSquareIcon aria-hidden="true" />Edit</button>
-          <button type="button" aria-pressed={mode === 'preview'} onClick={() => choose('preview')}><EyeIcon aria-hidden="true" />Preview</button>
+        <div className="theme-edit-modes" role="group" aria-label={d.editorCanvas.editorMode}>
+          <button type="button" aria-pressed={mode === 'edit'} onClick={() => choose('edit')}><PencilSquareIcon aria-hidden="true" />{d.editorCanvas.edit}</button>
+          <button type="button" aria-pressed={mode === 'preview'} onClick={() => choose('preview')}><EyeIcon aria-hidden="true" />{d.editorCanvas.preview}</button>
         </div>
       </div>
       {children}

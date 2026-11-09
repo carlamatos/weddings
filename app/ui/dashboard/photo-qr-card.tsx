@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 const inputStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14,
   fontFamily: 'inherit', color: '#241F2B', outline: 'none', width: '100%', boxSizing: 'border-box',
@@ -26,14 +28,15 @@ function escapeHtml(value: string): string {
 // A printable QR code that opens the page's Guest Photos section, for hosts
 // to put on the tables.
 export function PhotoQrCard({ uploadUrl, heading, sectionOn }: { uploadUrl: string; heading: string; sectionOn: boolean }) {
+  const d = useDashText();
   return (
     <QrSignCard
       url={uploadUrl}
       heading={heading}
       sectionOn={sectionOn}
-      title="QR code for your tables"
-      intro="Print this and place it on the tables at your event. Guests scan it with their phone camera and land right on the photo upload section of your page."
-      offWarning="The Guest Photos section is hidden, so guests who scan the code won’t find a place to upload. Switch it on above."
+      title={d.photoQrCard.qrCodeForYourTables}
+      intro={d.photoQrCard.printThisAndPlaceIt}
+      offWarning={d.photoQrCard.theGuestPhotosSectionIs}
       defaultMessage="Share your photos with us!"
       how="Scan with your phone camera to upload your photos"
       fileName="photo-upload-qr-code.png"
@@ -60,6 +63,7 @@ type QrSignProps = {
 // A printable QR sign. Printing renders the cards into a hidden iframe so
 // the dashboard itself never ends up on paper.
 export function QrSignCard({ url: uploadUrl, heading, sectionOn, title: cardTitle, intro, offWarning, defaultMessage, how, fileName, defaultLayout, idPrefix }: QrSignProps) {
+  const d = useDashText();
   const [title, setTitle] = useState(heading);
   const [message, setMessage] = useState(defaultMessage);
   const [layout, setLayout] = useState<Layout>(defaultLayout);
@@ -146,9 +150,9 @@ export function QrSignCard({ url: uploadUrl, heading, sectionOn, title: cardTitl
           {title.trim() && <p style={{ fontSize: 15, margin: '0 0 2px', lineHeight: 1.2, overflowWrap: 'anywhere' }}>{title.trim()}</p>}
           {message.trim() && <p style={{ fontSize: 11, color: '#4A4350', margin: '0 0 10px', overflowWrap: 'anywhere' }}>{message.trim()}</p>}
           {error ? (
-            <p style={{ fontSize: 12, color: '#B91C1C' }}>Couldn&rsquo;t create the QR code.</p>
+            <p style={{ fontSize: 12, color: '#B91C1C' }}>{d.photoQrCard.couldnTCreateTheQr}</p>
           ) : svg ? (
-            <div aria-label={`QR code for ${uploadUrl}`} role="img" style={{ width: 150, height: 150, margin: '0 auto' }} dangerouslySetInnerHTML={{ __html: svg }} />
+            <div aria-label={fill(d.photoQrCard.qrCodeFor, { uploadUrl })} role="img" style={{ width: 150, height: 150, margin: '0 auto' }} dangerouslySetInnerHTML={{ __html: svg }} />
           ) : (
             <div style={{ width: 150, height: 150, margin: '0 auto', background: '#F4F0EC', borderRadius: 6 }} />
           )}
@@ -156,17 +160,17 @@ export function QrSignCard({ url: uploadUrl, heading, sectionOn, title: cardTitl
         </div>
 
         <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-          <label style={labelStyle} htmlFor={`${idPrefix}-title`}>Title</label>
+          <label style={labelStyle} htmlFor={`${idPrefix}-title`}>{d.photoQrCard.title}</label>
           <input id={`${idPrefix}-title`} style={inputStyle} value={title} maxLength={TITLE_MAX} onChange={(e) => setTitle(e.target.value)} />
 
-          <label style={{ ...labelStyle, marginTop: 14 }} htmlFor={`${idPrefix}-message`}>Message</label>
+          <label style={{ ...labelStyle, marginTop: 14 }} htmlFor={`${idPrefix}-message`}>{d.photoQrCard.message}</label>
           <input id={`${idPrefix}-message`} style={inputStyle} value={message} maxLength={MESSAGE_MAX} onChange={(e) => setMessage(e.target.value)} />
 
           <fieldset style={{ border: 'none', padding: 0, margin: '14px 0 0' }}>
-            <legend style={labelStyle}>Print layout</legend>
+            <legend style={labelStyle}>{d.photoQrCard.printLayout}</legend>
             {([
-              ['four', '4 table cards per page', 'cut along the dashed lines'],
-              ['one', '1 large sign per page', 'for an entrance or a photo booth'],
+              ['four', d.photoQrCard.n4TableCardsPerPage, d.photoQrCard.cutAlongTheDashedLines],
+              ['one', d.photoQrCard.n1LargeSignPerPage, d.photoQrCard.forAnEntranceOrA],
             ] as const).map(([value, name, sub]) => (
               <label key={value} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontSize: 14, color: '#241F2B', marginBottom: 6, cursor: 'pointer' }}>
                 <input type="radio" name={`${idPrefix}-layout`} value={value} checked={layout === value} onChange={() => setLayout(value)} style={{ marginTop: 3 }} />
@@ -177,16 +181,16 @@ export function QrSignCard({ url: uploadUrl, heading, sectionOn, title: cardTitl
 
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 14 }}>
             <button type="button" onClick={print} disabled={!svg} style={{ ...btn, border: 'none', background: '#B6584A', color: '#fff', opacity: svg ? 1 : 0.55 }}>
-              Print QR code
+              {d.photoQrCard.printQrCode}
             </button>
             <button type="button" onClick={download} disabled={!svg} style={{ ...btn, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B' }}>
-              Download PNG
+              {d.photoQrCard.downloadPng}
             </button>
           </div>
         </div>
       </div>
 
-      <iframe ref={frameRef} title="Printable QR code" aria-hidden="true" tabIndex={-1} style={{ position: 'fixed', right: 0, bottom: 0, width: 0, height: 0, border: 0 }} />
+      <iframe ref={frameRef} title={d.photoQrCard.printableQrCode} aria-hidden="true" tabIndex={-1} style={{ position: 'fixed', right: 0, bottom: 0, width: 0, height: 0, border: 0 }} />
     </section>
   );
 }

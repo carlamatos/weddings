@@ -5,7 +5,9 @@ import { signOut } from '@/auth';
 import { siteHref } from '@/app/lib/app-url';
 import type { SetupStep } from '@/app/lib/setup-progress';
 
-export default function SideNav({ pageId, pageName, isPaid, status, setup }: { pageId?: number; pageName?: string; isPaid?: boolean; status?: Record<string, boolean>; setup?: SetupStep[] }) {
+import { getDashText } from '@/app/lib/dash-text/server';
+export default async function SideNav({ pageId, pageName, isPaid, status, setup }: { pageId?: number; pageName?: string; isPaid?: boolean; status?: Record<string, boolean>; setup?: SetupStep[] }) {
+  const d = await getDashText();
   return (
     <aside className="dash-sidebar">
       <Link href={siteHref('/')} className="dash-sidebar-logo">
@@ -22,7 +24,7 @@ export default function SideNav({ pageId, pageName, isPaid, status, setup }: { p
         <form action={async () => { 'use server'; await signOut(); }}>
           <button className="dash-signout-btn" type="submit">
             <PowerIcon />
-            Sign Out
+            {d.sidenav.signOut}
           </button>
         </form>
       </div>

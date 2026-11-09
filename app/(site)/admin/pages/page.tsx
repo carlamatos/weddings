@@ -9,6 +9,9 @@ import PageStatusToggle from '@/app/ui/admin/page-status-toggle';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, buttonBase, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import { siteHref } from '@/app/lib/app-url';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Pages' };
 
 // Live admin data: never run these queries at build time.
 export const dynamic = 'force-dynamic';

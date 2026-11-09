@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 // Sends the owner to Stripe Checkout for Plus. False when that failed.
 // From inside a page's dashboard, checkout comes back to the same screen;
 // `enable` is a Plus setting to switch on once paid (the section the host
@@ -22,6 +23,7 @@ export async function startPlusCheckout(pageId?: number, { enable }: { enable?: 
 }
 
 export default function UpgradeButton({ pageId }: { pageId?: number }) {
+  const d = useDashText();
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
@@ -35,7 +37,7 @@ export default function UpgradeButton({ pageId }: { pageId?: number }) {
       disabled={loading}
       className="dash-upgrade-btn"
     >
-      {loading ? 'Redirecting…' : '⭐ Upgrade'}
+      {loading ? d.upgradeButton.redirecting : d.upgradeButton.upgrade}
     </button>
   );
 }

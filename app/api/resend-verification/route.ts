@@ -3,7 +3,8 @@ import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { isRateLimited, recordAttempt } from '@/app/lib/rate-limit';
 import { createToken } from '@/app/lib/tokens';
-import { sendMail, verificationEmailHtml } from '@/app/lib/mail';
+import { sendMail, verificationEmail } from '@/app/lib/mail';
+import { getDashLang } from '@/app/lib/dash-text/server';
 import { siteUrl } from '@/app/lib/site-url';
 
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -29,8 +30,9 @@ export async function POST() {
     const user = result.rows[0];
     if (user && !user.email_verified_at) {
       const token = await createToken('email_verification_tokens', user.id, TTL_MS);
-      const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link, user.given_name) });
+      const lang = await getDashLang();
+      const link = `${siteUrl()}/api/verify-email?token=${token}${lang === 'en' ? '' : `&lang=${lang}`}`;
+      await sendMail({ to: email, ...verificationEmail(link, user.given_name, lang) });
     }
   } catch (error) {
     console.error('Failed to resend verification email:', error);

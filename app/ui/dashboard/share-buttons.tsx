@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { EnvelopeIcon, ChatBubbleLeftIcon, LinkIcon, CheckIcon, ArrowUpOnSquareIcon } from '@heroicons/react/24/outline';
 import { markLinkShared } from '@/app/lib/actions';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 export type Network = {
   name: string;
   color: string;
@@ -45,6 +46,7 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
   hashtag?: string; // no leading '#'
   pageId?: number; // copying or sharing counts as inviting guests (markLinkShared)
 }) {
+  const d = useDashText();
   const [copied, setCopied] = useState(false);
   const [canNativeShare, setCanNativeShare] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -64,7 +66,7 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      window.prompt('Copy this link:', url);
+      window.prompt(d.shareButtons.copyThisLink, url);
     }
   }
 
@@ -107,7 +109,7 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
 
       {/* Page link + copy */}
       <label htmlFor="share-url" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 6 }}>
-        Your page link
+        {d.shareButtons.yourPageLink}
       </label>
       <div style={{ display: 'flex', gap: 8, marginBottom: 24, flexWrap: 'wrap' }}>
         <input
@@ -119,11 +121,11 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
         />
         <button type="button" onClick={copy} style={{ ...btn, background: '#B6584A' }}>
           {copied ? <CheckIcon style={iconSize} /> : <LinkIcon style={iconSize} />}
-          {copied ? 'Copied!' : 'Copy link'}
+          {copied ? d.shareButtons.copied : d.shareButtons.copyLink}
         </button>
       </div>
 
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 10 }}>Share on</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 10 }}>{d.shareButtons.shareOn}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 10 }}>
         {networks.map((n) => (
           <a
@@ -138,21 +140,21 @@ export function ShareButtons({ url, title, description, image, shareImage, hasht
         ))}
         <a href={emailHref} style={outlineBtn}>
           <EnvelopeIcon style={iconSize} />
-          Email
+          {d.shareButtons.email}
         </a>
         <a href={smsHref} style={outlineBtn}>
           <ChatBubbleLeftIcon style={iconSize} />
-          Text message
+          {d.shareButtons.textMessage}
         </a>
         {canNativeShare && (
           <button type="button" onClick={nativeShare} style={outlineBtn}>
             <ArrowUpOnSquareIcon style={iconSize} />
-            More apps…
+            {d.shareButtons.moreApps}
           </button>
         )}
       </div>
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 12, lineHeight: 1.6 }}>
-        Instagram and TikTok don&rsquo;t accept shared links from the web. Copy your link into your bio or story{canNativeShare ? ', or use “More apps…” on your phone' : ''}.
+        {d.shareButtons.instagramAndTiktokDonT}{canNativeShare ? d.shareButtons.orUseMoreAppsOn : ''}.
       </p>
     </div>
   );

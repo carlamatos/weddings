@@ -13,14 +13,21 @@ import UpgradeButton from '@/app/ui/dashboard/upgrade-button';
 import ExtendButton from '@/app/ui/dashboard/extend-button';
 import { DeletePageButton } from '@/app/ui/dashboard/delete-page-dialog';
 import PublishButton from '@/app/ui/dashboard/publish-button';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+import type { DashText } from '@/app/lib/dash-text/en';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
+export const metadata: Metadata = { title: 'Event pages' };
 
 // Dashboard screens a "shortcut" link (/dashboard/livestream, …) can ask for
 // when the user has several events and has to pick one first.
-const SECTIONS: Record<string, string> = {
-  '/guest-list': 'Guest List', '/rsvp': 'RSVP', '/guest-photos': 'Guest Photos', '/livestream': 'Live Stream', '/song-requests': 'Song Requests',
-  '/reminders': 'Reminders', '/custom-sections': 'Custom Sections', '/sponsors': 'Sponsors', '/registry': 'Registry',
-  '/domain': 'Domain', '/share': 'Share', '/event-program': 'Event Program', '/potluck': 'Potluck', '/gift-exchange': 'Gift Exchange', '/seating': 'Find Your Table', '/password': 'Password Protection', '/invitations': 'Invitations',
-  '/slideshow': 'Photo Slideshow', '/budget': 'Budget', '/timeline': 'Timeline',
+const SECTIONS: Record<string, keyof DashText['screens']> = {
+  '/guest-list': 'guestList', '/rsvp': 'rsvp', '/guest-photos': 'guestPhotos', '/livestream': 'liveStream', '/song-requests': 'songRequests',
+  '/reminders': 'reminders', '/custom-sections': 'customSections', '/sponsors': 'sponsors', '/registry': 'registry',
+  '/domain': 'domain', '/share': 'share', '/event-program': 'eventProgram', '/potluck': 'potluck', '/gift-exchange': 'giftExchange', '/seating': 'findYourTable', '/password': 'passwordProtection', '/invitations': 'invitations',
+  '/slideshow': 'photoSlideshow', '/budget': 'budget', '/timeline': 'timeline',
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -45,6 +52,7 @@ const badge = (bg: string, color: string): React.CSSProperties => ({
 // /dashboard: the user's event pages. Each event is free or Plus on its own;
 // "Create new event" runs the full setup again.
 export default async function EventPages({ searchParams }: { searchParams: Promise<{ section?: string; deleted?: string }> }) {
+  const d = await getDashText();
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) redirect('/login');
@@ -61,11 +69,11 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
     <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 880, paddingTop: 28 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Event pages</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.overview.eventPages}</h1>
           <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 560, lineHeight: 1.6 }}>
             {section
-              ? `Choose the event whose ${SECTIONS[section]} you want to open.`
-              : 'All your events in one place. Each event is free, or Plus on its own — you only pay for the events that need it.'}
+              ? fill(d.overview.chooseTheEventWhoseYou, { v1: d.screens[SECTIONS[section]] })
+              : d.overview.allYourEventsInOne}
           </p>
         </div>
         {canCreate ? (
@@ -73,16 +81,16 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
             href="/dashboard/setup"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', borderRadius: 999, background: '#B6584A', color: '#fff', fontWeight: 600, fontSize: 14, textDecoration: 'none' }}
           >
-            <PlusIcon style={{ width: 18, height: 18 }} /> Create new event
+            <PlusIcon style={{ width: 18, height: 18 }} /> {d.overview.createNewEvent}
           </Link>
         ) : (
-          <p style={{ fontSize: 13, color: '#6B6470', margin: 0 }}>You&rsquo;ve reached {quota.limit} event pages.</p>
+          <p style={{ fontSize: 13, color: '#6B6470', margin: 0 }}>{fill(d.overview.youVeReachedEventPages, { limit: quota.limit })}</p>
         )}
       </div>
 
       {query.deleted === '1' && (
         <div role="status" style={{ background: '#EEF6EF', border: '1px solid #C9E2CD', color: '#2F5A36', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 18 }}>
-          <strong>Your page was deleted.</strong> If that was a mistake, contact us within 30 days and we can restore it.
+          {rich(d.overview.yourPageWasDeletedIf, { t0: (s) => <strong>{s}</strong> })}
         </div>
       )}
 
@@ -93,10 +101,10 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
           const past = !!p.event_date && (p.event_end_date || p.event_date) < now;
           const when = p.event_date
             ? formatDateRange(p.event_date, p.event_end_date, 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-            : 'No date set';
+            : d.overview.noDateSet;
           const url = publicPageUrl(p);
           const plusUntil = paid && p.plan_expires_at
-            ? new Date(p.plan_expires_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+            ? new Date(p.plan_expires_at).toLocaleDateString(d.meta.locale, { month: 'short', day: 'numeric', year: 'numeric' })
             : null;
 
           return (
@@ -107,19 +115,19 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
               <div style={{ minWidth: 0, flex: '1 1 320px' }}>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
                   <Link href={pagePath(p.id, section)} style={{ fontSize: 17, fontWeight: 600, color: '#241F2B', textDecoration: 'none', overflowWrap: 'anywhere' }}>
-                    {p.heading || 'Untitled event'}
+                    {p.heading || d.overview.untitledEvent}
                   </Link>
                   {paid
-                    ? <span style={badge('#F6E6E3', '#9A4738')} title={plusUntil ? `Plus until ${plusUntil}` : undefined}>PLUS</span>
-                    : <span style={badge(expired ? '#FFF8E7' : '#F1EEEA', expired ? '#8A6800' : '#6B6470')}>{expired ? 'PLUS ENDED' : 'FREE'}</span>}
-                  {p.status === 'inactive' && <span style={badge('#FDECEC', '#B91C1C')}>DEACTIVATED</span>}
-                  {p.status === 'draft' && <span style={badge('#F3EFF9', '#3F2E63')} title="Only you can see it until it's published">DRAFT</span>}
-                  {p.status === 'suspended' && <span style={badge('#FDECEC', '#8B1D1D')} title="Suspended by MyGala — contact us to have it reviewed">SUSPENDED</span>}
-                  {past && <span style={badge('#F1EEEA', '#6B6470')}>PAST</span>}
+                    ? <span style={badge('#F6E6E3', '#9A4738')} title={plusUntil ? fill(d.overview.plusUntil, { plusUntil }) : undefined}>PLUS</span>
+                    : <span style={badge(expired ? '#FFF8E7' : '#F1EEEA', expired ? '#8A6800' : '#6B6470')}>{expired ? d.overview.plusEnded : d.overview.free}</span>}
+                  {p.status === 'inactive' && <span style={badge('#FDECEC', '#B91C1C')}>{d.overview.deactivated}</span>}
+                  {p.status === 'draft' && <span style={badge('#F3EFF9', '#3F2E63')} title={d.overview.onlyYouCanSeeIt}>{d.overview.draft}</span>}
+                  {p.status === 'suspended' && <span style={badge('#FDECEC', '#8B1D1D')} title={d.overview.suspendedByMygalaContactUs}>{d.overview.suspended}</span>}
+                  {past && <span style={badge('#F1EEEA', '#6B6470')}>{d.overview.past}</span>}
                 </div>
                 <div style={{ fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
                   {when} · {getTheme(p.theme_slug).label}
-                  {plusUntil && <> · Plus until {plusUntil}</>}
+                  {plusUntil && <> {fill(d.overview.plusUntil2, { plusUntil })}</>}
                 </div>
                 <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#B6584A', textDecoration: 'none', overflowWrap: 'anywhere' }}>
                   {url.replace(/^https?:\/\//, '')}
@@ -131,10 +139,10 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label={`View ${p.heading || 'event'} page`}
+                  aria-label={fill(d.overview.viewPage, { v1: p.heading || d.overview.event })}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 8, border: '1px solid #DDD5CE', color: '#241F2B', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}
                 >
-                  <ArrowTopRightOnSquareIcon style={{ width: 16, height: 16 }} /> View
+                  <ArrowTopRightOnSquareIcon style={{ width: 16, height: 16 }} /> {d.overview.view}
                 </a>
                 {p.status === 'draft' && session?.user?.verifiedEmail && <PublishButton pageId={Number(p.id)} />}
                 {!paid && (expired ? <ExtendButton pageId={Number(p.id)} /> : <UpgradeButton pageId={Number(p.id)} />)}
@@ -142,7 +150,7 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
                   href={pagePath(p.id, section)}
                   style={{ padding: '8px 16px', borderRadius: 8, background: '#241F2B', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}
                 >
-                  {section ? `Open ${SECTIONS[section]}` : 'Edit page'}
+                  {section ? fill(d.overview.open, { v1: d.screens[SECTIONS[section]] }) : d.overview.editPage}
                 </Link>
                 {!section && p.status !== 'suspended' && (
                   <DeletePageButton page={{ id: Number(p.id), slug: p.slug, heading: p.heading, isPaid: paid }} />
@@ -154,8 +162,7 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
       </div>
 
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 20, lineHeight: 1.6 }}>
-        Plus is a one-time payment per event that unlocks guest photos, livestream, reminders, custom sections, a custom domain and more for
-        that event for 15 months.
+        {d.overview.plusIsAOneTime}
       </p>
     </div>
   );

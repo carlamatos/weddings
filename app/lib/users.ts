@@ -3,6 +3,7 @@ import { sql } from '@vercel/postgres';
 import type { DBUser } from './definitions';
 import { markPasswordChanged } from './session-revocation';
 import { sendWelcomeEmail } from './welcome-email';
+import { savedDashLang } from './dash-text/server';
 
 // Server-only helpers for user rows. Deliberately NOT in actions.ts: every
 // export of a 'use server' file is callable from the browser, and creating
@@ -34,7 +35,7 @@ export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Pr
       VALUES (${name}, ${email}, ${date}, ${given_name}, ${family_name}, ${provider}, ${provider_id}, ${picture}, NOW())
       RETURNING id
     `;
-    if (created.rows[0]) await sendWelcomeEmail(created.rows[0].id);
+    if (created.rows[0]) await sendWelcomeEmail(created.rows[0].id, await savedDashLang());
     return true;
   } catch (error) {
     console.error('Failed to create OAuth user:', error);
@@ -56,5 +57,5 @@ export async function claimUnverifiedAccount(email: string): Promise<void> {
   // ...and sign out whoever was using that password.
   if (result.rowCount) await markPasswordChanged({ email });
   // The owner's first verified sign-in: welcome them.
-  if (result.rows[0]) await sendWelcomeEmail(result.rows[0].id);
+  if (result.rows[0]) await sendWelcomeEmail(result.rows[0].id, await savedDashLang());
 }

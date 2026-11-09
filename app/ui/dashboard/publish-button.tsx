@@ -4,8 +4,10 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { publishPage } from '@/app/lib/actions';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 // "Publish my page": puts a draft live (publishPage, verified emails only).
 export default function PublishButton({ pageId }: { pageId: number }) {
+  const d = useDashText();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -26,7 +28,7 @@ export default function PublishButton({ pageId }: { pageId: number }) {
           fontSize: 13, fontWeight: 600, cursor: pending ? 'default' : 'pointer', whiteSpace: 'nowrap', opacity: pending ? 0.7 : 1,
         }}
       >
-        {pending ? 'Publishing…' : 'Publish my page'}
+        {pending ? d.publishButton.publishing : d.publishButton.publishMyPage}
       </button>
       {error && <span role="alert" style={{ fontSize: 12, color: '#B91C1C', maxWidth: 280, textAlign: 'right' }}>{error}</span>}
     </span>

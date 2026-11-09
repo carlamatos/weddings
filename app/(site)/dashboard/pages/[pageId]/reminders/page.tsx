@@ -7,8 +7,15 @@ import { parseReminderSchedule } from '@/app/lib/reminders';
 import { reminderEmail } from '@/app/lib/reminder-email';
 import { RemindersForm } from '@/app/ui/dashboard/reminders-form';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
+export const metadata: Metadata = { title: 'Reminders' };
 
 export default async function RemindersPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
@@ -44,20 +51,19 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
     <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 760 }}>
       <PlusSetupNote section="/reminders" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Event Reminders</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.reminders.eventReminders}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, lineHeight: 1.6 }}>
-          Automatically email your guests before the event with the date, location, and a personal note from you.
+          {d.reminders.automaticallyEmailYourGuests}
           {' '}<HelpLink guide="send-reminder-emails" />
         </p>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderRadius: 10, background: '#faf8f6', border: '1px solid #EDE8E3', marginBottom: 20, fontSize: 14, color: '#241F2B', flexWrap: 'wrap' }}>
-        <strong>{subscribers} guest{subscribers === 1 ? '' : 's'}</strong>
+        <strong>{subscribers} {d.reminders.guest}{subscribers === 1 ? '' : 's'}</strong>
         <span style={{ color: '#6B6470' }}>
-          {subscribers === 1 ? 'has' : 'have'} asked for event updates when they RSVP&apos;d and will receive reminders.
-          {' '}Guests who declined or unsubscribed are left out.
+          {subscribers === 1 ? 'has' : 'have'} {d.reminders.askedForEventUpdatesWhen}
         </span>
-        <Link href={pagePath(userPage.id, '/rsvp')} style={{ color: '#B6584A', fontWeight: 600, marginLeft: 'auto' }}>View guests</Link>
+        <Link href={pagePath(userPage.id, '/rsvp')} style={{ color: '#B6584A', fontWeight: 600, marginLeft: 'auto' }}>{d.reminders.viewGuests}</Link>
       </div>
 
       <RemindersForm
@@ -70,12 +76,12 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
       />
 
       <section style={{ marginTop: 32 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Email preview</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.reminders.emailPreview}</h2>
         <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 12px' }}>
-          Subject: <strong style={{ color: '#241F2B' }}>{preview.subject}</strong>. Shows your saved note; guests see their own first name.
+          {rich(fill(d.reminders.subjectShowsYourSavedNote, { subject: preview.subject }), { t0: (s) => <strong style={{ color: '#241F2B' }}>{s}</strong> })}
         </p>
         <iframe
-          title="Reminder email preview"
+          title={d.reminders.reminderEmailPreview}
           srcDoc={preview.html}
           sandbox=""
           style={{ width: '100%', height: 860, border: '1px solid #EDE8E3', borderRadius: 12, background: '#F7F4F1' }}

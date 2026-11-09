@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { saveRegistry } from '@/app/lib/actions';
 import { REGISTRY_BUTTON_TEXT_MAX, REGISTRY_LINK_MAX, REGISTRY_MESSAGE_MAX } from '@/app/lib/registry';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 const inputStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14,
   fontFamily: 'inherit', color: '#241F2B', outline: 'none', width: '100%', boxSizing: 'border-box',
@@ -16,6 +17,7 @@ const hintStyle: React.CSSProperties = { fontSize: 12, color: '#6B6470', margin:
 type Values = { link: string; buttonText: string; message: string };
 
 export function RegistryForm({ pageId, initial }: { pageId: number; initial: Values }) {
+  const d = useDashText();
   const [values, setValues] = useState<Values>(initial);
   const [saved, setSaved] = useState<Values>(initial);
   const [saving, setSaving] = useState(false);
@@ -42,18 +44,18 @@ export function RegistryForm({ pageId, initial }: { pageId: number; initial: Val
     // The server tidies the input (e.g. adds https://); show what was stored.
     setValues(result.value);
     setSaved(result.value);
-    setMessage({ kind: 'ok', text: 'Saved.' });
+    setMessage({ kind: 'ok', text: d.registryForm.saved });
   }
 
   return (
     <form onSubmit={save} style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: 22, maxWidth: 640 }}>
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: isEmpty ? '#6B6470' : '#3D6B46' }}>
-          {isEmpty ? 'Empty — not shown on your page' : 'Shown on your page'}
+          {isEmpty ? d.registryForm.emptyNotShownOnYour : d.registryForm.shownOnYourPage}
         </span>
       </div>
 
-      <label style={labelStyle} htmlFor="registry-link">Registry link</label>
+      <label style={labelStyle} htmlFor="registry-link">{d.registryForm.registryLink}</label>
       <input
         id="registry-link"
         type="text"
@@ -64,25 +66,25 @@ export function RegistryForm({ pageId, initial }: { pageId: number; initial: Val
         placeholder="https://www.amazon.ca/baby-reg/…"
         onChange={(e) => set('link', e.target.value)}
       />
-      <p style={hintStyle}>Where guests can see your list — Amazon, Babylist, a store, or your own page.</p>
+      <p style={hintStyle}>{d.registryForm.whereGuestsCanSeeYour}</p>
 
-      <label style={{ ...labelStyle, marginTop: 18 }} htmlFor="registry-button">Button label (optional)</label>
+      <label style={{ ...labelStyle, marginTop: 18 }} htmlFor="registry-button">{d.registryForm.buttonLabelOptional}</label>
       <input
         id="registry-button"
         style={inputStyle}
         value={values.buttonText}
         maxLength={REGISTRY_BUTTON_TEXT_MAX}
-        placeholder="View registry"
+        placeholder={d.registryForm.viewRegistry}
         onChange={(e) => set('buttonText', e.target.value)}
       />
 
-      <label style={{ ...labelStyle, marginTop: 18 }} htmlFor="registry-message">Message (optional)</label>
+      <label style={{ ...labelStyle, marginTop: 18 }} htmlFor="registry-message">{d.registryForm.messageOptional}</label>
       <textarea
         id="registry-message"
         style={{ ...inputStyle, minHeight: 120, resize: 'vertical' }}
         value={values.message}
         maxLength={REGISTRY_MESSAGE_MAX}
-        placeholder="Anything else guests should know — e.g. your presence is the best gift, or we'd love contributions to a college fund."
+        placeholder={d.registryForm.anythingElseGuestsShouldKnow}
         onChange={(e) => set('message', e.target.value)}
       />
       <p style={{ ...hintStyle, textAlign: 'right' }}>{values.message.length} / {REGISTRY_MESSAGE_MAX}</p>
@@ -100,7 +102,7 @@ export function RegistryForm({ pageId, initial }: { pageId: number; initial: Val
             opacity: !dirty || saving ? 0.55 : 1,
           }}
         >
-          {saving ? 'Saving…' : 'Save registry'}
+          {saving ? d.registryForm.saving : d.registryForm.saveRegistry}
         </button>
       </div>
     </form>

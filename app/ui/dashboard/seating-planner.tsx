@@ -12,11 +12,13 @@ import { btn, primary, input, card } from './guest-ui';
 import { SeatingList, type SeatGuest } from './seating-list';
 import { mealLine } from '@/app/lib/rsvp-meals';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 type Change = { id: string; table: string };
 type MapTable = SeatingTable & { guests: SeatGuest[]; people: number };
 
 const UNSEATED = '';
-const OFFLINE = { ok: false as const, error: 'Couldn’t save — check your connection and try again.' };
 const ACCENT = '#B6584A';
 const muted: React.CSSProperties = { fontSize: 13, color: '#6B6470', margin: 0, lineHeight: 1.6 };
 const people = (g: SeatGuest) => Math.max(1, g.guests || 1);
@@ -30,6 +32,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
   initialTables: SeatingTable[];
   guestListHref: string;
 }) {
+  const d = useDashText();
   const [seats, setSeats] = useState<Record<string, string>>(() => Object.fromEntries(guests.map((g) => [g.id, g.table])));
   const [tables, setTables] = useState<SeatingTable[]>(initialTables);
   const [view, setView] = useState<'map' | 'list'>('map');
@@ -71,7 +74,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
     const previous = Object.fromEntries(changes.map((c) => [c.id, seats[c.id] ?? '']));
     setSeats((s) => ({ ...s, ...Object.fromEntries(changes.map((c) => [c.id, cleanTableName(c.table)])) }));
     startTransition(async () => {
-      const res = await saveSeating(pageId, changes).catch(() => OFFLINE);
+      const res = await saveSeating(pageId, changes).catch(() => ({ ok: false as const, error: d.seatingPlanner.offline }));
       if (!res.ok) {
         setSeats((s) => ({ ...s, ...previous }));
         setError(res.error);
@@ -86,7 +89,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
     const previous = tables;
     setTables(next);
     startTransition(async () => {
-      const res = await saveSeatingTables(pageId, next).catch(() => OFFLINE);
+      const res = await saveSeatingTables(pageId, next).catch(() => ({ ok: false as const, error: d.seatingPlanner.offline }));
       if (!res.ok) {
         setTables(previous);
         setError(res.error);
@@ -107,7 +110,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
     const guest = guests.find((g) => g.id === id);
     save([{ id, table }]);
     setUndo({
-      text: table ? `${guest?.name ?? 'Guest'} → ${table}` : `${guest?.name ?? 'Guest'} is no longer seated`,
+      text: table ? `${guest?.name ?? d.seatingPlanner.guest} → ${table}` : fill(d.seatingPlanner.isNoLongerSeated, { v1: guest?.name ?? d.seatingPlanner.guest }),
       changes: [{ id, table: from }],
     });
   }
@@ -123,7 +126,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
   function editTable(oldName: string, changes: SeatingTable, after?: () => void) {
     const name = cleanTableName(changes.name) || oldName;
     const clash = mapTables.some((t) => tableKey(t.name) === tableKey(name) && tableKey(t.name) !== tableKey(oldName));
-    if (clash) { setError(`There’s already a table called “${name}”.`); return; }
+    if (clash) { setError(fill(d.seatingPlanner.thereSAlreadyATable, { name })); return; }
     const next = savedForm(mapTables).map((t) => (tableKey(t.name) === tableKey(oldName) ? { ...changes, name } : t));
     saveTables(next, after);
     if (name !== oldName) {
@@ -145,12 +148,11 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
   if (guests.length === 0) {
     return (
       <section style={{ ...card, maxWidth: 760, marginBottom: 28 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Seat your guests</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.seatingPlanner.seatYourGuests}</h2>
         <p style={{ ...muted, marginBottom: 14 }}>
-          Guests find their table by the name on your guest list. Add your guests first — import them from a spreadsheet or
-          your phone&rsquo;s contacts — then come back to seat them.
+          {d.seatingPlanner.guestsFindTheirTableBy}
         </p>
-        <Link href={guestListHref} style={primary}>Go to Guest List</Link>
+        <Link href={guestListHref} style={primary}>{d.seatingPlanner.goToGuestList}</Link>
       </section>
     );
   }
@@ -162,13 +164,13 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
     <section style={{ ...card, marginBottom: 28, padding: '20px 20px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
         <div>
-          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 2px' }}>Seat your guests</h2>
+          <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 2px' }}>{d.seatingPlanner.seatYourGuests}</h2>
           <p style={muted}>
-            {seated} of {guests.length} guests seated · {mapTables.length} {mapTables.length === 1 ? 'table' : 'tables'}
-            {seatCount > 0 && <> · {seatCount} seats</>}
+            {fill(d.seatingPlanner.guestsSeated, { seated, total: guests.length, tables: mapTables.length === 1 ? d.seatingPlanner.oneTable : fill(d.seatingPlanner.nTables, { n: mapTables.length }) })}
+            {seatCount > 0 && <> {fill(d.seatingPlanner.seats, { seatCount })}</>}
           </p>
         </div>
-        <div role="tablist" aria-label="View" style={{ display: 'inline-flex', padding: 3, background: '#F4F0EC', borderRadius: 999 }}>
+        <div role="tablist" aria-label={d.seatingPlanner.view} style={{ display: 'inline-flex', padding: 3, background: '#F4F0EC', borderRadius: 999 }}>
           {(['map', 'list'] as const).map((v) => (
             <button
               key={v}
@@ -182,7 +184,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
                 boxShadow: view === v ? '0 1px 3px rgba(36,31,43,0.15)' : 'none',
               }}
             >
-              {v === 'map' ? 'Seating map' : 'List'}
+              {v === 'map' ? d.seatingPlanner.seatingMap : d.seatingPlanner.list}
             </button>
           ))}
         </div>
@@ -214,7 +216,7 @@ export function SeatingPlanner({ pageId, guests, initialTables, guestListHref }:
           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{undo.text}</span>
           <button type="button" onClick={() => { save(undo.changes); setUndo(null); }}
             style={{ border: 'none', background: '#fff', color: '#241F2B', borderRadius: 999, padding: '5px 12px', fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
-            Undo
+            {d.seatingPlanner.undo}
           </button>
         </div>
       )}
@@ -250,6 +252,8 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
   onEditTable: (oldName: string, table: SeatingTable, after?: () => void) => void;
   onDeleteTable: (name: string) => void;
 }) {
+  const d = useDashText();
+
   const [drag, setDrag] = useState<Drag | null>(null);
   const [picked, setPicked] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -305,9 +309,9 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
       x = ev.clientX;
       y = ev.clientY;
       if (!started) {
-        const d = Math.hypot(x - sx, y - sy);
-        if (!touch && d > 4) begin();
-        else if (touch && d > 10) finish();
+        const dist = Math.hypot(x - sx, y - sy);
+        if (!touch && dist > 4) begin();
+        else if (touch && dist > 10) finish();
         return;
       }
       const rect = scroller.getBoundingClientRect();
@@ -356,7 +360,7 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
           onClick={(e) => chipClick(e, g)}
           onContextMenu={(e) => e.preventDefault()}
           aria-pressed={isPicked}
-          title={`${g.name}${g.guests > 1 ? ` (party of ${g.guests})` : ''} — drag to a table, or tap and then tap a table`}
+          title={fill(d.seatingPlanner.dragToATableOr, { name: g.name, v1: g.guests > 1 ? fill(d.seatingPlanner.partyOf, { n: g.guests }) : '' })}
           style={{
             display: 'inline-flex', alignItems: 'center', gap: 6, minWidth: 0, maxWidth: '100%', padding: onTable ? '5px 8px 5px 10px' : '7px 12px',
             borderRadius: onTable ? '999px 0 0 999px' : 999, fontSize: 13, fontWeight: 500, fontFamily: 'inherit', color: '#241F2B',
@@ -373,8 +377,8 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onMove(g.id, UNSEATED); }}
-            aria-label={`Take ${g.name} off this table`}
-            title="Take off this table"
+            aria-label={fill(d.seatingPlanner.takeOffThisTable, { name: g.name })}
+            title={d.seatingPlanner.takeOffThisTable2}
             style={{ display: 'inline-flex', alignItems: 'center', padding: '0 7px', border: '1px solid #E4DDD7', borderLeft: 'none', borderRadius: '0 999px 999px 0', background: '#fff', color: '#9A929F', cursor: 'pointer' }}
           >
             <XMarkIcon style={{ width: 14, height: 14 }} />
@@ -398,13 +402,13 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
   return (
     <div ref={rootRef}>
       <p style={{ ...muted, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-        <span><strong style={{ color: '#241F2B' }}>Drag guests onto a table</strong> — or tap a guest, then tap a table. On a phone, press and hold to drag.</span>
+        <span>{rich(d.seatingPlanner.dragGuestsOntoATable, { t0: (s) => <strong style={{ color: '#241F2B' }}>{s}</strong> })}</span>
       </p>
 
       {pickedGuest && (
         <div role="status" style={{ position: 'sticky', top: 8, zIndex: 5, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', background: '#241F2B', color: '#fff', borderRadius: 12, padding: '10px 14px', marginBottom: 14, fontSize: 14 }}>
-          <span style={{ flex: '1 1 auto' }}>Now tap the table for <strong>{pickedGuest.name}</strong>{seats[pickedGuest.id] ? ' — or tap “Not seated” to take them off their table' : ''}.</span>
-          <button type="button" onClick={() => setPicked(null)} style={{ border: '1px solid #fff6', background: 'transparent', color: '#fff', borderRadius: 999, padding: '4px 12px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>Cancel</button>
+          <span style={{ flex: '1 1 auto' }}>{rich(fill(d.seatingPlanner.nowTapTheTableFor, { name: pickedGuest.name }), { t0: (s) => <strong>{s}</strong> })}{seats[pickedGuest.id] ? d.seatingPlanner.orTapNotSeatedTo : ''}.</span>
+          <button type="button" onClick={() => setPicked(null)} style={{ border: '1px solid #fff6', background: 'transparent', color: '#fff', borderRadius: 999, padding: '4px 12px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>{d.seatingPlanner.cancel}</button>
         </div>
       )}
 
@@ -412,7 +416,7 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
         <aside
           data-seat-drop={UNSEATED}
           onClick={() => { if (pickedGuest && seats[pickedGuest.id]) placePicked(UNSEATED); }}
-          aria-label="Guests not seated yet"
+          aria-label={d.seatingPlanner.guestsNotSeatedYet}
           style={{
             flex: '1 1 240px', maxWidth: '100%', top: pickedGuest ? 64 : 8, alignSelf: 'flex-start',
             border: '1px solid #EDE8E3', borderRadius: 14, backgroundColor: '#FAF8F6', padding: 14, boxSizing: 'border-box',
@@ -421,22 +425,22 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
           className="seat-unseated"
         >
           <p style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: '#6B6470', margin: '0 0 10px' }}>
-            Not seated <span style={{ color: '#241F2B' }}>{unseatedTotal}</span>
+            {rich(fill(d.seatingPlanner.notSeated, { unseatedTotal }), { t0: (s) => <span style={{ color: '#241F2B' }}>{s}</span> })}
           </p>
           <div style={{ position: 'relative', marginBottom: 8 }}>
             <MagnifyingGlassIcon aria-hidden="true" style={{ position: 'absolute', left: 9, top: '50%', transform: 'translateY(-50%)', width: 15, height: 15, color: '#9A929F' }} />
-            <input type="search" aria-label="Find a guest" placeholder="Find a guest" value={search} onClick={(e) => e.stopPropagation()} onChange={(e) => setSearch(e.target.value)}
+            <input type="search" aria-label={d.seatingPlanner.findAGuest} placeholder={d.seatingPlanner.findAGuest} value={search} onClick={(e) => e.stopPropagation()} onChange={(e) => setSearch(e.target.value)}
               style={{ ...input, width: '100%', boxSizing: 'border-box', paddingLeft: 30, fontSize: 13, background: '#fff' }} />
           </div>
           <label onClick={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#6B6470', marginBottom: 12, cursor: 'pointer' }}>
             <input type="checkbox" checked={hideDeclined} onChange={(e) => setHideDeclined(e.target.checked)} />
-            Hide guests who can&rsquo;t come
+            {d.seatingPlanner.hideGuestsWhoCanT}
           </label>
           <div className="seat-unseated-list" style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {unseated.map((g) => chip(g, false))}
             {unseated.length === 0 && (
               <p style={{ ...muted, fontSize: 12 }}>
-                {unseatedTotal === 0 ? (pickedGuest ? 'Drop a guest here to take them off their table.' : 'Everyone has a seat. 🎉') : 'No guests match.'}
+                {unseatedTotal === 0 ? (pickedGuest ? d.seatingPlanner.dropAGuestHereTo : d.seatingPlanner.everyoneHasASeat) : d.seatingPlanner.noGuestsMatch}
               </p>
             )}
           </div>
@@ -469,7 +473,7 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
                 }}
               >
                 <PlusIcon style={{ width: 26, height: 26 }} />
-                Add a table
+                {d.seatingPlanner.addATable}
               </button>
             </div>
           )}
@@ -491,6 +495,7 @@ function SeatingMap({ guests, seats, tables, pending, onMove, onAddTables, onEdi
 
 // No tables yet: make them all at once.
 function FirstTables({ pending, onCreate }: { pending: boolean; onCreate: (count: number, seatsEach: number, shape?: TableShape) => void }) {
+  const d = useDashText();
   const [count, setCount] = useState('10');
   const [each, setEach] = useState(String(SEATING_DEFAULT_SEATS));
   const n = Math.min(SEATING_MAX_TABLES, Math.max(1, Math.round(Number(count)) || 1));
@@ -501,18 +506,18 @@ function FirstTables({ pending, onCreate }: { pending: boolean; onCreate: (count
       style={{ border: '2px dashed #DDD5CE', borderRadius: 16, padding: '28px 22px', textAlign: 'center' }}
     >
       <div style={{ display: 'flex', justifyContent: 'center' }}><TableArt seats={8} filled={3} shape="round" size={120} /></div>
-      <h3 style={{ fontSize: 17, fontWeight: 600, color: '#241F2B', margin: '12px 0 4px' }}>Set up your tables</h3>
-      <p style={{ ...muted, marginBottom: 16 }}>You can rename them, change the seats and add more any time.</p>
+      <h3 style={{ fontSize: 17, fontWeight: 600, color: '#241F2B', margin: '12px 0 4px' }}>{d.seatingPlanner.setUpYourTables}</h3>
+      <p style={{ ...muted, marginBottom: 16 }}>{d.seatingPlanner.youCanRenameThemChange}</p>
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }}>
         <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', textAlign: 'left' }}>
-          Tables
+          {d.seatingPlanner.tables}
           <input type="number" min={1} max={SEATING_MAX_TABLES} value={count} onChange={(e) => setCount(e.target.value)} style={{ ...input, display: 'block', width: 90, marginTop: 4 }} />
         </label>
         <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', textAlign: 'left' }}>
-          Seats at each
+          {d.seatingPlanner.seatsAtEach}
           <input type="number" min={1} max={SEATING_MAX_SEATS} value={each} onChange={(e) => setEach(e.target.value)} style={{ ...input, display: 'block', width: 90, marginTop: 4 }} />
         </label>
-        <button type="submit" style={primary} disabled={pending}>Create {n} {n === 1 ? 'table' : 'tables'}</button>
+        <button type="submit" style={primary} disabled={pending}>{fill(d.seatingPlanner.create, { n })} {n === 1 ? 'table' : 'tables'}</button>
       </div>
     </form>
   );
@@ -527,6 +532,7 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
   onSave: (table: SeatingTable, after?: () => void) => void;
   onDelete: () => void;
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(table.name);
   const [seatsText, setSeatsText] = useState(String(table.seats));
@@ -565,51 +571,51 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
       {editing ? (
         <form onSubmit={submit} onClick={(e) => e.stopPropagation()} style={{ display: 'grid', gap: 10 }}>
           <label style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B6470' }}>
-            Table name
+            {d.seatingPlanner.tableName}
             <input autoFocus value={name} maxLength={SEATING_TABLE_MAX} onChange={(e) => setName(e.target.value)} style={{ ...input, display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 4, textTransform: 'none', letterSpacing: 0, fontWeight: 400 }} />
           </label>
           <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
             <label style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#6B6470' }}>
-              Seats
+              {d.seatingPlanner.seats2}
               <input type="number" min={1} max={SEATING_MAX_SEATS} value={seatsText} onChange={(e) => setSeatsText(e.target.value)} style={{ ...input, display: 'block', width: 70, marginTop: 4 }} />
             </label>
-            <div role="radiogroup" aria-label="Shape" style={{ display: 'inline-flex', border: '1px solid #E4DDD7', borderRadius: 8, overflow: 'hidden' }}>
+            <div role="radiogroup" aria-label={d.seatingPlanner.shape} style={{ display: 'inline-flex', border: '1px solid #E4DDD7', borderRadius: 8, overflow: 'hidden' }}>
               {(['round', 'long'] as const).map((s) => (
                 <button key={s} type="button" role="radio" aria-checked={shape === s} onClick={() => setShape(s)}
                   style={{ padding: '8px 10px', border: 'none', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', background: shape === s ? '#241F2B' : '#fff', color: shape === s ? '#fff' : '#241F2B' }}>
-                  {s === 'round' ? 'Round' : 'Long'}
+                  {s === 'round' ? d.seatingPlanner.round : d.seatingPlanner.long}
                 </button>
               ))}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button type="submit" style={{ ...primary, padding: '7px 14px' }}>Save</button>
-            <button type="button" style={{ ...btn, padding: '7px 12px' }} onClick={() => setEditing(false)}>Cancel</button>
+            <button type="submit" style={{ ...primary, padding: '7px 14px' }}>{d.seatingPlanner.save}</button>
+            <button type="button" style={{ ...btn, padding: '7px 12px' }} onClick={() => setEditing(false)}>{d.seatingPlanner.cancel}</button>
           </div>
           {confirmDelete ? (
             <div style={{ background: '#FBF0EE', borderRadius: 10, padding: 10, fontSize: 13, color: '#8B3A2A' }}>
-              Delete {table.name}?{table.guests.length > 0 && ` Its ${table.guests.length} ${table.guests.length === 1 ? 'guest goes' : 'guests go'} back to Not seated.`}
+              {fill(d.seatingPlanner.delete, { name: table.name })}{table.guests.length > 0 && fill(d.seatingPlanner.itsBackToNotSeated, { length: table.guests.length, v1: table.guests.length === 1 ? d.seatingPlanner.guestGoes : d.seatingPlanner.guestsGo })}
               <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                <button type="button" onClick={onDelete} style={{ ...primary, padding: '6px 12px', background: '#8B3A2A' }}>Delete table</button>
-                <button type="button" onClick={() => setConfirmDelete(false)} style={{ ...btn, padding: '6px 12px' }}>Keep it</button>
+                <button type="button" onClick={onDelete} style={{ ...primary, padding: '6px 12px', background: '#8B3A2A' }}>{d.seatingPlanner.deleteTable}</button>
+                <button type="button" onClick={() => setConfirmDelete(false)} style={{ ...btn, padding: '6px 12px' }}>{d.seatingPlanner.keepIt}</button>
               </div>
             </div>
           ) : (
             <button type="button" onClick={() => setConfirmDelete(true)} style={{ ...btn, border: 'none', background: 'none', padding: 0, color: '#8B3A2A', fontSize: 13, justifySelf: 'start' }}>
-              Delete this table
+              {d.seatingPlanner.deleteThisTable}
             </button>
           )}
         </form>
       ) : (
         <>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-            <button type="button" onClick={(e) => { e.stopPropagation(); if (picking) onPick(); else openEdit(); }} title={picking ? 'Seat here' : 'Rename, change seats or delete'}
+            <button type="button" onClick={(e) => { e.stopPropagation(); if (picking) onPick(); else openEdit(); }} title={picking ? d.seatingPlanner.seatHere : d.seatingPlanner.renameChangeSeatsOrDelete}
               style={{ flex: '1 1 auto', minWidth: 0, display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', background: 'none', padding: '2px 0', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
               <span style={{ fontSize: 15, fontWeight: 600, color: '#241F2B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{table.name}</span>
-              <PencilSquareIcon aria-label="Edit table" style={{ width: 15, height: 15, color: '#9A929F', flexShrink: 0 }} />
+              <PencilSquareIcon aria-label={d.seatingPlanner.editTable} style={{ width: 15, height: 15, color: '#9A929F', flexShrink: 0 }} />
             </button>
             <span
-              title={over ? 'More guests than seats' : full ? 'Every seat is taken' : `${table.seats - table.people} seats free`}
+              title={over ? d.seatingPlanner.moreGuestsThanSeats : full ? d.seatingPlanner.everySeatIsTaken : fill(d.seatingPlanner.seatsFree, { v1: table.seats - table.people })}
               style={{
                 fontSize: 12, fontWeight: 700, borderRadius: 999, padding: '2px 8px', flexShrink: 0,
                 background: over ? '#FBE3DC' : full ? '#EAF2EC' : '#F4F0EC', color: over ? '#A1361F' : full ? '#3D6B46' : '#6B6470',
@@ -622,19 +628,19 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
             <TableArt seats={table.seats} filled={table.people} shape={table.shape} size={table.shape === 'long' ? 150 : 118} label={table.name} />
           </div>
           {mealText && (
-            <p title="Meals chosen by the guests at this table" style={{ fontSize: 12, lineHeight: 1.45, color: '#6B5200', background: '#FBF4E4', borderRadius: 8, padding: '5px 8px', margin: '0 0 10px' }}>
-              🍽 {mealText}{diets > 0 && ` · ${diets} with allergies`}
+            <p title={d.seatingPlanner.mealsChosenByTheGuests} style={{ fontSize: 12, lineHeight: 1.45, color: '#6B5200', background: '#FBF4E4', borderRadius: 8, padding: '5px 8px', margin: '0 0 10px' }}>
+              🍽 {mealText}{diets > 0 && fill(d.seatingPlanner.withAllergies, { diets })}
             </p>
           )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, minHeight: 32, alignContent: 'flex-start' }}>
             {table.guests.map((g) => chip(g, true))}
             {table.guests.length === 0 && (
-              <p style={{ ...muted, fontSize: 12, width: '100%', textAlign: 'center' }}>{picking ? 'Tap to seat here' : 'Drag guests here'}</p>
+              <p style={{ ...muted, fontSize: 12, width: '100%', textAlign: 'center' }}>{picking ? d.seatingPlanner.tapToSeatHere : d.seatingPlanner.dragGuestsHere}</p>
             )}
           </div>
           {picking && table.guests.length > 0 && (
             <button type="button" onClick={(e) => { e.stopPropagation(); onPick(); }} style={{ ...btn, marginTop: 10, justifyContent: 'center', padding: '6px 10px', fontSize: 13, color: ACCENT, borderColor: `${ACCENT}66` }}>
-              Seat here
+              {d.seatingPlanner.seatHere}
             </button>
           )}
         </>

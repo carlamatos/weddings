@@ -9,10 +9,16 @@ import { siteHref } from '@/app/lib/app-url';
 import { readGuestPlan } from '@/app/lib/saved-plans';
 import { fetchPlan } from '@/app/lib/saved-plans-data';
 import { SavedPlanNotice } from '@/app/ui/dashboard/saved-plan-notice';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+import { fill } from '@/app/lib/dash-text/fill';
+export const metadata: Metadata = { title: 'Guest List' };
 
 // Guests → Guest List: on every plan. Sending invitations to the list is on
 // the Invitations screen (Plus).
 export default async function GuestListPage({ params, searchParams }: { params: Promise<{ pageId: string }>; searchParams: Promise<{ saved?: string }> }) {
+  const d = await getDashText();
   const [page, { saved }] = await Promise.all([requireOwnedPage(params), searchParams]);
   const pageId = Number(page.id);
   const [guests, settings, savedPlan] = await Promise.all([fetchGuests(pageId), fetchPageSettings(pageId), fetchPlan(pageId, 'guests')]);
@@ -21,25 +27,24 @@ export default async function GuestListPage({ params, searchParams }: { params: 
   const invited = guests.filter((g) => g.invited_at || g.texted_at).length;
   const waiting = guests.length - invited;
   const linkShared = !!settings[LINK_SHARED_SETTING];
-  const people = (n: number) => `${n} ${n === 1 ? 'guest' : 'guests'}`;
+  const people = (n: number) => (n === 1 ? d.guestList.oneGuest : fill(d.guestList.nGuests, { n }));
   const prompt = guests.length === 0 || waiting === 0 ? null
     : invited === 0 ? (linkShared ? null : {
-      title: `You have ${people(guests.length)} on your list. Ready to send them your invitation?`,
-      text: 'Email it, text it or send it on WhatsApp in a few taps, or simply share your page link.',
+      title: fill(d.guestList.youHaveOnYourList, { v1: people(guests.length) }),
+      text: d.guestList.emailItTextItOr,
     })
     : {
-      title: `${people(waiting)} ${waiting === 1 ? 'hasn’t' : 'haven’t'} received your invitation yet.`,
-      text: 'Send it to them whenever you’re ready.',
+      title: fill(d.guestList.receivedYourInvitationYet, { v1: people(waiting), v2: waiting === 1 ? d.guestList.hasnT : d.guestList.havenT }),
+      text: d.guestList.sendItToThemWhenever,
     };
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <SavedPlanNotice saved={saved} />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Guest List</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.guestList.guestList}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
-          Keep everyone you&rsquo;re inviting in one place — import them from a spreadsheet or your phone&rsquo;s contacts, or add them
-          one by one. Their replies show up on your RSVP screen.
+          {d.guestList.keepEveryoneYouReInviting}
           {' '}<HelpLink guide="add-your-guests" />
         </p>
       </div>
@@ -58,7 +63,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
             href={pagePath(pageId, '/invitations')}
             style={{ padding: '9px 18px', borderRadius: 8, background: '#B6584A', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
-            Send invitations
+            {d.guestList.sendInvitations}
           </Link>
         </div>
       )}
@@ -66,22 +71,22 @@ export default async function GuestListPage({ params, searchParams }: { params: 
       {guestPlan ? (
         <section style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: '16px 20px', marginTop: 28 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', alignItems: 'baseline' }}>
-            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: 0 }}>Your guest count plan</h2>
-            <a href={siteHref(`/guest-count-planner${guestPlan.hash}`)} target="_blank" rel="noopener" style={{ fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>Change it in the planner ↗</a>
+            <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: 0 }}>{d.guestList.yourGuestCountPlan}</h2>
+            <a href={siteHref(`/guest-count-planner${guestPlan.hash}`)} target="_blank" rel="noopener" style={{ fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>{d.guestList.changeItInThePlanner}</a>
           </div>
           <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 12 }}>
-            <PlanStat label="Planned invitations" value={String(guestPlan.invited)} />
-            <PlanStat label="Expected to come" value={`about ${guestPlan.expected}`} sub={`likely ${guestPlan.low} to ${guestPlan.high}`} />
-            {guestPlan.capacity > 0 && <PlanStat label="Venue holds" value={String(guestPlan.capacity)} sub={guestPlan.high > guestPlan.capacity ? 'could be tight' : 'everyone fits'} warn={guestPlan.high > guestPlan.capacity} />}
-            <PlanStat label="On your list now" value={String(guests.reduce((n, g) => n + Math.max(1, g.guests || 1), 0))} sub={`${people(guests.length)}${guests.length ? ', with their parties' : ''}`} />
+            <PlanStat label={d.guestList.plannedInvitations} value={String(guestPlan.invited)} />
+            <PlanStat label={d.guestList.expectedToCome} value={`about ${guestPlan.expected}`} sub={fill(d.guestList.likelyTo, { low: guestPlan.low, high: guestPlan.high })} />
+            {guestPlan.capacity > 0 && <PlanStat label={d.guestList.venueHolds} value={String(guestPlan.capacity)} sub={guestPlan.high > guestPlan.capacity ? d.guestList.couldBeTight : d.guestList.everyoneFits} warn={guestPlan.high > guestPlan.capacity} />}
+            <PlanStat label={d.guestList.onYourListNow} value={String(guests.reduce((n, g) => n + Math.max(1, g.guests || 1), 0))} sub={`${people(guests.length)}${guests.length ? d.guestList.withTheirParties : ''}`} />
           </div>
         </section>
       ) : (
         <PlanningToolTip
           href="/guest-count-planner"
-          title="Not everyone you invite will come."
-          text="Our free guest count planner estimates how many will, and whether they fit your venue."
-          cta="Guest count planner"
+          title={d.guestList.notEveryoneYouInviteWill}
+          text={d.guestList.ourFreeGuestCountPlanner}
+          cta={d.guestList.guestCountPlanner}
         />
       )}
     </div>

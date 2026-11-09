@@ -4,11 +4,15 @@ import { useState, useTransition } from 'react';
 import { updateShareHashtag } from '@/app/lib/actions';
 import { HASHTAG_MAX_LENGTH, normalizeHashtag } from '@/app/lib/hashtag';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 export function HashtagForm({ pageId, initialHashtag, pageUrl }: {
   pageId: number;
   initialHashtag: string;
   pageUrl: string;
 }) {
+  const d = useDashText();
   const [saved, setSaved] = useState(initialHashtag);
   const [draft, setDraft] = useState(initialHashtag);
   const [status, setStatus] = useState<'idle' | 'saved' | 'error'>('idle');
@@ -33,7 +37,7 @@ export function HashtagForm({ pageId, initialHashtag, pageUrl }: {
   return (
     <form onSubmit={save}>
       <label htmlFor="share-hashtag" style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 6 }}>
-        Hashtag <span style={{ fontWeight: 400, color: '#6B6470' }}>(optional)</span>
+        {rich(d.hashtagForm.hashtagOptional, { t0: (s) => <span style={{ fontWeight: 400, color: '#6B6470' }}>{s}</span> })}
       </label>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <div style={{ position: 'relative', flex: '1 1 240px', minWidth: 0 }}>
@@ -53,16 +57,15 @@ export function HashtagForm({ pageId, initialHashtag, pageUrl }: {
           disabled={isPending || !dirty}
           style={{ padding: '10px 18px', borderRadius: 8, border: 'none', background: '#B6584A', color: '#fff', fontSize: 14, fontWeight: 600, cursor: isPending || !dirty ? 'default' : 'pointer', opacity: isPending || !dirty ? 0.6 : 1 }}
         >
-          {isPending ? 'Saving…' : 'Save'}
+          {isPending ? d.hashtagForm.saving : d.hashtagForm.save}
         </button>
       </div>
       <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
-        {cleaned && cleaned !== draft && <>Will be saved as <strong>#{cleaned}</strong> (letters, numbers and _ only). </>}
-        If you leave this empty, the section just says &ldquo;Share this event&rdquo; above the buttons, which share your page link
-        (<span style={{ overflowWrap: 'anywhere' }}>{pageUrl.replace(/^https?:\/\//, '')}</span>).
+        {cleaned && cleaned !== draft && <>{rich(fill(d.hashtagForm.willBeSavedAsLetters, { cleaned }), { t0: (s) => <strong>{s}</strong> })} </>}
+        {d.hashtagForm.ifYouLeaveThisEmpty}<span style={{ overflowWrap: 'anywhere' }}>{pageUrl.replace(/^https?:\/\//, '')}</span>).
       </p>
-      {status === 'saved' && <p role="status" style={{ fontSize: 13, color: '#2F7A4F', margin: '6px 0 0' }}>{saved ? `Saved — guests will see #${saved}.` : 'Saved — the section will say “Share this event”.'}</p>}
-      {status === 'error' && <p role="alert" style={{ fontSize: 13, color: '#B91C1C', margin: '6px 0 0' }}>Couldn’t save the hashtag. Please try again.</p>}
+      {status === 'saved' && <p role="status" style={{ fontSize: 13, color: '#2F7A4F', margin: '6px 0 0' }}>{saved ? fill(d.hashtagForm.savedGuestsWillSee, { saved }) : d.hashtagForm.savedTheSectionWillSay}</p>}
+      {status === 'error' && <p role="alert" style={{ fontSize: 13, color: '#B91C1C', margin: '6px 0 0' }}>{d.hashtagForm.couldnTSaveTheHashtag}</p>}
     </form>
   );
 }

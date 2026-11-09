@@ -35,6 +35,14 @@ export const AUTH_METADATA = {
     title: 'Email confirmed',
     description: 'Your email address is confirmed and your MyGala account is ready. Head to your dashboard to finish your event page and share the link with your guests.',
   },
+  emailVerifiedFr: {
+    title: 'Courriel confirmé',
+    description: 'Votre adresse courriel est confirmée et votre compte MyGala est prêt. Allez à votre tableau de bord pour terminer votre page d’événement et partager le lien avec vos invités.',
+  },
+  emailVerifiedEs: {
+    title: 'Correo confirmado',
+    description: 'Tu correo está confirmado y tu cuenta de MyGala está lista. Ve a tu panel para terminar tu página de evento y compartir el enlace con tus invitados.',
+  },
   verifyEmailPending: {
     title: 'Confirm your email',
     description: 'Confirm your email address to publish your MyGala event page. Open the link we emailed you to finish setting up your account and share your page.',

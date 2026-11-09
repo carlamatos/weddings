@@ -5,8 +5,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Song Requests' };
 
 export default async function SongRequestsPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
 
 
@@ -19,9 +24,9 @@ export default async function SongRequestsPage({ params }: { params: Promise<{ p
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/song-requests" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Song Requests</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.songRequests.songRequests}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
-          Songs requested by your guests. You can delete any entry.
+          {d.songRequests.songsRequestedByYourGuests}
           {' '}<HelpLink guide="take-song-requests" />
         </p>
       </div>

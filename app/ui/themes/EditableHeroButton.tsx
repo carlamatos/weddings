@@ -8,6 +8,8 @@ import EditSheet, { SheetField } from './EditSheet';
 import { editTarget } from './slots';
 import { useThemeLook, type ThemeLook } from './theme-look';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 // Editor version of a top-banner button: clicking it opens the full-screen
 // editor for its label, button colour and text colour.
 export default function EditableHeroButton({
@@ -25,6 +27,7 @@ export default function EditableHeroButton({
   defaultLabel: string;
   initial?: HeroButtonStyle;
 }) {
+  const d = useDashText();
   const [current, setCurrent] = useState<HeroButtonStyle>(initial ?? {});
   const [open, setOpen] = useState(false);
   const [label, setLabel] = useState('');
@@ -50,7 +53,7 @@ export default function EditableHeroButton({
     const ok = await updateHeroButton(pageId, id, { label, bg: isHeroColor(bg) ? bg : '', color: isHeroColor(color) ? color : '' });
     setSaving(false);
     if (!ok) {
-      setError('Couldn’t save the button. Please try again.');
+      setError(d.editableHeroButton.couldnTSaveTheButton);
       return;
     }
     const trimmed = label.replace(/\s+/g, ' ').trim();
@@ -76,20 +79,20 @@ export default function EditableHeroButton({
 
   return (
     // Named by its own label, so two banner buttons can't be mixed up.
-    <span className="theme-editable" style={{ display: 'inline-flex', position: 'relative' }} {...editTarget(startEdit, `Edit “${current.label || defaultLabel}” button`)}>
+    <span className="theme-editable" style={{ display: 'inline-flex', position: 'relative' }} {...editTarget(startEdit, fill(d.editableHeroButton.editButton, { v1: current.label || defaultLabel }))}>
       <a ref={elRef} href={href} className={className} style={heroButtonStyle(shown)} onClick={(e) => { e.preventDefault(); startEdit(); }}>
         {shown.label || defaultLabel}
       </a>
 
       {open && (
         <EditSheet
-          title="Edit this button"
-          intro={`The “${current.label || defaultLabel}” button on your banner. Guests tap it to jump to that part of your page.`}
+          title={d.editableHeroButton.editThisButton}
+          intro={fill(d.editableHeroButton.theButtonOnYourBanner, { v1: current.label || defaultLabel })}
           onClose={cancel}
           onSave={save}
           saving={saving}
         >
-          <SheetField label="Button text" htmlFor={`hb-${id}-label`} hint={`Leave it empty to use the theme’s wording, “${defaultLabel}”.`}>
+          <SheetField label={d.editableHeroButton.buttonText} htmlFor={`hb-${id}-label`} hint={fill(d.editableHeroButton.leaveItEmptyToUse, { defaultLabel })}>
             <input
               id={`hb-${id}-label`}
               className="theme-sheet-input"
@@ -102,10 +105,10 @@ export default function EditableHeroButton({
               autoFocus
             />
           </SheetField>
-          <HeroColorField id={`hb-${id}-bg`} label="Button colour" value={bg} onChange={setBg} current={look?.backgroundHex ?? look?.background} hint="Click the colour square to choose the colour of the button itself." />
-          <HeroColorField id={`hb-${id}-color`} label="Text colour" value={color} onChange={setColor} current={look?.colorHex ?? look?.color} hint="Click the colour square to choose the colour of the words on the button. Pick one that stands out from the button colour." />
+          <HeroColorField id={`hb-${id}-bg`} label={d.editableHeroButton.buttonColour} value={bg} onChange={setBg} current={look?.backgroundHex ?? look?.background} hint={d.editableHeroButton.clickTheColourSquareTo} />
+          <HeroColorField id={`hb-${id}-color`} label={d.editableHeroButton.textColour} value={color} onChange={setColor} current={look?.colorHex ?? look?.color} hint={d.editableHeroButton.clickTheColourSquareTo2} />
           <div className="theme-sheet-field">
-            <p className="theme-sheet-label">Preview</p>
+            <p className="theme-sheet-label">{d.editableHeroButton.preview}</p>
             <div className="theme-sheet-preview theme-sheet-preview--button">
               <span className="theme-sheet-preview-light"><span className="theme-sheet-button" style={previewStyle}>{shown.label || defaultLabel}</span></span>
               <span className="theme-sheet-preview-dark"><span className="theme-sheet-button" style={previewStyle}>{shown.label || defaultLabel}</span></span>

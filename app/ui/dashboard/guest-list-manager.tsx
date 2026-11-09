@@ -20,10 +20,14 @@ import {
 } from '@/app/lib/guest-import';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 // Guests → Guest List (every plan): build the list from a spreadsheet, a
 // contacts file, the phone's contacts or by hand, and edit or remove guests. Sending
 // invitations to them is on the Invitations screen (Plus).
 export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string }) {
+  const d = useDashText();
   const router = useRouter();
   const csvRef = useRef<HTMLInputElement>(null);
   const vcfRef = useRef<HTMLInputElement>(null);
@@ -54,15 +58,15 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setNotice({ kind: 'error', text: data.error ?? 'Could not add guests. Please try again.' });
+        setNotice({ kind: 'error', text: data.error ?? d.guestListManager.couldNotAddGuestsPlease });
         return false;
       }
-      const skipped = data.skipped ? ` ${data.skipped} already on your list or missing a name were skipped.` : '';
-      setNotice({ kind: 'ok', text: `Added ${data.imported} guest${data.imported === 1 ? '' : 's'}.${skipped}` });
+      const skipped = data.skipped ? fill(d.guestListManager.alreadyOnYourListOr, { skipped: data.skipped }) : '';
+      setNotice({ kind: 'ok', text: fill(d.guestListManager.addedGuest, { imported: data.imported, v1: data.imported === 1 ? '' : 's', skipped }) });
       router.refresh();
       return true;
     } catch {
-      setNotice({ kind: 'error', text: 'Could not add guests. Please check your connection.' });
+      setNotice({ kind: 'error', text: d.guestListManager.couldNotAddGuestsPlease2 });
       return false;
     } finally {
       setBusy(false);
@@ -72,11 +76,11 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
   function review(source: string, list: ImportedGuest[]) {
     setNotice(null);
     if (!list.length) {
-      setNotice({ kind: 'error', text: `No guests found in that ${source}. Check that it has a name column.` });
+      setNotice({ kind: 'error', text: fill(d.guestListManager.noGuestsFoundInThat, { source }) });
       return;
     }
     if (list.length > MAX_IMPORT) {
-      setNotice({ kind: 'error', text: `That ${source} has ${list.length} guests — please add up to ${MAX_IMPORT} at a time.` });
+      setNotice({ kind: 'error', text: fill(d.guestListManager.thatHasGuestsPleaseAdd, { source, length: list.length, MAX_IMPORT }) });
       return;
     }
     setPending({ source, guests: list });
@@ -87,7 +91,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
     e.target.value = '';
     if (!file) return;
     const text = await file.text();
-    review(kind === 'csv' ? 'CSV file' : 'contacts file', kind === 'csv' ? guestsFromCsv(text) : guestsFromVCard(text));
+    review(kind === 'csv' ? d.guestListManager.csvFile : d.guestListManager.contactsFile, kind === 'csv' ? guestsFromCsv(text) : guestsFromVCard(text));
   }
 
   async function fromPhone() {
@@ -114,7 +118,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
   }
 
   async function remove(g: Guest) {
-    if (!window.confirm(`Remove ${g.name} from your guest list? Their RSVP, if any, is removed too.`)) return;
+    if (!window.confirm(fill(d.guestListManager.removeFromYourGuestList, { name: g.name }))) return;
     setRemoving(g.id);
     let ok = false;
     try {
@@ -124,7 +128,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
     }
     setRemoving(null);
     if (ok) router.refresh();
-    else setNotice({ kind: 'error', text: 'Could not remove that guest.' });
+    else setNotice({ kind: 'error', text: d.guestListManager.couldNotRemoveThatGuest });
   }
 
   function startEdit(g: Guest) {
@@ -134,7 +138,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
 
   async function saveEdit() {
     if (!editing) return;
-    if (!editing.name.trim()) { setEditError('Please enter a name.'); return; }
+    if (!editing.name.trim()) { setEditError(d.guestListManager.pleaseEnterAName); return; }
     setSaving(true);
     setEditError('');
     try {
@@ -143,7 +147,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
       setEditing(null);
       router.refresh();
     } catch {
-      setEditError('Could not save that guest. Please check your connection.');
+      setEditError(d.guestListManager.couldNotSaveThatGuest);
     } finally {
       setSaving(false);
     }
@@ -153,47 +157,46 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
 
   return (
     <section style={card}>
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Add guests</h2>
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.guestListManager.addGuests}</h2>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
-        Add the people you&rsquo;re inviting. They appear as <strong>Invited</strong> on your RSVP screen and switch to Attending or
-        Declining when they reply on your page with the same email.
+        {rich(d.guestListManager.addThePeopleYouRe, { t0: (s) => <strong>{s}</strong> })}
       </p>
 
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 10 }}>
-        {phonePicker && <button type="button" style={primary} onClick={fromPhone} disabled={busy}>📱 Choose from my phone’s contacts</button>}
-        <button type="button" style={phonePicker ? btn : primary} onClick={() => csvRef.current?.click()} disabled={busy}>⬆ Upload a CSV / spreadsheet</button>
-        <button type="button" style={btn} onClick={() => vcfRef.current?.click()} disabled={busy}>⬆ Upload contacts (.vcf)</button>
-        <button type="button" style={btn} onClick={downloadSample}>↓ Download sample CSV</button>
+        {phonePicker && <button type="button" style={primary} onClick={fromPhone} disabled={busy}>{d.guestListManager.chooseFromMyPhoneS}</button>}
+        <button type="button" style={phonePicker ? btn : primary} onClick={() => csvRef.current?.click()} disabled={busy}>{d.guestListManager.uploadACsvSpreadsheet}</button>
+        <button type="button" style={btn} onClick={() => vcfRef.current?.click()} disabled={busy}>{d.guestListManager.uploadContactsVcf}</button>
+        <button type="button" style={btn} onClick={downloadSample}>{d.guestListManager.downloadSampleCsv}</button>
         <input ref={csvRef} type="file" accept=".csv,text/csv,.txt" style={{ display: 'none' }} onChange={(e) => onFile(e, 'csv')} />
         <input ref={vcfRef} type="file" accept=".vcf,text/vcard,text/x-vcard" style={{ display: 'none' }} onChange={(e) => onFile(e, 'vcf')} />
       </div>
 
       <details style={{ fontSize: 13, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
-        <summary style={{ cursor: 'pointer', color: '#241F2B', fontWeight: 600 }}>How do I bring in contacts from my phone?</summary>
+        <summary style={{ cursor: 'pointer', color: '#241F2B', fontWeight: 600 }}>{d.guestListManager.howDoIBringIn}</summary>
         <ul style={{ margin: '8px 0 0', paddingLeft: 20 }}>
-          <li><strong>Android (Chrome):</strong> open this page on your phone and tap “Choose from my phone’s contacts”.</li>
-          <li><strong>iPhone:</strong> in the Contacts app, tap <em>Lists</em>, touch and hold a list (for example one you made for this event) and choose <em>Export</em> → <em>Save to Files</em>. For one person, open the contact and tap <em>Share Contact</em>. Then tap “Upload contacts (.vcf)” here and pick the file.</li>
-          <li><strong>Google Contacts:</strong> select people → <em>Export</em> → vCard or Google CSV, then upload the file.</li>
-          <li><strong>Outlook / Excel:</strong> save as CSV with the columns Name, Email, Guests, Phone{isPaid ? ' and, optionally, Invitation Notes' : ''} (see the sample). Guests left blank count as 1.</li>
+          <li>{rich(d.guestListManager.androidChromeOpenThisPage, { t0: (s) => <strong>{s}</strong> })}</li>
+          <li>{rich(d.guestListManager.iphoneInTheContactsApp, { t0: (s) => <strong>{s}</strong>, t1: (s) => <em>{s}</em>, t2: (s) => <em>{s}</em>, t3: (s) => <em>{s}</em>, t4: (s) => <em>{s}</em> })}</li>
+          <li>{rich(d.guestListManager.googleContactsSelectPeopleExport, { t0: (s) => <strong>{s}</strong>, t1: (s) => <em>{s}</em> })}</li>
+          <li>{rich(d.guestListManager.outlookExcelSaveAsCsv, { t0: (s) => <strong>{s}</strong> })}{isPaid ? d.guestListManager.andOptionallyInvitationNotes : ''} {d.guestListManager.seeTheSampleGuestsLeft}</li>
         </ul>
       </details>
 
       {pending && (
         <div style={{ border: '1px solid #E8D9A8', background: '#FFFBF0', borderRadius: 10, padding: 14, marginBottom: 16 }}>
           <p style={{ margin: '0 0 8px', fontSize: 14, color: '#241F2B' }}>
-            Found <strong>{pending.guests.length}</strong> guest{pending.guests.length === 1 ? '' : 's'} in your {pending.source}:
+            {rich(fill(d.guestListManager.foundGuest, { length: pending.guests.length }), { t0: (s) => <strong>{s}</strong> })}{pending.guests.length === 1 ? '' : 's'} {fill(d.guestListManager.inYour, { source: pending.source })}
           </p>
           <ul style={{ margin: '0 0 12px', paddingLeft: 20, fontSize: 13, color: '#6B6470' }}>
             {pending.guests.slice(0, 5).map((g, i) => (
-              <li key={i}>{g.name}{g.email ? ` · ${g.email}` : ''}{g.guests > 1 ? ` · party of ${g.guests}` : ''}{g.phone ? ` · ${g.phone}` : ''}{isPaid && g.note ? ' · 📝 note' : ''}</li>
+              <li key={i}>{g.name}{g.email ? ` · ${g.email}` : ''}{g.guests > 1 ? fill(d.guestListManager.partyOf, { guests: g.guests }) : ''}{g.phone ? ` · ${g.phone}` : ''}{isPaid && g.note ? d.guestListManager.note : ''}</li>
             ))}
-            {pending.guests.length > 5 && <li>…and {pending.guests.length - 5} more</li>}
+            {pending.guests.length > 5 && <li>{d.guestListManager.and} {pending.guests.length - 5} {d.guestListManager.more}</li>}
           </ul>
           <div style={{ display: 'flex', gap: 8 }}>
             <button type="button" style={primary} disabled={busy} onClick={async () => { if (await send(pending.guests)) setPending(null); }}>
-              {busy ? 'Adding…' : `Add ${pending.guests.length} guest${pending.guests.length === 1 ? '' : 's'}`}
+              {busy ? d.guestListManager.adding : fill(d.guestListManager.addGuest, { length: pending.guests.length, v1: pending.guests.length === 1 ? '' : 's' })}
             </button>
-            <button type="button" style={btn} disabled={busy} onClick={() => setPending(null)}>Cancel</button>
+            <button type="button" style={btn} disabled={busy} onClick={() => setPending(null)}>{d.guestListManager.cancel}</button>
           </div>
         </div>
       )}
@@ -201,15 +204,15 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
       {notice && <p role="status" style={{ fontSize: 14, margin: '0 0 14px', color: notice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{notice.text}</p>}
 
       <form onSubmit={addOne} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 2fr) minmax(140px, 2fr) 80px minmax(110px, 1.5fr) auto', gap: 8, marginBottom: 22 }} className="guest-add-form">
-        <input aria-label="Name" placeholder="Name" style={input} value={form.name} maxLength={120} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-        <input aria-label="Email" placeholder="Email" type="email" style={input} value={form.email} maxLength={254} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <input aria-label="Number of guests" title="Number of guests" type="number" min={1} max={MAX_PARTY_SIZE} style={input} value={form.guests} onChange={(e) => setForm({ ...form, guests: e.target.value })} />
-        <input aria-label="Phone" placeholder="Phone" type="tel" style={input} value={form.phone} maxLength={40} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
-        <button type="submit" style={btn} disabled={busy || !form.name.trim()}>+ Add guest</button>
+        <input aria-label={d.guestListManager.name} placeholder={d.guestListManager.name} style={input} value={form.name} maxLength={120} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
+        <input aria-label={d.guestListManager.email} placeholder={d.guestListManager.email} type="email" style={input} value={form.email} maxLength={254} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <input aria-label={d.guestListManager.numberOfGuests} title={d.guestListManager.numberOfGuests} type="number" min={1} max={MAX_PARTY_SIZE} style={input} value={form.guests} onChange={(e) => setForm({ ...form, guests: e.target.value })} />
+        <input aria-label={d.guestListManager.phone} placeholder={d.guestListManager.phone} type="tel" style={input} value={form.phone} maxLength={40} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+        <button type="submit" style={btn} disabled={busy || !form.name.trim()}>{d.guestListManager.addGuest2}</button>
         {isPaid && (
           <textarea
-            aria-label="Invitation notes"
-            placeholder="Invitation notes (optional) — a personal message added to this guest's invitation"
+            aria-label={d.guestListManager.invitationNotes}
+            placeholder={d.guestListManager.invitationNotesOptionalAPersonal}
             rows={2}
             maxLength={INVITATION_NOTE_MAX}
             style={{ ...input, gridColumn: '1 / -1', resize: 'vertical', lineHeight: 1.5 }}
@@ -222,23 +225,23 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
 
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 10 }}>
         <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>
-          Your guests {guests.length > 0 && <span style={{ fontSize: 14, fontWeight: 500, color: '#6B6470' }}>· {guests.length} {guests.length === 1 ? 'entry' : 'entries'}, {totalPeople} {totalPeople === 1 ? 'person' : 'people'}</span>}
+          {d.guestListManager.yourGuests} {guests.length > 0 && <span style={{ fontSize: 14, fontWeight: 500, color: '#6B6470' }}>· {guests.length} {guests.length === 1 ? 'entry' : 'entries'}, {totalPeople} {totalPeople === 1 ? 'person' : 'people'}</span>}
         </h2>
         {guests.length > 0 && (
           <Link href={invitationsHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>
-            {isPaid ? 'Send invitations →' : 'Send invitations by email, text or WhatsApp with Plus →'}
+            {isPaid ? d.guestListManager.sendInvitations : d.guestListManager.sendInvitationsByEmailText}
           </Link>
         )}
       </div>
 
       {guests.length === 0 ? (
-        <p style={{ fontSize: 14, color: '#9A8F8C', margin: 0 }}>Your guest list is empty.</p>
+        <p style={{ fontSize: 14, color: '#9A8F8C', margin: 0 }}>{d.guestListManager.yourGuestListIsEmpty}</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
             <thead>
               <tr>
-                {['Name', 'Email', 'Phone', 'Guests', 'Status', ''].map((h) => <th key={h} style={headCell}>{h}</th>)}
+                {[d.guestListManager.name, d.guestListManager.email, d.guestListManager.phone, d.guestListManager.guests, d.guestListManager.status, ''].map((h) => <th key={h} style={headCell}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -251,21 +254,21 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                   };
                   return (
                     <tr key={g.id} style={{ background: '#FBF8F5' }}>
-                      <td style={cell}><input aria-label="Name" style={{ ...input, width: '100%' }} value={editing.name} maxLength={120} onChange={(e) => set({ name: e.target.value })} onKeyDown={onKey} autoFocus /></td>
-                      <td style={cell}><input aria-label="Email" type="email" style={{ ...input, width: '100%' }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /></td>
-                      <td style={cell}><input aria-label="Phone" type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
-                      <td style={cell}><input aria-label="Number of guests" type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}><input aria-label={d.guestListManager.name} style={{ ...input, width: '100%' }} value={editing.name} maxLength={120} onChange={(e) => set({ name: e.target.value })} onKeyDown={onKey} autoFocus /></td>
+                      <td style={cell}><input aria-label={d.guestListManager.email} type="email" style={{ ...input, width: '100%' }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}><input aria-label={d.guestListManager.phone} type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell}><input aria-label={d.guestListManager.numberOfGuests} type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
                       <td style={cell}>
-                        <select aria-label="Status" style={input} value={editing.status} onChange={(e) => set({ status: e.target.value as Guest['status'] })} onKeyDown={onKey}>
-                          <option value="invited">Invited</option>
-                          <option value="attending">Attending</option>
-                          <option value="not_attending">Declining</option>
+                        <select aria-label={d.guestListManager.status} style={input} value={editing.status} onChange={(e) => set({ status: e.target.value as Guest['status'] })} onKeyDown={onKey}>
+                          <option value="invited">{d.guestListManager.invited}</option>
+                          <option value="attending">{d.guestListManager.attending}</option>
+                          <option value="not_attending">{d.guestListManager.declining}</option>
                         </select>
                       </td>
                       <td style={{ ...cell, textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: 6 }}>
-                          <button type="button" style={{ ...primary, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={saveEdit}>{saving ? 'Saving…' : 'Save'}</button>
-                          <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={() => setEditing(null)}>Cancel</button>
+                          <button type="button" style={{ ...primary, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={saveEdit}>{saving ? d.guestListManager.saving : d.guestListManager.save}</button>
+                          <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={() => setEditing(null)}>{d.guestListManager.cancel}</button>
                         </div>
                         {editError && <p role="alert" style={{ margin: '6px 0 0', fontSize: 12, color: '#B91C1C', textAlign: 'right', maxWidth: 240, marginLeft: 'auto' }}>{editError}</p>}
                       </td>
@@ -283,10 +286,10 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                     <td style={{ ...cell, textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: 6 }}>
                         <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => startEdit(g)}>
-                          Edit
+                          {d.guestListManager.edit}
                         </button>
                         <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => remove(g)}>
-                          {removing === g.id ? 'Removing…' : 'Remove'}
+                          {removing === g.id ? d.guestListManager.removing : d.guestListManager.remove}
                         </button>
                       </div>
                     </td>

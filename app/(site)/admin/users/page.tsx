@@ -10,6 +10,9 @@ import TrashUserButton from '@/app/ui/admin/trash-user-button';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import { siteHref } from '@/app/lib/app-url';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Users' };
 
 const badge: React.CSSProperties = {
   display: 'inline-block', margin: '4px 0 2px', padding: '1px 8px', borderRadius: 999, fontSize: 11, fontWeight: 600,
