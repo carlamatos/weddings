@@ -2,6 +2,7 @@ import { sql } from '@vercel/postgres';
 import { sendMail, wrap, button, escHtml } from './mail';
 import { siteUrl } from './site-url';
 import { COMPANY } from './company';
+import { personName, type PartyMeal } from './rsvp-meals';
 
 // Emails the event organizer (the page owner's account address) each time a
 // guest sends an RSVP. On by default; turned off on the RSVP screen.
@@ -18,6 +19,7 @@ export type RsvpSubmission = {
   status: 'attending' | 'not_attending';
   guests: number;
   message: string | null;
+  meals?: PartyMeal[] | null; // when the host asks for meal choices
   updated: boolean; // the guest had already replied or been invited
 };
 
@@ -42,6 +44,7 @@ export function rsvpNotificationHtml(pageId: number, heading: string, ownerName:
       ${attending ? row('Guests', String(r.guests)) : ''}
       ${row('Email', `<a href="mailto:${escHtml(r.email)}" style="color: #B6584A;">${escHtml(r.email)}</a>`)}
       ${r.phone ? row('Phone', escHtml(r.phone)) : ''}
+      ${attending && r.meals?.length ? row('Meals', r.meals.map((m, i) => `${escHtml(personName(r.name, r.meals!, i))}: ${m.meal ? escHtml(m.meal) : '<span style="color: #9A8F8C;">no choice</span>'}${m.diet ? ` <span style="color: #8B3A2A;">(${escHtml(m.diet)})</span>` : ''}`).join('<br>')) : ''}
       ${r.message ? row('Message', `<span style="white-space: pre-wrap;">${escHtml(r.message)}</span>`) : ''}
     </table>
     ${button(`${site}/dashboard/pages/${pageId}/rsvp`, 'See all RSVPs')}

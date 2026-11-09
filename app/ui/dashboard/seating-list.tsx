@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react';
 import { CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/20/solid';
 import { cleanTableName, parseSeatingPaste, sameName, nameMatches, sortTables, SEATING_TABLE_MAX } from '@/app/lib/seating';
 import type { Guest } from '@/app/lib/definitions';
+import type { PartyMeal } from '@/app/lib/rsvp-meals';
 import { btn, primary, input, STATUS, statusPill } from './guest-ui';
 
-export type SeatGuest = Pick<Guest, 'id' | 'name' | 'status' | 'guests'> & { table: string };
+export type SeatGuest = Pick<Guest, 'id' | 'name' | 'status' | 'guests'> & { table: string; meals?: PartyMeal[] };
 type Filter = 'all' | 'unseated' | { table: string };
 
 const muted: React.CSSProperties = { fontSize: 13, color: '#6B6470', margin: 0, lineHeight: 1.6 };

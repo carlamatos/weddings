@@ -10,11 +10,13 @@ export function ZoomableScreenshot({ shot }: { shot: Screenshot }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [opened, setOpened] = useState(false); // the full-size image loads on first open
   const close = () => dialog.current?.close();
+  // Tall shots (a form, a long list) are kept to about 760px high on the page.
+  const maxWidth = Math.min(1120, Math.round((760 * shot.width) / shot.height));
 
   return (
-    <figure className="mk-shot">
+    <figure className="mk-shot" style={maxWidth < 1120 ? { maxWidth, marginLeft: 'auto', marginRight: 'auto' } : undefined}>
       <button type="button" className="mk-shot-open" onClick={() => { setOpened(true); dialog.current?.showModal(); }} aria-label={`Enlarge: ${shot.alt}`}>
-        <Image src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} sizes="(max-width: 1180px) 100vw, 1120px" />
+        <Image src={shot.src} alt={shot.alt} width={shot.width} height={shot.height} sizes={`(max-width: ${maxWidth + 60}px) 100vw, ${maxWidth}px`} />
         <span className="mk-shot-zoom" aria-hidden="true">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3M11 8v6M8 11h6" /></svg>
           Click to enlarge

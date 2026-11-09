@@ -1245,6 +1245,10 @@
 .marketing-page .hc-pager-next { text-align: right; }
 .marketing-page .hc-pager-next small::after { content: ' →'; }
 .marketing-page .hc-back { margin-top: 24px; font-size: 15px; color: var(--ink-soft); }
+/* Links in the guide text: rose and underlined so they stand out from the
+   words around them (buttons and guide cards keep their own look). */
+.marketing-page .hc-article a:not(.btn-primary), .marketing-page .hc-back a, .marketing-page .hc-more a, .marketing-page .hc-side-empty a { color: var(--rose); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: rgba(182, 88, 74, 0.45); }
+.marketing-page .hc-article a:not(.btn-primary):hover, .marketing-page .hc-back a:hover, .marketing-page .hc-more a:hover, .marketing-page .hc-side-empty a:hover { text-decoration-color: currentColor; }
 
 @media (max-width: 900px) {
   .marketing-page .hc-layout { grid-template-columns: 1fr; gap: 20px; padding-top: 20px; }

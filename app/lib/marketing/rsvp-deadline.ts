@@ -115,3 +115,15 @@ export function rsvpCalendar(steps: RsvpStep[]): string {
   lines.push('END:VCALENDAR');
   return lines.join('\r\n');
 }
+
+// Shared links and saved plans: #rsvp=2027-06-12.wedding.14.1
+export function rsvpHash(eventDate: string, type: RsvpEventType, finalCountDays: number, seating: boolean): string {
+  return `#rsvp=${eventDate}.${type}.${finalCountDays}.${seating ? 1 : 0}`;
+}
+
+export function parseRsvpHash(hash: string): { eventDate: string; type: RsvpEventType; finalCountDays: number; seating: boolean } | null {
+  const m = /^#rsvp=(\d{4}-\d{2}-\d{2})\.([a-z]+)\.(\d{1,2})\.([01])$/.exec(hash);
+  const type = m && RSVP_EVENT_TYPES.find((t) => t.id === m[2]);
+  if (!m || !type || !isDate(m[1])) return null;
+  return { eventDate: m[1], type: type.id, finalCountDays: Math.max(1, Math.min(60, Number(m[3]))), seating: m[4] === '1' };
+}

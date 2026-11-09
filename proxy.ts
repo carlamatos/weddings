@@ -35,10 +35,14 @@ export default function proxy(req: NextRequest) {
     !host.includes(rootDomain);
 
   // Custom domain pages are public — bypass NextAuth entirely. /table is
-  // Find Your Table, which keeps its ?name= search.
+  // Find Your Table, which keeps its ?name= search; /slideshow is the live
+  // photo slideshow.
   if (isCustomDomain) {
     if (req.nextUrl.pathname === '/table') {
       return NextResponse.rewrite(new URL(`/site/${host}/table${req.nextUrl.search}`, req.url));
+    }
+    if (req.nextUrl.pathname === '/slideshow') {
+      return NextResponse.rewrite(new URL(`/site/${host}/slideshow`, req.url));
     }
     return NextResponse.rewrite(new URL(`/site/${host}`, req.url));
   }

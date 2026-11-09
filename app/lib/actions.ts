@@ -2,6 +2,7 @@
 
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
+import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
 import { normalizeHashtag } from './hashtag';
@@ -428,6 +429,8 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'invitation_include_password') return value === 'true' || value === 'false';
   if (name === 'rsvp_notify_owner') return value === 'true' || value === 'false';
   if (name === 'rsvp_guest_list_only') return value === 'true' || value === 'false';
+  if (name === MEALS_ON_SETTING) return value === 'true' || value === 'false';
+  if (name === MEAL_OPTIONS_SETTING) return parseMealOptions(value) !== null && value.length <= 1000;
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);
   if (sectionKeyFromColorSetting(name)) return value === '' || isHeroColor(value);
   if (name === 'story_text_color') return value === '' || isHeroColor(value);

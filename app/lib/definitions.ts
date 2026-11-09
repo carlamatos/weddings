@@ -91,6 +91,7 @@ export type Guest = {
   texted_at: string | null; // last time the host opened a pre-filled text to this guest
   texted_via: 'sms' | 'whatsapp' | null;
   seating_table?: string | null; // Find Your Table (Plus); the column is added on first use (seating-data.ts)
+  meals?: unknown; // meal choices per person (rsvp-meals.ts); JSONB, added on first use (rsvp-meals-data.ts)
 };
 
 export type Slugs = {

@@ -20,6 +20,7 @@ const SECTIONS: Record<string, string> = {
   '/guest-list': 'Guest List', '/rsvp': 'RSVP', '/guest-photos': 'Guest Photos', '/livestream': 'Live Stream', '/song-requests': 'Song Requests',
   '/reminders': 'Reminders', '/custom-sections': 'Custom Sections', '/sponsors': 'Sponsors', '/registry': 'Registry',
   '/domain': 'Domain', '/share': 'Share', '/event-program': 'Event Program', '/potluck': 'Potluck', '/gift-exchange': 'Gift Exchange', '/seating': 'Find Your Table', '/password': 'Password Protection', '/invitations': 'Invitations',
+  '/slideshow': 'Photo Slideshow', '/budget': 'Budget', '/timeline': 'Timeline',
 };
 
 const today = () => new Date().toISOString().slice(0, 10);

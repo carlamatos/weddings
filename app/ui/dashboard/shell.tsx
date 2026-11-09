@@ -13,6 +13,7 @@ import { PlusProvider } from '@/app/ui/dashboard/plus-gate';
 import PublishButton from '@/app/ui/dashboard/publish-button';
 import { greatVibes } from '@/app/ui/fonts';
 import { siteHref } from '@/app/lib/app-url';
+import { PendingPlanBanner } from '@/app/ui/dashboard/pending-plan';
 
 // The dashboard chrome (sidebar, top bar, deactivation/lapsed-plan notices).
 // pageId: undefined = no page in the URL (setup, page list); a number = that
@@ -129,6 +130,7 @@ export default async function DashboardShell({
               <ExtendButton pageId={Number(page.id)} />
             </div>
           )}
+          {page && <PendingPlanBanner pageId={Number(page.id)} />}
           {children}
         </div>
       </div>

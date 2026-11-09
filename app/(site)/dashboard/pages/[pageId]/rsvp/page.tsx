@@ -13,6 +13,9 @@ import { auth } from '@/auth';
 import { LocalDate } from '@/app/ui/dashboard/local-date';
 import { PlanningToolTip, rsvpCalculatorHref } from '@/app/ui/dashboard/planning-tool-tip';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import { RsvpMealsOption } from '@/app/ui/dashboard/rsvp-meals-option';
+import { MealSummaryCard, type MealRow } from '@/app/ui/dashboard/meal-summary';
+import { defaultMeals, MEAL_OPTIONS_SETTING, mealOptionsFromSettings, parseMealOptions, personName, readPartyMeals, summarizeMeals } from '@/app/lib/rsvp-meals';
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
   const page = await requireOwnedPage(params);
@@ -27,6 +30,18 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
   const declining = guests.filter((g) => g.status === 'not_attending');
   const invited   = guests.filter((g) => g.status === 'invited');
   const totalGuests = attending.reduce((sum, g) => sum + (g.guests || 1), 0);
+
+  // Meal choices (when the host asks for them, or anyone chose one before).
+  const mealOptions = mealOptionsFromSettings(settings, page.language);
+  const partyMeals = new Map(guests.map((g) => [g.id, readPartyMeals(g.meals)]));
+  const anyMeals = [...partyMeals.values()].some((rows) => rows.some((r) => r.meal || r.diet));
+  const showMeals = !!mealOptions || anyMeals;
+  const mealGuests = guests.map((g) => ({ name: g.name, status: g.status, guests: g.guests, meals: partyMeals.get(g.id) ?? [], table: g.seating_table ?? '' }));
+  const mealRows: MealRow[] = mealGuests.filter((g) => g.status === 'attending').flatMap((g) =>
+    Array.from({ length: Math.max(1, g.guests || 1) }, (_, i) => ({
+      guest: g.name, person: personName(g.name, g.meals, i), meal: g.meals[i]?.meal ?? '', diet: g.meals[i]?.diet ?? '', table: g.table,
+    })),
+  );
 
   return (
     <div>
@@ -52,6 +67,12 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         guestListHref={pagePath(pageId, '/guest-list')}
       />
 
+      <RsvpMealsOption
+        pageId={pageId}
+        initialOn={!!mealOptions}
+        initialOptions={parseMealOptions(settings[MEAL_OPTIONS_SETTING]) ?? defaultMeals(page.language)}
+      />
+
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
         <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />
@@ -59,6 +80,10 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         <StatCard label="Invited"         value={invited.length}   accent="#4A5296" />
         <StatCard label="Total responses" value={attending.length + declining.length} accent="#3F4A45" />
       </div>
+
+      {showMeals && (
+        <MealSummaryCard summary={summarizeMeals(mealGuests, mealOptions ?? [])} rows={mealRows} heading={page.heading || ''} />
+      )}
 
       <RsvpActions pageId={pageId} guests={guests} />
 
@@ -72,7 +97,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'system-ui', fontSize: 14 }}>
             <thead>
               <tr style={{ background: '#FAF9F7', borderBottom: '1px solid #EDE8E3' }}>
-                {['Name', 'Email', 'Phone', 'Status', 'Guests', 'Updates', 'Note', 'Date'].map((h) => (
+                {['Name', 'Email', 'Phone', 'Status', 'Guests', ...(showMeals ? ['Meals'] : []), 'Updates', 'Note', 'Date'].map((h) => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, fontSize: 12, letterSpacing: 0.5, color: '#6B6470', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -89,6 +114,11 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
                   <td style={{ padding: '14px 16px', textAlign: 'center', color: '#241F2B' }}>
                     {g.status === 'not_attending' ? '—' : g.guests || 1}
                   </td>
+                  {showMeals && (
+                    <td style={{ padding: '14px 16px', color: '#241F2B', fontSize: 13, minWidth: 180 }}>
+                      <MealsCell guest={g.name} status={g.status} size={g.guests} rows={partyMeals.get(g.id) ?? []} />
+                    </td>
+                  )}
                   <td style={{ padding: '14px 16px', textAlign: 'center', color: g.receive_updates ? '#3D6B46' : '#9A8F8C' }}>
                     {g.status !== 'invited' ? (g.receive_updates ? '✓' : '—') : '—'}
                   </td>
@@ -111,6 +141,24 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         text="Our free calculator works out your RSVP deadline from your event date, plus when to send invitations and reminders."
         cta="RSVP deadline calculator"
       />
+    </div>
+  );
+}
+
+// One guest's party in the RSVP table: each person's meal and allergies.
+function MealsCell({ guest, status, size, rows }: { guest: string; status: string; size: number; rows: ReturnType<typeof readPartyMeals> }) {
+  if (status !== 'attending') return <span style={{ color: '#9A8F8C' }}>—</span>;
+  const people = Math.max(1, size || 1);
+  if (!rows.some((r) => r.meal || r.diet)) return <span style={{ color: '#9A8F8C' }}>No choice yet</span>;
+  return (
+    <div style={{ display: 'grid', gap: 3 }}>
+      {Array.from({ length: people }, (_, i) => (
+        <div key={i}>
+          {people > 1 && <span style={{ color: '#6B6470' }}>{personName(guest, rows, i)}: </span>}
+          {rows[i]?.meal || <span style={{ color: '#9A8F8C' }}>no choice</span>}
+          {rows[i]?.diet && <span style={{ display: 'block', color: '#8B3A2A', fontSize: 12 }}>{rows[i].diet}</span>}
+        </div>
+      ))}
     </div>
   );
 }

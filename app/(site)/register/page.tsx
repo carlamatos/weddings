@@ -4,6 +4,7 @@ import Link from 'next/link';
 import '@/app/ui/auth.css';
 import { siteHref } from '@/app/lib/app-url';
 import { parseStartParams } from '@/app/lib/start-intent';
+import { parsePlanLink } from '@/app/lib/saved-plans';
 import type { Metadata } from 'next';
 import { registerMetadata } from '@/app/lib/auth-metadata';
 
@@ -12,18 +13,19 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   return registerMetadata(params.lang === 'fr' || params.lang === 'es' ? params.lang : 'en', parseStartParams(params.start, params.theme, params.occasion));
 }
 
-export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string; name?: string; date?: string }> }) {
+export default async function RegisterPage({ searchParams }: { searchParams: Promise<{ lang?: string; start?: string; theme?: string; occasion?: string; name?: string; date?: string; plan?: string }> }) {
   const params = await searchParams;
   const lang = params.lang === 'fr' || params.lang === 'es' ? params.lang : 'en';
   // From a landing page: start with an invitation or a website, maybe in a
   // chosen theme (and, from /design-your-invitation, the event's name and date).
   const start = parseStartParams(params.start, params.theme, params.occasion, { name: params.name, date: params.date });
+  // From a free planning tool's "Save to my MyGala" (app/lib/saved-plans.ts).
   return (
     <main className={`auth-page ${greatVibes.variable}`}>
       <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
-      <RegisterForm lang={lang} start={start} />
+      <RegisterForm lang={lang} start={start} plan={parsePlanLink(params.plan)} />
     </main>
   );
 }

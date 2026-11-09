@@ -9,6 +9,8 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PhotoQrCard } from '@/app/ui/dashboard/photo-qr-card';
 import { GuestPhotoAllowance } from '@/app/ui/dashboard/guest-photo-allowance';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
+import { pagePath } from '@/app/lib/dashboard';
 
 // Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Plus raises the
 // limit. Free pages start with the section off.
@@ -50,6 +52,14 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
         initialPhotos={photos}
         initialHasMore={hasMore}
         userPageId={String(userPage.id)}
+      />
+
+      <PlanningToolTip
+        href={pagePath(userPage.id, '/slideshow')}
+        title="Put them on the big screen."
+        text="The photo slideshow plays your guests’ photos on a TV or projector at your event, with new ones appearing as they’re shared."
+        cta="Photo Slideshow"
+        internal
       />
     </div>
   );

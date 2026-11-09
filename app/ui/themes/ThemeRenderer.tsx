@@ -9,20 +9,22 @@ interface ThemeRendererProps extends ThemeProps {
   themeSlug?: string;
   // Only guests on the guest list can RSVP (the form says so).
   rsvpGuestListOnly?: boolean;
+  // The meals guests choose from on the RSVP, or null when the host doesn't ask.
+  rsvpMeals?: string[] | null;
   // The page's own section backgrounds (app/lib/section-background.ts).
   sectionBackgrounds?: SectionBgValues;
   // The owner's colour for the story text (#rrggbb); unset = the theme's.
   storyTextColor?: string;
 }
 
-export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, sectionBackgrounds, storyTextColor, ...props }: ThemeRendererProps) {
+export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rsvpMeals = null, sectionBackgrounds, storyTextColor, ...props }: ThemeRendererProps) {
   const { Page } = getTheme(themeSlug);
   const hasBackgrounds = !!sectionBackgrounds && Object.keys(sectionBackgrounds).length > 0;
   // On the guests' page the backgrounds go on as the page is read (before
   // it's first painted), not after it loads; the editor does it in React.
   const early = hasBackgrounds && !props.sectionTextPageId;
   return (
-    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly}>
+    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals}>
       {/* The story text's colour: every theme marks its story paragraph (the editor colours its own). */}
       {storyTextColor && /^#[0-9a-f]{6}$/i.test(storyTextColor) && !props.sectionTextPageId && (
         <style>{`[data-mg-theme] [data-story-text]{color:${storyTextColor}!important;-webkit-text-fill-color:${storyTextColor}!important}`}</style>

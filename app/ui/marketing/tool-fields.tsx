@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { appHref } from '@/app/lib/app-url';
+import { planParam } from '@/app/lib/saved-plans';
 
 // Small pieces shared by the free planning tools (budget calculator, RSVP
 // deadline calculator, guest count planner).
@@ -49,5 +51,26 @@ export function CopyLinkButton({ hash, label = 'Copy link to share' }: { hash: s
       // Clipboard blocked: the address bar now holds the link.
     }
   }
-  return <button type="button" className="pt-btn pt-btn--main" onClick={copy}>{copied ? 'Link copied!' : label}</button>;
+  return <button type="button" className="pt-btn" onClick={copy}>{copied ? 'Link copied!' : label}</button>;
+}
+
+// "Save to my MyGala": keeps this plan on the visitor's event page. Signed
+// in, it opens the save screen in the dashboard; otherwise sign-up, which
+// keeps the plan until they reach the dashboard (saved-plans.ts).
+export function SavePlanButton({ hash, what }: { hash: string; what: string }) {
+  const [busy, setBusy] = useState(false);
+  async function save() {
+    setBusy(true);
+    const signedIn = await fetch('/api/auth/session', { cache: 'no-store' })
+      .then((r) => r.json())
+      .then((s: { user?: unknown } | null) => !!s?.user)
+      .catch(() => false);
+    const plan = planParam(hash);
+    window.location.href = appHref(signedIn ? `/dashboard/save-plan?plan=${plan}` : `/register?plan=${plan}`);
+  }
+  return (
+    <button type="button" className="pt-btn pt-btn--main ft-save" onClick={save} disabled={busy} title={`Keep this ${what} in your free MyGala account`}>
+      {busy ? 'Opening…' : 'Save to my MyGala'}
+    </button>
+  );
 }

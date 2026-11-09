@@ -9,6 +9,7 @@ import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { QrSignCard } from '@/app/ui/dashboard/photo-qr-card';
 import { SeatingPlanner } from '@/app/ui/dashboard/seating-planner';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import { readPartyMeals } from '@/app/lib/rsvp-meals';
 
 // On the day → Find Your Table (Plus): seat the guest list, then put the QR
 // sign at the entrance. Guests type their name at <page>/table and see their
@@ -53,7 +54,7 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
         pageId={pageId}
         initialTables={parseSeatingTables(settings[SEATING_TABLES_SETTING])}
         guestListHref={pagePath(pageId, '/guest-list')}
-        guests={guests.map((g) => ({ id: g.id, name: g.name, status: g.status, guests: g.guests, table: g.seating_table ?? '' }))}
+        guests={guests.map((g) => ({ id: g.id, name: g.name, status: g.status, guests: g.guests, table: g.seating_table ?? '', meals: readPartyMeals(g.meals) }))}
       />
 
       <QrSignCard

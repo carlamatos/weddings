@@ -110,6 +110,15 @@ export interface Translations {
   errorGeneral: string;
   errorNotOnGuestList: string; // when the host only accepts replies from their guest list
   rsvpGuestListNote: string; // above the RSVP form when the host only accepts replies from their guest list
+  // Meal choices on the RSVP (when the host asks); all optional for guests
+  mealsHeading: string;
+  mealsHint: string;
+  mealsYou: string;
+  mealsGuestLabel: string; // contains {{n}}
+  mealsGuestNamePlaceholder: string;
+  mealsChoose: string;
+  mealsDiet: string;
+  mealsDietPlaceholder: string;
   // Guest photos
   guestPhotos: string;
   shareYourPhoto: string;
@@ -118,6 +127,12 @@ export interface Translations {
   photoUploaded: string;
   photoUploadError: string;
   photoLimitReached: string; // the page's photo wall is full
+  // Live photo slideshow (<page>/slideshow), on a screen at the venue
+  slideshowShare: string;
+  slideshowScan: string;
+  slideshowEmpty: string;
+  slideshowJustShared: string;
+  slideshowUnavailable: string;
   // Share / hashtag section
   tagYourPosts: string;
   shareThisEvent: string;
@@ -244,6 +259,14 @@ const en: Translations = {
   errorGeneral: 'Something went wrong. Please try again.',
   errorNotOnGuestList: 'We couldn’t find this email on the guest list. Please use the email address your host has for you, or contact your host.',
   rsvpGuestListNote: 'This RSVP is for guests on the guest list. Please use the email address your host has for you.',
+  mealsHeading: 'Meal choices',
+  mealsHint: 'Optional. It helps the hosts plan with the caterer.',
+  mealsYou: 'You',
+  mealsGuestLabel: 'Guest {{n}}',
+  mealsGuestNamePlaceholder: 'Name (optional)',
+  mealsChoose: 'Choose a meal',
+  mealsDiet: 'Allergies or dietary needs',
+  mealsDietPlaceholder: 'e.g. nut allergy, gluten-free',
   guestPhotos: 'Guest Photos',
   shareYourPhoto: 'Upload Photos',
   loadMore: 'Load more',
@@ -255,6 +278,11 @@ const en: Translations = {
   photoUploaded: 'Photo shared — thank you!',
   photoUploadError: 'Upload failed. Please try again.',
   photoLimitReached: 'This photo wall is full, so no more photos can be added. Thank you for sharing!',
+  slideshowShare: 'Share your photos',
+  slideshowScan: 'Scan with your phone camera to add yours to the slideshow',
+  slideshowEmpty: 'Be the first to share a photo!',
+  slideshowJustShared: 'Just shared',
+  slideshowUnavailable: 'The photo slideshow isn’t available right now.',
   songRequests: 'Song Requests',
   buildOurPlaylist: 'Build our playlist',
   yourName: 'Your name',
@@ -374,6 +402,14 @@ const fr: Translations = {
   errorGeneral: 'Une erreur est survenue. Veuillez réessayer.',
   errorNotOnGuestList: 'Nous ne trouvons pas ce courriel sur la liste des invités. Utilisez l’adresse courriel que votre hôte a pour vous, ou communiquez avec votre hôte.',
   rsvpGuestListNote: 'Cette réponse est réservée aux invités de la liste. Utilisez l’adresse courriel que votre hôte a pour vous.',
+  mealsHeading: 'Choix des repas',
+  mealsHint: 'Facultatif. Cela aide les hôtes à planifier avec le traiteur.',
+  mealsYou: 'Vous',
+  mealsGuestLabel: 'Invité {{n}}',
+  mealsGuestNamePlaceholder: 'Nom (facultatif)',
+  mealsChoose: 'Choisir un repas',
+  mealsDiet: 'Allergies ou restrictions alimentaires',
+  mealsDietPlaceholder: 'p. ex. allergie aux noix, sans gluten',
   guestPhotos: 'Photos des invités',
   shareYourPhoto: 'Télécharger une photo',
   loadMore: 'Charger plus',
@@ -385,6 +421,11 @@ const fr: Translations = {
   photoUploaded: 'Photo partagée — merci!',
   photoUploadError: 'Échec du téléchargement. Veuillez réessayer.',
   photoLimitReached: 'Ce mur de photos est complet : il n’est plus possible d’ajouter de photos. Merci d’avoir partagé!',
+  slideshowShare: 'Partagez vos photos',
+  slideshowScan: 'Scannez avec l’appareil photo de votre téléphone pour ajouter les vôtres au diaporama',
+  slideshowEmpty: 'Soyez le premier à partager une photo!',
+  slideshowJustShared: 'Tout juste partagée',
+  slideshowUnavailable: 'Le diaporama de photos n’est pas disponible pour le moment.',
   songRequests: 'Demandes de chansons',
   buildOurPlaylist: 'Construisez notre playlist',
   yourName: 'Votre nom',
@@ -504,6 +545,14 @@ const es: Translations = {
   errorGeneral: 'Algo salió mal. Por favor intenta de nuevo.',
   errorNotOnGuestList: 'No encontramos este correo en la lista de invitados. Usa el correo electrónico que tu anfitrión tiene de ti, o comunícate con tu anfitrión.',
   rsvpGuestListNote: 'Esta confirmación es para los invitados de la lista. Usa el correo electrónico que tu anfitrión tiene de ti.',
+  mealsHeading: 'Elección de menú',
+  mealsHint: 'Opcional. Ayuda a los anfitriones a planificar con el servicio de comida.',
+  mealsYou: 'Tú',
+  mealsGuestLabel: 'Invitado {{n}}',
+  mealsGuestNamePlaceholder: 'Nombre (opcional)',
+  mealsChoose: 'Elige un menú',
+  mealsDiet: 'Alergias o necesidades alimentarias',
+  mealsDietPlaceholder: 'p. ej. alergia a frutos secos, sin gluten',
   guestPhotos: 'Fotos de invitados',
   shareYourPhoto: 'Subir Fotos',
   loadMore: 'Cargar más',
@@ -515,6 +564,11 @@ const es: Translations = {
   photoUploaded: 'Foto compartida — ¡gracias!',
   photoUploadError: 'Error al subir. Por favor intenta de nuevo.',
   photoLimitReached: 'Este muro de fotos está lleno, así que no se pueden agregar más fotos. ¡Gracias por compartir!',
+  slideshowShare: 'Comparte tus fotos',
+  slideshowScan: 'Escanea con la cámara de tu teléfono para añadir las tuyas a la presentación',
+  slideshowEmpty: '¡Sé el primero en compartir una foto!',
+  slideshowJustShared: 'Recién compartida',
+  slideshowUnavailable: 'La presentación de fotos no está disponible en este momento.',
   songRequests: 'Solicitudes de canciones',
   buildOurPlaylist: 'Construye nuestra playlist',
   yourName: 'Tu nombre',

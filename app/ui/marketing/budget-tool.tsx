@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { BUDGET_CATEGORIES, MAX_PRIORITIES, budgetHash, parseBudgetHash, splitBudget } from '@/app/lib/marketing/wedding-budget';
 import { CURRENCIES, CURRENCY_NAMES, DEFAULT_CURRENCY, currencySymbol, formatMoney, isCurrency, type Currency } from '@/app/lib/marketing/tool-money';
-import { CopyLinkButton, NumberField } from './tool-fields';
+import { CopyLinkButton, NumberField, SavePlanButton } from './tool-fields';
 
 // The wedding budget calculator in the budget guide: the couple enters their
 // total and guest count, picks up to three must-haves and anything they're
@@ -126,7 +126,8 @@ export default function BudgetTool() {
         </table>
         <p className="pt-tip">Each guest adds about <strong>{money(total / Math.max(guests, 1))}</strong> to your wedding, so the guest list is the biggest lever you have. See how many people will come with the <Link href="/guest-count-planner">guest count planner</Link>.</p>
         <div className="pt-actions">
-          <CopyLinkButton hash={budgetHash(total, guests, currency, priorities, skipped)} />
+          <SavePlanButton hash={budgetHash(total, guests, currency, priorities, skipped)} what="budget" />
+          <CopyLinkButton hash={budgetHash(total, guests, currency, priorities, skipped)} label="Copy link" />
           <button type="button" className="pt-btn" onClick={() => { setPriorities([]); setSkipped([]); }}>Back to typical shares</button>
         </div>
       </div>

@@ -3,7 +3,7 @@
 import {
   DocumentIcon, GiftTopIcon, UsersIcon, ClipboardDocumentListIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
   CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
-  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon,
+  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon, TvIcon, BanknotesIcon, ClockIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
@@ -19,7 +19,8 @@ import { siteHref } from '@/app/lib/app-url';
 type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 
 // Grouped by what the host is doing: building the page, looking after the
-// guests, running the day itself, and the page's settings. On a free page,
+// guests, running the day itself, planning (budget and timeline), and the
+// page's settings. On a free page,
 // Plus sections (PLUS_FEATURES) carry a small gold sparkle — or, when a
 // whole group is Plus, the group's heading carries one "Plus" mark instead.
 // They open and can be set up fully, and ask for Plus only when they're
@@ -49,11 +50,19 @@ const GROUPS: { title: string; links: NavItem[] }[] = [
     title: 'On the day',
     links: [
       { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon },
+      { name: 'Photo Slideshow', section: '/slideshow', icon: TvIcon },
       { name: 'Find Your Table', section: '/seating', icon: UserGroupIcon },
       { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon },
       { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon },
       { name: 'Potluck', section: '/potluck', icon: CakeIcon },
       { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon },
+    ],
+  },
+  {
+    title: 'Planning',
+    links: [
+      { name: 'Budget', section: '/budget', icon: BanknotesIcon },
+      { name: 'Timeline', section: '/timeline', icon: ClockIcon },
     ],
   },
   {

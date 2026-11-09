@@ -7,13 +7,16 @@ import { registerUser, RegisterState } from '@/app/lib/actions';
 import Link from 'next/link';
 import GoogleButton from '@/app/ui/google-button';
 import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
+import { PLAN_TOOLS, savePendingPlan, type PlanLink } from '@/app/lib/saved-plans';
 
 // Just an email and a password (typed twice): every extra field costs sign-ups. Names and
 // phone can be added later in the profile. French or Spanish when the
 // visitor comes from the French landing page or the Spanish pages
 // (/register?lang=fr, ?lang=es). start: how a landing
 // page's visitor wants to begin (see app/lib/start-intent.ts) — kept for the
-// create-event form, and an invitation heading here.
+// create-event form, and an invitation heading here. plan: a plan from a
+// free planning tool ("Save to my MyGala"), kept in this browser until the
+// dashboard offers to save it to their event (app/lib/saved-plans.ts).
 const TEXT = {
   en: {
     heading: 'Create your free event',
@@ -71,11 +74,17 @@ const INVITATION_HEADING = {
   es: { heading: 'Crea tu invitación gratis', sub: 'Diséñala, comparte un solo enlace y recibe las confirmaciones. Sin tarjeta de crédito.' },
 } as const;
 
-export default function RegisterForm({ lang = 'en', start = null }: { lang?: 'en' | 'fr' | 'es'; start?: StartIntent | null }) {
-  const t = start?.intent === 'invitation' ? { ...TEXT[lang], ...INVITATION_HEADING[lang] } : TEXT[lang];
+export default function RegisterForm({ lang = 'en', start = null, plan = null }: { lang?: 'en' | 'fr' | 'es'; start?: StartIntent | null; plan?: PlanLink | null }) {
+  const base = start?.intent === 'invitation' ? { ...TEXT[lang], ...INVITATION_HEADING[lang] } : TEXT[lang];
+  const t = plan
+    ? { ...base, heading: `Save your ${PLAN_TOOLS[plan.tool].thing}`, sub: 'Create your free account to keep it with your event, and pick up where you left off any time.' }
+    : base;
   useEffect(() => {
     if (start) saveStartIntent(start);
   }, [start]);
+  useEffect(() => {
+    if (plan) savePendingPlan(plan);
+  }, [plan]);
   const initialState: RegisterState = { message: null, errors: {} };
   const [state, formAction, isPending] = useActionState(registerUser, initialState);
   const [showPassword, setShowPassword] = useState(false);

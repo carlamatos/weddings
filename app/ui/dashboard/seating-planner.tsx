@@ -10,6 +10,7 @@ import {
 } from '@/app/lib/seating';
 import { btn, primary, input, card } from './guest-ui';
 import { SeatingList, type SeatGuest } from './seating-list';
+import { mealLine } from '@/app/lib/rsvp-meals';
 
 type Change = { id: string; table: string };
 type MapTable = SeatingTable & { guests: SeatGuest[]; people: number };
@@ -533,6 +534,10 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const over = table.people > table.seats;
   const full = table.people === table.seats;
+  // What the caterer serves here, from the guests' RSVP meal choices.
+  const mealGuests = table.guests.map((g) => ({ status: g.status, guests: g.guests, meals: g.meals ?? [] }));
+  const mealText = mealLine(mealGuests);
+  const diets = mealGuests.reduce((n, g) => n + (g.status === 'not_attending' ? 0 : g.meals.slice(0, Math.max(1, g.guests || 1)).filter((m) => m.diet).length), 0);
 
   function openEdit() {
     setName(table.name);
@@ -616,6 +621,11 @@ function TableCard({ table, style, picking, onPick, chip, onSave, onDelete }: {
           <div style={{ display: 'flex', justifyContent: 'center', margin: '4px 0 10px' }}>
             <TableArt seats={table.seats} filled={table.people} shape={table.shape} size={table.shape === 'long' ? 150 : 118} label={table.name} />
           </div>
+          {mealText && (
+            <p title="Meals chosen by the guests at this table" style={{ fontSize: 12, lineHeight: 1.45, color: '#6B5200', background: '#FBF4E4', borderRadius: 8, padding: '5px 8px', margin: '0 0 10px' }}>
+              🍽 {mealText}{diets > 0 && ` · ${diets} with allergies`}
+            </p>
+          )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, minHeight: 32, alignContent: 'flex-start' }}>
             {table.guests.map((g) => chip(g, true))}
             {table.guests.length === 0 && (

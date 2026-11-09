@@ -5,6 +5,8 @@ import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 import { fetchPageSettings } from '@/app/lib/data';
 import { isRsvpNotifyOn, notifyOwnerOfRsvp } from '@/app/lib/rsvp-notify';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { cleanPartyMeals, mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
+import { ensureMealsColumn } from '@/app/lib/rsvp-meals-data';
 
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_GUESTS = 50;
@@ -14,7 +16,7 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken } = body;
+    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals } = body;
 
     // Honeypot: bots fill hidden fields, real users don't
     if (honeypot) {
@@ -44,7 +46,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
 
-    const page = await sql`SELECT id FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`;
+    const page = await sql`SELECT id, language FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`;
     if (!page.rows[0]) {
       return NextResponse.json({ error: 'Page not found.' }, { status: 404 });
     }
@@ -87,6 +89,13 @@ export async function POST(request: Request) {
 
     const settings = await fetchPageSettings(pageId);
 
+    // Meal choices, when the host asks for them (all optional for guests).
+    // When the host doesn't ask, what a guest chose before is left as it is.
+    const mealOptions = mealOptionsFromSettings(settings, page.rows[0].language);
+    const partyMeals = mealOptions && status === 'attending' ? cleanPartyMeals(meals, guestCount, mealOptions) : null;
+    const mealsJson = partyMeals ? JSON.stringify(partyMeals) : null;
+    if (mealOptions) await ensureMealsColumn();
+
     // If the guest was already invited (same email), update their record;
     // otherwise insert fresh. With "only guests on the list" on, the email
     // must already be on the guest list, and a reply is never added as new.
@@ -115,6 +124,12 @@ export async function POST(request: Request) {
           responded_at = NOW()
         WHERE id = ${existing.rows[0].id}
       `;
+      if (mealOptions) await sql`UPDATE event_guests SET meals = ${mealsJson}::jsonb WHERE id = ${existing.rows[0].id}`;
+    } else if (mealOptions) {
+      await sql`
+        INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, message, receive_updates, responded_at, meals)
+        VALUES (${pageId}, ${name.trim()}, ${email.trim()}, ${cleanPhone}, ${status}, ${guestCount}, ${cleanMessage}, ${!!receiveUpdates}, NOW(), ${mealsJson}::jsonb)
+      `;
     } else {
       await sql`
         INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, message, receive_updates, responded_at)
@@ -141,6 +156,7 @@ export async function POST(request: Request) {
         status,
         guests: guestCount,
         message: cleanMessage,
+        meals: partyMeals,
         updated: !!existing.rows[0],
       });
     }
