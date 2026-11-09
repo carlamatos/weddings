@@ -2134,8 +2134,14 @@ export async function AppleSignIn() {
   await signIn("apple", { redirectTo: '/dashboard' });
 }
 
-export async function FacebookSignIn() {
+export async function FacebookSignIn(lang?: string) {
+  await rememberDashLang(lang);
   await signIn("facebook", { redirectTo: '/dashboard' });
+}
+
+export async function FacebookSignInTo(next: string, lang?: string) {
+  await rememberDashLang(lang);
+  await signIn("facebook", { redirectTo: safeSetupPath(next) });
 }
 
 

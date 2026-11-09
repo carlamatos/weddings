@@ -101,6 +101,13 @@ const nextAuth = NextAuth({
     }),
   ],
   callbacks: {
+    // A Facebook account made with a phone number has no email to sign in
+    // with: send them back to /login with a message instead of a session
+    // that has no MyGala account behind it.
+    async signIn({ account, profile }) {
+      if (account?.provider === 'facebook' && !profile?.email) return '/login?error=NoEmail';
+      return true;
+    },
     async jwt({token, user, account, profile, trigger, session } : { token: JWT; user?: User | null; account?: Account | null; profile?: Profile | null; trigger?: 'signIn' | 'signUp' | 'update'; session?: { user?: { totpProof?: string } } }) {
       // Session updates can come from the browser (POST /api/auth/session),
       // so a 2FA state change is only accepted with a server-signed proof
@@ -117,14 +124,19 @@ const nextAuth = NextAuth({
       }
 
       const oauthProviders = ['google', 'apple', 'facebook'];
-      if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && profile?.sub) {
+      // Facebook's profile has id and picture.data.url; Google and Apple's
+      // have sub and a picture URL.
+      const providerId = (profile?.sub ?? profile?.id) as string | undefined;
+      const fbPicture = (profile?.picture as { data?: { url?: string } } | undefined)?.data?.url;
+      const picture = typeof profile?.picture === 'string' ? profile.picture : fbPicture ?? '';
+      if (account?.provider && oauthProviders.includes(account.provider) && profile?.email && providerId) {
         const providerName = account.provider.charAt(0).toUpperCase() + account.provider.slice(1);
         const given_name = (profile.given_name as string) ?? (profile.name as string)?.split(' ')[0] ?? '';
         const family_name = (profile.family_name as string) ?? (profile.name as string)?.split(' ').slice(1).join(' ') ?? '';
 
         const localuser = await getUser(profile.email);
         if (!localuser) {
-          const created = await createOAuthUser({ name: profile.name as string, email: profile.email, given_name, family_name, provider: providerName, provider_id: profile.sub, picture: (profile.picture as string) ?? '' });
+          const created = await createOAuthUser({ name: profile.name as string, email: profile.email, given_name, family_name, provider: providerName, provider_id: providerId, picture });
           if (created) await markSignUp(account.provider as 'google' | 'apple' | 'facebook');
         } else if (!localuser.email_verified_at) {
           await claimUnverifiedAccount(profile.email);

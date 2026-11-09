@@ -5,12 +5,16 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useActionState } from 'react';
 import { authenticate } from '@/app/lib/actions';
 import GoogleButton from '@/app/ui/google-button';
+import FacebookButton from '@/app/ui/facebook-button';
 import Link from 'next/link';
 
 // next: where to go after logging in — only the create-event form with a
 // "design your invitation" page's choices (checked again on the server).
-export default function LoginForm({ next }: { next?: string }) {
-  const [errorMessage, formAction, isPending] = useActionState(authenticate, undefined);
+// facebook: show "Continue with Facebook" (/login?facebook=1, for Meta's
+// app review). oauthError: a social sign-in that came back refused.
+export default function LoginForm({ next, facebook = false, oauthError }: { next?: string; facebook?: boolean; oauthError?: string }) {
+  const [actionError, formAction, isPending] = useActionState(authenticate, undefined);
+  const errorMessage = actionError ?? oauthError;
 
   return (
     <div className="auth-card">
@@ -70,6 +74,7 @@ export default function LoginForm({ next }: { next?: string }) {
       <div className="auth-divider">or continue with</div>
 
       <GoogleButton next={next} />
+      {facebook && <FacebookButton next={next} />}
 
       <p className="auth-footer">
         Don&apos;t have an account?{' '}
