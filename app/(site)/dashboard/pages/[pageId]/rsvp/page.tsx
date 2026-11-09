@@ -16,8 +16,15 @@ import { HelpLink } from '@/app/ui/dashboard/help-link';
 import { RsvpMealsOption } from '@/app/ui/dashboard/rsvp-meals-option';
 import { MealSummaryCard, type MealRow } from '@/app/ui/dashboard/meal-summary';
 import { defaultMeals, MEAL_OPTIONS_SETTING, mealOptionsFromSettings, parseMealOptions, personName, readPartyMeals, summarizeMeals } from '@/app/lib/rsvp-meals';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
+export const metadata: Metadata = { title: 'RSVP' };
 
 export default async function RsvpPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
   const [guests, settings, session] = await Promise.all([
@@ -45,9 +52,9 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
   return (
     <div>
-      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px', fontFamily: 'system-ui' }}>RSVP</h1>
+      <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px', fontFamily: 'system-ui' }}>{d.rsvp.rsvp}</h1>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 20px', maxWidth: 680, lineHeight: 1.6, fontFamily: 'system-ui' }}>
-        See who&rsquo;s coming, how many guests they&rsquo;re bringing and their notes to you, and change a reply when someone tells you in person.
+        {d.rsvp.seeWhoSComingHow}
         {' '}<HelpLink guide="manage-rsvps" />
       </p>
 
@@ -55,7 +62,7 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
         pageId={pageId}
         settingName="show_rsvp"
         initialOn={isSectionOn(settings, 'show_rsvp')}
-        label="RSVP form visible on your page"
+        label={d.rsvp.rsvpFormVisibleOnYour}
       />
 
       <RsvpNotifyOption pageId={pageId} initialOn={isRsvpNotifyOn(settings)} email={session?.user?.email ?? undefined} />
@@ -75,10 +82,10 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
 
       <div style={{ display: 'flex', gap: 14, marginBottom: 32, flexWrap: 'wrap' }}>
-        <StatCard label="Attending"       value={attending.length} sub={`${totalGuests} total guest${totalGuests !== 1 ? 's' : ''}`} accent="#5C6B61" />
-        <StatCard label="Declining"       value={declining.length} accent="#9A8F8C" />
-        <StatCard label="Invited"         value={invited.length}   accent="#4A5296" />
-        <StatCard label="Total responses" value={attending.length + declining.length} accent="#3F4A45" />
+        <StatCard label={d.rsvp.attending}       value={attending.length} sub={fill(d.rsvp.totalGuest, { totalGuests, v1: totalGuests !== 1 ? 's' : '' })} accent="#5C6B61" />
+        <StatCard label={d.rsvp.declining}       value={declining.length} accent="#9A8F8C" />
+        <StatCard label={d.rsvp.invited}         value={invited.length}   accent="#4A5296" />
+        <StatCard label={d.rsvp.totalResponses} value={attending.length + declining.length} accent="#3F4A45" />
       </div>
 
       {showMeals && (
@@ -89,15 +96,14 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
 
       {guests.length === 0 ? (
         <div style={{ padding: '48px 0', textAlign: 'center', color: '#9A8F8C', fontFamily: 'system-ui', fontSize: 15 }}>
-          No guests yet — share your event page, or add your guests in{' '}
-          <Link href={pagePath(pageId, '/guest-list')} style={{ color: '#B6584A' }}>Guest List</Link>.
+          {rich(d.rsvp.noGuestsYetShareYour, { t0: (s) => <Link href={pagePath(pageId, '/guest-list')} style={{ color: '#B6584A' }}>{s}</Link> })}
         </div>
       ) : (
         <div style={{ overflowX: 'auto', borderRadius: 12, border: '1px solid #EDE8E3', background: '#fff' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'system-ui', fontSize: 14 }}>
             <thead>
               <tr style={{ background: '#FAF9F7', borderBottom: '1px solid #EDE8E3' }}>
-                {['Name', 'Email', 'Phone', 'Status', 'Guests', ...(showMeals ? ['Meals'] : []), 'Updates', 'Note', 'Date'].map((h) => (
+                {[d.rsvp.name, d.rsvp.email, d.rsvp.phone, d.rsvp.status, d.rsvp.guests, ...(showMeals ? [d.rsvp.meals] : []), d.rsvp.updates, d.rsvp.note, d.rsvp.date].map((h) => (
                   <th key={h} style={{ padding: '12px 16px', textAlign: 'left', fontWeight: 600, fontSize: 12, letterSpacing: 0.5, color: '#6B6470', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -137,25 +143,26 @@ export default async function RsvpPage({ params }: { params: Promise<{ pageId: s
       )}
       <PlanningToolTip
         href={rsvpCalculatorHref(page)}
-        title="When should replies be due?"
-        text="Our free calculator works out your RSVP deadline from your event date, plus when to send invitations and reminders."
-        cta="RSVP deadline calculator"
+        title={d.rsvp.whenShouldRepliesBeDue}
+        text={d.rsvp.ourFreeCalculatorWorksOut}
+        cta={d.rsvp.rsvpDeadlineCalculator}
       />
     </div>
   );
 }
 
 // One guest's party in the RSVP table: each person's meal and allergies.
-function MealsCell({ guest, status, size, rows }: { guest: string; status: string; size: number; rows: ReturnType<typeof readPartyMeals> }) {
+async function MealsCell({ guest, status, size, rows }: { guest: string; status: string; size: number; rows: ReturnType<typeof readPartyMeals> }) {
+  const d = await getDashText();
   if (status !== 'attending') return <span style={{ color: '#9A8F8C' }}>—</span>;
   const people = Math.max(1, size || 1);
-  if (!rows.some((r) => r.meal || r.diet)) return <span style={{ color: '#9A8F8C' }}>No choice yet</span>;
+  if (!rows.some((r) => r.meal || r.diet)) return <span style={{ color: '#9A8F8C' }}>{d.rsvp.noChoiceYet}</span>;
   return (
     <div style={{ display: 'grid', gap: 3 }}>
       {Array.from({ length: people }, (_, i) => (
         <div key={i}>
           {people > 1 && <span style={{ color: '#6B6470' }}>{personName(guest, rows, i)}: </span>}
-          {rows[i]?.meal || <span style={{ color: '#9A8F8C' }}>no choice</span>}
+          {rows[i]?.meal || <span style={{ color: '#9A8F8C' }}>{d.rsvp.noChoice}</span>}
           {rows[i]?.diet && <span style={{ display: 'block', color: '#8B3A2A', fontSize: 12 }}>{rows[i].diet}</span>}
         </div>
       ))}

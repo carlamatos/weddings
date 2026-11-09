@@ -4,8 +4,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { RegistryForm } from '@/app/ui/dashboard/registry-form';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Registry' };
 
 export default async function RegistryPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
@@ -16,10 +21,9 @@ export default async function RegistryPage({ params }: { params: Promise<{ pageI
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/registry" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Registry</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.registry.registry}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
-          Point guests to your gift registry, and add a message for anything else they should know. The section shows on your page
-          once it has a link or a message.
+          {d.registry.pointGuestsToYourGift}
           {' '}<HelpLink guide="add-a-registry" />
         </p>
       </div>

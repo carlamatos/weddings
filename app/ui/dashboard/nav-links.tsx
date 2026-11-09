@@ -16,7 +16,10 @@ import { openProfile } from './user-menu';
 import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
 import { siteHref } from '@/app/lib/app-url';
 
-type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import type { DashText } from '@/app/lib/dash-text/en';
+import { fill } from '@/app/lib/dash-text/fill';
+type NavItem = { name: keyof DashText['screens']; section: string; icon: typeof DocumentIcon };
 
 // Grouped by what the host is doing: building the page, looking after the
 // guests, running the day itself, planning (budget and timeline), and the
@@ -25,51 +28,51 @@ type NavItem = { name: string; section: string; icon: typeof DocumentIcon };
 // whole group is Plus, the group's heading carries one "Plus" mark instead.
 // They open and can be set up fully, and ask for Plus only when they're
 // turned on for guests.
-const GROUPS: { title: string; links: NavItem[] }[] = [
+const GROUPS: { title: keyof DashText['navGroups']; links: NavItem[] }[] = [
   {
-    title: 'Page',
+    title: 'page',
     links: [
-      { name: 'Edit Event Page', section: '', icon: DocumentIcon },
-      { name: 'Event Program', section: '/event-program', icon: CalendarDaysIcon },
-      { name: 'Custom Sections', section: '/custom-sections', icon: RectangleStackIcon },
-      { name: 'Registry', section: '/registry', icon: GiftIcon },
-      { name: 'Sponsors', section: '/sponsors', icon: TrophyIcon },
+      { name: 'editEventPage', section: '', icon: DocumentIcon },
+      { name: 'eventProgram', section: '/event-program', icon: CalendarDaysIcon },
+      { name: 'customSections', section: '/custom-sections', icon: RectangleStackIcon },
+      { name: 'registry', section: '/registry', icon: GiftIcon },
+      { name: 'sponsors', section: '/sponsors', icon: TrophyIcon },
     ],
   },
   {
-    title: 'Guests',
+    title: 'guests',
     links: [
-      { name: 'Guest List', section: '/guest-list', icon: ClipboardDocumentListIcon },
-      { name: 'RSVP', section: '/rsvp', icon: UsersIcon },
-      { name: 'Invitations', section: '/invitations', icon: EnvelopeIcon },
-      { name: 'Reminders', section: '/reminders', icon: BellAlertIcon },
-      { name: 'Share', section: '/share', icon: ShareIcon },
+      { name: 'guestList', section: '/guest-list', icon: ClipboardDocumentListIcon },
+      { name: 'rsvp', section: '/rsvp', icon: UsersIcon },
+      { name: 'invitations', section: '/invitations', icon: EnvelopeIcon },
+      { name: 'reminders', section: '/reminders', icon: BellAlertIcon },
+      { name: 'share', section: '/share', icon: ShareIcon },
     ],
   },
   {
-    title: 'On the day',
+    title: 'onTheDay',
     links: [
-      { name: 'Guest Photos', section: '/guest-photos', icon: PhotoIcon },
-      { name: 'Photo Slideshow', section: '/slideshow', icon: TvIcon },
-      { name: 'Find Your Table', section: '/seating', icon: UserGroupIcon },
-      { name: 'Song Requests', section: '/song-requests', icon: MusicalNoteIcon },
-      { name: 'Live Stream', section: '/livestream', icon: VideoCameraIcon },
-      { name: 'Potluck', section: '/potluck', icon: CakeIcon },
-      { name: 'Gift Exchange', section: '/gift-exchange', icon: GiftTopIcon },
+      { name: 'guestPhotos', section: '/guest-photos', icon: PhotoIcon },
+      { name: 'photoSlideshow', section: '/slideshow', icon: TvIcon },
+      { name: 'findYourTable', section: '/seating', icon: UserGroupIcon },
+      { name: 'songRequests', section: '/song-requests', icon: MusicalNoteIcon },
+      { name: 'liveStream', section: '/livestream', icon: VideoCameraIcon },
+      { name: 'potluck', section: '/potluck', icon: CakeIcon },
+      { name: 'giftExchange', section: '/gift-exchange', icon: GiftTopIcon },
     ],
   },
   {
-    title: 'Planning',
+    title: 'planning',
     links: [
-      { name: 'Budget', section: '/budget', icon: BanknotesIcon },
-      { name: 'Timeline', section: '/timeline', icon: ClockIcon },
+      { name: 'budget', section: '/budget', icon: BanknotesIcon },
+      { name: 'timeline', section: '/timeline', icon: ClockIcon },
     ],
   },
   {
-    title: 'Settings',
+    title: 'settings',
     links: [
-      { name: 'Domain', section: '/domain', icon: GlobeAltIcon },
-      { name: 'Password', section: '/password', icon: LockClosedIcon },
+      { name: 'domain', section: '/domain', icon: GlobeAltIcon },
+      { name: 'password', section: '/password', icon: LockClosedIcon },
     ],
   },
 ];
@@ -89,6 +92,7 @@ export default function NavLinks({
   status?: Record<string, boolean>;
   setup?: SetupStep[];
 }) {
+  const d = useDashText();
   const pathname = usePathname();
   const base = `/dashboard/pages/${pageId}`;
 
@@ -106,13 +110,13 @@ export default function NavLinks({
         key={link.name}
         href={href}
         className={`dash-nav-link${pathname === href ? ' dash-nav-link--active' : ''}`}
-        title={plus ? `${link.name} (Plus): set it up now; it goes live with Plus` : on ? `${link.name} is on your page` : undefined}
+        title={plus ? fill(d.navLinks.plusSetItUpNow, { name: d.screens[link.name] }) : on ? fill(d.navLinks.isOnYourPage, { name: d.screens[link.name] }) : undefined}
       >
         <Icon />
-        {link.name}
-        {on ? <span className="dash-nav-tag dash-nav-tag--on">On</span>
+        {d.screens[link.name]}
+        {on ? <span className="dash-nav-tag dash-nav-tag--on">{d.navLinks.on}</span>
           : plus && !groupIsPlus ? <SparklesIcon className="dash-nav-sparkle" aria-label="Plus" />
-          : freeHook ? <span className="dash-nav-tag dash-nav-tag--free">{FREE_GUEST_PHOTO_LIMIT} free</span>
+          : freeHook ? <span className="dash-nav-tag dash-nav-tag--free">{FREE_GUEST_PHOTO_LIMIT} {d.navLinks.free}</span>
           : null}
       </Link>
     );
@@ -122,10 +126,10 @@ export default function NavLinks({
     <>
       <Link href="/dashboard" className={`dash-nav-link${pathname === '/dashboard' ? ' dash-nav-link--active' : ''}`}>
         <Squares2X2Icon />
-        Event pages
+        {d.navLinks.eventPages}
       </Link>
       {pageId !== undefined && (
-        <p className="dash-nav-event" title={pageName}>{pageName || 'Untitled event'}</p>
+        <p className="dash-nav-event" title={pageName}>{pageName || d.navLinks.untitledEvent}</p>
       )}
       {pageId !== undefined && setup && <SetupChecklist steps={setup} base={base} />}
       {pageId !== undefined && GROUPS.map((group) => {
@@ -133,7 +137,7 @@ export default function NavLinks({
         return (
           <div className="dash-nav-section" key={group.title}>
             <p className="dash-nav-group">
-              {group.title}
+              {d.navGroups[group.title]}
               {groupIsPlus && <span className="dash-nav-group-plus"><SparklesIcon aria-hidden="true" />Plus</span>}
             </p>
             {group.links.map((link) => item(link, groupIsPlus))}
@@ -143,7 +147,7 @@ export default function NavLinks({
       {/* Every screen's how-to guides (/help), in a new tab. */}
       <a href={siteHref('/help')} target="_blank" rel="noopener" className="dash-nav-link dash-nav-help">
         <QuestionMarkCircleIcon />
-        Help centre
+        {d.navLinks.helpCentre}
       </a>
     </>
   );
@@ -154,12 +158,12 @@ function stepHref(s: SetupStep, base: string) {
   return `${base}${s.section}${s.open ? `?${OPEN_PARAM}=${s.open}` : ''}`;
 }
 
-function stepBody(s: SetupStep) {
+function stepBody(s: SetupStep, d: DashText) {
   return (
     <>
       {s.done ? <CheckCircleIcon aria-hidden="true" /> : <span className="dash-setup-dot" aria-hidden="true" />}
       <span>{s.label}</span>
-      <span className="sr-only">{s.done ? ' (done)' : ' (to do)'}</span>
+      <span className="sr-only">{s.done ? d.setupSteps.done : d.setupSteps.toDo}</span>
     </>
   );
 }
@@ -167,24 +171,25 @@ function stepBody(s: SetupStep) {
 // "Your page is 3/5 ready", a progress bar and the next step; the full list
 // opens below. Gone once every step is done.
 function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
   const done = steps.filter((s) => s.done).length;
   const next = steps.find((s) => !s.done);
   if (!next) return null;
   return (
     <div className="dash-setup">
-      <p className="dash-setup-title">Your page is {done}/{steps.length} ready</p>
-      <div className="dash-setup-bar" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={done} aria-label="Page setup">
+      <p className="dash-setup-title">{fill(d.navLinks.yourPageIsReady, { done, length: steps.length })}</p>
+      <div className="dash-setup-bar" role="progressbar" aria-valuemin={0} aria-valuemax={steps.length} aria-valuenow={done} aria-label={d.navLinks.pageSetup}>
         <span style={{ width: `${(done / steps.length) * 100}%` }} />
       </div>
       {next.action === 'profile' ? (
         <button type="button" className="dash-setup-next" onClick={openProfile}>
-          <span>Next: {next.label}</span>
+          <span>{fill(d.navLinks.next, { label: next.label })}</span>
           <ChevronRightIcon />
         </button>
       ) : (
         <Link href={stepHref(next, base)} className="dash-setup-next">
-          <span>Next: {next.label}</span>
+          <span>{fill(d.navLinks.next, { label: next.label })}</span>
           <ChevronRightIcon />
         </Link>
       )}
@@ -195,16 +200,16 @@ function SetupChecklist({ steps, base }: { steps: SetupStep[]; base: string }) {
         // The mobile drawer closes on any click inside the menu.
         onClick={(e) => { e.stopPropagation(); setOpen((o) => !o); }}
       >
-        {open ? 'Hide steps' : 'See all steps'}
+        {open ? d.navLinks.hideSteps : d.navLinks.seeAllSteps}
       </button>
       {open && (
         <ul className="dash-setup-list">
           {steps.map((s) => (
             <li key={s.label} className={s.done ? 'is-done' : undefined}>
               {s.action === 'profile' ? (
-                <button type="button" onClick={openProfile}>{stepBody(s)}</button>
+                <button type="button" onClick={openProfile}>{stepBody(s, d)}</button>
               ) : (
-                <Link href={stepHref(s, base)}>{stepBody(s)}</Link>
+                <Link href={stepHref(s, base)}>{stepBody(s, d)}</Link>
               )}
             </li>
           ))}

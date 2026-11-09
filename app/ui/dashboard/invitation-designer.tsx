@@ -20,6 +20,8 @@ import { FontPicker } from '@/app/ui/dashboard/font-picker';
 import { OrnamentField } from '@/app/ui/dashboard/ornament-picker';
 import { ornamentOccasion, ornamentPalette } from '@/app/lib/invitation-ornaments';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { rich } from '@/app/ui/dashboard/rich';
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
 
@@ -51,6 +53,7 @@ export function InvitationDesigner({
   details: InvitationDetails;
   editPageHref: string;
 }) {
+  const d = useDashText();
   const [design, setDesign] = useState(initial);
   const [saved, setSaved] = useState(JSON.stringify(initial));
   const [saving, setSaving] = useState(false);
@@ -90,7 +93,7 @@ export function InvitationDesigner({
     }
     setDesign(result.value);
     setSaved(JSON.stringify(result.value));
-    setMessage({ kind: 'ok', text: 'Invitation saved.' });
+    setMessage({ kind: 'ok', text: d.invitationDesigner.invitationSaved });
   }
 
   async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
@@ -103,7 +106,7 @@ export function InvitationDesigner({
       const url = await uploadImage(file);
       setDesign((d) => ({ ...d, background: { ...d.background, kind: 'image', imageUrl: url } }));
     } catch (err) {
-      setMessage({ kind: 'error', text: err instanceof Error ? err.message : 'Upload failed.' });
+      setMessage({ kind: 'error', text: err instanceof Error ? err.message : d.invitationDesigner.uploadFailed });
     } finally {
       setUploading(false);
     }
@@ -139,9 +142,9 @@ export function InvitationDesigner({
 
       <div>
         <section style={panel}>
-          <h3 style={h3}>Event details</h3>
+          <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
           <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 10px', lineHeight: 1.6 }}>
-            These come from your event page and can only be changed in <Link href={editPageHref} style={{ color: '#B6584A' }}>Edit Event Page</Link>.
+            {rich(d.invitationDesigner.theseComeFromYourEvent, { t0: (s) => <Link href={editPageHref} style={{ color: '#B6584A' }}>{s}</Link> })}
           </p>
           <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 14px', margin: 0, fontSize: 14 }}>
             {([['Event', details.name], ['Date', details.date], ['Time', details.time], ['Place', [details.venue, details.address].filter(Boolean).join(', ')]] as const).map(([k, v]) => (
@@ -154,31 +157,31 @@ export function InvitationDesigner({
         </section>
 
         <section style={panel}>
-          <h3 style={h3}>Words</h3>
-          <label style={label} htmlFor="inv-eyebrow">Line above the event name</label>
+          <h3 style={h3}>{d.invitationDesigner.words}</h3>
+          <label style={label} htmlFor="inv-eyebrow">{d.invitationDesigner.lineAboveTheEventName}</label>
           <input id="inv-eyebrow" style={input} value={design.eyebrow} maxLength={INVITATION_TEXT_MAX.eyebrow} onChange={(e) => set('eyebrow', e.target.value)} />
-          <label style={label} htmlFor="inv-message">Message</label>
+          <label style={label} htmlFor="inv-message">{d.invitationDesigner.message}</label>
           <textarea id="inv-message" style={{ ...input, minHeight: 90, resize: 'vertical' }} value={design.message} maxLength={INVITATION_TEXT_MAX.message} onChange={(e) => set('message', e.target.value)} />
-          <label style={label} htmlFor="inv-closing">Closing line</label>
+          <label style={label} htmlFor="inv-closing">{d.invitationDesigner.closingLine}</label>
           <input id="inv-closing" style={input} value={design.closing} maxLength={INVITATION_TEXT_MAX.closing} onChange={(e) => set('closing', e.target.value)} />
           <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#241F2B', marginTop: 14, cursor: 'pointer' }}>
             <input type="checkbox" checked={design.showQr} onChange={(e) => set('showQr', e.target.checked)} />
-            Show a QR code guests can scan to RSVP
+            {d.invitationDesigner.showAQrCodeGuests}
           </label>
         </section>
 
         <section style={panel}>
-          <h3 style={h3}>Fonts &amp; colours</h3>
-          <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">Event name font</label>
+          <h3 style={h3}>{d.invitationDesigner.fontsColours}</h3>
+          <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">{d.invitationDesigner.eventNameFont}</label>
           <FontPicker id="inv-heading-font" labelledBy="inv-heading-font-label" value={design.headingFont} onChange={(f) => set('headingFont', f)} />
-          <label style={label} id="inv-body-font-label" htmlFor="inv-body-font">Text font</label>
+          <label style={label} id="inv-body-font-label" htmlFor="inv-body-font">{d.invitationDesigner.textFont}</label>
           <FontPicker id="inv-body-font" labelledBy="inv-body-font-label" value={design.bodyFont} onChange={(f) => set('bodyFont', f)} />
-          <ColorField id="inv-text" text="Text colour" value={design.textColor} onChange={(v) => set('textColor', v)} />
-          <ColorField id="inv-accent" text="Event name & accent colour" value={design.accentColor} onChange={(v) => set('accentColor', v)} />
+          <ColorField id="inv-text" text={d.invitationDesigner.textColour} value={design.textColor} onChange={(v) => set('textColor', v)} />
+          <ColorField id="inv-accent" text={d.invitationDesigner.eventNameAccentColour} value={design.accentColor} onChange={(v) => set('accentColor', v)} />
         </section>
 
         <section style={panel}>
-          <h3 style={h3}>Decorations</h3>
+          <h3 style={h3}>{d.invitationDesigner.decorations}</h3>
           {(['divider', 'frame'] as const).map((kind) => (
             <OrnamentField
               key={kind}
@@ -199,30 +202,30 @@ export function InvitationDesigner({
             return (
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#241F2B', marginTop: 14, cursor: 'pointer' }}>
                 <input type="checkbox" checked={design.picture === pic} onChange={(e) => set('picture', e.target.checked ? pic : '')} />
-                Show the {INVITATION_PICTURES[pic].label.toLowerCase()} picture in the corner
+                {d.invitationDesigner.showThe} {INVITATION_PICTURES[pic].label.toLowerCase()} {d.invitationDesigner.pictureInTheCorner}
               </label>
             );
           })()}
         </section>
 
         <section style={panel}>
-          <h3 style={h3}>Background</h3>
+          <h3 style={h3}>{d.invitationDesigner.background}</h3>
           <div style={{ display: 'flex', gap: 16, fontSize: 14 }}>
             {(['color', 'image'] as const).map((k) => (
               <label key={k} style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}>
                 <input type="radio" name="inv-bg" checked={design.background.kind === k} disabled={k === 'image' && !design.background.imageUrl && uploading}
                   onChange={() => (k === 'image' && !design.background.imageUrl ? fileRef.current?.click() : setBg('kind', k))} />
-                {k === 'color' ? 'Colour' : 'Image'}
+                {k === 'color' ? d.invitationDesigner.colour : d.invitationDesigner.image}
               </label>
             ))}
           </div>
-          <ColorField id="inv-bg-color" text="Background colour" value={design.background.color} onChange={(v) => setBg('color', v)} />
+          <ColorField id="inv-bg-color" text={d.invitationDesigner.backgroundColour} value={design.background.color} onChange={(v) => setBg('color', v)} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
             <button type="button" style={btn} disabled={uploading} onClick={() => fileRef.current?.click()}>
-              {uploading ? 'Uploading…' : design.background.imageUrl ? 'Replace image' : 'Upload an image'}
+              {uploading ? d.invitationDesigner.uploading : design.background.imageUrl ? d.invitationDesigner.replaceImage : d.invitationDesigner.uploadAnImage}
             </button>
             {design.background.imageUrl && (
-              <button type="button" style={btn} onClick={() => setDesign((d) => ({ ...d, background: { ...d.background, kind: 'color', imageUrl: '' } }))}>Remove image</button>
+              <button type="button" style={btn} onClick={() => setDesign((d) => ({ ...d, background: { ...d.background, kind: 'color', imageUrl: '' } }))}>{d.invitationDesigner.removeImage}</button>
             )}
             <input ref={fileRef} type="file" accept="image/*,.heic,.heif" onChange={onImage} style={{ display: 'none' }} />
           </div>
@@ -230,12 +233,12 @@ export function InvitationDesigner({
             <div style={{ marginTop: 12 }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: '#241F2B', cursor: 'pointer' }}>
                 <input type="checkbox" checked={design.background.overlay} onChange={(e) => setBg('overlay', e.target.checked)} />
-                Colour overlay (keeps text easy to read)
+                {d.invitationDesigner.colourOverlayKeepsTextEasy}
               </label>
               {design.background.overlay && (
                 <>
-                  <ColorField id="inv-overlay" text="Overlay colour" value={design.background.overlayColor} onChange={(v) => setBg('overlayColor', v)} />
-                  <label style={label} htmlFor="inv-opacity">Overlay strength — {Math.round(design.background.overlayOpacity * 100)}%</label>
+                  <ColorField id="inv-overlay" text={d.invitationDesigner.overlayColour} value={design.background.overlayColor} onChange={(v) => setBg('overlayColor', v)} />
+                  <label style={label} htmlFor="inv-opacity">{d.invitationDesigner.overlayStrength} {Math.round(design.background.overlayOpacity * 100)}%</label>
                   <input id="inv-opacity" type="range" min={0} max={0.9} step={0.05} value={design.background.overlayOpacity} onChange={(e) => setBg('overlayOpacity', Number(e.target.value))} style={{ width: '100%' }} />
                 </>
               )}
@@ -248,16 +251,16 @@ export function InvitationDesigner({
         <InvitationCard ref={cardRef} design={design} details={details} qrSvg={qrSvg} />
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 16, alignItems: 'center' }}>
           <button type="button" onClick={save} disabled={!dirty || saving} style={{ ...btn, border: 'none', background: '#B6584A', color: '#fff', opacity: !dirty || saving ? 0.55 : 1 }}>
-            {saving ? 'Saving…' : 'Save invitation'}
+            {saving ? d.invitationDesigner.saving : d.invitationDesigner.saveInvitation}
           </button>
-          <button type="button" style={btn} onClick={print}>Print / Save as PDF</button>
+          <button type="button" style={btn} onClick={print}>{d.invitationDesigner.printSaveAsPdf}</button>
           <button type="button" style={{ ...btn, border: 'none', background: 'transparent', color: '#6B6470', fontWeight: 500 }} onClick={() => { setDesign(defaultInvitation(themeSlug)); setMessage(null); }}>
-            Reset to theme style
+            {d.invitationDesigner.resetToThemeStyle}
           </button>
         </div>
         {message && <p role="status" style={{ fontSize: 13, margin: '10px 0 0', color: message.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{message.text}</p>}
-        {dirty && !message && <p style={{ fontSize: 12, margin: '10px 0 0', color: '#8A6800' }}>You have unsaved changes.</p>}
-        <iframe ref={frameRef} title="Printable invitation" aria-hidden="true" tabIndex={-1} style={{ position: 'fixed', right: 0, bottom: 0, width: 0, height: 0, border: 0 }} />
+        {dirty && !message && <p style={{ fontSize: 12, margin: '10px 0 0', color: '#8A6800' }}>{d.invitationDesigner.youHaveUnsavedChanges}</p>}
+        <iframe ref={frameRef} title={d.invitationDesigner.printableInvitation} aria-hidden="true" tabIndex={-1} style={{ position: 'fixed', right: 0, bottom: 0, width: 0, height: 0, border: 0 }} />
       </div>
     </div>
   );

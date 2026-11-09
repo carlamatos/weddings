@@ -5,8 +5,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { SponsorsManager } from '@/app/ui/dashboard/sponsors-manager';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Sponsors' };
 
 export default async function SponsorsPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
@@ -17,10 +22,9 @@ export default async function SponsorsPage({ params }: { params: Promise<{ pageI
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/sponsors" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Sponsors</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.sponsors.sponsors}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
-          Thank the people and businesses supporting your event. Each sponsor gets an image (such as their logo) and a short description,
-          shown after your gallery. You can rename the section&apos;s heading in the page editor.
+          {d.sponsors.thankThePeopleAndBusinesses}
           {' '}<HelpLink guide="add-sponsors" />
         </p>
       </div>

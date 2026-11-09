@@ -87,17 +87,61 @@ export function escHtml(str: string): string {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export function verificationEmailHtml(link: string, name?: string): string {
-  const greeting = name ? `Hi ${escHtml(name)},` : 'Hi there,';
-  return wrap(`
-    <h2 style="margin: 0 0 16px; font-size: 20px;">Welcome to MyGala!</h2>
+// The confirmation email in the sign-up page's language (fr and es from
+// /register?lang=fr|es; the resend button uses the dashboard's language).
+export type MailLang = 'en' | 'fr' | 'es';
+
+const VERIFY_TEXT = {
+  en: {
+    subject: 'Confirm your email address for MyGala',
+    heading: 'Welcome to MyGala!',
+    hi: (name: string) => `Hi ${name},`,
+    hiThere: 'Hi there,',
+    intro: "Thanks for creating your MyGala account. Before you get started building your event page, please confirm this is your email address — we'll also use it to send you important updates, like new RSVPs and guest messages, so it's worth double-checking.",
+    click: 'Click the button below to verify your address:',
+    button: 'Verify email address',
+    fallback: "If the button doesn't work, copy and paste this link into your browser:",
+    expires: "This link expires in 48 hours. If you didn't create an account, you can safely ignore this email.",
+  },
+  fr: {
+    subject: 'Confirmez votre adresse courriel pour MyGala',
+    heading: 'Bienvenue sur MyGala !',
+    hi: (name: string) => `Bonjour ${name},`,
+    hiThere: 'Bonjour,',
+    intro: 'Merci d’avoir créé votre compte MyGala. Avant de commencer à préparer votre page d’événement, veuillez confirmer que cette adresse courriel est bien la vôtre — nous l’utiliserons aussi pour vous envoyer des nouvelles importantes, comme les nouvelles réponses et les messages de vos invités, alors elle vaut la peine d’être vérifiée.',
+    click: 'Cliquez sur le bouton ci-dessous pour confirmer votre adresse :',
+    button: 'Confirmer mon adresse courriel',
+    fallback: 'Si le bouton ne fonctionne pas, copiez et collez ce lien dans votre navigateur :',
+    expires: 'Ce lien expire dans 48 heures. Si vous n’avez pas créé de compte, vous pouvez ignorer ce courriel.',
+  },
+  es: {
+    subject: 'Confirma tu correo electrónico para MyGala',
+    heading: '¡Te damos la bienvenida a MyGala!',
+    hi: (name: string) => `Hola, ${name}:`,
+    hiThere: 'Hola:',
+    intro: 'Gracias por crear tu cuenta de MyGala. Antes de empezar a armar tu página de evento, confirma que este es tu correo electrónico — también lo usaremos para enviarte novedades importantes, como nuevas respuestas y mensajes de tus invitados, así que vale la pena comprobarlo.',
+    click: 'Haz clic en el botón para verificar tu correo:',
+    button: 'Verificar mi correo',
+    fallback: 'Si el botón no funciona, copia y pega este enlace en tu navegador:',
+    expires: 'Este enlace caduca en 48 horas. Si no creaste una cuenta, puedes ignorar este correo.',
+  },
+};
+
+export function verificationEmail(link: string, name?: string, lang: MailLang = 'en'): { subject: string; html: string } {
+  const t = VERIFY_TEXT[lang];
+  const greeting = name ? t.hi(escHtml(name)) : t.hiThere;
+  return {
+    subject: t.subject,
+    html: wrap(`
+    <h2 style="margin: 0 0 16px; font-size: 20px;">${t.heading}</h2>
     <p style="margin: 0 0 16px; line-height: 1.6;">${greeting}</p>
-    <p style="margin: 0 0 16px; line-height: 1.6;">Thanks for creating your MyGala account. Before you get started building your event page, please confirm this is your email address — we'll also use it to send you important updates, like new RSVPs and guest messages, so it's worth double-checking.</p>
-    <p style="margin: 0 0 24px; line-height: 1.6;">Click the button below to verify your address:</p>
-    ${button(link, 'Verify email address')}
-    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted}; line-height: 1.6;">If the button doesn't work, copy and paste this link into your browser:<br /><a href="${link}" style="color: ${BRAND.muted}; word-break: break-all;">${link}</a></p>
-    <p style="margin: 16px 0 0; font-size: 13px; color: ${BRAND.muted};">This link expires in 48 hours. If you didn't create an account, you can safely ignore this email.</p>
-  `);
+    <p style="margin: 0 0 16px; line-height: 1.6;">${t.intro}</p>
+    <p style="margin: 0 0 24px; line-height: 1.6;">${t.click}</p>
+    ${button(link, t.button)}
+    <p style="margin: 24px 0 0; font-size: 13px; color: ${BRAND.muted}; line-height: 1.6;">${t.fallback}<br /><a href="${link}" style="color: ${BRAND.muted}; word-break: break-all;">${link}</a></p>
+    <p style="margin: 16px 0 0; font-size: 13px; color: ${BRAND.muted};">${t.expires}</p>
+  `),
+  };
 }
 
 export function resetEmailHtml(link: string, name?: string): string {

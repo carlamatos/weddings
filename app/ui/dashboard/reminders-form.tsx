@@ -10,6 +10,9 @@ import {
   reminderSendInstant, type ReminderKey, type ReminderUnit,
 } from '@/app/lib/reminders';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 type ReminderOptionStatus = {
   sendDate: string | null; // YYYY-MM-DD, null without an event date
   sendAt: Date | null; // hours-before reminders: the exact moment
@@ -32,11 +35,11 @@ function browserTimeZone(): string {
 const localIsoDay = (d = new Date()) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
-const fmtDateTime = (d: Date, timeZone: string) =>
-  d.toLocaleString('en-US', { timeZone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+const fmtDateTime = (d: Date, timeZone: string, locale: string) =>
+  d.toLocaleString(locale, { timeZone, weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-const fmtDate = (iso: string) =>
-  new Date(`${iso}T00:00:00`).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+const fmtDate = (iso: string, locale: string) =>
+  new Date(`${iso}T00:00:00`).toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
 
 const card: React.CSSProperties = { border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', background: '#fff', marginBottom: 20 };
 const h2: React.CSSProperties = { fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' };
@@ -62,6 +65,7 @@ export function RemindersForm({
   eventTime: string | null;
   sentCounts: Record<string, number>;
 }) {
+  const d = useDashText();
   const plus = usePlus();
   const router = useRouter();
   const [schedule, setSchedule] = useState<Set<ReminderKey>>(new Set(initialSchedule));
@@ -84,10 +88,10 @@ export function RemindersForm({
 
   function statusOf(key: ReminderKey): ReminderOptionStatus {
     const sentCount = sentCounts[key] ?? 0;
-    if (!eventDate) return { sendDate: null, sendAt: null, unavailable: 'Add an event date first', passed: false, sentCount };
+    if (!eventDate) return { sendDate: null, sendAt: null, unavailable: d.remindersForm.addAnEventDateFirst, passed: false, sentCount };
     if (isHourReminder(key)) {
       const sendAt = reminderSendInstant(eventDate, eventTime, key, timeZone);
-      if (!sendAt) return { sendDate: null, sendAt: null, unavailable: 'Add an event start time first', passed: false, sentCount };
+      if (!sendAt) return { sendDate: null, sendAt: null, unavailable: d.remindersForm.addAnEventStartTime, passed: false, sentCount };
       return { sendDate: null, sendAt, unavailable: null, passed: sendAt.getTime() < Date.now(), sentCount };
     }
     const sendDate = reminderSendDate(eventDate, key);
@@ -96,17 +100,17 @@ export function RemindersForm({
 
   function noteFor(st: ReminderOptionStatus, checked: boolean): string {
     if (st.unavailable) return st.unavailable;
-    const when = st.sendAt ? fmtDateTime(st.sendAt, timeZone) : fmtDate(st.sendDate!);
-    if (st.sentCount) return `Sent ${when} to ${st.sentCount} guest${st.sentCount === 1 ? '' : 's'}`;
-    if (st.passed) return `Time passed (${when}) — won’t be sent`;
-    return checked ? `Sends ${when}` : `Would send ${when}`;
+    const when = st.sendAt ? fmtDateTime(st.sendAt, timeZone, d.meta.locale) : fmtDate(st.sendDate!, d.meta.locale);
+    if (st.sentCount) return fill(d.remindersForm.sentToGuest, { when, sentCount: st.sentCount, v1: st.sentCount === 1 ? '' : 's' });
+    if (st.passed) return fill(d.remindersForm.timePassedWonTBe, { when });
+    return checked ? fill(d.remindersForm.sends, { when }) : fill(d.remindersForm.wouldSend, { when });
   }
 
   function addCustom() {
     setStatus(null);
     const n = Number(amount);
     if (!Number.isInteger(n) || n < 1 || n > REMINDER_UNIT_MAX[unit]) {
-      setAddError(`Enter a whole number from 1 to ${REMINDER_UNIT_MAX[unit]}.`);
+      setAddError(fill(d.remindersForm.enterAWholeNumberFrom, { v1: REMINDER_UNIT_MAX[unit] }));
       return;
     }
     // Same as a preset (e.g. 7 days = 1 week)? Tick that one instead.
@@ -115,11 +119,11 @@ export function RemindersForm({
     const key = preset ? preset.key : customReminderKey(n, unit);
     if (!key) return;
     if (schedule.has(key)) {
-      setAddError('That reminder is already on your list.');
+      setAddError(d.remindersForm.thatReminderIsAlreadyOn);
       return;
     }
     if (!preset && customKeys.length >= CUSTOM_REMINDER_MAX) {
-      setAddError(`You can add up to ${CUSTOM_REMINDER_MAX} custom reminders.`);
+      setAddError(fill(d.remindersForm.youCanAddUpTo, { CUSTOM_REMINDER_MAX }));
       return;
     }
     setAddError('');
@@ -144,13 +148,13 @@ export function RemindersForm({
         setSaved({ schedule: [...schedule].sort().join(','), message: message.trim() });
         setStatus({
           ok: true,
-          text: !schedule.size ? 'Saved. No reminders will be sent.'
-            : plus.paid ? 'Saved. Your reminders are scheduled.'
-            : 'Saved. Your reminders will start going out once this event is on Plus.',
+          text: !schedule.size ? d.remindersForm.savedNoRemindersWillBe
+            : plus.paid ? d.remindersForm.savedYourRemindersAreScheduled
+            : d.remindersForm.savedYourRemindersWillStart,
         });
         router.refresh(); // re-render the email preview with the new note
       } else {
-        setStatus({ ok: false, text: result.error ?? 'Couldn’t save.' });
+        setStatus({ ok: false, text: result.error ?? d.remindersForm.couldnTSave });
       }
     });
   }
@@ -165,8 +169,8 @@ export function RemindersForm({
   return (
     <form onSubmit={save}>
       <section style={card}>
-        <h2 style={h2}>When to send</h2>
-        <p style={sub}>Tick one or more, or add your own below. Each of these goes out in the morning (around 9–10 AM Eastern) on the date shown.</p>
+        <h2 style={h2}>{d.remindersForm.whenToSend}</h2>
+        <p style={sub}>{d.remindersForm.tickOneOrMoreOr}</p>
         <div style={{ display: 'grid', gap: 8 }}>
           {REMINDER_OPTIONS.map((opt) => {
             const st = statusOf(opt.key);
@@ -188,10 +192,9 @@ export function RemindersForm({
           })}
         </div>
 
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#241F2B', margin: '22px 0 4px' }}>Custom reminders</h3>
+        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#241F2B', margin: '22px 0 4px' }}>{d.remindersForm.customReminders}</h3>
         <p style={sub}>
-          Choose your own timing in weeks, days or hours before the event. Week and day reminders go out in the morning; hour
-          reminders go out that many hours before your event&rsquo;s start time ({timeZone.replace(/_/g, ' ')} time).
+          {d.remindersForm.chooseYourOwnTimingIn}{timeZone.replace(/_/g, ' ')} {d.remindersForm.time}
         </p>
         {customKeys.length > 0 && (
           <div style={{ display: 'grid', gap: 8, marginBottom: 12 }}>
@@ -204,10 +207,10 @@ export function RemindersForm({
                   <button
                     type="button"
                     onClick={() => toggle(key)}
-                    aria-label={`Remove the ${reminderLabel(key)} reminder`}
+                    aria-label={fill(d.remindersForm.removeTheReminder, { v1: reminderLabel(key) })}
                     style={{ border: 'none', background: 'none', color: '#B6584A', fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '2px 4px' }}
                   >
-                    Remove
+                    {d.remindersForm.remove}
                   </button>
                 </div>
               );
@@ -215,7 +218,7 @@ export function RemindersForm({
           </div>
         )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <label htmlFor="custom-reminder-amount" className="sr-only">Amount</label>
+          <label htmlFor="custom-reminder-amount" className="sr-only">{d.remindersForm.amount}</label>
           <input
             id="custom-reminder-amount"
             type="number"
@@ -227,7 +230,7 @@ export function RemindersForm({
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustom(); } }}
             style={{ width: 80, padding: '9px 10px', border: '1px solid #DDD5CE', borderRadius: 8, fontSize: 14, color: '#241F2B' }}
           />
-          <label htmlFor="custom-reminder-unit" className="sr-only">Unit</label>
+          <label htmlFor="custom-reminder-unit" className="sr-only">{d.remindersForm.unit}</label>
           <select
             id="custom-reminder-unit"
             value={unit}
@@ -236,28 +239,28 @@ export function RemindersForm({
           >
             {(['w', 'd', 'h'] as const).map((u) => <option key={u} value={u}>{REMINDER_UNIT_LABELS[u].many}</option>)}
           </select>
-          <span style={{ fontSize: 14, color: '#6B6470' }}>before the event</span>
+          <span style={{ fontSize: 14, color: '#6B6470' }}>{d.remindersForm.beforeTheEvent}</span>
           <button
             type="button"
             onClick={addCustom}
             style={{ padding: '9px 16px', borderRadius: 8, border: '1px solid #B6584A', background: '#fff', color: '#B6584A', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
           >
-            Add reminder
+            {d.remindersForm.addReminder}
           </button>
         </div>
         {addError && <p role="alert" style={{ fontSize: 13, color: '#B91C1C', margin: '8px 0 0' }}>{addError}</p>}
       </section>
 
       <section style={card}>
-        <label htmlFor="reminder-message" style={{ ...h2, display: 'block' }}>Personal message <span style={{ fontWeight: 400, color: '#6B6470', fontSize: 13 }}>(optional)</span></label>
-        <p style={sub}>Added to every reminder under &ldquo;A note from your host&rdquo; — for example what to wear, parking tips, or just a warm hello.</p>
+        <label htmlFor="reminder-message" style={{ ...h2, display: 'block' }}>{rich(d.remindersForm.personalMessageOptional, { t0: (s) => <span style={{ fontWeight: 400, color: '#6B6470', fontSize: 13 }}>{s}</span> })}</label>
+        <p style={sub}>{d.remindersForm.addedToEveryReminderUnder}</p>
         <textarea
           id="reminder-message"
           value={message}
           onChange={(e) => { setMessage(e.target.value); setStatus(null); }}
           maxLength={REMINDER_MESSAGE_MAX_LENGTH}
           rows={5}
-          placeholder="We can’t wait to celebrate with you! Parking is available behind the venue."
+          placeholder={d.remindersForm.weCanTWaitTo}
           style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', border: '1px solid #DDD5CE', borderRadius: 8, fontSize: 14, lineHeight: 1.6, color: '#241F2B', fontFamily: 'inherit', resize: 'vertical' }}
         />
         <p style={{ fontSize: 12, color: '#9A8F8C', margin: '4px 0 0', textAlign: 'right' }}>{message.length}/{REMINDER_MESSAGE_MAX_LENGTH}</p>
@@ -269,7 +272,7 @@ export function RemindersForm({
           disabled={isSaving || !dirty}
           style={{ padding: '11px 22px', borderRadius: 8, border: 'none', background: '#B6584A', color: '#fff', fontSize: 14, fontWeight: 600, cursor: isSaving || !dirty ? 'default' : 'pointer', opacity: isSaving || !dirty ? 0.6 : 1 }}
         >
-          {isSaving ? 'Saving…' : 'Save reminders'}
+          {isSaving ? d.remindersForm.saving : d.remindersForm.saveReminders}
         </button>
         <button
           type="button"
@@ -277,7 +280,7 @@ export function RemindersForm({
           disabled={isTesting}
           style={{ padding: '10px 18px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 14, fontWeight: 600, cursor: isTesting ? 'default' : 'pointer' }}
         >
-          {isTesting ? 'Sending…' : 'Send a test to me'}
+          {isTesting ? d.remindersForm.sending : d.remindersForm.sendATestToMe}
         </button>
       </div>
       {status && <p role="status" style={{ fontSize: 13, margin: '4px 0 0', color: status.ok ? '#2F7A4F' : '#B91C1C' }}>{status.text}</p>}

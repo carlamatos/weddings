@@ -10,11 +10,16 @@ import { QrSignCard } from '@/app/ui/dashboard/photo-qr-card';
 import { SeatingPlanner } from '@/app/ui/dashboard/seating-planner';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import { readPartyMeals } from '@/app/lib/rsvp-meals';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Find Your Table' };
 
 // On the day → Find Your Table (Plus): seat the guest list, then put the QR
 // sign at the entrance. Guests type their name at <page>/table and see their
 // table. The seating can be done on a free page; the lookup needs Plus.
 export default async function SeatingPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
   await ensureSeatingColumn().catch((error) => console.error('Failed to add the seating column:', error));
@@ -26,11 +31,9 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/seating" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Find Your Table</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.seating.findYourTable}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
-          No seating chart to print or fix at the last minute. Give each guest a table here, put the QR sign at the entrance, and
-          guests scan it, type their name and see their table. Change a table any time — guests always see the latest.
-          Set up your tables on the seating map and drag your guests onto them.
+          {d.seating.noSeatingChartToPrint}
           {' '}<HelpLink guide="seat-your-guests" />
         </p>
       </div>
@@ -40,14 +43,14 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
         settingName={SEATING_SETTING}
         plusSection="/seating"
         initialOn={settings[SEATING_SETTING] === 'true'}
-        label="Let guests look up their table"
+        label={d.seating.letGuestsLookUpTheir}
       />
       <p style={{ fontSize: 13, color: '#6B6470', margin: '-12px 0 24px', maxWidth: 680, lineHeight: 1.6 }}>
-        Guests find their table at{' '}
+        {d.seating.guestsFindTheirTableAt}{' '}
         <a href={lookupUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#8B3A2A', fontWeight: 600, overflowWrap: 'anywhere' }}>
           {lookupUrl.replace(/^https?:\/\//, '')}
         </a>
-        . They only see their own table, by typing their name — never the whole seating plan.
+        {d.seating.theyOnlySeeTheirOwn}
       </p>
 
       <SeatingPlanner
@@ -61,9 +64,9 @@ export default async function SeatingPage({ params }: { params: Promise<{ pageId
         url={lookupUrl}
         heading={userPage.heading || ''}
         sectionOn={on}
-        title="QR sign for the entrance"
-        intro="Print this sign for the entrance, the welcome table or the bar. Guests scan it with their phone camera, type their name and see their table."
-        offWarning="Guests can’t look up their table yet, so the code won’t show them anything. Switch it on above."
+        title={d.seating.qrSignForTheEntrance}
+        intro={d.seating.printThisSignForThe}
+        offWarning={d.seating.guestsCanTLookUp}
         defaultMessage="Find your table"
         how="Scan with your phone camera and type your name"
         fileName="find-your-table-qr-code.png"

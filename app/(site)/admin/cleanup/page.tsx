@@ -4,6 +4,9 @@ import PurgeButton from '@/app/ui/admin/purge-button';
 import Total from '@/app/ui/admin/total';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Cleanup' };
 
 // Live admin data: never run these queries at build time.
 export const dynamic = 'force-dynamic';

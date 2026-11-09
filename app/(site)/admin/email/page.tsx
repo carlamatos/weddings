@@ -4,6 +4,9 @@ import EmailComposer, { type ComposerPerson } from '@/app/ui/admin/email-compose
 import { formatDateTime } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import { COMPANY } from '@/app/lib/company';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Email users' };
 
 export default async function AdminEmailPage() {
   let people: ComposerPerson[] = [];

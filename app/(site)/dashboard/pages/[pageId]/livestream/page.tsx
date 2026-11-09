@@ -5,8 +5,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { LivestreamForm } from '@/app/ui/dashboard/livestream-form';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Live Stream' };
 
 export default async function LivestreamPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
@@ -17,10 +22,9 @@ export default async function LivestreamPage({ params }: { params: Promise<{ pag
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/livestream" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Live Stream</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.livestream.liveStream}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
-          Let guests who can&rsquo;t make it watch along. Paste the link to your stream, or the embed code your streaming
-          service gives you. The section shows on your page once it has a link.
+          {d.livestream.letGuestsWhoCanT}
           {' '}<HelpLink guide="livestream-your-event" />
         </p>
       </div>

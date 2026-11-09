@@ -6,6 +6,9 @@ import TrashActions from '@/app/ui/admin/trash-actions';
 import PageTrashActions from '@/app/ui/admin/page-trash-actions';
 import { formatDateTime } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Trash' };
 
 // Live admin data: never run these queries at build time.
 export const dynamic = 'force-dynamic';

@@ -4,8 +4,13 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { CustomSectionsManager } from '@/app/ui/dashboard/custom-sections-manager';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Custom Sections' };
 
 export default async function CustomSectionsPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
 
@@ -16,10 +21,9 @@ export default async function CustomSectionsPage({ params }: { params: Promise<{
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <PlusSetupNote section="/custom-sections" />
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Custom Sections</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.customSections.customSections}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
-          Up to three sections of your own, shown after Date &amp; Location. Give each an optional title and add text and images.
-          Empty sections stay hidden.
+          {d.customSections.upToThreeSectionsOf}
           {' '}<HelpLink guide="add-custom-sections" />
         </p>
       </div>

@@ -12,28 +12,19 @@ import {
   type OrnamentOccasion,
 } from '@/app/lib/invitation-ornaments';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import type { DashText } from '@/app/lib/dash-text/en';
 // Invitations → Decorations: one row per kind (divider, frame). The button
 // shows what's on the card (or an example when nothing is) and opens a
 // popup of every design, grouped by occasion with the theme's first. Below
 // it, the theme's colours and any colour.
 
-const COPY: Record<OrnamentKind, { title: string; choose: string; change: string; none: string; remove: string; intro: string }> = {
-  divider: {
-    title: 'Divider',
-    choose: 'Add a divider',
-    change: 'Change divider',
-    none: 'No divider',
-    remove: 'Remove divider',
-    intro: 'A decoration under the event name, in place of the plain line.',
-  },
-  frame: {
-    title: 'Frame',
-    choose: 'Add a frame',
-    change: 'Change frame',
-    none: 'No frame',
-    remove: 'Remove frame',
-    intro: 'A decorative border around the edge of your invitation.',
-  },
+// The picker's wording for each kind of ornament.
+const copy = (kind: OrnamentKind, d: DashText) => {
+  const t = d.ornamentPicker;
+  return kind === 'divider'
+    ? { title: t.dividerTitle, choose: t.dividerChoose, change: t.dividerChange, none: t.dividerNone, remove: t.dividerRemove, intro: t.dividerIntro }
+    : { title: t.frameTitle, choose: t.frameChoose, change: t.frameChange, none: t.frameNone, remove: t.frameRemove, intro: t.frameIntro };
 };
 
 const btn: React.CSSProperties = { padding: '8px 14px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' };
@@ -69,8 +60,9 @@ export function OrnamentField({
   onChange: (id: string) => void;
   onColor: (color: string) => void;
 }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
-  const t = COPY[kind];
+  const t = copy(kind, d);
   const current = findOrnament(kind, value);
   const example = current ?? ORNAMENTS[kind].find((o) => o.occasion === occasion) ?? ORNAMENTS[kind][0];
   const id = `inv-${kind}`;
@@ -100,7 +92,7 @@ export function OrnamentField({
 
       {current && (
         <div style={{ marginTop: 12 }}>
-          <p id={`${id}-colours`} style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', margin: '0 0 6px' }}>{t.title} colour</p>
+          <p id={`${id}-colours`} style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', margin: '0 0 6px' }}>{t.title} {d.ornamentPicker.colour}</p>
           <div role="radiogroup" aria-labelledby={`${id}-colours`} style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             {palette.map((c) => {
               const on = c.toUpperCase() === color.toUpperCase();
@@ -119,7 +111,7 @@ export function OrnamentField({
             })}
             <label style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#241F2B', marginLeft: 4, cursor: 'pointer' }}>
               <input type="color" value={color} onChange={(e) => onColor(e.target.value)} style={{ width: 34, height: 28, border: '1px solid #EDE8E3', borderRadius: 6, padding: 2, background: '#fff', cursor: 'pointer' }} />
-              Any colour
+              {d.ornamentPicker.anyColour}
             </label>
           </div>
         </div>
@@ -157,7 +149,8 @@ function OrnamentDialog({
   onPick: (id: string) => void;
   onClose: () => void;
 }) {
-  const t = COPY[kind];
+  const d = useDashText();
+  const t = copy(kind, d);
   const current = findOrnament(kind, value);
   const tabs = [...ORNAMENT_OCCASIONS].sort((a, b) => Number(b.key === occasion) - Number(a.key === occasion));
   const [tab, setTab] = useState<OrnamentOccasion>(current?.occasion ?? occasion);
@@ -188,11 +181,11 @@ function OrnamentDialog({
         onClick={(e) => e.stopPropagation()}
         style={{ maxWidth: 760, maxHeight: '88vh', overflowY: 'auto', padding: '26px 24px' }}
       >
-        <button className="profile-modal-close" onClick={onClose} aria-label="Close">×</button>
+        <button className="profile-modal-close" onClick={onClose} aria-label={d.ornamentPicker.close}>×</button>
         <h2 id={`ornament-${kind}-title`} style={{ marginBottom: 6 }}>{current ? t.change : t.choose}</h2>
-        <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.5 }}>{t.intro} You can change its colour after choosing.</p>
+        <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.5 }}>{t.intro} {d.ornamentPicker.youCanChangeItsColour}</p>
 
-        <div role="tablist" aria-label="Occasion" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+        <div role="tablist" aria-label={d.ornamentPicker.occasion} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
           {tabs.map((o) => (
             <button
               key={o.key}

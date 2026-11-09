@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 export default function ExtendButton({ pageId }: { pageId: number }) {
+  const d = useDashText();
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
@@ -33,7 +36,7 @@ export default function ExtendButton({ pageId }: { pageId: number }) {
         whiteSpace: 'nowrap',
       }}
     >
-      {loading ? 'Redirecting…' : `Extend — ${PLAN_PRICE_PLUS_TAX} / ${PLAN_TERM_MONTHS} mo`}
+      {loading ? d.extendButton.redirecting : fill(d.extendButton.extendMo, { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS })}
     </button>
   );
 }

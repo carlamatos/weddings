@@ -1,5 +1,7 @@
 import { greatVibes } from '@/app/ui/fonts';
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
+import { DashTextProvider } from '@/app/ui/dashboard/dash-text';
+import { en } from '@/app/lib/dash-text/en';
 import Link from 'next/link';
 import { signOut } from '@/auth';
 import '@/app/ui/auth.css';
@@ -28,7 +30,8 @@ export default async function VerifyEmailPendingPage({
             : "Check your inbox for the verification link we sent you, or send a new one below. Verifying unlocks publishing your page and sending invitations."}
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
-          <ResendVerificationButton />
+          {/* The sign-in pages are in English, so the button is too. */}
+          <DashTextProvider text={en}><ResendVerificationButton /></DashTextProvider>
         </div>
         <p className="auth-footer">
           Wrong account?{' '}

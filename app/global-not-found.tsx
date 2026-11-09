@@ -1,6 +1,6 @@
 import '@/app/ui/global.css';
 import '@/app/ui/marketing.css';
-import Link from 'next/link';
+import { NotFoundContent } from '@/app/ui/not-found-content';
 import type { Metadata } from 'next';
 import { greatVibes, inter } from '@/app/ui/fonts';
 
@@ -17,17 +17,7 @@ export default function GlobalNotFound() {
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <div className={`marketing-page ${greatVibes.variable}`}>
-          <main className="mk-hero" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center' }}>
-            <div className="wrap" style={{ textAlign: 'center' }}>
-              <Link href="/" className="wordmark" style={{ fontSize: 44 }}>My<span className="accent">Gala</span></Link>
-              <h1 className="mk-h1" style={{ marginTop: 24 }}>Page not found</h1>
-              <p className="mk-lead" style={{ margin: '0 auto 28px' }}>This page doesn’t exist, or it has moved.</p>
-              <p style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <Link href="/" className="btn-primary">Go to the home page</Link>
-                <Link href="/themes" className="ilp-link">See the themes</Link>
-              </p>
-            </div>
-          </main>
+          <NotFoundContent />
         </div>
       </body>
     </html>

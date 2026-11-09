@@ -11,10 +11,15 @@ import { GuestPhotoAllowance } from '@/app/ui/dashboard/guest-photo-allowance';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
 import { pagePath } from '@/app/lib/dashboard';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+export const metadata: Metadata = { title: 'Guest Photos' };
 
 // Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Plus raises the
 // limit. Free pages start with the section off.
 export default async function GuestPhotosPage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const paid = isPagePaidAndLive(userPage);
 
@@ -30,10 +35,9 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Guest Photos</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.guestPhotos.guestPhotos}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
-          Guests share their photos straight from your event page, and everyone can browse them. You can delete any photo,
-          and download them all at once.
+          {d.guestPhotos.guestsShareTheirPhotosStraight}
           {' '}<HelpLink guide="collect-guest-photos" />
         </p>
       </div>
@@ -56,9 +60,9 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
 
       <PlanningToolTip
         href={pagePath(userPage.id, '/slideshow')}
-        title="Put them on the big screen."
-        text="The photo slideshow plays your guests’ photos on a TV or projector at your event, with new ones appearing as they’re shared."
-        cta="Photo Slideshow"
+        title={d.guestPhotos.putThemOnTheBig}
+        text={d.guestPhotos.thePhotoSlideshowPlaysYour}
+        cta={d.guestPhotos.photoSlideshow}
         internal
       />
     </div>

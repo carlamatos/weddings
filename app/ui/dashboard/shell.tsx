@@ -14,7 +14,10 @@ import PublishButton from '@/app/ui/dashboard/publish-button';
 import { greatVibes } from '@/app/ui/fonts';
 import { siteHref } from '@/app/lib/app-url';
 import { PendingPlanBanner } from '@/app/ui/dashboard/pending-plan';
+import { DashTextProvider } from '@/app/ui/dashboard/dash-text';
 
+import { getDashText } from '@/app/lib/dash-text/server';
+import { rich } from '@/app/ui/dashboard/rich';
 // The dashboard chrome (sidebar, top bar, deactivation/lapsed-plan notices).
 // pageId: undefined = no page in the URL (setup, page list); a number = that
 // page (must belong to the signed-in user, else 404); null = malformed id (404).
@@ -25,6 +28,7 @@ export default async function DashboardShell({
   pageId?: number | null;
   children: React.ReactNode;
 }) {
+  const d = await getDashText();
   if (pageId === null) notFound();
 
   const session = await auth();
@@ -54,7 +58,7 @@ export default async function DashboardShell({
   const [settings, counts] = page ? await Promise.all([fetchPageSettings(page.id), fetchSetupCounts(page.id)]) : [];
   const status = page && settings ? sectionStatus(page, settings) : undefined;
   // "Your page is 3/5 ready" at the top of the sidebar.
-  const setup = page && counts ? setupSteps(page, counts) : undefined;
+  const setup = page && counts ? setupSteps(page, counts, d.setupSteps) : undefined;
 
   const deactivated = page?.status === 'inactive';
   const draft = page?.status === 'draft';
@@ -62,6 +66,7 @@ export default async function DashboardShell({
   const expired = !!page && hasExpiredPlan(page);
 
   return (
+    <DashTextProvider text={d}>
     <PlusProvider pageId={page ? Number(page.id) : undefined} paid={page ? isPagePaidAndLive(page) : true} expired={expired}>
     <div className={`dash dash-shell ${greatVibes.variable}`}>
       <SideNav pageId={page ? Number(page.id) : undefined} pageName={page?.heading} isPaid={page ? isPagePaidAndLive(page) : false} status={status} setup={setup} />
@@ -78,7 +83,7 @@ export default async function DashboardShell({
               }}
             >
               <span>
-                <strong>Your page is a draft.</strong> Only you can see it. Publish it when you&rsquo;re ready for guests to open it and RSVP.
+                {rich(d.shell.yourPageIsADraft, { t0: (s) => <strong>{s}</strong> })}
               </span>
               <PublishButton pageId={Number(page.id)} />
             </div>
@@ -91,12 +96,7 @@ export default async function DashboardShell({
                 borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
               }}
             >
-              <strong>Your page has been deactivated.</strong> Guests currently see a &ldquo;page
-              unavailable&rdquo; message. Reactivate it from the account menu, or{' '}
-              <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>
-                contact us
-              </Link>{' '}
-              with questions.
+              {rich(d.shell.yourPageHasBeenDeactivated, { t0: (s) => <strong>{s}</strong>, t1: (s) => <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>{s}</Link> })}
             </div>
           )}
           {suspended && (
@@ -107,12 +107,7 @@ export default async function DashboardShell({
                 borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20,
               }}
             >
-              <strong>Your page has been suspended by MyGala.</strong> Guests currently see a &ldquo;page unavailable&rdquo;
-              message, and only MyGala can reactivate it. If you think this is a mistake, please{' '}
-              <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>
-                contact us
-              </Link>{' '}
-              to have it reviewed.
+              {rich(d.shell.yourPageHasBeenSuspended, { t0: (s) => <strong>{s}</strong>, t1: (s) => <Link href={siteHref('/contact')} style={{ color: 'inherit', textDecoration: 'underline' }}>{s}</Link> })}
             </div>
           )}
           {expired && page && (
@@ -125,7 +120,7 @@ export default async function DashboardShell({
               }}
             >
               <span>
-                <strong>Your Plus term has ended.</strong> Your page is still live, but Plus features like your custom domain, song requests and event reminders are off, and guest photos are back to the free limit of 50. Extend to restore them.
+                {rich(d.shell.yourPlusTermHasEnded, { t0: (s) => <strong>{s}</strong> })}
               </span>
               <ExtendButton pageId={Number(page.id)} />
             </div>
@@ -136,5 +131,6 @@ export default async function DashboardShell({
       </div>
     </div>
     </PlusProvider>
+    </DashTextProvider>
   );
 }

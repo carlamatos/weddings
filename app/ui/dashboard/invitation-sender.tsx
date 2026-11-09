@@ -10,6 +10,9 @@ import type { Guest } from '@/app/lib/definitions';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 import { LocalDate } from './local-date';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Guests the invitation can be emailed to.
 const canEmail = (g: Guest) => !!g.email && EMAIL_RE.test(g.email.trim()) && !g.email_opt_out;
@@ -39,6 +42,7 @@ export function InvitationSender({
   // The account hasn't verified its email: nothing can be sent yet.
   locked?: boolean;
 }) {
+  const d = useDashText();
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [sending, setSending] = useState<'guests' | 'test' | null>(null);
@@ -74,9 +78,9 @@ export function InvitationSender({
     setPreview(null);
     previewInvitationEmail(pageId, previewGuest || undefined)
       .then((r) => { if (live) setPreview(r.ok ? { subject: r.subject, html: r.html } : { error: r.error }); })
-      .catch(() => { if (live) setPreview({ error: 'Couldn’t load the preview. Please check your connection.' }); });
+      .catch(() => { if (live) setPreview({ error: d.invitationSender.couldnTLoadThePreview }); });
     return () => { live = false; };
-  }, [previewOpen, previewGuest, pageId]);
+  }, [previewOpen, previewGuest, pageId, d.invitationSender.couldnTLoadThePreview]);
 
   useEffect(() => {
     if (!previewOpen) return;
@@ -114,7 +118,7 @@ export function InvitationSender({
       setCopied(g.id);
       setTimeout(() => setCopied((c) => (c === g.id ? null : c)), 2000);
     } catch {
-      window.prompt('Copy this message:', messageFor(g));
+      window.prompt(d.invitationSender.copyThisMessage, messageFor(g));
     }
   }
 
@@ -131,7 +135,7 @@ export function InvitationSender({
     try {
       result = await saveInvitationNote(pageId, guestId, value);
     } catch {
-      result = { ok: false, error: 'Couldn’t save the note. Please check your connection.' };
+      result = { ok: false, error: d.invitationSender.couldnTSaveTheNote };
     }
     setSavingNote(false);
     if (!result.ok) {
@@ -146,8 +150,8 @@ export function InvitationSender({
     if (!chosen.length) return;
     const again = chosen.filter((g) => g.invited_at).length;
     const confirmText =
-      `Email your invitation to ${chosen.length} guest${chosen.length === 1 ? '' : 's'}?` +
-      (again ? `\n\n${again} of them already received it and will get it again.` : '');
+      fill(d.invitationSender.emailYourInvitationToGuest, { length: chosen.length, v1: chosen.length === 1 ? '' : 's' }) +
+      (again ? fill(d.invitationSender.ofThemAlreadyReceivedIt, { again }) : '');
     if (!window.confirm(confirmText)) return;
     setSending('guests');
     setSendNotice(null);
@@ -155,7 +159,7 @@ export function InvitationSender({
     try {
       result = await sendInvitations(pageId, chosen.map((g) => g.id));
     } catch {
-      result = { ok: false, error: 'Couldn’t send the invitations. Please check your connection and try again.' };
+      result = { ok: false, error: d.invitationSender.couldnTSendTheInvitations };
     }
     setSending(null);
     if (!result.ok) {
@@ -163,8 +167,8 @@ export function InvitationSender({
       router.refresh();
       return;
     }
-    const skipped = result.skipped ? ` ${result.skipped} skipped (no email address, or the same email twice).` : '';
-    setSendNotice({ kind: 'ok', text: `Invitation sent to ${result.sent} guest${result.sent === 1 ? '' : 's'}.${skipped}` });
+    const skipped = result.skipped ? fill(d.invitationSender.skippedNoEmailAddressOr, { skipped: result.skipped }) : '';
+    setSendNotice({ kind: 'ok', text: fill(d.invitationSender.invitationSentToGuest, { sent: result.sent, v1: result.sent === 1 ? '' : 's', skipped }) });
     setSelected(new Set());
     router.refresh();
   }
@@ -176,7 +180,7 @@ export function InvitationSender({
     try {
       result = await sendTestInvitation(pageId);
     } catch {
-      result = { ok: false, message: 'Couldn’t send the test. Please check your connection and try again.' };
+      result = { ok: false, message: d.invitationSender.couldnTSendTheTest };
     }
     setSending(null);
     setSendNotice({ kind: result.ok ? 'ok' : 'error', text: result.message });
@@ -185,50 +189,45 @@ export function InvitationSender({
   return (
     <section style={card}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 6 }}>
-        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>Send invitations</h2>
-        <Link href={guestListHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>+ Add or import guests in Guest List</Link>
+        <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: 0 }}>{d.invitationSender.sendInvitations}</h2>
+        <Link href={guestListHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>{d.invitationSender.addOrImportGuestsIn}</Link>
       </div>
 
       {locked && (
         <p role="status" style={{ background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, margin: '10px 0 14px' }}>
-          <strong>Verify your email to send invitations.</strong> Click the link we emailed you — then you can email, text and WhatsApp your
-          invitation from here, and publish your page so guests can RSVP. Until then you can design, print and save it as a PDF, and build your guest list.
+          {rich(d.invitationSender.verifyYourEmailToSend, { t0: (s) => <strong>{s}</strong> })}
         </p>
       )}
 
       {guests.length === 0 ? (
         <p style={{ fontSize: 14, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
-          Your guest list is empty. <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>Add your guests</Link> — from a
-          spreadsheet, your phone&rsquo;s contacts or by hand — then come back here to send them your invitation.
+          {rich(d.invitationSender.yourGuestListIsEmpty, { t0: (s) => <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>{s}</Link> })}
         </p>
       ) : (
         <>
           <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
-            <strong>By text:</strong> tap <strong>Text</strong> or <strong>WhatsApp</strong> next to a guest&rsquo;s phone number to open a
-            ready-made invitation message on your phone — just press send. It comes from your own number, so guests know it&rsquo;s you.
-            <strong> Copy</strong> puts the message on your clipboard for any other app.
+            {rich(d.invitationSender.byTextTapTextOr, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong>, t2: (s) => <strong>{s}</strong>, t3: (s) => <strong>{s}</strong> })}
             <br />
-            <strong>By email:</strong> tick the guests to invite. Each one gets your invitation as designed above (your last <strong>saved</strong> design) with an
-            RSVP button to your page. Replies to the email go to you. Guests without an email address can&rsquo;t be selected.
+            {rich(d.invitationSender.byEmailTickTheGuests, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong> })}
             <br />
-            <strong>Invitation notes</strong> add a personal message for one guest, in both their email and their text.
+            {rich(d.invitationSender.invitationNotesAddAPersonal, { t0: (s) => <strong>{s}</strong> })}
           </p>
 
           <div style={{ border: '1px solid #EDE8E3', background: '#FBF9F7', borderRadius: 10, padding: '12px 14px', marginBottom: 14 }}>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-              <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!emailable.length} onClick={() => setSelected(new Set(emailable.map((g) => g.id)))}>Select all ({emailable.length})</button>
-              <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>Select not yet invited ({notInvited.length})</button>
-              {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>Clear</button>}
+              <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!emailable.length} onClick={() => setSelected(new Set(emailable.map((g) => g.id)))}>{fill(d.invitationSender.selectAll, { length: emailable.length })}</button>
+              <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} disabled={!notInvited.length} onClick={() => setSelected(new Set(notInvited.map((g) => g.id)))}>{fill(d.invitationSender.selectNotYetInvited, { length: notInvited.length })}</button>
+              {chosen.length > 0 && <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => setSelected(new Set())}>{d.invitationSender.clear}</button>}
               <span style={{ flex: '1 1 auto' }} />
-              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked} onClick={openPreview}>Preview email</button>
-              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? 'Sending…' : 'Send me a test'}</button>
+              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked} onClick={openPreview}>{d.invitationSender.previewEmail}</button>
+              <button type="button" style={{ ...btn, padding: '9px 14px', ...(firstTime ? { borderColor: '#B6584A', color: '#B6584A' } : {}) }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? d.invitationSender.sending : d.invitationSender.sendMeATest}</button>
               <button type="button" style={{ ...primary, opacity: chosen.length && !locked ? 1 : 0.5 }} disabled={locked || !chosen.length || sending !== null} onClick={sendToChosen}>
-                {sending === 'guests' ? 'Sending…' : chosen.length ? `✉ Email ${chosen.length} guest${chosen.length === 1 ? '' : 's'}` : '✉ Email invitations'}
+                {sending === 'guests' ? d.invitationSender.sending : chosen.length ? fill(d.invitationSender.emailGuest, { length: chosen.length, v1: chosen.length === 1 ? '' : 's' }) : d.invitationSender.emailInvitations}
               </button>
             </div>
             {firstTime && !locked && (
               <p style={{ fontSize: 13, margin: '10px 0 0', color: '#6B6470', lineHeight: 1.5 }}>
-                Sending for the first time? <strong>Preview the email</strong> or <strong>send yourself a test</strong> to see exactly what your guests will receive.
+                {rich(d.invitationSender.sendingForTheFirstTime, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong> })}
               </p>
             )}
             {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
@@ -238,32 +237,32 @@ export function InvitationSender({
             <div
               role="dialog"
               aria-modal="true"
-              aria-label="Invitation email preview"
+              aria-label={d.invitationSender.invitationEmailPreview}
               onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
               style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(36,31,43,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
             >
               <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, maxHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 60px rgba(36,31,43,0.25)' }}>
                 <div style={{ padding: '14px 18px', borderBottom: '1px solid #EDE8E3', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                   <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 12, color: '#9A8F8C' }}>What your guests will receive</p>
+                    <p style={{ margin: 0, fontSize: 12, color: '#9A8F8C' }}>{d.invitationSender.whatYourGuestsWillReceive}</p>
                     <p style={{ margin: '2px 0 0', fontSize: 15, fontWeight: 600, color: '#241F2B', overflowWrap: 'anywhere' }}>
-                      {preview && 'subject' in preview ? preview.subject : 'Loading…'}
+                      {preview && 'subject' in preview ? preview.subject : d.invitationSender.loading}
                     </p>
                   </div>
-                  <select aria-label="Preview as" value={previewGuest} onChange={(e) => setPreviewGuest(e.target.value)} style={{ ...input, padding: '6px 8px', fontSize: 13, maxWidth: '100%' }}>
-                    <option value="">As any guest</option>
-                    {emailable.map((g) => <option key={g.id} value={g.id}>As {g.name}</option>)}
+                  <select aria-label={d.invitationSender.previewAs} value={previewGuest} onChange={(e) => setPreviewGuest(e.target.value)} style={{ ...input, padding: '6px 8px', fontSize: 13, maxWidth: '100%' }}>
+                    <option value="">{d.invitationSender.asAnyGuest}</option>
+                    {emailable.map((g) => <option key={g.id} value={g.id}>{fill(d.invitationSender.as, { name: g.name })}</option>)}
                   </select>
-                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label="Close the preview" style={{ ...btn, padding: '6px 12px' }}>Close</button>
+                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label={d.invitationSender.closeThePreview} style={{ ...btn, padding: '6px 12px' }}>{d.invitationSender.close}</button>
                 </div>
                 {preview && 'error' in preview ? (
                   <p role="alert" style={{ margin: 0, padding: 24, fontSize: 14, color: '#B91C1C' }}>{preview.error}</p>
                 ) : (
-                  <iframe title="Invitation email" sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
+                  <iframe title={d.invitationSender.invitationEmail} sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
                 )}
                 <div style={{ padding: '12px 18px', borderTop: '1px solid #EDE8E3', display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>Links in the preview are turned off.</span>
-                  <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={() => { setPreviewOpen(false); sendTest(); }}>Send me a test</button>
+                  <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>{d.invitationSender.linksInThePreviewAre}</span>
+                  <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={() => { setPreviewOpen(false); sendTest(); }}>{d.invitationSender.sendMeATest}</button>
                 </div>
               </div>
             </div>
@@ -277,14 +276,14 @@ export function InvitationSender({
                     <input
                       ref={allBoxRef}
                       type="checkbox"
-                      aria-label="Select all guests with an email"
+                      aria-label={d.invitationSender.selectAllGuestsWithAn}
                       checked={allChosen}
                       disabled={!emailable.length}
                       onChange={() => setSelected(allChosen ? new Set() : new Set(emailable.map((g) => g.id)))}
                       style={{ width: 16, height: 16, accentColor: '#B6584A', cursor: 'pointer' }}
                     />
                   </th>
-                  {['Name', 'Email', 'Phone', 'Status', 'Invitation', 'Invitation notes'].map((h) => <th key={h} style={headCell}>{h}</th>)}
+                  {[d.invitationSender.name, d.invitationSender.email, d.invitationSender.phone, d.invitationSender.status, d.invitationSender.invitation, d.invitationSender.invitationNotes].map((h) => <th key={h} style={headCell}>{h}</th>)}
                 </tr>
               </thead>
               <tbody>
@@ -298,7 +297,7 @@ export function InvitationSender({
                         <td style={{ ...cell, paddingRight: 0 }}>
                           <input
                             type="checkbox"
-                            aria-label={`Select ${g.name}`}
+                            aria-label={fill(d.invitationSender.select, { name: g.name })}
                             checked={emailOk && selected.has(g.id)}
                             disabled={!emailOk}
                             onChange={() => toggle(g.id)}
@@ -312,23 +311,23 @@ export function InvitationSender({
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             {g.phone && !locked && (
                               <>
-                                <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={`Text the invitation to ${g.name} from your phone`}>Text</a>
-                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={`Send the invitation to ${g.name} on WhatsApp`}>WhatsApp</a>
+                                <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={fill(d.invitationSender.textTheInvitationToFrom, { name: g.name })}>{d.invitationSender.text}</a>
+                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={fill(d.invitationSender.sendTheInvitationToOn, { name: g.name })}>{d.invitationSender.whatsapp}</a>
                               </>
                             )}
-                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title="Copy the invitation message">{copied === g.id ? '✓ Copied' : 'Copy'}</button>}
+                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title={d.invitationSender.copyTheInvitationMessage}>{copied === g.id ? d.invitationSender.copied : d.invitationSender.copy}</button>}
                           </div>
                         </td>
                         <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>
                         <td style={{ ...cell, fontSize: 13, color: '#6B6470', whiteSpace: 'nowrap' }}>
-                          {g.email_opt_out ? 'Unsubscribed'
-                            : !g.email ? 'No email'
-                            : !emailOk ? 'Invalid email'
-                            : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }}>✓ Emailed <LocalDate iso={g.invited_at} options={{ month: 'short', day: 'numeric' }} /></span>
-                            : 'Not emailed'}
+                          {g.email_opt_out ? d.invitationSender.unsubscribed
+                            : !g.email ? d.invitationSender.noEmail
+                            : !emailOk ? d.invitationSender.invalidEmail
+                            : g.invited_at ? <span style={{ color: '#3D6B46', fontWeight: 600 }}>{d.invitationSender.emailed} <LocalDate iso={g.invited_at} options={{ month: 'short', day: 'numeric' }} /></span>
+                            : d.invitationSender.notEmailed}
                           {texted && (
                             <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }}>
-                              ✓ {texted === 'whatsapp' ? 'WhatsApp' : 'Texted'} <LocalDate iso={textedNow[g.id] || !g.texted_at ? new Date().toISOString() : g.texted_at} options={{ month: 'short', day: 'numeric' }} />
+                              ✓ {texted === 'whatsapp' ? d.invitationSender.whatsapp : d.invitationSender.texted} <LocalDate iso={textedNow[g.id] || !g.texted_at ? new Date().toISOString() : g.texted_at} options={{ month: 'short', day: 'numeric' }} />
                             </div>
                           )}
                         </td>
@@ -337,7 +336,7 @@ export function InvitationSender({
                             <p title={g.invitation_note} style={{ margin: '0 0 4px', fontSize: 13, color: '#6B6470', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{g.invitation_note}</p>
                           )}
                           <button type="button" onClick={() => openNote(g)} aria-expanded={noteFor === g.id} style={{ background: 'none', border: 'none', padding: 0, fontSize: 13, fontWeight: 600, color: '#B6584A', cursor: 'pointer', fontFamily: 'inherit' }}>
-                            {g.invitation_note ? '✎ Edit note' : '+ Add note'}
+                            {g.invitation_note ? d.invitationSender.editNote : d.invitationSender.addNote}
                           </button>
                         </td>
                       </tr>
@@ -345,7 +344,7 @@ export function InvitationSender({
                         <tr>
                           <td colSpan={7} style={{ ...cell, background: '#FBF9F7' }}>
                             <label htmlFor={`note-${g.id}`} style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#241F2B', marginBottom: 6 }}>
-                              Invitation notes for {g.name}
+                              {fill(d.invitationSender.invitationNotesFor, { name: g.name })}
                             </label>
                             <textarea
                               id={`note-${g.id}`}
@@ -354,19 +353,19 @@ export function InvitationSender({
                               autoFocus
                               value={noteDraft}
                               onChange={(e) => setNoteDraft(e.target.value)}
-                              placeholder="e.g. Kids are very welcome — we'll have a play corner!"
+                              placeholder={d.invitationSender.eGKidsAreVery}
                               style={{ ...input, width: '100%', boxSizing: 'border-box', resize: 'vertical', lineHeight: 1.5 }}
                             />
                             <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 8 }}>
                               <button type="button" style={{ ...primary, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => saveNote(g.id, noteDraft)}>
-                                {savingNote ? 'Saving…' : 'Save note'}
+                                {savingNote ? d.invitationSender.saving : d.invitationSender.saveNote}
                               </button>
-                              <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => setNoteFor(null)}>Cancel</button>
+                              <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => setNoteFor(null)}>{d.invitationSender.cancel}</button>
                               {g.invitation_note && (
-                                <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => saveNote(g.id, '')}>Remove note</button>
+                                <button type="button" style={{ ...btn, padding: '7px 14px', fontSize: 13 }} disabled={savingNote} onClick={() => saveNote(g.id, '')}>{d.invitationSender.removeNote}</button>
                               )}
                               <span style={{ fontSize: 12, color: '#9A8F8C', marginLeft: 'auto' }}>
-                                Shown only in {g.name}&rsquo;s invitation · {noteDraft.length}/{INVITATION_NOTE_MAX}
+                                {fill(d.invitationSender.shownOnlyInSInvitation, { name: g.name, length: noteDraft.length, INVITATION_NOTE_MAX })}
                               </span>
                             </div>
                             {noteError && <p role="alert" style={{ margin: '8px 0 0', fontSize: 13, color: '#B91C1C' }}>{noteError}</p>}

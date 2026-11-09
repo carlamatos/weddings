@@ -8,10 +8,16 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { HashtagForm } from '@/app/ui/dashboard/hashtag-form';
 import { ShareButtons } from '@/app/ui/dashboard/share-buttons';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import type { Metadata } from 'next';
+
+import { getDashText } from '@/app/lib/dash-text/server';
+import { rich } from '@/app/ui/dashboard/rich';
+export const metadata: Metadata = { title: 'Share' };
 
 // Available on every plan. Paid pages with a verified custom domain share
 // that domain; everyone else shares their MyGala URL.
 export default async function SharePage({ params }: { params: Promise<{ pageId: string }> }) {
+  const d = await getDashText();
   const userPage = await requireOwnedPage(params);
   const pageId = Number(userPage.id);
   const settings = await fetchPageSettings(pageId);
@@ -28,60 +34,55 @@ export default async function SharePage({ params }: { params: Promise<{ pageId: 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif', maxWidth: 760 }}>
       <div style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>Share</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.share.share}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0 }}>
-          Send your event page to guests on social media, messaging apps, or email. Links show your top banner image as the preview.
+          {d.share.sendYourEventPageTo}
           {' '}<HelpLink guide="share-your-page" />
         </p>
       </div>
 
       {userPage.status === 'draft' && (
         <div role="alert" style={{ background: '#F3EFF9', border: '1px solid #D9CFEA', color: '#3F2E63', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
-          Your page is a draft, so anyone who opens the link will see &ldquo;not published yet&rdquo;. Publish it first — you&rsquo;ll need to verify your email if you haven&rsquo;t yet.
+          {d.share.yourPageIsADraft}
         </div>
       )}
       {(userPage.status === 'inactive' || userPage.status === 'suspended') && (
         <div role="alert" style={{ background: '#FFF8E7', border: '1px solid #E8D9A8', color: '#8A6800', borderRadius: 10, padding: '12px 16px', fontSize: 14, lineHeight: 1.6, marginBottom: 20 }}>
-          Your page is {userPage.status === 'suspended' ? 'suspended' : 'deactivated'}, so anyone who opens the link will see a &ldquo;page unavailable&rdquo; message.
+          {d.share.yourPageIs} {userPage.status === 'suspended' ? 'suspended' : 'deactivated'}{d.share.soAnyoneWhoOpensThe}
         </div>
       )}
 
       <section style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginBottom: 28, background: '#fff' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Share section on your page</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.share.shareSectionOnYourPage}</h2>
         <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 }}>
-          A band near the bottom of your page with buttons for guests to share it on Facebook, X and WhatsApp, or copy the link. Add a hashtag to feature it there too.
+          {d.share.aBandNearTheBottom}
         </p>
         <SectionToggle pageId={pageId} settingName="show_share" initialOn={isSectionOn(settings, 'show_share')} />
         <HashtagForm pageId={pageId} initialHashtag={hashtag} pageUrl={url} />
       </section>
 
       <section style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginBottom: 28, background: '#fff' }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>Search engines &amp; AI answers</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.share.searchEnginesAiAnswers}</h2>
         <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 }}>
-          While this is off, your page asks search engines and AI tools not to list it, and stays open to anyone who has the link.
-          For a public event, switch it on so Google and AI assistants can show it. To keep strangers out
-          completely, use a page password (Plus).
+          {d.share.whileThisIsOffYour}
         </p>
-        <SectionToggle pageId={pageId} settingName="show_in_search" initialOn={isSectionOn(settings, 'show_in_search')} label="Show this page in search results" />
+        <SectionToggle pageId={pageId} settingName="show_in_search" initialOn={isSectionOn(settings, 'show_in_search')} label={d.share.showThisPageInSearch} />
       </section>
 
       <ShareButtons url={url} title={title} description={description} image={image} shareImage={socialImageFor(userPage)} hashtag={hashtag || undefined} pageId={pageId} />
 
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 16, lineHeight: 1.6 }}>
         {usingBanner
-          ? 'The preview uses your top banner image.'
+          ? d.share.thePreviewUsesYourTop
           : userPage.banner_image
-            ? 'Social networks can’t show a video or SVG banner as a preview, so a fallback image is used instead.'
-            : 'You haven’t uploaded a top banner yet, so your theme’s default image is used.'}{' '}
-        Change it from{' '}
-        <Link href={pagePath(userPage.id)} style={{ color: '#B6584A' }}>Edit Event Page</Link>.
-        {' '}Networks cache previews, so a new banner can take a while to show up on links already shared.
+            ? d.share.socialNetworksCanTShow
+            : d.share.youHavenTUploadedA}{' '}
+        {rich(d.share.changeItFromEditEvent, { t0: (s) => <Link href={pagePath(userPage.id)} style={{ color: '#B6584A' }}>{s}</Link> })}
       </p>
 
       {!isPaid && (
         <p style={{ fontSize: 13, color: '#6B6470', marginTop: 8, lineHeight: 1.6 }}>
-          Want to share your own domain instead?{' '}
-          <Link href={pagePath(userPage.id, '/domain')} style={{ color: '#B6584A' }}>Upgrade to Plus</Link>.
+          {rich(d.share.wantToShareYourOwn, { t0: (s) => <Link href={pagePath(userPage.id, '/domain')} style={{ color: '#B6584A' }}>{s}</Link> })}
         </p>
       )}
     </div>

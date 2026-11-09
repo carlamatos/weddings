@@ -8,7 +8,7 @@ import AdminNav from '@/app/ui/admin/admin-nav';
 import { c } from '@/app/ui/admin/styles';
 
 export const metadata: Metadata = {
-  title: 'Admin — MyGala',
+  title: { template: 'Admin: %s | MyGala', default: 'Admin' },
   robots: { index: false, follow: false },
 };
 

@@ -15,6 +15,8 @@ import EditSheet, { SheetField, SheetSection, TextPreview } from './EditSheet';
 import { useThemeLook, type ThemeLook } from './theme-look';
 import { useOpenEditor } from './open-editor';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 function CameraIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -68,6 +70,7 @@ function TextSheet({
   selectAll?: boolean; // select the text on open, so typing replaces it
   look?: ThemeLook; // how the text looks with the theme's colours
 }) {
+  const d = useDashText();
   const id = useId();
   return (
     <EditSheet title={title} intro={intro} onClose={onClose} onSave={onSave}>
@@ -101,11 +104,11 @@ function TextSheet({
         <>
           <HeroColorField
             id={`${id}-color`}
-            label="Text colour"
+            label={d.editableSlots.textColour}
             value={color ?? ''}
             onChange={setColor}
             current={look?.colorHex ?? look?.color}
-            hint="Click the colour square to choose a colour for this text. Pick one that stands out from the photo or background behind it."
+            hint={d.editableSlots.clickTheColourSquareTo}
           />
           <TextPreview text={draft} color={color ?? ''} look={look} large={previewLarge} />
         </>
@@ -148,6 +151,7 @@ export function EditableHeroEyebrow({
   initialColor?: string; // owner's text colour; '' = the theme's
   className?: string;
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -176,15 +180,15 @@ export function EditableHeroEyebrow({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit top line')}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, d.editableSlots.editTopLine)}>
       <p ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</p>
       {editing && (
         <TextSheet
-          title="Edit the line above the names"
+          title={d.editableSlots.editTheLineAboveThe}
           look={look}
-          intro="This short line sits at the top of your banner, above the names — for example “Together with their families” or “Save the date”."
-          label="Text"
-          hint="Press Enter for a new line."
+          intro={d.editableSlots.thisShortLineSitsAt}
+          label={d.editableSlots.text}
+          hint={d.editableSlots.pressEnterForANew}
           draft={draft}
           setDraft={setDraft}
           multiline
@@ -225,6 +229,7 @@ export function EditableSectionText({
   icon?: React.ReactNode;
   section?: string; // a section title names its section (SectionBackgrounds.tsx)
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value || fallback);
@@ -259,15 +264,15 @@ export function EditableSectionText({
   const isTitle = Tag === 'h2';
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, Tag === 'h2' ? 'Edit section title' : 'Edit heading')}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, Tag === 'h2' ? d.editableSlots.editSectionTitle : d.editableSlots.editHeading)}>
       <Tag ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit} data-section-heading={section}>{icon}{current || fallback}</Tag>
       {editing && (
         <TextSheet
-          title={isTitle ? 'Edit this section’s title' : 'Edit this section’s heading'}
+          title={isTitle ? d.editableSlots.editThisSectionSTitle : d.editableSlots.editThisSectionSHeading}
           look={look}
-          intro={`You’re changing “${current || fallback}”. Leave it empty to go back to the theme’s wording.`}
-          label={isTitle ? 'Title' : 'Heading'}
-          hint="Keep it short — it’s shown as a heading on your page."
+          intro={fill(d.editableSlots.youReChangingLeaveIt, { v1: current || fallback })}
+          label={isTitle ? d.editableSlots.title : d.editableSlots.heading}
+          hint={d.editableSlots.keepItShortItS}
           draft={draft}
           setDraft={setDraft}
           maxLength={SECTION_TEXT_MAX_LENGTH}
@@ -277,8 +282,8 @@ export function EditableSectionText({
           onSave={() => saveValue(draft)}
           onClose={() => setEditing(false)}
           extra={current ? (
-            <SheetField label="Theme wording" hint={`Brings back “${fallback}”.`}>
-              <button type="button" className="theme-sheet-btn" onClick={() => saveValue('')}>Reset to default</button>
+            <SheetField label={d.editableSlots.themeWording} hint={fill(d.editableSlots.bringsBack, { fallback })}>
+              <button type="button" className="theme-sheet-btn" onClick={() => saveValue('')}>{d.editableSlots.resetToDefault}</button>
             </SheetField>
           ) : undefined}
         />
@@ -300,6 +305,7 @@ export function EditableHeroName({
   initialColor?: string; // owner's text colour; '' = the theme's
   className?: string;
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -328,15 +334,15 @@ export function EditableHeroName({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit title')}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, d.editableSlots.editTitle)}>
       <h1 ref={elRef} className={className} style={{ whiteSpace: 'pre-line', ...heroTextStyle(color) }} onClick={startEdit}>{current}</h1>
       {editing && (
         <TextSheet
-          title="Edit your event’s main title"
+          title={d.editableSlots.editYourEventSMain}
           look={look}
-          intro="This is the big title on your banner — usually the couple’s names or the name of the event."
-          label="Title"
-          hint="Press Enter to break it onto a new line, e.g. “Emma” on one line and “& Liam” on the next."
+          intro={d.editableSlots.thisIsTheBigTitle}
+          label={d.editableSlots.title}
+          hint={d.editableSlots.pressEnterToBreakIt}
           draft={draft}
           setDraft={setDraft}
           multiline
@@ -406,6 +412,7 @@ export function EditableHeroDate({
   location?: 'address' | 'virtual';
   eventUrl?: string;
 }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
   const [currentText, setCurrentText] = useState(displayText);
   const [color, setColor] = useState(initialColor);
@@ -486,84 +493,84 @@ export function EditableHeroDate({
     <span
       className="theme-editable"
       style={{ display: 'block', position: 'relative' }}
-      {...editTarget(openDialog, 'Edit date & location')}
+      {...editTarget(openDialog, d.editableSlots.editDateLocation)}
     >
       <p ref={elRef} className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
 
       {open && (
         <EditSheet
-          title="Edit the date & location"
-          intro="When and where your event happens. Guests see this on your banner, in the countdown and in their invitations."
+          title={d.editableSlots.editTheDateLocation}
+          intro={d.editableSlots.whenAndWhereYourEvent}
           onClose={() => setOpen(false)}
           onSave={save}
           saveDisabled={endBeforeStart || urlInvalid}
         >
-          <SheetSection title="Date & time">
+          <SheetSection title={d.editableSlots.dateTime}>
             <div className="theme-sheet-2col">
-              <SheetField label="Date" htmlFor="hd-date" hint="The day your event starts.">
+              <SheetField label={d.editableSlots.date} htmlFor="hd-date" hint={d.editableSlots.theDayYourEventStarts}>
                 <input id="hd-date" className="theme-sheet-input" type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
               </SheetField>
-              <SheetField label="Start time" htmlFor="hd-time" hint="When guests should arrive.">
+              <SheetField label={d.editableSlots.startTime} htmlFor="hd-time" hint={d.editableSlots.whenGuestsShouldArrive}>
                 <input id="hd-time" className="theme-sheet-input" type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
               </SheetField>
             </div>
             <div className="theme-sheet-2col">
-              <SheetField label="End date" optional htmlFor="hd-end-date" hint="Only for events over several days.">
+              <SheetField label={d.editableSlots.endDate} optional htmlFor="hd-end-date" hint={d.editableSlots.onlyForEventsOverSeveral}>
                 <input id="hd-end-date" className="theme-sheet-input" type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
               </SheetField>
-              <SheetField label="End time" optional htmlFor="hd-end-time" hint="When the event wraps up.">
+              <SheetField label={d.editableSlots.endTime} optional htmlFor="hd-end-time" hint={d.editableSlots.whenTheEventWrapsUp}>
                 <input id="hd-end-time" className="theme-sheet-input" type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />
               </SheetField>
             </div>
             {endBeforeStart && (
-              <p className="theme-sheet-error" role="alert">The end date can’t be before the start date.</p>
+              <p className="theme-sheet-error" role="alert">{d.editableSlots.theEndDateCanT}</p>
             )}
           </SheetSection>
 
-          <SheetSection title="Location">
-            <div className="theme-sheet-choice" role="radiogroup" aria-label="Where the event happens">
+          <SheetSection title={d.editableSlots.location}>
+            <div className="theme-sheet-choice" role="radiogroup" aria-label={d.editableSlots.whereTheEventHappens}>
               <label className={`theme-sheet-choice-option${!virtual ? ' is-selected' : ''}`}>
                 <input type="radio" name="hd-location" value="address" checked={!virtual} onChange={() => setDLocation('address')} />
-                <span><strong>At an address</strong><small>A venue, a home, a park…</small></span>
+                <span><strong>{d.editableSlots.atAnAddress}</strong><small>{d.editableSlots.aVenueAHomeA}</small></span>
               </label>
               <label className={`theme-sheet-choice-option${virtual ? ' is-selected' : ''}`}>
                 <input type="radio" name="hd-location" value="virtual" checked={virtual} onChange={() => setDLocation('virtual')} />
-                <span><strong>Virtual (online)</strong><small>Zoom, Google Meet, a livestream…</small></span>
+                <span><strong>{d.editableSlots.virtualOnline}</strong><small>{d.editableSlots.zoomGoogleMeetALivestream}</small></span>
               </label>
             </div>
 
             {virtual ? (
-              <SheetField label="Event URL" htmlFor="hd-url" hint="The link guests use to join. Your page shows it as a “Join online” link.">
-                <input id="hd-url" className="theme-sheet-input" type="url" inputMode="url" value={dUrl} placeholder="e.g. https://zoom.us/j/123456789"
+              <SheetField label={d.editableSlots.eventUrl} htmlFor="hd-url" hint={d.editableSlots.theLinkGuestsUseTo}>
+                <input id="hd-url" className="theme-sheet-input" type="url" inputMode="url" value={dUrl} placeholder={d.editableSlots.eGHttpsZoomUs}
                   onChange={(e) => setDUrl(e.target.value)} aria-invalid={urlInvalid || undefined} />
-                {urlInvalid && <p className="theme-sheet-error" role="alert">Please enter a web link, like https://zoom.us/j/123456789.</p>}
-                {address?.formattedAddress && <p className="theme-sheet-hint">Saving as an online event removes the address from your page.</p>}
+                {urlInvalid && <p className="theme-sheet-error" role="alert">{d.editableSlots.pleaseEnterAWebLink}</p>}
+                {address?.formattedAddress && <p className="theme-sheet-hint">{d.editableSlots.savingAsAnOnlineEvent}</p>}
               </SheetField>
             ) : (
               <>
-                <SheetField label="Venue name" optional htmlFor="hd-venue" hint="The name of the place, as guests know it.">
-                  <input id="hd-venue" className="theme-sheet-input" type="text" value={dAddress.venueName} placeholder="e.g. Hycroft Manor"
+                <SheetField label={d.editableSlots.venueName} optional htmlFor="hd-venue" hint={d.editableSlots.theNameOfThePlace}>
+                  <input id="hd-venue" className="theme-sheet-input" type="text" value={dAddress.venueName} placeholder={d.editableSlots.eGHycroftManor}
                     onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
                 </SheetField>
-                <SheetField label="Address" hint="Start typing, then pick the address from the list — that also sets the city and country on your banner.">
+                <SheetField label={d.editableSlots.address} hint={d.editableSlots.startTypingThenPickThe}>
                   <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
                 </SheetField>
-                <SheetField label="Unit" optional htmlFor="hd-unit" hint="Apartment, suite or room number.">
-                  <input id="hd-unit" className="theme-sheet-input" type="text" value={dAddress.unitNumber} placeholder="Apt, suite…"
+                <SheetField label={d.editableSlots.unit} optional htmlFor="hd-unit" hint={d.editableSlots.apartmentSuiteOrRoomNumber}>
+                  <input id="hd-unit" className="theme-sheet-input" type="text" value={dAddress.unitNumber} placeholder={d.editableSlots.aptSuite}
                     onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
                 </SheetField>
               </>
             )}
           </SheetSection>
 
-          <SheetSection title="How it looks on your banner">
+          <SheetSection title={d.editableSlots.howItLooksOnYour}>
             <HeroColorField
               id="hd-color"
-              label="Text colour"
+              label={d.editableSlots.textColour}
               value={dColor}
               onChange={setDColor}
               current={look?.colorHex ?? look?.color}
-              hint="Click the colour square to choose a colour for the date and place on your banner."
+              hint={d.editableSlots.clickTheColourSquareTo2}
             />
             <TextPreview text={previewText || currentText} color={dColor} look={look} />
           </SheetSection>
@@ -588,6 +595,7 @@ export function EditableDescription({
   className?: string;
   style?: React.CSSProperties;
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(value);
   const [draft, setDraft] = useState(value);
@@ -617,14 +625,14 @@ export function EditableDescription({
   };
 
   return (
-    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, 'Edit story')}>
+    <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, d.editableSlots.editStory)}>
       <p ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{current}</p>
       {editing && (
         <TextSheet
-          title="Edit your story"
-          intro="A few words for your guests — how you met, what the day means to you, or what to expect."
-          label="Your story"
-          hint="Press Enter twice to start a new paragraph."
+          title={d.editableSlots.editYourStory}
+          intro={d.editableSlots.aFewWordsForYour}
+          label={d.editableSlots.yourStory}
+          hint={d.editableSlots.pressEnterTwiceToStart}
           draft={draft}
           setDraft={setDraft}
           multiline
@@ -674,6 +682,7 @@ export function EditableBannerBg({
   defaultSrc?: string;
   fallback?: React.ReactNode;
 }) {
+  const d = useDashText();
   const [hovered, setHovered] = useState(false);
   const [editing, setEditing] = useState(false);
   const [current, setCurrent] = useState(src);
@@ -694,13 +703,13 @@ export function EditableBannerBg({
   // Back to the theme's own default hero (only offered while a custom banner is set).
   const [restoring, setRestoring] = useState(false);
   const restoreDefault = async () => {
-    if (!window.confirm('Restore the theme’s default background? Your uploaded banner will be removed from this page.')) return;
+    if (!window.confirm(d.editableSlots.restoreTheThemeSDefault)) return;
     setRestoring(true);
     setUploadError('');
     const ok = await resetBannerImage(pageId);
     setRestoring(false);
     if (!ok) {
-      setUploadError('Couldn’t restore the default background. Please try again.');
+      setUploadError(d.editableSlots.couldnTRestoreTheDefault);
       return;
     }
     setCurrent('');
@@ -747,13 +756,13 @@ export function EditableBannerBg({
   // editable piece shows the theme's colours again.
   const [restoringColors, setRestoringColors] = useState(false);
   const restoreThemeColors = async () => {
-    if (!window.confirm('Are you sure you want to restore the default theme colors? Your custom heading, text and button colors will be removed from the whole page.')) return;
+    if (!window.confirm(d.editableSlots.areYouSureYouWant)) return;
     setRestoringColors(true);
     setUploadError('');
     const ok = await resetHeroColors(pageId);
     if (!ok) {
       setRestoringColors(false);
-      setUploadError('Couldn’t restore the theme colors. Please try again.');
+      setUploadError(d.editableSlots.couldnTRestoreTheTheme);
       return;
     }
     window.location.reload();
@@ -773,12 +782,12 @@ export function EditableBannerBg({
     // Banner videos are switched off for now — images only. Existing video
     // banners still display (see isVideoUrl above).
     if (file.type.startsWith('video/')) {
-      setUploadError('Videos aren’t supported right now. Please choose a photo.');
+      setUploadError(d.editableSlots.videosArenTSupportedRight);
       e.target.value = '';
       return;
     }
     if (file.size > MAX_BANNER_BYTES) {
-      setUploadError('That photo is larger than 4 MB. Please choose a smaller one.');
+      setUploadError(d.editableSlots.thatPhotoIsLargerThan);
       e.target.value = '';
       return;
     }
@@ -813,7 +822,7 @@ export function EditableBannerBg({
     } catch (err) {
       setCurrent(src);
       setIsVideo(isVideoUrl(src));
-      setUploadError(err instanceof Error ? err.message : 'Upload failed. Please try again.');
+      setUploadError(err instanceof Error ? err.message : d.editableSlots.uploadFailedPleaseTryAgain);
     } finally {
       setUploading(false);
       e.target.value = '';
@@ -861,81 +870,81 @@ export function EditableBannerBg({
         type="button"
         className="theme-banner-overlay"
         onClick={() => setEditing(true)}
-        title="Change the banner photo, its position and overlay"
+        title={d.editableSlots.changeTheBannerPhotoIts}
         style={{ border: 'none', font: 'inherit', opacity: hovered || uploading ? 1 : 0.85 }}
       >
         <CameraIcon />
-        <span>{uploading ? 'Uploading…' : 'Change banner'}</span>
+        <span>{uploading ? d.editableSlots.uploading : d.editableSlots.changeBanner}</span>
       </button>
 
       {editing && (
         <EditSheet
-          title="Edit your banner"
-          intro="The large photo at the top of your page. Changes here are saved as you make them."
+          title={d.editableSlots.editYourBanner}
+          intro={d.editableSlots.theLargePhotoAtThe}
           onClose={() => setEditing(false)}
         >
           <div className="theme-sheet-field">
-            <p className="theme-sheet-label">Preview</p>
+            <p className="theme-sheet-label">{d.editableSlots.preview}</p>
             <div className="theme-banner-preview">
               {!mediaSrc ? (
-                <span className="theme-banner-preview-empty">The theme’s own design</span>
+                <span className="theme-banner-preview-empty">{d.editableSlots.theThemeSOwnDesign}</span>
               ) : isVideo ? (
                 <video src={mediaSrc} autoPlay muted loop playsInline style={mediaStyle} />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={mediaSrc} alt="Your banner" style={mediaStyle} />
+                <img src={mediaSrc} alt={d.editableSlots.yourBanner} style={mediaStyle} />
               )}
               <HeroOverlay overlay={{ color: overlayColor, opacity: overlayOpacity }} />
-              {uploading && <span className="theme-banner-preview-busy">Uploading…</span>}
+              {uploading && <span className="theme-banner-preview-busy">{d.editableSlots.uploading}</span>}
             </div>
-            <p className="theme-sheet-hint">Phones show a narrower slice of the banner, so keep the important part near the middle.</p>
+            <p className="theme-sheet-hint">{d.editableSlots.phonesShowANarrowerSlice}</p>
           </div>
 
           {uploadError && <p className="theme-sheet-error" role="alert">{uploadError}</p>}
 
-          <SheetSection title="Photo">
-            <SheetField label="Upload a new one" hint="A photo (JPG, PNG, HEIC) up to 4 MB. Wide, landscape photos work best.">
+          <SheetSection title={d.editableSlots.photo}>
+            <SheetField label={d.editableSlots.uploadANewOne} hint={d.editableSlots.aPhotoJpgPngHeic}>
               <div className="theme-sheet-row">
                 <button type="button" className="theme-sheet-btn theme-sheet-btn--primary" onClick={() => fileInputRef.current?.click()} disabled={uploading}>
-                  <CameraIcon /> {uploading ? 'Uploading…' : 'Choose a photo'}
+                  <CameraIcon /> {uploading ? d.editableSlots.uploading : d.editableSlots.chooseAPhoto}
                 </button>
                 {current && !uploading && (
                   <button type="button" className="theme-sheet-btn" onClick={restoreDefault} disabled={restoring}>
-                    {restoring ? 'Restoring…' : 'Use the theme’s default instead'}
+                    {restoring ? d.editableSlots.restoring : d.editableSlots.useTheThemeSDefault}
                   </button>
                 )}
               </div>
             </SheetField>
           </SheetSection>
 
-          <SheetSection title="Size & position">
-            <SheetField label="Size" hint="“Fill the banner” crops the photo to cover the whole area. “Show the whole photo” fits it inside, which can leave empty edges.">
-              <div className="theme-sheet-choices" role="group" aria-label="Size">
-                <button type="button" aria-pressed={objectFit === 'cover'} onClick={() => objectFit !== 'cover' && toggleObjectFit()}>Fill the banner</button>
-                <button type="button" aria-pressed={objectFit === 'contain'} onClick={() => objectFit !== 'contain' && toggleObjectFit()}>Show the whole photo</button>
+          <SheetSection title={d.editableSlots.sizePosition}>
+            <SheetField label={d.editableSlots.size} hint={d.editableSlots.fillTheBannerCropsThe}>
+              <div className="theme-sheet-choices" role="group" aria-label={d.editableSlots.size}>
+                <button type="button" aria-pressed={objectFit === 'cover'} onClick={() => objectFit !== 'cover' && toggleObjectFit()}>{d.editableSlots.fillTheBanner}</button>
+                <button type="button" aria-pressed={objectFit === 'contain'} onClick={() => objectFit !== 'contain' && toggleObjectFit()}>{d.editableSlots.showTheWholePhoto}</button>
               </div>
             </SheetField>
-            <SheetField label="Which part to keep in view" hint="When the photo is cropped, choose whether its top, middle or bottom stays visible. Click your choice again to go back to the theme’s default.">
-              <div className="theme-sheet-choices" role="group" aria-label="Vertical alignment">
+            <SheetField label={d.editableSlots.whichPartToKeepIn} hint={d.editableSlots.whenThePhotoIsCropped}>
+              <div className="theme-sheet-choices" role="group" aria-label={d.editableSlots.verticalAlignment}>
                 {HERO_OBJECT_POSITIONS.map((pos) => (
                   <button key={pos} type="button" aria-pressed={objectPosition === pos} onClick={() => chooseObjectPosition(pos)}>
-                    {pos === 'top' ? 'Top' : pos === 'center' ? 'Middle' : 'Bottom'}
+                    {pos === 'top' ? d.editableSlots.top : pos === 'center' ? d.editableSlots.middle : d.editableSlots.bottom}
                   </button>
                 ))}
               </div>
             </SheetField>
           </SheetSection>
 
-          <SheetSection title="Colour overlay">
+          <SheetSection title={d.editableSlots.colourOverlay}>
             <HeroColorField
               id="banner-overlay-color"
-              label="Overlay colour"
+              label={d.editableSlots.overlayColour}
               value={overlayColor}
               onChange={chooseOverlayColor}
               allowDefault={false}
-              hint="A see-through layer of colour over the photo. A dark overlay makes white text easier to read."
+              hint={d.editableSlots.aSeeThroughLayerOf}
             />
-            <SheetField label="Overlay strength" htmlFor="banner-overlay-opacity" hint="Slide to the left for a lighter overlay, or all the way left (0%) to turn it off.">
+            <SheetField label={d.editableSlots.overlayStrength} htmlFor="banner-overlay-opacity" hint={d.editableSlots.slideToTheLeftFor}>
               <div className="theme-sheet-row">
                 <input
                   id="banner-overlay-opacity"
@@ -953,10 +962,10 @@ export function EditableBannerBg({
             </SheetField>
           </SheetSection>
 
-          <SheetSection title="Start over">
-            <SheetField label="Theme colours" hint="Removes every custom text, heading and button colour from the whole page.">
+          <SheetSection title={d.editableSlots.startOver}>
+            <SheetField label={d.editableSlots.themeColours} hint={d.editableSlots.removesEveryCustomTextHeading}>
               <button type="button" className="theme-sheet-btn" onClick={restoreThemeColors} disabled={restoringColors}>
-                {restoringColors ? 'Restoring…' : 'Restore default theme colours'}
+                {restoringColors ? d.editableSlots.restoring : d.editableSlots.restoreDefaultThemeColours}
               </button>
             </SheetField>
           </SheetSection>
@@ -995,6 +1004,7 @@ export function EditableContactInfo({
   phone?: string;
   linkStyle?: React.CSSProperties;
 }) {
+  const d = useDashText();
   const [editing, setEditing] = useState(false);
   const [emailVal, setEmailVal] = useState(email ?? '');
   const [phoneVal, setPhoneVal] = useState(phone ?? '');
@@ -1014,7 +1024,7 @@ export function EditableContactInfo({
       try {
         result = await updateContactInfo(pageId, emailVal, phoneVal);
       } catch {
-        result = { error: 'Couldn’t save. Please try again.' };
+        result = { error: d.editableSlots.couldnTSavePleaseTry };
       }
       if (result.error) setError(result.error);
       else { setSaved({ email: emailVal, phone: phoneVal }); setEditing(false); }
@@ -1028,16 +1038,16 @@ export function EditableContactInfo({
       <>
         <ContactPreview email={emailVal} phone={phoneVal} linkStyle={linkStyle} />
         <EditSheet
-          title="Edit your contact details"
-          intro="Shown at the bottom of your page, so guests know how to reach you with questions."
+          title={d.editableSlots.editYourContactDetails}
+          intro={d.editableSlots.shownAtTheBottomOf}
           onClose={cancel}
           onSave={handleSave}
           saving={saving}
         >
-          <SheetField label="Email" htmlFor="ci-email" hint="Guests can tap it to send you an email.">
+          <SheetField label={d.editableSlots.email} htmlFor="ci-email" hint={d.editableSlots.guestsCanTapItTo}>
             <input id="ci-email" className="theme-sheet-input" type="email" value={emailVal} onChange={e => setEmailVal(e.target.value)} placeholder="you@example.com" autoFocus />
           </SheetField>
-          <SheetField label="Phone" optional htmlFor="ci-phone" hint="Include the area code. Guests on a phone can tap it to call you.">
+          <SheetField label={d.editableSlots.phone} optional htmlFor="ci-phone" hint={d.editableSlots.includeTheAreaCodeGuests}>
             <input
               id="ci-phone" className="theme-sheet-input" type="tel" value={phoneVal} onChange={e => { setPhoneVal(e.target.value); setError(''); }}
               placeholder="e.g. 604 555 0123" maxLength={PHONE_MAX_LENGTH} inputMode="tel" aria-invalid={!!error}
@@ -1056,7 +1066,7 @@ export function EditableContactInfo({
       className="theme-editable"
       style={{ position: 'relative', display: 'inline-block' }}
       onClick={(e) => { e.preventDefault(); setEditing(true); }}
-      {...editTarget(() => setEditing(true), 'Edit contact info')}
+      {...editTarget(() => setEditing(true), d.editableSlots.editContactInfo)}
     >
       <ContactPreview email={emailVal} phone={phoneVal} linkStyle={linkStyle} />
     </span>
@@ -1064,11 +1074,12 @@ export function EditableContactInfo({
 }
 
 function ContactPreview({ email, phone, linkStyle }: { email: string; phone: string; linkStyle?: React.CSSProperties }) {
+  const d = useDashText();
   return (
     <>
       {email && <p style={{ margin: '0 0 4px' }}><a href={`mailto:${email}`} style={{ textDecoration: 'none', ...linkStyle }}>{email}</a></p>}
       {phone && <p style={{ margin: 0 }}><a href={`tel:${phone}`} style={{ textDecoration: 'none', ...linkStyle }}>{phone}</a></p>}
-      {!email && !phone && <p style={{ margin: 0, opacity: 0.5, fontStyle: 'italic' }}>Add contact info</p>}
+      {!email && !phone && <p style={{ margin: 0, opacity: 0.5, fontStyle: 'italic' }}>{d.editableSlots.addContactInfo}</p>}
     </>
   );
 }

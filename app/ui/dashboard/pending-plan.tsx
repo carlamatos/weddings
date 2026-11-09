@@ -4,9 +4,12 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { clearPendingPlan, PLAN_TOOLS, planParam, readPendingPlan, savePendingPlan, type PlanLink } from '@/app/lib/saved-plans';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 // A plan from a free planning tool that's waiting to be saved (the visitor
 // signed up first): the dashboard offers to save it to the event on screen.
 export function PendingPlanBanner({ pageId }: { pageId: number }) {
+  const d = useDashText();
   const [plan, setPlan] = useState<PlanLink | null>(null);
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage is only readable after hydration
@@ -20,16 +23,16 @@ export function PendingPlanBanner({ pageId }: { pageId: number }) {
       background: '#EEF4EF', border: '1px solid #CFE0D3', borderRadius: 10, padding: '12px 16px', marginBottom: 20, fontSize: 14, lineHeight: 1.55,
     }}>
       <span style={{ color: '#241F2B' }}>
-        <strong>You made a {tool.thing} with our {tool.name.toLowerCase()}.</strong> Save it to this event to keep it in your dashboard.
+        <strong>{fill(d.pendingPlan.youMadeAWithOur, { thing: tool.thing })} {tool.name.toLowerCase()}.</strong> {d.pendingPlan.saveItToThisEvent}
       </span>
       <span style={{ display: 'flex', gap: 8 }}>
         <Link href={`/dashboard/save-plan?plan=${planParam(plan.hash)}&page=${pageId}`}
           style={{ padding: '8px 16px', borderRadius: 8, background: '#3D6B46', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-          Save it
+          {d.pendingPlan.saveIt}
         </Link>
         <button type="button" onClick={() => { clearPendingPlan(); setPlan(null); }}
           style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #CFE0D3', background: 'transparent', color: '#3D6B46', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-          Not now
+          {d.pendingPlan.notNow}
         </button>
       </span>
     </div>

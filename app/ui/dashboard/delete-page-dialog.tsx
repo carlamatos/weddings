@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { deletePage } from '@/app/lib/actions';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 export type DeletablePage = { id: number; slug: string; heading?: string | null; isPaid?: boolean };
 
 // "Delete this event page?" — explains what happens, then asks the owner to
@@ -14,13 +17,14 @@ export type DeletablePage = { id: number; slug: string; heading?: string | null;
 // end of the dashboard root: inside an event card (e.g. a faded past event)
 // the overlay would be trapped below the cards after it.
 export function DeletePageDialog({ page, onClose }: { page: DeletablePage; onClose: () => void }) {
+  const d = useDashText();
   const router = useRouter();
   const [typed, setTyped] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const matches = typed.trim().toLowerCase() === page.slug.toLowerCase();
-  const name = page.heading?.trim() || 'this event';
+  const name = page.heading?.trim() || d.deletePageDialog.thisEvent;
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -44,7 +48,7 @@ export function DeletePageDialog({ page, onClose }: { page: DeletablePage; onClo
       router.push('/dashboard?deleted=1');
       router.refresh();
     } catch {
-      setError('Something went wrong — your page was not deleted. Please try again.');
+      setError(d.deletePageDialog.somethingWentWrongYourPage);
       setBusy(false);
     }
   }
@@ -52,25 +56,25 @@ export function DeletePageDialog({ page, onClose }: { page: DeletablePage; onClo
   return createPortal(
     <div className="profile-modal-backdrop" onClick={() => !busy && onClose()}>
       <div className="profile-modal" role="dialog" aria-modal="true" aria-labelledby="delete-page-title" onClick={(e) => e.stopPropagation()}>
-        <button className="profile-modal-close" onClick={onClose} aria-label="Close" disabled={busy}>×</button>
-        <h2 id="delete-page-title">Delete {name}?</h2>
+        <button className="profile-modal-close" onClick={onClose} aria-label={d.deletePageDialog.close} disabled={busy}>×</button>
+        <h2 id="delete-page-title">{fill(d.deletePageDialog.delete, { name })}</h2>
 
         <div style={{ fontSize: 14, color: 'var(--ink-soft)', lineHeight: 1.65 }}>
-          <p style={{ margin: '0 0 10px' }}>This takes your event page down right away:</p>
+          <p style={{ margin: '0 0 10px' }}>{d.deletePageDialog.thisTakesYourEventPage}</p>
           <ul style={{ margin: '0 0 12px', paddingLeft: 20 }}>
-            <li>Guests who open the link will see that the page doesn&rsquo;t exist.</li>
-            <li>Its guest list, RSVPs, photos, songs and settings are removed from your dashboard.</li>
-            {page.isPaid && <li>Any Plus time left on this page is not refunded.</li>}
+            <li>{d.deletePageDialog.guestsWhoOpenTheLink}</li>
+            <li>{d.deletePageDialog.itsGuestListRsvpsPhotos}</li>
+            {page.isPaid && <li>{d.deletePageDialog.anyPlusTimeLeftOn}</li>}
           </ul>
           <p style={{ margin: '0 0 16px', padding: '10px 12px', background: '#FFF8E7', border: '1px solid #E8D9A8', borderRadius: 8, color: '#6B5200' }}>
-            Changed your mind? We keep a copy for <strong>30 days</strong> — contact us within that time and we can restore it.
+            {rich(d.deletePageDialog.changedYourMindWeKeep, { t0: (s) => <strong>{s}</strong> })}
           </p>
         </div>
 
         <form onSubmit={handleDelete}>
           <div className="profile-field">
             <label htmlFor="delete-page-confirm" style={{ textTransform: 'none', letterSpacing: 0, fontSize: 13, fontWeight: 500, color: 'var(--ink-soft)' }}>
-              To confirm, type the page address <strong style={{ userSelect: 'all', color: 'var(--ink)' }}>{page.slug}</strong>
+              {rich(fill(d.deletePageDialog.toConfirmTypeThePage, { slug: page.slug }), { t0: (s) => <strong style={{ userSelect: 'all', color: 'var(--ink)' }}>{s}</strong> })}
             </label>
             <input
               id="delete-page-confirm"
@@ -89,13 +93,13 @@ export function DeletePageDialog({ page, onClose }: { page: DeletablePage; onClo
           {error && <p className="profile-modal-error" role="alert">{error}</p>}
 
           <div className="profile-modal-actions">
-            <button type="button" className="dash-btn-secondary" onClick={onClose} disabled={busy}>Cancel</button>
+            <button type="button" className="dash-btn-secondary" onClick={onClose} disabled={busy}>{d.deletePageDialog.cancel}</button>
             <button
               type="submit"
               className="dash-btn dash-btn--danger"
               disabled={!matches || busy}
             >
-              {busy ? 'Deleting…' : 'Delete page'}
+              {busy ? d.deletePageDialog.deleting : d.deletePageDialog.deletePage}
             </button>
           </div>
         </form>
@@ -108,16 +112,17 @@ export function DeletePageDialog({ page, onClose }: { page: DeletablePage; onClo
 
 // "Delete" on an event card in the Event pages list.
 export function DeletePageButton({ page }: { page: DeletablePage }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={`Delete ${page.heading || 'event'} page`}
+        aria-label={fill(d.deletePageDialog.deletePage2, { v1: page.heading || d.deletePageDialog.event })}
         className="dash-card-delete"
       >
-        <TrashIcon style={{ width: 16, height: 16 }} /> Delete
+        <TrashIcon style={{ width: 16, height: 16 }} /> {d.deletePageDialog.delete2}
       </button>
       {open && <DeletePageDialog page={page} onClose={() => setOpen(false)} />}
     </>

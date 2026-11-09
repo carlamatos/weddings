@@ -29,6 +29,9 @@ import { UNVERIFIED_UPLOADS_PER_DAY } from '@/app/lib/require-verified';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { areGuestPhotosOn } from '@/app/lib/guest-photos';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Edit Event Page' };
 
 export default async function Page({ params }: { params: Promise<{ pageId: string }> }) {
   const userPage = await requireOwnedPage(params);

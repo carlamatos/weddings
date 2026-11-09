@@ -13,7 +13,11 @@ import { publicPageUrl } from '@/app/lib/share';
 import { pagePath } from '@/app/lib/dashboard';
 import { siteHref } from '@/app/lib/app-url';
 
+import { getDashText } from '@/app/lib/dash-text/server';
+import type { DashText } from '@/app/lib/dash-text/en';
+import { fill } from '@/app/lib/dash-text/fill';
 export default async function TopNav({ page: userPage, status, setup }: { page?: UserPage; status?: Record<string, boolean>; setup?: SetupStep[] }) {
+  const d = await getDashText();
   const session = await auth();
   const themes = await fetchEventThemes();
   const pageId = userPage ? Number(userPage.id) : undefined;
@@ -27,12 +31,12 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   // One Share button: the page, or straight to its RSVP form.
   const shareChoices: ShareChoice[] | undefined = userPage
     ? [
-        { tab: 'Your page', target: { url: pageUrl, title, heading: 'Share your page', sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
-        { tab: 'RSVP form', target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: 'Share your RSVP form', sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
+        { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
+        { tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
       ]
     : undefined;
   // Whether guests can see the page, with its address beside it.
-  const pageState = userPage ? pageStateOf(userPage.status) : undefined;
+  const pageState = userPage ? pageStateOf(userPage.status, d.pageState) : undefined;
   const shortUrl = pageUrl.replace(/^https?:\/\//, '');
 
   return (
@@ -50,7 +54,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
               pageId={pageId}
               currentThemeId={userPage.theme_id ?? null}
               themes={themes}
-              label="Theme"
+              label={d.topnav.theme}
               nudge
             />
           )}
@@ -66,7 +70,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
           target="_blank"
           rel="noopener noreferrer"
           className={`dash-page-status dash-page-status--${pageState.kind}`}
-          title={`${pageState.hint} Opens your page in a new tab.`}
+          title={fill(d.topnav.opensYourPageInA, { hint: pageState.hint })}
         >
           <span className="dash-page-status-dot" aria-hidden="true" />
           <span className="dash-page-status-label">{pageState.label}</span>
@@ -101,9 +105,9 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
 // The page's status as guests see it. Pages go live when they're created
 // (a draft first, until the account's email is verified); the owner can
 // take one offline (deactivate) and MyGala can suspend one.
-function pageStateOf(status?: string): { kind: 'live' | 'off' | 'suspended'; label: string; hint: string } {
-  if (status === 'draft') return { kind: 'off', label: 'Draft', hint: 'Draft: only you can see your page. Publish it from the banner above.' };
-  if (status === 'suspended') return { kind: 'suspended', label: 'Suspended', hint: 'Suspended by MyGala: guests can’t open your page.' };
-  if (status === 'inactive') return { kind: 'off', label: 'Offline', hint: 'Deactivated: guests see “page unavailable”. Reactivate it from your profile menu.' };
-  return { kind: 'live', label: 'Live', hint: 'Live: guests can open your page.' };
+function pageStateOf(status: string | undefined, t: DashText['pageState']): { kind: 'live' | 'off' | 'suspended'; label: string; hint: string } {
+  if (status === 'draft') return { kind: 'off', label: t.draft, hint: t.draftHint };
+  if (status === 'suspended') return { kind: 'suspended', label: t.suspended, hint: t.suspendedHint };
+  if (status === 'inactive') return { kind: 'off', label: t.offline, hint: t.offlineHint };
+  return { kind: 'live', label: t.live, hint: t.liveHint };
 }

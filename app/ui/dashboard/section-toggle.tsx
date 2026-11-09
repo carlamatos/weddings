@@ -4,11 +4,12 @@ import { useState, useTransition } from 'react';
 import { updatePageSetting } from '@/app/lib/actions';
 import { usePlus } from './plus-gate';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
 export function SectionToggle({
   pageId,
   settingName,
   initialOn,
-  label = 'Show on your page',
+  label,
   plusSection,
 }: {
   pageId: number;
@@ -19,6 +20,8 @@ export function SectionToggle({
   // free page it stays off and asks to upgrade — and switches on after.
   plusSection?: string;
 }) {
+  const d = useDashText();
+  label ??= d.sectionToggle.showOnYourPage;
   const plus = usePlus();
   const locked = !!plusSection && !plus.paid;
   const [saved, setOn] = useState(initialOn);
@@ -58,8 +61,8 @@ export function SectionToggle({
         }} />
       </button>
       <span style={{ fontSize: 14, fontWeight: 500, color: '#241F2B' }}>
-        {label} — <strong>{on ? 'Visible' : 'Hidden'}</strong>
-        {locked && <span style={{ color: '#6B6470' }}> · turns on with Plus</span>}
+        {label} — <strong>{on ? d.sectionToggle.visible : d.sectionToggle.hidden}</strong>
+        {locked && <span style={{ color: '#6B6470' }}> {d.sectionToggle.turnsOnWithPlus}</span>}
       </span>
     </div>
   );

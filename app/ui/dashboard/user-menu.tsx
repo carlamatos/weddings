@@ -9,9 +9,13 @@ import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareChoice } from './share-menu';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
+import { DashLanguagePicker } from './dash-language-picker';
 import type { EventTheme } from '@/app/lib/definitions';
 import { PHONE_MAX_LENGTH } from '@/app/lib/phone';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
+import { rich } from '@/app/ui/dashboard/rich';
 // On phones and tablets: the top bar's buttons, listed at the top of this
 // menu instead (see .dash-topnav-actions in dashboard.css).
 export type PhoneActions = {
@@ -38,6 +42,7 @@ interface Profile {
 }
 
 function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (name: string) => void }) {
+  const d = useDashText();
   const [form, setForm] = useState<Profile>({ given_name: '', family_name: '', phone: '' });
   const [email, setEmail] = useState(''); // shown for reference only; not editable
   const [loading, setLoading] = useState(true);
@@ -57,8 +62,8 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
         setEmail(data.email ?? '');
         setLoading(false);
       })
-      .catch(() => { setError('Failed to load profile.'); setLoading(false); });
-  }, []);
+      .catch(() => { setError(d.userMenu.failedToLoadProfile); setLoading(false); });
+  }, [d.userMenu.failedToLoadProfile]);
 
   const handleChange = (field: keyof Profile) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -78,10 +83,10 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
         body: JSON.stringify(form),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); }
-      else { setSuccess('Profile updated!'); onSaved(data.name); }
+      if (!res.ok) { setError(data.error ?? d.userMenu.somethingWentWrong); }
+      else { setSuccess(d.userMenu.profileUpdated); onSaved(data.name); }
     } catch {
-      setError('Something went wrong.');
+      setError(d.userMenu.somethingWentWrong);
     } finally {
       setSaving(false);
     }
@@ -90,30 +95,30 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
   return (
     <div className="profile-modal-backdrop" onClick={onClose}>
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="profile-modal-close" onClick={onClose} aria-label="Close">×</button>
-        <h2>Your profile</h2>
+        <button className="profile-modal-close" onClick={onClose} aria-label={d.userMenu.close}>×</button>
+        <h2>{d.userMenu.yourProfile}</h2>
 
         {loading ? (
-          <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>Loading…</p>
+          <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{d.userMenu.loading}</p>
         ) : (
           <form onSubmit={handleSubmit}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
               <div className="profile-field">
-                <label htmlFor="profile-given">First name</label>
+                <label htmlFor="profile-given">{d.userMenu.firstName}</label>
                 <input id="profile-given" value={form.given_name} onChange={handleChange('given_name')} required autoComplete="given-name" />
               </div>
               <div className="profile-field">
-                <label htmlFor="profile-family">Last name</label>
+                <label htmlFor="profile-family">{d.userMenu.lastName}</label>
                 <input id="profile-family" value={form.family_name} onChange={handleChange('family_name')} required autoComplete="family-name" />
               </div>
             </div>
             <div className="profile-field">
-              <label htmlFor="profile-email">Email</label>
+              <label htmlFor="profile-email">{d.userMenu.email}</label>
               <input id="profile-email" type="email" value={email} disabled readOnly aria-describedby="profile-email-note" />
-              <p id="profile-email-note" className="profile-field-note">This is the email you sign in with. It can&rsquo;t be changed here.</p>
+              <p id="profile-email-note" className="profile-field-note">{d.userMenu.thisIsTheEmailYou}</p>
             </div>
             <div className="profile-field">
-              <label htmlFor="profile-phone">Phone <span className="profile-field-optional">(optional)</span></label>
+              <label htmlFor="profile-phone">{rich(d.userMenu.phoneOptional, { t0: (s) => <span className="profile-field-optional">{s}</span> })}</label>
               <input id="profile-phone" type="tel" value={form.phone} onChange={handleChange('phone')} autoComplete="tel" inputMode="tel" maxLength={PHONE_MAX_LENGTH} placeholder="+1 (555) 000-0000" />
             </div>
 
@@ -121,9 +126,9 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
             {success && <p className="profile-modal-success">{success}</p>}
 
             <div className="profile-modal-actions">
-              <button type="button" className="dash-btn-secondary" onClick={onClose}>Cancel</button>
+              <button type="button" className="dash-btn-secondary" onClick={onClose}>{d.userMenu.cancel}</button>
               <button type="submit" className="dash-btn" disabled={saving}>
-                {saving ? 'Saving…' : 'Save'}
+                {saving ? d.userMenu.saving : d.userMenu.save}
               </button>
             </div>
           </form>
@@ -136,6 +141,7 @@ function ProfileModal({ onClose, onSaved }: { onClose: () => void; onSaved: (nam
 type SecurityStep = 'status' | 'confirm-password' | 'scan-qr' | 'backup-codes' | 'disable';
 
 function SecurityModal({ onClose }: { onClose: () => void }) {
+  const d = useDashText();
   const [loading, setLoading] = useState(true);
   const [hasPassword, setHasPassword] = useState(true);
   const [totpEnabled, setTotpEnabled] = useState(false);
@@ -158,8 +164,8 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
         setTotpEnabled(!!data.totp_enabled);
         setLoading(false);
       })
-      .catch(() => { setError('Failed to load account status.'); setLoading(false); });
-  }, []);
+      .catch(() => { setError(d.userMenu.failedToLoadAccountStatus); setLoading(false); });
+  }, [d.userMenu.failedToLoadAccountStatus]);
 
   async function startSetup() {
     setError('');
@@ -180,12 +186,12 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify(pwd ? { password: pwd } : {}),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      if (!res.ok) { setError(data.error ?? d.userMenu.somethingWentWrong); return; }
       setQrCode(data.qrCode);
       setSecret(data.secret);
       setStep('scan-qr');
     } catch {
-      setError('Something went wrong.');
+      setError(d.userMenu.somethingWentWrong);
     } finally {
       setBusy(false);
     }
@@ -208,12 +214,12 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({ token: code }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      if (!res.ok) { setError(data.error ?? d.userMenu.somethingWentWrong); return; }
       setBackupCodes(data.backupCodes);
       setTotpEnabled(true);
       setStep('backup-codes');
     } catch {
-      setError('Something went wrong.');
+      setError(d.userMenu.somethingWentWrong);
     } finally {
       setBusy(false);
     }
@@ -230,12 +236,12 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
         body: JSON.stringify({ code: disableCode }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? 'Something went wrong.'); return; }
+      if (!res.ok) { setError(data.error ?? d.userMenu.somethingWentWrong); return; }
       setTotpEnabled(false);
       setDisableCode('');
       setStep('status');
     } catch {
-      setError('Something went wrong.');
+      setError(d.userMenu.somethingWentWrong);
     } finally {
       setBusy(false);
     }
@@ -244,11 +250,11 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="profile-modal-backdrop" onClick={onClose}>
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="profile-modal-close" onClick={onClose} aria-label="Close">×</button>
-        <h2>Security</h2>
+        <button className="profile-modal-close" onClick={onClose} aria-label={d.userMenu.close}>×</button>
+        <h2>{d.userMenu.security}</h2>
 
         {loading ? (
-          <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>Loading…</p>
+          <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{d.userMenu.loading}</p>
         ) : (
           <>
             {error && <p className="profile-modal-error">{error}</p>}
@@ -256,21 +262,21 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
             {step === 'status' && (
               <>
                 <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 16px' }}>
-                  Two-factor authentication is currently{' '}
+                  {d.userMenu.twoFactorAuthenticationIsCurrently}{' '}
                   <strong style={{ color: totpEnabled ? '#2E7D4F' : 'var(--ink)' }}>
-                    {totpEnabled ? 'on' : 'off'}
+                    {totpEnabled ? d.userMenu.on : d.userMenu.off}
                   </strong>.
-                  {!totpEnabled && ' Add an authenticator app for an extra layer of protection on your account.'}
+                  {!totpEnabled && d.userMenu.addAnAuthenticatorAppFor}
                 </p>
                 <div className="profile-modal-actions">
-                  <button type="button" className="dash-btn-secondary" onClick={onClose}>Close</button>
+                  <button type="button" className="dash-btn-secondary" onClick={onClose}>{d.userMenu.close}</button>
                   {totpEnabled ? (
                     <button type="button" className="dash-btn" onClick={() => setStep('disable')}>
-                      Disable 2FA
+                      {d.userMenu.disable2fa}
                     </button>
                   ) : (
                     <button type="button" className="dash-btn" onClick={startSetup} disabled={busy}>
-                      {busy ? 'Starting…' : 'Enable 2FA'}
+                      {busy ? d.userMenu.starting : d.userMenu.enable2fa}
                     </button>
                   )}
                 </div>
@@ -280,15 +286,15 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
             {step === 'confirm-password' && (
               <form onSubmit={confirmPassword}>
                 <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
-                  Confirm your password to continue.
+                  {d.userMenu.confirmYourPasswordToContinue}
                 </p>
                 <div className="profile-field">
-                  <label>Password</label>
+                  <label>{d.userMenu.password}</label>
                   <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" autoFocus />
                 </div>
                 <div className="profile-modal-actions">
-                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
-                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Checking…' : 'Continue'}</button>
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>{d.userMenu.cancel}</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? d.userMenu.checking : d.userMenu.continue}</button>
                 </div>
               </form>
             )}
@@ -296,17 +302,17 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
             {step === 'scan-qr' && (
               <form onSubmit={enable}>
                 <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
-                  Scan this QR code with your authenticator app (Google Authenticator, Authy, 1Password, etc.), then enter the 6-digit code it shows.
+                  {d.userMenu.scanThisQrCodeWith}
                 </p>
                 {qrCode && (
                   // eslint-disable-next-line @next/next/no-img-element -- data: URI, not a servable/optimizable asset
-                  <img src={qrCode} alt="Scan with your authenticator app" style={{ display: 'block', margin: '0 auto 12px', width: 180, height: 180 }} />
+                  <img src={qrCode} alt={d.userMenu.scanWithYourAuthenticatorApp} style={{ display: 'block', margin: '0 auto 12px', width: 180, height: 180 }} />
                 )}
                 <p style={{ fontSize: 12, color: 'var(--ink-soft)', margin: '0 0 16px', textAlign: 'center', wordBreak: 'break-all' }}>
-                  Can&apos;t scan it? Enter this code manually: <code>{secret}</code>
+                  {rich(fill(d.userMenu.canTScanItEnter, { secret }), { t0: (s) => <code>{s}</code> })}
                 </p>
                 <div className="profile-field">
-                  <label>6-digit code</label>
+                  <label>{d.userMenu.n6DigitCode}</label>
                   <input
                     type="text"
                     inputMode="numeric"
@@ -318,8 +324,8 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
                 <div className="profile-modal-actions">
-                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
-                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Verifying…' : 'Enable'}</button>
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>{d.userMenu.cancel}</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? d.userMenu.verifying : d.userMenu.enable}</button>
                 </div>
               </form>
             )}
@@ -327,14 +333,13 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
             {step === 'backup-codes' && (
               <>
                 <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
-                  Two-factor authentication is on. Save these backup codes somewhere safe — each one can be used
-                  once to sign in if you lose access to your authenticator app. They won&apos;t be shown again.
+                  {d.userMenu.twoFactorAuthenticationIsOn}
                 </p>
                 <div style={{ background: '#F7F4F1', borderRadius: 8, padding: '12px 16px', margin: '0 0 16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, fontFamily: 'monospace', fontSize: 13 }}>
                   {backupCodes.map((c) => <span key={c}>{c}</span>)}
                 </div>
                 <div className="profile-modal-actions">
-                  <button type="button" className="dash-btn" onClick={onClose}>Done</button>
+                  <button type="button" className="dash-btn" onClick={onClose}>{d.userMenu.done}</button>
                 </div>
               </>
             )}
@@ -342,22 +347,22 @@ function SecurityModal({ onClose }: { onClose: () => void }) {
             {step === 'disable' && (
               <form onSubmit={disable}>
                 <p style={{ fontSize: 14, color: 'var(--ink-soft)', margin: '0 0 12px' }}>
-                  Enter a code from your authenticator app, or one of your backup codes, to turn off two-factor authentication.
+                  {d.userMenu.enterACodeFromYour}
                 </p>
                 <div className="profile-field">
-                  <label>Code</label>
+                  <label>{d.userMenu.code}</label>
                   <input
                     type="text"
                     value={disableCode}
                     onChange={(e) => setDisableCode(e.target.value)}
                     required
                     autoFocus
-                    placeholder="123456 or xxxxx-xxxxx"
+                    placeholder={d.userMenu.n123456OrXxxxxXxxxx}
                   />
                 </div>
                 <div className="profile-modal-actions">
-                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>Cancel</button>
-                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? 'Checking…' : 'Disable'}</button>
+                  <button type="button" className="dash-btn-secondary" onClick={() => setStep('status')}>{d.userMenu.cancel}</button>
+                  <button type="submit" className="dash-btn" disabled={busy}>{busy ? d.userMenu.checking : d.userMenu.disable}</button>
                 </div>
               </form>
             )}
@@ -384,6 +389,7 @@ export default function UserMenu({
   page?: DeletablePage;
   phoneActions?: PhoneActions;
 }) {
+  const d = useDashText();
   const [open, setOpen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSecurity, setShowSecurity] = useState(false);
@@ -420,7 +426,7 @@ export default function UserMenu({
     const next = pageInactive ? 'active' : 'inactive';
     if (
       next === 'inactive' &&
-      !window.confirm('Deactivate your page?\n\nGuests will see a "page unavailable" message until you reactivate it. You can turn it back on any time.')
+      !window.confirm(d.userMenu.deactivateYourPageGuestsWill)
     ) {
       return;
     }
@@ -445,21 +451,21 @@ export default function UserMenu({
             {phoneActions && (
               <div className="dash-user-menu-phone">
                 <button onClick={() => { setOpen(false); setSharing(true); }} className="dash-user-menu-item">
-                  Share
+                  {d.userMenu.share}
                 </button>
                 {phoneActions.previewHref && (
                   <a href={phoneActions.previewHref} target="_blank" rel="noopener noreferrer" onClick={() => setOpen(false)} className="dash-user-menu-item">
-                    View your page
+                    {d.userMenu.viewYourPage}
                   </a>
                 )}
                 {phoneActions.themes.length > 0 && (
                   <div className="dash-user-menu-picker">
-                    <p className="mobile-menu-theme-label">Theme</p>
+                    <p className="mobile-menu-theme-label">{d.userMenu.theme}</p>
                     <ThemeSwitcher pageId={phoneActions.pageId} currentThemeId={phoneActions.currentThemeId} themes={phoneActions.themes} />
                   </div>
                 )}
                 <div className="dash-user-menu-picker">
-                  <p className="mobile-menu-theme-label">Language</p>
+                  <p className="mobile-menu-theme-label">{d.userMenu.language}</p>
                   <LanguageSwitcher pageId={phoneActions.pageId} currentLanguage={phoneActions.language} />
                 </div>
               </div>
@@ -468,23 +474,24 @@ export default function UserMenu({
               onClick={() => { setOpen(false); setShowProfile(true); }}
               className="dash-user-menu-item"
             >
-              Edit Profile
+              {d.userMenu.editProfile}
             </button>
             <button
               onClick={() => { setOpen(false); setShowSecurity(true); }}
               className="dash-user-menu-item"
             >
-              Security
+              {d.userMenu.security}
             </button>
+            <DashLanguagePicker />
             {pageId !== undefined && pageStatus !== 'draft' && (
               <button
                 onClick={handleToggleStatus}
                 disabled={isPending || pageSuspended}
                 className="dash-user-menu-item dash-user-menu-item--danger"
-                title={pageSuspended ? 'Suspended by MyGala — contact us to have it reviewed' : undefined}
+                title={pageSuspended ? d.userMenu.suspendedByMygalaContactUs : undefined}
                 style={pageSuspended ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
               >
-                {pageSuspended ? 'Page suspended' : isPending ? 'Saving…' : pageInactive ? 'Reactivate my page' : 'Deactivate my page'}
+                {pageSuspended ? d.userMenu.pageSuspended : isPending ? d.userMenu.saving : pageInactive ? d.userMenu.reactivateMyPage : d.userMenu.deactivateMyPage}
               </button>
             )}
             {page && !pageSuspended && (
@@ -492,14 +499,14 @@ export default function UserMenu({
                 onClick={() => { setOpen(false); setShowDelete(true); }}
                 className="dash-user-menu-item dash-user-menu-item--danger"
               >
-                Delete this page…
+                {d.userMenu.deleteThisPage}
               </button>
             )}
             <button
               onClick={() => signOut({ callbackUrl: '/login' })}
               className="dash-user-menu-item"
             >
-              Sign out
+              {d.userMenu.signOut}
             </button>
           </div>
         )}

@@ -38,7 +38,7 @@ import { encryptPagePassword, invitationPassword, PAGE_PASSWORD_MAX, PAGE_PASSWO
 import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign, type InvitationDetails } from './invitation';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
-import { sendMail, sendMailBatch, fromName, verificationEmailHtml, type MailMessage } from './mail';
+import { sendMail, sendMailBatch, fromName, verificationEmail, type MailMessage } from './mail';
 import { notifyAdminsOfNewPage } from './admin-notify';
 import { randomInt } from 'crypto';
 import { drawCycle, giftExchangeDetails, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
@@ -58,6 +58,7 @@ import { ensureSeatingColumn } from './seating-data';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { isHeroOverlayColor, isHeroOverlayOpacity } from '@/app/ui/themes/hero-overlay';
 import { heroButtonSetting, isHeroButtonKey, isHeroColor, normalizeHeroButtonLabel } from '@/app/ui/themes/hero-style';
+import { rememberDashLang } from '@/app/lib/dash-text/server';
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
@@ -2116,13 +2117,16 @@ export async function authenticate(
 }
 
 
-export async function GoogleSignIn() {
+// lang: the sign-up page's language, for the dashboard (rememberDashLang).
+export async function GoogleSignIn(lang?: string) {
+  await rememberDashLang(lang);
   await signIn("google", { redirectTo: '/dashboard' });
 }
 
 // From a "design your invitation" page: back to the create-event form with
 // the visitor's choices in its address (app/lib/start-intent.ts).
-export async function GoogleSignInTo(next: string) {
+export async function GoogleSignInTo(next: string, lang?: string) {
+  await rememberDashLang(lang);
   await signIn("google", { redirectTo: safeSetupPath(next) });
 }
 
@@ -2253,8 +2257,8 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
   if (newUserId) {
     try {
       const token = await createToken('email_verification_tokens', newUserId, EMAIL_VERIFICATION_TTL_MS);
-      const link = `${siteUrl()}/api/verify-email?token=${token}`;
-      await sendMail({ to: email, subject: 'Confirm your email address for MyGala', html: verificationEmailHtml(link) });
+      const link = `${siteUrl()}/api/verify-email?token=${token}${lang === 'en' ? '' : `&lang=${lang}`}`;
+      await sendMail({ to: email, ...verificationEmail(link, undefined, lang) });
     } catch (error) {
       // Don't block account creation on a mail failure — the dashboard
       // banner's resend button covers this.
@@ -2263,6 +2267,7 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
   }
 
   if (newUserId) await markSignUp('email');
+  await rememberDashLang(lang);
   return { email, password };
 }
 

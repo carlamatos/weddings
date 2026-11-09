@@ -11,6 +11,8 @@ import {
 } from '@/app/lib/custom-sections';
 import { uploadImage } from './upload-image';
 
+import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill } from '@/app/lib/dash-text/fill';
 const inputStyle: React.CSSProperties = {
   padding: '9px 12px', border: '1px solid #EDE8E3', borderRadius: 8, fontSize: 14,
   fontFamily: 'inherit', color: '#241F2B', outline: 'none', width: '100%', boxSizing: 'border-box',
@@ -49,6 +51,7 @@ export function CustomSectionsManager({ pageId, initialSections }: { pageId: num
 }
 
 function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSection }) {
+  const d = useDashText();
   const [title, setTitle] = useState(initial.title);
   const [blocks, setBlocks] = useState<DraftBlock[]>(() => initial.blocks.map(withKey));
   const [saved, setSaved] = useState(() => JSON.stringify({ title: initial.title, blocks: initial.blocks }));
@@ -100,7 +103,7 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
         setBlocks((prev) => [...prev, withKey({ type: 'image', url })]);
       }
     } catch (err) {
-      setMessage({ kind: 'error', text: err instanceof Error ? err.message : 'Upload failed. Please try again.' });
+      setMessage({ kind: 'error', text: err instanceof Error ? err.message : d.customSectionsManager.uploadFailedPleaseTryAgain });
     } finally {
       setUploading(false);
     }
@@ -120,31 +123,31 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
     setBlocks(result.value.blocks.map(withKey));
     setSaved(JSON.stringify({ title: result.value.title, blocks: result.value.blocks }));
     setIsEmpty(!result.value.title && result.value.blocks.length === 0);
-    setMessage({ kind: 'ok', text: 'Saved.' });
+    setMessage({ kind: 'ok', text: d.customSectionsManager.saved });
   }
 
   return (
     <div style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: 22 }}>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 16 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: 0 }}>Section {initial.position}</h2>
+        <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: 0 }}>{fill(d.customSectionsManager.section, { position: initial.position })}</h2>
         <span style={{ fontSize: 12, color: isEmpty ? '#6B6470' : '#3D6B46', fontWeight: 600 }}>
-          {isEmpty ? 'Empty — not shown on your page' : 'Shown on your page'}
+          {isEmpty ? d.customSectionsManager.emptyNotShownOnYour : d.customSectionsManager.shownOnYourPage}
         </span>
       </div>
 
-      <label style={labelStyle} htmlFor={`cs-title-${initial.position}`}>Title (optional)</label>
+      <label style={labelStyle} htmlFor={`cs-title-${initial.position}`}>{d.customSectionsManager.titleOptional}</label>
       <input
         id={`cs-title-${initial.position}`}
         style={{ ...inputStyle, marginBottom: 18 }}
         value={title}
         maxLength={CUSTOM_SECTION_TITLE_MAX}
-        placeholder="Leave empty for no heading"
+        placeholder={d.customSectionsManager.leaveEmptyForNoHeading}
         onChange={(e) => { setTitle(e.target.value); setMessage(null); }}
       />
 
-      <span style={labelStyle}>Content</span>
+      <span style={labelStyle}>{d.customSectionsManager.content}</span>
       {blocks.length === 0 && (
-        <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px' }}>Add paragraphs of text and images. They appear on your page in this order.</p>
+        <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px' }}>{d.customSectionsManager.addParagraphsOfTextAnd}</p>
       )}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 14 }}>
         {blocks.map((block, i) => (
@@ -156,8 +159,8 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
                     style={{ ...inputStyle, minHeight: 96, resize: 'vertical', background: '#fff' }}
                     value={block.text}
                     maxLength={CUSTOM_SECTION_TEXT_MAX}
-                    placeholder="Write a paragraph…"
-                    aria-label={`Text block ${i + 1}`}
+                    placeholder={d.customSectionsManager.writeAParagraph}
+                    aria-label={fill(d.customSectionsManager.textBlock, { v1: i + 1 })}
                     onChange={(e) => update(block.key, { text: e.target.value })}
                   />
                   {block.text.length > CUSTOM_SECTION_TEXT_MAX - 200 && (
@@ -172,26 +175,26 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
                     style={{ ...inputStyle, flex: 1, minWidth: 180, background: '#fff' }}
                     value={block.alt ?? ''}
                     maxLength={IMAGE_ALT_MAX}
-                    placeholder="Describe the image (for screen readers)"
-                    aria-label={`Image ${i + 1} description`}
+                    placeholder={d.customSectionsManager.describeTheImageForScreen}
+                    aria-label={fill(d.customSectionsManager.imageDescription, { v1: i + 1 })}
                     onChange={(e) => update(block.key, { alt: e.target.value })}
                   />
                 </div>
               )}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <button type="button" style={iconBtn} onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" title="Move up">↑</button>
-              <button type="button" style={iconBtn} onClick={() => move(i, 1)} disabled={i === blocks.length - 1} aria-label="Move down" title="Move down">↓</button>
-              <button type="button" style={{ ...iconBtn, color: '#B91C1C' }} onClick={() => remove(block.key)} aria-label="Remove" title="Remove">✕</button>
+              <button type="button" style={iconBtn} onClick={() => move(i, -1)} disabled={i === 0} aria-label={d.customSectionsManager.moveUp} title={d.customSectionsManager.moveUp}>↑</button>
+              <button type="button" style={iconBtn} onClick={() => move(i, 1)} disabled={i === blocks.length - 1} aria-label={d.customSectionsManager.moveDown} title={d.customSectionsManager.moveDown}>↓</button>
+              <button type="button" style={{ ...iconBtn, color: '#B91C1C' }} onClick={() => remove(block.key)} aria-label={d.customSectionsManager.remove} title={d.customSectionsManager.remove}>✕</button>
             </div>
           </div>
         ))}
       </div>
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-        <button type="button" style={btnGhost} onClick={addText} disabled={atLimit}>+ Text</button>
+        <button type="button" style={btnGhost} onClick={addText} disabled={atLimit}>{d.customSectionsManager.text}</button>
         <button type="button" style={btnGhost} onClick={() => fileRef.current?.click()} disabled={atLimit || uploading}>
-          {uploading ? 'Uploading…' : '+ Image'}
+          {uploading ? d.customSectionsManager.uploading : d.customSectionsManager.image}
         </button>
         <input ref={fileRef} type="file" accept="image/*,.heic,.heif" multiple style={{ display: 'none' }} onChange={addImages} />
         <span style={{ flex: 1 }} />
@@ -199,10 +202,10 @@ function SectionEditor({ pageId, initial }: { pageId: number; initial: CustomSec
           <span role="status" style={{ fontSize: 13, color: message.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{message.text}</span>
         )}
         <button type="button" style={{ ...btnPrimary, opacity: !dirty || saving || uploading ? 0.55 : 1 }} onClick={save} disabled={!dirty || saving || uploading}>
-          {saving ? 'Saving…' : 'Save section'}
+          {saving ? d.customSectionsManager.saving : d.customSectionsManager.saveSection}
         </button>
       </div>
-      {atLimit && <p style={{ fontSize: 12, color: '#6B6470', margin: '10px 0 0' }}>A section can hold up to {CUSTOM_SECTION_MAX_BLOCKS} blocks.</p>}
+      {atLimit && <p style={{ fontSize: 12, color: '#6B6470', margin: '10px 0 0' }}>{fill(d.customSectionsManager.aSectionCanHoldUp, { CUSTOM_SECTION_MAX_BLOCKS })}</p>}
     </div>
   );
 }
