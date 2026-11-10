@@ -7,10 +7,10 @@ export const STEP_SCREENS: Record<string, { section: string; label: string }> = 
   save: { section: '/invitations', label: 'Send save-the-dates' },
   invite: { section: '/invitations', label: 'Send your invitations' },
   reminder: { section: '/reminders', label: 'Set up reminder emails' },
-  deadline: { section: '/rsvp', label: 'See who’s replied' },
-  chase: { section: '/rsvp', label: 'See who hasn’t replied' },
+  deadline: { section: '/guest-list', label: 'See who’s replied' },
+  chase: { section: '/guest-list', label: 'See who hasn’t replied' },
   seating: { section: '/seating', label: 'Seat your guests' },
-  final: { section: '/rsvp', label: 'Get your final numbers' },
+  final: { section: '/guest-list', label: 'Get your final numbers' },
 };
 
 export function timelineSteps(plan: RsvpTimelinePlan): { deadline: string; steps: RsvpStep[] } {

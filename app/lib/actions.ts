@@ -840,7 +840,7 @@ export async function updateGuestStatus(
   }
 }
 
-// The host edits a guest on the list (Guests → Guest List): name, email,
+// The host edits a guest on the list (Guests → Guests & RSVPs): name, email,
 // phone, party size and status. Any plan. Email must be unique on the list,
 // as when guests are added.
 export async function updateGuest(
@@ -943,7 +943,7 @@ export async function saveSeatingTables(
   }
 }
 
-// The host removes a guest from the list (Guests → Guest List).
+// The host removes a guest from the list (Guests → Guests & RSVPs).
 export async function removeGuest(pageId: number, guestId: string): Promise<{ ok: boolean }> {
   if (!UUID_RE.test(guestId)) return { ok: false };
   const session = await auth();

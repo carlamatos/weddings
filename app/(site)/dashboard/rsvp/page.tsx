@@ -1,6 +1,6 @@
 import { redirectToDefaultPage } from '@/app/lib/dashboard';
 
-// Old URL: forwards to this screen for the user's oldest page.
+// Old URL: RSVP is part of Guests & RSVPs now (the guest-list screen).
 export default function Page() {
-  return redirectToDefaultPage('/rsvp');
+  return redirectToDefaultPage('/guest-list');
 }

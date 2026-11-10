@@ -5,7 +5,7 @@ import { updatePageSetting } from '@/app/lib/actions';
 import { card } from './guest-ui';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
-// RSVP screen: whether the organizer gets an email for every RSVP (sent to
+// Guests & RSVPs: whether the organizer gets an email for every RSVP (sent to
 // their account address). On by default.
 export function RsvpNotifyOption({ pageId, initialOn, email }: { pageId: number; initialOn: boolean; email?: string }) {
   const d = useDashText();

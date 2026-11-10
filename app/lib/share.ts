@@ -118,7 +118,7 @@ function clip(text: string, max: number): string {
 }
 
 // Hosts can keep their event page out of search engines and AI answers
-// (Share screen). New pages start hidden until the host ticks "Show this
+// (Invite screen). New pages start hidden until the host ticks "Show this
 // page in search results"; older pages without the setting stay listed.
 // Crawlers that honour robots meta tags — Google, Bing and the AI
 // assistants built on them — then skip the page.

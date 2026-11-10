@@ -22,6 +22,8 @@ import { ornamentOccasion, ornamentPalette } from '@/app/lib/invitation-ornament
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
+import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
+import { PencilSquareIcon } from '@heroicons/react/24/outline';
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
 
@@ -142,12 +144,19 @@ export function InvitationDesigner({
 
       <div>
         <section style={panel}>
-          <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
+            {/* Opens the page editor with its date, time and place popup. */}
+            <Link href={`${editPageHref}?${OPEN_PARAM}=location`} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none', marginBottom: 12 }}>
+              <PencilSquareIcon style={{ width: 15, height: 15 }} />
+              {d.invitationDesigner.editEventDetails}
+            </Link>
+          </div>
           <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 10px', lineHeight: 1.6 }}>
             {rich(d.invitationDesigner.theseComeFromYourEvent, { t0: (s) => <Link href={editPageHref} style={{ color: '#B6584A' }}>{s}</Link> })}
           </p>
           <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 14px', margin: 0, fontSize: 14 }}>
-            {([['Event', details.name], ['Date', details.date], ['Time', details.time], ['Place', [details.venue, details.address].filter(Boolean).join(', ')]] as const).map(([k, v]) => (
+            {([[d.invitationDesigner.event, details.name], [d.invitationDesigner.date, details.date], [d.invitationDesigner.time, details.time], [d.invitationDesigner.place, [details.venue, details.address].filter(Boolean).join(', ')]] as const).map(([k, v]) => (
               <div key={k} style={{ display: 'contents' }}>
                 <dt style={{ color: '#9A8F8C' }}>{k}</dt>
                 <dd style={{ margin: 0, color: '#241F2B' }}>{v || '—'}</dd>

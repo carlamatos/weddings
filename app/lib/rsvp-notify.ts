@@ -5,7 +5,7 @@ import { COMPANY } from './company';
 import { personName, type PartyMeal } from './rsvp-meals';
 
 // Emails the event organizer (the page owner's account address) each time a
-// guest sends an RSVP. On by default; turned off on the RSVP screen.
+// guest sends an RSVP. On by default; turned off in Guests & RSVPs.
 export const RSVP_NOTIFY_SETTING = 'rsvp_notify_owner';
 
 export function isRsvpNotifyOn(settings: Record<string, string>): boolean {
@@ -47,9 +47,9 @@ export function rsvpNotificationHtml(pageId: number, heading: string, ownerName:
       ${attending && r.meals?.length ? row('Meals', r.meals.map((m, i) => `${escHtml(personName(r.name, r.meals!, i))}: ${m.meal ? escHtml(m.meal) : '<span style="color: #9A8F8C;">no choice</span>'}${m.diet ? ` <span style="color: #8B3A2A;">(${escHtml(m.diet)})</span>` : ''}`).join('<br>')) : ''}
       ${r.message ? row('Message', `<span style="white-space: pre-wrap;">${escHtml(r.message)}</span>`) : ''}
     </table>
-    ${button(`${site}/dashboard/pages/${pageId}/rsvp`, 'See all RSVPs')}
+    ${button(`${site}/dashboard/pages/${pageId}/guest-list`, 'See all RSVPs')}
     <p style="margin: 24px 0 0; font-size: 13px; color: #9A8F8C; line-height: 1.6;">You get this email because RSVP notifications are on for this page.
-    To stop them, untick “Email me when someone RSVPs” on the RSVP screen. Questions? <a href="mailto:${COMPANY.email}" style="color: #9A8F8C;">${COMPANY.email}</a></p>
+    To stop them, untick “Email me when someone RSVPs” in Guests &amp; RSVPs. Questions? <a href="mailto:${COMPANY.email}" style="color: #9A8F8C;">${COMPANY.email}</a></p>
   `);
 }
 

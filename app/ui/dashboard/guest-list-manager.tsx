@@ -18,15 +18,22 @@ import {
   pickContacts,
   type ImportedGuest,
 } from '@/app/lib/guest-import';
-import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
+import { btn, card, cell, headCell, input, primary } from './guest-ui';
+import { GuestStatusSelect } from './guest-status-select';
+import { RsvpActions } from './rsvp-actions';
+import { LocalDate } from './local-date';
+import { personName, readPartyMeals } from '@/app/lib/rsvp-meals';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
 import { rich } from '@/app/ui/dashboard/rich';
-// Guests → Guest List (every plan): build the list from a spreadsheet, a
-// contacts file, the phone's contacts or by hand, and edit or remove guests. Sending
-// invitations to them is on the Invitations screen (Plus).
-export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string }) {
+// Guests → Guests & RSVPs (every plan): build the list from a spreadsheet, a
+// contacts file, the phone's contacts or by hand, and see everyone's reply
+// in the same table: change a reply, edit or remove a guest. Guests who
+// RSVP on the page join the list by themselves. Sending invitations is on
+// the Invite screen. showMeals: the RSVP form asks for meals (or someone
+// chose one before), so the table has a Meals column.
+export function GuestListManager({ pageId, guests, isPaid, invitationsHref, showMeals = false }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string; showMeals?: boolean }) {
   const d = useDashText();
   const router = useRouter();
   const csvRef = useRef<HTMLInputElement>(null);
@@ -156,7 +163,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
   const totalPeople = guests.reduce((sum, g) => sum + (g.guests || 1), 0);
 
   return (
-    <section style={card}>
+    <section id="add-guests" style={{ ...card, scrollMarginTop: 80 }}>
       <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.guestListManager.addGuests}</h2>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
         {rich(d.guestListManager.addThePeopleYouRe, { t0: (s) => <strong>{s}</strong> })}
@@ -228,9 +235,12 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
           {d.guestListManager.yourGuests} {guests.length > 0 && <span style={{ fontSize: 14, fontWeight: 500, color: '#6B6470' }}>· {guests.length} {guests.length === 1 ? 'entry' : 'entries'}, {totalPeople} {totalPeople === 1 ? 'person' : 'people'}</span>}
         </h2>
         {guests.length > 0 && (
-          <Link href={invitationsHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>
-            {isPaid ? d.guestListManager.sendInvitations : d.guestListManager.sendInvitationsByEmailText}
-          </Link>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+            <RsvpActions pageId={pageId} guests={guests} />
+            <Link href={invitationsHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>
+              {d.guestListManager.sendInvitations}
+            </Link>
+          </div>
         )}
       </div>
 
@@ -238,10 +248,10 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
         <p style={{ fontSize: 14, color: '#9A8F8C', margin: 0 }}>{d.guestListManager.yourGuestListIsEmpty}</p>
       ) : (
         <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 640 }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: showMeals ? 940 : 760 }}>
             <thead>
               <tr>
-                {[d.guestListManager.name, d.guestListManager.email, d.guestListManager.phone, d.guestListManager.guests, d.guestListManager.status, ''].map((h) => <th key={h} style={headCell}>{h}</th>)}
+                {[d.guestListManager.name, d.guestListManager.status, d.guestListManager.guests, ...(showMeals ? [d.rsvp.meals] : []), d.guestListManager.contact, d.rsvp.note, d.rsvp.date, ''].map((h, i) => <th key={i} style={headCell}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -255,9 +265,6 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                   return (
                     <tr key={g.id} style={{ background: '#FBF8F5' }}>
                       <td style={cell}><input aria-label={d.guestListManager.name} style={{ ...input, width: '100%' }} value={editing.name} maxLength={120} onChange={(e) => set({ name: e.target.value })} onKeyDown={onKey} autoFocus /></td>
-                      <td style={cell}><input aria-label={d.guestListManager.email} type="email" style={{ ...input, width: '100%' }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /></td>
-                      <td style={cell}><input aria-label={d.guestListManager.phone} type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
-                      <td style={cell}><input aria-label={d.guestListManager.numberOfGuests} type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
                       <td style={cell}>
                         <select aria-label={d.guestListManager.status} style={input} value={editing.status} onChange={(e) => set({ status: e.target.value as Guest['status'] })} onKeyDown={onKey}>
                           <option value="invited">{d.guestListManager.invited}</option>
@@ -265,6 +272,11 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                           <option value="not_attending">{d.guestListManager.declining}</option>
                         </select>
                       </td>
+                      <td style={cell}><input aria-label={d.guestListManager.numberOfGuests} type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
+                      {showMeals && <td style={cell} />}
+                      <td style={cell}><input aria-label={d.guestListManager.email} type="email" style={{ ...input, width: '100%', marginBottom: 6 }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /><input aria-label={d.guestListManager.phone} type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
+                      <td style={cell} />
+                      <td style={cell} />
                       <td style={{ ...cell, textAlign: 'right' }}>
                         <div style={{ display: 'inline-flex', gap: 6 }}>
                           <button type="button" style={{ ...primary, padding: '6px 12px', fontSize: 13 }} disabled={saving} onClick={saveEdit}>{saving ? d.guestListManager.saving : d.guestListManager.save}</button>
@@ -275,20 +287,24 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
                     </tr>
                   );
                 }
-                const [text, style] = STATUS[g.status] ?? STATUS.invited;
                 return (
                   <tr key={g.id}>
-                    <td style={{ ...cell, fontWeight: 500 }}>{g.name}</td>
-                    <td style={{ ...cell, color: '#6B6470', overflowWrap: 'anywhere' }}>{g.email || '—'}</td>
-                    <td style={{ ...cell, color: '#6B6470', whiteSpace: 'nowrap' }}>{g.phone || '—'}</td>
-                    <td style={{ ...cell, textAlign: 'center' }}>{g.guests || 1}</td>
-                    <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>
-                    <td style={{ ...cell, textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: 6 }}>
-                        <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => startEdit(g)}>
+                    <td style={{ ...cell, fontWeight: 500, minWidth: 120 }}>{g.name}</td>
+                    <td style={{ ...cell, whiteSpace: 'nowrap' }}><GuestStatusSelect key={g.status} pageId={pageId} guestId={g.id} guestName={g.name} initial={g.status} /></td>
+                    <td style={{ ...cell, textAlign: 'center' }}>{g.status === 'not_attending' ? '—' : g.guests || 1}</td>
+                    {showMeals && <td style={{ ...cell, fontSize: 13, minWidth: 150 }}><MealsCell guest={g} /></td>}
+                    <td style={{ ...cell, color: '#6B6470', fontSize: 13, whiteSpace: 'nowrap' }}>
+                      {g.email || g.phone ? <>{g.email && <span style={{ display: 'block' }}>{g.email}</span>}{g.phone && <span style={{ display: 'block' }}>{g.phone}</span>}</> : '—'}
+                    </td>
+                    <td style={{ ...cell, color: '#6B6470', maxWidth: 200, fontSize: 13 }}>{g.message || '—'}</td>
+                    {/* When they replied; for guests yet to reply, when they were added. */}
+                    <td style={{ ...cell, color: '#9A8F8C', whiteSpace: 'nowrap', fontSize: 13 }}><LocalDate iso={g.responded_at ?? g.created_at} options={{ month: 'short', day: 'numeric' }} /></td>
+                    <td style={{ ...cell, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <div style={{ display: 'inline-flex', gap: 2 }}>
+                        <button type="button" style={rowAction} disabled={removing === g.id} onClick={() => startEdit(g)}>
                           {d.guestListManager.edit}
                         </button>
-                        <button type="button" style={{ ...btn, padding: '6px 12px', fontSize: 13 }} disabled={removing === g.id} onClick={() => remove(g)}>
+                        <button type="button" style={{ ...rowAction, color: '#8B3A2A' }} disabled={removing === g.id} onClick={() => remove(g)}>
                           {removing === g.id ? d.guestListManager.removing : d.guestListManager.remove}
                         </button>
                       </div>
@@ -303,3 +319,26 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
     </section>
   );
 }
+
+// One guest's party: each person's meal and allergies.
+function MealsCell({ guest }: { guest: Guest }) {
+  const d = useDashText();
+  if (guest.status !== 'attending') return <span style={{ color: '#9A8F8C' }}>—</span>;
+  const rows = readPartyMeals(guest.meals);
+  const people = Math.max(1, guest.guests || 1);
+  if (!rows.some((r) => r.meal || r.diet)) return <span style={{ color: '#9A8F8C' }}>{d.rsvp.noChoiceYet}</span>;
+  return (
+    <div style={{ display: 'grid', gap: 3 }}>
+      {Array.from({ length: people }, (_, i) => (
+        <div key={i}>
+          {people > 1 && <span style={{ color: '#6B6470' }}>{personName(guest.name, rows, i)}: </span>}
+          {rows[i]?.meal || <span style={{ color: '#9A8F8C' }}>{d.rsvp.noChoice}</span>}
+          {rows[i]?.diet && <span style={{ display: 'block', color: '#8B3A2A', fontSize: 12 }}>{rows[i].diet}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Edit / Remove in each row: small text buttons, so the row's details get the room.
+const rowAction: React.CSSProperties = { border: 'none', background: 'transparent', padding: '4px 8px', borderRadius: 6, fontSize: 13, fontWeight: 600, color: '#241F2B', cursor: 'pointer', fontFamily: 'inherit' };

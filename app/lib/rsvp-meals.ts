@@ -1,5 +1,5 @@
 // Meal choices and dietary needs on the RSVP. Off until the host switches it
-// on (RSVP screen); then each person in an attending party can pick a meal
+// on (Guests & RSVPs); then each person in an attending party can pick a meal
 // from the host's list and note allergies, both optional for guests. The
 // host gets a count per meal for the caterer, and Find Your Table shows the
 // meals at each table. Shared by client and server, so no server-only

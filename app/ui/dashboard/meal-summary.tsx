@@ -10,7 +10,7 @@ import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
 export type MealRow = { guest: string; person: string; meal: string; diet: string; table: string };
 
-// RSVP screen: what to tell the caterer. A count per meal from the guests
+// Guests & RSVPs: what to tell the caterer. A count per meal from the guests
 // who are coming, everyone's allergies, and the list to copy or download.
 export function MealSummaryCard({ summary, rows, heading }: { summary: MealSummary; rows: MealRow[]; heading: string }) {
   const d = useDashText();

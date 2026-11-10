@@ -31,8 +31,8 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   // One Share button: the page, or straight to its RSVP form.
   const shareChoices: ShareChoice[] | undefined = userPage
     ? [
-        { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
-        { tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/share'), pageId: Number(userPage.id) } },
+        { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } },
+        { tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } },
       ]
     : undefined;
   // Whether guests can see the page, with its address beside it.
@@ -81,7 +81,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
 
       {shareChoices && (
         <div className="dash-topnav-actions">
-          <ShareMenu choices={shareChoices} />
+          <ShareMenu choices={shareChoices} tip={setup?.some((s) => s.id === 'share' && !s.done) ?? false} />
         </div>
       )}
 

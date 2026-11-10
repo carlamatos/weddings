@@ -1,8 +1,8 @@
 'use client';
 
 import {
-  DocumentIcon, GiftTopIcon, UsersIcon, ClipboardDocumentListIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
-  CalendarDaysIcon, ShareIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
+  DocumentIcon, GiftTopIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
+  CalendarDaysIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
   Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon, TvIcon, BanknotesIcon, ClockIcon,
 } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
@@ -42,11 +42,12 @@ const GROUPS: { title: keyof DashText['navGroups']; links: NavItem[] }[] = [
   {
     title: 'guests',
     links: [
-      { name: 'guestList', section: '/guest-list', icon: ClipboardDocumentListIcon },
-      { name: 'rsvp', section: '/rsvp', icon: UsersIcon },
+      // Guest List and RSVP are one screen now, and so are Invitations and
+      // Share (/rsvp and /share forward to them). Reminders stays its own:
+      // it's a Plus feature.
+      { name: 'guestList', section: '/guest-list', icon: UsersIcon },
       { name: 'invitations', section: '/invitations', icon: EnvelopeIcon },
       { name: 'reminders', section: '/reminders', icon: BellAlertIcon },
-      { name: 'share', section: '/share', icon: ShareIcon },
     ],
   },
   {

@@ -8,7 +8,7 @@ import { btn, card, input, primary } from './guest-ui';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
-// RSVP screen: ask guests to choose a meal and note allergies. Off by
+// Guests & RSVPs: ask guests to choose a meal and note allergies. Off by
 // default; when on, the RSVP form shows a meal list and an allergies box
 // for each person in the party (both optional for guests).
 export function RsvpMealsOption({ pageId, initialOn, initialOptions }: { pageId: number; initialOn: boolean; initialOptions: string[] }) {

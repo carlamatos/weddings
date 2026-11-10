@@ -63,7 +63,7 @@ export default async function RemindersPage({ params }: { params: Promise<{ page
         <span style={{ color: '#6B6470' }}>
           {subscribers === 1 ? 'has' : 'have'} {d.reminders.askedForEventUpdatesWhen}
         </span>
-        <Link href={pagePath(userPage.id, '/rsvp')} style={{ color: '#B6584A', fontWeight: 600, marginLeft: 'auto' }}>{d.reminders.viewGuests}</Link>
+        <Link href={pagePath(userPage.id, '/guest-list')} style={{ color: '#B6584A', fontWeight: 600, marginLeft: 'auto' }}>{d.reminders.viewGuests}</Link>
       </div>
 
       <RemindersForm

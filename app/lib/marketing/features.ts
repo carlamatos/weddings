@@ -75,16 +75,16 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Start with your guest list',
         paragraphs: [
-          'The guest list is free on every plan: import guests from a spreadsheet (CSV), your phone’s contacts or a contacts file (.vcf), or add them one by one. Guests appear as Invited on your RSVP screen and switch to Attending or Declining when they reply.',
+          'The guest list is free on every plan: import guests from a spreadsheet (CSV), your phone’s contacts or a contacts file (.vcf), or add them one by one. Guests appear as Invited in Guests & RSVPs and switch to Attending or Declining when they reply.',
         ],
       },
     ],
     steps: [
-      { title: 'Build your guest list', text: 'In your dashboard, open Guests → Guest List and import or add your guests.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
-      { title: 'Design your invitation', text: 'Open Guests → Invitations and adjust the fonts, wording, colours and background. Save your design.', dashboard: '/dashboard/invitations', linkLabel: 'Open Invitations' },
+      { title: 'Build your guest list', text: 'In your dashboard, open Guests & RSVPs and import or add your guests.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
+      { title: 'Design your invitation', text: 'Open Invite and, under Send personal invitations, adjust the fonts, wording, colours and background. Save your design.', dashboard: '/dashboard/invitations', linkLabel: 'Open Invite' },
       { title: 'Send yourself a test', text: 'Click “Send me a test” to see the email in your own inbox.' },
       { title: 'Send it to your guests', text: 'Tick guests and click Email, or tap Text or WhatsApp next to a guest’s phone number.' },
-      { title: 'Watch the RSVPs come in', text: 'Replies appear on your RSVP screen as guests answer on your page.' },
+      { title: 'Watch the RSVPs come in', text: 'Replies appear in Guests & RSVPs as guests answer on your page.' },
     ],
     faqs: [
       { q: 'Is the guest list free?', a: 'Yes. Building and importing your guest list is free on every plan, and so are designing and sending invitations.' },
@@ -274,7 +274,7 @@ export const FEATURES: Feature[] = [
     ],
     steps: [
       { title: 'Upgrade your page to Plus', text: 'Find Your Table is part of MyGala Plus, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Plus.' },
-      { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
+      { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
       { title: 'Seat them', text: 'In Find Your Table, create your tables and drag your guests onto them, or use the List to type tables or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
       { title: 'Switch it on and print the sign', text: 'Turn on “Let guests look up their table”, then print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG for your own design.' },
       { title: 'Test it, then put it at the entrance', text: 'Scan the sign with your phone and look up a guest or two. Put the sign at the entrance, the welcome table or the bar.' },
@@ -641,7 +641,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Open RSVP', text: 'In your dashboard, choose RSVP in the left menu and tick “Ask guests to choose a meal”.', dashboard: '/dashboard/rsvp', linkLabel: 'Open RSVP' },
+      { title: 'Open Guests & RSVPs', text: 'In your dashboard, choose Guests & RSVPs in the left menu and, under RSVP form settings, tick “Ask guests to choose a meal”.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
       { title: 'Write your menu', text: 'Edit the meals guests choose from, then click Save meals.' },
       { title: 'Share your page', text: 'Guests choose a meal for each person coming when they RSVP, and note any allergies.' },
       { title: 'Send the counts', text: 'Under “Meals for your caterer”, click Copy for the caterer or Download CSV.' },
@@ -651,7 +651,7 @@ export const FEATURES: Feature[] = [
       { q: 'Do guests have to choose a meal?', a: 'No. The meal is optional on the form, so guests can reply even if they haven’t decided. Your dashboard shows who hasn’t chosen yet.' },
       { q: 'Can each person in a party choose their own meal?', a: 'Yes. A guest replying for four people gets four rows, one per person, each with its own meal and dietary note.' },
       { q: 'How many meal options can I offer?', a: 'Up to 8, such as a meat, a fish, a vegetarian and a kids’ meal.' },
-      { q: 'How do I give the meal count to my caterer?', a: 'Open RSVP in your dashboard. Under “Meals for your caterer”, see the count per meal and every allergy, then copy the list into an email or download it as a CSV.' },
+      { q: 'How do I give the meal count to my caterer?', a: 'Open Guests & RSVPs in your dashboard. Under “Meals for your caterer”, see the count per meal and every allergy, then copy the list into an email or download it as a CSV.' },
       { q: 'Is the RSVP meal choice free?', a: 'Yes. Meal choices and dietary needs are part of the free RSVP on every MyGala event page.' },
       { q: 'Can I see meals on my seating chart?', a: 'Yes. Seat guests in Find Your Table and each table shows its meals, so the caterer knows what to serve where.' },
     ],
@@ -777,7 +777,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Plan the guest count too',
         paragraphs: [
-          'Not sure how many will come? The free guest count planner estimates how many of your invited guests will say yes. Save it to MyGala as well, and it sits on your Guest List next to your real replies.',
+          'Not sure how many will come? The free guest count planner estimates how many of your invited guests will say yes. Save it to MyGala as well, and it sits in Guests & RSVPs next to your real replies.',
         ],
       },
     ],
