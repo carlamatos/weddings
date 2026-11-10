@@ -17,6 +17,7 @@ import { normalizeHashtag } from '@/app/lib/hashtag';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import '@/app/ui/wedding.css';
 import { appHref } from '@/app/lib/app-url';
+import { pagePath } from '@/app/lib/dashboard';
 import { isPageDraft, isPageOffline } from '@/app/lib/page-status';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
@@ -167,12 +168,12 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       {ownDraft && (
         <div role="status" style={{ position: 'sticky', top: 0, zIndex: 50, background: '#241F2B', color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 14, lineHeight: 1.5, padding: '10px 16px', textAlign: 'center' }}>
           <strong>Draft</strong> — only you can see this page. Guests&rsquo; forms open once it&rsquo;s published.{' '}
-          <Link href={appHref('/dashboard')} style={{ color: '#F2C8BF', fontWeight: 600 }}>Publish it from your dashboard</Link>
+          <Link href={appHref(pagePath(data.id))} style={{ color: '#F2C8BF', fontWeight: 600 }}>Publish it from your dashboard</Link>
         </div>
       )}
-      {/* Edit button — visible to page owner only */}
+      {/* Edit button — visible to page owner only; opens this page's editor. */}
       {isOwner && (
-        <Link href={appHref('/dashboard')} className="edit-page-btn">
+        <Link href={appHref(pagePath(data.id))} className="edit-page-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
