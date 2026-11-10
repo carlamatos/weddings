@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { fetchGuests, fetchPageSettings } from '@/app/lib/data';
 import { LINK_SHARED_SETTING } from '@/app/lib/setup-progress';
+import { RSVP_GUEST_LIST_ONLY_SETTING } from '@/app/lib/rsvp-settings';
+import { publicPageUrl } from '@/app/lib/share';
+import { GuestListStart } from '@/app/ui/dashboard/guest-list-start';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
 import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
@@ -66,6 +69,15 @@ export default async function GuestListPage({ params, searchParams }: { params: 
             {d.guestList.sendInvitations}
           </Link>
         </div>
+      )}
+      {guests.length === 0 && (
+        <GuestListStart
+          pageId={pageId}
+          url={publicPageUrl(page)}
+          title={page.heading || d.invitations.ourEvent}
+          draft={page.status === 'draft'}
+          listOnly={settings[RSVP_GUEST_LIST_ONLY_SETTING] === 'true'}
+        />
       )}
       <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} />
       {guestPlan ? (

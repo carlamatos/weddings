@@ -156,7 +156,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
   const totalPeople = guests.reduce((sum, g) => sum + (g.guests || 1), 0);
 
   return (
-    <section style={card}>
+    <section id="add-guests" style={{ ...card, scrollMarginTop: 80 }}>
       <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.guestListManager.addGuests}</h2>
       <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 16px', lineHeight: 1.6 }}>
         {rich(d.guestListManager.addThePeopleYouRe, { t0: (s) => <strong>{s}</strong> })}
@@ -229,7 +229,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref }: { 
         </h2>
         {guests.length > 0 && (
           <Link href={invitationsHref} style={{ fontSize: 14, fontWeight: 600, color: '#B6584A', textDecoration: 'none' }}>
-            {isPaid ? d.guestListManager.sendInvitations : d.guestListManager.sendInvitationsByEmailText}
+            {d.guestListManager.sendInvitations}
           </Link>
         )}
       </div>

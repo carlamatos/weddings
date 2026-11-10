@@ -2,13 +2,15 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
-  ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon,
+  ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon, XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { NETWORKS } from './share-buttons';
 import { markLinkShared } from '@/app/lib/actions';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { rich } from '@/app/ui/dashboard/rich';
 const enc = encodeURIComponent;
 
 // The networks offered in the top bar's quick menu, in this order; the rest
@@ -154,20 +156,74 @@ function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () =
   );
 }
 
-// The top bar's Share button, with the share options beneath it.
-export default function ShareMenu({ choices }: { choices: ShareChoice[] }) {
+// A tip under the Share button, on a host's first few dashboard visits
+// while the page hasn't been shared yet: many think they must type in their
+// guest list before anyone can RSVP. Not on the page editor, where the
+// Themes tip shows on those same first visits. Remembered in this browser;
+// closing it or opening the menu ends it.
+const TIP_KEY = 'mygala.shareTip';
+const TIP_VISITS = 3;
+let countedTipVisit: { visit: string; show: boolean } | null = null;
+
+function readTip(): { visits: number; done: boolean } {
+  try {
+    const v = JSON.parse(localStorage.getItem(TIP_KEY) ?? 'null');
+    if (v && typeof v.visits === 'number') return { visits: v.visits, done: !!v.done };
+  } catch {}
+  return { visits: 0, done: false };
+}
+function writeTip(v: { visits: number; done: boolean }) {
+  try { localStorage.setItem(TIP_KEY, JSON.stringify(v)); } catch {}
+}
+
+function useShareTip(enabled: boolean) {
+  const pathname = usePathname();
+  const offEditor = enabled && !/^\/dashboard\/pages\/[^/]+\/?$/.test(pathname ?? '');
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // Whether to show depends on this browser's storage, read after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!offEditor) { setShow(false); return; }
+    const v = readTip();
+    if (v.done) return;
+    const visit = `${pathname}@${performance.timeOrigin}`;
+    if (countedTipVisit?.visit !== visit) {
+      countedTipVisit = { visit, show: v.visits < TIP_VISITS };
+      if (countedTipVisit.show) writeTip({ ...v, visits: v.visits + 1 });
+    }
+    setShow(countedTipVisit.show);
+  }, [offEditor, pathname]);
+
+  const dismiss = useCallback(() => {
+    setShow(false);
+    writeTip({ ...readTip(), done: true });
+  }, []);
+  return { show, dismiss };
+}
+
+// The top bar's Share button, with the share options beneath it. tip: the
+// page hasn't been shared yet (its setup step isn't done).
+export default function ShareMenu({ choices, tip = false }: { choices: ShareChoice[]; tip?: boolean }) {
   const d = useDashText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
   useDismiss(open, close, ref);
+  const { show: tipShown, dismiss: dismissTip } = useShareTip(tip);
 
   return (
     <div className="dash-share" ref={ref}>
-      <button type="button" className="dash-share-btn" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-haspopup="true">
+      <button type="button" className="dash-share-btn" onClick={() => { setOpen((o) => !o); if (tipShown) dismissTip(); }} aria-expanded={open} aria-haspopup="true">
         <ShareIcon />
         {d.shareMenu.share}
       </button>
+      {tipShown && !open && (
+        <div className="dash-themes-tip dash-share-tip" role="status">
+          <p>{rich(d.shareTip.noNeedToTypeIn, { t0: (s) => <strong>{s}</strong> })}</p>
+          <button type="button" onClick={dismissTip} aria-label={d.shareTip.closeTip}><XMarkIcon /></button>
+        </div>
+      )}
       {open && (
         <div className="dash-share-panel" role="dialog" aria-label={d.shareMenu.share}>
           <ChoicePanel choices={choices} onDone={close} />

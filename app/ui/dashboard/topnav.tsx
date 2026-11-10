@@ -81,7 +81,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
 
       {shareChoices && (
         <div className="dash-topnav-actions">
-          <ShareMenu choices={shareChoices} />
+          <ShareMenu choices={shareChoices} tip={setup?.some((s) => s.id === 'share' && !s.done) ?? false} />
         </div>
       )}
 

@@ -151,6 +151,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       'Everyone on your list can now get your invitation, and their replies show up on your RSVP screen.',
     ],
     tips: [
+      'You don’t have to add guests first: share your page’s link, for example in a group chat, and everyone who RSVPs is added to your Guest List automatically. Add guests yourself when you want to email or text each one their own invitation, see who hasn’t replied and send reminders.',
       'Count people, not invitations: a family of four is four guests.',
       'Not sure how many will come? Try the free [guest count planner](/guest-count-planner).',
     ],

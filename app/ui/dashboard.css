@@ -771,6 +771,9 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .dash-themes-tip button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .dash-themes-tip button svg { width: 16px; height: 16px; }
+/* The Share button's tip (share-menu.tsx): the same look, from the right. */
+.dash-share-tip { left: auto; right: 0; }
+.dash-share-tip::before { left: auto; right: 26px; }
 @keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-themes-tip { animation: none; }

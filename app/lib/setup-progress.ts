@@ -3,7 +3,7 @@ import type { UserPage } from './definitions';
 import type { EditorTarget } from '@/app/ui/themes/open-editor';
 import type { DashText } from '@/app/lib/dash-text/en';
 
-// "Your page is 3/7 ready": the steps that turn a new page into one worth
+// "Your page is 3/6 ready": the steps that turn a new page into one worth
 // sharing, each with the dashboard screen where it's done. Shown at the top
 // of the sidebar with the next step suggested. The create form asks only for
 // the name (the date is optional), so the date, time, place and the owner's
@@ -12,9 +12,10 @@ import type { DashText } from '@/app/lib/dash-text/en';
 // that step is done for every page once it's filled in). Steps done in the
 // page editor name the popup to open there (app/ui/themes/open-editor.ts).
 
-export type SetupStep = { label: string; done: boolean; section: string; action?: 'profile'; open?: EditorTarget };
+// id 'share': the share step, which the top bar's Share tip waits on.
+export type SetupStep = { label: string; done: boolean; section: string; action?: 'profile'; open?: EditorTarget; id?: 'share' };
 
-export type SetupCounts = { guests: number; invited: number; shared: boolean; program: number; gallery: number; named: boolean };
+export type SetupCounts = { guests: number; invited: number; responded: number; shared: boolean; program: number; gallery: number; named: boolean };
 
 // Set (to when) the first time the owner copies or shares the page's link
 // from the dashboard (markLinkShared). Sharing it in a group chat is as good
@@ -23,10 +24,11 @@ export const LINK_SHARED_SETTING = 'link_shared_at';
 
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
   try {
-    const { rows } = await sql<{ guests: string; invited: string; shared: boolean; program: string; gallery: string; named: boolean | null }>`
+    const { rows } = await sql<{ guests: string; invited: string; responded: string; shared: boolean; program: string; gallery: string; named: boolean | null }>`
       SELECT
         (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId})::text AS guests,
         (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId} AND (invited_at IS NOT NULL OR texted_at IS NOT NULL))::text AS invited,
+        (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId} AND responded_at IS NOT NULL)::text AS responded,
         EXISTS (SELECT 1 FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = ${LINK_SHARED_SETTING}) AS shared,
         (SELECT COUNT(*) FROM event_program WHERE user_page_id = ${pageId})::text AS program,
         (SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${pageId})::text AS gallery,
@@ -36,6 +38,7 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
     return {
       guests: Number(rows[0]?.guests ?? 0),
       invited: Number(rows[0]?.invited ?? 0),
+      responded: Number(rows[0]?.responded ?? 0),
       shared: !!rows[0]?.shared,
       program: Number(rows[0]?.program ?? 0),
       gallery: Number(rows[0]?.gallery ?? 0),
@@ -43,7 +46,7 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
     };
   } catch (error) {
     console.error('Failed to count setup steps:', error);
-    return { guests: 0, invited: 0, shared: false, program: 0, gallery: 0, named: true };
+    return { guests: 0, invited: 0, responded: 0, shared: false, program: 0, gallery: 0, named: true };
   }
 }
 
@@ -61,8 +64,10 @@ export function setupSteps(page: UserPage, counts: SetupCounts, t: DashText['set
     // The gallery is empty until the host adds photos (it's hidden till then).
     { label: t.addPhotosToYourGallery, done: counts.gallery > 0, section: '', open: 'gallery' },
     { label: t.planTheDay, done: counts.program > 0, section: '/event-program' },
-    { label: t.addYourGuests, done: counts.guests > 0, section: '/guest-list' },
-    // The finish line: invitations emailed or texted, or the link shared.
-    { label: t.inviteYourGuests, done: counts.invited > 0 || counts.shared, section: '/invitations' },
+    // The finish line: the link shared, invitations emailed or texted, or an
+    // RSVP in (guests only reply once they have the link). No "add your
+    // guests" step: hosts read it as required, but sharing the link is
+    // enough, and guests who RSVP join the list by themselves.
+    { id: 'share', label: t.shareYourPageWithGuests, done: counts.shared || counts.invited > 0 || counts.responded > 0, section: '/invitations' },
   ];
 }
