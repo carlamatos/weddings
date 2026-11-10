@@ -238,7 +238,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
         <div>
           <label className="field-label" htmlFor="rsvp-guests">{t.numberOfGuests}</label>
           <div className="rsvp-party-size" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <button type="button" className="rsvp-step" aria-label={t.fewerGuests} disabled={guests <= 1} onClick={() => setPartySize(guests - 1)} style={stepBtn}>−</button>
+            <button type="button" className="rsvp-step" aria-label={t.fewerGuests} disabled={guests <= 1} onClick={() => setPartySize(guests - 1)} style={stepBtn}><StepIcon /></button>
             <input
               id="rsvp-guests"
               type="number"
@@ -254,7 +254,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
               onBlur={() => setPartySize(Number(guestsDraft) || 1)}
               style={{ width: 84, flex: '0 0 auto', textAlign: 'center' }}
             />
-            <button type="button" className="rsvp-step" aria-label={t.moreGuests} disabled={guests >= MAX_PARTY} onClick={() => setPartySize(guests + 1)} style={stepBtn}>+</button>
+            <button type="button" className="rsvp-step" aria-label={t.moreGuests} disabled={guests >= MAX_PARTY} onClick={() => setPartySize(guests + 1)} style={stepBtn}><StepIcon plus /></button>
             <span className="check-hint" style={{ margin: 0 }}>{guests === 1 ? t.justMe : t.includingYou}</span>
           </div>
         </div>
@@ -325,6 +325,15 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
 }
 
 // The − and + beside the party size: outlined in the theme's text colour.
+// Drawn, not typed: a font's − and + sit off-centre in a circle.
+function StepIcon({ plus = false }: { plus?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style={{ display: 'block' }}>
+      <path d={plus ? 'M3 8h10M8 3v10' : 'M3 8h10'} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
 const stepBtn: React.CSSProperties = {
   width: 40, height: 40, flex: '0 0 auto', display: 'grid', placeItems: 'center', padding: 0, borderRadius: '50%',
   border: '1.5px solid currentColor', background: 'transparent', color: 'inherit', font: 'inherit', fontSize: 20, lineHeight: 1, cursor: 'pointer',
