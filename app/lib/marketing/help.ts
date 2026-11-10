@@ -219,7 +219,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       'Guests open your page and scroll to the RSVP form, or follow a link straight to it: in the top bar, click **Share** and choose the **RSVP form** tab.',
       'They type their **full name** and **email**, and a **phone number** if they like (it’s optional).',
       'They choose **joyfully accepts** or **regretfully declines**.',
-      'If they’re coming, they pick the **number of guests**: just them, or up to 4 people in their party.',
+      'If they’re coming, they set the **number of guests**, themselves included: type it or use **−** and **+**, up to 50 people.',
       'If you ask for meal choices, each person in the party picks a **meal** and can note any **allergies or dietary needs**. Guests can also type the names of the people coming with them. See [How do guests choose their meal?](/help/ask-for-meal-choices)',
       'They can leave an optional **note for the hosts**, and tick whether they’d like **event updates by email**, such as your reminder emails.',
       'They click **Send RSVP** and see a thank-you message. Their reply appears straight away in **Guests & RSVPs**, and you get an email about it if notifications are on.',
@@ -227,7 +227,6 @@ export const HELP_GUIDES: HelpGuide[] = [
     tips: [
       'A guest who changes their mind sends the form again with the same email address: their answer is updated, not counted twice.',
       'Turn on **Only guests on my guest list can RSVP** (under **RSVP form settings**) and the form only accepts emails on your list, so a forwarded link can’t add extra guests.',
-      'Bigger party than 4? Add them in **Guests & RSVPs** and set the number yourself: a guest can bring up to 50 people there.',
       'Don’t want RSVPs on your page? Switch off **RSVP form visible on your page** at the top of **Guests & RSVPs**.',
     ],
     dashboard: { label: 'Open Guests & RSVPs', path: '/dashboard/guest-list' },

@@ -95,6 +95,9 @@ export interface Translations {
   regretfullyDeclines: string;
   numberOfGuests: string;
   justMe: string;
+  includingYou: string;
+  fewerGuests: string;
+  moreGuests: string;
   guests: string;
   noteForCouple: string;
   noteForCouplePlaceholder: string;
@@ -244,6 +247,9 @@ const en: Translations = {
   regretfullyDeclines: 'regretfully declines',
   numberOfGuests: 'number of guests',
   justMe: 'just me',
+  includingYou: 'including you',
+  fewerGuests: 'One guest fewer',
+  moreGuests: 'One guest more',
   guests: 'guests',
   noteForCouple: 'note for the hosts (optional)',
   noteForCouplePlaceholder: 'So excited to celebrate with you…',
@@ -387,6 +393,9 @@ const fr: Translations = {
   regretfullyDeclines: 'avec regret',
   numberOfGuests: "nombre d'invités",
   justMe: 'juste moi',
+  includingYou: 'vous compris',
+  fewerGuests: 'Un invité de moins',
+  moreGuests: 'Un invité de plus',
   guests: 'invités',
   noteForCouple: 'note pour les hôtes (facultatif)',
   noteForCouplePlaceholder: 'J’ai tellement hâte de célébrer avec vous…',
@@ -530,6 +539,9 @@ const es: Translations = {
   regretfullyDeclines: 'con pesar declina',
   numberOfGuests: 'número de invitados',
   justMe: 'solo yo',
+  includingYou: 'contándote a ti',
+  fewerGuests: 'Un invitado menos',
+  moreGuests: 'Un invitado más',
   guests: 'invitados',
   noteForCouple: 'nota para los anfitriones (opcional)',
   noteForCouplePlaceholder: 'Con muchas ganas de celebrar con ustedes…',

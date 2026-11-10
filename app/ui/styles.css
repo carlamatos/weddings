@@ -24,6 +24,18 @@ input[type='tel'], input[type='date'], input[type='url'], textarea, select {
   font-size: 0.875rem;
   color: #111827;
 }
+/* Dropdowns: "appearance: none" above takes away the browser's arrow, so
+   every dropdown gets this one, on the dashboard, the sign-up forms and
+   every theme's RSVP form. !important, because many dropdowns set their
+   own background and padding inline or in their theme. */
+select:not([multiple]):not([size]) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%237A7280' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5.5 8l4.5 4.5L14.5 8'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.6rem center !important;
+  background-size: 1.05em !important;
+  padding-right: 2rem !important;
+  cursor: pointer;
+}
 input[type='text']:focus, input[type='email']:focus, input[type='password']:focus,
 input[type='tel']:focus, input[type='date']:focus, input[type='url']:focus,
 textarea:focus, select:focus {

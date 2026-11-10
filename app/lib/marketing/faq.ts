@@ -46,7 +46,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     faqs: [
       { q: 'Do guests need an account to RSVP or upload photos?', a: 'No. Guests just open your link. Only you, the host, need an account.' },
       { q: 'How do guests RSVP?', a: 'They fill in the RSVP form on your page with their name, email, whether they’re attending and how many guests are coming, plus an optional phone number and note. If you ask for meal choices, each person also picks a meal and can note allergies. Replies appear instantly in Guests & RSVPs in your dashboard.' },
-      { q: 'Can one guest RSVP for a group or family?', a: 'Yes. The form asks how many guests are coming (up to 4), so one person can reply for their whole party, with a meal choice for each person if you ask for meals. For a bigger party, add them in Guests & RSVPs and set the number yourself.' },
+      { q: 'Can one guest RSVP for a group or family?', a: 'Yes. The form asks how many guests are coming, so one person can reply for their whole party, however big the family: up to 50 people, with a meal choice for each person if you ask for meals.' },
       { q: 'Can guests choose their meal?', a: 'Yes. Switch on meal choices in Guests & RSVPs and list your meals. Each person coming picks one and can note allergies or dietary needs, and you get the counts per meal ready for your caterer.' },
       { q: 'What if a guest needs to change their RSVP?', a: 'They can submit the form again with the same email address — their previous answer is updated rather than counted twice.' },
       { q: 'Can I download my guest list?', a: 'Yes. Export all RSVPs to a CSV file from Guests & RSVPs in your dashboard, ready for a spreadsheet, seating plan or check-in list.' },
