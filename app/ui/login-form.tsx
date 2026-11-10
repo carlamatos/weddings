@@ -10,9 +10,8 @@ import Link from 'next/link';
 
 // next: where to go after logging in — only the create-event form with a
 // "design your invitation" page's choices (checked again on the server).
-// facebook: show "Continue with Facebook" (/login?facebook=1, for Meta's
-// app review). oauthError: a social sign-in that came back refused.
-export default function LoginForm({ next, facebook = false, oauthError }: { next?: string; facebook?: boolean; oauthError?: string }) {
+// oauthError: a social sign-in that came back refused.
+export default function LoginForm({ next, oauthError }: { next?: string; oauthError?: string }) {
   const [actionError, formAction, isPending] = useActionState(authenticate, undefined);
   const errorMessage = actionError ?? oauthError;
 
@@ -74,7 +73,7 @@ export default function LoginForm({ next, facebook = false, oauthError }: { next
       <div className="auth-divider">or continue with</div>
 
       <GoogleButton next={next} />
-      {facebook && <FacebookButton next={next} />}
+      <FacebookButton next={next} />
 
       <p className="auth-footer">
         Don&apos;t have an account?{' '}
