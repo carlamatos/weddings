@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import '@/app/ui/dashboard.css';
 
-// Each screen sets its own title ("Dashboard: Guest List | MyGala") — never
+// Each screen sets its own title ("Dashboard: Guests & RSVPs | MyGala") — never
 // the event's name, which would reach analytics.
 export const metadata: Metadata = {
   title: { template: 'Dashboard: %s | MyGala', default: 'Dashboard' },

@@ -42,7 +42,7 @@ export function DraftNote() {
 }
 
 // The link with Copy, WhatsApp, Text and the phone's own share sheet. Also
-// on the empty Guest List (app/ui/dashboard/guest-list-start.tsx).
+// on the empty guest list (app/ui/dashboard/guest-list-start.tsx).
 export function ShareLinkButtons({ pageId, url, title }: { pageId: number; url: string; title: string }) {
   const d = useDashText();
   const [copied, setCopied] = useState(false);

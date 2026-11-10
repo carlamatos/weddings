@@ -2,7 +2,7 @@
 // /rsvp-deadline-calculator, /guest-count-planner) to an event page with
 // "Save to my MyGala". The budget becomes the dashboard's budget tracker,
 // the RSVP dates its planning timeline (with reminder emails to the host),
-// and the guest count plan shows on the Guest List. A plan travels as the
+// and the guest count plan shows in Guests & RSVPs. A plan travels as the
 // tool's share link (#budget=…), so a saved plan reopens in its tool.
 // Shared by client and server, so no server-only imports (the database side
 // is in saved-plans-data.ts).

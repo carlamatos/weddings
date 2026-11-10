@@ -8,7 +8,7 @@ import { card } from './guest-ui';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
-// RSVP screen: only guests already on the guest list can RSVP. The reply has
+// Guests & RSVPs: only guests already on the guest list can RSVP. The reply has
 // to match a guest's email address (app/api/rsvp). Off by default.
 export function RsvpGuestListOption({
   pageId, initialOn, guestCount, guestListHref,

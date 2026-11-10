@@ -151,7 +151,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       'Everyone on your list can now get your invitation, and their replies show up right beside their names.',
     ],
     tips: [
-      'You don’t have to add guests first: share your page’s link, for example in a group chat, and everyone who RSVPs is added to your Guest List automatically. Add guests yourself when you want to email or text each one their own invitation, see who hasn’t replied and send reminders.',
+      'You don’t have to add guests first: share your page’s link, for example in a group chat, and everyone who RSVPs is added to your list automatically. Add guests yourself when you want to email or text each one their own invitation, see who hasn’t replied and send reminders.',
       'Count people, not invitations: a family of four is four guests.',
       'Not sure how many will come? Try the free [guest count planner](/guest-count-planner).',
     ],
@@ -330,7 +330,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     summary: 'Seat your guests, print a QR sign, and guests look up their table on their phone.',
     plan: 'Plus',
     steps: [
-      'Add your guests to your **Guest List**: guests look up their table by the name on it.',
+      'Add your guests in **Guests & RSVPs**: guests look up their table by the name on your list.',
       'Open **Find Your Table**, create your tables and drag your guests onto them, or use the list to type tables or paste your chart from a spreadsheet.',
       'Turn on **Let guests look up their table**.',
       'Print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG.',

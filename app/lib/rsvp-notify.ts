@@ -5,7 +5,7 @@ import { COMPANY } from './company';
 import { personName, type PartyMeal } from './rsvp-meals';
 
 // Emails the event organizer (the page owner's account address) each time a
-// guest sends an RSVP. On by default; turned off on the RSVP screen.
+// guest sends an RSVP. On by default; turned off in Guests & RSVPs.
 export const RSVP_NOTIFY_SETTING = 'rsvp_notify_owner';
 
 export function isRsvpNotifyOn(settings: Record<string, string>): boolean {

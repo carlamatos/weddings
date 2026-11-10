@@ -18,10 +18,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const canEmail = (g: Guest) => !!g.email && EMAIL_RE.test(g.email.trim()) && !g.email_opt_out;
 const phoneBtn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 4, padding: '4px 9px', borderRadius: 999, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 12, fontWeight: 600, textDecoration: 'none', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' };
 
-// Guests → Invitations (every plan): send the designed invitation to the guest
+// Guests → Invite (every plan): send the designed invitation to the guest
 // list — by email to the ticked guests, or one by one as a pre-filled SMS /
 // WhatsApp message from the host's own phone — with a personal note per
-// guest. The list itself is managed on the Guest List screen.
+// guest. The list itself is managed in Guests & RSVPs.
 export function InvitationSender({
   pageId,
   guests,

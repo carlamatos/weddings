@@ -81,7 +81,7 @@ export const FEATURES: Feature[] = [
     ],
     steps: [
       { title: 'Build your guest list', text: 'In your dashboard, open Guests & RSVPs and import or add your guests.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
-      { title: 'Design your invitation', text: 'Open Invite and, under Send personal invitations, adjust the fonts, wording, colours and background. Save your design.', dashboard: '/dashboard/invitations', linkLabel: 'Open Invitations' },
+      { title: 'Design your invitation', text: 'Open Invite and, under Send personal invitations, adjust the fonts, wording, colours and background. Save your design.', dashboard: '/dashboard/invitations', linkLabel: 'Open Invite' },
       { title: 'Send yourself a test', text: 'Click “Send me a test” to see the email in your own inbox.' },
       { title: 'Send it to your guests', text: 'Tick guests and click Email, or tap Text or WhatsApp next to a guest’s phone number.' },
       { title: 'Watch the RSVPs come in', text: 'Replies appear in Guests & RSVPs as guests answer on your page.' },
@@ -274,7 +274,7 @@ export const FEATURES: Feature[] = [
     ],
     steps: [
       { title: 'Upgrade your page to Plus', text: 'Find Your Table is part of MyGala Plus, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Plus.' },
-      { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guest List' },
+      { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
       { title: 'Seat them', text: 'In Find Your Table, create your tables and drag your guests onto them, or use the List to type tables or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
       { title: 'Switch it on and print the sign', text: 'Turn on “Let guests look up their table”, then print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG for your own design.' },
       { title: 'Test it, then put it at the entrance', text: 'Scan the sign with your phone and look up a guest or two. Put the sign at the entrance, the welcome table or the bar.' },
@@ -777,7 +777,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Plan the guest count too',
         paragraphs: [
-          'Not sure how many will come? The free guest count planner estimates how many of your invited guests will say yes. Save it to MyGala as well, and it sits on your Guest List next to your real replies.',
+          'Not sure how many will come? The free guest count planner estimates how many of your invited guests will say yes. Save it to MyGala as well, and it sits in Guests & RSVPs next to your real replies.',
         ],
       },
     ],

@@ -5,7 +5,7 @@ import { siteHref } from '@/app/lib/app-url';
 
 // A quiet pointer to one of the free planning tools (/tools) on the dashboard
 // screen where a host needs it: the RSVP deadline calculator on RSVP, the
-// guest count planner on Guest List. Sits at the bottom of the screen so it
+// guest count planner in Guests & RSVPs. Sits at the bottom of the screen so it
 // never pushes the screen's own tools down, and opens in a new tab so the
 // dashboard stays put.
 export function PlanningToolTip({ href, title, text, cta, internal }: { href: string; title: string; text: string; cta: string; internal?: boolean }) {

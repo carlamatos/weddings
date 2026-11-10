@@ -8,7 +8,7 @@ import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
-// Adds guests to a page's guest list (Guests → Guest List, every plan) as
+// Adds guests to a page's guest list (Guests → Guests & RSVPs, every plan) as
 // "invited": from a CSV, a .vcf file, the phone's contact picker or the
 // add-a-guest form. Guests whose email (or, without one, name + phone) is
 // already on the list are skipped.

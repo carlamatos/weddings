@@ -4,7 +4,7 @@ import { ArrowDownIcon, LinkIcon, UserPlusIcon } from '@heroicons/react/24/outli
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { DraftNote, ShareLinkButtons } from '@/app/ui/dashboard/quick-share';
 
-// The empty Guest List's start: hosts often think they must type in every
+// The empty guest list's start (Guests & RSVPs): hosts often think they must type in every
 // guest before anyone can RSVP. Sharing the link is enough (guests who RSVP
 // join the list by themselves); the list is for personal invitations,
 // reminders and seeing who hasn't replied. With "Only guests on my guest

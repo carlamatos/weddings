@@ -1,6 +1,6 @@
 import type { Guest } from '@/app/lib/definitions';
 
-// Shared look for the Guest List and Invitations screens.
+// Shared look for the Guests & RSVPs and Invite screens.
 
 export const btn: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 6, padding: '9px 14px', borderRadius: 8, border: '1px solid #DDD5CE', background: '#fff', color: '#241F2B', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap', textDecoration: 'none' };
 export const primary: React.CSSProperties = { ...btn, border: 'none', background: '#B6584A', color: '#fff' };

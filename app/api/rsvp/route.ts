@@ -147,7 +147,7 @@ export async function POST(request: Request) {
       `;
     }
 
-    // Let the organizer know (unless they turned it off on the RSVP screen).
+    // Let the organizer know (unless they turned it off in Guests & RSVPs).
     if (isRsvpNotifyOn(settings)) {
       await notifyOwnerOfRsvp(pageId, {
         name: name.trim(),

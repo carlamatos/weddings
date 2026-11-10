@@ -14,7 +14,7 @@ import { rich } from '@/app/ui/dashboard/rich';
 const enc = encodeURIComponent;
 
 // The networks offered in the top bar's quick menu, in this order; the rest
-// (Pinterest, Reddit, Threads…) are on the full Share page.
+// (Pinterest, Reddit, Threads…) are on the Invite screen.
 const QUICK = ['WhatsApp', 'Facebook', 'Messenger', 'X', 'LinkedIn', 'Telegram'];
 
 // pageId: copying or sharing the link counts as inviting guests on the

@@ -5,7 +5,7 @@ import { publicPageUrl } from './share';
 import { eventWhen } from '@/app/ui/themes/event-when';
 
 // The event's own facts for the invitation, in the page's language. Shared by
-// the Invitations screen (preview/print) and the invitation emails. Pass the
+// the Invite screen (preview/print) and the invitation emails. Pass the
 // page password to include it (see invitationPassword in page-password.ts).
 const PASSWORD_LABEL: Record<string, string> = { en: 'Page password', fr: 'Mot de passe de la page', es: 'Contraseña de la página' };
 
