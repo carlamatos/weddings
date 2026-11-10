@@ -31,6 +31,10 @@ function onRootDomain(hostname: string): boolean {
   return hostname === ROOT_DOMAIN || hostname.endsWith(`.${ROOT_DOMAIN}`);
 }
 
+// The largest party one RSVP can bring (the RSVP route allows the same).
+// Families can be big, so it's a number to type or step, not a short list.
+const MAX_PARTY = 50;
+
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
   const { guestListOnly, meals: mealOptions } = useRsvpOptions();
   const [name, setName] = useState('');
@@ -38,10 +42,17 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<'attending' | 'not_attending'>('attending');
   const [guests, setGuests] = useState(1);
+  // What's typed in the number box, which may be empty mid-edit.
+  const [guestsDraft, setGuestsDraft] = useState('1');
+  const setPartySize = (n: number) => {
+    const next = Math.min(Math.max(Number.isFinite(n) ? Math.floor(n) : 1, 1), MAX_PARTY);
+    setGuests(next);
+    setGuestsDraft(String(next));
+  };
   const [message, setMessage] = useState('');
   // Meal choices, one row per person in the party (when the host asks).
   const [party, setParty] = useState<{ name: string; meal: string; diet: string }[]>(
-    () => Array.from({ length: 4 }, () => ({ name: '', meal: '', diet: '' })),
+    () => Array.from({ length: MAX_PARTY }, () => ({ name: '', meal: '', diet: '' })),
   );
   const setPerson = (i: number, patch: Partial<{ name: string; meal: string; diet: string }>) =>
     setParty((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
@@ -226,12 +237,26 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       {status === 'attending' && (
         <div>
           <label className="field-label" htmlFor="rsvp-guests">{t.numberOfGuests}</label>
-          <select id="rsvp-guests" value={guests} onChange={(e) => setGuests(Number(e.target.value))}>
-            <option value={1}>{t.justMe}</option>
-            <option value={2}>2 {t.guests}</option>
-            <option value={3}>3 {t.guests}</option>
-            <option value={4}>4 {t.guests}</option>
-          </select>
+          <div className="rsvp-party-size" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <button type="button" className="rsvp-step" aria-label={t.fewerGuests} disabled={guests <= 1} onClick={() => setPartySize(guests - 1)} style={stepBtn}><StepIcon /></button>
+            <input
+              id="rsvp-guests"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={MAX_PARTY}
+              value={guestsDraft}
+              onChange={(e) => {
+                setGuestsDraft(e.target.value);
+                const n = Number(e.target.value);
+                if (e.target.value !== '' && Number.isFinite(n) && n >= 1) setGuests(Math.min(Math.floor(n), MAX_PARTY));
+              }}
+              onBlur={() => setPartySize(Number(guestsDraft) || 1)}
+              style={{ width: 84, flex: '0 0 auto', textAlign: 'center' }}
+            />
+            <button type="button" className="rsvp-step" aria-label={t.moreGuests} disabled={guests >= MAX_PARTY} onClick={() => setPartySize(guests + 1)} style={stepBtn}><StepIcon plus /></button>
+            <span className="check-hint" style={{ margin: 0 }}>{guests === 1 ? t.justMe : t.includingYou}</span>
+          </div>
         </div>
       )}
       {status === 'attending' && mealOptions && (
@@ -298,3 +323,18 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     </form>
   );
 }
+
+// The − and + beside the party size: outlined in the theme's text colour.
+// Drawn, not typed: a font's − and + sit off-centre in a circle.
+function StepIcon({ plus = false }: { plus?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" style={{ display: 'block' }}>
+      <path d={plus ? 'M3 8h10M8 3v10' : 'M3 8h10'} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+const stepBtn: React.CSSProperties = {
+  width: 40, height: 40, flex: '0 0 auto', display: 'grid', placeItems: 'center', padding: 0, borderRadius: '50%',
+  border: '1.5px solid currentColor', background: 'transparent', color: 'inherit', font: 'inherit', fontSize: 20, lineHeight: 1, cursor: 'pointer',
+};
