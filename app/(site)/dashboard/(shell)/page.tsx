@@ -24,9 +24,9 @@ export const metadata: Metadata = { title: 'Event pages' };
 // Dashboard screens a "shortcut" link (/dashboard/livestream, …) can ask for
 // when the user has several events and has to pick one first.
 const SECTIONS: Record<string, keyof DashText['screens']> = {
-  '/guest-list': 'guestList', '/rsvp': 'rsvp', '/guest-photos': 'guestPhotos', '/livestream': 'liveStream', '/song-requests': 'songRequests',
+  '/guest-list': 'guestList', '/rsvp': 'guestList', '/guest-photos': 'guestPhotos', '/livestream': 'liveStream', '/song-requests': 'songRequests',
   '/reminders': 'reminders', '/custom-sections': 'customSections', '/sponsors': 'sponsors', '/registry': 'registry',
-  '/domain': 'domain', '/share': 'share', '/event-program': 'eventProgram', '/potluck': 'potluck', '/gift-exchange': 'giftExchange', '/seating': 'findYourTable', '/password': 'passwordProtection', '/invitations': 'invitations',
+  '/domain': 'domain', '/share': 'invitations', '/event-program': 'eventProgram', '/potluck': 'potluck', '/gift-exchange': 'giftExchange', '/seating': 'findYourTable', '/password': 'passwordProtection', '/invitations': 'invitations',
   '/slideshow': 'photoSlideshow', '/budget': 'budget', '/timeline': 'timeline',
 };
 

@@ -38,7 +38,7 @@ export function RsvpActions({ guests }: { pageId: number; guests: Guest[] }) {
   }
 
   return (
-    <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
       <button onClick={downloadCSV} style={btn} title={d.rsvpRsvpActions.downloadAllGuestsAsCsv}>
         {d.rsvpRsvpActions.exportCsv}
       </button>

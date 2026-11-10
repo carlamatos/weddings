@@ -18,7 +18,7 @@ import { isSeatingOn } from './seating';
 export function sectionStatus(page: UserPage, settings: Record<string, string>): Record<string, boolean> {
   const paid = isPagePaidAndLive(page);
   return {
-    '/rsvp': isSectionOn(settings, 'show_rsvp'),
+    '/guest-list': isSectionOn(settings, 'show_rsvp'),
     '/potluck': paid && isPotluckOn(settings),
     '/gift-exchange': paid && isGiftExchangeOn(settings),
     '/guest-photos': areGuestPhotosOn(settings, paid),
@@ -30,7 +30,6 @@ export function sectionStatus(page: UserPage, settings: Record<string, string>):
     '/custom-sections': paid && isSectionOn(settings, 'show_custom_sections'),
     '/sponsors': paid && areSponsorsOn(settings),
     '/registry': paid && isSectionOn(settings, 'show_registry'),
-    '/share': isSectionOn(settings, 'show_share'),
     '/password': isPageLocked(settings, paid),
     '/domain': paid && !!page.custom_domain && page.domain_status === 'active',
   };
