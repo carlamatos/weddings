@@ -3,7 +3,7 @@
 import { FacebookSignIn, FacebookSignInTo } from '@/app/lib/actions';
 
 // "Continue with Facebook" — signs in, or creates the account on first use.
-// Shown on /login?facebook=1 only, until Meta switches the app to Live.
+// next / lang: as GoogleButton.
 export default function FacebookButton({ lang = 'en', next }: { lang?: 'en' | 'fr' | 'es'; next?: string }) {
   return (
     <button type="button" onClick={() => (next ? FacebookSignInTo(next, lang) : FacebookSignIn(lang))} className="auth-social-btn">

@@ -7,6 +7,7 @@ import { appHref } from '@/app/lib/app-url';
 import { createUserPage, registerOnTryPage } from '@/app/lib/actions';
 import { slugify } from '@/app/lib/slugify';
 import GoogleButton from '@/app/ui/google-button';
+import FacebookButton from '@/app/ui/facebook-button';
 
 // The sign-up step of a "design your invitation" page (try-invitation.tsx):
 // after "Save", the visitor creates their account right here, beside their
@@ -130,6 +131,7 @@ export function TrySignup({ choices, setupPath, heading, onBack }: {
       <p className="try-signup__sub">Create your free account. Everything you chose here is saved with it. No credit card needed.</p>
 
       <GoogleButton next={setupPath} />
+      <FacebookButton next={setupPath} />
       <div className="auth-divider">or with your email</div>
 
       {state.message && !state.errors && (

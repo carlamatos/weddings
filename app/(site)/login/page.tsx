@@ -16,10 +16,9 @@ const OAUTH_ERRORS: Record<string, string> = {
 };
 
 // ?next=: from a "design your invitation" page, back to the create-event
-// form with the visitor's choices after logging in. ?facebook=1: show
-// "Continue with Facebook" (hidden from everyone else until Meta's review).
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; facebook?: string; error?: string }> }) {
-  const { next, facebook, error } = await searchParams;
+// form with the visitor's choices after logging in.
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
+  const { next, error } = await searchParams;
   const setupNext = typeof next === 'string' && next.startsWith('/dashboard/setup') ? next : undefined;
   const oauthError = typeof error === 'string' ? OAUTH_ERRORS[error] ?? OAUTH_ERRORS.OAuthCallbackError : undefined;
   return (
@@ -27,7 +26,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <Link href={siteHref('/')} className="auth-wordmark">
         My<span className="accent">Gala</span>
       </Link>
-      <LoginForm next={setupNext} facebook={facebook === '1'} oauthError={oauthError} />
+      <LoginForm next={setupNext} oauthError={oauthError} />
     </main>
   );
 }

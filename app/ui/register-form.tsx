@@ -6,6 +6,7 @@ import { useActionState, useEffect, useState } from 'react';
 import { registerUser, RegisterState } from '@/app/lib/actions';
 import Link from 'next/link';
 import GoogleButton from '@/app/ui/google-button';
+import FacebookButton from '@/app/ui/facebook-button';
 import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
 import { PLAN_TOOLS, savePendingPlan, type PlanLink } from '@/app/lib/saved-plans';
 
@@ -109,6 +110,7 @@ export default function RegisterForm({ lang = 'en', start = null, plan = null }:
       <p className="auth-subheading">{t.sub}</p>
 
       <GoogleButton lang={lang} />
+      <FacebookButton lang={lang} />
 
       <div className="auth-divider">{t.divider}</div>
 
