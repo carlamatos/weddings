@@ -55,7 +55,11 @@ export default function proxy(req: NextRequest) {
     const siteHost = new URL(siteOrigin()).host.replace(/^www\./, '');
     const { pathname, search } = req.nextUrl;
     if (host === appHost) {
-      if (pathname === '/') return NextResponse.redirect(new URL('/dashboard', appOrigin()), 308);
+      // The app's home is the sign-in screen, which sends signed-in hosts on
+      // to their dashboard. Not /dashboard directly: robots.txt keeps
+      // crawlers out of it, and Google takes a host's icon from its home
+      // page, so app.mygala.ca showed in search without the MyGala icon.
+      if (pathname === '/') return NextResponse.redirect(new URL('/login', appOrigin()), 308);
       if (!isAppPath(pathname)) return NextResponse.redirect(new URL(pathname + search, siteOrigin()), 308);
     } else if (host === siteHost && isAppPath(pathname)) {
       return NextResponse.redirect(new URL(pathname + search, appOrigin()), 308);
