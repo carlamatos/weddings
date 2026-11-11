@@ -1,20 +1,14 @@
-import { NextResponse } from 'next/server';
-import { sendSetupReminders } from '@/app/lib/setup-reminder';
-import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
+import { sendPageFollowUps, sendSetupReminders } from '@/app/lib/setup-reminder';
+import { runCron } from '@/app/lib/cron-log';
 
 // Called once a day by Vercel Cron (see vercel.json): emails accounts that
-// signed up without making an event page (app/lib/setup-reminder.ts).
+// signed up without making an event page, and hosts whose new page isn't
+// published or shared yet (app/lib/setup-reminder.ts).
 // Vercel sends "Authorization: Bearer $CRON_SECRET"; without that variable
 // the endpoint refuses every call.
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('authorization') ?? '';
-  if (!secret || !timingSafeStringEqual(provided, `Bearer ${secret}`)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const results = await sendSetupReminders();
-  return NextResponse.json({ ok: true, results });
+  return runCron(request, 'setup-reminders', async () => ({ noPage: await sendSetupReminders(), pageFollowUps: await sendPageFollowUps() }));
 }

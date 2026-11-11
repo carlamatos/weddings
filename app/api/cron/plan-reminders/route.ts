@@ -1,6 +1,5 @@
-import { NextResponse } from 'next/server';
 import { sendPlanReminders } from '@/app/lib/plan-reminders';
-import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
+import { runCron } from '@/app/lib/cron-log';
 
 // Called once a day by Vercel Cron (see vercel.json): reminder emails from
 // hosts' saved plans, the RSVP timeline's dates and budget payments due
@@ -10,11 +9,5 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  const provided = request.headers.get('authorization') ?? '';
-  if (!secret || !timingSafeStringEqual(provided, `Bearer ${secret}`)) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const results = await sendPlanReminders();
-  return NextResponse.json({ ok: true, results });
+  return runCron(request, 'plan-reminders', async () => ({ results: await sendPlanReminders() }));
 }

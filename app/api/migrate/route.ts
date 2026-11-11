@@ -1,3 +1,4 @@
+import { ensureCronRunsTable } from '@/app/lib/cron-log';
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
@@ -351,6 +352,12 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`;
   // The one "Your event page is one step away" email (app/lib/setup-reminder.ts).
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS setup_reminder_sent_at TIMESTAMPTZ`;
+  // When hosts come back to their dashboard (app/lib/dashboard-visits.ts).
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_dashboard_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_dashboard_at TIMESTAMPTZ`;
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_visits INTEGER NOT NULL DEFAULT 0`;
+  // How each scheduled job's calls went (app/lib/cron-log.ts).
+  await ensureCronRunsTable();
   // Pages made before the date is picked (the create form's date is optional).
   await sql`ALTER TABLE user_page ALTER COLUMN event_date DROP NOT NULL`;
 
