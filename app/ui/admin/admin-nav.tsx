@@ -7,6 +7,7 @@ import { c } from './styles';
 const links = [
   { href: '/admin/users', label: 'Users' },
   { href: '/admin/pages', label: 'Pages' },
+  { href: '/admin/activity', label: 'Activity' },
   { href: '/admin/trash', label: 'Trash' },
   { href: '/admin/email', label: 'Email' },
   { href: '/admin/cleanup', label: 'Cleanup' },

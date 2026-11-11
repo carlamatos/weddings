@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
+import { after } from 'next/server';
 import { auth } from '@/auth';
+import { recordDashboardVisit } from '@/app/lib/dashboard-visits';
 import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
 import { sectionStatus } from '@/app/lib/section-status';
 import { fetchSetupCounts, setupSteps } from '@/app/lib/setup-progress';
@@ -46,6 +48,9 @@ export default async function DashboardShell({
   // people is locked on the server until it verifies (app/lib/require-verified.ts),
   // and the banner below says so.
   const verifiedEmail = session?.user?.verifiedEmail ?? true;
+
+  // When hosts come back, for the admin's Activity tab.
+  if (userId) after(() => recordDashboardVisit(userId));
 
   const pages = userId && pageId !== undefined ? await listOwnedPages(userId) : [];
   const page = pageId !== undefined ? pages.find((p) => Number(p.id) === pageId) : undefined;
