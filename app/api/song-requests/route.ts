@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ensureLiveTables } from '@/app/lib/live-db';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
@@ -37,8 +38,9 @@ export async function GET(request: Request) {
   }
 
   try {
+    await ensureLiveTables();
     const data = await sql`
-      SELECT id, requester_name, song_title, artist, created_at
+      SELECT id, requester_name, song_title, artist, created_at, votes, played_at
       FROM guests_songs
       WHERE user_page_id = ${pageId}
       ORDER BY created_at DESC

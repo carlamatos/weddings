@@ -161,6 +161,8 @@ export const en = {
     havenT: 'haven’t',
   },
   guestPhotos: {
+    memoriesHint: 'After the event, your photos, guests’ messages and top songs are kept together on your memories page.',
+    memoriesLink: 'Open your memories page',
     guestPhotos: 'Guest Photos',
     guestsShareTheirPhotosStraight: 'Guests share their photos straight from your event page, and everyone can browse them. You can delete any photo, and download them all at once.',
     putThemOnTheBig: 'Put them on the big screen.',
@@ -999,6 +1001,22 @@ export const en = {
     writeThemTheWayGuests: 'Write them the way guests should read them, in your page’s language. Renaming a meal doesn’t change what guests already chose.',
     thisMeal: 'this meal',
   },
+  messagesWall: {
+    intro: 'Guests leave a short message for you from the photo section of your page. Messages rotate on the photo slideshow at your venue, and you can hide or delete any of them.',
+    empty: 'No messages yet. Once the wall is on, guests can leave one from the photo section of your page.',
+    hide: 'Hide',
+    show: 'Show',
+    delete: 'Delete',
+    hiddenTag: 'Hidden from guests',
+    deleteConfirm: 'Delete this message?',
+  },
+  djLink: {
+    title: 'Your DJ’s song queue',
+    hint: 'Send this private link to your DJ: the requests sorted by your guests’ votes, with a Played button. Anyone with the link can see the list, so share it only with your DJ.',
+    copy: 'Copy link',
+    copied: 'Copied!',
+    open: 'Open',
+  },
   rsvpSongOption: {
     askForASong: 'Ask guests for a song',
     askForASongHint: 'Attending guests can suggest one song for the dance floor. Their picks appear in Song Requests.',
@@ -1428,6 +1446,7 @@ export const en = {
     youCanChangeTheColours: 'You can change the colours, fonts and design of your invitation and website in the editor later.',
   },
   screens: {
+    messagesWall: 'Messages Wall',
     editEventPage: 'Edit Event Page',
     eventProgram: 'Event Program',
     customSections: 'Custom Sections',

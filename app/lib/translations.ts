@@ -104,6 +104,25 @@ export interface Translations {
   receiveUpdatesLabel: string;
   // RSVP: join the page's Gift Exchange (Secret Santa) while replying
   rsvpGiftJoin: string;
+  // Live messages wall (in the guest photo section)
+  wallLeave: string;
+  songVote: string;
+  programNow: string;
+  // The memories page after the event (Live Party)
+  memTitle: string;
+  memPhotos: string;
+  memMessages: string;
+  memSongs: string;
+  memEmpty: string;
+  memThanks: string;
+  memUnavailable: string;
+  memVotes: string;
+  wallName: string;
+  wallMessage: string;
+  wallPost: string;
+  wallPosting: string;
+  wallThanks: string;
+  wallError: string;
   // RSVP: the optional song question
   rsvpSong: string;
   rsvpSongPlaceholder: string;
@@ -262,6 +281,23 @@ const en: Translations = {
   noteForCouplePlaceholder: 'So excited to celebrate with you…',
   receiveUpdatesLabel: "I'd like to receive event updates via email",
   rsvpGiftJoin: 'Count me in for the gift exchange (Secret Santa)',
+  wallLeave: 'Leave a message for the hosts',
+  songVote: 'Vote for this song',
+  programNow: 'Happening now',
+  memTitle: 'Memories',
+  memPhotos: 'Guest photos',
+  memMessages: 'Messages from our guests',
+  memSongs: 'The songs of the night',
+  memEmpty: 'Photos and messages from the celebration will appear here.',
+  memThanks: 'Thank you for celebrating with us.',
+  memUnavailable: 'This memories page isn’t available.',
+  memVotes: 'votes',
+  wallName: 'Your name',
+  wallMessage: 'Your message',
+  wallPost: 'Post message',
+  wallPosting: 'Posting…',
+  wallThanks: 'Thank you! Your message is on the wall.',
+  wallError: 'Couldn’t post your message. Please try again.',
   rsvpSong: 'A song that will get you on the dance floor (optional)',
   rsvpSongPlaceholder: 'Song and artist',
   rsvpGiftIdeas: 'Gift ideas for your Secret Santa (optional)',
@@ -413,6 +449,23 @@ const fr: Translations = {
   noteForCouplePlaceholder: 'J’ai tellement hâte de célébrer avec vous…',
   receiveUpdatesLabel: 'Je souhaite recevoir des mises à jour par courriel',
   rsvpGiftJoin: 'Je participe à l’échange de cadeaux (Père Noël secret)',
+  wallLeave: 'Laissez un mot aux hôtes',
+  songVote: 'Voter pour cette chanson',
+  programNow: 'En ce moment',
+  memTitle: 'Souvenirs',
+  memPhotos: 'Photos des invités',
+  memMessages: 'Les mots de nos invités',
+  memSongs: 'Les chansons de la soirée',
+  memEmpty: 'Les photos et les messages de la fête apparaîtront ici.',
+  memThanks: 'Merci d’avoir célébré avec nous.',
+  memUnavailable: 'Cette page de souvenirs n’est pas disponible.',
+  memVotes: 'votes',
+  wallName: 'Votre nom',
+  wallMessage: 'Votre message',
+  wallPost: 'Publier',
+  wallPosting: 'Publication…',
+  wallThanks: 'Merci ! Votre message est sur le mur.',
+  wallError: 'Impossible de publier votre message. Veuillez réessayer.',
   rsvpSong: 'Une chanson qui vous fera danser (facultatif)',
   rsvpSongPlaceholder: 'Titre et artiste',
   rsvpGiftIdeas: 'Idées de cadeaux pour votre Père Noël secret (facultatif)',
@@ -564,6 +617,23 @@ const es: Translations = {
   noteForCouplePlaceholder: 'Con muchas ganas de celebrar con ustedes…',
   receiveUpdatesLabel: 'Quisiera recibir actualizaciones del evento por correo',
   rsvpGiftJoin: 'Quiero participar en el intercambio de regalos (amigo secreto)',
+  wallLeave: 'Deja un mensaje a los anfitriones',
+  songVote: 'Votar por esta canción',
+  programNow: 'Ahora mismo',
+  memTitle: 'Recuerdos',
+  memPhotos: 'Fotos de los invitados',
+  memMessages: 'Mensajes de nuestros invitados',
+  memSongs: 'Las canciones de la noche',
+  memEmpty: 'Aquí aparecerán las fotos y los mensajes de la fiesta.',
+  memThanks: 'Gracias por celebrar con nosotros.',
+  memUnavailable: 'Esta página de recuerdos no está disponible.',
+  memVotes: 'votos',
+  wallName: 'Tu nombre',
+  wallMessage: 'Tu mensaje',
+  wallPost: 'Publicar',
+  wallPosting: 'Publicando…',
+  wallThanks: '¡Gracias! Tu mensaje ya está en el muro.',
+  wallError: 'No se pudo publicar tu mensaje. Inténtalo de nuevo.',
   rsvpSong: 'Una canción que te haga bailar (opcional)',
   rsvpSongPlaceholder: 'Canción y artista',
   rsvpGiftIdeas: 'Ideas de regalo para tu amigo secreto (opcional)',

@@ -28,6 +28,7 @@ import Gnomes, { HeroPreview as GnomesPreview, GnomesDefaultHero } from './Gnome
 import DiaDeLosMuertos, { HeroPreview as DiaDeLosMuertosPreview } from './DiaDeLosMuertos';
 import HalloweenParty, { HeroPreview as HalloweenPartyPreview } from './HalloweenParty';
 import Simple, { HeroPreview as SimplePreview, SimpleDefaultHero } from './Simple';
+import Blessings, { HeroPreview as BlessingsPreview, BlessingsDefaultHero } from './Blessings';
 import NewYearsEve, { HeroPreview as NewYearsEvePreview } from './NewYearsEve';
 import Fireworks, { HeroPreview as FireworksPreview } from './Fireworks';
 
@@ -69,6 +70,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'balloons':           { Page: Balloons,          Preview: BalloonsPreview, category: 'birthdays', label: 'Balloons' },
   'dinner-gala':        { Page: DinnerGala,        Preview: DinnerGalaPreview, category: 'business', label: 'Dinner Gala' },
   'simple':             { Page: Simple,            Preview: SimplePreview, category: 'community', label: 'Simple', FallbackHero: SimpleDefaultHero },
+  'blessings':          { Page: Blessings,         Preview: BlessingsPreview, category: 'community', also: ['birthdays'], label: 'Blessings', FallbackHero: BlessingsDefaultHero },
   'community':          { Page: Community,         Preview: CommunityPreview, category: 'community', label: 'Community Day' },
   'antique-cars':       { Page: AntiqueCars,       Preview: AntiqueCarsPreview, category: 'community', label: 'Antique Cars' },
   'christmas-party':    { Page: ChristmasParty,    Preview: ChristmasPartyPreview, category: 'community', also: ['birthdays'], label: 'Christmas Party' },

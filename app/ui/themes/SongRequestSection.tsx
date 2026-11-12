@@ -1,6 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getTranslations } from '@/app/lib/translations';
+import { useLiveOptions } from './live-options';
 import type { GuestSong } from '@/app/lib/definitions';
 
 interface Labels {
@@ -44,6 +46,52 @@ export function SongRequestSection({
   const [name, setName] = useState('');
   const [title, setTitle] = useState('');
   const [artist, setArtist] = useState('');
+  const { language } = useLiveOptions();
+  const t = getTranslations(language);
+  // Votes: the songs this guest voted for, remembered on their phone so the
+  // heart stays filled (the server also counts one vote per guest).
+  const voteKey = `mygala:votes:${userPageId.slice(0, 24)}`;
+  const [voted, setVoted] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- browser storage, read after mount
+      setVoted(new Set(JSON.parse(localStorage.getItem(voteKey) ?? '[]') as string[]));
+    } catch {
+      // Storage blocked: hearts start empty.
+    }
+  }, [voteKey]);
+  const vote = async (id: string) => {
+    if (disabled || voted.has(id)) return;
+    const next = new Set(voted).add(id);
+    setVoted(next);
+    try { localStorage.setItem(voteKey, JSON.stringify([...next])); } catch { /* storage blocked */ }
+    setSongs((list) => list.map((s) => (s.id === id ? { ...s, votes: (s.votes ?? 0) + 1 } : s)));
+    try {
+      const res = await fetch('/api/song-requests/vote', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: userPageId, songId: id }) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && typeof data.votes === 'number') setSongs((list) => list.map((s) => (s.id === id ? { ...s, votes: data.votes } : s)));
+    } catch {
+      // The optimistic count stays; the DJ's list has the real one.
+    }
+  };
+  // Spotify suggestions while typing the title (when the keys are set).
+  const [hits, setHits] = useState<{ title: string; artist: string; image: string | null }[]>([]);
+  const searchOff = useRef(false);
+  useEffect(() => {
+    if (disabled || searchOff.current || title.trim().length < 2) { setHits([]); return; }
+    const ctrl = new AbortController();
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/song-requests/search?t=${encodeURIComponent(userPageId)}&q=${encodeURIComponent(title.trim())}`, { signal: ctrl.signal });
+        const data = await res.json();
+        if (data.enabled === false) { searchOff.current = true; setHits([]); return; }
+        setHits(Array.isArray(data.tracks) ? data.tracks : []);
+      } catch {
+        // Typed by hand, as before.
+      }
+    }, 300);
+    return () => { clearTimeout(timer); ctrl.abort(); };
+  }, [title, userPageId, disabled]);
 
   const showToast = (msg: string, ok: boolean) => {
     setToast({ msg, ok });
@@ -121,14 +169,30 @@ export function SongRequestSection({
             required
             style={{ ...baseInput, flex: '2 1 160px' }}
           />
-          <input
-            type="text"
-            placeholder={labels.songTitle}
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            style={{ ...baseInput, flex: '2 1 160px' }}
-          />
+          <div style={{ position: 'relative', flex: '2 1 160px', display: 'flex' }}>
+            <input
+              type="text"
+              placeholder={labels.songTitle}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              autoComplete="off"
+              style={{ ...baseInput, flex: '1 1 auto' }}
+            />
+            {hits.length > 0 && (
+              <ul role="listbox" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 20, margin: '4px 0 0', padding: 4, listStyle: 'none', background: '#fff', color: '#241F2B', borderRadius: 10, boxShadow: '0 12px 30px rgba(0,0,0,.18)', textAlign: 'left' }}>
+                {hits.map((h, i) => (
+                  <li key={i}>
+                    <button type="button" onClick={() => { setTitle(h.title); setArtist(h.artist); setHits([]); searchOff.current = false; }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', padding: '6px 8px', border: 0, background: 'none', cursor: 'pointer', textAlign: 'left', borderRadius: 8, font: 'inherit', color: 'inherit' }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {h.image ? <img src={h.image} alt="" width={36} height={36} style={{ borderRadius: 4, flexShrink: 0 }} /> : <span style={{ width: 36 }} />}
+                      <span style={{ minWidth: 0 }}><strong style={{ display: 'block', fontSize: 14 }}>{h.title}</strong><span style={{ fontSize: 12, opacity: 0.7 }}>{h.artist}</span></span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
           <input
             type="text"
             placeholder={labels.artistLabel}
@@ -168,14 +232,21 @@ export function SongRequestSection({
           <div className="song-list">
             {songs.map((s) => (
               <div key={s.id} className="song-row">
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <span className="title">{s.song_title}</span>
-                  {' · '}
-                  <span className="artist">{s.artist}</span>
+                  {s.artist && <>{' · '}<span className="artist">{s.artist}</span></>}
+                  <div style={{ fontSize: 12, opacity: 0.6 }}>{labels.requestedBy} {s.requester_name}</div>
                 </div>
-                <div style={{ fontSize: 12, opacity: 0.6, textAlign: 'right', flexShrink: 0, marginLeft: 12 }}>
-                  {labels.requestedBy} {s.requester_name}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => vote(s.id)}
+                  disabled={disabled || voted.has(s.id)}
+                  aria-label={t.songVote}
+                  title={t.songVote}
+                  style={{ flexShrink: 0, marginLeft: 12, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '5px 11px', borderRadius: 99, border: '1px solid currentColor', background: voted.has(s.id) ? 'rgba(182,88,74,.12)' : 'transparent', color: 'inherit', font: 'inherit', fontSize: 13, fontWeight: 600, cursor: disabled || voted.has(s.id) ? 'default' : 'pointer', opacity: 0.85 }}
+                >
+                  <span aria-hidden="true">{voted.has(s.id) ? '♥' : '♡'}</span>{s.votes ?? 0}
+                </button>
               </div>
             ))}
           </div>

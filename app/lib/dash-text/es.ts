@@ -162,6 +162,8 @@ export const es: DashText = {
     havenT: 'no han',
   },
   guestPhotos: {
+    memoriesHint: 'Después del evento, tus fotos, los mensajes de tus invitados y las canciones favoritas quedan juntos en tu página de recuerdos.',
+    memoriesLink: 'Abrir tu página de recuerdos',
     guestPhotos: 'Fotos de invitados',
     guestsShareTheirPhotosStraight: 'Tus invitados comparten sus fotos directamente desde tu página de evento y todos pueden verlas. Puedes borrar cualquier foto y descargarlas todas de una vez.',
     putThemOnTheBig: 'Ponlas en la pantalla grande.',
@@ -1000,6 +1002,22 @@ export const es: DashText = {
     writeThemTheWayGuests: 'Escríbelas como deben leerlas los invitados, en el idioma de tu página. Cambiar el nombre de una comida no cambia lo que los invitados ya eligieron.',
     thisMeal: 'esta comida',
   },
+  messagesWall: {
+    intro: 'Tus invitados te dejan un mensaje corto desde la sección de fotos de tu página. Los mensajes van pasando en la presentación de fotos del salón, y puedes ocultar o borrar cualquiera.',
+    empty: 'Todavía no hay mensajes. Cuando actives el muro, tus invitados podrán dejar uno desde la sección de fotos de tu página.',
+    hide: 'Ocultar',
+    show: 'Mostrar',
+    delete: 'Borrar',
+    hiddenTag: 'Oculto para los invitados',
+    deleteConfirm: '¿Borrar este mensaje?',
+  },
+  djLink: {
+    title: 'La lista de canciones para tu DJ',
+    hint: 'Envía este enlace privado a tu DJ: las peticiones ordenadas por los votos de tus invitados, con un botón Tocada. Cualquiera con el enlace puede ver la lista, así que compártelo solo con tu DJ.',
+    copy: 'Copiar enlace',
+    copied: '¡Copiado!',
+    open: 'Abrir',
+  },
   rsvpSongOption: {
     askForASong: 'Pedir una canción a los invitados',
     askForASongHint: 'Los invitados que asisten pueden sugerir una canción para la pista de baile. Sus elecciones aparecen en Song Requests.',
@@ -1429,6 +1447,7 @@ export const es: DashText = {
     youCanChangeTheColours: 'Más adelante puedes cambiar los colores, las fuentes y el diseño de tu invitación y tu sitio en el editor.',
   },
   screens: {
+    messagesWall: 'Muro de mensajes',
     editEventPage: 'Editar página',
     eventProgram: 'Programa del evento',
     customSections: 'Secciones personalizadas',

@@ -7,6 +7,8 @@ import type { SlideshowPhoto } from '@/app/lib/slideshow-data';
 import { SLIDESHOW_DEFAULT_SPEED, SLIDESHOW_POLL_MS, SLIDESHOW_SPEEDS } from '@/app/lib/slideshow';
 
 type Strings = { share: string; scan: string; empty: string; justShared: string };
+type WallMessage = { id: number; name: string; body: string };
+const MESSAGE_MS = 9000; // each wall message stays this long
 
 const SPEED_KEY = 'mygala:slideshow-speed';
 const IDLE_MS = 3000;
@@ -18,8 +20,10 @@ const FADE_MS = 1200;
 // "Just shared" tag. Photos the host deletes leave the show at the next
 // check. The QR code in the corner opens the page's photo upload, so the
 // show keeps itself going. Controls appear when the mouse moves.
-export default function PhotoSlideshow({ token, heading, initialPhotos, uploadUrl, strings, preview }: {
+export default function PhotoSlideshow({ token, heading, initialPhotos, uploadUrl, strings, preview, messagesOn = false, initialMessages = [] }: {
   token: string;
+  messagesOn?: boolean; // the live messages wall rotates over the photos
+  initialMessages?: WallMessage[];
   heading: string;
   initialPhotos: SlideshowPhoto[];
   uploadUrl: string;
@@ -34,6 +38,8 @@ export default function PhotoSlideshow({ token, heading, initialPhotos, uploadUr
   const [idle, setIdle] = useState(false);
   const [full, setFull] = useState(false);
   const [qr, setQr] = useState('');
+  const [messages, setMessages] = useState<WallMessage[]>(initialMessages);
+  const [msgAt, setMsgAt] = useState(0);
   // The timer, the keys and the photo check all move the show on, so the
   // list and the photo on screen are also kept in refs they can read.
   const list = useRef(initialPhotos);
@@ -110,6 +116,29 @@ export default function PhotoSlideshow({ token, heading, initialPhotos, uploadUr
     const timer = setInterval(check, SLIDESHOW_POLL_MS);
     return () => { stop = true; clearInterval(timer); };
   }, [token, setList, step]);
+
+  // The messages wall: new messages and hidden ones, at the same pace as the
+  // photos, and one message at a time in the corner.
+  useEffect(() => {
+    if (!messagesOn) return;
+    let stop = false;
+    const check = async () => {
+      try {
+        const res = await fetch(`/api/guest-messages?t=${encodeURIComponent(token)}`, { cache: 'no-store' });
+        if (res.ok && !stop) setMessages(((await res.json()) as { messages: WallMessage[] }).messages);
+      } catch {
+        // Offline for a moment: keep the messages we have.
+      }
+    };
+    const timer = setInterval(check, SLIDESHOW_POLL_MS);
+    return () => { stop = true; clearInterval(timer); };
+  }, [messagesOn, token]);
+  useEffect(() => {
+    if (messages.length < 2) return;
+    const timer = setInterval(() => setMsgAt((i) => i + 1), MESSAGE_MS);
+    return () => clearInterval(timer);
+  }, [messages.length]);
+  const message = messages.length ? messages[msgAt % messages.length] : null;
 
   // The next photo after `speed` seconds. Only a new photo on screen restarts
   // the count, so photos arriving don't hold the show up.
@@ -198,6 +227,12 @@ export default function PhotoSlideshow({ token, heading, initialPhotos, uploadUr
         <>
           {current && fresh.has(current.id) && <span className="ss-new" key={current.id}>★ {strings.justShared}</span>}
           {heading && <p className="ss-heading">{heading}</p>}
+          {message && (
+            <div className="ss-msg" key={message.id}>
+              <p className="ss-msg-body">“{message.body}”</p>
+              <p className="ss-msg-name">— {message.name}</p>
+            </div>
+          )}
           {qr && (
             <div className="ss-qr">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -243,6 +278,9 @@ const SLIDESHOW_CSS = `
 @keyframes ss-drift { from { transform: scale(1); } to { transform: scale(1.045); } }
 @media (prefers-reduced-motion: reduce) { .ss-slide.is-front .ss-photo { animation: none; } }
 
+.ss-msg { position: absolute; left: 3vw; bottom: calc(3vw + clamp(30px, 3.6vw, 60px)); max-width: min(44vw, 640px); padding: clamp(14px, 1.4vw, 24px) clamp(18px, 1.8vw, 30px); border-radius: 18px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 12px 40px rgba(0,0,0,.35); animation: ss-pop .6s ease-out both; }
+.ss-msg-body { margin: 0 0 6px; font-family: Georgia, serif; font-size: clamp(18px, 1.9vw, 34px); line-height: 1.3; overflow-wrap: anywhere; }
+.ss-msg-name { margin: 0; font-size: clamp(13px, 1.1vw, 19px); font-weight: 600; color: #8E3A2C; }
 .ss-heading { position: absolute; left: 3vw; bottom: 3vw; margin: 0; max-width: 55vw; font-family: Georgia, serif; font-size: clamp(20px, 2.6vw, 44px); line-height: 1.15; text-shadow: 0 2px 18px rgba(0,0,0,.6); overflow-wrap: anywhere; }
 .ss-qr { position: absolute; right: 2.4vw; bottom: 2.4vw; display: flex; align-items: center; gap: 14px; padding: 12px 18px 12px 12px; max-width: 34vw; border-radius: 16px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
 .ss-qr img { width: clamp(84px, 8vw, 150px); height: auto; border-radius: 6px; display: block; }

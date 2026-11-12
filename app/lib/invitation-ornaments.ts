@@ -801,6 +801,7 @@ const PALETTES: Record<string, string[]> = {
   'nexus': ['#E8A33D', '#4FB6A8', '#E7E3DA', '#C1443A', '#C6863F'],
   'dinner-gala': ['#C9A24B', '#D8B35A', '#EDE3CC', '#E2A15A', '#C9A96E'],
   'simple': ['#8C7B6B', '#26231F', '#6E6860', '#DDD6CB', '#FFFFFF'],
+  'blessings': ['#B08D57', '#2E2C3A', '#9DAA72', '#E6EEF5', '#FFFFFF'],
   'community': ['#D9472B', '#1A5B91', '#EDB044', '#405518', '#1F2E4D'],
   'antique-cars': ['#F2C230', '#2E1A47', '#B3261E', '#4E3D99', '#FFFFFF'],
   'christmas-party': ['#C8372D', '#F8C166', '#F4EDE1', '#C18D51', '#E6D3B1'],

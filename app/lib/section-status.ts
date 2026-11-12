@@ -10,6 +10,7 @@ import { areSongRequestsOn } from './song-requests';
 import { isGiftExchangeOn } from './gift-exchange';
 import { areGuestPhotosOn } from './guest-photos';
 import { isSeatingOn } from './seating';
+import { areGuestMessagesOn } from './guest-messages';
 
 // Whether each dashboard section is currently ON for this page, keyed by the
 // section's path in the sidebar (see nav-links.tsx). Follows the same rules
@@ -27,6 +28,7 @@ export function sectionStatus(page: UserPage, settings: Record<string, string>):
     '/seating': isSeatingOn(settings, paid),
     '/livestream': paid && !!livestreamFromSettings(settings, paid),
     '/song-requests': paid && areSongRequestsOn(settings),
+    '/messages': paid && areGuestMessagesOn(settings),
     '/reminders': paid && parseReminderSchedule(settings['reminder_schedule']).length > 0,
     '/event-program': isSectionOn(settings, 'show_event_program'),
     '/custom-sections': isSectionOn(settings, 'show_custom_sections'),

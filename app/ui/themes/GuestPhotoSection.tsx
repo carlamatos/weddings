@@ -4,6 +4,9 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import type { GuestPhoto } from '@/app/lib/definitions';
 import { compressImageFile } from '@/app/lib/compress-image';
+import { getTranslations } from '@/app/lib/translations';
+import { GUEST_MESSAGE_BODY_MAX, GUEST_MESSAGE_NAME_MAX } from '@/app/lib/guest-messages';
+import { useLiveOptions } from './live-options';
 
 // ─── Public-facing: upload + gallery ────────────────────────────
 interface GuestPhotoSectionProps {
@@ -152,6 +155,9 @@ export function GuestPhotoSection({
         />
       </div>
 
+      {/* The live messages wall (Live Party, when the host switched it on) */}
+      <MessageForm token={userPageId} disabled={disabled} onDone={showToast} btnClassName={btnClassName} />
+
       {/* Toast */}
       {toast && (
         <div style={{
@@ -235,6 +241,13 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
     await fetch(`/api/guests-photos?id=${id}`, { method: 'DELETE' });
   };
 
+  // Hide a photo from the page and slideshow (it stays here), or show it again.
+  const toggleHidden = async (id: string, hidden: boolean) => {
+    setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, hidden } : p)));
+    const res = await fetch('/api/guests-photos', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, hidden }) }).catch(() => null);
+    if (!res?.ok) setPhotos((prev) => prev.map((p) => (p.id === id ? { ...p, hidden: !hidden } : p)));
+  };
+
   const downloadAll = async () => {
     setDownloading(true);
     try {
@@ -301,7 +314,7 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
           <div key={p.id} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', background: '#f0ede8' }}>
             <button
               onClick={() => setLightbox(i)}
-              style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', width: '100%', aspectRatio: '1' }}
+              style={{ padding: 0, border: 'none', background: 'none', cursor: 'zoom-in', display: 'block', position: 'relative', width: '100%', aspectRatio: '1', opacity: p.hidden ? 0.35 : 1 }}
             >
               <Image
                 src={p.photo}
@@ -319,6 +332,20 @@ export function DashboardGuestPhotos({ initialPhotos, initialHasMore, userPageId
               <div>{new Date(p.uploaded_at).toLocaleTimeString('en-CA', { hour: '2-digit', minute: '2-digit' })}</div>
               {p.ip_address && <div style={{ opacity: 0.7 }}>IP: {p.ip_address}</div>}
             </div>
+
+            {/* Hide / show */}
+            <button
+              onClick={() => toggleHidden(p.id, !p.hidden)}
+              title={p.hidden ? 'Show on the page and slideshow again' : 'Hide from the page and slideshow'}
+              style={{
+                position: 'absolute', top: 6, left: 6,
+                background: p.hidden ? '#B6584A' : 'rgba(0,0,0,0.55)', border: 'none', borderRadius: 99,
+                height: 26, padding: '0 10px', cursor: 'pointer', color: '#fff',
+                fontSize: 11, fontWeight: 600, fontFamily: 'system-ui, sans-serif',
+              }}
+            >
+              {p.hidden ? 'Hidden · Show' : 'Hide'}
+            </button>
 
             {/* Delete */}
             <button
@@ -410,4 +437,51 @@ function Lightbox({ photos, index, onClose }: { photos: GuestPhoto[]; index: num
 
 function lbBtn(extra: React.CSSProperties): React.CSSProperties {
   return { position: 'fixed', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', backdropFilter: 'blur(4px)', ...extra };
+}
+
+// "Leave a message for the hosts": a short note that joins the live wall on
+// the venue slideshow and the memories page. Collapsed until tapped.
+function MessageForm({ token, disabled, onDone, btnClassName }: { token: string; disabled: boolean; onDone: (msg: string, ok: boolean) => void; btnClassName: string }) {
+  const { messagesOn, language } = useLiveOptions();
+  const t = getTranslations(language);
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [body, setBody] = useState('');
+  const [sending, setSending] = useState(false);
+  if (!messagesOn) return null;
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (disabled || !name.trim() || !body.trim()) return;
+    setSending(true);
+    try {
+      const res = await fetch('/api/guest-messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, name, body }) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || t.wallError);
+      setBody('');
+      setOpen(false);
+      onDone(t.wallThanks, true);
+    } catch (err) {
+      onDone(err instanceof Error ? err.message : t.wallError, false);
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const field: React.CSSProperties = { width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 8, border: '1px solid rgba(0,0,0,0.18)', fontSize: 15, fontFamily: 'inherit', background: 'rgba(255,255,255,0.9)', color: '#241F2B' };
+  return (
+    <div style={{ maxWidth: 480, margin: '-12px auto 28px', textAlign: 'center' }}>
+      {!open ? (
+        <button type="button" onClick={() => setOpen(true)} disabled={disabled} style={{ background: 'none', border: 'none', padding: 6, font: 'inherit', fontSize: 15, textDecoration: 'underline', cursor: disabled ? 'not-allowed' : 'pointer', color: 'inherit', opacity: disabled ? 0.5 : 0.85 }}>
+          ✍ {t.wallLeave}
+        </button>
+      ) : (
+        <form onSubmit={send} style={{ display: 'grid', gap: 8, textAlign: 'left' }}>
+          <input aria-label={t.wallName} placeholder={t.wallName} value={name} maxLength={GUEST_MESSAGE_NAME_MAX} onChange={(e) => setName(e.target.value)} style={field} required />
+          <textarea aria-label={t.wallMessage} placeholder={t.wallMessage} value={body} maxLength={GUEST_MESSAGE_BODY_MAX} rows={3} onChange={(e) => setBody(e.target.value)} style={{ ...field, resize: 'vertical' }} required />
+          <button type="submit" className={btnClassName} disabled={sending || disabled} style={{ justifySelf: 'center' }}>{sending ? t.wallPosting : t.wallPost}</button>
+        </form>
+      )}
+    </div>
+  );
 }
