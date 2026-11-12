@@ -36,7 +36,7 @@ function onRootDomain(hostname: string): boolean {
 const MAX_PARTY = 50;
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
-  const { guestListOnly, meals: mealOptions } = useRsvpOptions();
+  const { guestListOnly, meals: mealOptions, giftExchange } = useRsvpOptions();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -58,6 +58,8 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     setParty((rows) => rows.map((r, j) => (j === i ? { ...r, ...patch } : r)));
   // Ticked by default; guests can untick it, and every email links to /unsubscribe.
   const [receiveUpdates, setReceiveUpdates] = useState(true);
+  const [joinGift, setJoinGift] = useState(false);
+  const [giftIdeas, setGiftIdeas] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [cfToken, setCfToken] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -135,7 +137,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}) }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -285,6 +287,20 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {status === 'attending' && giftExchange && (
+        <div>
+          <label className="check-label">
+            <input type="checkbox" checked={joinGift} onChange={(e) => setJoinGift(e.target.checked)} />
+            {t.rsvpGiftJoin}
+          </label>
+          {joinGift && (
+            <>
+              <label className="field-label" htmlFor="rsvp-gift-ideas" style={{ marginTop: 10 }}>{t.rsvpGiftIdeas}</label>
+              <textarea id="rsvp-gift-ideas" value={giftIdeas} rows={2} maxLength={500} onChange={(e) => setGiftIdeas(e.target.value)} placeholder={t.rsvpGiftIdeasPlaceholder} style={{ resize: 'vertical' }} />
+            </>
+          )}
         </div>
       )}
       <div>

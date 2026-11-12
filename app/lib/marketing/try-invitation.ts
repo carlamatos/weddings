@@ -166,7 +166,7 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
     faqs: [
       ...SHARED_FAQS,
       { q: 'Can I use it for an office Christmas party?', a: 'Yes. Name the party, add the date, time and venue, and send the invitation to your colleagues by email. Their replies appear in your guest list as they answer, and with Plus you can keep the page private with a password.' },
-      { q: 'Can guests do a Secret Santa from the invitation?', a: 'Yes, with Plus. Add a gift exchange to your party page: guests sign up on the page with their gift ideas, you draw names with one click, and each person is told privately by email, text or WhatsApp.' },
+      { q: 'Can guests do a Secret Santa from the invitation?', a: 'Yes, and it’s free. Add a gift exchange to your party page: guests sign up on the page with their gift ideas, you draw names with one click, and each person is told privately by email, text or WhatsApp.' },
     ],
     related: {
       heading: 'More for your Christmas party',
@@ -297,7 +297,7 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
     faqs: [
       ...SHARED_FAQS,
       { q: 'What kinds of parties is it for?', a: 'Birthdays, baby showers, Halloween and Día de los Muertos, Christmas and holiday parties, quinceañeras and sweet 16s, and any other celebration. Every theme works for any event; these are listed first.' },
-      { q: 'Can I run a Secret Santa or a potluck from my party website?', a: 'Yes, with Plus. Add a gift exchange and guests sign up with gift ideas, then you draw names with one click. Add a potluck sign-up and guests choose what they’ll bring.' },
+      { q: 'Can I run a Secret Santa or a potluck from my party website?', a: 'Yes. The gift exchange is free: guests sign up with gift ideas, then you draw names with one click. A potluck sign-up, where guests choose what they’ll bring, is part of Plus.' },
     ],
     related: {
       heading: 'More for your party',

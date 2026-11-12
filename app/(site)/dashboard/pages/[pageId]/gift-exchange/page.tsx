@@ -4,7 +4,6 @@ import { requireOwnedPage } from '@/app/lib/dashboard';
 import { giftExchangeDetails, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { giftRevealUrl } from '@/app/lib/gift-token';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { GiftExchangeManager, type GiftRow } from '@/app/ui/dashboard/gift-exchange-manager';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import type { Metadata } from 'next';
@@ -19,7 +18,6 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
 
 
   const [settings, participants, guests, exclusions] = await Promise.all([fetchPageSettings(pageId), fetchGiftParticipants(pageId), fetchGuests(pageId), fetchGiftExclusions(pageId)]);
-  const byId = new Map(participants.map((p) => [p.id, p]));
   const drawn = participants.some((p) => p.giftee_id);
   const inExchange = new Set(participants.map((p) => p.guest_id).filter(Boolean));
   const emails = new Set(participants.map((p) => p.email?.toLowerCase()).filter(Boolean));
@@ -31,7 +29,6 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
     phone: p.phone,
     wishlist: p.wishlist,
     fromGuestList: !!p.guest_id,
-    gifteeName: p.giftee_id ? byId.get(p.giftee_id)?.name ?? null : null,
     revealUrl: p.giftee_id ? giftRevealUrl(p.id) : null,
     notifiedAt: p.notified_at,
     notifiedVia: p.notified_via,
@@ -39,7 +36,6 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <PlusSetupNote section="/gift-exchange" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.giftExchange.giftExchange}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 680, lineHeight: 1.6 }}>
@@ -47,7 +43,7 @@ export default async function GiftExchangePage({ params }: { params: Promise<{ p
           {' '}<HelpLink guide="run-a-gift-exchange" />
         </p>
       </div>
-      <SectionToggle pageId={pageId} settingName="show_gift_exchange" plusSection="/gift-exchange" initialOn={isGiftExchangeOn(settings)} />
+      <SectionToggle pageId={pageId} settingName="show_gift_exchange" initialOn={isGiftExchangeOn(settings)} />
       <GiftExchangeManager
         pageId={pageId}
         initialDetails={giftExchangeDetails(settings)}

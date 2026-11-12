@@ -272,10 +272,11 @@ export async function fetchGiftExclusions(pageId: number | string): Promise<Gift
   }
 }
 
-// The Gift Exchange section's theme prop (Plus): undefined unless the page is
-// paid and the host switched the section on. Never includes who drew whom.
-export async function giftExchangeProps(pageId: number | string, isPaid: boolean, settings: Record<string, string>): Promise<GiftExchangeProps | undefined> {
-  if (!isPaid || !isGiftExchangeOn(settings)) return undefined;
+// The Gift Exchange section's theme prop: undefined unless the host switched
+// the section on. Free on every page (isPaid is no longer used). Never
+// includes who drew whom.
+export async function giftExchangeProps(pageId: number | string, _isPaid: boolean, settings: Record<string, string>): Promise<GiftExchangeProps | undefined> {
+  if (!isGiftExchangeOn(settings)) return undefined;
   let participantCount = 0;
   let drawn = false;
   try {

@@ -102,6 +102,10 @@ export interface Translations {
   noteForCouple: string;
   noteForCouplePlaceholder: string;
   receiveUpdatesLabel: string;
+  // RSVP: join the page's Gift Exchange (Secret Santa) while replying
+  rsvpGiftJoin: string;
+  rsvpGiftIdeas: string;
+  rsvpGiftIdeasPlaceholder: string;
   unsubscribeHint: string;
   sendRsvp: string;
   sending: string;
@@ -254,6 +258,9 @@ const en: Translations = {
   noteForCouple: 'note for the hosts (optional)',
   noteForCouplePlaceholder: 'So excited to celebrate with you…',
   receiveUpdatesLabel: "I'd like to receive event updates via email",
+  rsvpGiftJoin: 'Count me in for the gift exchange (Secret Santa)',
+  rsvpGiftIdeas: 'Gift ideas for your Secret Santa (optional)',
+  rsvpGiftIdeasPlaceholder: 'e.g. Books, cozy socks, anything chocolate',
   unsubscribeHint: 'you can unsubscribe at any time.',
   sendRsvp: 'send rsvp',
   sending: 'sending…',
@@ -400,6 +407,9 @@ const fr: Translations = {
   noteForCouple: 'note pour les hôtes (facultatif)',
   noteForCouplePlaceholder: 'J’ai tellement hâte de célébrer avec vous…',
   receiveUpdatesLabel: 'Je souhaite recevoir des mises à jour par courriel',
+  rsvpGiftJoin: 'Je participe à l’échange de cadeaux (Père Noël secret)',
+  rsvpGiftIdeas: 'Idées de cadeaux pour votre Père Noël secret (facultatif)',
+  rsvpGiftIdeasPlaceholder: 'p. ex. Livres, bas chauds, tout ce qui est chocolat',
   unsubscribeHint: 'vous pouvez vous désabonner à tout moment.',
   sendRsvp: 'envoyer le RSVP',
   sending: 'envoi en cours…',
@@ -546,6 +556,9 @@ const es: Translations = {
   noteForCouple: 'nota para los anfitriones (opcional)',
   noteForCouplePlaceholder: 'Con muchas ganas de celebrar con ustedes…',
   receiveUpdatesLabel: 'Quisiera recibir actualizaciones del evento por correo',
+  rsvpGiftJoin: 'Quiero participar en el intercambio de regalos (amigo secreto)',
+  rsvpGiftIdeas: 'Ideas de regalo para tu amigo secreto (opcional)',
+  rsvpGiftIdeasPlaceholder: 'p. ej. Libros, calcetines calientitos, chocolate',
   unsubscribeHint: 'puedes darte de baja en cualquier momento.',
   sendRsvp: 'enviar RSVP',
   sending: 'enviando…',

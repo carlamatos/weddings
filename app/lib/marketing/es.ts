@@ -244,10 +244,10 @@ export const ES_FEATURES = {
       bullets: ['Arrastra y suelta a tus invitados', 'Cambios al instante, nada que reimprimir', 'Cada invitado ve solo su mesa'],
     },
     {
-      id: 'intercambio', short: 'Intercambio de regalos', kicker: 'Para la fiesta', plan: 'Plus', video: 'intercambio',
+      id: 'intercambio', short: 'Intercambio de regalos', kicker: 'Para la fiesta', plan: 'Gratis', video: 'intercambio',
       title: 'Intercambio de regalos (amigo secreto)',
-      text: 'Tus invitados se unen desde tu página, con ideas de regalo. MyGala sortea los nombres, separa a las parejas si quieres y le avisa a cada persona, en secreto, a quién le regala.',
-      bullets: ['Presupuesto, fecha y una nota', 'Nadie se saca a sí mismo', 'Cada quien recibe su correo en secreto'],
+      text: 'Gratis: tus invitados se unen desde tu página, con ideas de regalo. MyGala sortea los nombres, separa a las parejas si quieres y le avisa a cada persona, en secreto, a quién le regala.',
+      bullets: ['Presupuesto, fecha y una nota', 'Nadie se saca a sí mismo', 'Cada quien recibe su correo en secreto', 'Mensajes anónimos y recordatorios'],
     },
   ] satisfies EsFeature[],
   more: [

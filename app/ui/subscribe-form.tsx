@@ -48,6 +48,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const [themeSlug, setThemeSlug] = useState('');
   const [picking, setPicking] = useState(false);
   const [forInvitation, setForInvitation] = useState(false);
+  const [forSecretSanta, setForSecretSanta] = useState(false);
   const [firstThemes, setFirstThemes] = useState<string[]>([]);
   const [changingSlug, setChangingSlug] = useState(false);
   // The previews only beside the form (wide screens). Phones and tablets would
@@ -69,6 +70,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     const known = (slug?: string) => !!slug && !!themeRegistry[slug] && !!themeCard(slug);
     /* eslint-disable react-hooks/set-state-in-effect -- the landing page's choice and the browsing history live in browser storage */
     if (start?.intent === 'invitation') setForInvitation(true);
+    if (start?.intent === 'secret-santa') { setForSecretSanta(true); if (!start.name) setEventName(d.subscribeForm.secretSantaName); }
     if (start?.name) setEventName(start.name);
     if (start?.date) setEventDate(start.date);
     // A landing page's own occasion beats a theme browsed elsewhere.
@@ -80,7 +82,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     // The short list: the chosen theme first, then the occasion's (or the mix).
     setFirstThemes([theme, ...list.filter((s) => s !== theme)]);
     /* eslint-enable react-hooks/set-state-in-effect */
-  }, [startFromAddress]);
+  }, [startFromAddress, d.subscribeForm.secretSantaName]);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
   const eventType = themeRegistry[themeSlug]?.category ?? '';
   const [selectedSlug, setSelectedSlug] = useState<string>('');
@@ -152,9 +154,9 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
 
   return (
     <div className="auth-card setup-card--wide">
-      <h1 className="auth-heading">{forInvitation ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
+      <h1 className="auth-heading">{forSecretSanta ? d.subscribeForm.createYourSecretSanta : forInvitation ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
       <p className="auth-subheading">
-        {forInvitation
+        {forSecretSanta ? d.subscribeForm.secretSantaLead : forInvitation
           ? d.subscribeForm.giveYourEventAName
           : <>{d.subscribeForm.giveYourEventAName2}</>}
       </p>
@@ -183,6 +185,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         <input type="hidden" name="location" value="address" />
         <input type="hidden" name="email" value={accountEmail} />
         {forInvitation && <input type="hidden" name="next" value="invitations" />}
+        {forSecretSanta && <input type="hidden" name="next" value="gift-exchange" />}
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventName">{d.subscribeForm.eventName}</label>
@@ -245,7 +248,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         </div>
 
         <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>
-          {isPending ? d.subscribeForm.creating : forInvitation ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />
+          {isPending ? d.subscribeForm.creating : forSecretSanta ? d.subscribeForm.createMySecretSanta : forInvitation ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>
         <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
           {prepaid

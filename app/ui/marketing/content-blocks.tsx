@@ -60,13 +60,13 @@ export function FeatureCards({ slugs }: { slugs: string[] }) {
   );
 }
 
-export function FinalCta({ title, text }: { title: string; text: string }) {
+export function FinalCta({ title, text, signup }: { title: string; text: string; signup?: { query: string; label: string } }) {
   return (
     <div className="final-cta">
       <h2 className="section-title">{title}</h2>
       <p className="hero-sub">{text}</p>
       <div className="mk-cta-row">
-        <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
+        <Link href={appHref(`/register${signup?.query ?? ''}`)} className="btn-primary">{signup?.label ?? 'Create your free event page'}</Link>
         <Link href="/pricing" className="mk-btn-ghost">See pricing</Link>
       </div>
     </div>

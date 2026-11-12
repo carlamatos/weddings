@@ -36,10 +36,10 @@ export async function POST(request: Request) {
     const phone = cleanPhone(phoneRaw);
 
     const [page, settings] = await Promise.all([
-      sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`,
+      sql`SELECT 1 FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`,
       fetchPageSettings(pageId),
     ]);
-    if (page.rows[0]?.plan_type !== 'paid' || !isGiftExchangeOn(settings)) {
+    if (!page.rows[0] || !isGiftExchangeOn(settings)) {
       return NextResponse.json({ error: 'The gift exchange is closed.' }, { status: 403 });
     }
     if (await guestAccessDenied(request, pageId)) {

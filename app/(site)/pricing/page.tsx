@@ -36,7 +36,7 @@ const COMPARE: { label: string; href?: string; free: boolean | string; plus: boo
   { label: 'Find-your-table seating with a QR sign', href: '/features/find-your-table', free: false, plus: true },
   { label: 'Livestream and song requests', href: '/features/livestream', free: false, plus: true },
   { label: 'Automatic reminder emails', href: '/features/event-reminder-emails', free: false, plus: true },
-  { label: 'Gift exchange (Secret Santa)', href: '/features/gift-exchange', free: false, plus: true },
+  { label: 'Gift exchange (Secret Santa)', href: '/features/gift-exchange', free: true, plus: true },
   { label: 'Potluck sign-up', href: '/features/potluck', free: false, plus: true },
   { label: 'Custom sections and sponsors', href: '/features/custom-sections', free: false, plus: true },
   { label: 'Gift registry section', free: false, plus: true },

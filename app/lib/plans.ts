@@ -29,6 +29,7 @@ export const PLAN_FEATURES = {
     'Event Program',
     'Budget tracker & RSVP timeline reminders',
     'Guest photo wall & table QR codes (up to 50 photos)',
+    'Secret Santa gift exchange with anonymous messages',
     'MyGala URL (mygala.ca/yourname)',
   ],
   plus: [

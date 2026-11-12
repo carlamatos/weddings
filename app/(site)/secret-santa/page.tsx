@@ -8,10 +8,16 @@ import { isPageOffline } from '@/app/lib/page-status';
 import type { UserPage } from '@/app/lib/definitions';
 import { greatVibes } from '@/app/ui/fonts';
 import '@/app/ui/auth.css';
+import { fetchGiftMessagesFor } from '@/app/lib/gift-messages';
+import { GiftMessages, type GiftThreadItem } from '@/app/ui/gift-messages';
+import { siteUrl } from '@/app/lib/site-url';
 
 export const metadata = { title: 'Your Secret Santa', robots: { index: false, follow: false } };
 
 type Row = {
+  me_id: number;
+  giftee_id: number | null;
+  santa_id: number | null;
   name: string;
   giftee_name: string | null;
   giftee_wishlist: string | null;
@@ -26,7 +32,8 @@ export default async function SecretSantaPage({ searchParams }: { searchParams: 
   const id = verifyGiftLink(p, t);
   const row = id
     ? (await sql<Row>`
-        SELECT me.name, giftee.name AS giftee_name, giftee.wishlist AS giftee_wishlist, up.id AS page_id,
+        SELECT me.id AS me_id, me.giftee_id, (SELECT s.id FROM page_gift_exchange s WHERE s.giftee_id = me.id LIMIT 1) AS santa_id,
+               me.name, giftee.name AS giftee_name, giftee.wishlist AS giftee_wishlist, up.id AS page_id,
                up.heading, up.language, up.slug, up.plan_type, up.custom_domain, up.domain_status, up.status
         FROM page_gift_exchange me
         JOIN user_page up ON up.id = me.user_page_id
@@ -44,6 +51,11 @@ export default async function SecretSantaPage({ searchParams }: { searchParams: 
   } else {
     const details = giftExchangeDetails(await fetchPageSettings(row.page_id));
     const event = row.heading || 'the event';
+    // The two conversations: with the person I drew, and with my own Santa.
+    const messages = await fetchGiftMessagesFor(row.me_id).catch(() => []);
+    const thread = (other: number | null): GiftThreadItem[] => other === null ? [] : messages
+      .filter((m) => (m.from_id === row.me_id && m.to_id === other) || (m.from_id === other && m.to_id === row.me_id))
+      .map((m) => ({ id: m.id, mine: m.from_id === row.me_id, body: m.body }));
     body = (
       <>
         <p className="auth-subheading" style={{ marginBottom: 18 }}>{c.hi(row.name)} {c.drawn(event)}</p>
@@ -62,6 +74,7 @@ export default async function SecretSantaPage({ searchParams }: { searchParams: 
           </dl>
         )}
         <a className="auth-btn" href={publicPageUrl(row)} style={{ display: 'inline-block', textDecoration: 'none' }}>{c.viewEvent}</a>
+        <GiftMessages p={p!} t={t!} lang={giftLang(row.language)} gifteeName={row.giftee_name} withGiftee={thread(row.giftee_id)} withSanta={thread(row.santa_id)} hasSanta={row.santa_id !== null} />
       </>
     );
   }
@@ -72,6 +85,10 @@ export default async function SecretSantaPage({ searchParams }: { searchParams: 
         <p style={{ fontSize: 44, margin: '0 0 6px', lineHeight: 1 }} aria-hidden="true">🎁</p>
         <p className="auth-wordmark">My<span className="accent">Gala</span></p>
         {body}
+        <p style={{ margin: '26px 0 0', paddingTop: 18, borderTop: '1px solid #EDE8E3', fontSize: 13, lineHeight: 1.6, color: '#6B6470' }}>
+          {c.ownPage}{' '}
+          <a href={`${siteUrl()}/?utm_source=secret-santa&utm_medium=reveal`} style={{ color: '#B3262E', fontWeight: 600 }}>{c.ownPageLink}</a>
+        </p>
       </div>
     </main>
   );

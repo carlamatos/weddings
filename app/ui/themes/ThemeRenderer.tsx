@@ -24,7 +24,7 @@ export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rs
   // it's first painted), not after it loads; the editor does it in React.
   const early = hasBackgrounds && !props.sectionTextPageId;
   return (
-    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals}>
+    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals} giftExchange={!!props.giftExchange && !props.giftExchange.drawn}>
       {/* The story text's colour: every theme marks its story paragraph (the editor colours its own). */}
       {storyTextColor && /^#[0-9a-f]{6}$/i.test(storyTextColor) && !props.sectionTextPageId && (
         <style>{`[data-mg-theme] [data-story-text]{color:${storyTextColor}!important;-webkit-text-fill-color:${storyTextColor}!important}`}</style>

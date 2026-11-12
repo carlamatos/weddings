@@ -53,7 +53,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           <h1 className="mk-h1">{feature.h1}</h1>
           <p className="mk-lead">{feature.lead}</p>
           <div className="mk-cta-row mk-cta-row--hero">
-            <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
+            <Link href={appHref(`/register${feature.signup?.query ?? ''}`)} className="btn-primary">{feature.signup?.label ?? 'Create your free event page'}</Link>
             {feature.video && (
               <a href="#video" className="btn-secondary mk-btn-video">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
@@ -106,7 +106,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
         </section>
       </div>
 
-      <FinalCta title={feature.cta.title} text={feature.cta.text} />
+      <FinalCta title={feature.cta.title} text={feature.cta.text} signup={feature.signup} />
     </MarketingShell>
   );
 }

@@ -20,6 +20,9 @@ export type Feature = {
   steps: Step[];
   faqs: Faq[];
   cta: { title: string; text: string };
+  // Where the sign-up buttons start (app/lib/start-intent.ts) and what they say;
+  // unset = a plain "Create your free event page".
+  signup?: { query: string; label: string };
   related: string[]; // other feature slugs
 };
 
@@ -1012,22 +1015,26 @@ export const FEATURES: Feature[] = [
   {
     slug: 'gift-exchange',
     navLabel: 'Gift Exchange (Secret Santa)',
-    plan: 'Plus',
+    plan: 'Free',
+    // Free since 2026-11: signing up starts a Secret Santa straight away.
+    signup: { query: '?start=secret-santa&occasion=christmas', label: 'Create your free Secret Santa' },
     seo: {
       title: 'Secret Santa Generator & Gift Exchange for Your Event',
       description:
-        'Run a Secret Santa from your event page: guests sign up with gift ideas, names are drawn fairly (nobody gets themselves, couples kept apart) and everyone is told by email, text or WhatsApp.',
-      keywords: ['secret santa generator', 'online secret santa', 'gift exchange organizer', 'secret santa draw', 'secret santa with exclusions', 'office gift exchange'],
+        'Free online Secret Santa: people sign up with gift ideas, names are drawn fairly (nobody gets themselves, couples kept apart), everyone is told privately, and reminders go out before the exchange.',
+      keywords: ['free secret santa generator', 'secret santa generator', 'online secret santa', 'gift exchange organizer', 'secret santa draw', 'secret santa with exclusions', 'office gift exchange', 'anonymous secret santa messages'],
     },
     eyebrow: 'Gift exchange',
     h1: 'A Secret Santa that runs itself',
     lead:
       'Add a Gift Exchange to your event page and guests sign up with their gift ideas. When everyone’s in, draw names with one click — nobody gets their own name, couples can be kept apart — and each person finds out privately who they’re buying for, by email, text or WhatsApp.',
-    summary: 'Guests sign up, names are drawn fairly, and everyone is told privately.',
+    summary: 'Free: people sign up, names are drawn fairly, and everyone is told privately.',
     highlights: [
       { title: 'A fair draw', text: 'Nobody draws themselves, everyone gives and receives one gift, and no two people draw each other.' },
       { title: 'Couples kept apart', text: 'Mark couples (or anyone) who shouldn’t draw each other, and the draw respects it.' },
-      { title: 'Private results', text: 'Each person only sees their own match — even you, if you’re playing too.' },
+      { title: 'Private results', text: 'Each person only sees their own match — even you, the organizer, so you can play too.' },
+      { title: 'Anonymous questions', text: 'Santas can ask their giftee about sizes or allergies, and anyone can write to their Santa, without names being revealed.' },
+      { title: 'Reminders, done for you', text: 'Set the exchange date and everyone gets a reminder a week before and the day before.' },
     ],
     video: {
       src: '/videos/features/gift-exchange.mp4',
@@ -1068,6 +1075,13 @@ export const FEATURES: Feature[] = [
         ],
       },
       {
+        heading: 'Questions, kept anonymous',
+        paragraphs: [
+          'Each person’s private page lets them ask the person they drew a question (“What size are you?”) or write to their own Secret Santa. Messages arrive by email, and the Santa’s name is never shown.',
+          'Set the exchange date and MyGala emails everyone a reminder a week before and the day before, with a link back to their match.',
+        ],
+      },
+      {
         heading: 'Great for',
         bullets: [
           'Christmas and holiday parties',
@@ -1077,7 +1091,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Upgrade your page to Plus', text: 'The Gift Exchange is part of MyGala Plus — a one-time payment, no subscription.' },
+      { title: 'Create your Secret Santa', text: 'Sign up free and choose Create your free Secret Santa, or switch on Gift Exchange on any event page you already have.' },
       { title: 'Open Gift Exchange', text: 'In your dashboard, choose Gift Exchange in the left menu, switch the section on and add the budget, date and a note.', dashboard: '/dashboard/gift-exchange', linkLabel: 'Open Gift Exchange' },
       { title: 'Gather participants', text: 'Share your page so guests can sign up, or add people from your guest list. Add any couples to Keep apart.' },
       { title: 'Draw names', text: 'Once at least three people have joined, click Draw names.' },
@@ -1086,13 +1100,15 @@ export const FEATURES: Feature[] = [
     faqs: [
       { q: 'Can someone draw their own name?', a: 'Never. Everyone is placed in one circle and gives to the next person, so nobody can get themselves.' },
       { q: 'Can I stop couples from drawing each other?', a: 'Yes. Add them under Keep apart and they won’t draw each other in either direction. For a family, add each pair.' },
-      { q: 'Can I take part if I’m the organizer?', a: 'Yes. Messages and private links only show each person their own match, and the list of who has whom stays hidden in your dashboard unless you choose to show it.' },
+      { q: 'Can I take part if I’m the organizer?', a: 'Yes. Messages and private links only show each person their own match, and your dashboard never shows who has whom. If someone loses their link, send it again from the dashboard without seeing it.' },
+      { q: 'Is it free?', a: 'Yes. The Secret Santa is free on every MyGala page: the sign-up, the draw, the emails, the anonymous messages and the reminders.' },
+      { q: 'Can participants ask questions anonymously?', a: 'Yes. From their private link, a Santa can ask the person they drew a question, and anyone can write to their own Santa. Messages arrive by email and the Santa’s name is never shown.' },
       { q: 'Do guests need an account?', a: 'No. Guests sign up on your event page with their name and email, and open their result from an email or a private link.' },
       { q: 'Can guests change their gift ideas after the draw?', a: 'Yes. Sign-ups close once names are drawn, but participants can still update their gift ideas with the same email — the person buying for them sees the latest ideas when they open their link.' },
       { q: 'How many people can take part?', a: 'At least 3 and up to 200 people per event.' },
       { q: 'What languages are the messages in?', a: 'The section and the messages follow your page’s language — English, Spanish or French.' },
     ],
-    cta: { title: 'Make your gift exchange effortless', text: 'Create your event page, upgrade to Plus, and switch on the Gift Exchange.' },
+    cta: { title: 'Make your gift exchange effortless', text: 'Create your free Secret Santa in a minute, then share the link so everyone can join.' },
     related: ['potluck', 'invitations', 'event-reminder-emails'],
   },
 

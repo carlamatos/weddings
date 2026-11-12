@@ -27,7 +27,6 @@ import { GIFT_COPY, giftLang } from '@/app/lib/gift-exchange-copy';
 import { smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { btn, card, cell, headCell, input, primary } from './guest-ui';
-import { PlusLock, usePlus } from './plus-gate';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
@@ -39,7 +38,6 @@ export type GiftRow = {
   phone: string | null;
   wishlist: string | null;
   fromGuestList: boolean;
-  gifteeName: string | null; // who they give to — shown only if the host asks
   revealUrl: string | null; // their private link, once names are drawn
   notifiedAt: string | null;
   notifiedVia: 'email' | 'sms' | 'whatsapp' | null;
@@ -80,7 +78,6 @@ export function GiftExchangeManager({
   hostName?: string;
 }) {
   const d = useDashText();
-  const plus = usePlus();
   const router = useRouter();
   const copy = GIFT_COPY[giftLang(language)];
 
@@ -125,7 +122,6 @@ export function GiftExchangeManager({
 
   // Draw + sending
   const [drawNotice, setDrawNotice] = useState<Notice>(null);
-  const [showPairs, setShowPairs] = useState(false);
   const [textedNow, setTextedNow] = useState<Record<number, 'sms' | 'whatsapp'>>({});
   const [copied, setCopied] = useState<number | null>(null);
 
@@ -184,15 +180,13 @@ export function GiftExchangeManager({
   }
 
   async function draw() {
-    // Drawing is what sets the exchange going for guests: Plus.
-    if (!plus.paid) { plus.ask({ section: '/gift-exchange' }); return; }
     const again = drawn
       ? d.giftExchangeManager.thisReplacesTheCurrentDraw
       : '';
     if (!window.confirm(fill(d.giftExchangeManager.drawNamesForPeople, { length: participants.length, again }))) return;
     setDrawNotice(null);
     const result = await run('draw', () => drawGiftNames(pageId));
-    if (result?.ok) { setShowPairs(false); setTextedNow({}); setDrawNotice({ kind: 'ok', text: fill(d.giftExchangeManager.namesDrawnForPeopleNow, { count: result.value.count }) }); router.refresh(); }
+    if (result?.ok) { setTextedNow({}); setDrawNotice({ kind: 'ok', text: fill(d.giftExchangeManager.namesDrawnForPeopleNow, { count: result.value.count }) }); router.refresh(); }
     else setDrawNotice({ kind: 'error', text: result && !result.ok ? result.error : d.giftExchangeManager.couldnTDrawNamesPlease });
   }
 
@@ -200,7 +194,7 @@ export function GiftExchangeManager({
     if (!window.confirm(d.giftExchangeManager.clearTheDrawSignUps)) return;
     setDrawNotice(null);
     const result = await run('clear', () => clearGiftDraw(pageId));
-    if (result?.ok) { setShowPairs(false); setDrawNotice({ kind: 'ok', text: d.giftExchangeManager.drawCleared }); router.refresh(); }
+    if (result?.ok) { setDrawNotice({ kind: 'ok', text: d.giftExchangeManager.drawCleared }); router.refresh(); }
     else setDrawNotice({ kind: 'error', text: result && !result.ok ? result.error : d.giftExchangeManager.couldnTClearTheDraw });
   }
 
@@ -214,6 +208,15 @@ export function GiftExchangeManager({
       setDrawNotice({ kind: 'ok', text: fill(d.giftExchangeManager.emailed, { sent, v1: sent === 1 ? d.giftExchangeManager.person : d.giftExchangeManager.people, v2: skipped ? fill(d.giftExchangeManager.noEmailSkipped, { skipped }) : '' }) });
       router.refresh();
     } else setDrawNotice({ kind: 'error', text: result && !result.ok ? result.error : d.giftExchangeManager.couldnTSendTheEmails });
+  }
+
+  // Sends one person their link again (lost email, wrong address fixed), so
+  // the host never needs to see who drew whom.
+  async function emailOne(p: GiftRow) {
+    setDrawNotice(null);
+    const result = await run(`email-${p.id}`, () => sendGiftExchangeEmails(pageId, [p.id]));
+    if (result?.ok && result.value.sent) { setDrawNotice({ kind: 'ok', text: fill(d.giftExchangeManager.resentTo, { name: p.name }) }); router.refresh(); }
+    else setDrawNotice({ kind: 'error', text: result && !result.ok ? result.error : d.giftExchangeManager.couldnTSendTheEmails });
   }
 
   const messageFor = (p: GiftRow) => copy.textMessage({ name: p.name.split(/\s+/)[0] || p.name, event: eventName, link: p.revealUrl ?? '', host: hostName });
@@ -246,6 +249,10 @@ export function GiftExchangeManager({
           <label style={label}>{d.giftExchangeManager.whenGiftsAreExchanged}
             <input style={input} value={details.exchangeDate} maxLength={GIFT_DATE_MAX} placeholder={d.giftExchangeManager.eGDecember19At} onChange={(e) => setDetails({ ...details, exchangeDate: e.target.value })} />
           </label>
+          <label style={label}>{d.giftExchangeManager.exchangeDay}
+            <input type="date" style={input} value={details.day} onChange={(e) => setDetails({ ...details, day: e.target.value })} />
+          </label>
+          <p style={{ alignSelf: 'end', margin: '0 0 9px', fontSize: 13, color: '#6B6470', lineHeight: 1.5 }}>{d.giftExchangeManager.exchangeDayHint}</p>
           <label style={{ ...label, gridColumn: '1 / -1' }}>{d.giftExchangeManager.aNoteForEveryoneOptional}
             <textarea style={{ ...input, resize: 'vertical', lineHeight: 1.5 }} rows={2} value={details.note} maxLength={GIFT_NOTE_MAX} placeholder={d.giftExchangeManager.eGWrapYourGift} onChange={(e) => setDetails({ ...details, note: e.target.value })} />
           </label>
@@ -348,7 +355,6 @@ export function GiftExchangeManager({
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
             {!drawn ? (
               <button type="button" style={{ ...primary, opacity: participants.length >= GIFT_MIN_TO_DRAW ? 1 : 0.5 }} disabled={participants.length < GIFT_MIN_TO_DRAW || busy === 'draw'} onClick={draw}>
-                <PlusLock />
                 {busy === 'draw' ? d.giftExchangeManager.drawing : d.giftExchangeManager.drawNames}
               </button>
             ) : (
@@ -358,11 +364,6 @@ export function GiftExchangeManager({
                 </button>
                 <button type="button" style={btn} disabled={busy === 'draw'} onClick={draw}>{busy === 'draw' ? d.giftExchangeManager.drawing : d.giftExchangeManager.drawAgain}</button>
                 <button type="button" style={btn} disabled={busy === 'clear'} onClick={clearDraw}>{busy === 'clear' ? d.giftExchangeManager.clearing : d.giftExchangeManager.clearDraw}</button>
-                <span style={{ flex: '1 1 auto' }} />
-                <button type="button" style={small} aria-pressed={showPairs} onClick={() => {
-                  if (!showPairs && !window.confirm('Show who has whom? If you’re taking part too, this spoils the surprise for you.')) return;
-                  setShowPairs((v) => !v);
-                }}>{showPairs ? d.giftExchangeManager.hideWhoHasWhom : d.giftExchangeManager.showWhoHasWhom}</button>
               </>
             )}
           </div>
@@ -372,6 +373,7 @@ export function GiftExchangeManager({
           {drawn && (
             <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
               {rich(d.giftExchangeManager.emailSendsEachPersonTheir, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong> })}
+              {' '}{d.giftExchangeManager.matchesHidden}
             </p>
           )}
           <NoticeLine notice={drawNotice} />
@@ -395,7 +397,6 @@ export function GiftExchangeManager({
                         <td style={{ ...cell, fontWeight: 500 }}>
                           {p.name}
                           {p.fromGuestList && <span style={{ display: 'block', fontSize: 12, fontWeight: 400, color: '#9A8F8C' }}>{d.giftExchangeManager.fromGuestList}</span>}
-                          {showPairs && p.gifteeName && <span style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#B3262E' }}>{fill(d.giftExchangeManager.givesTo, { gifteeName: p.gifteeName })}</span>}
                         </td>
                         <td style={{ ...cell, color: '#6B6470', overflowWrap: 'anywhere' }}>{p.email || '—'}</td>
                         <td style={{ ...cell, color: '#6B6470', minWidth: 140 }}>
@@ -407,6 +408,9 @@ export function GiftExchangeManager({
                                   <a href={smsHref(p.phone, messageFor(p))} onClick={() => onTexted(p, 'sms')} style={pill} title={fill(d.giftExchangeManager.textTheirSecretSantaLink, { name: p.name })}>{d.giftExchangeManager.text}</a>
                                   <a href={whatsappHref(p.phone, messageFor(p))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(p, 'whatsapp')} style={pill} title={fill(d.giftExchangeManager.sendTheirSecretSantaLink, { name: p.name })}>{d.giftExchangeManager.whatsapp}</a>
                                 </>
+                              )}
+                              {p.email && (
+                                <button type="button" onClick={() => emailOne(p)} disabled={busy === `email-${p.id}`} style={pill} title={fill(d.giftExchangeManager.resendEmailTitle, { name: p.name })}>{busy === `email-${p.id}` ? '…' : d.giftExchangeManager.resendEmail}</button>
                               )}
                               <button type="button" onClick={() => copyMessage(p)} style={pill} title={d.giftExchangeManager.copyTheirMessageWithThe}>{copied === p.id ? d.giftExchangeManager.copied : d.giftExchangeManager.copy}</button>
                             </div>

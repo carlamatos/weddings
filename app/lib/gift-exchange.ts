@@ -1,4 +1,4 @@
-// Plus: the Gift Exchange (Secret Santa) section. Guests join on the event
+// The Gift Exchange (Secret Santa) section, free on every page. Guests join on the event
 // page (or the host adds them); the host draws names and each participant is
 // told — by email, or by a private link sent as a text/WhatsApp message from
 // the host's phone — who they're buying a gift for. Shared by the API, the
@@ -9,6 +9,8 @@
 //   gift_exchange_budget    e.g. "$25"
 //   gift_exchange_date      when gifts are exchanged, e.g. "December 19, at the party"
 //   gift_exchange_note      the host's message to participants
+//   gift_exchange_day       the exchange's date (YYYY-MM-DD), optional: sets
+//                           off the reminder emails a week and a day before
 
 export const GIFT_NAME_MAX = 120;
 export const GIFT_WISHLIST_MAX = 500;
@@ -23,9 +25,15 @@ export const GIFT_SETTINGS = {
   budget: 'gift_exchange_budget',
   exchangeDate: 'gift_exchange_date',
   note: 'gift_exchange_note',
+  day: 'gift_exchange_day',
 } as const;
 
-export type GiftExchangeDetails = { budget: string; exchangeDate: string; note: string };
+export type GiftExchangeDetails = { budget: string; exchangeDate: string; note: string; day: string };
+
+// A calendar date as the date input sends it.
+export function isGiftDay(v: unknown): v is string {
+  return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(`${v}T12:00:00Z`));
+}
 
 // What a theme gets: the signed page token for joining, the host's details,
 // how many have joined, and whether names have been drawn (sign-ups close).
@@ -61,6 +69,7 @@ export function giftExchangeDetails(settings: Record<string, string>): GiftExcha
     budget: settings[GIFT_SETTINGS.budget] ?? '',
     exchangeDate: settings[GIFT_SETTINGS.exchangeDate] ?? '',
     note: settings[GIFT_SETTINGS.note] ?? '',
+    day: isGiftDay(settings[GIFT_SETTINGS.day]) ? settings[GIFT_SETTINGS.day] : '',
   };
 }
 

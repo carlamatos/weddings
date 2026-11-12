@@ -20,7 +20,6 @@ export const PLUS_FEATURES: Record<string, PlusFeature> = {
   '/song-requests': { name: 'Song Requests', setting: 'show_song_requests', goesLive: 'guests can request songs from your page' },
   '/livestream': { name: 'Live Stream', setting: 'show_livestream', goesLive: 'your live stream shows on your page' },
   '/potluck': { name: 'Potluck', setting: 'show_potluck', goesLive: 'guests can sign up for what they’re bringing' },
-  '/gift-exchange': { name: 'Gift Exchange', setting: 'show_gift_exchange', goesLive: 'guests can join your gift exchange and you can draw names' },
   '/custom-sections': { name: 'Custom Sections', setting: 'show_custom_sections', goesLive: 'your custom sections show on your page' },
   '/sponsors': { name: 'Sponsors', setting: 'show_sponsors', goesLive: 'your sponsors show on your page' },
   '/registry': { name: 'Registry', setting: 'show_registry', goesLive: 'your registry shows on your page' },

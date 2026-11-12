@@ -41,9 +41,10 @@ import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmail, type MailMessage } from './mail';
 import { notifyAdminsOfNewPage } from './admin-notify';
 import { randomInt } from 'crypto';
-import { drawCycle, giftExchangeDetails, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
+import { drawCycle, giftExchangeDetails, isGiftDay, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
 import { giftExchangeEmail } from './gift-exchange-email';
 import { giftRevealUrl } from './gift-token';
+import { clearGiftMessages } from './gift-messages';
 import { publicPageUrl } from './share';
 import { invitationEmail } from './invitation-email';
 import { invitationDetails } from './invitation-details';
@@ -301,6 +302,14 @@ function ensureOptionalEventDate(): Promise<unknown> {
             (${newPageId}, 'show_in_search', 'false')
           ON CONFLICT (user_page_id, setting_name) DO NOTHING
         `;
+        // A Secret Santa (app/lib/start-intent.ts): the Gift Exchange starts on.
+        if (formData.get('next') === 'gift-exchange') {
+          await sql`
+            INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+            VALUES (${newPageId}, 'show_gift_exchange', 'true')
+            ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = 'true'
+          `;
+        }
       }
     } catch (error) {
       console.error('Database Error:', error);
@@ -334,7 +343,8 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // Straight into the editor for the new page — or its invitation designer
     // when the host came to make an invitation (app/lib/start-intent.ts); the
     // event pages list is the fallback if the id somehow didn't come back.
-    const next = formData.get('next') === 'invitations' ? '/invitations' : '';
+    const nextField = formData.get('next');
+    const next = nextField === 'invitations' ? '/invitations' : nextField === 'gift-exchange' ? '/gift-exchange' : '';
     redirect(newPageId ? pagePath(newPageId, next || undefined) : '/dashboard');
   }
 
@@ -1217,12 +1227,14 @@ export async function markGuestTexted(pageId: number, guestId: string, via: 'sms
   }
 }
 
-// ─── Gift Exchange (Secret Santa, Plus) ──────────────────
+// ─── Gift Exchange (Secret Santa) ──────────────────
+// Free on every page since 2026-11 (it brings new hosts in), so these only
+// check that the signed-in user owns the page ({ setup: true }).
 
 // The host's details shown to participants: budget, exchange date, note.
 export async function saveGiftExchangeDetails(
   pageId: number,
-  input: { budget?: string; exchangeDate?: string; note?: string },
+  input: { budget?: string; exchangeDate?: string; note?: string; day?: string },
 ): Promise<PlusResult<GiftExchangeDetails>> {
   try {
     const owned = await ownedPlusPageId(pageId, { setup: true });
@@ -1232,12 +1244,14 @@ export async function saveGiftExchangeDetails(
       budget: clean(input?.budget, GIFT_BUDGET_MAX),
       exchangeDate: clean(input?.exchangeDate, GIFT_DATE_MAX),
       note: clean(input?.note, GIFT_NOTE_MAX),
+      day: isGiftDay(input?.day) ? input.day : '',
     };
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
       VALUES (${owned.value}, ${GIFT_SETTINGS.budget}, ${details.budget}),
              (${owned.value}, ${GIFT_SETTINGS.exchangeDate}, ${details.exchangeDate}),
-             (${owned.value}, ${GIFT_SETTINGS.note}, ${details.note})
+             (${owned.value}, ${GIFT_SETTINGS.note}, ${details.note}),
+             (${owned.value}, ${GIFT_SETTINGS.day}, ${details.day})
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value, updated_at = NOW()
     `;
     revalidatePath('/', 'layout');
@@ -1338,7 +1352,7 @@ export async function removeGiftParticipant(pageId: number, participantId: numbe
 // the page at the same moment and was left out.
 export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count: number }>> {
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     if (await overRateLimit(`gift-draw:${owned.value}`, 20, 60 * 60 * 1000)) {
       return { ok: false, error: 'You’ve drawn names many times in the last hour. Please try again later.' };
@@ -1361,6 +1375,7 @@ export async function drawGiftNames(pageId: number): Promise<PlusResult<{ count:
                      unnest(string_to_array(${giftees.join(',')}, ',')::int[]) AS giftee) v
         WHERE p.id = v.id AND p.user_page_id = ${owned.value}
       `;
+      await clearGiftMessages(owned.value);
       const left = await sql<{ n: number }>`SELECT COUNT(*)::int AS n FROM page_gift_exchange WHERE user_page_id = ${owned.value} AND giftee_id IS NULL`;
       if ((left.rows[0]?.n ?? 0) === 0) {
         revalidatePath('/', 'layout');
@@ -1419,6 +1434,7 @@ export async function clearGiftDraw(pageId: number): Promise<PlusResult<null>> {
     const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`UPDATE page_gift_exchange SET giftee_id = NULL, notified_at = NULL, notified_via = NULL, updated_at = NOW() WHERE user_page_id = ${owned.value}`;
+    await clearGiftMessages(owned.value);
     revalidatePath('/', 'layout');
     return { ok: true, value: null };
   } catch (error) {
@@ -1433,7 +1449,7 @@ export async function clearGiftDraw(pageId: number): Promise<PlusResult<null>> {
 export async function sendGiftExchangeEmails(pageId: number, participantIds?: number[]): Promise<PlusResult<{ sent: number; skipped: number }>> {
   try {
     if (!(await isEmailVerified())) return { ok: false, error: VERIFY_EMAIL_FIRST };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     const session = await auth();
     const userId = session?.user?.id;
@@ -1501,7 +1517,7 @@ export async function markGiftTexted(pageId: number, participantId: number, via:
   try {
     if (!Number.isInteger(participantId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
     if (!(await isEmailVerified())) return { ok: false };
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return { ok: false };
     await sql`
       UPDATE page_gift_exchange SET notified_at = NOW(), notified_via = ${via}

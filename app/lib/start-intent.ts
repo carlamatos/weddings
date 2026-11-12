@@ -8,10 +8,12 @@
 // theme gallery. The "design your invitation" page (/design-your-invitation)
 // also sends the event's name and date typed there, so the create-event form
 // starts filled in.
+// A Secret Santa (/register?start=secret-santa) creates a Christmas page with
+// the Gift Exchange on and opens its setup screen.
 // Browser storage only: a per-visitor convenience that's fine to lose.
 
 export type StartOccasion = 'wedding' | 'christmas' | 'celebration';
-export type StartIntent = { intent: 'invitation' | 'website'; theme?: string; occasion?: StartOccasion; name?: string; date?: string };
+export type StartIntent = { intent: 'invitation' | 'website' | 'secret-santa'; theme?: string; occasion?: StartOccasion; name?: string; date?: string };
 export type StartDetails = { name?: string | null; date?: string | null };
 
 const KEY = 'mygala:start';
@@ -22,7 +24,7 @@ export const START_NAME_MAX = 200; // the create-event form's limit
 
 // From /register's query string; null when it says nothing usable.
 export function parseStartParams(start?: string | null, theme?: string | null, occasion?: string | null, details?: StartDetails): StartIntent | null {
-  if (start !== 'invitation' && start !== 'website') return null;
+  if (start !== 'invitation' && start !== 'website' && start !== 'secret-santa') return null;
   const name = typeof details?.name === 'string' ? details.name.trim().slice(0, START_NAME_MAX) : '';
   const date = typeof details?.date === 'string' && DATE_RE.test(details.date) && !Number.isNaN(Date.parse(details.date)) ? details.date : '';
   return {
