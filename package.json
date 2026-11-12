@@ -6,6 +6,9 @@
     "start": "next start",
     "lint": "eslint ."
   },
+  "engines": {
+    "node": "24.x"
+  },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
     "@vercel/blob": "^2.4.1",
