@@ -7,7 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { greatVibes } from '@/app/ui/fonts';
 import { appHref } from '@/app/lib/app-url';
-import { LANDING_UI, type LandingIcon, type LandingPage } from '@/app/lib/marketing/landing';
+import { LANDING_UI, type LandingFeature, type LandingIcon, type LandingPage } from '@/app/lib/marketing/landing';
 import { THEME_CARDS, type ThemeCard } from '@/app/lib/marketing/theme-cards';
 import type { Faq } from '@/app/lib/marketing/types';
 import ThemeHeroPreview from '@/app/ui/dashboard/ThemeHeroPreview';
@@ -48,6 +48,28 @@ export function LandingView({ page, templates, faqs, lang = 'en', footer }: {
   const cta = (where: string) => `lp-${page.slug}${lang === 'en' ? '' : `-${lang}`}-${where}`;
   const free = page.features.items.filter((f) => !f.plus);
   const plus = page.features.items.filter((f) => f.plus);
+  // A page that marks top features shows only those at first.
+  const top = page.features.items.filter((f) => f.top);
+  const featureCard = (f: LandingFeature, pill = false) => {
+    const Icon = ICONS[f.icon];
+    return (
+      <div className={`lp-feature${f.plus ? ' lp-feature-plus' : ''}`} key={f.title}>
+        <span className="lp-feature-icon"><Icon aria-hidden="true" /></span>
+        <div>
+          <h4>{f.title}{pill && f.plus && <span className="lp-pill lp-pill-plus lp-pill-sm">{ui.plusPill}</span>}</h4>
+          <p>{f.text}</p>
+        </div>
+      </div>
+    );
+  };
+  const allFeatures = (
+    <>
+      <h3 className="lp-feature-group"><span className="lp-pill lp-pill-free">{ui.freePill}</span>{ui.freeGroup}</h3>
+      <div className="lp-feature-grid">{free.map((f) => featureCard(f))}</div>
+      <h3 className="lp-feature-group"><span className="lp-pill lp-pill-plus">{ui.plusPill}</span>{ui.plusGroup}</h3>
+      <div className="lp-feature-grid">{plus.map((f) => featureCard(f))}</div>
+    </>
+  );
 
   const s = page.steps;
   const stepPhoto = themePhoto(s.theme);
@@ -246,31 +268,15 @@ export function LandingView({ page, templates, faqs, lang = 'en', footer }: {
             <h2 className="section-title lp-center">{page.features.title}</h2>
             <p className="section-sub lp-center lp-sub">{page.features.sub}</p>
 
-            <h3 className="lp-feature-group"><span className="lp-pill lp-pill-free">{ui.freePill}</span>{ui.freeGroup}</h3>
-            <div className="lp-feature-grid">
-              {free.map((f) => {
-                const Icon = ICONS[f.icon];
-                return (
-                  <div className="lp-feature" key={f.title}>
-                    <span className="lp-feature-icon"><Icon aria-hidden="true" /></span>
-                    <div><h4>{f.title}</h4><p>{f.text}</p></div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <h3 className="lp-feature-group"><span className="lp-pill lp-pill-plus">{ui.plusPill}</span>{ui.plusGroup}</h3>
-            <div className="lp-feature-grid">
-              {plus.map((f) => {
-                const Icon = ICONS[f.icon];
-                return (
-                  <div className="lp-feature lp-feature-plus" key={f.title}>
-                    <span className="lp-feature-icon"><Icon aria-hidden="true" /></span>
-                    <div><h4>{f.title}</h4><p>{f.text}</p></div>
-                  </div>
-                );
-              })}
-            </div>
+            {top.length > 0 ? (
+              <>
+                <div className="lp-feature-grid lp-feature-top">{top.map((f) => featureCard(f, true))}</div>
+                <details className="lp-all-features">
+                  <summary>{ui.seeAll}</summary>
+                  {allFeatures}
+                </details>
+              </>
+            ) : allFeatures}
             <div className="lp-center lp-features-cta">
               <a href={register} className="btn-primary lp-btn-big" data-cta={cta('features')}>{page.cta}</a>
             </div>

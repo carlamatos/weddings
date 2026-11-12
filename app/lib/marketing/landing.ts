@@ -11,6 +11,9 @@ export type LandingFeature = {
   title: string;
   text: string;
   plus?: boolean; // a Plus feature (one-time payment); otherwise free
+  // Shown up front. When a page marks any, only these show at first and the
+  // full list opens from "See everything"; otherwise every feature shows.
+  top?: boolean;
 };
 
 export type LandingIcon =
@@ -53,10 +56,10 @@ export const LANDING_PAGES: LandingPage[] = [
     },
     cta: 'Create my free wedding page',
     hero: {
-      badge: 'Free wedding websites — sign up in seconds',
+      badge: 'One payment for extras, never a subscription',
       tagline: 'A page as beautiful as your day.',
       headline: 'Your wedding website, ready in minutes.',
-      sub: 'Pick a stunning template, add your names and date, and share one link with every guest. RSVPs, your schedule, the venue, photos and more, all in one place.',
+      sub: 'Share one link and every guest can RSVP in seconds, in English, Spanish or French. Start free. If you want the extras, pay once for your wedding, never monthly.',
     },
     templates: {
       title: 'Wedding templates your guests will remember',
@@ -77,25 +80,25 @@ export const LANDING_PAGES: LandingPage[] = [
       ],
     },
     features: {
-      title: 'Everything your wedding website needs',
+      title: 'What couples love most',
       sub: 'Start with the free plan and add Plus only if you want the extras. It’s a single payment per wedding, never a subscription.',
       items: [
-        { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Guests reply in seconds, for themselves and their plus-ones. See every answer instantly and export to a spreadsheet.' },
+        { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Guests reply in seconds, for themselves and their plus-ones. See every answer instantly and export to a spreadsheet.', top: true },
+        { icon: 'globe', title: 'English, Spanish & French', text: 'Publish your page in your family’s language, with every button and date translated.', top: true },
+        { icon: 'mail', title: 'Invitations by email, text & WhatsApp', text: 'Send beautiful invitations to your whole guest list in a few taps.', top: true },
+        { icon: 'camera', title: 'Guest photos by QR code', text: 'Put a QR code on every table. Guests upload their photos from their phones, no app needed. Free for up to 50 photos.', top: true },
         { icon: 'guests', title: 'Guest list', text: 'Import guests from a spreadsheet or your phone’s contacts and see who has replied at a glance.' },
         { icon: 'countdown', title: 'Countdown', text: 'A live countdown to the big day, right at the top of your page.' },
         { icon: 'map', title: 'Ceremony & reception details', text: 'Date, time and venue with a map and directions, so nobody gets lost.' },
         { icon: 'program', title: 'Wedding-weekend schedule', text: 'From the welcome drinks to the farewell brunch, every moment in one clear program.' },
         { icon: 'photo', title: 'Your story & photo gallery', text: 'Tell how you met and show off your engagement photos.' },
         { icon: 'palette', title: 'Every template included', text: 'Switch templates any time. Your words and photos stay put.' },
-        { icon: 'globe', title: 'English, Spanish & French', text: 'Publish your page in your family’s language, with every button and date translated.' },
         { icon: 'link', title: 'One easy link', text: 'mygala.ca/yournames. Put it in texts, invitations and your Instagram bio.' },
-        { icon: 'mail', title: 'Invitations by email, text & WhatsApp', text: 'Send beautiful invitations to your whole guest list in a few taps.' },
-        { icon: 'camera', title: 'Guest photos by QR code', text: 'Put a QR code on every table. Guests upload their photos from their phones, no app needed. Free for up to 50 photos.' },
-        { icon: 'seat', title: 'Find your table', text: 'One QR sign at the door: guests type their name and see their table. No seating chart to print.', plus: true },
+        { icon: 'seat', title: 'Find your table', text: 'One QR sign at the door: guests type their name and see their table. No seating chart to print.', plus: true, top: true },
         { icon: 'video', title: 'Livestream the ceremony', text: 'Family who can’t travel can watch live on your page.', plus: true },
         { icon: 'gift', title: 'Gift registry', text: 'Link to any registry or store, with your own note about gifts.', plus: true },
         { icon: 'music', title: 'Song requests', text: 'Guests suggest the songs that will fill the dance floor.', plus: true },
-        { icon: 'bell', title: 'Automatic reminders', text: 'Reminder emails go out before the big day, so nobody misses the shuttle.', plus: true },
+        { icon: 'bell', title: 'Automatic reminders', text: 'Reminder emails go out before the big day, so nobody misses the shuttle.', plus: true, top: true },
         { icon: 'sections', title: 'Travel, hotels & dress code', text: 'Add your own sections for anything your guests need to know.', plus: true },
         { icon: 'lock', title: 'Password-protected page', text: 'Keep your page just for the people you invite.', plus: true },
         { icon: 'domain', title: 'Your own domain', text: 'Use an address like charlotteandjames.com, with SSL set up for you.', plus: true },
@@ -119,10 +122,10 @@ export const LANDING_PAGES: LandingPage[] = [
     },
     cta: 'Create my free party page',
     hero: {
-      badge: 'Free party pages — sign up in seconds',
+      badge: 'One payment for extras, never a subscription',
       tagline: 'Every milestone deserves a little magic.',
       headline: 'Your party page, ready in minutes.',
-      sub: 'Birthdays, baby showers, quinceañeras and sweet 16s. Pick a fun template, add the details and share one link. RSVPs, the countdown, the map and the photos, all in one place.',
+      sub: 'Birthdays, baby showers, quinceañeras and sweet 16s. Share one link and guests RSVP in seconds, in English, Spanish or French. Start free. If you want the extras, pay once for your party, never monthly.',
     },
     templates: {
       title: 'Party templates that set the mood',
@@ -143,23 +146,23 @@ export const LANDING_PAGES: LandingPage[] = [
       ],
     },
     features: {
-      title: 'Everything your party page needs',
+      title: 'What hosts love most',
       sub: 'Start with the free plan and add Plus only if you want the extras. It’s a single payment per event, never a subscription.',
       items: [
-        { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Parents reply for the whole family in seconds. See every answer instantly and export to a spreadsheet.' },
+        { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Parents reply for the whole family in seconds. See every answer instantly and export to a spreadsheet.', top: true },
+        { icon: 'globe', title: 'English, Spanish & French', text: 'Perfect for bilingual families. Every button, heading and date is translated.', top: true },
+        { icon: 'mail', title: 'Invitations by email, text & WhatsApp', text: 'Send invitations to your whole guest list in a few taps.', top: true },
+        { icon: 'camera', title: 'Guest photos by QR code', text: 'Guests scan, snap and upload from their phones, no app needed. Free for up to 50 photos.', top: true },
         { icon: 'guests', title: 'Guest list', text: 'Import guests from a spreadsheet or your phone’s contacts and see who has replied at a glance.' },
         { icon: 'countdown', title: 'Countdown', text: 'A live countdown that builds the excitement.' },
         { icon: 'map', title: 'Date, venue & map', text: 'Everything guests need to find the party, with directions.' },
         { icon: 'program', title: 'Party schedule', text: 'Arrival, cake, games, the big reveal: the whole plan for the day.' },
         { icon: 'photo', title: 'Photo gallery', text: 'Share your favourite photos right on the page.' },
         { icon: 'palette', title: 'Every template included', text: 'Switch templates any time. Your words and photos stay put.' },
-        { icon: 'globe', title: 'English, Spanish & French', text: 'Perfect for bilingual families. Every button, heading and date is translated.' },
         { icon: 'link', title: 'One easy link', text: 'mygala.ca/yourparty. Easy to share in group chats and on social media.' },
-        { icon: 'mail', title: 'Invitations by email, text & WhatsApp', text: 'Send invitations to your whole guest list in a few taps.' },
-        { icon: 'gift', title: 'Registry & wish list', text: 'Link to Amazon, Babylist or any store, with your own note about gifts.', plus: true },
-        { icon: 'camera', title: 'Guest photos by QR code', text: 'Guests scan, snap and upload from their phones, no app needed. Free for up to 50 photos.' },
+        { icon: 'potluck', title: 'Potluck sign-up', text: 'Guests pick what they’ll bring, so you don’t end up with five cakes.', plus: true, top: true },
+        { icon: 'gift', title: 'Registry & wish list', text: 'Link to Amazon, Babylist or any store, with your own note about gifts.', plus: true, top: true },
         { icon: 'music', title: 'Song requests', text: 'Guests suggest songs for the DJ before the party.', plus: true },
-        { icon: 'potluck', title: 'Potluck sign-up', text: 'Guests pick what they’ll bring, so you don’t end up with five cakes.', plus: true },
         { icon: 'bell', title: 'Automatic reminders', text: 'Reminder emails go out before the party, so nobody forgets.', plus: true },
         { icon: 'video', title: 'Livestream', text: 'Faraway family can watch the big moments live.', plus: true },
         { icon: 'sections', title: 'Your own sections', text: 'Add dress code, parking, the theme or anything else guests should know.', plus: true },
@@ -194,6 +197,7 @@ export type LandingUi = {
   steps: [string, string][];
   stepsCta: string;
   featuresEyebrow: string; freePill: string; plusPill: string; freeGroup: string; plusGroup: string;
+  seeAll: string; // opens the full feature list on a page that marks top features
   faqTitle: string; finalNote: string; stickyNote: string;
 };
 
@@ -217,6 +221,7 @@ export const LANDING_UI: Record<'en' | 'fr', LandingUi> = {
     stepsCta: 'Start step 1 — it’s free',
     featuresEyebrow: 'Features', freePill: 'Free', plusPill: 'Plus', freeGroup: 'Included when you sign up',
     plusGroup: `Optional extras, one payment of ${PLAN_PRICE_PLUS_TAX}`,
+    seeAll: 'See everything MyGala does',
     faqTitle: 'Questions? We’ve got answers.', finalNote: 'Free to sign up · No credit card', stickyNote: 'Free · No credit card',
   },
   fr: {
@@ -238,6 +243,7 @@ export const LANDING_UI: Record<'en' | 'fr', LandingUi> = {
     stepsCta: 'Commencer l’étape 1, c’est gratuit',
     featuresEyebrow: 'Fonctionnalités', freePill: 'Gratuit', plusPill: 'Plus', freeGroup: 'Inclus dès l’inscription',
     plusGroup: `Extras optionnels, un seul paiement de ${PLAN_ONE_TIME_PRICE.toFixed(2).replace('.', ',')} $ CA + taxes`,
+    seeAll: 'Voir tout ce que MyGala offre',
     faqTitle: 'Des questions? Voici les réponses.', finalNote: 'Inscription gratuite · Sans carte de crédit', stickyNote: 'Gratuit · Sans carte de crédit',
   },
 };
@@ -254,10 +260,10 @@ export const WEDDING_LANDING_FR: LandingPage = {
   },
   cta: 'Créer mon site de mariage gratuit',
   hero: {
-    badge: 'Sites de mariage gratuits, inscription en quelques secondes',
+    badge: 'Un seul paiement pour les extras, jamais d’abonnement',
     tagline: 'Une page aussi belle que votre journée.',
     headline: 'Votre site de mariage, prêt en quelques minutes.',
-    sub: 'Choisissez un magnifique modèle, ajoutez vos noms et la date, et partagez un seul lien avec tous vos invités. RSVP, programme, lieu, photos et plus encore, tout au même endroit, en français.',
+    sub: 'Partagez un seul lien et tous vos invités répondent en quelques secondes, en français, en anglais ou en espagnol. Commencez gratuitement. Pour les extras, payez une seule fois pour votre mariage, jamais chaque mois.',
   },
   templates: {
     title: 'Des modèles de mariage dont vos invités se souviendront',
@@ -278,25 +284,25 @@ export const WEDDING_LANDING_FR: LandingPage = {
     ],
   },
   features: {
-    title: 'Tout ce qu’il faut pour votre site de mariage',
+    title: 'Ce que les couples préfèrent',
     sub: 'Commencez avec le forfait gratuit et ajoutez Plus seulement si vous voulez les extras. Un seul paiement par mariage, jamais d’abonnement.',
     items: [
-      { icon: 'rsvp', title: 'RSVP avec nombre d’invités', text: 'Vos invités répondent en quelques secondes, pour eux et leurs accompagnateurs. Voyez chaque réponse en direct et exportez-les dans un tableur.' },
+      { icon: 'rsvp', title: 'RSVP avec nombre d’invités', text: 'Vos invités répondent en quelques secondes, pour eux et leurs accompagnateurs. Voyez chaque réponse en direct et exportez-les dans un tableur.', top: true },
+      { icon: 'globe', title: 'En français, en anglais ou en espagnol', text: 'Publiez votre page dans la langue de vos familles : boutons, formulaire RSVP et dates sont traduits.', top: true },
+      { icon: 'mail', title: 'Invitations par courriel, texto et WhatsApp', text: 'Envoyez de belles invitations à toute votre liste d’invités en quelques clics.', top: true },
+      { icon: 'camera', title: 'Photos des invités par code QR', text: 'Placez un code QR sur chaque table. Vos invités téléversent leurs photos depuis leur téléphone, sans application. Gratuit jusqu’à 50 photos.', top: true },
       { icon: 'guests', title: 'Liste d’invités', text: 'Importez vos invités depuis un tableur ou les contacts de votre téléphone et voyez d’un coup d’œil qui a répondu.' },
       { icon: 'countdown', title: 'Compte à rebours', text: 'Un compte à rebours en direct jusqu’au grand jour, en haut de votre page.' },
       { icon: 'map', title: 'Cérémonie et réception', text: 'Date, heure et lieu avec carte et itinéraire, pour que personne ne se perde.' },
       { icon: 'program', title: 'Programme de la fin de semaine', text: 'Du cocktail de bienvenue au brunch du lendemain, chaque moment dans un programme clair.' },
       { icon: 'photo', title: 'Votre histoire et galerie photo', text: 'Racontez votre rencontre et montrez vos photos de fiançailles.' },
       { icon: 'palette', title: 'Tous les modèles inclus', text: 'Changez de modèle quand vous voulez. Vos textes et vos photos restent en place.' },
-      { icon: 'globe', title: 'En français, en anglais ou en espagnol', text: 'Publiez votre page dans la langue de vos familles : boutons, formulaire RSVP et dates sont traduits.' },
       { icon: 'link', title: 'Un seul lien facile', text: 'mygala.ca/vosnoms. À partager par texto, sur vos faire-part et dans votre bio Instagram.' },
-      { icon: 'mail', title: 'Invitations par courriel, texto et WhatsApp', text: 'Envoyez de belles invitations à toute votre liste d’invités en quelques clics.' },
-      { icon: 'camera', title: 'Photos des invités par code QR', text: 'Placez un code QR sur chaque table. Vos invités téléversent leurs photos depuis leur téléphone, sans application. Gratuit jusqu’à 50 photos.' },
-      { icon: 'seat', title: 'Trouvez votre table', text: 'Une affiche QR à l’entrée : vos invités tapent leur nom et voient leur table. Aucun plan de table à imprimer.', plus: true },
+      { icon: 'seat', title: 'Trouvez votre table', text: 'Une affiche QR à l’entrée : vos invités tapent leur nom et voient leur table. Aucun plan de table à imprimer.', plus: true, top: true },
+      { icon: 'bell', title: 'Rappels automatiques', text: 'Des courriels de rappel partent avant le grand jour, pour que personne ne rate la navette.', plus: true, top: true },
       { icon: 'video', title: 'Cérémonie en direct', text: 'La famille qui ne peut pas se déplacer regarde la cérémonie en direct sur votre page.', plus: true },
       { icon: 'gift', title: 'Liste de cadeaux', text: 'Un lien vers n’importe quel registre ou magasin, avec votre mot au sujet des cadeaux.', plus: true },
       { icon: 'music', title: 'Demandes de chansons', text: 'Vos invités suggèrent les chansons qui rempliront la piste de danse.', plus: true },
-      { icon: 'bell', title: 'Rappels automatiques', text: 'Des courriels de rappel partent avant le grand jour, pour que personne ne rate la navette.', plus: true },
       { icon: 'sections', title: 'Hébergement, transport et tenue', text: 'Ajoutez vos propres sections pour tout ce que vos invités doivent savoir.', plus: true },
       { icon: 'lock', title: 'Page protégée par mot de passe', text: 'Votre page, réservée aux personnes que vous invitez.', plus: true },
       { icon: 'domain', title: 'Votre propre nom de domaine', text: 'Une adresse comme camilleetolivier.com, avec certificat SSL configuré pour vous.', plus: true },
