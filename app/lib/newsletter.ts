@@ -6,9 +6,9 @@ import { COMPANY } from './company';
 import { PLAN_TERM_MONTHS } from './plans';
 
 // The MyGala newsletter (sign-up form in the marketing site's footer). New
-// subscribers get an email with a 10%-off code for Plus. The code itself is a
+// subscribers get an email with a 10%-off code for Live Party. The code itself is a
 // Stripe promotion code — create it in the Stripe dashboard with exactly this
-// name (Plus checkout already accepts promotion codes).
+// name (Live Party checkout already accepts promotion codes).
 export const NEWSLETTER_DISCOUNT_CODE = 'GALA10';
 export const NEWSLETTER_DISCOUNT_PERCENT = 10;
 
@@ -93,7 +93,7 @@ export function newsletterWelcomeHtml(email: string): string {
     <p style="${p}">Hi there,</p>
     <p style="${p}">Welcome to the MyGala newsletter. Every now and then we’ll send you new themes, ideas for your event and the occasional
     offer — never spam.</p>
-    <p style="${p}">As a thank-you, here’s <strong>${NEWSLETTER_DISCOUNT_PERCENT}% off MyGala Plus</strong> (${PLAN_TERM_MONTHS} months of invitations by email, text &amp; WhatsApp,
+    <p style="${p}">As a thank-you, here’s <strong>${NEWSLETTER_DISCOUNT_PERCENT}% off MyGala Live Party</strong> (${PLAN_TERM_MONTHS} months of invitations by email, text &amp; WhatsApp,
     guest photo uploads, reminders, a custom domain, a page password and more for one event page):</p>
     <div style="margin: 0 0 24px; padding: 18px; text-align: center; border: 2px dashed #B6584A; border-radius: 12px; background: #FBF5F3;">
       <p style="margin: 0 0 4px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #9A8F8C;">Your code</p>
@@ -111,7 +111,7 @@ export function newsletterWelcomeHtml(email: string): string {
 export async function sendNewsletterWelcome(email: string): Promise<void> {
   await sendMailBatch([{
     to: email,
-    subject: `Your ${NEWSLETTER_DISCOUNT_PERCENT}% off MyGala Plus code`,
+    subject: `Your ${NEWSLETTER_DISCOUNT_PERCENT}% off MyGala Live Party code`,
     html: newsletterWelcomeHtml(email),
     headers: {
       'List-Unsubscribe': `<${newsletterOneClickUrl(email)}>`,

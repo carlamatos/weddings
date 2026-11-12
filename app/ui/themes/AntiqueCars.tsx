@@ -632,7 +632,7 @@ export default function AntiqueCars({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-center">
             <div className="wrap">
@@ -688,7 +688,7 @@ export default function AntiqueCars({
         </Reveal>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <Reveal>
           <div id="potluck" className="rsvp-section">
             <WireWheel className="ac-wheel ac-wheel-left" />

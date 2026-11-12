@@ -1,4 +1,5 @@
 import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
+import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -181,6 +182,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, userPage.language)}
+        rsvpAskSong={isRsvpSongOn(pageSettings)}
         themeSlug={userPage.theme_slug}
         heading={userPage.heading || ''}
         description={userPage.description || undefined}

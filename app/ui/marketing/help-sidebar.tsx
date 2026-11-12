@@ -55,7 +55,7 @@ export function HelpSidebar({ guides, categories, current }: { guides: SidebarGu
               {items.map((g) => (
                 <li key={g.slug}>
                   <Link href={`/help/${g.slug}`} className={g.slug === current ? 'is-current' : undefined} aria-current={g.slug === current ? 'page' : undefined}>
-                    {g.title}{g.plan && <span className="hc-plus">Plus</span>}
+                    {g.title}{g.plan && <span className="hc-plus">Live Party</span>}
                   </Link>
                 </li>
               ))}

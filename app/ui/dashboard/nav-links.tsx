@@ -24,9 +24,9 @@ type NavItem = { name: keyof DashText['screens']; section: string; icon: typeof 
 // Grouped by what the host is doing: building the page, looking after the
 // guests, running the day itself, planning (budget and timeline), and the
 // page's settings. On a free page,
-// Plus sections (PLUS_FEATURES) carry a small gold sparkle — or, when a
-// whole group is Plus, the group's heading carries one "Plus" mark instead.
-// They open and can be set up fully, and ask for Plus only when they're
+// Live Party sections (PLUS_FEATURES) carry a small gold sparkle — or, when a
+// whole group is Live Party, the group's heading carries one "Live Party" mark instead.
+// They open and can be set up fully, and ask for Live Party only when they're
 // turned on for guests.
 const GROUPS: { title: keyof DashText['navGroups']; links: NavItem[] }[] = [
   {
@@ -44,7 +44,7 @@ const GROUPS: { title: keyof DashText['navGroups']; links: NavItem[] }[] = [
     links: [
       // Guest List and RSVP are one screen now, and so are Invitations and
       // Share (/rsvp and /share forward to them). Reminders stays its own:
-      // it's a Plus feature.
+      // it's a Live Party feature.
       { name: 'guestList', section: '/guest-list', icon: UsersIcon },
       { name: 'invitations', section: '/invitations', icon: EnvelopeIcon },
       { name: 'reminders', section: '/reminders', icon: BellAlertIcon },
@@ -116,7 +116,7 @@ export default function NavLinks({
         <Icon />
         {d.screens[link.name]}
         {on ? <span className="dash-nav-tag dash-nav-tag--on">{d.navLinks.on}</span>
-          : plus && !groupIsPlus ? <SparklesIcon className="dash-nav-sparkle" aria-label="Plus" />
+          : plus && !groupIsPlus ? <SparklesIcon className="dash-nav-sparkle" aria-label="Live Party" />
           : freeHook ? <span className="dash-nav-tag dash-nav-tag--free">{FREE_GUEST_PHOTO_LIMIT} {d.navLinks.free}</span>
           : null}
       </Link>
@@ -139,7 +139,7 @@ export default function NavLinks({
           <div className="dash-nav-section" key={group.title}>
             <p className="dash-nav-group">
               {d.navGroups[group.title]}
-              {groupIsPlus && <span className="dash-nav-group-plus"><SparklesIcon aria-hidden="true" />Plus</span>}
+              {groupIsPlus && <span className="dash-nav-group-plus"><SparklesIcon aria-hidden="true" />Live Party</span>}
             </p>
             {group.links.map((link) => item(link, groupIsPlus))}
           </div>

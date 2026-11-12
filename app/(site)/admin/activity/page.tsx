@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
 const TZ = 'America/Vancouver';
 const JOBS: { job: string; what: string; when: string }[] = [
   { job: 'setup-reminders', what: 'Follow-up emails to new hosts', when: 'Daily, 7–8 am Pacific' },
-  { job: 'reminders', what: 'Guest reminder emails (Plus)', when: 'Every hour' },
+  { job: 'reminders', what: 'Guest reminder emails (Live Party)', when: 'Every hour' },
   { job: 'plan-reminders', what: 'RSVP timeline and budget reminders to hosts', when: 'Daily, 6–7 am Pacific' },
   { job: 'purge-deleted-pages', what: 'Empties pages 30 days in the trash', when: 'Daily, 1–2 am Pacific' },
 ];
@@ -57,6 +57,7 @@ export default async function AdminActivityPage() {
   await getSuperAdmin();
   let hosts: HostRow[] = [];
   let runs: CronRunRow[] = [];
+  let pages: { month: string; event_type: string | null; upgraded: boolean; email: string }[] = [];
   let error: string | null = null;
   try {
     await ensureVisitColumns();
@@ -77,6 +78,15 @@ export default async function AdminActivityPage() {
       `, [FOLLOW_UP_SETTING]),
       fetchCronRuns(),
     ]);
+    // Live Party upgrades: every page made in the last 12 months, and whether
+    // it was ever paid (paid now, or an expiry date left from a past term).
+    const pg = await sql.query<{ month: string; event_type: string | null; upgraded: boolean; email: string }>(`
+      SELECT to_char(p.created_at, 'YYYY-MM') AS month, p.event_type,
+             (p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL) AS upgraded, u.email
+      FROM user_page p JOIN users u ON u.id = p.user_id
+      WHERE p.created_at >= (NOW() AT TIME ZONE 'UTC') - interval '12 months'
+    `);
+    pages = pg.rows.filter((r) => !isSuperAdmin(r.email));
     hosts = h.rows.filter((u) => !isSuperAdmin(u.email));
     runs = r;
   } catch (e) {
@@ -93,6 +103,19 @@ export default async function AdminActivityPage() {
     { n: `${cameBack.length} of ${tracked.length}`, label: 'Came back for a 2nd visit or more' },
     { n: hosts.filter((u) => u.follow_up).length, label: 'Follow-up emails sent' },
   ];
+  // Upgrade rate overall, by the month pages were made, and by event type.
+  const rate = (rows: typeof pages) => {
+    const up = rows.filter((r) => r.upgraded).length;
+    return { made: rows.length, up, pct: rows.length ? Math.round((up / rows.length) * 1000) / 10 : 0 };
+  };
+  const group = (key: (r: (typeof pages)[number]) => string) => {
+    const m = new Map<string, typeof pages>();
+    for (const r of pages) m.set(key(r), [...(m.get(key(r)) ?? []), r]);
+    return [...m.entries()].map(([k, rows]) => ({ k, ...rate(rows) }));
+  };
+  const overall = rate(pages);
+  const byMonth = group((r) => r.month).sort((a, b) => b.k.localeCompare(a.k));
+  const byType = group((r) => r.event_type || 'Other').sort((a, b) => b.made - a.made);
   const tracking = hosts.reduce<Date | null>((min, u) => (u.first_dashboard_at && (!min || new Date(u.first_dashboard_at) < min) ? new Date(u.first_dashboard_at) : min), null);
 
   return (
@@ -111,6 +134,27 @@ export default async function AdminActivityPage() {
           <div key={card.label} style={{ background: '#fff', border: `1px solid ${c.line}`, borderRadius: 12, padding: '14px 16px' }}>
             <div style={{ fontSize: 24, fontWeight: 700 }}>{card.n}</div>
             <div style={{ fontSize: 12, color: c.soft, marginTop: 2 }}>{card.label}</div>
+          </div>
+        ))}
+      </div>
+
+      <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Live Party upgrades</h2>
+      <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
+        Of the event pages made in the last 12 months, how many were ever upgraded to Live Party (paid now, or paid for a past term).
+        <strong> {overall.up} of {overall.made} ({overall.pct}%)</strong>.
+      </p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
+        {[{ title: 'By month the page was made', rows: byMonth }, { title: 'By event type', rows: byType }].map((t) => (
+          <div key={t.title} style={tableWrap}>
+            <table style={table}>
+              <thead><tr><th style={th}>{t.title}</th><th style={th}>Pages</th><th style={th}>Upgraded</th><th style={th}>Rate</th></tr></thead>
+              <tbody>
+                {t.rows.length === 0 && <tr><td style={td} colSpan={4}>No pages yet.</td></tr>}
+                {t.rows.map((r) => (
+                  <tr key={r.k}><td style={td}>{r.k}</td><td style={td}>{r.made}</td><td style={td}>{r.up}</td><td style={td}>{r.pct}%</td></tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         ))}
       </div>

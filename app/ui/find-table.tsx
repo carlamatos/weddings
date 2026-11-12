@@ -8,7 +8,7 @@ const MINUTE_MS = 60 * 1000;
 
 type Outcome = { kind: 'none' } | { kind: 'message'; text: string } | { kind: 'found'; lookup: SeatLookup };
 
-// <page>/table (Find Your Table, Plus): the guest types their name and sees
+// <page>/table (Find Your Table, Live Party): the guest types their name and sees
 // their table. A plain form (GET ?name=), so it works the moment the page
 // opens from the QR sign, on any phone. Only matching guests' names and
 // tables are shown, and nothing when the name is too common.
@@ -19,7 +19,7 @@ export default async function FindTable({
   heading: string;
   bannerImage?: string;
   t: Translations;
-  on: boolean; // switched on, on a Plus page
+  on: boolean; // switched on, on a Live Party page
   isOwner: boolean; // the owner can try it before it's on
   backHref: string;
   query: string;

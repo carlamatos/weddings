@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isRsvpSongOn, RSVP_SONG_MAX } from '@/app/lib/rsvp-song';
 import { GIFT_MAX_PARTICIPANTS, GIFT_NAME_MAX, GIFT_WISHLIST_MAX, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
@@ -17,7 +18,7 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals, joinGiftExchange, giftIdeas } = body;
+    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals, joinGiftExchange, giftIdeas, song } = body;
 
     // Honeypot: bots fill hidden fields, real users don't
     if (honeypot) {
@@ -146,6 +147,20 @@ export async function POST(request: Request) {
           NOW()
         )
       `;
+    }
+
+    // The free song question: saved as a song request, so the host sees it
+    // in Song Requests. Never fails the RSVP.
+    const songText = typeof song === 'string' ? song.trim().slice(0, RSVP_SONG_MAX) : '';
+    if (songText && status === 'attending' && isRsvpSongOn(settings)) {
+      try {
+        await sql`
+          INSERT INTO guests_songs (user_page_id, requester_name, song_title, artist, ip_address)
+          VALUES (${pageId}, ${name.trim().slice(0, 120)}, ${songText}, '', ${clientIp(request.headers)})
+        `;
+      } catch (songErr) {
+        console.error('RSVP song request failed:', songErr);
+      }
     }
 
     // "Count me in for the gift exchange": an attending guest joins the

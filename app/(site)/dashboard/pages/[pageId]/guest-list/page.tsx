@@ -7,6 +7,8 @@ import { RsvpNotifyOption } from '@/app/ui/dashboard/rsvp-notify-option';
 import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
 import { RsvpGuestListOption } from '@/app/ui/dashboard/rsvp-guest-list-option';
 import { RsvpMealsOption } from '@/app/ui/dashboard/rsvp-meals-option';
+import { RsvpSongOption } from '@/app/ui/dashboard/rsvp-song-option';
+import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import { MealSummaryCard, type MealRow } from '@/app/ui/dashboard/meal-summary';
 import { defaultMeals, MEAL_OPTIONS_SETTING, mealOptionsFromSettings, parseMealOptions, personName, readPartyMeals, summarizeMeals } from '@/app/lib/rsvp-meals';
 import { rsvpCalculatorHref } from '@/app/ui/dashboard/planning-tool-tip';
@@ -137,6 +139,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
           guestCount={guests.length}
           guestListHref={pagePath(pageId, '/guest-list')}
         />
+        <RsvpSongOption pageId={pageId} initialOn={isRsvpSongOn(settings)} />
         <RsvpMealsOption
           pageId={pageId}
           initialOn={!!mealOptions}

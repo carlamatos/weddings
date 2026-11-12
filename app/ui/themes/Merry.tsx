@@ -774,7 +774,7 @@ export default function Merry({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section, i) => (
+      {customSections?.map((section, i) => (
         <Reveal key={`custom-${section.position}`}>
           <div className={`section section-center${i % 2 ? '' : ' section-cream'}`}>
             <div className="wrap">
@@ -838,7 +838,7 @@ export default function Merry({
       )}
 
       {/* POTLUCK (Plus, off by default) — plain deep teal */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <Reveal className="mr-card">
             <Seal />

@@ -15,7 +15,7 @@ export const HELP_CATEGORIES: HelpCategory[] = [
   { id: 'day', title: 'On the day', text: 'Guest photos, the photo slideshow, Find Your Table, the livestream and song requests.' },
   { id: 'planning', title: 'Planning', text: 'Your budget, your timeline and plans saved from the free tools.' },
   { id: 'extras', title: 'More sections', text: 'Registry, sponsors, potluck, gift exchange and your own sections.' },
-  { id: 'account', title: 'Plans and your account', text: 'Plus, more than one event, and after the event.' },
+  { id: 'account', title: 'Plans and your account', text: 'Live Party, more than one event, and after the event.' },
 ];
 
 export type HelpGuide = {
@@ -23,7 +23,7 @@ export type HelpGuide = {
   category: string;
   title: string; // the question, as hosts ask it
   summary: string; // one line for the list and the meta description
-  plan?: 'Plus';
+  plan?: 'Live Party';
   intro?: string;
   steps: string[];
   tips?: string[];
@@ -44,7 +44,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     steps: [
       'Sign up free with your email, Google, Apple or Facebook.',
       'Choose your type of event and give it a name. Pick the address you’d like, for example mygala.ca/emma-and-liam.',
-      'Choose **Free** or **Plus**. You can start free and upgrade later; nothing you set up is lost.',
+      'Choose **Free** or **Live Party**. You can start free and upgrade later; nothing you set up is lost.',
       'Your page opens in the dashboard with a theme picked for you. The checklist at the top of the menu shows what to add next.',
     ],
     tips: [
@@ -65,7 +65,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       'Add the **date, time and place**. For an online event, choose a virtual location and paste your meeting link.',
       'Click the top banner to upload your own photo, or keep the theme’s artwork.',
       'Write a **welcome message**: a few lines about your event and what guests should know.',
-      'Add photos to your **gallery**: up to 8 on the free plan, up to 100 with Plus.',
+      'Add photos to your **gallery**: up to 8 on the free plan, up to 100 with Live Party.',
       'Click **Preview page** to see exactly what guests will see.',
     ],
     tips: [
@@ -278,7 +278,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'guests',
     title: 'How do I send reminder emails to guests?',
     summary: 'Pick when reminders go out and MyGala sends them automatically.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Guests who RSVP with an email address and leave **receive event updates** ticked join your reminder list.',
       'Choose **Reminders** in the left menu.',
@@ -295,7 +295,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'guests',
     title: 'Can I make my page private?',
     summary: 'Add a password so only guests who have it can open your page.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Choose **Password** in the left menu.',
       'Pick a password that’s easy to share and type (at least 4 characters) and switch protection on.',
@@ -314,7 +314,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     title: 'How do guests share their photos?',
     summary: 'Print a QR code for your tables; guests scan it and upload photos from their phones.',
     steps: [
-      'Choose **Guest Photos** in the left menu and switch the section on. Free pages hold up to 50 photos; Plus pages up to 500.',
+      'Choose **Guest Photos** in the left menu and switch the section on. Free pages hold up to 50 photos; Live Party pages up to 500.',
       'Under **QR code for your tables**, edit the title and message, then pick 4 table cards or 1 large sign.',
       'Click **Print QR code**, or **Download PNG** to use the code in your own design. Test it with your phone first.',
       'Put the cards on the tables. Guests scan, upload, and every photo appears on your page’s photo wall.',
@@ -330,7 +330,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'day',
     title: 'How do I show guests’ photos on a screen?',
     summary: 'Play a live slideshow of your guests’ photos on a TV or projector, with new photos appearing as they’re shared.',
-    plan: 'Plus',
+    plan: 'Live Party',
     intro: 'The photo slideshow plays every photo your guests share, full screen, and adds new ones as they arrive. A QR code in the corner invites everyone else to add theirs.',
     steps: [
       'Make sure **Guest Photos** is switched on, so guests can share their photos.',
@@ -341,7 +341,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     tips: [
       'Move the mouse to pause, go back, or choose how long each photo stays on screen: 5, 8 or 12 seconds.',
       'Delete a photo in **Guest Photos** and it leaves the slideshow within a few seconds.',
-      'You can try the slideshow before upgrading. Only you can see it until the event is on Plus.',
+      'You can try the slideshow before upgrading. Only you can see it until the event is on Live Party.',
     ],
     dashboard: { label: 'Open Photo Slideshow', path: '/dashboard/slideshow' },
     feature: 'live-photo-slideshow',
@@ -352,7 +352,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'day',
     title: 'How do guests find their table?',
     summary: 'Seat your guests, print a QR sign, and guests look up their table on their phone.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Add your guests in **Guests & RSVPs**: guests look up their table by the name on your list.',
       'Open **Find Your Table**, create your tables and drag your guests onto them, or use the list to type tables or paste your chart from a spreadsheet.',
@@ -360,7 +360,7 @@ export const HELP_GUIDES: HelpGuide[] = [
       'Print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG.',
       'Scan it with your phone to test, then put it at the entrance, the welcome table or the bar.',
     ],
-    tips: ['You can seat everyone before upgrading. Only the guest lookup needs Plus.'],
+    tips: ['You can seat everyone before upgrading. Only the guest lookup needs Live Party.'],
     videoFrom: 'find-your-table',
     dashboard: { label: 'Open Find Your Table', path: '/dashboard/seating' },
     feature: 'find-your-table',
@@ -371,7 +371,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'day',
     title: 'How do I livestream my event?',
     summary: 'Show a YouTube, Vimeo, Twitch or Facebook stream on your page, or link to Zoom or Meet.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Schedule your stream on YouTube, Vimeo, Twitch, Facebook, Zoom or another service, and copy its link or embed code.',
       'Choose **Live Stream** in the left menu.',
@@ -388,7 +388,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'day',
     title: 'Can guests request songs?',
     summary: 'Guests suggest songs on your page and you share the list with your DJ or band.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Choose **Song Requests** in the left menu and switch the section on.',
       'Guests add the songs they’d love to hear right on your page.',
@@ -446,7 +446,6 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'extras',
     title: 'How do I add a gift registry?',
     summary: 'Link to your registry on Amazon, Babylist, a store or your own page.',
-    plan: 'Plus',
     steps: [
       'Choose **Registry** in the left menu.',
       'Paste your **registry link**: Amazon, Babylist, a store or your own page.',
@@ -461,7 +460,6 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'extras',
     title: 'How do I add my own sections?',
     summary: 'Add sections for anything: travel, hotels, dress code, your story or FAQs.',
-    plan: 'Plus',
     steps: [
       'Choose **Custom Sections** in the left menu.',
       'Give the section a title, then add text and image blocks and put them in order.',
@@ -477,7 +475,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'extras',
     title: 'How do I thank sponsors on my page?',
     summary: 'Show your sponsors with their name, logo and a short thank-you.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Choose **Sponsors** in the left menu.',
       'Click **Add a sponsor** and add their name, logo and a short description.',
@@ -491,7 +489,6 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'extras',
     title: 'How do I organize a potluck?',
     summary: 'Guests sign up for what they’re bringing when they RSVP.',
-    plan: 'Plus',
     steps: [
       'Choose **Potluck** in the left menu and switch the section on.',
       'Turn on **Show everyone’s entries on your page** if guests should see what others are bringing.',
@@ -524,7 +521,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     category: 'extras',
     title: 'Can I use my own domain?',
     summary: 'Connect a domain you own, like emmaandliam.com, with two DNS records.',
-    plan: 'Plus',
+    plan: 'Live Party',
     steps: [
       'Register a domain at any registrar. Many cost about $10–20 per year.',
       'Choose **Domain** in the left menu and enter your domain.',
@@ -541,17 +538,17 @@ export const HELP_GUIDES: HelpGuide[] = [
   {
     slug: 'upgrade-to-plus',
     category: 'account',
-    title: 'What does Plus add, and how do I upgrade?',
+    title: 'What does Live Party add, and how do I upgrade?',
     summary: 'A one-time payment per event page that unlocks reminders, Find Your Table and more.',
-    intro: 'Plus is a one-time payment of $49.99 CAD (plus applicable tax) per event page. It’s not a subscription: nothing renews and no card is kept on file. It lasts 15 months.',
+    intro: 'Live Party is a one-time payment of $49.99 CAD (plus applicable tax) per event page. It’s not a subscription: nothing renews and no card is kept on file. It lasts 12 months.',
     steps: [
-      'Set up any Plus feature on your free page first. They’re marked with a small sparkle in the menu, and only showing them to guests needs Plus.',
-      'Click **Upgrade to Plus** from your dashboard or from Event pages.',
-      'Pay securely with Stripe. Plus features switch on straight away, and anything you were turning on goes live.',
+      'Set up any Live Party feature on your free page first. They’re marked with a small sparkle in the menu, and only showing them to guests needs Live Party.',
+      'Click **Upgrade to Live Party** from your dashboard or from Event pages.',
+      'Pay securely with Stripe. Live Party features switch on straight away, and anything you were turning on goes live.',
     ],
     tips: [
-      'Plus adds automatic reminders, Find Your Table, the livestream, song requests, custom sections, sponsors, the registry, password protection, your own domain, up to 500 guest photos and a 100-photo gallery.',
-      'When the 15 months end, your page stays online on the free plan unless you extend Plus.',
+      'Live Party adds the photo slideshow, automatic reminders, Find Your Table, the livestream, song requests, sponsors, password protection, your own domain, up to 500 guest photos and a 100-photo gallery. Custom sections, the registry, potluck and the Secret Santa are free.',
+      'When the 12 months end, your page stays online on the free plan unless you extend Live Party.',
       'Compare the plans on the [pricing page](/pricing).',
     ],
     dashboard: { label: 'Go to your dashboard', path: '/dashboard' },
@@ -565,7 +562,7 @@ export const HELP_GUIDES: HelpGuide[] = [
     steps: [
       'Your dashboard opens on **Event pages**, with every event you’ve made.',
       'Create a new event at any time. Each one has its own address, guest list and settings.',
-      'Choose an event to open its menu. Each event is free or Plus on its own.',
+      'Choose an event to open its menu. Each event is free or Live Party on its own.',
     ],
     dashboard: { label: 'See your event pages', path: '/dashboard' },
     related: ['create-your-event-page', 'upgrade-to-plus'],

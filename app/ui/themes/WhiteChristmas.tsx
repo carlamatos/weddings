@@ -611,7 +611,7 @@ export default function WhiteChristmas({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-white section-center">
             <div className="wrap">
@@ -671,7 +671,7 @@ export default function WhiteChristmas({
         </div>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <div className="wx-snow-layer far" aria-hidden="true" />
           <div className="wx-snow-layer near" aria-hidden="true" />

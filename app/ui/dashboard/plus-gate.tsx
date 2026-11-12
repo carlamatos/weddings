@@ -9,7 +9,7 @@ import { startPlusCheckout } from './upgrade-button';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
-// Plus on a free page: hosts set every Plus feature up fully, and only the
+// Live Party on a free page: hosts set every Live Party feature up fully, and only the
 // step that reaches guests (turning a section on, sending, connecting a
 // domain) asks them to upgrade — by then the upgrade finishes their work
 // instead of selling them something. usePlus().ask(section) opens that ask.
@@ -93,7 +93,7 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
   );
 }
 
-// At the top of a Plus screen on a free page: it's all usable, and when it
+// At the top of a Live Party screen on a free page: it's all usable, and when it
 // goes live. Nothing on a paid page.
 export function PlusSetupNote({ section }: { section: string }) {
   const d = useDashText();
@@ -103,7 +103,7 @@ export function PlusSetupNote({ section }: { section: string }) {
   const feature = PLUS_FEATURES[section];
   return (
     <div className="dash-plus-note">
-      <span className="dash-plus-badge">Plus</span>
+      <span className="dash-plus-badge">Live Party</span>
       <p>
         {expired ? <strong>{d.plusGate.yourPlusTermHasEnded} </strong> : <strong>{d.plusGate.setItAllUpNow} </strong>}
         {feature?.setting
@@ -122,7 +122,7 @@ export function PlusSetupNote({ section }: { section: string }) {
   );
 }
 
-// A small lock for a button that needs Plus on a free page.
+// A small lock for a button that needs Live Party on a free page.
 export function PlusLock() {
   const d = useDashText();
   const { paid } = usePlus();

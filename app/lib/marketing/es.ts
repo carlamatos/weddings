@@ -140,8 +140,8 @@ export const ES_HOME = {
     { q: '¿Mi página y mis invitaciones pueden estar en español?', a: 'Sí. Elige Español en el menú de idioma y todo lo que MyGala escribe en tu página cambia: los títulos, los botones, el formulario de confirmación, las fechas, la cuenta regresiva y los recordatorios por correo. Tus propios textos se muestran tal como los escribes.' },
     { q: '¿El panel de MyGala está en español?', a: 'Por ahora, el panel donde preparas tu página está en inglés. Es muy visual y fácil de usar, y nuestros videos en español te muestran cada paso. Lo que ven tus invitados sí está en español.' },
     { q: '¿Mis invitados necesitan una cuenta o una aplicación?', a: 'No. Tus invitados solo abren tu enlace para confirmar su asistencia, ver los detalles o subir sus fotos. No tienen que registrarse ni instalar nada.' },
-    { q: '¿Qué pasa con mi página después del evento?', a: `Se queda en línea como recuerdo. Las páginas gratis siguen visibles, y las páginas Plus tienen todas las funciones durante ${PLAN_TERM_MONTHS} meses desde tu compra.` },
-    { q: '¿Plus es una suscripción?', a: `No. Es un solo pago de ${ES_PRICE} más impuestos por evento, que desbloquea todas las funciones durante ${PLAN_TERM_MONTHS} meses. Sin cargos recurrentes y sin guardar tu tarjeta.` },
+    { q: '¿Qué pasa con mi página después del evento?', a: `Se queda en línea como recuerdo. Las páginas gratis siguen visibles, y las páginas Live Party tienen todas las funciones durante ${PLAN_TERM_MONTHS} meses desde tu compra.` },
+    { q: '¿Live Party es una suscripción?', a: `No. Es un solo pago de ${ES_PRICE} más impuestos por evento, que desbloquea todas las funciones durante ${PLAN_TERM_MONTHS} meses. Sin cargos recurrentes y sin guardar tu tarjeta.` },
   ] satisfies Faq[],
   themes: [
     { slug: 'alegria', name: 'Alegría', desc: 'Rosa, lila y dorado. Romántico y alegre, pensado para quinceañeras y dulces dieciséis.' },
@@ -192,9 +192,9 @@ export const ES_QUINCE = {
   faqs: [
     { q: '¿Puedo poner la misa y la fiesta en la misma página?', a: 'Sí. Agrega cada momento al programa del evento, con su hora y su lugar, y tus invitados ven el mapa y las indicaciones de cada uno.' },
     { q: '¿Mis invitados pueden confirmar cuántas personas vienen?', a: 'Sí. Al confirmar, cada invitado dice si viene y con cuántas personas, y tú lo ves todo en tu lista de invitados.' },
-    { q: '¿Puedo presentar a mi corte de honor?', a: 'Sí. Con Plus puedes agregar tus propias secciones, con texto y fotos, para presentar a tus damas, chambelanes y padrinos.' },
+    { q: '¿Puedo presentar a mi corte de honor?', a: 'Sí. Con Live Party puedes agregar tus propias secciones, con texto y fotos, para presentar a tus damas, chambelanes y padrinos.' },
     { q: '¿La página puede estar en español y en inglés?', a: 'Tu página se muestra en el idioma que elijas, y tus propios textos se muestran tal como los escribes. Muchas familias escriben sus textos en los dos idiomas para sus invitados.' },
-    { q: '¿Cuánto cuesta?', a: `Crear tu página, enviar invitaciones y recibir confirmaciones es gratis. Plus, con todas las funciones (mesas, transmisión en vivo, secciones propias y hasta 500 fotos), es un solo pago de ${ES_PRICE} más impuestos por evento.` },
+    { q: '¿Cuánto cuesta?', a: `Crear tu página, enviar invitaciones y recibir confirmaciones es gratis. Live Party, con todo para el día de la fiesta (mesas, presentación de fotos, transmisión en vivo y hasta 500 fotos), es un solo pago de ${ES_PRICE} más impuestos por evento.` },
   ] satisfies Faq[],
 };
 
@@ -208,7 +208,7 @@ export type EsFeature = {
   title: string;
   text: string;
   bullets: string[];
-  plan: 'Gratis' | 'Plus';
+  plan: 'Gratis' | 'Live Party';
   video: EsVideoKey;
 };
 
@@ -235,10 +235,10 @@ export const ES_FEATURES = {
       id: 'fotos', short: 'Fotos con código QR', kicker: 'El gran día', plan: 'Gratis', video: 'fotos',
       title: 'Las fotos de tus invitados, con un código QR',
       text: 'Imprime tarjetas con código QR para cada mesa. Tus invitados escanean el código y suben sus fotos desde su teléfono, y tú las descargas todas con un clic.',
-      bullets: ['Sin aplicación y sin cuenta', 'Gratis hasta 50 fotos, y hasta 500 con Plus', 'Un muro de fotos en tu página'],
+      bullets: ['Sin aplicación y sin cuenta', 'Gratis hasta 50 fotos, y hasta 500 con Live Party', 'Un muro de fotos en tu página'],
     },
     {
-      id: 'mesas', short: 'Find Your Table', kicker: 'El gran día', plan: 'Plus', video: 'mesas',
+      id: 'mesas', short: 'Find Your Table', kicker: 'El gran día', plan: 'Live Party', video: 'mesas',
       title: 'Find Your Table: cada invitado encuentra su mesa',
       text: 'Acomoda a tus invitados en un plano de mesas, o pégalo desde una hoja de cálculo. En la entrada, tus invitados escanean un letrero, escriben su nombre y ven su mesa.',
       bullets: ['Arrastra y suelta a tus invitados', 'Cambios al instante, nada que reimprimir', 'Cada invitado ve solo su mesa'],
@@ -255,14 +255,14 @@ export const ES_FEATURES = {
     { icon: 'rsvp', title: 'Confirmación de asistencia', text: 'Tus invitados confirman con un toque y dicen cuántos vienen.', plan: 'Gratis' },
     { icon: 'guests', title: 'Lista de invitados', text: 'Importa tu lista desde una hoja de cálculo o tus contactos.', plan: 'Gratis' },
     { icon: 'program', title: 'Programa del evento', text: 'La ceremonia, la recepción y cada momento, con hora y lugar.', plan: 'Gratis' },
-    { icon: 'bell', title: 'Recordatorios por correo', text: 'Un mes, una semana o un día antes, en el idioma de tu página.', plan: 'Plus' },
-    { icon: 'video', title: 'Transmisión en vivo', text: 'Para que la familia que está lejos no se pierda nada.', plan: 'Plus' },
-    { icon: 'music', title: 'Peticiones de canciones', text: 'Tus invitados piden y votan las canciones de la pista de baile.', plan: 'Plus' },
-    { icon: 'potluck', title: 'Lista de platillos', text: 'Cada invitado se anota con lo que va a llevar a la fiesta.', plan: 'Plus' },
-    { icon: 'sections', title: 'Secciones propias y padrinos', text: 'Hospedaje, código de vestimenta, tu corte de honor y tus padrinos.', plan: 'Plus' },
-    { icon: 'gift', title: 'Mesa de regalos', text: 'Comparte tu mesa de regalos o tu lluvia de sobres.', plan: 'Plus' },
-    { icon: 'lock', title: 'Página con contraseña', text: 'Solo tus invitados pueden ver los detalles de tu evento.', plan: 'Plus' },
-    { icon: 'domain', title: 'Tu propio dominio', text: 'Usa tu propia dirección, como sofiaxv.com.', plan: 'Plus' },
+    { icon: 'bell', title: 'Recordatorios por correo', text: 'Un mes, una semana o un día antes, en el idioma de tu página.', plan: 'Live Party' },
+    { icon: 'video', title: 'Transmisión en vivo', text: 'Para que la familia que está lejos no se pierda nada.', plan: 'Live Party' },
+    { icon: 'music', title: 'Peticiones de canciones', text: 'Tus invitados piden y votan las canciones de la pista de baile.', plan: 'Live Party' },
+    { icon: 'potluck', title: 'Lista de platillos', text: 'Cada invitado se anota con lo que va a llevar a la fiesta.', plan: 'Gratis' },
+    { icon: 'sections', title: 'Secciones propias y padrinos', text: 'Hospedaje, código de vestimenta, tu corte de honor y tus padrinos.', plan: 'Gratis' },
+    { icon: 'gift', title: 'Mesa de regalos', text: 'Comparte tu mesa de regalos o tu lluvia de sobres.', plan: 'Gratis' },
+    { icon: 'lock', title: 'Página con contraseña', text: 'Solo tus invitados pueden ver los detalles de tu evento.', plan: 'Live Party' },
+    { icon: 'domain', title: 'Tu propio dominio', text: 'Usa tu propia dirección, como sofiaxv.com.', plan: 'Live Party' },
   ],
 };
 

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { appHref } from '@/app/lib/app-url';
 import { PLAN_CURRENCY, PLAN_FEATURES, PLAN_ONE_TIME_PRICE } from '@/app/lib/plans';
 
-// The Free and Plus plan cards, plus the checkout note under them. Shared by
+// The Free and Live Party plan cards, plus the checkout note under them. Shared by
 // the homepage pricing section and /pricing so they can't drift apart.
 // `reveal` adds the homepage's scroll-in animation classes.
 export function PricingCards({ reveal = false }: { reveal?: boolean }) {
@@ -21,7 +21,7 @@ export function PricingCards({ reveal = false }: { reveal?: boolean }) {
         </div>
         <div className={`price-card featured${r}${reveal ? ' delay-1' : ''}`}>
           <span className="price-badge">Most popular</span>
-          <p className="price-tier">Plus</p>
+          <p className="price-tier">Live Party</p>
           <p className="price-amount">${PLAN_ONE_TIME_PRICE}<span className="per"> {PLAN_CURRENCY} + tax, one-time, per event</span></p>
           <p className="price-desc">Every MyGala feature for your event.</p>
           <ul className="price-features">

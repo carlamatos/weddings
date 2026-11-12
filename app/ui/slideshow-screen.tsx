@@ -11,7 +11,7 @@ import PagePasswordGate from '@/app/ui/page-password-gate';
 import PhotoSlideshow from '@/app/ui/photo-slideshow';
 
 // The live photo slideshow for a page, at mygala.ca/<slug>/slideshow and
-// <custom domain>/slideshow. Plays for guests on a Plus page with Guest
+// <custom domain>/slideshow. Plays for guests on a Live Party page with Guest
 // Photos on; the owner can always open it to try it.
 export default async function SlideshowScreen({ page, isOwner }: { page: UserPage; isOwner: boolean }) {
   const isPaid = page.plan_type === 'paid';
@@ -45,7 +45,7 @@ export default async function SlideshowScreen({ page, isOwner }: { page: UserPag
       uploadUrl={`${publicPageUrl(page)}#photos`}
       strings={{ share: t.slideshowShare, scan: t.slideshowScan, empty: t.slideshowEmpty, justShared: t.slideshowJustShared }}
       preview={live ? undefined
-        : !isPaid ? 'Preview: only you can see this. The slideshow plays for everyone once this event is on Plus.'
+        : !isPaid ? 'Preview: only you can see this. The slideshow plays for everyone once this event is on Live Party.'
         : 'Preview: only you can see this. Switch on Guest Photos in your dashboard so guests can open the slideshow and add photos.'}
     />
   );

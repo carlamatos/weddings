@@ -187,14 +187,14 @@ export async function fetchSponsors(pageId: number | string): Promise<Sponsor[]>
   }
 }
 
-// The registry section's theme props (Plus): empty unless the page is paid
-// and the section is switched on.
+// The registry section's theme props: empty unless the section is switched
+// on. Free on every page since 2026-11 (isPaid is no longer used).
 export function registryProps(
   page: Pick<UserPage, 'section_2_image' | 'section_2_description' | 'section_2_button_text' | 'section_2_button_link'>,
-  isPaid: boolean,
+  _isPaid: boolean,
   settings: Record<string, string>,
 ): { registryImage?: string; registryDescription?: string; registryButtonText?: string; registryButtonLink?: string } {
-  if (!isPaid || !isSectionOn(settings, 'show_registry')) return {};
+  if (!isSectionOn(settings, 'show_registry')) return {};
   return {
     registryImage: page.section_2_image || undefined,
     registryDescription: page.section_2_description || undefined,
@@ -203,18 +203,17 @@ export function registryProps(
   };
 }
 
-// What a public page (or the editor preview) shows: nothing unless the page
-// is paid and the section is switched on, and only custom sections that have
-// something in them.
+// What a public page (or the editor preview) shows: custom sections (free)
+// that are switched on and have something in them, and sponsors (Live Party)
+// only on a paid page.
 export async function fetchPlusContent(
   pageId: number | string,
   isPaid: boolean,
   settings: Record<string, string>,
 ): Promise<{ customSections: CustomSection[]; sponsors: Sponsor[] }> {
-  if (!isPaid) return { customSections: [], sponsors: [] };
   const [customSections, sponsors] = await Promise.all([
     isSectionOn(settings, 'show_custom_sections') ? fetchCustomSections(pageId) : Promise.resolve([]),
-    areSponsorsOn(settings) ? fetchSponsors(pageId) : Promise.resolve([]),
+    isPaid && areSponsorsOn(settings) ? fetchSponsors(pageId) : Promise.resolve([]),
   ]);
   return { customSections: customSections.filter(hasCustomSectionContent), sponsors };
 }
@@ -234,12 +233,12 @@ export async function fetchPotluckEntries(pageId: number | string): Promise<Potl
   }
 }
 
-// The Potluck section's theme prop (Plus): undefined unless the page is paid
-// and the host switched it on (it's off by default). Entries are included
+// The Potluck section's theme prop: undefined unless the host switched it on
+// (it's off by default). Free on every page since 2026-11. Entries are included
 // only when the host chose to show them publicly — as first name + initial,
 // never emails.
-export async function potluckProps(pageId: number | string, isPaid: boolean, settings: Record<string, string>): Promise<PotluckProps | undefined> {
-  if (!isPaid || !isPotluckOn(settings)) return undefined;
+export async function potluckProps(pageId: number | string, _isPaid: boolean, settings: Record<string, string>): Promise<PotluckProps | undefined> {
+  if (!isPotluckOn(settings)) return undefined;
   const showEntries = arePotluckEntriesPublic(settings);
   const entries = showEntries
     ? (await fetchPotluckEntries(pageId)).map((e) => ({ name: publicName(e.name), items: e.items }))
@@ -435,7 +434,7 @@ export async function fetchPageQuota(userId: string): Promise<{ count: number; l
   return { count: await countUserPages(userId), limit: maxPagesPerAccount() };
 }
 
-// A Plus purchase made before any page existed (the old plan picker) is
+// A Live Party purchase made before any page existed (the old plan picker) is
 // still waiting to be applied: it carries over to the account's first page
 // only. Every other page is bought on its own.
 export async function hasPrepaidPlus(userId: string): Promise<boolean> {

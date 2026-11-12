@@ -4,7 +4,7 @@ import { fetchOwnedPage, parsePageId } from '@/app/lib/data';
 import { createPlusCheckout } from '@/app/lib/plus-checkout';
 import { PLUS_ENABLE_SETTINGS, isPageReturnPath } from '@/app/lib/plus-features';
 
-// Buy (or extend) Plus for one of the user's event pages. Plus is charged
+// Buy (or extend) Live Party for one of the user's event pages. Live Party is charged
 // per event, so a page id is required.
 export async function POST(req: Request) {
   const session = await auth();

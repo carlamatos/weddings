@@ -59,7 +59,7 @@ export default function PrivacyPage() {
 
       <h3 style={h3}>2.4 Payment information</h3>
       <p>
-        If you buy MyGala Plus, payment is processed by <strong>Stripe</strong>. We never see or store your full card details. Stripe tells us whether the payment succeeded and gives us a customer reference and the email used at checkout. Stripe&apos;s privacy practices are governed by <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" style={link}>stripe.com/privacy</a>.
+        If you buy MyGala Live Party, payment is processed by <strong>Stripe</strong>. We never see or store your full card details. Stripe tells us whether the payment succeeded and gives us a customer reference and the email used at checkout. Stripe&apos;s privacy practices are governed by <a href="https://stripe.com/privacy" target="_blank" rel="noopener noreferrer" style={link}>stripe.com/privacy</a>.
       </p>
 
       <h3 style={h3}>2.5 Usage data and analytics</h3>
@@ -67,7 +67,7 @@ export default function PrivacyPage() {
         We use <strong>Google Analytics</strong> to understand how visitors use the website (pages viewed, session duration, general location by region). This data is aggregated and is not used to identify you. You can opt out using the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer" style={link}>Google Analytics opt-out browser add-on</a>. Our servers also keep short-lived technical logs (such as IP addresses) to keep the service secure and to limit abuse.
       </p>
       <p>
-        We advertise MyGala with <strong>Google Ads</strong>. When you visit our website, the Google tag sets cookies that let Google tell us whether a visit that started from one of our ads led to a sign-up or a Plus purchase, and the purchase amount. We do not give Google your name, email address or event details. Google may use these cookies under its own policies, including to show you ads; you can turn off personalised ads in <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer" style={link}>Google&rsquo;s My Ad Center</a>, and learn more at <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" style={link}>policies.google.com/technologies/ads</a>. You can also block these cookies in your browser settings; the site will still work.
+        We advertise MyGala with <strong>Google Ads</strong>. When you visit our website, the Google tag sets cookies that let Google tell us whether a visit that started from one of our ads led to a sign-up or a Live Party purchase, and the purchase amount. We do not give Google your name, email address or event details. Google may use these cookies under its own policies, including to show you ads; you can turn off personalised ads in <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer" style={link}>Google&rsquo;s My Ad Center</a>, and learn more at <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" style={link}>policies.google.com/technologies/ads</a>. You can also block these cookies in your browser settings; the site will still work.
       </p>
 
       <h3 style={h3}>2.6 Cookies and local storage</h3>
@@ -80,7 +80,7 @@ export default function PrivacyPage() {
         <li><strong>To provide the service</strong> — display event pages, process RSVPs and other guest submissions, manage guest lists, and manage your account.</li>
         <li><strong>To send emails you or your host asked for</strong> — account emails (such as email verification and password resets), and the invitations and reminders a host sends to their guests through MyGala.</li>
         <li><strong>To keep the service safe</strong> — check uploaded photos for explicit or violent content before they are published, block spam and abuse on guest forms, and secure accounts.</li>
-        <li><strong>To process payments</strong> — confirm Plus purchases with Stripe.</li>
+        <li><strong>To process payments</strong> — confirm Live Party purchases with Stripe.</li>
         <li><strong>To improve MyGala</strong> — aggregated analytics help us understand which features matter most.</li>
         <li><strong>To measure our advertising</strong> — learn which Google Ads lead to sign-ups and purchases.</li>
         <li><strong>To comply with legal obligations</strong> — where required by Canadian law.</li>
@@ -119,7 +119,7 @@ export default function PrivacyPage() {
         <li><strong>Inactive accounts:</strong> If your account shows no activity for <strong>24 consecutive months</strong>, we will delete your account and all associated data permanently.</li>
         <li><strong>Deleted accounts / data removal requests:</strong> When you request deletion, we will permanently remove your personal information within <strong>30 days</strong>. Anonymised, aggregated analytics data (which cannot identify you) may be retained longer.</li>
         <li><strong>Guest information:</strong> Kept as long as the event page it belongs to exists. When a host deletes a page or their account, its guest information is deleted as well. Hosts can also remove individual guests at any time.</li>
-        <li><strong>Payment records:</strong> Records of Plus purchases may be kept for as long as Canadian tax and accounting laws require.</li>
+        <li><strong>Payment records:</strong> Records of Live Party purchases may be kept for as long as Canadian tax and accounting laws require.</li>
       </ul>
       <p>
         To request deletion of your data at any time, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a>. We will confirm receipt within 5 business days and complete the deletion within 30 days.
@@ -150,7 +150,7 @@ export default function PrivacyPage() {
 
       <h2 style={h2}>10. Public content</h2>
       <p>
-        Event pages (names, event details, photos, and guest forms) are <strong>publicly accessible</strong> by default at their page address. Plus pages can be protected with a password. Do not include information on a public page that you wish to keep private. Guest RSVPs and guest lists are visible only to the host, in their dashboard — unless the host chooses to show certain entries on the page (for example, a potluck list showing first names and last initials).
+        Event pages (names, event details, photos, and guest forms) are <strong>publicly accessible</strong> by default at their page address. Live Party pages can be protected with a password. Do not include information on a public page that you wish to keep private. Guest RSVPs and guest lists are visible only to the host, in their dashboard — unless the host chooses to show certain entries on the page (for example, a potluck list showing first names and last initials).
       </p>
 
       <h2 style={h2}>11. Changes to this policy</h2>

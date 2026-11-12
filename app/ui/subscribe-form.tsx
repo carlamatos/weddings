@@ -25,10 +25,10 @@ import { rich } from '@/app/ui/dashboard/rich';
 // another. Everything else — the date if skipped, the time, the place, the
 // host's name, the welcome message — comes after, from the page editor and
 // the setup checklist (app/lib/setup-progress.ts), so a new host sees their
-// page straight away. Pages start Free; Plus is an upgrade from the dashboard.
+// page straight away. Pages start Free; Live Party is an upgrade from the dashboard.
 // accountEmail: the signed-in account's email — the page's contact email
 // starts as this, and can be changed in the editor.
-// prepaid: Plus was already bought before this account had a page, so this
+// prepaid: Live Party was already bought before this account had a page, so this
 // page gets it without another payment.
 // When the host came to make an invitation the wording says so and the new
 // page opens on its invitation designer instead of the page editor.

@@ -10,7 +10,7 @@ export type LandingFeature = {
   icon: LandingIcon;
   title: string;
   text: string;
-  plus?: boolean; // a Plus feature (one-time payment); otherwise free
+  plus?: boolean; // a Live Party feature (one-time payment); otherwise free
   // Shown up front. When a page marks any, only these show at first and the
   // full list opens from "See everything"; otherwise every feature shows.
   top?: boolean;
@@ -81,7 +81,7 @@ export const LANDING_PAGES: LandingPage[] = [
     },
     features: {
       title: 'What couples love most',
-      sub: 'Start with the free plan and add Plus only if you want the extras. It’s a single payment per wedding, never a subscription.',
+      sub: 'Start with the free plan and add Live Party only if you want the extras. It’s a single payment per wedding, never a subscription.',
       items: [
         { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Guests reply in seconds, for themselves and their plus-ones. See every answer instantly and export to a spreadsheet.', top: true },
         { icon: 'globe', title: 'English, Spanish & French', text: 'Publish your page in your family’s language, with every button and date translated.', top: true },
@@ -147,7 +147,7 @@ export const LANDING_PAGES: LandingPage[] = [
     },
     features: {
       title: 'What hosts love most',
-      sub: 'Start with the free plan and add Plus only if you want the extras. It’s a single payment per event, never a subscription.',
+      sub: 'Start with the free plan and add Live Party only if you want the extras. It’s a single payment per event, never a subscription.',
       items: [
         { icon: 'rsvp', title: 'RSVPs with guest counts', text: 'Parents reply for the whole family in seconds. See every answer instantly and export to a spreadsheet.', top: true },
         { icon: 'globe', title: 'English, Spanish & French', text: 'Perfect for bilingual families. Every button, heading and date is translated.', top: true },
@@ -219,7 +219,7 @@ export const LANDING_UI: Record<'en' | 'fr', LandingUi> = {
       ['Share one link', 'Send it by text, email or WhatsApp and watch the RSVPs roll in.'],
     ],
     stepsCta: 'Start step 1 — it’s free',
-    featuresEyebrow: 'Features', freePill: 'Free', plusPill: 'Plus', freeGroup: 'Included when you sign up',
+    featuresEyebrow: 'Features', freePill: 'Free', plusPill: 'Live Party', freeGroup: 'Included when you sign up',
     plusGroup: `Optional extras, one payment of ${PLAN_PRICE_PLUS_TAX}`,
     seeAll: 'See everything MyGala does',
     faqTitle: 'Questions? We’ve got answers.', finalNote: 'Free to sign up · No credit card', stickyNote: 'Free · No credit card',
@@ -241,7 +241,7 @@ export const LANDING_UI: Record<'en' | 'fr', LandingUi> = {
       ['Partagez un seul lien', 'Envoyez-le par texto, courriel ou WhatsApp et regardez les RSVP arriver.'],
     ],
     stepsCta: 'Commencer l’étape 1, c’est gratuit',
-    featuresEyebrow: 'Fonctionnalités', freePill: 'Gratuit', plusPill: 'Plus', freeGroup: 'Inclus dès l’inscription',
+    featuresEyebrow: 'Fonctionnalités', freePill: 'Gratuit', plusPill: 'Live Party', freeGroup: 'Inclus dès l’inscription',
     plusGroup: `Extras optionnels, un seul paiement de ${PLAN_ONE_TIME_PRICE.toFixed(2).replace('.', ',')} $ CA + taxes`,
     seeAll: 'Voir tout ce que MyGala offre',
     faqTitle: 'Des questions? Voici les réponses.', finalNote: 'Inscription gratuite · Sans carte de crédit', stickyNote: 'Gratuit · Sans carte de crédit',
@@ -285,7 +285,7 @@ export const WEDDING_LANDING_FR: LandingPage = {
   },
   features: {
     title: 'Ce que les couples préfèrent',
-    sub: 'Commencez avec le forfait gratuit et ajoutez Plus seulement si vous voulez les extras. Un seul paiement par mariage, jamais d’abonnement.',
+    sub: 'Commencez avec le forfait gratuit et ajoutez Live Party seulement si vous voulez les extras. Un seul paiement par mariage, jamais d’abonnement.',
     items: [
       { icon: 'rsvp', title: 'RSVP avec nombre d’invités', text: 'Vos invités répondent en quelques secondes, pour eux et leurs accompagnateurs. Voyez chaque réponse en direct et exportez-les dans un tableur.', top: true },
       { icon: 'globe', title: 'En français, en anglais ou en espagnol', text: 'Publiez votre page dans la langue de vos familles : boutons, formulaire RSVP et dates sont traduits.', top: true },
@@ -314,15 +314,15 @@ export const WEDDING_LANDING_FR: LandingPage = {
   },
   final: {
     title: 'Votre histoire d’amour mérite un bel écrin.',
-    text: 'Créez votre site de mariage gratuit dès aujourd’hui. Quelques minutes suffisent, et vous passez à Plus seulement si vous en avez besoin.',
+    text: 'Créez votre site de mariage gratuit dès aujourd’hui. Quelques minutes suffisent, et vous passez à Live Party seulement si vous en avez besoin.',
   },
   faqs: [
-    { q: 'Le site de mariage MyGala est-il gratuit?', a: 'Oui. Les pages gratuites incluent tous les modèles, les RSVP, la liste d’invités, le compte à rebours, les détails, le programme et jusqu’à 50 photos d’invités. Plus est un paiement unique par événement, et non un abonnement, qui ajoute des extras comme la diffusion en direct, la liste de cadeaux et votre propre nom de domaine.' },
+    { q: 'Le site de mariage MyGala est-il gratuit?', a: 'Oui. Les pages gratuites incluent tous les modèles, les RSVP, la liste d’invités, le compte à rebours, les détails, le programme et jusqu’à 50 photos d’invités. Live Party est un paiement unique par événement, et non un abonnement, qui ajoute des extras pour le jour J comme le diaporama de photos, la diffusion en direct et votre propre nom de domaine. La liste de cadeaux est gratuite.' },
     { q: 'Mes invités peuvent-ils répondre pour leur conjoint ou leur famille?', a: 'Oui. Le formulaire RSVP demande combien de personnes viennent, alors une seule personne peut répondre pour tout son groupe.' },
     { q: 'Le tableau de bord est-il en français?', a: 'Pas encore : l’espace où vous créez votre page est en anglais. Votre page, elle, est en français pour vos invités : titres, boutons, formulaire RSVP, dates et courriels de rappel.' },
-    { q: 'Peut-on ajouter notre liste de cadeaux?', a: 'Oui. Avec Plus, ajoutez une section liste de cadeaux avec un lien vers n’importe quel magasin ou registre, et votre propre message.' },
-    { q: 'Peut-on garder le site après le mariage?', a: 'Oui. Votre page reste en ligne en souvenir. Les pages gratuites restent consultables; les fonctionnalités Plus restent actives 15 mois après l’achat et peuvent être prolongées.' },
-    { q: 'Peut-on utiliser notre propre nom de domaine?', a: 'Oui, avec Plus. Branchez un domaine comme camilleetolivier.com et indiquez-le sur vos faire-part.' },
+    { q: 'Peut-on ajouter notre liste de cadeaux?', a: 'Oui, gratuitement. Ajoutez une section liste de cadeaux avec un lien vers n’importe quel magasin ou registre, et votre propre message.' },
+    { q: 'Peut-on garder le site après le mariage?', a: 'Oui. Votre page reste en ligne en souvenir. Les pages gratuites restent consultables; les fonctionnalités Live Party restent actives 12 mois après l’achat et peuvent être prolongées.' },
+    { q: 'Peut-on utiliser notre propre nom de domaine?', a: 'Oui, avec Live Party. Branchez un domaine comme camilleetolivier.com et indiquez-le sur vos faire-part.' },
   ],
   templateDescs: {
     'the-day': 'Pivoines ivoire et bouquet blanc, verdure sauge et touches dorées. Intemporel et raffiné, pour les mariages classiques et élégants.',

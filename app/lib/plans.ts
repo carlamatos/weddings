@@ -1,7 +1,7 @@
 // Plans and their limits. Kept free of server-only imports so client
 // components can share it.
 
-// Plus is a one-time payment per event page, not a recurring subscription:
+// Live Party is a one-time payment per event page, not a recurring subscription:
 // it unlocks that page's paid features for a fixed term, then the page drops
 // back to the free tier (it stays live — just without the paid-only
 // features) until the owner extends it.
@@ -13,7 +13,9 @@ export const PLAN_PRICE_LABEL = `$${PLAN_ONE_TIME_PRICE} ${PLAN_CURRENCY}`;
 // Prices are tax-exclusive: GST/HST and provincial sales tax are added at
 // checkout from the buyer's billing address (Stripe Tax). "$49.99 CAD + tax".
 export const PLAN_PRICE_PLUS_TAX = `${PLAN_PRICE_LABEL} + tax`;
-export const PLAN_TERM_MONTHS = 15;
+// New purchases from 2026-11 get 12 months; pages bought earlier keep the
+// expiry date stored on them (plan_expires_at).
+export const PLAN_TERM_MONTHS = 12;
 
 // Feature bullets for the two plans — one list shared by the homepage
 // pricing cards and the dashboard plan picker so they can't drift apart.
@@ -30,18 +32,18 @@ export const PLAN_FEATURES = {
     'Budget tracker & RSVP timeline reminders',
     'Guest photo wall & table QR codes (up to 50 photos)',
     'Secret Santa gift exchange with anonymous messages',
+    'Potluck sign-up',
+    'Custom sections & gift registry link',
     'MyGala URL (mygala.ca/yourname)',
   ],
   plus: [
     'Everything in Free',
-    'Up to 500 guest photos',
     'Live photo slideshow for a venue screen',
+    'Up to 500 guest photos',
     'Livestream link & song requests',
-    'Automatic reminder emails to guests',
     'Find-your-table seating with a QR sign',
-    'Potluck sign-up',
-    'Custom sections & sponsors',
-    'Gift registry section',
+    'Automatic reminder emails to guests',
+    'Sponsors',
     'Password-protected page',
     'Custom domain support',
     'Priority support',
@@ -49,7 +51,7 @@ export const PLAN_FEATURES = {
 } as const;
 
 // Every account can create as many event pages as it needs; each page is
-// free or Plus on its own (Plus is bought per event). The cap only guards
+// free or Live Party on its own (Live Party is bought per event). The cap only guards
 // against abuse — raise it with MAX_PAGES_PER_ACCOUNT.
 const DEFAULT_MAX_PAGES_PER_ACCOUNT = 50;
 

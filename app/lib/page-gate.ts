@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { hasPageAccess, isPageLocked, pageAccessCookieName } from './page-password';
 import { siteUrl } from './site-url';
 
-// Server side of password-protected pages (Plus) for the public page routes.
+// Server side of password-protected pages (Live Party) for the public page routes.
 // True when this visitor must see the password screen instead of the page.
 export async function mustShowPasswordGate(
   pageId: number | string,

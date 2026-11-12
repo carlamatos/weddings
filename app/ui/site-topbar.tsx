@@ -96,7 +96,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
                       <Link key={f.slug} href={`/features/${f.slug}`} className="nav-mega-link">
                         <span className="nav-mega-name">
                           {f.navLabel}
-                          {f.plan === 'Plus' && <span className="nav-mega-plus">Plus</span>}
+                          {f.plan === 'Live Party' && <span className="nav-mega-plus">Live Party</span>}
                         </span>
                         <span className="nav-mega-summary">{f.summary}</span>
                       </Link>
@@ -106,7 +106,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               </div>
               <div className="nav-mega-foot">
                 <Link href="/features" className="nav-mega-all">All features →</Link>
-                <Link href="/pricing" className="nav-mega-all">Compare Free and Plus →</Link>
+                <Link href="/pricing" className="nav-mega-all">Compare Free and Live Party →</Link>
               </div>
             </div>
           </div>

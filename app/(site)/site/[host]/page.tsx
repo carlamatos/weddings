@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
@@ -43,7 +44,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const isPaid = data.plan_type === 'paid';
   const pageSettings = await fetchPageSettings(data.id);
 
-  // Password protected (Plus): the guest enters the password on this domain,
+  // Password protected (Live Party): the guest enters the password on this domain,
   // so the access cookie is this domain's own.
   if (await mustShowPasswordGate(data.id, pageSettings, isPaid)) {
     return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
@@ -76,6 +77,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
     <ThemeRenderer
       rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
       rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
+      rsvpAskSong={isRsvpSongOn(pageSettings)}
       themeSlug={data.theme_slug}
       heading={data.heading}
       description={data.description || undefined}

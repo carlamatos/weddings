@@ -177,10 +177,10 @@ export function productJsonLd() {
       { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: PLAN_CURRENCY, description: 'Unlimited event pages with every theme, RSVPs, guest list, countdown, event details and event program.' },
       {
         '@type': 'Offer',
-        name: 'Plus',
+        name: 'Live Party',
         price: PLAN_ONE_TIME_PRICE.toFixed(2),
         priceCurrency: PLAN_CURRENCY,
-        description: `One-time payment per event page (not a subscription) that unlocks every Plus feature for ${PLAN_TERM_MONTHS} months.`,
+        description: `One-time payment per event page (not a subscription) that unlocks every Live Party feature for ${PLAN_TERM_MONTHS} months.`,
         url: absoluteUrl('/pricing'),
       },
     ],

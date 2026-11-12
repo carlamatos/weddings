@@ -49,7 +49,7 @@ export function FeatureCards({ slugs }: { slugs: string[] }) {
         if (!f) return null;
         return (
           <Link key={slug} href={`/features/${slug}`} className="mk-card">
-            <span className={`mk-badge${f.plan === 'Free' ? ' mk-badge--free' : ''}`}>{f.plan === 'Free' ? 'Free' : 'Plus'}</span>
+            <span className={`mk-badge${f.plan === 'Free' ? ' mk-badge--free' : ''}`}>{f.plan === 'Free' ? 'Free' : 'Live Party'}</span>
             <h3 className="mk-card-title">{f.navLabel}</h3>
             <p>{f.summary}</p>
             <span className="mk-card-more">Learn more →</span>

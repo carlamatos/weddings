@@ -16,7 +16,7 @@ export function SectionToggle({
   settingName: string;
   initialOn: boolean;
   label?: string;
-  // The Plus feature this switch shows to guests (its dashboard path). On a
+  // The Live Party feature this switch shows to guests (its dashboard path). On a
   // free page it stays off and asks to upgrade — and switches on after.
   plusSection?: string;
 }) {

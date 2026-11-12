@@ -389,7 +389,7 @@ export const BLOG_POSTS: BlogPost[] = [
     seo: {
       title: 'Wedding Colour Palette Generator and Guide',
       description:
-        'Build your wedding colour palette: pick one of 20 styles and a colour you love, and get matching colours. Plus how many colours to use and which ones cost more.',
+        'Build your wedding colour palette: pick one of 20 styles and a colour you love, and get matching colours. Live Party how many colours to use and which ones cost more.',
       keywords: ['wedding colour palette', 'wedding color palette', 'wedding color palette generator', 'wedding colours', 'how to choose wedding colors', 'wedding color schemes', 'how many wedding colors'],
     },
     eyebrow: 'Wedding colours',
@@ -634,7 +634,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
     faqs: [
-      { q: 'Can I create a wedding website for free?', a: 'Yes. On MyGala you can create and share a wedding website for free, with every template, RSVPs, the guest list, the countdown, the date and venue details and the schedule. Invitations by email, text and WhatsApp are free too. MyGala Plus, a one-time payment per wedding website, adds extras like reminders, the registry section and your own domain.' },
+      { q: 'Can I create a wedding website for free?', a: 'Yes. On MyGala you can create and share a wedding website for free, with every template, RSVPs, the guest list, the countdown, the date and venue details and the schedule. Invitations by email, text and WhatsApp are free too. The registry section is free too. MyGala Live Party, a one-time payment per wedding website, adds extras like the photo slideshow, reminders and your own domain.' },
       { q: 'How long does it take to create a wedding website?', a: 'About 20 minutes for the essentials: pick a template, add your names, date and venue, and turn on RSVPs. You can keep adding details, photos and the schedule as your plans come together.' },
       { q: 'Can I change my template later?', a: 'Yes. You can switch to another design at any time, and your names, date, venue, RSVPs and other details stay as they are.' },
       { q: 'Do guests need an app or an account to RSVP?', a: 'No. Guests open your link in any browser on their phone or computer and fill in the RSVP form. Nothing to download and no account to create.' },
@@ -879,7 +879,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: 'The extras guests will thank you for',
         blocks: [
-          { type: 'p', text: 'These features make the weeks before the wedding, and the day itself, easier for everyone. They come with MyGala Plus, a one-time payment per wedding website.' },
+          { type: 'p', text: 'These features make the weeks before the wedding, and the day itself, easier for everyone. They come with MyGala Live Party, a one-time payment per wedding website.' },
           {
             type: 'list',
             items: [
@@ -892,7 +892,7 @@ export const BLOG_POSTS: BlogPost[] = [
               '**[Password protection](/features/password-protection),** if you’d like only invited guests to see the page.',
             ],
           },
-          { type: 'cta', title: 'Start your wedding website today', text: 'Every template, RSVPs, the schedule and the countdown are free. Add Plus only when you need it.', button: 'Create your wedding website' },
+          { type: 'cta', title: 'Start your wedding website today', text: 'Every template, RSVPs, the schedule and the countdown are free. Add Live Party only when you need it.', button: 'Create your wedding website' },
         ],
       },
       {
@@ -907,7 +907,7 @@ export const BLOG_POSTS: BlogPost[] = [
       {
         heading: 'A web address that’s easy to type',
         blocks: [
-          { type: 'p', text: 'Your web address is what goes on your save-the-dates and invitations, so keep it short and easy to type. Every MyGala page gets a free address like **mygala.ca/emma-and-liam**. If you’d like your own, such as emmaandliam.com, you can connect a [custom domain](/features/custom-domain) with Plus.' },
+          { type: 'p', text: 'Your web address is what goes on your save-the-dates and invitations, so keep it short and easy to type. Every MyGala page gets a free address like **mygala.ca/emma-and-liam**. If you’d like your own, such as emmaandliam.com, you can connect a [custom domain](/features/custom-domain) with Live Party.' },
         ],
       },
       {
@@ -941,7 +941,7 @@ export const BLOG_POSTS: BlogPost[] = [
       },
     ],
     faqs: [
-      { q: 'How much does a wedding website cost?', a: 'A MyGala wedding website is free to create and share, with every template, RSVPs, the guest list, the countdown, event details and the schedule. Invitations by email, text and WhatsApp are free too. MyGala Plus is a one-time payment per wedding website (not a subscription) that adds features like reminders, livestream, the registry section, a custom domain and room for up to 500 guest photos (free pages get 50).' },
+      { q: 'How much does a wedding website cost?', a: 'A MyGala wedding website is free to create and share, with every template, RSVPs, the guest list, the countdown, event details and the schedule. Invitations by email, text and WhatsApp are free too. MyGala Live Party is a one-time payment per wedding website (not a subscription) that adds features like the photo slideshow, reminders, livestream, a custom domain and room for up to 500 guest photos (free pages get 50).' },
       { q: 'What should the first section of a wedding website say?', a: 'Your names, the date and the city, with a photo you love and a line or two of welcome. Guests should see at a glance whose wedding it is and when, with an RSVP button close by.' },
       { q: 'When should our wedding website go live?', a: 'Ideally before your save-the-dates go out, about 8 to 12 months before the wedding, so you can put the link on them. Start with the date and location, and add the rest as you book it.' },
       { q: 'Can we keep our wedding website after the wedding?', a: 'Yes. Your page stays online as a keepsake after the wedding.' },

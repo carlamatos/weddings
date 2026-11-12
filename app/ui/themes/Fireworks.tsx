@@ -807,7 +807,7 @@ export default function Fireworks({
         )}
 
         {/* CUSTOM SECTIONS (Plus) */}
-        {isPaid && customSections?.map((section, i) => (
+        {customSections?.map((section, i) => (
           <section key={`custom-${section.position}`} className={`section section-center${i % 2 ? '' : ' section-violet'}`}>
             <Reveal className="wrap">
               <BurstRule i={i} />
@@ -864,7 +864,7 @@ export default function Fireworks({
         )}
 
         {/* POTLUCK (Plus, off by default) — plain plum */}
-        {isPaid && potluck && (
+        {potluck && (
           <section id="potluck" className="rsvp-section">
             <Reveal className="fw-card">
               <Seal />

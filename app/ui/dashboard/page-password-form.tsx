@@ -18,7 +18,7 @@ const labelStyle: React.CSSProperties = {
 export function PagePasswordForm({ pageId, initialEnabled, hasPassword: initialHasPassword }: { pageId: number; initialEnabled: boolean; hasPassword: boolean }) {
   const d = useDashText();
   // On a free page the password can be set, but protection only turns on
-  // with Plus: switching it on saves the password and asks to upgrade.
+  // with Live Party: switching it on saves the password and asks to upgrade.
   const plus = usePlus();
   const [savedEnabled, setEnabled] = useState(initialEnabled);
   const enabled = savedEnabled && plus.paid;

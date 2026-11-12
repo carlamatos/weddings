@@ -146,7 +146,7 @@ export default function DomainForm({
 
   const isActive = status === 'active';
 
-  // Free plan: the form works as usual up to connecting, which asks for Plus.
+  // Free plan: the form works as usual up to connecting, which asks for Live Party.
   if (!isPaid) {
     return (
       <>

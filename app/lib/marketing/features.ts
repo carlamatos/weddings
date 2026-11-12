@@ -7,7 +7,7 @@ import type { ContentBlock, Faq, Screenshot, SeoMeta, Step, Video } from './type
 export type Feature = {
   slug: string;
   navLabel: string; // menu + cards
-  plan: 'Free' | 'Plus';
+  plan: 'Free' | 'Live Party';
   seo: SeoMeta;
   eyebrow: string;
   h1: string;
@@ -137,7 +137,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'How the guest photo QR code works',
         paragraphs: [
-          'Every MyGala event page can have a Guest Photo Wall: a section where guests can share photos and browse everyone else’s. It’s free for up to 50 photos, and MyGala Plus raises that to 500. The QR code is a shortcut to it. When a guest scans the code, their phone opens your event page and jumps straight to the upload button.',
+          'Every MyGala event page can have a Guest Photo Wall: a section where guests can share photos and browse everyone else’s. It’s free for up to 50 photos, and MyGala Live Party raises that to 500. The QR code is a shortcut to it. When a guest scans the code, their phone opens your event page and jumps straight to the upload button.',
           'Guests can pick several photos at once from their camera roll. MyGala resizes large photos on the guest’s phone before uploading, so it works even on slow venue Wi-Fi, and the photos show up on the wall right away.',
         ],
       },
@@ -165,7 +165,7 @@ export const FEATURES: Feature[] = [
       {
         heading: 'Keep control of the photos',
         bullets: [
-          'Up to 50 guest photos free, or up to 500 with Plus.',
+          'Up to 50 guest photos free, or up to 500 with Live Party.',
           'Delete any photo from your dashboard at any time.',
           'Download every photo in one click to keep after the event.',
           'Hide the Guest Photo Wall whenever you like — for example, until the event starts.',
@@ -173,7 +173,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Open Guest Photos', text: 'In your dashboard, choose Guest Photos in the left menu and switch the section on. Free pages hold up to 50 photos; Plus pages up to 500.', dashboard: '/dashboard/guest-photos', linkLabel: 'Open Guest Photos' },
+      { title: 'Open Guest Photos', text: 'In your dashboard, choose Guest Photos in the left menu and switch the section on. Free pages hold up to 50 photos; Live Party pages up to 500.', dashboard: '/dashboard/guest-photos', linkLabel: 'Open Guest Photos' },
       { title: 'Customize your card', text: 'Under “QR code for your tables”, edit the title and message, then pick 4 table cards or 1 large sign.' },
       { title: 'Print or download', text: 'Click Print QR code, or Download PNG to use the code in your own design. Test it with your phone before printing a full batch.' },
       { title: 'Place the cards and collect', text: 'Put a card on every table. After the event, download all the photos from the same Guest Photos screen.' },
@@ -181,21 +181,21 @@ export const FEATURES: Feature[] = [
     faqs: [
       { q: 'Do guests need to download an app to upload photos?', a: 'No. The QR code opens your event page in the phone’s web browser. Guests tap the upload button and choose photos — no app and no account.' },
       { q: 'Does the QR code work with iPhone and Android?', a: 'Yes. Any recent iPhone or Android phone can scan a QR code with the built-in camera app.' },
-      { q: 'Is the guest photo wall free?', a: 'Yes. Every event page can collect up to 50 guest photos for free, QR code included. Upgrade the page to MyGala Plus — a one-time payment, no subscription — to collect up to 500.' },
-      { q: 'How many photos can guests upload?', a: 'Up to 50 photos on a free event page and up to 500 on a Plus page. Guests can select several photos at once, and your dashboard shows how many you’ve used.' },
+      { q: 'Is the guest photo wall free?', a: 'Yes. Every event page can collect up to 50 guest photos for free, QR code included. Upgrade the page to MyGala Live Party — a one-time payment, no subscription — to collect up to 500.' },
+      { q: 'How many photos can guests upload?', a: 'Up to 50 photos on a free event page and up to 500 on a Live Party page. Guests can select several photos at once, and your dashboard shows how many you’ve used.' },
       { q: 'Can I remove a photo a guest uploaded?', a: 'Yes. You can delete any photo from the Guest Photos screen in your dashboard, and it disappears from your page.' },
       { q: 'How do I get all the photos after the event?', a: 'Open Guest Photos in your dashboard and use the download button to save every photo at once.' },
       { q: 'Can I use the QR code on my own signs or programs?', a: 'Yes. Download it as a high-resolution PNG and place it in any design. It always points to your event page’s photo section.' },
       { q: 'What happens if I print the QR code and then change my page?', a: 'The code points to your event page address, so changing themes, text or photos doesn’t affect it. Only changing the page address or removing your custom domain would.' },
     ],
-    cta: { title: 'Never miss a guest’s photo again', text: 'Create your free event page, switch on Guest Photos and print your table cards in minutes. Need room for more than 50 photos? Upgrade to Plus.' },
+    cta: { title: 'Never miss a guest’s photo again', text: 'Create your free event page, switch on Guest Photos and print your table cards in minutes. Need room for more than 50 photos? Upgrade to Live Party.' },
     related: ['livestream', 'custom-sections', 'custom-domain'],
   },
 
   {
     slug: 'find-your-table',
     navLabel: 'Find Your Table',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Find Your Table: QR Code Seating Chart for Weddings & Events',
       description:
@@ -276,7 +276,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Upgrade your page to Plus', text: 'Find Your Table is part of MyGala Plus, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Plus.' },
+      { title: 'Upgrade your page to Live Party', text: 'Find Your Table is part of MyGala Live Party, a one-time payment with no subscription. You can seat your guests before upgrading; only the guest lookup needs Live Party.' },
       { title: 'Add your guests', text: 'Guests look up their table by the name on your guest list. Import them from a spreadsheet or your contacts, or add them one by one.', dashboard: '/dashboard/guest-list', linkLabel: 'Open Guests & RSVPs' },
       { title: 'Seat them', text: 'In Find Your Table, create your tables and drag your guests onto them, or use the List to type tables or paste your chart from a spreadsheet.', dashboard: '/dashboard/seating', linkLabel: 'Open Find Your Table' },
       { title: 'Switch it on and print the sign', text: 'Turn on “Let guests look up their table”, then print the QR sign (one large sign, or four smaller cards per page) or download the code as a PNG for your own design.' },
@@ -290,16 +290,16 @@ export const FEATURES: Feature[] = [
       { q: 'Can I use table names instead of numbers?', a: 'Yes. A table can be anything up to 60 characters: “Table 12”, “Sunflower”, “Head table” or “The Rockies”.' },
       { q: 'Can I paste my seating chart from Excel or Google Sheets?', a: 'Yes. Copy the guest name and table columns and paste them in. MyGala matches each name to your guest list and lists any it couldn’t find, so you can add them.' },
       { q: 'Does it work with my own domain and a password-protected page?', a: 'Yes. With a custom domain, the sign uses your own address, such as yournames.com/table. If your page is password protected, guests enter the password first.' },
-      { q: 'Is it free?', a: 'Find Your Table is part of MyGala Plus, a one-time payment per event with no subscription. On a free page you can still seat all your guests, and the lookup turns on as soon as you upgrade.' },
+      { q: 'Is it free?', a: 'Find Your Table is part of MyGala Live Party, a one-time payment per event with no subscription. On a free page you can still seat all your guests, and the lookup turns on as soon as you upgrade.' },
     ],
-    cta: { title: 'Skip the seating chart this time', text: 'Create your event page, add your guests and seat them in minutes. Upgrade to Plus to put the QR sign at the door.' },
+    cta: { title: 'Skip the seating chart this time', text: 'Create your event page, add your guests and seat them in minutes. Upgrade to Live Party to put the QR sign at the door.' },
     related: ['guest-photo-qr-code', 'invitations', 'password-protection'],
   },
 
   {
     slug: 'livestream',
     navLabel: 'Livestream',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Livestream Your Event on Your Event Page',
       description:
@@ -363,7 +363,7 @@ export const FEATURES: Feature[] = [
       { q: 'Can I paste an iframe embed code?', a: 'Yes. Paste the embed code from YouTube, Vimeo or Facebook and MyGala keeps only the video address from it.' },
       { q: 'Should I paste the link before the stream starts?', a: 'Yes. Most services give you the link when you schedule the stream. Add it ahead of time so it’s on your page when guests arrive.' },
       { q: 'Can I hide the live stream section?', a: 'Yes. Switch the section off in your dashboard at any time — for example, after the event — without deleting the link.' },
-      { q: 'Is the livestream section available on the free plan?', a: 'The Live Stream section is part of MyGala Plus, a one-time payment that unlocks every premium feature for 15 months.' },
+      { q: 'Is the livestream section available on the free plan?', a: 'The Live Stream section is part of MyGala Live Party, a one-time payment that unlocks every premium feature for 12 months.' },
     ],
     cta: { title: 'Let everyone be part of the day', text: 'Create your event page and add your live stream in under a minute.' },
     related: ['event-reminder-emails', 'event-page-translations', 'guest-photo-qr-code'],
@@ -372,7 +372,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'live-photo-slideshow',
     navLabel: 'Live Photo Slideshow',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Live Photo Slideshow of Guest Photos for Your Event',
       description:
@@ -439,8 +439,8 @@ export const FEATURES: Feature[] = [
       { q: 'Do I need an app or special equipment?', a: 'No. The slideshow is a web page. Any computer, tablet or smart TV with a browser and an internet connection can play it.' },
       { q: 'Do guests need an app to add photos?', a: 'No. Guests scan the QR code on the screen or on your table cards with their phone camera and upload photos from the browser, with no app and no account.' },
       { q: 'Can I remove a photo from the slideshow?', a: 'Yes. Delete it in Guest Photos in your dashboard and it leaves the slideshow within seconds, without restarting it.' },
-      { q: 'How many photos can the slideshow play?', a: 'Every photo on your Guest Photo Wall — up to 500 with MyGala Plus.' },
-      { q: 'Is the photo slideshow free?', a: 'The slideshow is part of MyGala Plus, a one-time payment with no subscription. You can open it and try it before upgrading; only you can see it until your page is on Plus.' },
+      { q: 'How many photos can the slideshow play?', a: 'Every photo on your Guest Photo Wall — up to 500 with MyGala Live Party.' },
+      { q: 'Is the photo slideshow free?', a: 'The slideshow is part of MyGala Live Party, a one-time payment with no subscription. You can open it and try it before upgrading; only you can see it until your page is on Live Party.' },
       { q: 'Can people outside the venue open the slideshow?', a: 'The slideshow link shows the same photos as your Guest Photo Wall. If your page has a password, the slideshow asks for it too.' },
     ],
     cta: { title: 'Put the party on the big screen', text: 'Create your event page, switch on Guest Photos, and open the slideshow on any TV or projector.' },
@@ -465,7 +465,7 @@ export const FEATURES: Feature[] = [
     highlights: [
       { title: 'Three languages', text: 'English, Spanish and French, with dates and times written the way each language writes them.' },
       { title: 'One click to switch', text: 'Change the language from your dashboard at any time. Your own content stays exactly as you wrote it.' },
-      { title: 'Free on every plan', text: 'Translations are included on the free plan and on Plus.' },
+      { title: 'Free on every plan', text: 'Translations are included on the free plan and on Live Party.' },
     ],
     video: {
       src: '/videos/features/change-language.mp4',
@@ -487,7 +487,7 @@ export const FEATURES: Feature[] = [
           'Buttons and links, such as “RSVP”, “Get directions” and “Watch live”.',
           'The RSVP form: labels, attending and declining options, guest count and confirmation messages.',
           'Dates, times and the countdown (days, hours, minutes, seconds).',
-          'Reminder emails to guests (Plus), including the subject line and unsubscribe link.',
+          'Reminder emails to guests (Live Party), including the subject line and unsubscribe link.',
         ],
       },
       {
@@ -528,7 +528,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'event-reminder-emails',
     navLabel: 'Email Reminders',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Automatic Event Reminder Emails for Guests',
       description:
@@ -582,7 +582,7 @@ export const FEATURES: Feature[] = [
       { q: 'What if I change my event date?', a: 'Reminders follow the date on your page. Update the date and the remaining reminders move with it.' },
       { q: 'Can guests stop receiving reminders?', a: 'Yes. Every reminder includes a one-click unsubscribe link.' },
       { q: 'Which email address are reminders sent from?', a: 'Reminders are sent by MyGala from no-reply@mygala.ca, with your event name and note in the email.' },
-      { q: 'Are reminders included in the free plan?', a: 'Event reminders are part of MyGala Plus, a one-time payment — no monthly subscription.' },
+      { q: 'Are reminders included in the free plan?', a: 'Event reminders are part of MyGala Live Party, a one-time payment — no monthly subscription.' },
     ],
     cta: { title: 'Fewer no-shows, zero chasing', text: 'Create your event page, collect RSVPs, and let reminders go out on their own.' },
     related: ['event-page-translations', 'livestream', 'custom-sections'],
@@ -819,7 +819,7 @@ export const FEATURES: Feature[] = [
     summary: '21 designed themes for weddings, celebrations, business and general events.',
     highlights: [
       { title: 'Designed for the occasion', text: 'Each theme has its own colours, fonts and animations made for a specific kind of event.' },
-      { title: 'Same tools in every theme', text: 'RSVP, countdown, schedule, map, gallery and every Plus feature work in every template.' },
+      { title: 'Same tools in every theme', text: 'RSVP, countdown, schedule, map, gallery and every Live Party feature work in every template.' },
       { title: 'Switch anytime', text: 'Change themes in one click. Your text, photos, RSVPs and settings stay put.' },
     ],
     video: {
@@ -853,7 +853,7 @@ export const FEATURES: Feature[] = [
           'An RSVP form with guest count, plus a guest list you can export to CSV.',
           'An event program for one day or several.',
           'A photo gallery, a guest photo wall for up to 50 photos, and a share section for social media.',
-          'Plus features such as live stream, registry, custom sections, sponsors and room for up to 500 guest photos.',
+          'Live Party features such as the photo slideshow, live stream, sponsors and room for up to 500 guest photos.',
         ],
       },
       {
@@ -870,7 +870,7 @@ export const FEATURES: Feature[] = [
       { title: 'Change your mind anytime', text: 'Use the theme menu at the top of the dashboard to try a different look — nothing is lost.', dashboard: '/dashboard/edit', linkLabel: 'Open the page editor' },
     ],
     faqs: [
-      { q: 'Are all templates free?', a: 'Yes. Every theme is available on the free plan. Plus unlocks extra features, not extra themes.' },
+      { q: 'Are all templates free?', a: 'Yes. Every theme is available on the free plan. Live Party unlocks extra features, not extra themes.' },
       { q: 'Can I use a wedding theme for a different kind of event?', a: 'Yes. Categories are suggestions — any theme works for any event, and every theme has the same features.' },
       { q: 'Will I lose my content if I switch themes?', a: 'No. Your text, photos, guest list and settings stay the same. Only the design changes.' },
       { q: 'Can I use my own photo in the banner?', a: 'Yes. Upload a photo for the top banner, or keep the theme’s default artwork.' },
@@ -883,7 +883,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'custom-sections',
     navLabel: 'Custom Sections',
-    plan: 'Plus',
+    plan: 'Free',
     seo: {
       title: 'Custom Sections & Sponsors for Event Pages',
       description:
@@ -944,7 +944,7 @@ export const FEATURES: Feature[] = [
       { q: 'Where do custom sections appear on my page?', a: 'Right after your date and location. Sponsors appear after the gallery, and the registry has its own section.' },
       { q: 'Can I add images to a custom section?', a: 'Yes. Upload images and place them between paragraphs in any order.' },
       { q: 'Can I hide a section temporarily?', a: 'Yes. Each section type has a show/hide switch, so you can prepare content before revealing it.' },
-      { q: 'Are custom sections included in the free plan?', a: 'Custom sections, sponsors and the registry are part of MyGala Plus, a one-time payment.' },
+      { q: 'Are custom sections included in the free plan?', a: 'Yes. Custom sections and the registry are free on every page. Sponsors are part of MyGala Live Party, a one-time payment.' },
     ],
     cta: { title: 'Answer guests’ questions before they ask', text: 'Create your event page and add the sections your event needs.' },
     related: ['event-templates', 'guest-photo-qr-code', 'custom-domain'],
@@ -953,7 +953,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'potluck',
     navLabel: 'Potluck Sign-up',
-    plan: 'Plus',
+    plan: 'Free',
     seo: {
       title: 'Potluck Sign-up Sheet on Your Event Page',
       description:
@@ -995,7 +995,6 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Upgrade your page to Plus', text: 'The Potluck section is part of MyGala Plus — a one-time payment, no subscription.' },
       { title: 'Open Potluck', text: 'In your dashboard, choose Potluck in the left menu and switch the section on.', dashboard: '/dashboard/potluck', linkLabel: 'Open Potluck' },
       { title: 'Decide who sees the list', text: 'Turn on “Show everyone’s entries on your page” if guests should see what others are bringing.' },
       { title: 'Share your page', text: 'Guests sign up when they RSVP. Entries appear in your dashboard as they come in.' },
@@ -1008,7 +1007,7 @@ export const FEATURES: Feature[] = [
       { q: 'Can I remove an entry?', a: 'Yes. Remove any entry from the Potluck screen in your dashboard.' },
       { q: 'Is the potluck section on by default?', a: 'No. It stays off until you switch it on, so it only appears on events that need it.' },
     ],
-    cta: { title: 'Plan the menu without the group chat', text: 'Create your event page, upgrade to Plus, and switch on the Potluck section.' },
+    cta: { title: 'Plan the menu without the group chat', text: 'Create your free event page and switch on the Potluck section.' },
     related: ['invitations', 'custom-sections', 'event-reminder-emails'],
   },
 
@@ -1115,7 +1114,7 @@ export const FEATURES: Feature[] = [
   {
     slug: 'password-protection',
     navLabel: 'Password Protection',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Password-Protected Event Website',
       description:
@@ -1159,7 +1158,7 @@ export const FEATURES: Feature[] = [
       },
     ],
     steps: [
-      { title: 'Upgrade your page to Plus', text: 'Password protection is part of MyGala Plus — a one-time payment, no subscription.' },
+      { title: 'Upgrade your page to Live Party', text: 'Password protection is part of MyGala Live Party — a one-time payment, no subscription.' },
       { title: 'Open Password', text: 'In your dashboard, choose Password in the left menu.', dashboard: '/dashboard/password', linkLabel: 'Open Password' },
       { title: 'Set a password', text: 'Choose a password that’s easy to share and type — at least 4 characters — and switch protection on.' },
       { title: 'Share it with your link', text: 'Add the password to your invitations, next to your page’s link.' },
@@ -1171,14 +1170,14 @@ export const FEATURES: Feature[] = [
       { q: 'What happens if I change the password?', a: 'Everyone is asked for the new password the next time they open your page.' },
       { q: 'Does it work with my custom domain?', a: 'Yes. Protection applies to your page at its mygala.ca address and on your own domain.' },
     ],
-    cta: { title: 'Share your event only with your guests', text: 'Create your event page, upgrade to Plus, and switch on password protection.' },
+    cta: { title: 'Share your event only with your guests', text: 'Create your event page, upgrade to Live Party, and switch on password protection.' },
     related: ['custom-domain', 'invitations', 'guest-photo-qr-code'],
   },
 
   {
     slug: 'custom-domain',
     navLabel: 'Custom Domain',
-    plan: 'Plus',
+    plan: 'Live Party',
     seo: {
       title: 'Custom Domain for Your Event Website',
       description:
@@ -1234,9 +1233,9 @@ export const FEATURES: Feature[] = [
       { q: 'Is HTTPS included?', a: 'Yes. MyGala issues a free SSL certificate for your domain once the DNS records are verified.' },
       { q: 'Will my MyGala link stop working?', a: 'No. Your mygala.ca link keeps working, and share links switch to your domain once it’s active.' },
       { q: 'Can I use a subdomain like party.mydomain.com?', a: 'The dashboard is set up for a root domain and its www version. Contact us if you need a different setup.' },
-      { q: 'What happens to my domain if my Plus term ends?', a: 'Your page stays live at its mygala.ca address. Extend Plus to bring your custom domain back.' },
+      { q: 'What happens to my domain if my Live Party term ends?', a: 'Your page stays live at its mygala.ca address. Extend Live Party to bring your custom domain back.' },
     ],
-    cta: { title: 'Give your event its own address', text: 'Create your page, upgrade to Plus, and connect your domain in minutes.' },
+    cta: { title: 'Give your event its own address', text: 'Create your page, upgrade to Live Party, and connect your domain in minutes.' },
     related: ['guest-photo-qr-code', 'event-templates', 'custom-sections'],
   },
 ];

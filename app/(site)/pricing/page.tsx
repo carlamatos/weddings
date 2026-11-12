@@ -12,15 +12,15 @@ import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { PricingCards } from '@/app/ui/marketing/pricing-cards';
 
 const SEO: SeoMeta = {
-  title: 'MyGala Pricing: Free to Start, Plus $49.99 Once per Event',
+  title: 'MyGala Pricing: Free to Start, Live Party $49.99 Once per Event',
   description:
-    'MyGala pricing: create event pages free with every theme, RSVPs and invitations. Plus is a one-time $49.99 CAD per event, not a subscription.',
+    'MyGala pricing: create event pages free with every theme, RSVPs and invitations. Live Party is a one-time $49.99 CAD per event, not a subscription.',
   keywords: ['MyGala pricing', 'event website pricing', 'free wedding website', 'wedding website cost', 'event page one-time payment', 'RSVP website price'],
 };
 
 export const metadata: Metadata = marketingMetadata(SEO, '/pricing');
 
-// Free vs Plus, row by row. `true` = included; a string = the limit.
+// Free vs Live Party, row by row. `true` = included; a string = the limit.
 // Mirrors PLAN_FEATURES in app/lib/plans.ts and the FAQ's limits.
 const COMPARE: { label: string; href?: string; free: boolean | string; plus: boolean | string }[] = [
   { label: 'Event pages', free: 'As many as you need', plus: 'Per event' },
@@ -37,9 +37,10 @@ const COMPARE: { label: string; href?: string; free: boolean | string; plus: boo
   { label: 'Livestream and song requests', href: '/features/livestream', free: false, plus: true },
   { label: 'Automatic reminder emails', href: '/features/event-reminder-emails', free: false, plus: true },
   { label: 'Gift exchange (Secret Santa)', href: '/features/gift-exchange', free: true, plus: true },
-  { label: 'Potluck sign-up', href: '/features/potluck', free: false, plus: true },
-  { label: 'Custom sections and sponsors', href: '/features/custom-sections', free: false, plus: true },
-  { label: 'Gift registry section', free: false, plus: true },
+  { label: 'Potluck sign-up', href: '/features/potluck', free: true, plus: true },
+  { label: 'Custom sections', href: '/features/custom-sections', free: true, plus: true },
+  { label: 'Gift registry section', free: true, plus: true },
+  { label: 'Sponsors', href: '/features/custom-sections', free: false, plus: true },
   { label: 'Password-protected page', href: '/features/password-protection', free: false, plus: true },
   { label: 'Your own domain', href: '/features/custom-domain', free: false, plus: true },
   { label: 'Priority support', free: false, plus: true },
@@ -69,7 +70,7 @@ export default function PricingPage() {
           <p className="eyebrow">MyGala pricing</p>
           <h1 className="mk-h1">Start free. Pay once, only for the events that need more.</h1>
           <p className="mk-lead">
-            Every MyGala event page is free, with every theme, RSVPs, your guest list and invitations. Plus is a single payment
+            Every MyGala event page is free, with every theme, RSVPs, your guest list and invitations. Live Party is a single payment
             of {PLAN_PRICE_PLUS_TAX} per event that unlocks everything else for {PLAN_TERM_MONTHS} months. No subscription, no card kept on file.
           </p>
         </div>
@@ -81,14 +82,14 @@ export default function PricingPage() {
         </section>
 
         <section className="mk-body mk-compare-wrap">
-          <h2 className="mk-h2">Compare Free and Plus</h2>
+          <h2 className="mk-h2">Compare Free and Live Party</h2>
           <div className="mk-compare-scroll">
             <table className="mk-compare">
               <thead>
                 <tr>
                   <th scope="col">Feature</th>
                   <th scope="col">Free</th>
-                  <th scope="col">Plus</th>
+                  <th scope="col">Live Party</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,12 +107,12 @@ export default function PricingPage() {
 
         <div className="mk-body">
           <section className="mk-block">
-            <h2 className="mk-h2">How Plus works</h2>
+            <h2 className="mk-h2">How Live Party works</h2>
             <ul className="mk-list">
-              <li><strong>Per event.</strong> Plus belongs to one event page, so a free birthday page and a Plus wedding page can sit side by side in your dashboard.</li>
+              <li><strong>Per event.</strong> Live Party belongs to one event page, so a free birthday page and a Live Party wedding page can sit side by side in your dashboard.</li>
               <li><strong>One payment.</strong> You pay once at checkout. Nothing renews, so there is nothing to cancel.</li>
-              <li><strong>{PLAN_TERM_MONTHS} months of everything.</strong> Plenty of time to plan, celebrate and collect the photos afterwards. When the term ends, your page stays online on the free plan, or you can extend Plus with another single payment.</li>
-              <li><strong>Upgrade any time.</strong> Start free and switch to Plus when you need it. Everything you set up stays as it is.</li>
+              <li><strong>{PLAN_TERM_MONTHS} months of everything.</strong> Plenty of time to plan, celebrate and collect the photos afterwards. When the term ends, your page stays online on the free plan, or you can extend Live Party with another single payment.</li>
+              <li><strong>Upgrade any time.</strong> Start free and switch to Live Party when you need it. Everything you set up stays as it is.</li>
             </ul>
           </section>
 
@@ -123,7 +124,7 @@ export default function PricingPage() {
         </div>
       </div>
 
-      <FinalCta title="Your event page is free to start" text="Pick a theme, add your details and share your link today. Upgrade to Plus only if your event needs it." />
+      <FinalCta title="Your event page is free to start" text="Pick a theme, add your details and share your link today. Upgrade to Live Party only if your event needs it." />
     </MarketingShell>
   );
 }

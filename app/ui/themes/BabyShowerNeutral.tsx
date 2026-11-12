@@ -651,7 +651,7 @@ export default function BabyShowerNeutral({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-white section-center">
             <div className="wrap">
@@ -708,7 +708,7 @@ export default function BabyShowerNeutral({
         </Reveal>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <Reveal>
           <div id="potluck" className="rsvp-section">
             {/* eslint-disable-next-line @next/next/no-img-element */}

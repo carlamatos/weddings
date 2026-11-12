@@ -54,7 +54,7 @@ function NoticeLine({ notice }: { notice: Notice }) {
   return <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: notice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{notice.text}</p>;
 }
 
-// Gift Exchange (Secret Santa, Plus): the host's details, who's taking part,
+// Gift Exchange (Secret Santa, Live Party): the host's details, who's taking part,
 // the draw, and telling everyone who they're buying for.
 export function GiftExchangeManager({
   pageId,

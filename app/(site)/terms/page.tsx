@@ -5,7 +5,7 @@ import { COMPANY } from '@/app/lib/company';
 import { PLAN_PRICE_LABEL, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { pageMetadata } from '@/app/lib/marketing/seo';
 
-export const metadata = pageMetadata('Terms of Service', `The terms for using MyGala, the event website platform operated by ${COMPANY.legalName}: your account, your content, Plus payments and refunds, and custom domains.`, '/terms');
+export const metadata = pageMetadata('Terms of Service', `The terms for using MyGala, the event website platform operated by ${COMPANY.legalName}: your account, your content, Live Party payments and refunds, and custom domains.`, '/terms');
 
 const EFFECTIVE_DATE = 'October 4, 2026';
 const CONTACT_EMAIL = COMPANY.email;
@@ -28,7 +28,7 @@ export default function TermsPage() {
 
       <h2 style={h2}>2. Eligibility</h2>
       <p>
-        You must be at least 13 years old to use MyGala, and at least the age of majority in your province or territory to buy MyGala Plus. By using the Service, you represent that you meet these requirements and that the information you provide is accurate.
+        You must be at least 13 years old to use MyGala, and at least the age of majority in your province or territory to buy MyGala Live Party. By using the Service, you represent that you meet these requirements and that the information you provide is accurate.
       </p>
 
       <h2 style={h2}>3. Your account</h2>
@@ -36,12 +36,12 @@ export default function TermsPage() {
         You can create an account with an email address and password, or sign in with Google or Facebook. You are responsible for keeping your account secure and for all activity that occurs under it. Notify us immediately at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> if you believe your account has been compromised.
       </p>
       <p>
-        One account can create several event pages, up to the limit shown in your dashboard. Each page is on the free plan or on Plus on its own. You may not create multiple accounts to get around plan limits.
+        One account can create several event pages, up to the limit shown in your dashboard. Each page is on the free plan or on Live Party on its own. You may not create multiple accounts to get around plan limits.
       </p>
 
       <h2 style={h2}>4. The Service</h2>
       <p>
-        MyGala lets you create a publicly accessible website for your event — such as a wedding, celebration, business or community event — collect RSVPs, keep a guest list, send invitations, share photos and event details, and, with Plus, use additional features such as guest photo uploads, reminders, invitations by email and a custom domain. The Service is offered on a free plan and a paid &ldquo;Plus&rdquo; plan. What each plan includes is described on our <Link href="/pricing" style={link}>pricing page</Link>.
+        MyGala lets you create a publicly accessible website for your event — such as a wedding, celebration, business or community event — collect RSVPs, keep a guest list, send invitations, share photos and event details, and, with Live Party, use additional features such as guest photo uploads, reminders, invitations by email and a custom domain. The Service is offered on a free plan and a paid &ldquo;Live Party&rdquo; plan. What each plan includes is described on our <Link href="/pricing" style={link}>pricing page</Link>.
       </p>
 
       <h2 style={h2}>5. Acceptable use</h2>
@@ -56,7 +56,7 @@ export default function TermsPage() {
         <li>Scrape or harvest data from the platform using automated means.</li>
       </ul>
       <p>
-        We may remove content, deactivate or suspend event pages, or suspend accounts that break these rules. Where a page is suspended for a breach of these Terms, any Plus payment for it is not refunded, except where the law requires otherwise.
+        We may remove content, deactivate or suspend event pages, or suspend accounts that break these rules. Where a page is suspended for a breach of these Terms, any Live Party payment for it is not refunded, except where the law requires otherwise.
       </p>
 
       <h2 style={h2}>6. Your content</h2>
@@ -78,18 +78,18 @@ export default function TermsPage() {
         When you send invitations through MyGala — by email, or as a text or WhatsApp message from your own phone — they are sent on your behalf and in your name. Guests can unsubscribe from emails about your event at any time. MyGala stores your guests&rsquo; information on your behalf, uses it only to provide the Service, and handles it as described in our <Link href="/privacy" style={link}>Privacy Policy</Link>.
       </p>
 
-      <h2 id="billing" style={h2}>8. MyGala Plus: price, payment, refunds and cancellation</h2>
+      <h2 id="billing" style={h2}>8. MyGala Live Party: price, payment, refunds and cancellation</h2>
       <p>
-        MyGala Plus is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, plus applicable taxes (GST/HST and, where it applies, provincial sales tax, calculated at checkout from your billing address), charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Plus features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
+        MyGala Live Party is sold by {COMPANY.legalName} It is a <strong>one-time payment of {PLAN_PRICE_LABEL} per event page</strong>, plus applicable taxes (GST/HST and, where it applies, provincial sales tax, calculated at checkout from your billing address), charged in <strong>Canadian dollars</strong>, that unlocks that page&rsquo;s Live Party features for <strong>{PLAN_TERM_MONTHS} months</strong> from the date of purchase. It is <strong>not a subscription</strong>: you are not charged again, and nothing renews automatically.
       </p>
       <ul style={ul}>
         <li><strong>Payment:</strong> Payments are processed securely by <strong>Stripe</strong>. We never see or store your full card details. Your card issuer may charge a currency conversion fee if your card is not in Canadian dollars.</li>
         <li><strong>Receipt:</strong> After your payment, a receipt is emailed to the address you used at checkout. Keep it as your record of the purchase.</li>
-        <li><strong>When Plus ends:</strong> After {PLAN_TERM_MONTHS} months, your event page stays live on the free plan, without the Plus-only features. You can extend Plus for another {PLAN_TERM_MONTHS} months with another one-time payment at any time.</li>
-        <li id="refunds"><strong>Refunds:</strong> Because Plus features are available as soon as payment is complete, payments are non-refundable, except where required by law. If you believe you were charged in error, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> within 14 days of the charge and we will review it.</li>
-        <li id="cancellation"><strong>Cancellation:</strong> Plus is not a subscription, so there is nothing to cancel: it ends on its own after {PLAN_TERM_MONTHS} months and you are never charged again unless you choose to extend it. You can stop using Plus, deactivate your page or close your account at any time; the unused part of a Plus term is not refunded, except where required by law.</li>
+        <li><strong>When Live Party ends:</strong> After {PLAN_TERM_MONTHS} months, your event page stays live on the free plan, without the Plus-only features. You can extend Live Party for another {PLAN_TERM_MONTHS} months with another one-time payment at any time.</li>
+        <li id="refunds"><strong>Refunds:</strong> Because Live Party features are available as soon as payment is complete, payments are non-refundable, except where required by law. If you believe you were charged in error, contact us at <a href={`mailto:${CONTACT_EMAIL}`} style={link}>{CONTACT_EMAIL}</a> within 14 days of the charge and we will review it.</li>
+        <li id="cancellation"><strong>Cancellation:</strong> Live Party is not a subscription, so there is nothing to cancel: it ends on its own after {PLAN_TERM_MONTHS} months and you are never charged again unless you choose to extend it. You can stop using Live Party, deactivate your page or close your account at any time; the unused part of a Live Party term is not refunded, except where required by law.</li>
         <li><strong>Promotion codes:</strong> From time to time we may offer promotion codes, entered at checkout. Each code&rsquo;s discount, expiry date and any other conditions are shown with the code. Codes can only be used as described, can&rsquo;t be combined unless we say so, have no cash value, and a purchase made with a code follows the same refund terms as any other purchase.</li>
-        <li><strong>Price changes:</strong> We may change the price of Plus for future purchases. The price that applies to you is the one shown at checkout when you buy.</li>
+        <li><strong>Price changes:</strong> We may change the price of Live Party for future purchases. The price that applies to you is the one shown at checkout when you buy.</li>
       </ul>
       <p>
         Nothing in these Terms limits any right you have under the consumer protection laws of your province or territory.
@@ -97,7 +97,7 @@ export default function TermsPage() {
 
       <h2 style={h2}>9. Custom domains</h2>
       <p>
-        Plus pages may connect a custom domain that you own. You are responsible for buying and renewing the domain name and for setting up its DNS records correctly. {COMPANY.legalName} is not responsible for domain registration, renewal, or expiry. If your domain expires, your event page will no longer be reachable at that domain, but it stays available at its {COMPANY.website} address.
+        Live Party pages may connect a custom domain that you own. You are responsible for buying and renewing the domain name and for setting up its DNS records correctly. {COMPANY.legalName} is not responsible for domain registration, renewal, or expiry. If your domain expires, your event page will no longer be reachable at that domain, but it stays available at its {COMPANY.website} address.
       </p>
 
       <h2 style={h2}>10. Service availability</h2>

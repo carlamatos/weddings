@@ -9,7 +9,7 @@ import { reminderEmail } from './reminder-email';
 import { DEFAULT_REMINDER_TIMEZONE, isHourReminder, isValidTimeZone, parseReminderSchedule, reminderSendDate, reminderSendInstant, type ReminderKey } from './reminders';
 import { oneClickUnsubscribeUrl, unsubscribeUrl } from './unsubscribe-token';
 
-// Hourly job body (app/api/cron/reminders). For each Plus page with
+// Hourly job body (app/api/cron/reminders). For each Live Party page with
 // reminders set, sends at most one due reminder per run:
 // - date-based ones (months, weeks, days before) go out on their send date,
 //   from the 14:00 UTC run on (around 9–10 AM Eastern) — or the next day, so

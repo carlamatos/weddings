@@ -374,7 +374,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Fragment key={`custom-${section.position}`}>
           <div className="section">
             <CustomSectionContent section={section} titleClassName="section-title" textClassName="story-text" />
@@ -422,7 +422,7 @@ export default function TerracottaHarvest({
         </>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <>
           <div id="potluck" className="section-tinted">
             <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="section-label" fallback={t.potluckLabel} />

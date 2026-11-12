@@ -36,7 +36,7 @@ function onRootDomain(hostname: string): boolean {
 const MAX_PARTY = 50;
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
-  const { guestListOnly, meals: mealOptions, giftExchange } = useRsvpOptions();
+  const { guestListOnly, meals: mealOptions, giftExchange, askSong } = useRsvpOptions();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -59,6 +59,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   // Ticked by default; guests can untick it, and every email links to /unsubscribe.
   const [receiveUpdates, setReceiveUpdates] = useState(true);
   const [joinGift, setJoinGift] = useState(false);
+  const [song, setSong] = useState('');
   const [giftIdeas, setGiftIdeas] = useState('');
   const [honeypot, setHoneypot] = useState('');
   const [cfToken, setCfToken] = useState('');
@@ -137,7 +138,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}) }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -287,6 +288,12 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
               </div>
             ))}
           </div>
+        </div>
+      )}
+      {status === 'attending' && askSong && (
+        <div>
+          <label className="field-label" htmlFor="rsvp-song">{t.rsvpSong}</label>
+          <input id="rsvp-song" type="text" value={song} maxLength={120} onChange={(e) => setSong(e.target.value)} placeholder={t.rsvpSongPlaceholder} />
         </div>
       )}
       {status === 'attending' && giftExchange && (

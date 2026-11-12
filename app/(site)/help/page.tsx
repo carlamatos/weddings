@@ -43,7 +43,7 @@ export default function HelpPage() {
               {HELP_GUIDES.filter((g) => g.category === c.id).map((g) => (
                 <li key={g.slug}>
                   <Link href={`/help/${g.slug}`} className="hc-guide">
-                    <strong>{g.title}{g.plan && <span className="hc-plus">Plus</span>}</strong>
+                    <strong>{g.title}{g.plan && <span className="hc-plus">Live Party</span>}</strong>
                     <span>{g.summary}</span>
                   </Link>
                 </li>

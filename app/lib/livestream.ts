@@ -1,4 +1,4 @@
-// Plus: the live stream section — a link to the owner's stream, shown on the
+// Live Party: the live stream section — a link to the owner's stream, shown on the
 // page as an embedded player (YouTube, Vimeo, Twitch, Facebook) or as a
 // "Watch live" button for anything else (Zoom, Meet, …). Stored in
 // user_page_settings under the LIVESTREAM_SETTINGS names. Shared by the

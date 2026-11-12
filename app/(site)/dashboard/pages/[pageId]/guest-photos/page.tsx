@@ -16,7 +16,7 @@ import type { Metadata } from 'next';
 import { getDashText } from '@/app/lib/dash-text/server';
 export const metadata: Metadata = { title: 'Guest Photos' };
 
-// Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Plus raises the
+// Guest Photos is free up to FREE_GUEST_PHOTO_LIMIT photos; Live Party raises the
 // limit. Free pages start with the section off.
 export default async function GuestPhotosPage({ params }: { params: Promise<{ pageId: string }> }) {
   const d = await getDashText();

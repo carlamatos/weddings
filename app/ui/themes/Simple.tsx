@@ -524,7 +524,7 @@ export default function Simple({
         )}
 
         {/* CUSTOM SECTIONS (Plus) */}
-        {isPaid && customSections?.map((section, i) => (
+        {customSections?.map((section, i) => (
           <section key={`custom-${section.position}`} className={`section section-center${i % 2 ? ' section-sand' : ' section-white'}`}>
             <Reveal className="wrap">
               <Rule />
@@ -575,7 +575,7 @@ export default function Simple({
         )}
 
         {/* POTLUCK (Plus, off by default) */}
-        {isPaid && potluck && (
+        {potluck && (
           <section id="potluck" className="rsvp-section">
             <Reveal className="form-card">
               <div className="head">

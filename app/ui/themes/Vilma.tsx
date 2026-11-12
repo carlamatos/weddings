@@ -415,7 +415,7 @@ export default function Vilma({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <div className="section section-center" key={`custom-${section.position}`}>
           <div className="wrap">
             <CustomSectionContent section={section} titleClassName="section-title" textStyle={{ fontFamily: 'var(--vl-serif)', fontSize: 17, lineHeight: 1.9, color: 'var(--vl-ink-soft)' }} />
@@ -462,7 +462,7 @@ export default function Vilma({
         </div>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
           <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="section-title on-butter" fallback={t.potluckTitle} />

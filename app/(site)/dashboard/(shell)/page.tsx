@@ -49,7 +49,7 @@ const badge = (bg: string, color: string): React.CSSProperties => ({
   letterSpacing: 0.3, background: bg, color, whiteSpace: 'nowrap',
 });
 
-// /dashboard: the user's event pages. Each event is free or Plus on its own;
+// /dashboard: the user's event pages. Each event is free or Live Party on its own;
 // "Create new event" runs the full setup again.
 export default async function EventPages({ searchParams }: { searchParams: Promise<{ section?: string; deleted?: string }> }) {
   const d = await getDashText();

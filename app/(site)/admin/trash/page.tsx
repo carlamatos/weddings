@@ -148,7 +148,7 @@ async function PagesTrash({ offset, total }: { offset: number; total: number | n
                   <div style={{ fontWeight: 600 }}>{p.heading || 'Untitled event'}</div>
                   <div style={{ color: c.soft }}>/{p.slug}</div>
                   {p.custom_domain && <div style={{ color: c.muted, fontSize: 11 }}>{p.custom_domain}</div>}
-                  {p.plan_type === 'paid' && <div style={{ color: c.muted, fontSize: 11 }}>Plus</div>}
+                  {p.plan_type === 'paid' && <div style={{ color: c.muted, fontSize: 11 }}>Live Party</div>}
                 </td>
                 <td style={{ ...td, color: c.soft }}>{p.owner_email ?? '—'}</td>
                 <td style={{ ...td, color: c.soft }}>

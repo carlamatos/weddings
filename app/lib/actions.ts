@@ -266,7 +266,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
         return { errors: { theme_slug: ['Please choose a theme.'] }, message: 'Please choose a theme for your page.' };
       }
 
-      // Plus is bought per page after it's created (below). The one exception
+      // Live Party is bought per page after it's created (below). The one exception
       // is a purchase made before the account had any page, which carries
       // over to this first page.
       if (!event_date) await ensureOptionalEventDate();
@@ -323,10 +323,10 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // Let the super admins know (never blocks or fails the request).
     if (newPageId) {
       await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free' });
-      await notifyAdminsOfNewPage(newPageId, prepaid ? 'Plus (prepaid)' : wantsPlus ? 'Free — chose Plus, sent to checkout' : 'Free');
+      await notifyAdminsOfNewPage(newPageId, prepaid ? 'Live Party (prepaid)' : wantsPlus ? 'Free — chose Live Party, sent to checkout' : 'Free');
     }
 
-    // Chose Plus for this event: the page exists (free) now, so pay for it.
+    // Chose Live Party for this event: the page exists (free) now, so pay for it.
     // Cancelling checkout leaves it free, upgradeable from the dashboard.
     if (wantsPlus && !prepaid && newPageId && user_id) {
       let checkoutUrl: string | null = null;
@@ -335,7 +335,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
         const origin = h.get('origin') ?? process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
         checkoutUrl = await createPlusCheckout({ userId: user_id, email: session?.user?.email ?? undefined, pageId: Number(newPageId), origin });
       } catch (error) {
-        console.error('Failed to start Plus checkout for new page:', error);
+        console.error('Failed to start Live Party checkout for new page:', error);
       }
       if (checkoutUrl) redirect(checkoutUrl);
     }
@@ -551,20 +551,20 @@ export async function updateShareHashtag(pageId: number, raw: string): Promise<s
   }
 }
 
-// ─── Custom sections & sponsors (Plus) ─────────────────────
+// ─── Custom sections & sponsors (Live Party) ─────────────────────
 // Every action checks, in the same query, that the page belongs to the
 // signed-in user and is on a paid plan.
 
 type PlusResult<T> = { ok: true; value: T } | { ok: false; error: string };
 
-const PLUS_ONLY_ERROR = 'This is a Plus feature.';
+const PLUS_ONLY_ERROR = 'This is a Live Party feature.';
 const GENERIC_PLUS_ERROR = 'Couldn’t save. Please try again.';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // The page id when the signed-in user owns this page and it's paid, else an
-// error. `setup`: saving a Plus feature's content, which a free page may do
+// error. `setup`: saving a Live Party feature's content, which a free page may do
 // too — the host sets it up fully and only turning it on for guests (the
-// public page checks the plan) or sending needs Plus.
+// public page checks the plan) or sending needs Live Party.
 async function ownedPlusPageId(pageId: number, { setup = false }: { setup?: boolean } = {}): Promise<PlusResult<number>> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -705,7 +705,7 @@ export async function reorderSponsors(pageId: number, orderedIds: string[]): Pro
   }
 }
 
-// Saves the registry section (Plus): the registry link, an optional button
+// Saves the registry section (Live Party): the registry link, an optional button
 // label and a free-text message. Empty fields are cleared.
 export async function saveRegistry(
   pageId: number,
@@ -733,7 +733,7 @@ export async function saveRegistry(
   }
 }
 
-// Plus: the live stream section. The link (or embed code, of which only the
+// Live Party: the live stream section. The link (or embed code, of which only the
 // iframe src is kept), how to show it, an optional button label and message —
 // each stored as a page setting. Empty values remove the setting.
 export async function saveLivestream(
@@ -773,7 +773,7 @@ export async function saveLivestream(
   }
 }
 
-// Plus: password protection for an event page. Turning it on needs a
+// Live Party: password protection for an event page. Turning it on needs a
 // password (a new one, or one saved before); changing the password signs
 // every guest out of the page (their access cookie is tied to the hash).
 export async function savePagePassword(
@@ -808,11 +808,11 @@ export async function savePagePassword(
   }
 }
 
-// Plus: the host removes one potluck entry.
+// The host removes one potluck entry (free on every page).
 export async function deletePotluckEntry(pageId: number, entryId: number): Promise<PlusResult<null>> {
   if (!Number.isInteger(entryId) || entryId <= 0) return { ok: false, error: 'Entry not found.' };
   try {
-    const owned = await ownedPlusPageId(pageId);
+    const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return owned;
     await sql`DELETE FROM page_potluck WHERE id = ${entryId} AND user_page_id = ${owned.value}`;
     revalidatePath('/', 'layout');
@@ -899,9 +899,9 @@ export async function updateGuest(
   }
 }
 
-// Find Your Table (Plus): sets the table of one or more guests on the
+// Find Your Table (Live Party): sets the table of one or more guests on the
 // list ('' takes them off their table). Saving is open to free pages too, so
-// the seating can be done before upgrading; the guest lookup needs Plus.
+// the seating can be done before upgrading; the guest lookup needs Live Party.
 const SEATING_MAX_PER_SAVE = 2000;
 export async function saveSeating(
   pageId: number,
@@ -1601,7 +1601,7 @@ export async function updateSectionBackground(pageId: number, key: string, value
   }
 }
 
-// Event Reminders (Plus). Saves which lead times are ticked and the owner's
+// Event Reminders (Live Party). Saves which lead times are ticked and the owner's
 // personal note; the daily cron job (app/lib/reminder-send.ts) does the sending.
 export async function saveReminderSettings(
   pageId: number,
@@ -1619,7 +1619,7 @@ export async function saveReminderSettings(
   try {
     const page = await sql`SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
     if (!page.rows[0]) return { ok: false, error: 'Page not found.' };
-    // A free page can set its schedule up; the cron job only sends for Plus pages.
+    // A free page can set its schedule up; the cron job only sends for Live Party pages.
     await sql`
       INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
       VALUES (${pid}, 'reminder_schedule', ${schedule}), (${pid}, 'reminder_message', ${message}), (${pid}, 'reminder_timezone', ${timeZone})
