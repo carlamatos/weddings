@@ -434,7 +434,7 @@ export default function TerracottaHarvest({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <>
           <div id="gift-exchange" className="section-tinted">
             <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="section-label" fallback={t.giftLabel} />

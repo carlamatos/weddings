@@ -752,7 +752,7 @@ export default function DiaDeLosMuertos({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>
             <div className="rsvp-card">

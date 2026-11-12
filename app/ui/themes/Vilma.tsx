@@ -474,7 +474,7 @@ export default function Vilma({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
           <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="section-title on-butter" fallback={t.giftTitle} />

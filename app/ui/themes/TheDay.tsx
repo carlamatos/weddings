@@ -639,7 +639,7 @@ export default function TheDay({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">

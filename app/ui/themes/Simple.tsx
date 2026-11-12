@@ -589,7 +589,7 @@ export default function Simple({
         )}
 
         {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="rsvp-section">
             <Reveal className="form-card">
               <div className="head">

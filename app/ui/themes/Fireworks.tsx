@@ -879,7 +879,7 @@ export default function Fireworks({
         )}
 
         {/* GIFT EXCHANGE (Plus, off by default) — on confetti-dotted violet */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="gift-section section-dots">
             <Reveal className="fw-card">
               <Seal />

@@ -893,7 +893,7 @@ export default function Gnomes({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain hat red */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <HatCard>
             <div style={{ textAlign: 'center' }}>

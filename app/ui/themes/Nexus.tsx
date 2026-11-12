@@ -613,7 +613,7 @@ export default function Nexus({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <>
           <Reveal>
             <div id="gift-exchange" className="section section-center section-soft">

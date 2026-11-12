@@ -387,7 +387,7 @@ export default function MidnightBotanical({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="spine-section">
           <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
           <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="title" fallback={t.giftTitle} />

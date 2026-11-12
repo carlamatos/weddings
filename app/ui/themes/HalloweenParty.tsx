@@ -822,7 +822,7 @@ export default function HalloweenParty({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <BatFlight color="#141215" count={3} />
           <Reveal style={{ position: 'relative', zIndex: 2, width: '100%', maxWidth: 480 }}>

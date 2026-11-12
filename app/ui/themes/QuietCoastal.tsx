@@ -407,7 +407,7 @@ export default function QuietCoastal({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <>
           <hr className="hairline" />
           <div id="gift-exchange" className="wrap">

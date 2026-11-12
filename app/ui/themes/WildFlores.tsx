@@ -667,7 +667,7 @@ export default function WildFlores({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain lilac */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <PoppyCard>
             <div style={{ textAlign: 'center' }}>

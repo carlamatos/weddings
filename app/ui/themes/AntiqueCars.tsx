@@ -705,7 +705,7 @@ export default function AntiqueCars({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="rsvp-section">
             <WireWheel className="ac-wheel ac-wheel-left" />

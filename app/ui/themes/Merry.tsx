@@ -853,7 +853,7 @@ export default function Merry({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default), wrapped in the red ribbon */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="gift-section">
           <span className="gift-ribbon" aria-hidden="true" />
           <div className="gift-panel">

@@ -832,7 +832,7 @@ export default function NewYearsEve({
         )}
 
         {/* GIFT EXCHANGE (Plus, off by default) — on gold-dotted umber */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="gift-section section-dots">
             <Reveal className="ny-card">
               <Seal />

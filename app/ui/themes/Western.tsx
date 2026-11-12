@@ -646,7 +646,7 @@ export default function Western({
         )}
 
         {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain rust */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="rsvp-section">
             <PosterCard>
               <div className="head">

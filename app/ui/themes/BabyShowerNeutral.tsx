@@ -726,7 +726,7 @@ export default function BabyShowerNeutral({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="rsvp-section">
             {/* eslint-disable-next-line @next/next/no-img-element */}

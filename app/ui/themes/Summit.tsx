@@ -507,7 +507,7 @@ export default function Summit({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="section section-center" style={{ backgroundColor: '#2C2342' }}>
             <div className="wrap">
