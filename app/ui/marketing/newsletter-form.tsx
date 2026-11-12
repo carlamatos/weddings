@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-// Newsletter sign-up in the marketing footer. The 10%-off Plus code is
+// Newsletter sign-up in the marketing footer. The 10%-off Live Party code is
 // emailed (app/api/newsletter), not shown here.
 export default function NewsletterForm() {
   const [email, setEmail] = useState('');
@@ -37,7 +37,7 @@ export default function NewsletterForm() {
   return (
     <section className="newsletter" aria-labelledby="newsletter-heading">
       <p className="newsletter-eyebrow">MyGala newsletter</p>
-      <h2 id="newsletter-heading" className="newsletter-heading">Get 10% off MyGala Plus</h2>
+      <h2 id="newsletter-heading" className="newsletter-heading">Get 10% off MyGala Live Party</h2>
       {status === 'done' ? (
         <p className="newsletter-done" role="status">
           You&rsquo;re in! 🎉 Check <strong>{email}</strong> for your 10% off code.
@@ -45,7 +45,7 @@ export default function NewsletterForm() {
       ) : (
         <>
           <p className="newsletter-lead">
-            Subscribe for new themes, event ideas and offers, and we&rsquo;ll email you a code for 10% off Plus.
+            Subscribe for new themes, event ideas and offers, and we&rsquo;ll email you a code for 10% off Live Party.
           </p>
           <form className="newsletter-form" onSubmit={submit}>
             <label htmlFor="newsletter-email" className="sr-only">Email address</label>

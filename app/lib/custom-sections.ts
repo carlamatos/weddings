@@ -13,7 +13,7 @@ export const IMAGE_ALT_MAX = 200;
 
 export const SPONSOR_MAX_COUNT = 30;
 
-// Sponsors (Plus) are off unless the host switches them on — unlike most
+// Sponsors (Live Party) are off unless the host switches them on — unlike most
 // sections, which are on by default. Pages that had sponsors before this
 // default changed were switched on by POST /api/migrate.
 export function areSponsorsOn(settings: Record<string, string>): boolean {

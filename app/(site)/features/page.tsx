@@ -58,7 +58,7 @@ export default function FeaturesIndex() {
           </ul>
         </section>
       </div>
-      <FinalCta title="Start with everything included" text="Create your event page free, and upgrade to Plus only when you need more." />
+      <FinalCta title="Start with everything included" text="Create your event page free, and upgrade to Live Party only when you need more." />
     </MarketingShell>
   );
 }

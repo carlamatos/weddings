@@ -7,7 +7,7 @@ declare global {
   interface Window { gtag?: (...args: unknown[]) => void }
 }
 
-// Reports a Plus purchase to Google Ads (conversion), GA4 (purchase) and Tag
+// Reports a Live Party purchase to Google Ads (conversion), GA4 (purchase) and Tag
 // Manager ('mygala_purchase', a Custom Event trigger for tags like
 // Pinterest's checkout; gtag() calls don't fire those) when
 // Stripe's confirm route lands the buyer here with
@@ -58,7 +58,7 @@ export default function PurchaseConversion() {
         transaction_id: tid,
         value: value > 0 ? value : 0,
         currency,
-        items: [{ item_id: 'plus', item_name: 'MyGala Plus', price: value > 0 ? value : 0, quantity: 1 }],
+        items: [{ item_id: 'plus', item_name: 'MyGala Live Party', price: value > 0 ? value : 0, quantity: 1 }],
       });
     }, 250);
     return () => window.clearInterval(timer);

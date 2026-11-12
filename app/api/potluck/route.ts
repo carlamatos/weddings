@@ -32,10 +32,10 @@ export async function POST(request: Request) {
     if (!EMAIL_RE.test(email)) return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
 
     const [page, settings] = await Promise.all([
-      sql`SELECT plan_type FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`,
+      sql`SELECT 1 FROM user_page WHERE id = ${pageId} AND COALESCE(status, 'active') NOT IN ('inactive', 'suspended', 'draft') LIMIT 1`,
       fetchPageSettings(pageId),
     ]);
-    if (page.rows[0]?.plan_type !== 'paid' || !isPotluckOn(settings)) {
+    if (!page.rows[0] || !isPotluckOn(settings)) {
       return NextResponse.json({ error: 'Potluck sign-ups are closed.' }, { status: 403 });
     }
     if (await guestAccessDenied(request, pageId)) {

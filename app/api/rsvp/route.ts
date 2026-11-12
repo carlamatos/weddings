@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { isRsvpSongOn, RSVP_SONG_MAX } from '@/app/lib/rsvp-song';
+import { GIFT_MAX_PARTICIPANTS, GIFT_NAME_MAX, GIFT_WISHLIST_MAX, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
 import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
@@ -16,7 +18,7 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals } = body;
+    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals, joinGiftExchange, giftIdeas, song } = body;
 
     // Honeypot: bots fill hidden fields, real users don't
     if (honeypot) {
@@ -145,6 +147,39 @@ export async function POST(request: Request) {
           NOW()
         )
       `;
+    }
+
+    // The free song question: saved as a song request, so the host sees it
+    // in Song Requests. Never fails the RSVP.
+    const songText = typeof song === 'string' ? song.trim().slice(0, RSVP_SONG_MAX) : '';
+    if (songText && status === 'attending' && isRsvpSongOn(settings)) {
+      try {
+        await sql`
+          INSERT INTO guests_songs (user_page_id, requester_name, song_title, artist, ip_address)
+          VALUES (${pageId}, ${name.trim().slice(0, 120)}, ${songText}, '', ${clientIp(request.headers)})
+        `;
+      } catch (songErr) {
+        console.error('RSVP song request failed:', songErr);
+      }
+    }
+
+    // "Count me in for the gift exchange": an attending guest joins the
+    // page's Gift Exchange too, while sign-ups are open. Never fails the RSVP.
+    if (joinGiftExchange === true && status === 'attending' && isGiftExchangeOn(settings)) {
+      try {
+        const ideas = typeof giftIdeas === 'string' ? giftIdeas.trim().slice(0, GIFT_WISHLIST_MAX) || null : null;
+        const guestRow = await sql<{ id: string }>`SELECT id FROM event_guests WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()}) LIMIT 1`;
+        await sql`
+          INSERT INTO page_gift_exchange (user_page_id, name, email, phone, wishlist, guest_id)
+          SELECT ${pageId}, ${name.trim().slice(0, GIFT_NAME_MAX)}, ${email.trim().toLowerCase()}, ${cleanPhone}, ${ideas}, ${guestRow.rows[0]?.id ?? null}
+          WHERE NOT EXISTS (SELECT 1 FROM page_gift_exchange WHERE user_page_id = ${pageId} AND giftee_id IS NOT NULL)
+            AND (SELECT COUNT(*) FROM page_gift_exchange WHERE user_page_id = ${pageId}) < ${GIFT_MAX_PARTICIPANTS}
+          ON CONFLICT (user_page_id, (lower(email))) WHERE email IS NOT NULL
+          DO UPDATE SET name = EXCLUDED.name, wishlist = COALESCE(EXCLUDED.wishlist, page_gift_exchange.wishlist), updated_at = NOW()
+        `;
+      } catch (giftErr) {
+        console.error('RSVP gift exchange join failed:', giftErr);
+      }
     }
 
     // Let the organizer know (unless they turned it off in Guests & RSVPs).

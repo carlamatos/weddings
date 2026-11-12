@@ -11,7 +11,7 @@ import PagePasswordGate from '@/app/ui/page-password-gate';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import FindTable from '@/app/ui/find-table';
 
-// <custom domain>/table — Find Your Table (Plus); proxy.ts rewrites it here.
+// <custom domain>/table — Find Your Table (Live Party); proxy.ts rewrites it here.
 // Like the custom-domain page itself, there's no owner preview (the
 // sign-in cookie belongs to mygala.ca).
 

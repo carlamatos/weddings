@@ -2,11 +2,11 @@ import Stripe from 'stripe';
 import { stripe } from '@/app/lib/stripe';
 import { PLAN_CURRENCY, PLAN_ONE_TIME_PRICE, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 
-// Stripe Tax product code for MyGala Plus: an online service bought by
+// Stripe Tax product code for MyGala Live Party: an online service bought by
 // individuals ("Software as a service (SaaS) – personal use").
 const PLUS_TAX_CODE = 'txcd_10103000';
 
-// Stripe Checkout for one event page's Plus term: a one-time payment, not a
+// Stripe Checkout for one event page's Live Party term: a one-time payment, not a
 // subscription. Completion is recorded by /api/stripe/confirm (the success
 // redirect) and the checkout.session.completed webhook, both keyed on the
 // pageId in the metadata.
@@ -26,7 +26,7 @@ export async function createPlusCheckout({
   cancelPath?: string;
   // The dashboard screen to land on after paying (checked by the caller).
   returnPath?: string;
-  // A Plus setting to switch on once paid (checked by the caller).
+  // A Live Party setting to switch on once paid (checked by the caller).
   enable?: string;
 }): Promise<string | null> {
   // Tax-exclusive pricing: Stripe Tax adds GST/HST and provincial sales
@@ -45,7 +45,7 @@ export async function createPlusCheckout({
           unit_amount: Math.round(PLAN_ONE_TIME_PRICE * 100),
           tax_behavior: 'exclusive',
           product_data: {
-            name: `MyGala Plus — ${PLAN_TERM_MONTHS} months (one event page)`,
+            name: `MyGala Live Party — ${PLAN_TERM_MONTHS} months (one event page)`,
             tax_code: PLUS_TAX_CODE,
           },
         },

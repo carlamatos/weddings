@@ -471,7 +471,7 @@ export default function DinnerGala({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-center">
             <div className="wrap">
@@ -524,7 +524,7 @@ export default function DinnerGala({
         </Reveal>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <Reveal>
           <div id="potluck" className="rsvp-section">
             <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
@@ -538,7 +538,7 @@ export default function DinnerGala({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="rsvp-section">
             <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />

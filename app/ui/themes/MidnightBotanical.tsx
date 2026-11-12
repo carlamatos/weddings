@@ -339,7 +339,7 @@ export default function MidnightBotanical({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <div className="spine-section" key={`custom-${section.position}`}>
           <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 16, lineHeight: 1.85, color: 'var(--moss)' }} />
         </div>
@@ -378,7 +378,7 @@ export default function MidnightBotanical({
         </div>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="spine-section">
           <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow" fallback={t.potluckLabel} />
           <SectionText ctx={sectionTextCtx} k="potluck.title" as="h2" className="title" fallback={t.potluckTitle} />
@@ -387,7 +387,7 @@ export default function MidnightBotanical({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="spine-section">
           <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow" fallback={t.giftLabel} />
           <SectionText ctx={sectionTextCtx} k="gift.title" as="h2" className="title" fallback={t.giftTitle} />

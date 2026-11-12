@@ -21,9 +21,9 @@ export const FAQ_GROUPS: FaqGroup[] = [
       { q: 'What kinds of events can I create a page for?', a: 'Any event. Themes are grouped into weddings, celebrations, business events and general events, but every theme works for any occasion and has the same features.' },
       { q: 'Do I need design or technical skills?', a: 'No. Pick a theme, fill in your details, and edit text right on the page. If you can write an email, you can build your event page.' },
       { q: 'How long does it take to set up?', a: 'Most hosts publish a first version in about 10 minutes and keep adding details as their plans come together.' },
-      { q: 'Can I create more than one event?', a: 'Yes. Your dashboard opens on Event pages, where you can create a new event at any time and switch between them. Each event has its own address, guest list and settings, and is free or Plus on its own.' },
-      { q: 'What will my page address be?', a: 'Your page lives at mygala.ca/your-name, using the address you choose when you create it. With Plus you can also connect your own domain.' },
-      { q: 'Can I create pages for online or virtual events?', a: 'Yes. Choose a virtual location and add your meeting link, or add a livestream section with Plus.' },
+      { q: 'Can I create more than one event?', a: 'Yes. Your dashboard opens on Event pages, where you can create a new event at any time and switch between them. Each event has its own address, guest list and settings, and is free or Live Party on its own.' },
+      { q: 'What will my page address be?', a: 'Your page lives at mygala.ca/your-name, using the address you choose when you create it. With Live Party you can also connect your own domain.' },
+      { q: 'Can I create pages for online or virtual events?', a: 'Yes. Choose a virtual location and add your meeting link, or add a livestream section with Live Party.' },
     ],
   },
   {
@@ -31,13 +31,13 @@ export const FAQ_GROUPS: FaqGroup[] = [
     title: 'Plans & pricing',
     faqs: [
       { q: 'Is MyGala free?', a: 'Yes. Create as many event pages as you need for free, each with every theme, RSVPs with guest counts, the countdown, event details, the event program, a gallery of up to 8 photos and a guest photo wall for up to 50 photos from your guests.' },
-      { q: 'What does Plus add?', a: 'Plus adds room for up to 500 guest photos, find-your-table seating, the livestream section, song requests, automatic reminder emails, custom sections, sponsors, a registry section, a custom domain, a gallery of up to 100 photos and priority support.' },
-      { q: 'How much is Plus, and is it a subscription?', a: 'Plus is a one-time payment of $49.99 CAD (plus applicable tax) per event page, so you only pay for the events that need it. It is not a subscription: there are no recurring charges and no card kept on file.' },
-      { q: 'What happens when my 15 months of Plus end?', a: 'Your page stays online. The Plus features switch off and the page continues on the free plan until you extend Plus with another one-time payment.' },
-      { q: 'Can I start free and upgrade later?', a: 'Yes. When you create an event you choose Free or Plus, and you can upgrade a free event at any time from Event pages. Everything you set up stays, and Plus features become available immediately.' },
+      { q: 'What does Live Party add?', a: 'Live Party adds the live extras for the day itself: a photo slideshow for the venue screen, room for up to 500 guest photos, find-your-table seating, the livestream section, song requests, automatic reminder emails, sponsors, password protection, a custom domain, a gallery of up to 100 photos and priority support. Custom sections, the registry link, potluck and the Secret Santa are free.' },
+      { q: 'How much is Live Party, and is it a subscription?', a: 'Live Party is a one-time payment of $49.99 CAD (plus applicable tax) per event page, so you only pay for the events that need it. It is not a subscription: there are no recurring charges and no card kept on file.' },
+      { q: 'What happens when my 12 months of Live Party end?', a: 'Your page stays online. The Live Party features switch off and the page continues on the free plan until you extend Live Party with another one-time payment.' },
+      { q: 'Can I start free and upgrade later?', a: 'Yes. When you create an event you choose Free or Live Party, and you can upgrade a free event at any time from Event pages. Everything you set up stays, and Live Party features become available immediately.' },
       { q: 'How do I pay?', a: 'Payments are processed securely by Stripe. MyGala never sees or stores your card number.' },
-      { q: 'Can I get a refund on Plus?', a: 'Plus features unlock as soon as your payment goes through, so Plus purchases are non-refundable, except where the law requires otherwise. If you think you were charged in error, email info@mygala.ca within 14 days of the charge and we will review it. The full policy is in section 8 of our Terms of Service.' },
-      { q: 'How do I cancel Plus?', a: 'There is nothing to cancel: Plus is a one-time payment, not a subscription, so it never renews. After 15 months your page simply continues on the free plan, unless you choose to extend it.' },
+      { q: 'Can I get a refund on Live Party?', a: 'Live Party features unlock as soon as your payment goes through, so Live Party purchases are non-refundable, except where the law requires otherwise. If you think you were charged in error, email info@mygala.ca within 14 days of the charge and we will review it. The full policy is in section 8 of our Terms of Service.' },
+      { q: 'How do I cancel Live Party?', a: 'There is nothing to cancel: Live Party is a one-time payment, not a subscription, so it never renews. After 12 months your page simply continues on the free plan, unless you choose to extend it.' },
     ],
   },
   {
@@ -50,7 +50,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
       { q: 'Can guests choose their meal?', a: 'Yes. Switch on meal choices in Guests & RSVPs and list your meals. Each person coming picks one and can note allergies or dietary needs, and you get the counts per meal ready for your caterer.' },
       { q: 'What if a guest needs to change their RSVP?', a: 'They can submit the form again with the same email address — their previous answer is updated rather than counted twice.' },
       { q: 'Can I download my guest list?', a: 'Yes. Export all RSVPs to a CSV file from Guests & RSVPs in your dashboard, ready for a spreadsheet, seating plan or check-in list.' },
-      { q: 'How do I set an RSVP deadline?', a: 'The free RSVP deadline calculator works one out from your event date, and saving it to MyGala adds a timeline to your dashboard with each date. Mention the deadline on your invitation or page, and automatic reminder emails (Plus) can nudge guests before it.' },
+      { q: 'How do I set an RSVP deadline?', a: 'The free RSVP deadline calculator works one out from your event date, and saving it to MyGala adds a timeline to your dashboard with each date. Mention the deadline on your invitation or page, and automatic reminder emails (Live Party) can nudge guests before it.' },
     ],
   },
   {
@@ -67,10 +67,10 @@ export const FAQ_GROUPS: FaqGroup[] = [
     id: 'photos-media',
     title: 'Photos, video & livestream',
     faqs: [
-      { q: 'What’s the difference between the gallery and guest photos?', a: 'The gallery is for photos you upload as the host. Guest photos is a separate wall where guests upload their own photos from their phones — free for up to 50 photos, or up to 500 with Plus.' },
+      { q: 'What’s the difference between the gallery and guest photos?', a: 'The gallery is for photos you upload as the host. Guest photos is a separate wall where guests upload their own photos from their phones — free for up to 50 photos, or up to 500 with Live Party.' },
       { q: 'How do guests upload photos during the event?', a: 'Switch on Guest Photos and print the guest photo QR code for your tables (free for up to 50 photos). Guests scan it with their phone camera and upload — no app needed.' },
       { q: 'Can I use my own photo as my banner?', a: 'Yes. Upload a photo for the top banner of your page, or keep the theme’s default artwork.' },
-      { q: 'Can I stream my event?', a: 'Yes, with Plus. Add a YouTube, Vimeo, Twitch or Facebook video to play on your page, or link to Zoom, Google Meet or any other service.' },
+      { q: 'Can I stream my event?', a: 'Yes, with Live Party. Add a YouTube, Vimeo, Twitch or Facebook video to play on your page, or link to Zoom, Google Meet or any other service.' },
     ],
   },
   {
@@ -81,7 +81,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
       { q: 'Can I hide sections I don’t need?', a: 'Yes. Most sections, like the RSVP form, event program, guest photos and share section, have a show/hide switch in the dashboard.' },
       { q: 'Can I change the section headings?', a: 'Yes. Click a heading in the page editor and type your own wording. Your headings are kept if you switch themes.' },
       { q: 'Which languages are available?', a: 'Event pages can be shown in English, Spanish or French. Everything MyGala writes on the page switches language; your own text stays as you wrote it.' },
-      { q: 'Can I use my own domain?', a: 'Yes, with Plus. Connect a domain you own by adding two DNS records; SSL is set up automatically.' },
+      { q: 'Can I use my own domain?', a: 'Yes, with Live Party. Connect a domain you own by adding two DNS records; SSL is set up automatically.' },
     ],
   },
   {
@@ -90,7 +90,7 @@ export const FAQ_GROUPS: FaqGroup[] = [
     faqs: [
       { q: 'What happens to my page after the event?', a: 'It stays online as a keepsake for you and your guests. You can deactivate it at any time.' },
       { q: 'Can I download the photos guests shared?', a: 'Yes. Download every guest photo at once from the Guest Photos screen in your dashboard.' },
-      { q: 'How do I contact support?', a: 'Email info@mygala.ca or use the contact form. Plus members get priority support.' },
+      { q: 'How do I contact support?', a: 'Email info@mygala.ca or use the contact form. Live Party members get priority support.' },
     ],
   },
 ];

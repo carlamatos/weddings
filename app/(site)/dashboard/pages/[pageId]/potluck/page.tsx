@@ -2,7 +2,6 @@ import { fetchPageSettings, fetchPotluckEntries } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { arePotluckEntriesPublic, isPotluckOn } from '@/app/lib/potluck';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { PotluckEntries } from '@/app/ui/dashboard/potluck-entries';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import type { Metadata } from 'next';
@@ -20,7 +19,6 @@ export default async function PotluckPage({ params }: { params: Promise<{ pageId
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <PlusSetupNote section="/potluck" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.potluck.potluck}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640, lineHeight: 1.6 }}>
@@ -29,7 +27,7 @@ export default async function PotluckPage({ params }: { params: Promise<{ pageId
         </p>
       </div>
 
-      <SectionToggle pageId={pageId} settingName="show_potluck" plusSection="/potluck" initialOn={isPotluckOn(settings)} />
+      <SectionToggle pageId={pageId} settingName="show_potluck" initialOn={isPotluckOn(settings)} />
       <SectionToggle
         pageId={pageId}
         settingName="show_potluck_entries"

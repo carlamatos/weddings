@@ -506,7 +506,7 @@ export default function Community({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-center">
             <div className="wrap">
@@ -557,7 +557,7 @@ export default function Community({
         </Reveal>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <Reveal>
           <div id="potluck" className="rsvp-section">
             <SectionText ctx={sectionTextCtx} k="potluck.eyebrow" className="eyebrow on-dark" fallback={t.potluckLabel} />
@@ -570,7 +570,7 @@ export default function Community({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="rsvp-section">
             <SectionText ctx={sectionTextCtx} k="gift.eyebrow" className="eyebrow on-dark" fallback={t.giftLabel} />

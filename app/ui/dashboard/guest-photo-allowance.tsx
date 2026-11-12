@@ -8,7 +8,7 @@ import { startPlusCheckout } from './upgrade-button';
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
 // How many of the page's guest photos are used. Free pages get
-// FREE_GUEST_PHOTO_LIMIT; near or at the limit they're offered Plus.
+// FREE_GUEST_PHOTO_LIMIT; near or at the limit they're offered Live Party.
 export function GuestPhotoAllowance({ used, limit, paid }: { used: number; limit: number; paid: boolean }) {
   const d = useDashText();
   const { pageId } = usePlus();
@@ -25,7 +25,7 @@ export function GuestPhotoAllowance({ used, limit, paid }: { used: number; limit
           {shown} {fill(d.guestPhotoAllowance.ofPhotos, { limit })}
         </p>
         <p style={{ margin: 0, fontSize: 13, color: '#6B6470' }}>
-          {paid ? 'Plus' : fill(d.guestPhotoAllowance.freeUpToPhotos, { FREE_GUEST_PHOTO_LIMIT })}
+          {paid ? 'Live Party' : fill(d.guestPhotoAllowance.freeUpToPhotos, { FREE_GUEST_PHOTO_LIMIT })}
         </p>
       </div>
       <div role="progressbar" aria-label={d.guestPhotoAllowance.guestPhotosUsed} aria-valuemin={0} aria-valuemax={limit} aria-valuenow={shown} style={{ height: 8, borderRadius: 999, background: '#EFE8E2', overflow: 'hidden' }}>

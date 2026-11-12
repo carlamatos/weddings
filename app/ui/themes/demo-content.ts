@@ -475,7 +475,7 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     // Shown in this preview so the Potluck and Secret Santa sections can be
     // seen; the forms can't be sent from a preview.
     potluck: { token: 'demo', showEntries: true, entries: [{ name: 'Aunt Rosie', items: 'Gingerbread cookies' }, { name: 'The Parks', items: 'Mac & cheese' }] },
-    giftExchange: { token: 'demo', participantCount: 9, drawn: false, details: { budget: '$25', exchangeDate: 'December 12, by the fire', note: 'Something cozy, silly or sweet!' } },
+    giftExchange: { token: 'demo', participantCount: 9, drawn: false, details: { budget: '$25', exchangeDate: 'December 12, by the fire', note: 'Something cozy, silly or sweet!', day: '' } },
   }),
   merry: demo('merry', {
     heading: 'Merry & Bright',
@@ -496,7 +496,7 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     shareHashtag: 'MerryAndBright2026',
     // Shown in this preview so the Secret Santa section (wrapped in the red
     // ribbon) can be seen; the form can't be sent from a preview.
-    giftExchange: { token: 'demo', participantCount: 12, drawn: false, details: { budget: '$40', exchangeDate: 'December 18, after supper', note: 'Wrap it in gold or red — we’ll open them by the tree.' } },
+    giftExchange: { token: 'demo', participantCount: 12, drawn: false, details: { budget: '$40', exchangeDate: 'December 18, after supper', note: 'Wrap it in gold or red — we’ll open them by the tree.' , day: '' } },
   }),
   'dia-de-los-muertos': demo('dia-de-los-muertos', {
     heading: 'Día de los Muertos',

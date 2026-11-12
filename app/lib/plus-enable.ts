@@ -1,7 +1,7 @@
 import { sql } from '@vercel/postgres';
 import { PLUS_ENABLE_SETTINGS } from './plus-features';
 
-// After a Plus purchase started from a section's "turn on", switch that
+// After a Live Party purchase started from a section's "turn on", switch that
 // section on, so paying finishes what the host set up. Run by both the
 // checkout return (/api/stripe/confirm) and the webhook; it's idempotent.
 // Password protection only turns on once a password has been saved.
@@ -22,6 +22,6 @@ export async function enablePlusSetting(pageId: number, userId: string, setting:
       ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = 'true', updated_at = NOW()
     `;
   } catch (error) {
-    console.error('Failed to switch on a Plus feature after checkout:', error);
+    console.error('Failed to switch on a Live Party feature after checkout:', error);
   }
 }

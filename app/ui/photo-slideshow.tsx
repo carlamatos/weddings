@@ -12,7 +12,7 @@ const SPEED_KEY = 'mygala:slideshow-speed';
 const IDLE_MS = 3000;
 const FADE_MS = 1200;
 
-// <page>/slideshow (Plus): the guests' photos, full screen, for a TV or a
+// <page>/slideshow (Live Party): the guests' photos, full screen, for a TV or a
 // projector at the venue. Plays the photos in the order they were shared
 // and loops; a photo that arrives while it plays is shown next, with a
 // "Just shared" tag. Photos the host deletes leave the show at the next

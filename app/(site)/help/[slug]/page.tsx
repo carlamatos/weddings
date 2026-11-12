@@ -59,13 +59,13 @@ export default async function HelpGuidePage({ params }: { params: Promise<{ slug
 
       <HelpLayout current={g.slug}>
         <Breadcrumbs crumbs={crumbs} />
-        <p className="eyebrow"><Link href={`/help#${category.id}`}>{category.title}</Link>{g.plan && <span className="hc-plus">Plus</span>}</p>
+        <p className="eyebrow"><Link href={`/help#${category.id}`}>{category.title}</Link>{g.plan && <span className="hc-plus">Live Party</span>}</p>
         <h1 className="hc-h1">{g.title}</h1>
         <p className="hc-lead">{g.summary}</p>
         <article className="hc-article">
           {g.intro && <p className="hc-intro"><Rich text={g.intro} /></p>}
           {g.plan && (
-            <p className="hc-plan">This is part of <Link href="/help/upgrade-to-plus">MyGala Plus</Link>, a one-time payment per event page. You can set it up on a free page and it goes live when you upgrade.</p>
+            <p className="hc-plan">This is part of <Link href="/help/upgrade-to-plus">MyGala Live Party</Link>, a one-time payment per event page. You can set it up on a free page and it goes live when you upgrade.</p>
           )}
           <h2 className="hc-h2">Step by step</h2>
           <ol className="hc-steps">
@@ -94,7 +94,7 @@ export default async function HelpGuidePage({ params }: { params: Promise<{ slug
               {related.map((r) => (
                 <li key={r.slug}>
                   <Link href={`/help/${r.slug}`} className="hc-guide">
-                    <strong>{r.title}{r.plan && <span className="hc-plus">Plus</span>}</strong>
+                    <strong>{r.title}{r.plan && <span className="hc-plus">Live Party</span>}</strong>
                     <span>{r.summary}</span>
                   </Link>
                 </li>

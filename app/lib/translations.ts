@@ -30,14 +30,14 @@ export interface Translations {
   // Registry section
   registry: string;
   viewRegistry: string;
-  // Sponsors section (Plus)
+  // Sponsors section (Live Party)
   sponsorsLabel: string;
   ourSponsors: string;
-  // Live stream section (Plus)
+  // Live stream section (Live Party)
   livestreamLabel: string;
   watchLive: string;
   openStream: string;
-  // Potluck section (Plus)
+  // Potluck section (Live Party)
   potluckLabel: string;
   potluckTitle: string;
   potluckItems: string;
@@ -65,7 +65,7 @@ export interface Translations {
   giftDrawn: string;
   giftUpdateIdeas: string;
   giftAnother: string;
-  // Password-protected page (Plus)
+  // Password-protected page (Live Party)
   privateTitle: string;
   privateText: string;
   privatePassword: string;
@@ -102,6 +102,13 @@ export interface Translations {
   noteForCouple: string;
   noteForCouplePlaceholder: string;
   receiveUpdatesLabel: string;
+  // RSVP: join the page's Gift Exchange (Secret Santa) while replying
+  rsvpGiftJoin: string;
+  // RSVP: the optional song question
+  rsvpSong: string;
+  rsvpSongPlaceholder: string;
+  rsvpGiftIdeas: string;
+  rsvpGiftIdeasPlaceholder: string;
   unsubscribeHint: string;
   sendRsvp: string;
   sending: string;
@@ -254,6 +261,11 @@ const en: Translations = {
   noteForCouple: 'note for the hosts (optional)',
   noteForCouplePlaceholder: 'So excited to celebrate with you…',
   receiveUpdatesLabel: "I'd like to receive event updates via email",
+  rsvpGiftJoin: 'Count me in for the gift exchange (Secret Santa)',
+  rsvpSong: 'A song that will get you on the dance floor (optional)',
+  rsvpSongPlaceholder: 'Song and artist',
+  rsvpGiftIdeas: 'Gift ideas for your Secret Santa (optional)',
+  rsvpGiftIdeasPlaceholder: 'e.g. Books, cozy socks, anything chocolate',
   unsubscribeHint: 'you can unsubscribe at any time.',
   sendRsvp: 'send rsvp',
   sending: 'sending…',
@@ -400,6 +412,11 @@ const fr: Translations = {
   noteForCouple: 'note pour les hôtes (facultatif)',
   noteForCouplePlaceholder: 'J’ai tellement hâte de célébrer avec vous…',
   receiveUpdatesLabel: 'Je souhaite recevoir des mises à jour par courriel',
+  rsvpGiftJoin: 'Je participe à l’échange de cadeaux (Père Noël secret)',
+  rsvpSong: 'Une chanson qui vous fera danser (facultatif)',
+  rsvpSongPlaceholder: 'Titre et artiste',
+  rsvpGiftIdeas: 'Idées de cadeaux pour votre Père Noël secret (facultatif)',
+  rsvpGiftIdeasPlaceholder: 'p. ex. Livres, bas chauds, tout ce qui est chocolat',
   unsubscribeHint: 'vous pouvez vous désabonner à tout moment.',
   sendRsvp: 'envoyer le RSVP',
   sending: 'envoi en cours…',
@@ -546,6 +563,11 @@ const es: Translations = {
   noteForCouple: 'nota para los anfitriones (opcional)',
   noteForCouplePlaceholder: 'Con muchas ganas de celebrar con ustedes…',
   receiveUpdatesLabel: 'Quisiera recibir actualizaciones del evento por correo',
+  rsvpGiftJoin: 'Quiero participar en el intercambio de regalos (amigo secreto)',
+  rsvpSong: 'Una canción que te haga bailar (opcional)',
+  rsvpSongPlaceholder: 'Canción y artista',
+  rsvpGiftIdeas: 'Ideas de regalo para tu amigo secreto (opcional)',
+  rsvpGiftIdeasPlaceholder: 'p. ej. Libros, calcetines calientitos, chocolate',
   unsubscribeHint: 'puedes darte de baja en cualquier momento.',
   sendRsvp: 'enviar RSVP',
   sending: 'enviando…',

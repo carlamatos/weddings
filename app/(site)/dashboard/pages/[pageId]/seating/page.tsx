@@ -15,9 +15,9 @@ import type { Metadata } from 'next';
 import { getDashText } from '@/app/lib/dash-text/server';
 export const metadata: Metadata = { title: 'Find Your Table' };
 
-// On the day → Find Your Table (Plus): seat the guest list, then put the QR
+// On the day → Find Your Table (Live Party): seat the guest list, then put the QR
 // sign at the entrance. Guests type their name at <page>/table and see their
-// table. The seating can be done on a free page; the lookup needs Plus.
+// table. The seating can be done on a free page; the lookup needs Live Party.
 export default async function SeatingPage({ params }: { params: Promise<{ pageId: string }> }) {
   const d = await getDashText();
   const userPage = await requireOwnedPage(params);

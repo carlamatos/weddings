@@ -344,7 +344,7 @@ export default function QuietCoastal({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <div className="wrap" key={`custom-${section.position}`}>
           <div className="section">
             <CustomSectionContent section={section} titleClassName="title" align="left" textStyle={{ fontSize: 17, lineHeight: 1.9, color: 'var(--ink-soft)' }} />
@@ -393,7 +393,7 @@ export default function QuietCoastal({
         </>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <>
           <hr className="hairline" />
           <div id="potluck" className="wrap">
@@ -407,7 +407,7 @@ export default function QuietCoastal({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <>
           <hr className="hairline" />
           <div id="gift-exchange" className="wrap">

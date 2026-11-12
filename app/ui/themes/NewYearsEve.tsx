@@ -759,7 +759,7 @@ export default function NewYearsEve({
         )}
 
         {/* CUSTOM SECTIONS (Plus) */}
-        {isPaid && customSections?.map((section, i) => (
+        {customSections?.map((section, i) => (
           <section key={`custom-${section.position}`} className={`section section-center${i % 2 ? '' : ' section-umber'}`}>
             <Reveal className="wrap">
               <DecoRule />
@@ -817,7 +817,7 @@ export default function NewYearsEve({
         )}
 
         {/* POTLUCK (Plus, off by default) — plain bronze */}
-        {isPaid && potluck && (
+        {potluck && (
           <section id="potluck" className="rsvp-section">
             <Reveal className="ny-card">
               <Seal />
@@ -832,7 +832,7 @@ export default function NewYearsEve({
         )}
 
         {/* GIFT EXCHANGE (Plus, off by default) — on gold-dotted umber */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="gift-section section-dots">
             <Reveal className="ny-card">
               <Seal />

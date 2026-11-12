@@ -580,7 +580,7 @@ export default function Western({
         )}
 
         {/* CUSTOM SECTIONS (Plus) */}
-        {isPaid && customSections?.map((section, i) => (
+        {customSections?.map((section, i) => (
           <section key={`custom-${section.position}`} className={`section section-center${i % 2 ? ' section-hay' : ' section-paper'}`}>
             <Reveal className="wrap">
               <StarRule />
@@ -632,7 +632,7 @@ export default function Western({
         )}
 
         {/* POTLUCK (Plus, off by default) — plain saddle brown */}
-        {isPaid && potluck && (
+        {potluck && (
           <section id="potluck" className="rsvp-section">
             <PosterCard>
               <div className="head">
@@ -646,7 +646,7 @@ export default function Western({
         )}
 
         {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain rust */}
-        {isPaid && giftExchange && (
+        {giftExchange && (
           <section id="gift-exchange" className="rsvp-section">
             <PosterCard>
               <div className="head">

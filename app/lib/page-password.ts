@@ -1,6 +1,6 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
-// Plus: password-protected event pages. Off unless the owner turns it on.
+// Live Party: password-protected event pages. Off unless the owner turns it on.
 // Settings (user_page_settings):
 //   page_password_hash  bcrypt hash of the password the host shares
 //   password_protect    'true' when protection is on

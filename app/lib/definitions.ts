@@ -38,7 +38,7 @@ export type UserPage = {
   custom_domain?: string;
   domain_status?: string;
   plan_type?: string;
-  plan_expires_at?: string; // one-time-payment paid pages: 15 months from purchase; null = no expiry (legacy/multi-page)
+  plan_expires_at?: string; // one-time-payment paid pages: 12 months from purchase; null = no expiry (legacy/multi-page)
   status?: string; // 'active' | 'inactive' | 'suspended' (see app/lib/page-status.ts) — inactive and suspended pages are hidden from guests
   status_changed_at?: string; // when status last changed (starts the offline-retention clock)
   stripe_customer_id?: string;
@@ -90,7 +90,7 @@ export type Guest = {
   invitation_note: string | null; // the host's personal note in this guest's invitation email
   texted_at: string | null; // last time the host opened a pre-filled text to this guest
   texted_via: 'sms' | 'whatsapp' | null;
-  seating_table?: string | null; // Find Your Table (Plus); the column is added on first use (seating-data.ts)
+  seating_table?: string | null; // Find Your Table (Live Party); the column is added on first use (seating-data.ts)
   meals?: unknown; // meal choices per person (rsvp-meals.ts); JSONB, added on first use (rsvp-meals-data.ts)
 };
 
@@ -126,7 +126,7 @@ export type EventProgramItem = {
   location: string | null;
 };
 
-// Plus: owner-written sections (see app/lib/custom-sections.ts).
+// Live Party: owner-written sections (see app/lib/custom-sections.ts).
 export type CustomSectionBlock =
   | { type: 'text'; text: string }
   | { type: 'image'; url: string; alt?: string };

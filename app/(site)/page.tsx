@@ -33,8 +33,8 @@ export const metadata: Metadata = marketingMetadata(HOME_SEO, '/');
 const HOME_FAQS = [
   { q: 'Can I switch themes after I’ve started?', a: 'Yes. Your content stays put — switching themes only changes how it looks, any time, as many times as you like.' },
   { q: 'Do my guests need an account to RSVP or upload photos?', a: 'No. Guests just visit your link. No sign-up, no app, no friction.' },
-  { q: 'What happens to my page after the event?', a: `It stays live as a keepsake. Free pages remain viewable indefinitely; Plus pages stay fully featured for ${PLAN_TERM_MONTHS} months from your purchase, then you can extend for another ${PLAN_TERM_MONTHS} with a single payment.` },
-  { q: 'Is Plus a subscription?', a: `No — it’s a single one-time payment of ${PLAN_PRICE_PLUS_TAX} per event that unlocks every feature for that event for ${PLAN_TERM_MONTHS} months. No recurring charge, and no card kept on file.` },
+  { q: 'What happens to my page after the event?', a: `It stays live as a keepsake. Free pages remain viewable indefinitely; Live Party pages stay fully featured for ${PLAN_TERM_MONTHS} months from your purchase, then you can extend for another ${PLAN_TERM_MONTHS} with a single payment.` },
+  { q: 'Is Live Party a subscription?', a: `No — it’s a single one-time payment of ${PLAN_PRICE_PLUS_TAX} per event that unlocks every feature for that event for ${PLAN_TERM_MONTHS} months. No recurring charge, and no card kept on file.` },
 ];
 
 // "How MyGala works", right after the hero: the steps and the features in a minute.

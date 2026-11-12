@@ -1,7 +1,6 @@
 import { fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
-import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { RegistryForm } from '@/app/ui/dashboard/registry-form';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import type { Metadata } from 'next';
@@ -19,7 +18,6 @@ export default async function RegistryPage({ params }: { params: Promise<{ pageI
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
-      <PlusSetupNote section="/registry" />
       <div style={{ marginBottom: 20 }}>
         <h1 style={{ fontSize: 22, fontWeight: 600, color: '#241F2B', margin: '0 0 6px' }}>{d.registry.registry}</h1>
         <p style={{ fontSize: 14, color: '#6B6470', margin: 0, maxWidth: 640 }}>
@@ -30,7 +28,7 @@ export default async function RegistryPage({ params }: { params: Promise<{ pageI
 
       <SectionToggle
         pageId={pageId}
-        settingName="show_registry" plusSection="/registry"
+        settingName="show_registry"
         initialOn={isSectionOn(settings, 'show_registry')}
       />
 

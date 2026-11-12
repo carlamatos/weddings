@@ -20,7 +20,7 @@ const card: React.CSSProperties = { background: '#fff', border: '1px solid #EDE8
 const h2: React.CSSProperties = { fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 8px' };
 const p: React.CSSProperties = { fontSize: 14, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 };
 
-// Photo Slideshow (Plus): guests' photos on a TV or projector at the venue,
+// Photo Slideshow (Live Party): guests' photos on a TV or projector at the venue,
 // at <page>/slideshow. Nothing to set up beyond Guest Photos: the host opens
 // the link on the screen. Works for the owner on a free page as a preview.
 export default async function SlideshowDashboardPage({ params }: { params: Promise<{ pageId: string }> }) {

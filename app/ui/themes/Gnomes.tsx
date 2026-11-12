@@ -819,7 +819,7 @@ export default function Gnomes({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section, i) => (
+      {customSections?.map((section, i) => (
         <Reveal key={`custom-${section.position}`}>
           <div className={`section section-center${i % 2 ? '' : ' section-paper'}`}>
             <div className="wrap">
@@ -879,7 +879,7 @@ export default function Gnomes({
       )}
 
       {/* POTLUCK (Plus, off by default) — plain holly green */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <HatCard>
             <div style={{ textAlign: 'center' }}>
@@ -893,7 +893,7 @@ export default function Gnomes({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain hat red */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <HatCard>
             <div style={{ textAlign: 'center' }}>

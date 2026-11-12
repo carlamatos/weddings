@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import type { Translations } from '@/app/lib/translations';
 
-// Shown instead of a password-protected event page (Plus) until the guest
+// Shown instead of a password-protected event page (Live Party) until the guest
 // enters the password the host shared. Nothing about the event is rendered.
 export default function PagePasswordGate({ token, t }: { token: string; t: Translations }) {
   const [password, setPassword] = useState('');

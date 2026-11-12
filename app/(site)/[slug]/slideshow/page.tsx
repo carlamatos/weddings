@@ -8,7 +8,7 @@ import { isPageDraft, isPageOffline } from '@/app/lib/page-status';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import SlideshowScreen from '@/app/ui/slideshow-screen';
 
-// mygala.ca/<slug>/slideshow — the live photo slideshow (Plus). The
+// mygala.ca/<slug>/slideshow — the live photo slideshow (Live Party). The
 // custom-domain version is app/site/[host]/slideshow.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

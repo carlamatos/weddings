@@ -48,7 +48,7 @@ const CHANGE_LATER = [
 
 const SHARED_FAQS: Faq[] = [
   { q: 'Do I need an account to try it?', a: 'No. Pick a design and type your event’s name and date to see your invitation and its website straight away. You create a free account only when you want to save it.' },
-  { q: 'Is it really free?', a: 'Yes. Designing your invitation, your event page, your guest list, RSVPs and sending invitations by email, text or WhatsApp are free. Plus is an optional one-time upgrade per event for extras like email reminders and a custom domain.' },
+  { q: 'Is it really free?', a: 'Yes. Designing your invitation, your event page, your guest list, RSVPs and sending invitations by email, text or WhatsApp are free. Live Party is an optional one-time upgrade per event for extras like email reminders and a custom domain.' },
   { q: 'Can I change the design after I sign up?', a: 'Yes, all of it: the wording, fonts, colours and background photo of your invitation, and the photos and sections of your website. You can also switch to another theme at any time.' },
   { q: 'How do I send the invitation to my guests?', a: 'Email it to the guests you tick on your guest list, with an RSVP button that opens your page, or tap Text or WhatsApp next to a guest’s phone number to send it from your own phone. You can also print it or save it as a PDF at 5×7 inches.' },
 ];
@@ -154,7 +154,7 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
       {
         heading: 'Gift exchange and potluck on the same page',
         paragraphs: [
-          'Hosting a Secret Santa? Add a gift exchange to your party page: guests sign up with their gift ideas, you draw names with one click, and each person finds out privately who they’re buying for. Planning a potluck? Let guests sign up for what they’ll bring, so you don’t end up with six desserts. Both come with Plus, a one-time upgrade for your event.',
+          'Hosting a Secret Santa? Add a gift exchange to your party page: guests sign up with their gift ideas, you draw names with one click, and each person finds out privately who they’re buying for. Planning a potluck? Let guests sign up for what they’ll bring, so you don’t end up with six desserts. Both come with Live Party, a one-time upgrade for your event.',
         ],
       },
     ],
@@ -165,8 +165,8 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
     },
     faqs: [
       ...SHARED_FAQS,
-      { q: 'Can I use it for an office Christmas party?', a: 'Yes. Name the party, add the date, time and venue, and send the invitation to your colleagues by email. Their replies appear in your guest list as they answer, and with Plus you can keep the page private with a password.' },
-      { q: 'Can guests do a Secret Santa from the invitation?', a: 'Yes, with Plus. Add a gift exchange to your party page: guests sign up on the page with their gift ideas, you draw names with one click, and each person is told privately by email, text or WhatsApp.' },
+      { q: 'Can I use it for an office Christmas party?', a: 'Yes. Name the party, add the date, time and venue, and send the invitation to your colleagues by email. Their replies appear in your guest list as they answer, and with Live Party you can keep the page private with a password.' },
+      { q: 'Can guests do a Secret Santa from the invitation?', a: 'Yes, and it’s free. Add a gift exchange to your party page: guests sign up on the page with their gift ideas, you draw names with one click, and each person is told privately by email, text or WhatsApp.' },
     ],
     related: {
       heading: 'More for your Christmas party',
@@ -297,7 +297,7 @@ export const TRY_INVITATION_PAGES: Record<'default' | 'christmas' | 'wedding' | 
     faqs: [
       ...SHARED_FAQS,
       { q: 'What kinds of parties is it for?', a: 'Birthdays, baby showers, Halloween and Día de los Muertos, Christmas and holiday parties, quinceañeras and sweet 16s, and any other celebration. Every theme works for any event; these are listed first.' },
-      { q: 'Can I run a Secret Santa or a potluck from my party website?', a: 'Yes, with Plus. Add a gift exchange and guests sign up with gift ideas, then you draw names with one click. Add a potluck sign-up and guests choose what they’ll bring.' },
+      { q: 'Can I run a Secret Santa or a potluck from my party website?', a: 'Yes. The gift exchange is free: guests sign up with gift ideas, then you draw names with one click. A potluck sign-up, where guests choose what they’ll bring, is part of Live Party.' },
     ],
     related: {
       heading: 'More for your party',

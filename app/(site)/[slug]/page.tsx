@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import Link from 'next/link';
@@ -133,7 +134,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const isPaid = data.plan_type === 'paid';
   const pageSettings = await fetchPageSettings(data.id);
 
-  // Password protected (Plus): nothing about the event until the guest
+  // Password protected (Live Party): nothing about the event until the guest
   // enters the password. The owner always sees the page.
   if (await mustShowPasswordGate(data.id, pageSettings, isPaid, isOwner)) {
     return <PagePasswordGate token={signPageId(data.id)} t={getTranslations(data.language)} />;
@@ -185,6 +186,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
+        rsvpAskSong={isRsvpSongOn(pageSettings)}
         themeSlug={data.theme_slug}
         heading={data.heading}
         description={data.description || undefined}

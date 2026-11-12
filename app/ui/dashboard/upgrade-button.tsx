@@ -3,9 +3,9 @@
 import { useState } from 'react';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
-// Sends the owner to Stripe Checkout for Plus. False when that failed.
+// Sends the owner to Stripe Checkout for Live Party. False when that failed.
 // From inside a page's dashboard, checkout comes back to the same screen;
-// `enable` is a Plus setting to switch on once paid (the section the host
+// `enable` is a Live Party setting to switch on once paid (the section the host
 // was turning on).
 export async function startPlusCheckout(pageId?: number, { enable }: { enable?: string } = {}): Promise<boolean> {
   try {

@@ -8,7 +8,7 @@ import { card } from './guest-ui';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
-// Invitations (Plus), when the page is password protected: whether the page
+// Invitations (Live Party), when the page is password protected: whether the page
 // password is printed on the invitation, in the emails and in the text
 // messages. On by default.
 export function InvitationPasswordOption({

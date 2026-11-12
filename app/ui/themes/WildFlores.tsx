@@ -592,7 +592,7 @@ export default function WildFlores({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section, i) => (
+      {customSections?.map((section, i) => (
         <Reveal key={`custom-${section.position}`}>
           <div className={`section section-center${i % 2 ? ' section-linen' : ''}`}>
             <div className="wrap">
@@ -653,7 +653,7 @@ export default function WildFlores({
       )}
 
       {/* POTLUCK (Plus, off by default) — plain sage */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <PoppyCard>
             <div style={{ textAlign: 'center' }}>
@@ -667,7 +667,7 @@ export default function WildFlores({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) — plain lilac */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <PoppyCard>
             <div style={{ textAlign: 'center' }}>

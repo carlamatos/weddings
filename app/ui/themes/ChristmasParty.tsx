@@ -697,7 +697,7 @@ export default function ChristmasParty({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-center">
             <div className="wrap">
@@ -763,7 +763,7 @@ export default function ChristmasParty({
         </div>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <div id="potluck" className="rsvp-section">
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">
@@ -785,7 +785,7 @@ export default function ChristmasParty({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <div id="gift-exchange" className="rsvp-section">
           <Reveal className="rsvp-panel">
             <div className="rsvp-card">

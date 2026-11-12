@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid file' }, { status: 400 });
   }
 
-  // Free pages take up to FREE_GUEST_PHOTO_LIMIT photos, Plus pages more.
+  // Free pages take up to FREE_GUEST_PHOTO_LIMIT photos, Live Party pages more.
   const pageResult = await sql`
     SELECT plan_type, language FROM user_page WHERE id = ${pageId} LIMIT 1
   `;

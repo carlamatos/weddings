@@ -1,4 +1,4 @@
-// Plus: the Potluck section — guests say what they're bringing. One entry per
+// Live Party: the Potluck section — guests say what they're bringing. One entry per
 // email per page (re-submitting with the same email updates it). Shared by
 // the API, the dashboard and the themes, so no server-only imports.
 //

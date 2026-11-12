@@ -257,6 +257,14 @@
 .marketing-page .lp-feature h4 { font-size: 16px; font-weight: 600; color: var(--ink); margin: 2px 0 4px; }
 .marketing-page .lp-feature p { font-size: 14px; line-height: 1.55; color: var(--ink-soft); margin: 0; }
 .marketing-page .lp-features-cta { margin-top: 48px; }
+.marketing-page .lp-feature-top { margin-top: 40px; }
+.marketing-page .lp-pill-sm { padding: 2px 8px; font-size: 10px; letter-spacing: 1px; margin-left: 8px; vertical-align: 2px; }
+.marketing-page .lp-all-features { margin-top: 28px; }
+.marketing-page .lp-all-features summary { cursor: pointer; list-style: none; text-align: center; font-size: 16px; font-weight: 600; color: var(--rose); padding: 8px 0; }
+.marketing-page .lp-all-features summary::-webkit-details-marker { display: none; }
+.marketing-page .lp-all-features summary::after { content: ' +'; }
+.marketing-page .lp-all-features[open] summary::after { content: ' −'; }
+.marketing-page .lp-all-features summary:hover { text-decoration: underline; }
 
 /* ── occasions, FAQ, final ───────────────────────────────── */
 .marketing-page .lp-occasions { padding: 72px 0; }

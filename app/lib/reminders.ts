@@ -1,4 +1,4 @@
-// Event Reminders (Plus): emails sent to guests who opted into updates, at the
+// Event Reminders (Live Party): emails sent to guests who opted into updates, at the
 // lead times the owner ticks or adds. Settings live in user_page_settings:
 //   reminder_schedule — comma-separated keys: the presets ("1w,1d") and the
 //                       owner's own lead times ("c5d", "c2w", "c3h" = 5 days,

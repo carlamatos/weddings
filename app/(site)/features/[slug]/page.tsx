@@ -47,13 +47,13 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           <p className="eyebrow">
             {feature.eyebrow}
             <span className={`mk-badge${feature.plan === 'Free' ? ' mk-badge--free' : ''}`}>
-              {feature.plan === 'Free' ? 'Free on every plan' : 'Plus feature'}
+              {feature.plan === 'Free' ? 'Free on every plan' : 'Live Party feature'}
             </span>
           </p>
           <h1 className="mk-h1">{feature.h1}</h1>
           <p className="mk-lead">{feature.lead}</p>
           <div className="mk-cta-row mk-cta-row--hero">
-            <Link href={appHref('/register')} className="btn-primary">Create your free event page</Link>
+            <Link href={appHref(`/register${feature.signup?.query ?? ''}`)} className="btn-primary">{feature.signup?.label ?? 'Create your free event page'}</Link>
             {feature.video && (
               <a href="#video" className="btn-secondary mk-btn-video">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5Z" /></svg>
@@ -85,10 +85,10 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           <section className="mk-block" id="how-to">
             <h2 className="mk-h2">How to set it up</h2>
             <Steps steps={feature.steps} />
-            {feature.plan === 'Plus' && (
+            {feature.plan === 'Live Party' && (
               <p className="mk-note">
-                {feature.navLabel} is part of MyGala Plus: a one-time payment of {PLAN_PRICE_PLUS_TAX} per event page that unlocks every
-                premium feature for 15 months. No subscription. <Link href="/pricing">Compare plans</Link>.
+                {feature.navLabel} is part of MyGala Live Party: a one-time payment of {PLAN_PRICE_PLUS_TAX} per event page that unlocks every
+                premium feature for 12 months. No subscription. <Link href="/pricing">Compare plans</Link>.
               </p>
             )}
           </section>
@@ -106,7 +106,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
         </section>
       </div>
 
-      <FinalCta title={feature.cta.title} text={feature.cta.text} />
+      <FinalCta title={feature.cta.title} text={feature.cta.text} signup={feature.signup} />
     </MarketingShell>
   );
 }

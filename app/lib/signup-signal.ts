@@ -25,7 +25,7 @@ export async function markSignUp(method: 'email' | 'google' | 'apple' | 'faceboo
 export async function markPageCreated(page: { eventType: string; theme: string; plan: 'free' | 'plus' }): Promise<void> {
   try {
     (await cookies()).set(PAGE_CREATED_COOKIE, JSON.stringify(page), {
-      maxAge: 60 * 60, // long enough to come back from Plus checkout
+      maxAge: 60 * 60, // long enough to come back from Live Party checkout
       path: '/',
       sameSite: 'lax',
       secure: process.env.NODE_ENV === 'production',

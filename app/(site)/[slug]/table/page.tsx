@@ -12,7 +12,7 @@ import PagePasswordGate from '@/app/ui/page-password-gate';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import FindTable from '@/app/ui/find-table';
 
-// mygala.ca/<slug>/table — Find Your Table (Plus). The custom-domain
+// mygala.ca/<slug>/table — Find Your Table (Live Party). The custom-domain
 // version is app/site/[host]/table.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

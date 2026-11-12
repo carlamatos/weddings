@@ -1,4 +1,4 @@
-// Find Your Table (Plus): the host gives each guest on the guest list a
+// Find Your Table (Live Party): the host gives each guest on the guest list a
 // table, and guests look theirs up at <page>/table — usually from a QR sign
 // at the entrance — instead of the host printing a seating chart. Shared by
 // client and server, so no server-only imports (the database side is in
@@ -12,7 +12,7 @@ export const SEATING_TABLE_MAX = 60;
 export const SEATING_MAX_MATCHES = 6;
 export const SEATING_QUERY_MAX = 80;
 
-// Off until the host switches it on, and only on Plus pages.
+// Off until the host switches it on, and only on Live Party pages.
 export function isSeatingOn(settings: Record<string, string>, isPaid: boolean): boolean {
   return isPaid && settings[SEATING_SETTING] === 'true';
 }

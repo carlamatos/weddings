@@ -165,7 +165,7 @@ export default function SpanishHome() {
         </div>
       </div>
 
-      <EsFinalCta title="Tu celebración merece una página hermosa." text="Empieza gratis hoy. Mejora a Plus solo si lo necesitas." cta="final" />
+      <EsFinalCta title="Tu celebración merece una página hermosa." text="Empieza gratis hoy. Mejora a Live Party solo si lo necesitas." cta="final" />
     </SpanishShell>
   );
 }

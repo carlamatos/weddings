@@ -439,7 +439,7 @@ export default function Summit({
       )}
 
       {/* CUSTOM SECTIONS (Plus) */}
-      {isPaid && customSections?.map((section) => (
+      {customSections?.map((section) => (
         <Reveal key={`custom-${section.position}`}>
           <div className="section section-center">
             <div className="wrap">
@@ -492,7 +492,7 @@ export default function Summit({
         </Reveal>
       )}
       {/* POTLUCK (Plus, off by default) */}
-      {isPaid && potluck && (
+      {potluck && (
         <Reveal>
           <div id="potluck" className="section section-center" style={{ backgroundColor: '#1E2B4A' }}>
             <div className="wrap">
@@ -507,7 +507,7 @@ export default function Summit({
       )}
 
       {/* GIFT EXCHANGE — Secret Santa (Plus, off by default) */}
-      {isPaid && giftExchange && (
+      {giftExchange && (
         <Reveal>
           <div id="gift-exchange" className="section section-center" style={{ backgroundColor: '#2C2342' }}>
             <div className="wrap">

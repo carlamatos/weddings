@@ -7,7 +7,7 @@ import { isPageOffline } from '@/app/lib/page-status';
 import PageUnavailable from '@/app/ui/page-unavailable';
 import SlideshowScreen from '@/app/ui/slideshow-screen';
 
-// <custom domain>/slideshow — the live photo slideshow (Plus); proxy.ts
+// <custom domain>/slideshow — the live photo slideshow (Live Party); proxy.ts
 // rewrites it here. No owner preview (the sign-in cookie belongs to mygala.ca).
 
 export async function generateMetadata({ params }: { params: Promise<{ host: string }> }): Promise<Metadata> {

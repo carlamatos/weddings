@@ -68,7 +68,7 @@ export function EsPricing() {
         </div>
         <div className="price-card featured reveal delay-1">
           <span className="price-badge">El más popular</span>
-          <p className="price-tier">Plus</p>
+          <p className="price-tier">Live Party</p>
           <p className="price-amount">{ES_PRICE.replace(' CAD', '')}<span className="per"> CAD + impuestos, un solo pago por evento</span></p>
           <p className="price-desc">Todas las funciones de MyGala para tu evento, durante {PLAN_TERM_MONTHS} meses.</p>
           <ul className="price-features">{ES_PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}</ul>

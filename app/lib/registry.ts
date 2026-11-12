@@ -1,4 +1,4 @@
-// Plus: the registry section — a link to the owner's gift registry, an
+// Live Party: the registry section — a link to the owner's gift registry, an
 // optional button label, and a free-text message for anything else guests
 // should know. Stored in the user_page.section_2_* columns. Shared by the
 // server action and the dashboard form, so no server-only imports.

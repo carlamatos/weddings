@@ -11,7 +11,7 @@ export const ADMIN_EMAIL_AUDIENCES = {
   all: { label: 'Everyone', hint: 'Every account.' },
   no_guests: { label: 'Pages with no guests yet', hint: 'They made a page but haven’t added any guests.' },
   draft: { label: 'Draft pages', hint: 'Verified accounts whose page is still a draft.' },
-  free_with_guests: { label: 'Free pages with guests', hint: 'Live pages with at least one guest, not on Plus.' },
+  free_with_guests: { label: 'Free pages with guests', hint: 'Live pages with at least one guest, not on Live Party.' },
   upcoming: { label: 'Events in the next 30 days', hint: 'Live free pages whose event date is within 30 days.' },
   no_page: { label: 'No page yet', hint: 'Signed up but never created a page.' },
 } as const;
@@ -39,7 +39,7 @@ export const ADMIN_EMAIL_PLACEHOLDERS = [
   { key: '{page_name}', hint: 'Their event page’s title' },
   { key: '{event_date}', hint: 'Their event date, e.g. “Saturday, December 12”' },
   { key: '{page_link}', hint: 'Their event page’s address' },
-  { key: '{plus_price}', hint: 'The Plus price, e.g. “$49.99 CAD + tax”' },
+  { key: '{plus_price}', hint: 'The Live Party price, e.g. “$49.99 CAD + tax”' },
 ] as const;
 
 export type AdminEmailTemplate = {
@@ -93,7 +93,7 @@ Warm regards,`,
   {
     id: 'event-coming-up',
     name: 'Your event is coming up',
-    description: 'For events in the next few weeks: the Plus features that help most on the day.',
+    description: 'For events in the next few weeks: the Live Party features that help most on the day.',
     audience: 'upcoming',
     subject: '{page_name} is almost here',
     body: `Hi {first_name},
@@ -106,12 +106,12 @@ As the day gets closer, a few features can make things even easier for you and y
 • Unlimited guest photos, all gathered in one place for you to keep
 • Song requests, so your DJ knows what everyone wants to hear
 
-These are part of MyGala Plus, a single payment of {plus_price} for your event, with no subscription. You can add it any time from your dashboard.
+These are part of MyGala Live Party, a single payment of {plus_price} for your event, with no subscription. You can add it any time from your dashboard.
 
 And if you have any questions at all, simply reply to this email. I’m always happy to help.
 
 With warm wishes for your event,`,
-    buttonLabel: 'See what Plus adds',
+    buttonLabel: 'See what Live Party adds',
     buttonLink: 'dashboard',
   },
   {

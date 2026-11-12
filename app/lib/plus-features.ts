@@ -1,6 +1,6 @@
-// The Plus features as the dashboard presents them. A free page can set any
+// The Live Party features as the dashboard presents them. A free page can set any
 // of them up completely; only the step that shows it to guests (turning the
-// section on, sending, connecting a domain) asks for Plus. Shared by client
+// section on, sending, connecting a domain) asks for Live Party. Shared by client
 // and server, so no server-only imports.
 
 export type PlusFeature = {
@@ -8,7 +8,7 @@ export type PlusFeature = {
   // The setting that shows it on the page. After paying from "turn on",
   // checkout switches it on, so the upgrade finishes what the host started.
   setting?: string;
-  // What goes live once the page is on Plus, for the upgrade dialog.
+  // What goes live once the page is on Live Party, for the upgrade dialog.
   goesLive: string;
 };
 
@@ -19,11 +19,7 @@ export const PLUS_FEATURES: Record<string, PlusFeature> = {
   '/slideshow': { name: 'Photo Slideshow', goesLive: 'your photo slideshow plays on any screen at your event' },
   '/song-requests': { name: 'Song Requests', setting: 'show_song_requests', goesLive: 'guests can request songs from your page' },
   '/livestream': { name: 'Live Stream', setting: 'show_livestream', goesLive: 'your live stream shows on your page' },
-  '/potluck': { name: 'Potluck', setting: 'show_potluck', goesLive: 'guests can sign up for what they’re bringing' },
-  '/gift-exchange': { name: 'Gift Exchange', setting: 'show_gift_exchange', goesLive: 'guests can join your gift exchange and you can draw names' },
-  '/custom-sections': { name: 'Custom Sections', setting: 'show_custom_sections', goesLive: 'your custom sections show on your page' },
   '/sponsors': { name: 'Sponsors', setting: 'show_sponsors', goesLive: 'your sponsors show on your page' },
-  '/registry': { name: 'Registry', setting: 'show_registry', goesLive: 'your registry shows on your page' },
   '/password': { name: 'Password Protection', setting: 'password_protect', goesLive: 'only guests with the password can open your page' },
   '/domain': { name: 'Custom Domain', goesLive: 'your own domain points to your page' },
 };
