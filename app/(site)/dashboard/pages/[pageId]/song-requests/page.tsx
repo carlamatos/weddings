@@ -5,6 +5,9 @@ import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
+import { DjLink } from '@/app/ui/dashboard/dj-link';
+import { djKey } from '@/app/lib/dj-token';
+import { siteUrl } from '@/app/lib/site-url';
 import type { Metadata } from 'next';
 
 import { getDashText } from '@/app/lib/dash-text/server';
@@ -36,6 +39,8 @@ export default async function SongRequestsPage({ params }: { params: Promise<{ p
         settingName="show_song_requests" plusSection="/song-requests"
         initialOn={areSongRequestsOn(settings)}
       />
+
+      {userPage.plan_type === 'paid' && <DjLink url={`${siteUrl()}/${userPage.slug}/dj?k=${djKey(userPage.id)}`} />}
 
       <DashboardSongRequests
         initialSongs={songs}

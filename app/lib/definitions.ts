@@ -104,6 +104,7 @@ export type GuestPhoto = {
   photo: string;
   ip_address: string | null;
   uploaded_at: string;
+  hidden?: boolean; // hidden by the host: only the dashboard lists it
 };
 
 export type GuestSong = {
@@ -114,6 +115,8 @@ export type GuestSong = {
   artist: string;
   ip_address: string | null;
   created_at: string;
+  votes?: number; // guests' upvotes (Live Party)
+  played_at?: string | null; // the DJ marked it played
 };
 
 export type EventProgramItem = {

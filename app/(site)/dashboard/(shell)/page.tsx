@@ -27,7 +27,7 @@ const SECTIONS: Record<string, keyof DashText['screens']> = {
   '/guest-list': 'guestList', '/rsvp': 'guestList', '/guest-photos': 'guestPhotos', '/livestream': 'liveStream', '/song-requests': 'songRequests',
   '/reminders': 'reminders', '/custom-sections': 'customSections', '/sponsors': 'sponsors', '/registry': 'registry',
   '/domain': 'domain', '/share': 'invitations', '/event-program': 'eventProgram', '/potluck': 'potluck', '/gift-exchange': 'giftExchange', '/seating': 'findYourTable', '/password': 'passwordProtection', '/invitations': 'invitations',
-  '/slideshow': 'photoSlideshow', '/budget': 'budget', '/timeline': 'timeline',
+  '/slideshow': 'photoSlideshow', '/messages': 'messagesWall', '/budget': 'budget', '/timeline': 'timeline',
 };
 
 const today = () => new Date().toISOString().slice(0, 10);

@@ -162,6 +162,8 @@ export const fr: DashText = {
     havenT: 'n’ont pas',
   },
   guestPhotos: {
+    memoriesHint: 'Après l’événement, vos photos, les mots des invités et les chansons préférées sont réunis sur votre page de souvenirs.',
+    memoriesLink: 'Ouvrir votre page de souvenirs',
     guestPhotos: 'Photos des invités',
     guestsShareTheirPhotosStraight: 'Vos invités partagent leurs photos directement depuis votre page d’événement, et tout le monde peut les parcourir. Vous pouvez supprimer n’importe quelle photo et toutes les télécharger d’un coup.',
     putThemOnTheBig: 'Mettez-les sur grand écran.',
@@ -1000,6 +1002,22 @@ export const fr: DashText = {
     writeThemTheWayGuests: 'Écrivez-les comme les invités doivent les lire, dans la langue de votre page. Renommer un repas ne change pas ce que les invités ont déjà choisi.',
     thisMeal: 'ce repas',
   },
+  messagesWall: {
+    intro: 'Vos invités vous laissent un petit mot depuis la section photos de votre page. Les messages défilent sur le diaporama de photos à la salle, et vous pouvez masquer ou supprimer n’importe lequel.',
+    empty: 'Aucun message pour l’instant. Une fois le mur activé, les invités peuvent en laisser un depuis la section photos de votre page.',
+    hide: 'Masquer',
+    show: 'Afficher',
+    delete: 'Supprimer',
+    hiddenTag: 'Masqué pour les invités',
+    deleteConfirm: 'Supprimer ce message ?',
+  },
+  djLink: {
+    title: 'La file de chansons de votre DJ',
+    hint: 'Envoyez ce lien privé à votre DJ : les demandes triées selon les votes de vos invités, avec un bouton Jouée. Toute personne qui a le lien peut voir la liste, alors partagez-le seulement avec votre DJ.',
+    copy: 'Copier le lien',
+    copied: 'Copié !',
+    open: 'Ouvrir',
+  },
   rsvpSongOption: {
     askForASong: 'Demander une chanson aux invités',
     askForASongHint: 'Les invités présents peuvent suggérer une chanson pour la piste de danse. Leurs choix apparaissent dans Song Requests.',
@@ -1429,6 +1447,7 @@ export const fr: DashText = {
     youCanChangeTheColours: 'Vous pourrez changer les couleurs, les polices et le design de votre invitation et de votre site dans l’éditeur plus tard.',
   },
   screens: {
+    messagesWall: 'Mur de messages',
     editEventPage: 'Modifier la page',
     eventProgram: 'Programme',
     customSections: 'Sections personnalisées',

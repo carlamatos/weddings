@@ -16,6 +16,7 @@ export type PlusFeature = {
 export const PLUS_FEATURES: Record<string, PlusFeature> = {
   '/reminders': { name: 'Event Reminders', goesLive: 'your reminder emails go out to guests on the schedule you set' },
   '/seating': { name: 'Find Your Table', setting: 'show_seating', goesLive: 'guests can look up their table from your QR sign or your page' },
+  '/messages': { name: 'Messages Wall', setting: 'show_guest_messages', goesLive: 'guests can leave messages that rotate on your photo slideshow' },
   '/slideshow': { name: 'Photo Slideshow', goesLive: 'your photo slideshow plays on any screen at your event' },
   '/song-requests': { name: 'Song Requests', setting: 'show_song_requests', goesLive: 'guests can request songs from your page' },
   '/livestream': { name: 'Live Stream', setting: 'show_livestream', goesLive: 'your live stream shows on your page' },

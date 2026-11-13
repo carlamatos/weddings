@@ -9,6 +9,8 @@ import { fetchSlideshowPhotos } from '@/app/lib/slideshow-data';
 import { publicPageUrl } from '@/app/lib/share';
 import PagePasswordGate from '@/app/ui/page-password-gate';
 import PhotoSlideshow from '@/app/ui/photo-slideshow';
+import { areGuestMessagesOn } from '@/app/lib/guest-messages';
+import { fetchGuestMessages } from '@/app/lib/guest-messages-data';
 
 // The live photo slideshow for a page, at mygala.ca/<slug>/slideshow and
 // <custom domain>/slideshow. Plays for guests on a Live Party page with Guest
@@ -37,8 +39,16 @@ export default async function SlideshowScreen({ page, isOwner }: { page: UserPag
     return [];
   });
 
+  // The live messages wall rotates over the photos (Live Party).
+  const messagesOn = isPaid && areGuestMessagesOn(settings);
+  const messages = messagesOn
+    ? (await fetchGuestMessages(page.id).catch(() => [])).map(({ id, name, body }) => ({ id, name, body }))
+    : [];
+
   return (
     <PhotoSlideshow
+      messagesOn={messagesOn}
+      initialMessages={messages}
       token={signPageId(page.id)}
       heading={page.heading}
       initialPhotos={photos}

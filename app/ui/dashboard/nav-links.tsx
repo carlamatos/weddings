@@ -3,8 +3,7 @@
 import {
   DocumentIcon, GiftTopIcon, UsersIcon, GlobeAltIcon, PhotoIcon, MusicalNoteIcon,
   CalendarDaysIcon, BellAlertIcon, RectangleStackIcon, TrophyIcon, GiftIcon, VideoCameraIcon,
-  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon, TvIcon, BanknotesIcon, ClockIcon,
-} from '@heroicons/react/24/outline';
+  Squares2X2Icon, LockClosedIcon, CakeIcon, EnvelopeIcon, ChevronRightIcon, UserGroupIcon, QuestionMarkCircleIcon, TvIcon, BanknotesIcon, ClockIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/outline';
 import { CheckCircleIcon, SparklesIcon } from '@heroicons/react/20/solid';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -55,6 +54,7 @@ const GROUPS: { title: keyof DashText['navGroups']; links: NavItem[] }[] = [
     links: [
       { name: 'guestPhotos', section: '/guest-photos', icon: PhotoIcon },
       { name: 'photoSlideshow', section: '/slideshow', icon: TvIcon },
+      { name: 'messagesWall', section: '/messages', icon: ChatBubbleBottomCenterTextIcon },
       { name: 'findYourTable', section: '/seating', icon: UserGroupIcon },
       { name: 'songRequests', section: '/song-requests', icon: MusicalNoteIcon },
       { name: 'liveStream', section: '/livestream', icon: VideoCameraIcon },

@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { siteUrl } from '@/app/lib/site-url';
 import { fetchGuestPhotos, fetchPageSettings } from '@/app/lib/data';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { publicPageUrl } from '@/app/lib/share';
@@ -24,7 +25,7 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
   const paid = isPagePaidAndLive(userPage);
 
   const [{ photos, hasMore }, settings, total] = await Promise.all([
-    fetchGuestPhotos(userPage.id, 0),
+    fetchGuestPhotos(userPage.id, 0, true),
     fetchPageSettings(userPage.id),
     sql<{ count: string }>`SELECT COUNT(*)::text AS count FROM guests_photos WHERE user_page_id = ${userPage.id}`
       .then((r) => Number(r.rows[0]?.count ?? 0))
@@ -51,6 +52,13 @@ export default async function GuestPhotosPage({ params }: { params: Promise<{ pa
         heading={userPage.heading || ''}
         sectionOn={on}
       />
+
+      {paid && (
+        <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', maxWidth: 680, lineHeight: 1.6 }}>
+          {d.guestPhotos.memoriesHint}{' '}
+          <a href={`${siteUrl()}/${userPage.slug}/memories`} target="_blank" rel="noopener" style={{ color: '#B6584A', fontWeight: 600 }}>{d.guestPhotos.memoriesLink}</a>
+        </p>
+      )}
 
       <DashboardGuestPhotos
         initialPhotos={photos}

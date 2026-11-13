@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { ensureLiveTables } from './live-db';
 import { maxPagesPerAccount } from './plans';
 import { arePotluckEntriesPublic, isPotluckOn, publicName, POTLUCK_MAX_ENTRIES, type PotluckEntry, type PotluckProps } from './potluck';
 import { signPageId } from './page-token';
@@ -291,15 +292,19 @@ export async function giftExchangeProps(pageId: number | string, _isPaid: boolea
 
 const GUEST_PHOTOS_PAGE_SIZE = 20;
 
+// Guests' photos, newest first. Photos the host hid are left out unless
+// includeHidden (the host's own dashboard list).
 export async function fetchGuestPhotos(
   userPageId: string,
   offset = 0,
+  includeHidden = false,
 ): Promise<{ photos: GuestPhoto[]; hasMore: boolean }> {
   try {
+    await ensureLiveTables();
     const data = await sql<GuestPhoto>`
-      SELECT id, user_page_id, photo, ip_address, uploaded_at
+      SELECT id, user_page_id, photo, ip_address, uploaded_at, hidden
       FROM guests_photos
-      WHERE user_page_id = ${userPageId}
+      WHERE user_page_id = ${userPageId} AND (${includeHidden} OR NOT hidden)
       ORDER BY uploaded_at DESC
       LIMIT ${GUEST_PHOTOS_PAGE_SIZE + 1} OFFSET ${offset}
     `;
@@ -319,8 +324,9 @@ export async function fetchGuestSongs(
   offset = 0,
 ): Promise<{ songs: GuestSong[]; hasMore: boolean }> {
   try {
+    await ensureLiveTables();
     const data = await sql<GuestSong>`
-      SELECT id, user_page_id, requester_name, song_title, artist, ip_address, created_at
+      SELECT id, user_page_id, requester_name, song_title, artist, ip_address, created_at, votes, played_at
       FROM guests_songs
       WHERE user_page_id = ${userPageId}
       ORDER BY created_at DESC

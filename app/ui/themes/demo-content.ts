@@ -384,6 +384,23 @@ export const THEME_DEMOS: Record<string, DemoContent> = {
     guestSongs: songs([['Here Comes the Sun', 'The Beatles', 'Grandma Ruth'], ['September', 'Earth, Wind & Fire', 'Leo']]),
     shareHashtag: 'OurSummerGathering',
   }),
+  blessings: demo('blessings', {
+    heading: 'Lucas’s Baptism',
+    heroEyebrow: 'With joy, we invite you',
+    description: 'We are so grateful for our little Lucas, and we would love for you to be with us as he is baptized. After the ceremony, please join us for lunch with family and friends to celebrate this blessing together.',
+    eventDate: '2027-05-16', eventTime: '11:00', eventEndTime: '15:30',
+    venueName: 'Saint-Viateur Church', streetAddress: '1150 Laurier Avenue West', city: 'Montréal', country: 'QC',
+    formattedAddress: '1150 Laurier Avenue West, Montréal, QC',
+    userEmail: 'hello@lucasbaptism.example',
+    registryDescription: 'Your presence is the greatest gift. If you wish, a small contribution to Lucas’s education fund would mean the world to us.',
+    eventProgram: program([
+      ['2027-05-16', 'Baptism ceremony', '11:00', null, 'Saint-Viateur Church'],
+      ['2027-05-16', 'Family photos', '12:00', null, 'On the church steps'],
+      ['2027-05-16', 'Lunch & celebration', '12:45', '15:30', 'Le Jardin restaurant'],
+    ]),
+    guestSongs: songs([['What a Wonderful World', 'Louis Armstrong', 'Grandpa Paul'], ['Here Comes the Sun', 'The Beatles', 'Aunt Claire']]),
+    shareHashtag: 'LucasBaptism',
+  }),
   community: demo('community', {
     heading: 'Maple Street Block Party',
     heroEyebrow: "You're part of it",

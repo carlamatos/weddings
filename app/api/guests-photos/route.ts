@@ -4,6 +4,7 @@ import { auth } from '@/auth';
 import { sql } from '@vercel/postgres';
 import { verifyPageToken } from '@/app/lib/page-token';
 import { ownsPage, parsePageId } from '@/app/lib/data';
+import { ensureLiveTables } from '@/app/lib/live-db';
 
 const PAGE_SIZE = 20;
 
@@ -22,20 +23,23 @@ export async function GET(request: Request) {
   if (pageId !== null && (await guestAccessDenied(request, pageId))) {
     return NextResponse.json({ error: 'This page is password protected.' }, { status: 403 });
   }
+  let owner = false;
   if (pageId === null) {
     const session = await auth();
     const raw = parsePageId(param);
-    if (session?.user?.id && raw !== null && (await ownsPage(session.user.id, raw))) pageId = raw;
+    if (session?.user?.id && raw !== null && (await ownsPage(session.user.id, raw))) { pageId = raw; owner = true; }
   }
   if (pageId === null) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
+    // Guests never see photos the host hid; the host's dashboard lists them all.
+    await ensureLiveTables();
     const data = await sql`
-      SELECT id, photo, uploaded_at
+      SELECT id, photo, uploaded_at, hidden
       FROM guests_photos
-      WHERE user_page_id = ${pageId}
+      WHERE user_page_id = ${pageId} AND (${owner} OR NOT hidden)
       ORDER BY uploaded_at DESC
       LIMIT ${PAGE_SIZE + 1} OFFSET ${offset}
     `;
@@ -74,5 +78,26 @@ export async function DELETE(request: Request) {
   } catch (err) {
     console.error('Failed to delete guest photo:', err);
     return NextResponse.json({ error: 'Failed to delete photo' }, { status: 500 });
+  }
+}
+
+// The host hides a photo from the page and slideshow, or shows it again.
+// Hidden photos stay in the dashboard and in "Download all".
+export async function PATCH(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const body = await request.json().catch(() => null);
+  const id = typeof body?.id === 'string' ? body.id : '';
+  if (!/^[0-9a-f-]{36}$/i.test(id) || typeof body?.hidden !== 'boolean') return NextResponse.json({ error: 'Bad request' }, { status: 400 });
+  try {
+    await ensureLiveTables();
+    const r = await sql`
+      UPDATE guests_photos SET hidden = ${body.hidden}
+      WHERE id = ${id} AND user_page_id IN (SELECT id FROM user_page WHERE user_id = ${session.user.id})`;
+    if (!r.rowCount) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    return NextResponse.json({ ok: true });
+  } catch (err) {
+    console.error('Failed to hide guest photo:', err);
+    return NextResponse.json({ error: 'Failed to update photo' }, { status: 500 });
   }
 }

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { areGuestMessagesOn } from '@/app/lib/guest-messages';
 import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
@@ -78,6 +79,7 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
       rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
       rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
       rsvpAskSong={isRsvpSongOn(pageSettings)}
+      guestMessagesOn={isPaid && areGuestMessagesOn(pageSettings)}
       themeSlug={data.theme_slug}
       heading={data.heading}
       description={data.description || undefined}
