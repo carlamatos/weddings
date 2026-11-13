@@ -63,7 +63,15 @@ export default async function MemoriesPage({ params }: { params: Promise<{ slug:
 
   return (
     <main lang={page.language || 'en'} style={{ minHeight: '100vh', background: '#F6F2ED', color: '#241F2B', fontFamily: 'system-ui, sans-serif' }}>
-      <header style={{ position: 'relative', minHeight: 340, display: 'grid', placeItems: 'center', textAlign: 'center', padding: '60px 20px', color: '#fff', background: page.banner_image ? `linear-gradient(rgba(20,14,18,.45), rgba(20,14,18,.55)), url("${page.banner_image}") center / cover` : 'linear-gradient(135deg, #4A2E35, #8E3A2C)' }}>
+      {/* A tall banner whose photo stays put while the page scrolls over it
+          (background-attachment: fixed), so more of the photo shows on the way down.
+          Phones that don't support fixed backgrounds (iOS) simply scroll it. */}
+      <header style={{
+        position: 'relative', minHeight: '78vh', display: 'grid', placeItems: 'center', textAlign: 'center', padding: '80px 20px', color: '#fff',
+        backgroundColor: '#4A2E35',
+        backgroundImage: page.banner_image ? `linear-gradient(rgba(20,14,18,.40), rgba(20,14,18,.55)), url("${page.banner_image}")` : 'linear-gradient(135deg, #4A2E35, #8E3A2C)',
+        backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: page.banner_image ? 'fixed' : 'scroll',
+      }}>
         <div>
           <p style={{ margin: '0 0 10px', fontSize: 13, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', opacity: 0.9 }}>{t.memTitle}</p>
           <h1 style={{ margin: '0 0 10px', fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: 'clamp(36px, 7vw, 64px)', lineHeight: 1.05, whiteSpace: 'pre-line' }}>{page.heading}</h1>

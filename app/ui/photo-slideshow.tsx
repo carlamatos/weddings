@@ -278,9 +278,9 @@ const SLIDESHOW_CSS = `
 @keyframes ss-drift { from { transform: scale(1); } to { transform: scale(1.045); } }
 @media (prefers-reduced-motion: reduce) { .ss-slide.is-front .ss-photo { animation: none; } }
 
-.ss-msg { position: absolute; left: 3vw; bottom: calc(3vw + clamp(30px, 3.6vw, 60px)); max-width: min(44vw, 640px); padding: clamp(14px, 1.4vw, 24px) clamp(18px, 1.8vw, 30px); border-radius: 18px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 12px 40px rgba(0,0,0,.35); animation: ss-pop .6s ease-out both; }
-.ss-msg-body { margin: 0 0 6px; font-family: Georgia, serif; font-size: clamp(18px, 1.9vw, 34px); line-height: 1.3; overflow-wrap: anywhere; }
-.ss-msg-name { margin: 0; font-size: clamp(13px, 1.1vw, 19px); font-weight: 600; color: #8E3A2C; }
+.ss-msg { position: absolute; left: 3vw; bottom: calc(3vw + clamp(30px, 3.6vw, 60px)); max-width: min(26vw, 440px); padding: clamp(12px, 1.1vw, 20px) clamp(14px, 1.3vw, 24px); border-radius: 16px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 12px 40px rgba(0,0,0,.35); animation: ss-pop .6s ease-out both; }
+.ss-msg-body { margin: 0 0 6px; font-family: Georgia, serif; font-size: clamp(16px, 1.45vw, 28px); line-height: 1.3; overflow-wrap: anywhere; }
+.ss-msg-name { margin: 0; font-size: clamp(12px, 0.95vw, 17px); font-weight: 600; color: #8E3A2C; }
 .ss-heading { position: absolute; left: 3vw; bottom: 3vw; margin: 0; max-width: 55vw; font-family: Georgia, serif; font-size: clamp(20px, 2.6vw, 44px); line-height: 1.15; text-shadow: 0 2px 18px rgba(0,0,0,.6); overflow-wrap: anywhere; }
 /* A narrow card in the corner: the code on top, a short caption under it, so it covers as little of each photo as possible. */
 .ss-qr { position: absolute; right: 2vw; bottom: 2vw; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 10px 10px 9px; width: clamp(110px, 9.5vw, 180px); border-radius: 14px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
@@ -311,6 +311,7 @@ const SLIDESHOW_CSS = `
 
 @media (max-width: 700px) {
   .ss-qr { right: 12px; bottom: 12px; width: 104px; padding: 8px 8px 7px; }
+  .ss-msg { left: 12px; right: 128px; bottom: 12px; max-width: none; }
   .ss-heading { display: none; }
 }
 `;

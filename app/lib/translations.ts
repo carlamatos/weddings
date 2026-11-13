@@ -107,6 +107,7 @@ export interface Translations {
   // Live messages wall (in the guest photo section)
   wallLeave: string;
   songVote: string;
+  heroPhotosOrMessage: string;
   programNow: string;
   // The memories page after the event (Live Party)
   memTitle: string;
@@ -283,6 +284,7 @@ const en: Translations = {
   rsvpGiftJoin: 'Count me in for the gift exchange (Secret Santa)',
   wallLeave: 'Leave a message for the hosts',
   songVote: 'Vote for this song',
+  heroPhotosOrMessage: 'Share a photo or message',
   programNow: 'Happening now',
   memTitle: 'Memories',
   memPhotos: 'Guest photos',
@@ -451,6 +453,7 @@ const fr: Translations = {
   rsvpGiftJoin: 'Je participe à l’échange de cadeaux (Père Noël secret)',
   wallLeave: 'Laissez un mot aux hôtes',
   songVote: 'Voter pour cette chanson',
+  heroPhotosOrMessage: 'Partager une photo ou un mot',
   programNow: 'En ce moment',
   memTitle: 'Souvenirs',
   memPhotos: 'Photos des invités',
@@ -619,6 +622,7 @@ const es: Translations = {
   rsvpGiftJoin: 'Quiero participar en el intercambio de regalos (amigo secreto)',
   wallLeave: 'Deja un mensaje a los anfitriones',
   songVote: 'Votar por esta canción',
+  heroPhotosOrMessage: 'Comparte una foto o un mensaje',
   programNow: 'Ahora mismo',
   memTitle: 'Recuerdos',
   memPhotos: 'Fotos de los invitados',
