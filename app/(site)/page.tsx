@@ -343,7 +343,14 @@ export default async function Page() {
                     <p className="theme-desc">Warm cream and navy with a rainbow of festival bunting. Fun and elegant at once — built for block parties, fairs, and neighborhood celebrations.</p>
                   </div>
                 </a>
-                <a href="/themes/antique-cars" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                <a href="/themes/blessings" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-1" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="blessings" />
+                  <div className="theme-info">
+                    <p className="theme-name">Blessings</p>
+                    <p className="theme-desc">Ivory, soft gold and a pale sky, with a dove and olive branch. Gentle and serene — made for baptisms, christenings, first communions and blessings.</p>
+                  </div>
+                </a>
+                <a href="/themes/antique-cars" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <ThemePagePicture slug="antique-cars" />
                   <div className="theme-info">
                     <p className="theme-name">Antique Cars</p>
