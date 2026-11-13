@@ -11,6 +11,7 @@ import type { Faq } from '@/app/lib/marketing/types';
 import { FeatureVideo } from '@/app/ui/marketing/feature-video';
 import { HomeVideo } from '@/app/ui/marketing/home-video';
 import { ThemePagePicture } from '@/app/ui/marketing/theme-page-picture';
+import { Rich } from '@/app/ui/marketing/rich';
 
 // The pieces the Spanish pages share.
 
@@ -68,10 +69,11 @@ export function EsPricing() {
         </div>
         <div className="price-card featured reveal delay-1">
           <span className="price-badge">El más popular</span>
-          <p className="price-tier">Live Party</p>
+          <p className="price-tier"><Link href="/es/live-party" className="price-tier-link">Live Party</Link></p>
           <p className="price-amount">{ES_PRICE.replace(' CAD', '')}<span className="per"> CAD + impuestos, un solo pago por evento</span></p>
           <p className="price-desc">Todas las funciones de MyGala para tu evento, durante {PLAN_TERM_MONTHS} meses.</p>
           <ul className="price-features">{ES_PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}</ul>
+          <Link href="/es/live-party" className="price-more">Ver todo lo que incluye Live Party →</Link>
           <Link {...registerHref('pricing-plus')} className="btn-primary" style={{ textAlign: 'center' }}>Crea tu página</Link>
         </div>
       </div>
@@ -89,18 +91,18 @@ export function EsFaq({ faqs }: { faqs: Faq[] }) {
       {faqs.map((f) => (
         <div className="faq-item" key={f.q}>
           <p className="faq-q">{f.q}</p>
-          <p className="faq-a">{f.a}</p>
+          <p className="faq-a"><Rich text={f.a} liveParty="/es/live-party" /></p>
         </div>
       ))}
     </div>
   );
 }
 
-export function EsFinalCta({ title, text, cta }: { title: string; text: string; cta: string }) {
+export function EsFinalCta({ title, text, cta, liveParty = '/es/live-party' }: { title: string; text: string; cta: string; liveParty?: string | false }) {
   return (
     <div className="final-cta reveal">
       <h2 className="section-title">{title}</h2>
-      <p className="hero-sub">{text}</p>
+      <p className="hero-sub"><Rich text={text} liveParty={liveParty} /></p>
       <Link {...registerHref(cta)} className="btn-primary">Crea tu página gratis</Link>
     </div>
   );

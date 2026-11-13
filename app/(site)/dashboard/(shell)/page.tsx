@@ -19,6 +19,7 @@ import { getDashText } from '@/app/lib/dash-text/server';
 import type { DashText } from '@/app/lib/dash-text/en';
 import { fill } from '@/app/lib/dash-text/fill';
 import { rich } from '@/app/ui/dashboard/rich';
+import { siteHref } from '@/app/lib/app-url';
 export const metadata: Metadata = { title: 'Event pages' };
 
 // Dashboard screens a "shortcut" link (/dashboard/livestream, …) can ask for
@@ -162,7 +163,8 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
       </div>
 
       <p style={{ fontSize: 13, color: '#6B6470', marginTop: 20, lineHeight: 1.6 }}>
-        {d.overview.plusIsAOneTime}
+        {d.overview.plusIsAOneTime}{' '}
+        <a href={siteHref(d.plusGate.livePartyPage)} target="_blank" rel="noopener" className="dash-plus-link">{d.plusGate.seeEverythingInPlus} →</a>
       </p>
     </div>
   );

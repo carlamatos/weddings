@@ -18,6 +18,7 @@ import { FreeToolsStrip } from '@/app/ui/marketing/free-tools-strip';
 import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
 import { HomeVideo } from '@/app/ui/marketing/home-video';
 import type { Video } from '@/app/lib/marketing/types';
+import { Rich } from '@/app/ui/marketing/rich';
 
 const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn more';
 
@@ -447,7 +448,7 @@ export default async function Page() {
             {HOME_FAQS.map((f) => (
               <div className="faq-item" key={f.q}>
                 <p className="faq-q">{f.q}</p>
-                <p className="faq-a">{f.a}</p>
+                <p className="faq-a"><Rich text={f.a} /></p>
               </div>
             ))}
           </div>

@@ -21,12 +21,13 @@ export function PricingCards({ reveal = false }: { reveal?: boolean }) {
         </div>
         <div className={`price-card featured${r}${reveal ? ' delay-1' : ''}`}>
           <span className="price-badge">Most popular</span>
-          <p className="price-tier">Live Party</p>
+          <p className="price-tier"><Link href="/live-party" className="price-tier-link">Live Party</Link></p>
           <p className="price-amount">${PLAN_ONE_TIME_PRICE}<span className="per"> {PLAN_CURRENCY} + tax, one-time, per event</span></p>
           <p className="price-desc">Every MyGala feature for your event.</p>
           <ul className="price-features">
             {PLAN_FEATURES.plus.map((f) => <li key={f}>{f}</li>)}
           </ul>
+          <Link href="/live-party" className="price-more">See everything in Live Party →</Link>
           <Link href={appHref('/register')} className="btn-primary" style={{ textAlign: 'center' }} data-cta="pricing-plus">Start your event page</Link>
         </div>
       </div>

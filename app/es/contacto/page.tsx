@@ -73,6 +73,7 @@ export default function SpanishContact() {
             </div>
             <div className="es-links">
               <Link href="/es/funciones"><span>Mira los videos en español<small>Cada función, paso a paso</small></span><span aria-hidden="true">→</span></Link>
+              <Link href="/es/live-party"><span>Live Party<small>Fotos en pantalla, canciones y recuerdos de tu fiesta</small></span><span aria-hidden="true">→</span></Link>
               <Link href="/es#precios"><span>Precios<small>Gratis para empezar, Live Party por evento</small></span><span aria-hidden="true">→</span></Link>
             </div>
           </div>

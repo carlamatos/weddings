@@ -882,6 +882,8 @@ export const en = {
     showsOnYourPageOnce: '{name} shows on your page once this event is on Live Party.',
     worksOnceThisEventIs: '{v1} works once this event is on Live Party.',
     needsPlus: 'Needs Live Party',
+    seeEverythingInPlus: 'See everything in Live Party',
+    livePartyPage: '/live-party',
     extend: 'Extend',
     upgrade: 'Upgrade',
     this: 'This',

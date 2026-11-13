@@ -33,6 +33,7 @@ export function GET() {
     '',
     `- Free ($0): ${PLAN_FEATURES.free.join('; ')}.`,
     `- Live Party (${PLAN_PRICE_PLUS_TAX}, one-time, per event): ${PLAN_FEATURES.plus.join('; ')}.`,
+    link('Live Party', '/live-party', 'everything the plan includes, with a video'),
     link('Pricing', '/pricing'),
     '',
     '## Features',

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { FREE_GUEST_PHOTO_LIMIT, PLUS_GUEST_PHOTO_LIMIT } from '@/app/lib/guest-photos';
-import { usePlus } from './plus-gate';
+import { LivePartyLink, usePlus } from './plus-gate';
 import { startPlusCheckout } from './upgrade-button';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
@@ -37,6 +37,7 @@ export function GuestPhotoAllowance({ used, limit, paid }: { used: number; limit
             {full
               ? fill(d.guestPhotoAllowance.yourPhotoWallIsFull, { PLUS_GUEST_PHOTO_LIMIT })
               : fill(d.guestPhotoAllowance.upgradeToPlusForUp, { PLUS_GUEST_PHOTO_LIMIT })}
+            {' '}<LivePartyLink />
           </p>
           <button
             type="button"

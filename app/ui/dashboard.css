@@ -1530,3 +1530,8 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .mg-bg-swatch.is-selected { box-shadow: 0 0 0 3px #B6584A; }
 .mg-bg-swatch:focus-visible { outline: 3px solid #B6584A; outline-offset: 3px; }
 .mg-bg-photo-preview { display: block; width: 100%; max-height: 220px; margin-top: 12px; object-fit: cover; border-radius: 12px; }
+
+/* "See everything in Live Party" (plus-gate.tsx LivePartyLink). */
+.dash-plus-link { color: #B6584A; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.dash-plus-link:hover { text-decoration: underline; }
+.dash-plus-more { margin: -8px 0 18px; font-size: 14px; }

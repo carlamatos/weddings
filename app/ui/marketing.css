@@ -787,6 +787,7 @@
 .marketing-page .footer .newsletter-eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--rose); margin: 0 0 6px; }
 .marketing-page .newsletter-heading { font-family: var(--font-display); font-size: 26px; font-weight: 400; color: var(--ink); margin: 0 0 8px; }
 .marketing-page .footer .newsletter-lead { font-size: 15px; line-height: 1.6; margin: 0 0 18px; }
+.marketing-page .footer .newsletter-lead a { color: var(--rose); }
 .marketing-page .newsletter-form { display: flex; gap: 8px; }
 .marketing-page .newsletter-form input[type="email"] { flex: 1; min-width: 0; padding: 12px 14px; font-size: 15px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
 .marketing-page .newsletter-form input[type="email"]:focus { outline: 2px solid var(--rose); outline-offset: 1px; }
@@ -1263,3 +1264,48 @@
   .marketing-page .hc-list, .marketing-page .hc-start-list, .marketing-page .hc-pager { grid-template-columns: 1fr; }
   .marketing-page .hc-search input { font-size: 16px; }
 }
+
+/* The Live Party page (/live-party): the plan's features grouped by moment,
+   and the price card next to the how-it-works steps. */
+.marketing-page .lvp-price-line { margin: 22px 0 0; font-size: 15px; color: var(--ink-soft); }
+.marketing-page .lvp-price-line strong { color: var(--ink); font-size: 17px; }
+.marketing-page .lvp-features { padding: 64px 0 8px; scroll-margin-top: 96px; }
+.marketing-page .lvp-group { padding: 28px 0 8px; border-top: 1px solid var(--line); scroll-margin-top: 96px; }
+.marketing-page .lvp-group:first-of-type { border-top: 0; padding-top: 8px; }
+.marketing-page .lvp-kicker { margin: 0 0 6px; font-size: 12px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--rose); }
+.marketing-page .lvp-group-title { font-family: var(--font-display); font-weight: 400; font-size: clamp(22px, 2.8vw, 28px); color: var(--ink); margin: 0 0 20px; }
+.marketing-page .lvp-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px 28px; margin-bottom: 20px; }
+.marketing-page .lvp-item { display: flex; gap: 14px; align-items: flex-start; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
+.marketing-page .lvp-check { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--rose); color: #fff; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+.marketing-page .lvp-check svg { width: 15px; height: 15px; }
+.marketing-page .lvp-item h4 { margin: 2px 0 6px; font-size: 16px; font-weight: 600; color: var(--ink); }
+.marketing-page .lvp-item p { margin: 0; font-size: 14.5px; line-height: 1.6; color: var(--ink-soft); }
+.marketing-page .lvp-more { display: inline-block; margin-top: 8px; font-size: 14px; font-weight: 600; color: var(--rose); text-decoration: none; }
+.marketing-page .lvp-more:hover { text-decoration: underline; }
+.marketing-page .lvp-plus-free { margin: 12px 0 0; font-size: 15px; line-height: 1.7; color: var(--ink-soft); }
+.marketing-page .lvp-plus-free a { color: var(--rose); }
+.marketing-page .lvp-buy { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 48px; align-items: start; padding: 64px 0 16px; scroll-margin-top: 96px; }
+.marketing-page .lvp-buy-card { background: #fff; border: 2px solid var(--rose); border-radius: 18px; padding: 32px 30px; text-align: center; }
+.marketing-page .lvp-buy-card .mk-h2 { margin-bottom: 8px; }
+.marketing-page .lvp-buy-amount { margin: 0 0 10px; font-family: var(--font-display); font-size: 52px; line-height: 1; color: var(--ink); }
+.marketing-page .lvp-buy-amount span { font-family: inherit; font-size: 16px; color: var(--ink-soft); }
+.marketing-page .lvp-buy-terms { margin: 0 0 22px; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+.marketing-page .lvp-buy-card .btn-primary { display: inline-block; }
+.marketing-page .lvp-buy-note { margin: 18px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--ink-soft); }
+.marketing-page .lvp-buy-note a { color: var(--rose); }
+@media (max-width: 860px) {
+  .marketing-page .lvp-items { grid-template-columns: 1fr; }
+  .marketing-page .lvp-buy { grid-template-columns: 1fr; gap: 36px; }
+}
+@media (max-width: 640px) {
+  .marketing-page .lvp-price-line { text-align: center; }
+  .marketing-page .lvp-buy-card { padding: 26px 20px; }
+}
+.marketing-page .lvp-more-q { max-width: 780px; margin: -24px 0 56px !important; }
+.marketing-page .price-tier-link { color: inherit; text-decoration: none; }
+.marketing-page .price-tier-link:hover { color: var(--rose); }
+.marketing-page .price-more { display: block; margin: -6px 0 18px; font-size: 14px; font-weight: 600; color: var(--rose); text-decoration: none; text-align: center; }
+.marketing-page .price-more:hover { text-decoration: underline; }
+.marketing-page a.mk-badge--link { text-decoration: none; }
+.marketing-page a.mk-badge--link:hover { background: var(--rose); color: #fff; }
+.marketing-page .mk-h2 a, .marketing-page .mk-compare th a { color: inherit; text-decoration-color: var(--rose); text-underline-offset: 4px; }

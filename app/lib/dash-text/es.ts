@@ -883,6 +883,8 @@ export const es: DashText = {
     showsOnYourPageOnce: '{name} aparecerá en tu página cuando este evento tenga Live Party.',
     worksOnceThisEventIs: '{v1} funcionará cuando este evento tenga Live Party.',
     needsPlus: 'Requiere Live Party',
+    seeEverythingInPlus: 'Ver todo lo que incluye Live Party',
+    livePartyPage: '/es/live-party',
     extend: 'Extender',
     upgrade: 'Pasar a Live Party',
     this: 'Esto',

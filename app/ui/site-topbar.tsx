@@ -27,6 +27,7 @@ const MENU_FEATURES = ['invitations', 'guest-photo-qr-code', 'find-your-table', 
 const FEATURE_LINKS = MENU_FEATURES.map((slug) => ({ href: `/features/${slug}`, label: getFeature(slug)!.navLabel }));
 // After the two dropdowns. About, Contact and the legal pages are in the footer.
 const PAGE_LINKS = [
+  { href: '/live-party', label: 'Live Party' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/blog', label: 'Blog' },
   { href: '/faq', label: 'FAQ' },
@@ -106,6 +107,7 @@ export default function SiteTopbar({ isLoggedIn }: { isLoggedIn: boolean }) {
               </div>
               <div className="nav-mega-foot">
                 <Link href="/features" className="nav-mega-all">All features →</Link>
+                <Link href="/live-party" className="nav-mega-all">Everything in Live Party →</Link>
                 <Link href="/pricing" className="nav-mega-all">Compare Free and Live Party →</Link>
               </div>
             </div>
