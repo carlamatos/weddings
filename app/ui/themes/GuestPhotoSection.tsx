@@ -156,7 +156,7 @@ export function GuestPhotoSection({
       </div>
 
       {/* The live messages wall (Live Party, when the host switched it on) */}
-      <MessageForm token={userPageId} disabled={disabled} onDone={showToast} btnClassName={btnClassName} />
+      <MessageForm token={userPageId} disabled={disabled} btnClassName={btnClassName} />
 
       {/* Toast */}
       {toast && (
@@ -441,28 +441,37 @@ function lbBtn(extra: React.CSSProperties): React.CSSProperties {
 
 // "Leave a message for the hosts": a short note that joins the live wall on
 // the venue slideshow and the memories page. Collapsed until tapped.
-function MessageForm({ token, disabled, onDone, btnClassName }: { token: string; disabled: boolean; onDone: (msg: string, ok: boolean) => void; btnClassName: string }) {
+function MessageForm({ token, disabled, btnClassName }: { token: string; disabled: boolean; btnClassName: string }) {
   const { messagesOn, language } = useLiveOptions();
   const t = getTranslations(language);
   const [open, setOpen] = useState(false);
   const [name, setName] = useState('');
   const [body, setBody] = useState('');
   const [sending, setSending] = useState(false);
+  // Shown right under the button or the form, where the guest is looking
+  // (a pop-up toast can end up far below, under the photos, in some themes).
+  const [notice, setNotice] = useState<{ msg: string; ok: boolean } | null>(null);
+  useEffect(() => {
+    if (!notice?.ok) return;
+    const timer = setTimeout(() => setNotice(null), 6000);
+    return () => clearTimeout(timer);
+  }, [notice]);
   if (!messagesOn) return null;
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (disabled || !name.trim() || !body.trim()) return;
     setSending(true);
+    setNotice(null);
     try {
       const res = await fetch('/api/guest-messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, name, body }) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || t.wallError);
       setBody('');
       setOpen(false);
-      onDone(t.wallThanks, true);
+      setNotice({ msg: t.wallThanks, ok: true });
     } catch (err) {
-      onDone(err instanceof Error ? err.message : t.wallError, false);
+      setNotice({ msg: err instanceof Error ? err.message : t.wallError, ok: false });
     } finally {
       setSending(false);
     }
@@ -472,8 +481,14 @@ function MessageForm({ token, disabled, onDone, btnClassName }: { token: string;
   return (
     <div style={{ maxWidth: 480, margin: '-12px auto 28px', textAlign: 'center' }}>
       {!open ? (
-        <button type="button" onClick={() => setOpen(true)} disabled={disabled} style={{ background: 'none', border: 'none', padding: 6, font: 'inherit', fontSize: 15, textDecoration: 'underline', cursor: disabled ? 'not-allowed' : 'pointer', color: 'inherit', opacity: disabled ? 0.5 : 0.85 }}>
-          ✍ {t.wallLeave}
+        <button
+          type="button"
+          className={btnClassName}
+          onClick={() => { setOpen(true); setNotice(null); }}
+          disabled={disabled}
+          style={disabled ? { opacity: 0.5, cursor: 'not-allowed' } : undefined}
+        >
+          {t.wallLeave}
         </button>
       ) : (
         <form onSubmit={send} style={{ display: 'grid', gap: 8, textAlign: 'left' }}>
@@ -481,6 +496,11 @@ function MessageForm({ token, disabled, onDone, btnClassName }: { token: string;
           <textarea aria-label={t.wallMessage} placeholder={t.wallMessage} value={body} maxLength={GUEST_MESSAGE_BODY_MAX} rows={3} onChange={(e) => setBody(e.target.value)} style={{ ...field, resize: 'vertical' }} required />
           <button type="submit" className={btnClassName} disabled={sending || disabled} style={{ justifySelf: 'center' }}>{sending ? t.wallPosting : t.wallPost}</button>
         </form>
+      )}
+      {notice && (
+        <p role="status" style={{ margin: '12px 0 0', fontSize: 15, fontWeight: 600, color: notice.ok ? 'inherit' : '#B6584A' }}>
+          {notice.ok ? '✓ ' : ''}{notice.msg}
+        </p>
       )}
     </div>
   );

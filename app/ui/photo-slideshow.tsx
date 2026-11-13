@@ -282,10 +282,11 @@ const SLIDESHOW_CSS = `
 .ss-msg-body { margin: 0 0 6px; font-family: Georgia, serif; font-size: clamp(18px, 1.9vw, 34px); line-height: 1.3; overflow-wrap: anywhere; }
 .ss-msg-name { margin: 0; font-size: clamp(13px, 1.1vw, 19px); font-weight: 600; color: #8E3A2C; }
 .ss-heading { position: absolute; left: 3vw; bottom: 3vw; margin: 0; max-width: 55vw; font-family: Georgia, serif; font-size: clamp(20px, 2.6vw, 44px); line-height: 1.15; text-shadow: 0 2px 18px rgba(0,0,0,.6); overflow-wrap: anywhere; }
-.ss-qr { position: absolute; right: 2.4vw; bottom: 2.4vw; display: flex; align-items: center; gap: 14px; padding: 12px 18px 12px 12px; max-width: 34vw; border-radius: 16px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 12px 40px rgba(0,0,0,.35); }
-.ss-qr img { width: clamp(84px, 8vw, 150px); height: auto; border-radius: 6px; display: block; }
-.ss-qr strong { display: block; font-size: clamp(15px, 1.4vw, 24px); margin-bottom: 4px; }
-.ss-qr span { display: block; font-size: clamp(12px, 0.95vw, 16px); line-height: 1.4; color: #6B6470; }
+/* A narrow card in the corner: the code on top, a short caption under it, so it covers as little of each photo as possible. */
+.ss-qr { position: absolute; right: 2vw; bottom: 2vw; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; padding: 10px 10px 9px; width: clamp(110px, 9.5vw, 180px); border-radius: 14px; background: rgba(255,255,255,.94); color: #241F2B; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.ss-qr img { width: 100%; height: auto; border-radius: 6px; display: block; }
+.ss-qr strong { display: block; font-size: clamp(12px, 0.95vw, 17px); line-height: 1.2; }
+.ss-qr span { display: none; }
 .ss-new { position: absolute; left: 3vw; top: 3vw; padding: 8px 16px; border-radius: 999px; background: #B6584A; font-size: clamp(13px, 1.1vw, 18px); font-weight: 700; letter-spacing: .02em; box-shadow: 0 6px 24px rgba(0,0,0,.3); animation: ss-pop .5s ease-out both; }
 @keyframes ss-pop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 
@@ -309,7 +310,7 @@ const SLIDESHOW_CSS = `
 .ss-count { padding: 0 8px; font-size: 13px; color: rgba(255,255,255,.6); white-space: nowrap; }
 
 @media (max-width: 700px) {
-  .ss-qr { max-width: none; left: 12px; right: 12px; bottom: 12px; }
+  .ss-qr { right: 12px; bottom: 12px; width: 104px; padding: 8px 8px 7px; }
   .ss-heading { display: none; }
 }
 `;
