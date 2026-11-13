@@ -30,6 +30,7 @@ export default function SiteFooter() {
         </div>
         <div>
           <p className="site-footer-heading">MyGala</p>
+          <Link href="/live-party">Live Party</Link>
           <Link href="/pricing">Pricing</Link>
           <Link href="/about">About</Link>
           <Link href="/help">Help centre</Link>

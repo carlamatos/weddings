@@ -12,6 +12,7 @@ const LINKS = [
   { href: '/es', label: 'Inicio' },
   { href: '/es/cumpleanos-y-quinceaneras', label: 'Cumpleaños y quinceañeras' },
   { href: '/es/funciones', label: 'Funciones' },
+  { href: '/es/live-party', label: 'Live Party' },
   { href: '/es#precios', label: 'Precios' },
   { href: '/es/contacto', label: 'Contacto' },
 ];

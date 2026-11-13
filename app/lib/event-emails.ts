@@ -34,6 +34,8 @@ const TEXT = {
     upgradeList: ['A live photo slideshow for the TV or projector at your venue', 'Up to 500 guest photos, shared by QR code', 'Song requests and a livestream for faraway family', 'Find Your Table: guests scan a sign and see their table', 'Automatic reminder emails to your guests'],
     upgradePrice: `One payment of ${PLAN_PRICE_PLUS_TAX} for this event. No subscription.`,
     upgradeButton: 'See Live Party',
+    upgradeMore: 'Watch the video and see everything in Live Party',
+    upgradePage: '/live-party',
     photosSubject: (h: string, n: number) => `${n} guest photo${n === 1 ? '' : 's'} from ${h} 📸`,
     photosHeading: 'Your guests’ photos are ready',
     photosBody: (h: string, n: number) => `Your guests shared <strong>${n} photo${n === 1 ? '' : 's'}</strong> from <strong>${h}</strong>. See them all in your dashboard and download them in one click.`,
@@ -52,6 +54,8 @@ const TEXT = {
     upgradeList: ['Un diaporama de photos en direct sur la télé ou le projecteur de votre salle', 'Jusqu’à 500 photos des invités, partagées par code QR', 'Les demandes de chansons et une diffusion en direct pour la famille au loin', 'Find Your Table : les invités scannent une affiche et voient leur table', 'Des courriels de rappel automatiques à vos invités'],
     upgradePrice: `Un seul paiement de ${PLAN_PRICE_PLUS_TAX} pour cet événement. Sans abonnement.`,
     upgradeButton: 'Découvrir Live Party',
+    upgradeMore: 'Voir la vidéo et tout ce qu’inclut Live Party (en anglais)',
+    upgradePage: '/live-party',
     photosSubject: (h: string, n: number) => `${n} photo${n === 1 ? '' : 's'} des invités de ${h} 📸`,
     photosHeading: 'Les photos de vos invités sont prêtes',
     photosBody: (h: string, n: number) => `Vos invités ont partagé <strong>${n} photo${n === 1 ? '' : 's'}</strong> de <strong>${h}</strong>. Voyez-les toutes dans votre tableau de bord et téléchargez-les en un clic.`,
@@ -70,6 +74,8 @@ const TEXT = {
     upgradeList: ['Una presentación de fotos en vivo en la pantalla o el proyector del salón', 'Hasta 500 fotos de tus invitados, con código QR', 'Peticiones de canciones y transmisión en vivo para la familia lejana', 'Find Your Table: tus invitados escanean un letrero y ven su mesa', 'Recordatorios automáticos por correo para tus invitados'],
     upgradePrice: `Un solo pago de ${PLAN_PRICE_PLUS_TAX} por este evento. Sin suscripción.`,
     upgradeButton: 'Ver Live Party',
+    upgradeMore: 'Mira el video y todo lo que incluye Live Party',
+    upgradePage: '/es/live-party',
     photosSubject: (h: string, n: number) => `${n} foto${n === 1 ? '' : 's'} de tus invitados de ${h} 📸`,
     photosHeading: 'Las fotos de tus invitados están listas',
     photosBody: (h: string, n: number) => `Tus invitados compartieron <strong>${n} foto${n === 1 ? '' : 's'}</strong> de <strong>${h}</strong>. Velas todas en tu panel y descárgalas con un clic.`,
@@ -101,7 +107,8 @@ export function upgradeEmail(opts: { name: string | null; heading: string | null
     <p style="${p}">${t.upgradeBody(heading)}</p>
     <ul style="margin: 0 0 16px; padding-left: 20px; line-height: 1.7;">${t.upgradeList.map((li) => `<li>${escHtml(li)}</li>`).join('')}</ul>
     <p style="${p}">${escHtml(t.upgradePrice)}</p>
-    <div style="margin: 24px 0;">${button(opts.link, t.upgradeButton)}</div>`;
+    <div style="margin: 24px 0;">${button(opts.link, t.upgradeButton)}</div>
+    <p style="${p}"><a href="${siteUrl()}${t.upgradePage}" style="color: #B6584A;">${escHtml(t.upgradeMore)} →</a></p>`;
   return { subject: t.upgradeSubject(plainHeading(opts.heading, t.yourEvent)), html: shell(opts.lang, inner, opts.unsubscribe) };
 }
 

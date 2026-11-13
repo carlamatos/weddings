@@ -56,6 +56,7 @@ export default function FeaturesIndex() {
           <ul className="mk-list mk-list--cols">
             {INCLUDED.map((i) => <li key={i}>{i}</li>)}
           </ul>
+          <p className="mk-note">Features marked Live Party come with <Link href="/live-party">MyGala Live Party</Link>, a one-time payment per event: the live photo slideshow, the messages wall, song votes and a DJ page, find-your-table, a memories page and more.</p>
         </section>
       </div>
       <FinalCta title="Start with everything included" text="Create your event page free, and upgrade to Live Party only when you need more." />

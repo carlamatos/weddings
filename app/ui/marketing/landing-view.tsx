@@ -15,6 +15,7 @@ import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
 import { previewImage } from '@/app/ui/themes/preview-image';
 import '@/app/ui/marketing.css';
 import '@/app/ui/marketing/landing.css';
+import { Rich } from '@/app/ui/marketing/rich';
 
 // The Google Ads landing page layout, shared by /events/<slug>/start and the
 // French page (/fr/mariage). Built to load fast on a phone: fully static (no
@@ -266,7 +267,7 @@ export function LandingView({ page, templates, faqs, lang = 'en', footer }: {
           <div className="wrap">
             <p className="eyebrow lp-center">{ui.featuresEyebrow}</p>
             <h2 className="section-title lp-center">{page.features.title}</h2>
-            <p className="section-sub lp-center lp-sub">{page.features.sub}</p>
+            <p className="section-sub lp-center lp-sub"><Rich text={page.features.sub} /></p>
 
             {top.length > 0 ? (
               <>
@@ -299,7 +300,7 @@ export function LandingView({ page, templates, faqs, lang = 'en', footer }: {
               {faqs.map((f) => (
                 <details key={f.q}>
                   <summary>{f.q}</summary>
-                  <p>{f.a}</p>
+                  <p><Rich text={f.a} /></p>
                 </details>
               ))}
             </div>
@@ -309,7 +310,7 @@ export function LandingView({ page, templates, faqs, lang = 'en', footer }: {
         {/* FINAL CTA */}
         <section className="final-cta lp-final">
           <h2 className="section-title">{page.final.title}</h2>
-          <p className="hero-sub">{page.final.text}</p>
+          <p className="hero-sub"><Rich text={page.final.text} /></p>
           <a href={register} className="btn-primary lp-btn-big" data-cta={cta('footer')}>{page.cta}</a>
           <p className="lp-final-note">{ui.finalNote}</p>
         </section>

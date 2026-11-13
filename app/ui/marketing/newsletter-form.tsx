@@ -45,7 +45,7 @@ export default function NewsletterForm() {
       ) : (
         <>
           <p className="newsletter-lead">
-            Subscribe for new themes, event ideas and offers, and we&rsquo;ll email you a code for 10% off Live Party.
+            Subscribe for new themes, event ideas and offers, and we&rsquo;ll email you a code for 10% off <Link href="/live-party">Live Party</Link>.
           </p>
           <form className="newsletter-form" onSubmit={submit}>
             <label htmlFor="newsletter-email" className="sr-only">Email address</label>

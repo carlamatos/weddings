@@ -70,7 +70,7 @@ export default function PricingPage() {
           <p className="eyebrow">MyGala pricing</p>
           <h1 className="mk-h1">Start free. Pay once, only for the events that need more.</h1>
           <p className="mk-lead">
-            Every MyGala event page is free, with every theme, RSVPs, your guest list and invitations. Live Party is a single payment
+            Every MyGala event page is free, with every theme, RSVPs, your guest list and invitations. <Link href="/live-party">Live Party</Link> is a single payment
             of {PLAN_PRICE_PLUS_TAX} per event that unlocks everything else for {PLAN_TERM_MONTHS} months. No subscription, no card kept on file.
           </p>
         </div>
@@ -89,7 +89,7 @@ export default function PricingPage() {
                 <tr>
                   <th scope="col">Feature</th>
                   <th scope="col">Free</th>
-                  <th scope="col">Live Party</th>
+                  <th scope="col"><Link href="/live-party">Live Party</Link></th>
                 </tr>
               </thead>
               <tbody>
@@ -107,7 +107,7 @@ export default function PricingPage() {
 
         <div className="mk-body">
           <section className="mk-block">
-            <h2 className="mk-h2">How Live Party works</h2>
+            <h2 className="mk-h2">How <Link href="/live-party">Live Party</Link> works</h2>
             <ul className="mk-list">
               <li><strong>Per event.</strong> Live Party belongs to one event page, so a free birthday page and a Live Party wedding page can sit side by side in your dashboard.</li>
               <li><strong>One payment.</strong> You pay once at checkout. Nothing renews, so there is nothing to cancel.</li>

@@ -54,6 +54,8 @@ function buildIndex(): SearchEntry[] {
     entry('Page', 'Home', '/', 'Create a free event website: RSVPs, guest list, invitations, guest photos and more.', ['mygala event page website free start']),
     entry('Page', 'Pricing', '/pricing', `Free to start. Live Party is ${PLAN_PRICE_PLUS_TAX}, one-time, per event, for ${PLAN_TERM_MONTHS} months.`,
       ['price prices cost how much plan plans free plus upgrade payment one time subscription', ...PLAN_FEATURES.free, ...PLAN_FEATURES.plus]),
+    entry('Page', 'Live Party', '/live-party', 'Guest photos and messages live on the big screen, song votes with a DJ page, find-your-table and a memories page.',
+      ['live party slideshow screen projector tv messages wall song requests votes dj memories after party upgrade', ...PLAN_FEATURES.plus]),
     entry('Page', 'Events & themes', '/events', 'Browse every theme for weddings, celebrations, business and general events.', ['events themes templates designs styles']),
     entry('Page', 'All features', '/features', 'Everything MyGala can do for your event, free and Live Party.', FEATURES.map((f) => `${f.navLabel} ${f.summary}`)),
     entry('Page', 'Blog', '/blog', 'Wedding and event planning tips, checklists and guides.', ['blog articles guides tips advice planning']),

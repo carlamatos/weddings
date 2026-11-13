@@ -1,4 +1,3 @@
-import { Fragment, type ReactNode } from 'react';
 import Link from 'next/link';
 import { appHref } from '@/app/lib/app-url';
 import type { ArticleBlock, ArticleSection } from '@/app/lib/marketing/blog';
@@ -11,26 +10,10 @@ import PaletteTool from './palette-tool';
 import RsvpTool from './rsvp-tool';
 import { ThemeGrid } from './theme-grid';
 import { ZoomableScreenshot } from './zoomable-screenshot';
+import { Rich } from './rich';
 
-// Renders the article markup described in app/lib/marketing/blog.ts:
-// [link text](/path) and **bold**.
-export function Rich({ text }: { text: string }) {
-  const parts: ReactNode[] = [];
-  const re = /\[([^\]]+)\]\(([^)]+)\)|\*\*(.+?)\*\*/g;
-  let last = 0;
-  for (let m = re.exec(text); m; m = re.exec(text)) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
-    if (m[1] !== undefined) {
-      // Links can hold bold text, e.g. **[Invitations](/features/invitations)**.
-      parts.push(<Link key={m.index} href={m[2]}>{m[1]}</Link>);
-    } else {
-      parts.push(<strong key={m.index}><Rich text={m[3]} /></strong>);
-    }
-    last = m.index + m[0].length;
-  }
-  if (last < text.length) parts.push(text.slice(last));
-  return <>{parts.map((p, i) => <Fragment key={i}>{p}</Fragment>)}</>;
-}
+// Article markup ([link text](/path) and **bold**) is rendered by Rich.
+export { Rich };
 
 function Block({ block }: { block: ArticleBlock }) {
   switch (block.type) {

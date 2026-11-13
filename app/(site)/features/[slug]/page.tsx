@@ -46,9 +46,9 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
           <Breadcrumbs crumbs={crumbs} />
           <p className="eyebrow">
             {feature.eyebrow}
-            <span className={`mk-badge${feature.plan === 'Free' ? ' mk-badge--free' : ''}`}>
-              {feature.plan === 'Free' ? 'Free on every plan' : 'Live Party feature'}
-            </span>
+            {feature.plan === 'Free'
+              ? <span className="mk-badge mk-badge--free">Free on every plan</span>
+              : <Link href="/live-party" className="mk-badge mk-badge--link">Live Party feature</Link>}
           </p>
           <h1 className="mk-h1">{feature.h1}</h1>
           <p className="mk-lead">{feature.lead}</p>
@@ -87,7 +87,7 @@ export default async function FeaturePage({ params }: { params: Promise<{ slug: 
             <Steps steps={feature.steps} />
             {feature.plan === 'Live Party' && (
               <p className="mk-note">
-                {feature.navLabel} is part of MyGala Live Party: a one-time payment of {PLAN_PRICE_PLUS_TAX} per event page that unlocks every
+                {feature.navLabel} is part of <Link href="/live-party">MyGala Live Party</Link>: a one-time payment of {PLAN_PRICE_PLUS_TAX} per event page that unlocks every
                 premium feature for 12 months. No subscription. <Link href="/pricing">Compare plans</Link>.
               </p>
             )}

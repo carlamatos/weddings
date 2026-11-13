@@ -13,6 +13,7 @@ export const ES_PAGES = {
   home: { path: '/es', label: 'Inicio' },
   quince: { path: '/es/cumpleanos-y-quinceaneras', label: 'Cumpleaños y quinceañeras' },
   features: { path: '/es/funciones', label: 'Funciones' },
+  liveParty: { path: '/es/live-party', label: 'Live Party' },
   contact: { path: '/es/contacto', label: 'Contacto' },
 } as const;
 
@@ -26,6 +27,7 @@ export const ES_ALTERNATES: Record<string, string> = {
   '/es': '/',
   '/es/cumpleanos-y-quinceaneras': '/events/celebrations',
   '/es/funciones': '/features',
+  '/es/live-party': '/live-party',
   '/es/contacto': '/contact',
 };
 

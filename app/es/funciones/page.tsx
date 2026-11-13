@@ -66,7 +66,7 @@ export default function SpanishFeatures() {
             <div className="reveal" style={{ maxWidth: 640, marginBottom: 44 }}>
               <p className="eyebrow">Y mucho más</p>
               <h2 className="section-title">Todo lo que tu evento necesita.</h2>
-              <p className="section-sub">Las funciones gratis están en todas las páginas. Las funciones Live Party se desbloquean con un solo pago por evento.</p>
+              <p className="section-sub">Las funciones gratis están en todas las páginas. Las funciones <Link href="/es/live-party">Live Party</Link> se desbloquean con un solo pago por evento.</p>
             </div>
             <div className="es-more">
               {ES_FEATURES.more.map((f, i) => {
@@ -88,7 +88,7 @@ export default function SpanishFeatures() {
         <div className="section">
           <div className="es-center reveal">
             <p className="eyebrow">Precios</p>
-            <h2 className="section-title">Gratis para empezar, Live Party cuando lo necesites.</h2>
+            <h2 className="section-title">Gratis para empezar, <Link href="/es/live-party">Live Party</Link> cuando lo necesites.</h2>
           </div>
           <EsPricing />
         </div>

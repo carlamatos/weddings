@@ -6,6 +6,7 @@ import { CheckIcon, LockClosedIcon, SparklesIcon, XMarkIcon } from '@heroicons/r
 import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { startPlusCheckout } from './upgrade-button';
+import { siteHref } from '@/app/lib/app-url';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
@@ -80,6 +81,7 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
           <li><CheckIcon />{fill(d.plusGate.onePaymentOfForMonths, { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS })}</li>
           <li><CheckIcon />{d.plusGate.youComeStraightBackHere}</li>
         </ul>
+        <p className="dash-plus-more"><LivePartyLink /></p>
         {error && <p className="dash-plus-error" role="alert">{error}</p>}
         <div className="dash-plus-actions">
           <button type="button" className="dash-plus-later" onClick={onClose}>{d.plusGate.notNow}</button>
@@ -109,6 +111,7 @@ export function PlusSetupNote({ section }: { section: string }) {
         {feature?.setting
           ? fill(d.plusGate.showsOnYourPageOnce, { name: feature.name })
           : fill(d.plusGate.worksOnceThisEventIs, { v1: feature?.name ?? d.plusGate.this })}
+        {' '}<LivePartyLink />
       </p>
       <button
         type="button"
@@ -119,6 +122,17 @@ export function PlusSetupNote({ section }: { section: string }) {
         {loading ? d.plusGate.openingCheckout : expired ? d.plusGate.extendPlus : d.plusGate.upgradeToPlus}
       </button>
     </div>
+  );
+}
+
+// "See everything in Live Party": the public page about the plan, in a new
+// tab so the host doesn't lose their place in the dashboard.
+export function LivePartyLink({ className = 'dash-plus-link' }: { className?: string }) {
+  const d = useDashText();
+  return (
+    <a href={siteHref(d.plusGate.livePartyPage)} target="_blank" rel="noopener" className={className}>
+      {d.plusGate.seeEverythingInPlus} →
+    </a>
   );
 }
 

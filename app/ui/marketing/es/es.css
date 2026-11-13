@@ -161,3 +161,4 @@
 @media (max-width: 560px) {
   .es-page .topbar-login, .es-page .es-lang { display: none; }
 }
+.es-page .section-title a, .es-page .section-sub a { color: inherit; text-decoration-color: var(--rose); text-underline-offset: 4px; }
