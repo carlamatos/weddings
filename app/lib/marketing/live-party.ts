@@ -82,7 +82,7 @@ export const LIVE_PARTY_EN: LivePartyCopy = {
       kicker: 'On the big screen',
       title: 'Every photo and message, live',
       items: [
-        { title: 'Live photo slideshow', text: 'Open one link on the TV or projector at the venue. Guests’ photos play full screen, and new ones appear seconds after they’re shared.', href: '/features/live-photo-slideshow' },
+        { title: 'Live photo slideshow', text: 'Open one link on the TV or projector at the venue. Guests’ photos play full screen, and new ones appear seconds after they’re shared. No screen? Every photo is on your event page too.', href: '/features/live-photo-slideshow' },
         { title: 'Messages wall', text: 'Guests leave you a message from their phone, and it rotates on the screen with the photos. Every message is kept for you.' },
         { title: `Up to ${PLUS_GUEST_PHOTO_LIMIT} guest photos`, text: `Guests scan the QR code on their table and share from their phone camera. No app and no sign-up. The free plan holds ${FREE_GUEST_PHOTO_LIMIT}.`, href: '/features/guest-photo-qr-code' },
         { title: 'You stay in control', text: 'Hide any photo or message with one tap from your dashboard. It leaves the page and the screen straight away.' },
@@ -150,6 +150,7 @@ export const LIVE_PARTY_EN: LivePartyCopy = {
     { q: 'How much is Live Party?', a: `${PLAN_PRICE_PLUS_TAX}, paid once per event. It is not a subscription: nothing renews and there is nothing to cancel.` },
     { q: 'How long does Live Party last?', a: `${PLAN_TERM_MONTHS} months from your purchase: time to plan, celebrate and enjoy your memories page afterwards. Then your page stays online on the free plan, or you can extend Live Party with another single payment.` },
     { q: 'Do my guests need an app?', a: 'No. Guests scan a QR code or open your link in their phone’s browser to share photos, leave messages, vote for songs and find their table. No app and no account.' },
+    { q: 'Do I need a big screen?', a: 'No, the screen is optional. Without one, guests still share photos and see them all on your event page, vote for songs and find their table on their phones, and every message is saved for you in your dashboard and on your memories page.' },
     { q: 'What do I need for the slideshow?', a: 'Any screen with a web browser: a laptop plugged into a TV or projector, or a smart TV. Open the slideshow link and it runs by itself, adding new photos and messages as guests share them.' },
     { q: 'Can I try it before I pay?', a: 'Yes. Create your page free and set up the Live Party features. You only pay when you’re ready for your guests to use them.' },
     { q: 'What if a guest shares something I don’t want on the screen?', a: 'Hide it with one tap from your dashboard. It disappears from your page and the slideshow straight away, and you can show it again later.' },
@@ -197,7 +198,7 @@ export const LIVE_PARTY_ES: LivePartyCopy = {
       kicker: 'En la pantalla grande',
       title: 'Cada foto y cada mensaje, en vivo',
       items: [
-        { title: 'Presentación de fotos en vivo', text: 'Abre un enlace en la tele o el proyector del salón. Las fotos de tus invitados se ven en pantalla completa y las nuevas aparecen segundos después de compartirlas.' },
+        { title: 'Presentación de fotos en vivo', text: 'Abre un enlace en la tele o el proyector del salón. Las fotos de tus invitados se ven en pantalla completa y las nuevas aparecen segundos después de compartirlas. ¿Sin pantalla? Todas las fotos también están en tu página.' },
         { title: 'Muro de mensajes', text: 'Tus invitados te dejan un mensaje desde su celular y aparece en la pantalla junto con las fotos. Todos los mensajes se guardan para ti.' },
         { title: `Hasta ${PLUS_GUEST_PHOTO_LIMIT} fotos de tus invitados`, text: `Escanean el código QR de su mesa y comparten desde la cámara de su celular. Sin aplicación y sin cuenta. El plan gratis guarda ${FREE_GUEST_PHOTO_LIMIT}.`, href: '/es/funciones#fotos' },
         { title: 'Tú tienes el control', text: 'Oculta cualquier foto o mensaje con un toque desde tu panel. Desaparece de la página y de la pantalla al instante.' },
@@ -265,6 +266,7 @@ export const LIVE_PARTY_ES: LivePartyCopy = {
     { q: '¿Cuánto cuesta Live Party?', a: `${PRICE} ${PLAN_CURRENCY} más impuestos, un solo pago por evento. No es una suscripción: no se renueva y no hay nada que cancelar.` },
     { q: '¿Cuánto dura Live Party?', a: `${PLAN_TERM_MONTHS} meses desde tu compra: tiempo para planear, celebrar y disfrutar tu página de recuerdos. Después tu página sigue en línea con el plan gratis, o puedes extender Live Party con otro pago único.` },
     { q: '¿Mis invitados necesitan una aplicación?', a: 'No. Escanean un código QR o abren tu enlace en el navegador de su celular para compartir fotos, dejar mensajes, votar canciones y encontrar su mesa. Sin aplicación y sin cuenta.' },
+    { q: '¿Necesito una pantalla grande?', a: 'No, la pantalla es opcional. Sin ella, tus invitados comparten fotos y las ven todas en la página de tu evento, votan canciones y encuentran su mesa desde su celular, y cada mensaje se guarda para ti en tu panel y en tu página de recuerdos.' },
     { q: '¿Qué necesito para la presentación de fotos?', a: 'Cualquier pantalla con navegador: una laptop conectada a una tele o un proyector, o una smart TV. Abre el enlace de la presentación y funciona sola, agregando las fotos y los mensajes nuevos.' },
     { q: '¿Puedo probarlo antes de pagar?', a: 'Sí. Crea tu página gratis y prepara las funciones Live Party. Solo pagas cuando quieras que tus invitados las usen.' },
     { q: '¿Y si un invitado comparte algo que no quiero en la pantalla?', a: 'Ocúltalo con un toque desde tu panel. Desaparece de tu página y de la pantalla al instante, y puedes volver a mostrarlo después.' },
