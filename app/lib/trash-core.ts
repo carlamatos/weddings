@@ -23,16 +23,28 @@ export const TRASH_TABLES: TableSpec[] = [
   { table: 'event_guests', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'guests_photos', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'guests_songs', where: `user_page_id IN ${PAGE_IDS}` },
+  // No user_page_id of its own: found through the page's songs (and removed
+  // with them by ON DELETE CASCADE, so it must be in the snapshot).
+  {
+    table: 'guests_song_votes',
+    where: `song_id IN (SELECT id FROM guests_songs WHERE user_page_id IN ${PAGE_IDS})`,
+  },
   { table: 'event_program', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_custom_sections', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_sponsors', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_potluck', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exchange', where: `user_page_id IN ${PAGE_IDS}` },
   { table: 'page_gift_exclusions', where: `user_page_id IN ${PAGE_IDS}` },
+  // References page_gift_exchange (ON DELETE CASCADE), so after it.
+  { table: 'page_gift_messages', where: `user_page_id IN ${PAGE_IDS}` },
   // Removed with its page (ON DELETE CASCADE), so it must be in the
   // snapshot: which reminders already went out (without it a restore would
   // send guests the same reminders again).
   { table: 'event_reminder_deliveries', where: `user_page_id IN ${PAGE_IDS}` },
+  // Also ON DELETE CASCADE from user_page.
+  { table: 'event_plans', where: `user_page_id IN ${PAGE_IDS}` },
+  // No foreign key, so nothing removes these rows but this list.
+  { table: 'page_guest_messages', where: `user_page_id IN ${PAGE_IDS}` },
 ];
 
 export type Snapshot = { version: 1; tables: Record<string, Row[]> };
