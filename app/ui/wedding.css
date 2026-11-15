@@ -111,8 +111,6 @@
   position: relative;
 }
 .registry-overlay {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
