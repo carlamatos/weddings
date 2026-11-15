@@ -478,5 +478,19 @@ export async function POST(request: Request) {
     // event_invitees table may not exist on fresh deployments
   }
 
-  return NextResponse.json({ success: true, inviteesMigrated });
+  // One-off cleanup: page_guest_messages has no foreign key to user_page, and
+  // until the trash and purge flows listed it, deleting a page left its live
+  // messages behind (guest names, message text, IP addresses). Remove those
+  // orphans. Safe to re-run: afterwards it finds nothing.
+  let orphanGuestMessagesDeleted = 0;
+  const guestMessagesTable = await sql`SELECT to_regclass('page_guest_messages') IS NOT NULL AS ok`;
+  if (guestMessagesTable.rows[0]?.ok) {
+    const orphans = await sql`
+      DELETE FROM page_guest_messages m
+      WHERE NOT EXISTS (SELECT 1 FROM user_page p WHERE p.id = m.user_page_id)
+    `;
+    orphanGuestMessagesDeleted = orphans.rowCount ?? 0;
+  }
+
+  return NextResponse.json({ success: true, inviteesMigrated, orphanGuestMessagesDeleted });
 }

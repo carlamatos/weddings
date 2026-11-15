@@ -10,19 +10,28 @@ export const PAGE_TRASH_DAYS = 30;
 // Everything hanging off a page, parents first: restore inserts in this
 // order, deletion runs in reverse. Includes the tables that ON DELETE
 // CASCADE would otherwise drop without a trace.
-export const PAGE_TRASH_TABLES = [
-  'user_page_settings',
-  'event_gallery',
-  'event_guests',
-  'guests_photos',
-  'guests_songs',
-  'event_program',
-  'page_custom_sections',
-  'page_sponsors',
-  'page_potluck',
-  'page_gift_exchange',
-  'page_gift_exclusions',
-  'event_reminder_deliveries',
+// Each `where` takes the page id as $1.
+const BY_PAGE = 'user_page_id = $1';
+export const PAGE_TRASH_TABLES: { table: string; where: string }[] = [
+  { table: 'user_page_settings', where: BY_PAGE },
+  { table: 'event_gallery', where: BY_PAGE },
+  { table: 'event_guests', where: BY_PAGE },
+  { table: 'guests_photos', where: BY_PAGE },
+  { table: 'guests_songs', where: BY_PAGE },
+  // No user_page_id of its own: found through the page's songs.
+  { table: 'guests_song_votes', where: 'song_id IN (SELECT id FROM guests_songs WHERE user_page_id = $1)' },
+  { table: 'event_program', where: BY_PAGE },
+  { table: 'page_custom_sections', where: BY_PAGE },
+  { table: 'page_sponsors', where: BY_PAGE },
+  { table: 'page_potluck', where: BY_PAGE },
+  { table: 'page_gift_exchange', where: BY_PAGE },
+  { table: 'page_gift_exclusions', where: BY_PAGE },
+  // References page_gift_exchange, so after it.
+  { table: 'page_gift_messages', where: BY_PAGE },
+  { table: 'event_reminder_deliveries', where: BY_PAGE },
+  { table: 'event_plans', where: BY_PAGE },
+  // No foreign key, so nothing removes these rows but this list.
+  { table: 'page_guest_messages', where: BY_PAGE },
 ];
 
 export type PageSnapshot = { version: 1; tables: Record<string, Row[]> };
@@ -31,12 +40,12 @@ export async function buildPageSnapshot(client: DbClient, pageId: number): Promi
   const tables: Record<string, Row[]> = {};
   const page = await client.query('SELECT to_jsonb(t) AS j FROM user_page t WHERE id = $1', [pageId]);
   tables.user_page = page.rows.map((r) => r.j as Row);
-  for (const table of PAGE_TRASH_TABLES) {
+  for (const { table, where } of PAGE_TRASH_TABLES) {
     if (!(await tableExists(client, table))) {
       tables[table] = [];
       continue;
     }
-    const r = await client.query(`SELECT to_jsonb(t) AS j FROM ${table} t WHERE user_page_id = $1`, [pageId]);
+    const r = await client.query(`SELECT to_jsonb(t) AS j FROM ${table} t WHERE ${where}`, [pageId]);
     tables[table] = r.rows.map((row) => row.j as Row);
   }
   return { version: 1, tables };
@@ -66,9 +75,9 @@ export async function movePageToTrash(
     ],
   );
 
-  for (const table of [...PAGE_TRASH_TABLES].reverse()) {
+  for (const { table, where } of [...PAGE_TRASH_TABLES].reverse()) {
     if (!(await tableExists(client, table))) continue;
-    await client.query(`DELETE FROM ${table} WHERE user_page_id = $1`, [pageId]);
+    await client.query(`DELETE FROM ${table} WHERE ${where}`, [pageId]);
   }
   const gone = await client.query('DELETE FROM user_page WHERE id = $1 RETURNING id', [pageId]);
   if (!gone.rows.length) throw new Error('Page could not be removed.');
@@ -112,7 +121,7 @@ export async function restorePageFromTrash(client: DbClient, trashId: number): P
   if (conflicts.length) return { ok: false, conflicts };
 
   await insertRows(client, 'user_page', snapshot.tables.user_page);
-  for (const table of PAGE_TRASH_TABLES) {
+  for (const { table } of PAGE_TRASH_TABLES) {
     await insertRows(client, table, snapshot.tables[table] ?? []);
   }
   // Keep the record that it was restored, but not a second copy of the

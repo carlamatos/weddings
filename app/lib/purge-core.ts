@@ -75,9 +75,28 @@ export async function findPurgeCandidates(
 // Tables holding a page's own rows. Listed explicitly (rather than relying on
 // ON DELETE CASCADE) so their contents are captured first: that's how the
 // purge finds the page's storage files, such as sponsor and section images.
-const PAGE_TABLES = [
-  'user_page_settings', 'event_gallery', 'event_guests', 'guests_photos', 'guests_songs',
-  'event_program', 'page_custom_sections', 'page_sponsors', 'page_potluck', 'page_gift_exclusions', 'page_gift_exchange',
+// Parents first; deletion runs in reverse. Each `where` takes the page id as $1.
+const BY_PAGE = 'user_page_id = $1';
+const PAGE_TABLES: { table: string; where: string }[] = [
+  { table: 'user_page_settings', where: BY_PAGE },
+  { table: 'event_gallery', where: BY_PAGE },
+  { table: 'event_guests', where: BY_PAGE },
+  { table: 'guests_photos', where: BY_PAGE },
+  { table: 'guests_songs', where: BY_PAGE },
+  // No user_page_id of its own: found through the page's songs.
+  { table: 'guests_song_votes', where: 'song_id IN (SELECT id FROM guests_songs WHERE user_page_id = $1)' },
+  { table: 'event_program', where: BY_PAGE },
+  { table: 'page_custom_sections', where: BY_PAGE },
+  { table: 'page_sponsors', where: BY_PAGE },
+  { table: 'page_potluck', where: BY_PAGE },
+  { table: 'page_gift_exchange', where: BY_PAGE },
+  { table: 'page_gift_exclusions', where: BY_PAGE },
+  // References page_gift_exchange, so after it.
+  { table: 'page_gift_messages', where: BY_PAGE },
+  { table: 'event_reminder_deliveries', where: BY_PAGE },
+  { table: 'event_plans', where: BY_PAGE },
+  // No foreign key, so nothing removes these rows but this list.
+  { table: 'page_guest_messages', where: BY_PAGE },
 ];
 
 // Tables added by /api/migrate may not exist yet in every environment.
@@ -92,12 +111,12 @@ export async function loadPageContents(client: DbClient, pageId: number): Promis
   const out: Record<string, Row[]> = {};
   const page = await client.query('SELECT to_jsonb(t) AS j FROM user_page t WHERE id = $1', [pageId]);
   out.user_page = page.rows.map((row) => row.j as Row);
-  for (const table of PAGE_TABLES) {
+  for (const { table, where } of PAGE_TABLES) {
     if (!(await tableExists(client, table))) {
       out[table] = [];
       continue;
     }
-    const r = await client.query(`SELECT to_jsonb(t) AS j FROM ${table} t WHERE user_page_id = $1`, [pageId]);
+    const r = await client.query(`SELECT to_jsonb(t) AS j FROM ${table} t WHERE ${where}`, [pageId]);
     out[table] = r.rows.map((row) => row.j as Row);
   }
   return out;
@@ -106,9 +125,9 @@ export async function loadPageContents(client: DbClient, pageId: number): Promis
 // Removes the page and everything hanging off it. The user's account and any
 // other pages they own are untouched.
 export async function deletePageRows(client: DbClient, pageId: number): Promise<void> {
-  for (const table of [...PAGE_TABLES].reverse()) {
+  for (const { table, where } of [...PAGE_TABLES].reverse()) {
     if (!(await tableExists(client, table))) continue;
-    await client.query(`DELETE FROM ${table} WHERE user_page_id = $1`, [pageId]);
+    await client.query(`DELETE FROM ${table} WHERE ${where}`, [pageId]);
   }
   const gone = await client.query('DELETE FROM user_page WHERE id = $1 RETURNING id', [pageId]);
   if (!gone.rows.length) throw new Error('Page could not be removed.');
