@@ -44,7 +44,7 @@ const securityHeaders = [
       `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://maps.googleapis.com https://*.googletagmanager.com https://www.google-analytics.com https://challenges.cloudflare.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://www.google.com ${pinterestTag}${vercelLive('https://vercel.live')}`,
       `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live')}`,
       `font-src 'self' https://fonts.gstatic.com https://use.typekit.net https://p.typekit.net${vercelLive('https://vercel.live https://assets.vercel.com')}`,
-      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com ${googleTags} ${pinterestTag}${vercelLive('https://vercel.live https://vercel.com')}`,
+      `img-src 'self' data: blob: ${mainSite} https://*.googleusercontent.com https://maps.gstatic.com https://maps.googleapis.com https://*.blob.vercel-storage.com https://*.mzstatic.com ${googleTags} ${pinterestTag}${vercelLive('https://vercel.live https://vercel.com')}`,
       "media-src 'self' blob: https://*.blob.vercel-storage.com",
       // The HEIC photo decoder (heic-to, app/lib/compress-image.ts) runs in a
       // Web Worker it creates from a blob: URL — only scripts already on the

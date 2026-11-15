@@ -74,7 +74,7 @@ export function SongRequestSection({
       // The optimistic count stays; the DJ's list has the real one.
     }
   };
-  // Spotify suggestions while typing the title (when the keys are set).
+  // iTunes suggestions while typing the title (app/lib/song-search.ts).
   const [hits, setHits] = useState<{ title: string; artist: string; image: string | null }[]>([]);
   const searchOff = useRef(false);
   useEffect(() => {
