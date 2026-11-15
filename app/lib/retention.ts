@@ -8,3 +8,6 @@ export const PURGE_BATCH_LIMIT = 50;
 // owner opened their dashboard in the last UNCONFIRMED_RECENT_DAYS days.
 export const UNCONFIRMED_AFTER_DAYS = 90;
 export const UNCONFIRMED_RECENT_DAYS = 30;
+// The warning email goes out this many days before an account can be removed
+// (app/lib/removal-warning.ts); the Cleanup list waits for it.
+export const UNCONFIRMED_WARNING_DAYS = 14;

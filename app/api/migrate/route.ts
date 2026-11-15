@@ -352,6 +352,8 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS password_changed_at TIMESTAMPTZ`;
   // The one "Your event page is one step away" email (app/lib/setup-reminder.ts).
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS setup_reminder_sent_at TIMESTAMPTZ`;
+  // The "your draft will be removed" email (app/lib/removal-warning.ts).
+  await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS removal_warning_sent_at TIMESTAMPTZ`;
   // When hosts come back to their dashboard (app/lib/dashboard-visits.ts).
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS first_dashboard_at TIMESTAMPTZ`;
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS last_dashboard_at TIMESTAMPTZ`;
