@@ -2,7 +2,8 @@ import { db, sql } from '@vercel/postgres';
 import { isSuperAdmin } from '@/app/lib/admin';
 import { checkUserDeletable } from '@/app/lib/subscriptions';
 import { moveUserToTrash, runInTransaction } from '@/app/lib/trash-core';
-import { PURGE_BATCH_LIMIT, UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS } from '@/app/lib/retention';
+import { PURGE_BATCH_LIMIT, UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS, UNCONFIRMED_WARNING_DAYS } from '@/app/lib/retention';
+import { ensureWarningColumn, UNCONFIRMED_WHERE } from '@/app/lib/unconfirmed-core';
 
 // Accounts that never confirmed their email and never published a page, long
 // after signing up: the admin Cleanup screen moves them (with their drafts)
@@ -13,28 +14,21 @@ export type UnconfirmedAccount = {
   email: string;
   signed_up: Date | string;
   last_dashboard_at: Date | string | null;
+  warned_at: Date | string;
   pages: { heading: string | null; slug: string }[];
   guest_count: number;
   photo_count: number;
 };
 
-// An account qualifies only when ALL of these hold:
-//  - its email was never confirmed (email_verified_at IS NULL)
-//  - it signed up more than $1 days ago (users.date, or its first page)
-//  - it has no page other than drafts (unconfirmed accounts can't publish)
-//  - nothing on it says 'paid' and no Stripe customer is on file
-//  - its owner hasn't opened the dashboard in the last $2 days
-const WHERE = `
-  u.email_verified_at IS NULL
-  AND COALESCE(u.date::date, (SELECT min(created_at)::date FROM user_page WHERE user_id = u.id)) < CURRENT_DATE - $1::int
-  AND NOT EXISTS (SELECT 1 FROM user_page WHERE user_id = u.id AND COALESCE(status, 'active') <> 'draft')
-  AND NOT EXISTS (SELECT 1 FROM user_page WHERE user_id = u.id AND (COALESCE(plan_type, 'free') = 'paid' OR stripe_customer_id IS NOT NULL))
-  AND NOT EXISTS (SELECT 1 FROM user_plans WHERE user_id = u.id::text AND (COALESCE(plan_type, 'free') = 'paid' OR stripe_customer_id IS NOT NULL))
-  AND (u.last_dashboard_at IS NULL OR u.last_dashboard_at < NOW() - ($2::int * INTERVAL '1 day'))
+// The Cleanup list also waits until the warning email went out at least
+// UNCONFIRMED_WARNING_DAYS days ago.
+const WHERE = `${UNCONFIRMED_WHERE}
+  AND u.removal_warning_sent_at IS NOT NULL
+  AND u.removal_warning_sent_at < NOW() - INTERVAL '${UNCONFIRMED_WARNING_DAYS} days'
 `;
 
 const LIST_SQL = `
-  SELECT u.id::text AS id, u.email,
+  SELECT u.id::text AS id, u.email, u.removal_warning_sent_at AS warned_at,
          COALESCE(u.date::date, (SELECT min(created_at)::date FROM user_page WHERE user_id = u.id)) AS signed_up,
          u.last_dashboard_at,
          COALESCE((SELECT json_agg(json_build_object('heading', heading, 'slug', slug) ORDER BY id)
@@ -54,6 +48,7 @@ const notAdmin = (rows: UnconfirmedAccount[]) => rows.filter((r) => !isSuperAdmi
 
 export async function previewUnconfirmed(): Promise<{ accounts: UnconfirmedAccount[]; total: number; error: string | null }> {
   try {
+    await ensureWarningColumn();
     const [list, count] = await Promise.all([
       sql.query<UnconfirmedAccount>(LIST_SQL, [UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS, null, PURGE_BATCH_LIMIT]),
       sql.query<{ n: number }>(COUNT_SQL, [UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS]),

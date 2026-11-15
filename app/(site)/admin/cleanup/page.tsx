@@ -1,5 +1,5 @@
 import { previewPurge } from '@/app/lib/purge';
-import { OFFLINE_RETENTION_MONTHS, PURGE_BATCH_LIMIT, UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS } from '@/app/lib/retention';
+import { OFFLINE_RETENTION_MONTHS, PURGE_BATCH_LIMIT, UNCONFIRMED_AFTER_DAYS, UNCONFIRMED_RECENT_DAYS, UNCONFIRMED_WARNING_DAYS } from '@/app/lib/retention';
 import { previewUnconfirmed } from '@/app/lib/unconfirmed';
 import UnconfirmedButton from '@/app/ui/admin/unconfirmed-button';
 import PurgeButton from '@/app/ui/admin/purge-button';
@@ -114,6 +114,10 @@ export default async function AdminCleanupPage() {
         trash frees their pages&apos; web addresses.
       </p>
       <ul style={{ margin: '0 0 20px', paddingLeft: 18, fontSize: 12, color: c.muted, lineHeight: 1.7 }}>
+        <li>
+          A daily job emails each account a warning {UNCONFIRMED_WARNING_DAYS} days before it can be removed (in its page&apos;s
+          language, with a button to confirm and keep it). Accounts only appear here {UNCONFIRMED_WARNING_DAYS} days after that email.
+        </li>
         <li>Skipped: anything paid or with a Stripe customer, and owners who opened their dashboard in the last {UNCONFIRMED_RECENT_DAYS} days.</li>
         <li>The list is re-checked when you confirm — an account that confirmed, published or came back since is skipped.</li>
         <li>Accounts go to the <strong>Trash</strong> tab with everything on them, so you can still restore one.</li>
@@ -139,6 +143,7 @@ export default async function AdminCleanupPage() {
             <tr>
               <th style={th}>Account</th>
               <th style={th}>Signed up</th>
+              <th style={th}>Warned</th>
               <th style={th}>Last in dashboard</th>
               <th style={th}>Draft pages</th>
               <th style={th}>On the drafts</th>
@@ -152,6 +157,7 @@ export default async function AdminCleanupPage() {
                   {formatDate(a.signed_up)}
                   <div style={{ color: c.muted, fontSize: 11 }}>{monthsAgo(a.signed_up)}</div>
                 </td>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>{formatDate(a.warned_at)}</td>
                 <td style={{ ...td, whiteSpace: 'nowrap', color: c.soft }}>
                   {a.last_dashboard_at ? formatDate(a.last_dashboard_at) : 'Not recorded'}
                 </td>
@@ -176,7 +182,7 @@ export default async function AdminCleanupPage() {
             ))}
             {!unconfirmed.accounts.length && !unconfirmed.error && (
               <tr>
-                <td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={5}>
+                <td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={6}>
                   No never-confirmed accounts to clean up right now.
                 </td>
               </tr>
