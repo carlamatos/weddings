@@ -389,7 +389,7 @@ export const BLOG_POSTS: BlogPost[] = [
     seo: {
       title: 'Wedding Colour Palette Generator and Guide',
       description:
-        'Build your wedding colour palette: pick one of 20 styles and a colour you love, and get matching colours. Live Party how many colours to use and which ones cost more.',
+        'Build your wedding colour palette: pick one of 20 styles and a colour you love, and get matching colours. Plus, how many colours to use and which ones cost more.',
       keywords: ['wedding colour palette', 'wedding color palette', 'wedding color palette generator', 'wedding colours', 'how to choose wedding colors', 'wedding color schemes', 'how many wedding colors'],
     },
     eyebrow: 'Wedding colours',
