@@ -1,7 +1,7 @@
 import { escHtml } from './mail';
 import { companyMailingLine } from './company';
 import { siteUrl } from './site-url';
-import { GIFT_COPY, giftLang, type GiftLang } from './gift-exchange-copy';
+import { GIFT_COPY, GIFT_HOST_COPY, giftLang, type GiftLang } from './gift-exchange-copy';
 import type { GiftExchangeDetails } from './gift-exchange';
 
 // The email telling one participant who they're the Secret Santa for. Inline
@@ -84,8 +84,9 @@ function ownPageBlock(lang: GiftLang): string {
       </div>`;
 }
 
-// The card around a short Secret Santa email (reminders, messages).
-function shell(lang: GiftLang, title: string, inner: string, eventName: string): string {
+// The card around a short Secret Santa email (reminders, messages). The
+// organizer's emails pass their own footer and skip the "make yours" block.
+function shell(lang: GiftLang, title: string, inner: string, eventName: string, host?: { footer: string }): string {
   const t = GIFT_COPY[lang];
   return `<!doctype html>
 <html lang="${lang}">
@@ -98,10 +99,10 @@ function shell(lang: GiftLang, title: string, inner: string, eventName: string):
         <p style="margin: 0 0 18px; font-size: 40px; line-height: 1;">🎁</p>
         ${inner}
       </div>
-      ${ownPageBlock(lang)}
+      ${host ? '' : ownPageBlock(lang)}
     </div>
     <p style="max-width: 560px; margin: 20px auto 0; text-align: center; font-size: 12px; line-height: 1.6; color: ${C.muted};">
-      ${escHtml(t.footer(eventName))}<br />${escHtml(companyMailingLine())}
+      ${escHtml(host ? host.footer : t.footer(eventName))}<br />${escHtml(companyMailingLine())}
     </p>
   </div>
 </body>
@@ -153,4 +154,59 @@ export function giftMessageEmail({ language, fromSanta, eventName, gifteeName, p
         <div style="text-align: left; padding: 16px 18px; background: ${C.cream}; border-radius: 10px; font-size: 15px; line-height: 1.6; color: ${C.text};">${escHtml(body).replace(/\n/g, '<br />')}</div>
         ${cta(revealLink, t.reply)}`;
   return { subject, html: shell(lang, subject, inner, eventName) };
+}
+
+const ideasBox = (label: string, ideas: string | null, empty: string) => `
+        <div style="text-align: left; margin: 16px 0 0; padding: 16px 18px; background: ${C.cream}; border-radius: 10px;">
+          <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: ${C.muted};">${escHtml(label)}</p>
+          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${ideas ? C.text : C.soft};">${ideas ? escHtml(ideas).replace(/\n/g, '<br />') : escHtml(empty)}</p>
+        </div>`;
+
+// "You're in": sent to a guest when they join the Secret Santa.
+export function giftJoinedEmail({ language, eventName, eventUrl, participantName, wishlist, details }: {
+  language?: string | null;
+  eventName: string;
+  eventUrl: string;
+  participantName: string;
+  wishlist: string | null;
+  details: GiftExchangeDetails;
+}): { subject: string; html: string } {
+  const lang = giftLang(language);
+  const t = GIFT_COPY[lang];
+  const subject = t.joinedSubject(eventName);
+  const detail = (label: string, value: string) =>
+    value ? `<p style="margin: 8px 0 0; font-size: 14px; color: ${C.soft}; text-align: left;"><strong style="color: ${C.text};">${escHtml(label)}:</strong> ${escHtml(value)}</p>` : '';
+  const inner = `
+        <p style="margin: 0 0 6px; font-size: 15px; color: ${C.text}; text-align: left;">${escHtml(t.hi(participantName))}</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;">${escHtml(t.joinedLead(eventName))}</p>
+        ${ideasBox(t.yourIdeas, wishlist, t.joinedNoIdeas)}
+        ${detail(t.budget, details.budget)}
+        ${detail(t.exchange, details.exchangeDate)}
+        <p style="margin: 18px 0 0; font-size: 14px; line-height: 1.6; color: ${C.soft}; text-align: left;">${escHtml(t.joinedNext)}</p>
+        ${cta(eventUrl, t.joinedUpdate)}`;
+  return { subject, html: shell(lang, subject, inner, eventName) };
+}
+
+// Sent to the organizer when someone joins their Secret Santa.
+export function giftJoinedHostEmail({ language, eventName, ownerName, name, wishlist, count, minToDraw, link }: {
+  language?: string | null;
+  eventName: string;
+  ownerName: string;
+  name: string;
+  wishlist: string | null;
+  count: number;
+  minToDraw: number;
+  link: string;
+}): { subject: string; html: string } {
+  const lang = giftLang(language);
+  const h = GIFT_HOST_COPY[lang];
+  const subject = h.subject(name, eventName);
+  const inner = `
+        <p style="margin: 0 0 6px; font-size: 15px; color: ${C.text}; text-align: left;">${escHtml(h.hi(ownerName))}</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;">${escHtml(h.lead(name, eventName))}</p>
+        ${ideasBox(h.ideas, wishlist, h.noIdeas)}
+        <p style="margin: 18px 0 0; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;"><strong>${escHtml(h.count(count))}</strong>
+        ${escHtml(count >= minToDraw ? h.ready : h.needMore(minToDraw - count))}</p>
+        ${cta(link, h.button)}`;
+  return { subject, html: shell(lang, subject, inner, eventName, { footer: h.footer }) };
 }

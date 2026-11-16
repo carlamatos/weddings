@@ -6,6 +6,7 @@ import { sql } from '@vercel/postgres';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 import { fetchPageSettings } from '@/app/lib/data';
 import { isRsvpNotifyOn, notifyOwnerOfRsvp } from '@/app/lib/rsvp-notify';
+import { sendGiftJoinEmails } from '@/app/lib/gift-join-notify';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { cleanPartyMeals, mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { ensureMealsColumn } from '@/app/lib/rsvp-meals-data';
@@ -165,18 +166,25 @@ export async function POST(request: Request) {
 
     // "Count me in for the gift exchange": an attending guest joins the
     // page's Gift Exchange too, while sign-ups are open. Never fails the RSVP.
+    let secretSanta: number | null = null;
     if (joinGiftExchange === true && status === 'attending' && isGiftExchangeOn(settings)) {
       try {
         const ideas = typeof giftIdeas === 'string' ? giftIdeas.trim().slice(0, GIFT_WISHLIST_MAX) || null : null;
         const guestRow = await sql<{ id: string }>`SELECT id FROM event_guests WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()}) LIMIT 1`;
-        await sql`
+        const joined = await sql<{ inserted: boolean }>`
           INSERT INTO page_gift_exchange (user_page_id, name, email, phone, wishlist, guest_id)
           SELECT ${pageId}, ${name.trim().slice(0, GIFT_NAME_MAX)}, ${email.trim().toLowerCase()}, ${cleanPhone}, ${ideas}, ${guestRow.rows[0]?.id ?? null}
           WHERE NOT EXISTS (SELECT 1 FROM page_gift_exchange WHERE user_page_id = ${pageId} AND giftee_id IS NOT NULL)
             AND (SELECT COUNT(*) FROM page_gift_exchange WHERE user_page_id = ${pageId}) < ${GIFT_MAX_PARTICIPANTS}
           ON CONFLICT (user_page_id, (lower(email))) WHERE email IS NOT NULL
           DO UPDATE SET name = EXCLUDED.name, wishlist = COALESCE(EXCLUDED.wishlist, page_gift_exchange.wishlist), updated_at = NOW()
+          RETURNING (xmax = 0) AS inserted
         `;
+        // A new sign-up gets the guest's "you're in" email here; the organizer
+        // hears about it in the RSVP email below, not in a second email.
+        if (joined.rows[0]?.inserted) {
+          secretSanta = await sendGiftJoinEmails(pageId, { name: name.trim().slice(0, GIFT_NAME_MAX), email: email.trim().toLowerCase(), wishlist: ideas }, { host: false });
+        }
       } catch (giftErr) {
         console.error('RSVP gift exchange join failed:', giftErr);
       }
@@ -193,6 +201,7 @@ export async function POST(request: Request) {
         message: cleanMessage,
         meals: partyMeals,
         updated: !!existing.rows[0],
+        secretSanta,
       });
     }
 

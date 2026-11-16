@@ -21,6 +21,7 @@ export type RsvpSubmission = {
   message: string | null;
   meals?: PartyMeal[] | null; // when the host asks for meal choices
   updated: boolean; // the guest had already replied or been invited
+  secretSanta?: number | null; // joined the Secret Santa with this RSVP: how many are in now
 };
 
 export function rsvpNotificationHtml(pageId: number, heading: string, ownerName: string, r: RsvpSubmission): string {
@@ -45,6 +46,7 @@ export function rsvpNotificationHtml(pageId: number, heading: string, ownerName:
       ${row('Email', `<a href="mailto:${escHtml(r.email)}" style="color: #B6584A;">${escHtml(r.email)}</a>`)}
       ${r.phone ? row('Phone', escHtml(r.phone)) : ''}
       ${attending && r.meals?.length ? row('Meals', r.meals.map((m, i) => `${escHtml(personName(r.name, r.meals!, i))}: ${m.meal ? escHtml(m.meal) : '<span style="color: #9A8F8C;">no choice</span>'}${m.diet ? ` <span style="color: #8B3A2A;">(${escHtml(m.diet)})</span>` : ''}`).join('<br>')) : ''}
+      ${r.secretSanta ? row('Secret Santa', `Joined (${r.secretSanta} ${r.secretSanta === 1 ? 'person' : 'people'} so far)`) : ''}
       ${r.message ? row('Message', `<span style="white-space: pre-wrap;">${escHtml(r.message)}</span>`) : ''}
     </table>
     ${button(`${site}/dashboard/pages/${pageId}/guest-list`, 'See all RSVPs')}
