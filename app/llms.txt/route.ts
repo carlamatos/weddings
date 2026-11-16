@@ -5,6 +5,11 @@ import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { BLOG_POSTS, postPath } from '@/app/lib/marketing/blog';
 import { HELP_GUIDES } from '@/app/lib/marketing/help';
 import { PLAN_FEATURES, PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { LIVE_PARTY_EN, LIVE_PARTY_ES } from '@/app/lib/marketing/live-party';
+import { INVITATION_LANDING_PAGES } from '@/app/lib/marketing/invitation-landing';
+import { TRY_INVITATION_PAGES } from '@/app/lib/marketing/try-invitation';
+import { WEDDING_LANDING_FR } from '@/app/lib/marketing/landing';
+import { ES_FEATURES, ES_HOME, ES_PAGES, ES_QUINCE } from '@/app/lib/marketing/es';
 
 // /llms.txt — a plain-language summary of MyGala for AI assistants and LLM
 // crawlers (https://llmstxt.org): what it is, who it's for, the plans and the
@@ -36,6 +41,10 @@ export function GET() {
     link('Live Party', '/live-party', 'everything the plan includes, with a video'),
     link('Pricing', '/pricing'),
     '',
+    '## What Live Party adds',
+    '',
+    ...LIVE_PARTY_EN.groups.flatMap((g) => g.items.map((i) => `- ${i.title}: ${i.text}`)),
+    '',
     '## Features',
     '',
     link('All features', '/features'),
@@ -45,6 +54,20 @@ export function GET() {
     '',
     link('All event types and themes', '/events'),
     ...EVENT_TYPES.map((e) => link(e.name, `/events/${e.slug}`, e.seo.description)),
+    '',
+    '## Invitations and free tools',
+    '',
+    ...Object.values(INVITATION_LANDING_PAGES).map((p) => link(p.seo.title, p.path, p.seo.description)),
+    ...Object.values(TRY_INVITATION_PAGES).map((p) => link(p.seo.title, p.path, p.seo.description)),
+    link('Free planning tools', '/tools', 'Budget calculator, guest count planner, RSVP deadline calculator and colour palette generator'),
+    '',
+    '## In Spanish and French',
+    '',
+    link(ES_HOME.seo.title, ES_PAGES.home.path, `In Spanish. ${ES_HOME.seo.description}`),
+    link(ES_QUINCE.seo.title, ES_PAGES.quince.path, ES_QUINCE.seo.description),
+    link(ES_FEATURES.seo.title, ES_PAGES.features.path, ES_FEATURES.seo.description),
+    link(LIVE_PARTY_ES.seo.title, LIVE_PARTY_ES.path, LIVE_PARTY_ES.seo.description),
+    link(WEDDING_LANDING_FR.seo.title, '/fr/mariage', `In French. ${WEDDING_LANDING_FR.seo.description}`),
     '',
     '## Blog',
     '',

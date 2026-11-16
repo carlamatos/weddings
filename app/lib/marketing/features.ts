@@ -816,7 +816,7 @@ export const FEATURES: Feature[] = [
     h1: 'An event website template for every occasion',
     lead:
       'Weddings, birthdays, baby showers, quinceañeras, conferences, galas, holiday parties, car shows and neighbourhood festivals — MyGala has a designed template for each, with the same complete set of tools behind every one.',
-    summary: '21 designed themes for weddings, celebrations, business and general events.',
+    summary: '30 designed themes for weddings, celebrations, business and general events.',
     highlights: [
       { title: 'Designed for the occasion', text: 'Each theme has its own colours, fonts and animations made for a specific kind of event.' },
       { title: 'Same tools in every theme', text: 'RSVP, countdown, schedule, map, gallery and every Live Party feature work in every template.' },
