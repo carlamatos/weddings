@@ -771,12 +771,21 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .dash-themes-tip button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .dash-themes-tip button svg { width: 16px; height: 16px; }
-/* The Share button's tip (share-menu.tsx): the same look, from the right. */
+/* The Share tip (share-tip.tsx): the same look, from the right, under the
+   Share button; on phones and tablets (where Share is in the profile menu)
+   under the profile button instead. The Share button pulses like Themes. */
 .dash-share-tip { left: auto; right: 0; }
 .dash-share-tip::before { left: auto; right: 26px; }
+.dash-share-tip .dash-share-tip-soon { color: #F2C4B8; margin-bottom: 2px; }
+.dash-share-tip .dash-share-tip-where { display: block; margin-top: 6px; color: rgba(255, 255, 255, 0.75); }
+.dash-share-tip--profile { display: none; }
+@media (max-width: 1024px) {
+  .dash-share-tip--profile { display: flex; }
+}
+.dash-share.is-nudging > .dash-share-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
 @keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-themes-tip { animation: none; }
+  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-share.is-nudging > .dash-share-btn, .dash-themes-tip { animation: none; }
 }
 
 .dash-theme-dropdown {
@@ -1535,39 +1544,3 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-plus-link { color: #B6584A; font-weight: 600; text-decoration: none; white-space: nowrap; }
 .dash-plus-link:hover { text-decoration: underline; }
 .dash-plus-more { margin: -8px 0 18px; font-size: 14px; }
-
-/* "Your page is ready for your guests": the card on the page's dashboard
-   screens and the one-time pop-up (app/ui/dashboard/share-prompt.tsx). */
-.dash-share-card {
-  position: relative; border: 1px solid #E6D3CD; border-radius: 12px; background: #FBF5F3;
-  padding: 18px 48px 18px 20px; margin-bottom: 24px;
-}
-.dash-share-card h2 { font-size: 17px; font-weight: 600; color: #241F2B; margin: 0 0 4px; }
-.dash-share-card p { font-size: 14px; color: #6B6470; margin: 0 0 14px; line-height: 1.6; max-width: 640px; }
-.dash-share-card p strong { color: #9A4738; }
-.dash-share-card-close {
-  position: absolute; top: 10px; right: 10px; width: 32px; height: 32px; border: none; background: none;
-  border-radius: 8px; color: #6B6470; cursor: pointer; display: grid; place-items: center;
-}
-.dash-share-card-close:hover { background: #F1E4E0; color: #241F2B; }
-.dash-share-card-close svg { width: 18px; height: 18px; }
-.profile-modal.dash-share-modal { max-width: 560px; text-align: center; }
-.dash-share-modal h2 { font-size: 20px; margin: 0 0 8px; }
-.dash-share-modal-emoji { font-size: 34px; margin: 0 0 6px; line-height: 1; }
-.dash-share-modal-soon { font-size: 14px; font-weight: 600; color: #9A4738; margin: 0 0 8px; line-height: 1.5; }
-.dash-share-modal-lead { font-size: 14px; color: #6B6470; line-height: 1.6; margin: 0 0 18px; }
-.dash-share-modal > div:has(input) { text-align: left; }
-.dash-share-modal-foot {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
-  margin-top: 20px; padding-top: 16px; border-top: 1px solid #EDE8E3; font-size: 14px;
-}
-.dash-share-modal-foot a { color: #B6584A; text-decoration: none; font-weight: 600; }
-.dash-share-modal-foot a:hover { text-decoration: underline; }
-.dash-share-modal-later {
-  border: 1px solid #DDD5CE; background: #fff; color: #241F2B; border-radius: 8px; padding: 8px 18px;
-  font: inherit; font-weight: 600; cursor: pointer;
-}
-@media (max-width: 520px) {
-  .profile-modal.dash-share-modal { padding: 28px 18px 20px; }
-  .dash-share-modal-foot { justify-content: center; }
-}

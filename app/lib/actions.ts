@@ -1,7 +1,7 @@
 "use server"
 
 import { z } from 'zod';
-import { LINK_SHARED_SETTING, SHARE_CARD_HIDDEN_SETTING, SHARE_PROMPT_SHOWN_SETTING } from './setup-progress';
+import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
 import { revalidatePath } from 'next/cache';
 import { pagePath } from './dashboard';
@@ -1182,35 +1182,6 @@ export async function markLinkShared(pageId: number): Promise<void> {
     if (res.rowCount) revalidatePath('/dashboard', 'layout');
   } catch (error) {
     console.error('Failed to record link share:', error);
-  }
-}
-
-// The "send it to your guests" pop-up and card (app/ui/dashboard/share-prompt.tsx):
-// 'shown' records that the pop-up appeared (it shows once per page);
-// 'hidden' counts each time the host closes the card, with when.
-export async function markSharePrompt(pageId: number, kind: 'shown' | 'hidden'): Promise<void> {
-  const session = await auth();
-  const userId = session?.user?.id;
-  const pid = parsePageId(pageId);
-  if (!userId || pid === null) return;
-  const now = new Date().toISOString();
-  try {
-    if (kind === 'shown') {
-      await sql`
-        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-        SELECT id, ${SHARE_PROMPT_SHOWN_SETTING}::text, ${now}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
-        ON CONFLICT (user_page_id, setting_name) DO NOTHING
-      `;
-    } else {
-      await sql`
-        INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
-        SELECT id, ${SHARE_CARD_HIDDEN_SETTING}::text, ${`1|${now}`}::text FROM user_page WHERE id = ${pid} AND user_id = ${userId}
-        ON CONFLICT (user_page_id, setting_name) DO UPDATE
-          SET setting_value = (COALESCE(NULLIF(split_part(user_page_settings.setting_value, '|', 1), '')::int, 0) + 1)::text || '|' || ${now}::text, updated_at = NOW()
-      `;
-    }
-  } catch (error) {
-    console.error('Failed to record share prompt:', error);
   }
 }
 

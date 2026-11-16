@@ -2,15 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
-  ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon, XMarkIcon,
+  ShareIcon, LinkIcon, CheckIcon, EnvelopeIcon, ChatBubbleLeftIcon, ArrowUpOnSquareIcon, ChevronRightIcon,
 } from '@heroicons/react/24/outline';
 import { NETWORKS } from './share-buttons';
 import { markLinkShared } from '@/app/lib/actions';
+import { ShareTipBubble, useShareTip } from './share-tip';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
-import { rich } from '@/app/ui/dashboard/rich';
 const enc = encodeURIComponent;
 
 // The networks offered in the top bar's quick menu, in this order; the rest
@@ -156,74 +155,23 @@ function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () =
   );
 }
 
-// A tip under the Share button, on a host's first few dashboard visits
-// while the page hasn't been shared yet: many think they must type in their
-// guest list before anyone can RSVP. Not on the page editor, where the
-// Themes tip shows on those same first visits. Remembered in this browser;
-// closing it or opening the menu ends it.
-const TIP_KEY = 'mygala.shareTip';
-const TIP_VISITS = 3;
-let countedTipVisit: { visit: string; show: boolean } | null = null;
-
-function readTip(): { visits: number; done: boolean } {
-  try {
-    const v = JSON.parse(localStorage.getItem(TIP_KEY) ?? 'null');
-    if (v && typeof v.visits === 'number') return { visits: v.visits, done: !!v.done };
-  } catch {}
-  return { visits: 0, done: false };
-}
-function writeTip(v: { visits: number; done: boolean }) {
-  try { localStorage.setItem(TIP_KEY, JSON.stringify(v)); } catch {}
-}
-
-function useShareTip(enabled: boolean) {
-  const pathname = usePathname();
-  const offEditor = enabled && !/^\/dashboard\/pages\/[^/]+\/?$/.test(pathname ?? '');
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    // Whether to show depends on this browser's storage, read after mount.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (!offEditor) { setShow(false); return; }
-    const v = readTip();
-    if (v.done) return;
-    const visit = `${pathname}@${performance.timeOrigin}`;
-    if (countedTipVisit?.visit !== visit) {
-      countedTipVisit = { visit, show: v.visits < TIP_VISITS };
-      if (countedTipVisit.show) writeTip({ ...v, visits: v.visits + 1 });
-    }
-    setShow(countedTipVisit.show);
-  }, [offEditor, pathname]);
-
-  const dismiss = useCallback(() => {
-    setShow(false);
-    writeTip({ ...readTip(), done: true });
-  }, []);
-  return { show, dismiss };
-}
-
-// The top bar's Share button, with the share options beneath it. tip: the
-// page hasn't been shared yet (its setup step isn't done).
-export default function ShareMenu({ choices, tip = false }: { choices: ShareChoice[]; tip?: boolean }) {
+// The top bar's Share button, with the share options beneath it. tip: show
+// the "ready to share" tip (share-tip.tsx) when it's this page's turn.
+export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoice[]; pageId?: number; tip?: { show: boolean; daysToGo: number | null } }) {
   const d = useDashText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const close = useCallback(() => setOpen(false), []);
   useDismiss(open, close, ref);
-  const { show: tipShown, dismiss: dismissTip } = useShareTip(tip);
+  const { show: tipShown, dismiss: dismissTip } = useShareTip(pageId, !!tip?.show);
 
   return (
-    <div className="dash-share" ref={ref}>
+    <div className={`dash-share${tipShown ? ' is-nudging' : ''}`} ref={ref}>
       <button type="button" className="dash-share-btn" onClick={() => { setOpen((o) => !o); if (tipShown) dismissTip(); }} aria-expanded={open} aria-haspopup="true">
         <ShareIcon />
         {d.shareMenu.share}
       </button>
-      {tipShown && !open && (
-        <div className="dash-themes-tip dash-share-tip" role="status">
-          <p>{rich(d.shareTip.noNeedToTypeIn, { t0: (s) => <strong>{s}</strong> })}</p>
-          <button type="button" onClick={dismissTip} aria-label={d.shareTip.closeTip}><XMarkIcon /></button>
-        </div>
-      )}
+      {tipShown && !open && <ShareTipBubble daysToGo={tip?.daysToGo ?? null} where="share" onClose={dismissTip} />}
       {open && (
         <div className="dash-share-panel" role="dialog" aria-label={d.shareMenu.share}>
           <ChoicePanel choices={choices} onDone={close} />

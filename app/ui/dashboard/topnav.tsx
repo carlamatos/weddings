@@ -8,7 +8,7 @@ import LanguageSwitcher from './language-switcher';
 import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
 import ShareMenu, { type ShareChoice } from './share-menu';
-import type { SetupStep } from '@/app/lib/setup-progress';
+import { shareTipFor, type SetupStep } from '@/app/lib/setup-progress';
 import { publicPageUrl } from '@/app/lib/share';
 import { pagePath } from '@/app/lib/dashboard';
 import { siteHref } from '@/app/lib/app-url';
@@ -38,6 +38,8 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   // Whether guests can see the page, with its address beside it.
   const pageState = userPage ? pageStateOf(userPage.status, d.pageState) : undefined;
   const shortUrl = pageUrl.replace(/^https?:\/\//, '');
+  // "Your page is ready to share", after the Themes tip (share-tip.tsx).
+  const shareTip = userPage && setup ? shareTipFor(userPage, setup) : { show: false, daysToGo: null };
 
   return (
     <header className="dash-topnav">
@@ -81,7 +83,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
 
       {shareChoices && (
         <div className="dash-topnav-actions">
-          <ShareMenu choices={shareChoices} tip={setup?.some((s) => s.id === 'share' && !s.done) ?? false} />
+          <ShareMenu choices={shareChoices} pageId={pageId} tip={shareTip} />
         </div>
       )}
 
@@ -96,6 +98,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
         phoneActions={userPage && pageId !== undefined ? {
           pageId, previewHref, shareChoices: shareChoices!,
           themes, currentThemeId: userPage.theme_id ?? null, language: userPage.language ?? 'en',
+          shareTip,
         } : undefined}
       />
     </header>

@@ -44,6 +44,17 @@ function writeNudge(v: { visits: number; done: boolean }) {
   try { localStorage.setItem(NUDGE_KEY, JSON.stringify(v)); } catch {}
 }
 
+// The Share tip (share-tip.tsx) comes after this one: it waits while the
+// Themes tip still has visits to go, and appears as soon as it's done.
+export const THEMES_TIP_DONE_EVENT = 'mygala:themes-tip-done';
+export function themesTipPending(): boolean {
+  // On phones the Themes button (and its tip) isn't in the top bar.
+  if (window.matchMedia('(max-width: 768px)').matches) return false;
+  const v = readNudge();
+  if (v.done) return false;
+  return !!countedVisit?.show || v.visits < NUDGE_VISITS;
+}
+
 function useThemesNudge(enabled: boolean) {
   const pathname = usePathname();
   const onEditor = enabled && /^\/dashboard\/pages\/[^/]+\/?$/.test(pathname ?? '');
@@ -64,6 +75,7 @@ function useThemesNudge(enabled: boolean) {
   const dismiss = () => {
     setShow(false);
     writeNudge({ ...readNudge(), done: true });
+    window.dispatchEvent(new Event(THEMES_TIP_DONE_EVENT));
   };
   return { show, dismiss };
 }

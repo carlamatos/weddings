@@ -5,9 +5,7 @@ import { auth } from '@/auth';
 import { recordDashboardVisit } from '@/app/lib/dashboard-visits';
 import { fetchPageSettings, listOwnedPages } from '@/app/lib/data';
 import { sectionStatus } from '@/app/lib/section-status';
-import { fetchSetupCounts, setupSteps, sharePromptFor } from '@/app/lib/setup-progress';
-import { publicPageUrl } from '@/app/lib/share';
-import { SharePrompt } from '@/app/ui/dashboard/share-prompt';
+import { fetchSetupCounts, setupSteps } from '@/app/lib/setup-progress';
 import { isPagePaidAndLive, hasExpiredPlan } from '@/app/lib/plans';
 import { needsTotpChallenge } from '@/app/lib/require-verified';
 import SideNav from '@/app/ui/dashboard/sidenav';
@@ -66,9 +64,6 @@ export default async function DashboardShell({
   const status = page && settings ? sectionStatus(page, settings) : undefined;
   // "Your page is 3/5 ready" at the top of the sidebar.
   const setup = page && counts ? setupSteps(page, counts, d.setupSteps) : undefined;
-  // "Your page is ready for your guests": a pop-up once, then a card, until
-  // someone has the link.
-  const share = page && setup && settings ? sharePromptFor(page, setup, settings) : undefined;
 
   const deactivated = page?.status === 'inactive';
   const draft = page?.status === 'draft';
@@ -136,9 +131,6 @@ export default async function DashboardShell({
             </div>
           )}
           {page && <PendingPlanBanner pageId={Number(page.id)} />}
-          {page && share && (share.popup || share.card) && (
-            <SharePrompt pageId={Number(page.id)} url={publicPageUrl(page)} title={page.heading || ''} popup={share.popup} card={share.card} daysToGo={share.daysToGo} />
-          )}
           {children}
         </div>
       </div>

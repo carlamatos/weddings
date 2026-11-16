@@ -7,6 +7,7 @@ import { UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareChoice } from './share-menu';
+import { ShareTipBubble, endShareTip, useShareTip } from './share-tip';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import { DashLanguagePicker } from './dash-language-picker';
@@ -25,6 +26,8 @@ export type PhoneActions = {
   language: string;
   previewHref?: string;
   shareChoices: ShareChoice[];
+  // The "ready to share" tip, under this button on phones and tablets.
+  shareTip?: { show: boolean; daysToGo: number | null };
 };
 
 // The setup checklist's "Add your name" step opens the profile from here
@@ -397,6 +400,7 @@ export default function UserMenu({
   const [statusError, setStatusError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [sharing, setSharing] = useState(false);
+  const { show: tipShown, dismiss: dismissTip } = useShareTip(phoneActions?.pageId, !!phoneActions?.shareTip?.show);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -446,11 +450,13 @@ export default function UserMenu({
           <span>{displayName}</span>
         </button>
 
+        {tipShown && !open && <ShareTipBubble daysToGo={phoneActions?.shareTip?.daysToGo ?? null} where="profile" onClose={dismissTip} />}
+
         {open && (
           <div className="dash-user-menu">
             {phoneActions && (
               <div className="dash-user-menu-phone">
-                <button onClick={() => { setOpen(false); setSharing(true); }} className="dash-user-menu-item">
+                <button onClick={() => { setOpen(false); setSharing(true); endShareTip(phoneActions.pageId); }} className="dash-user-menu-item">
                   {d.userMenu.share}
                 </button>
                 {phoneActions.previewHref && (
