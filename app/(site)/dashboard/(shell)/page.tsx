@@ -6,6 +6,7 @@ import { fetchPageQuota, listOwnedPages } from '@/app/lib/data';
 import { pagePath } from '@/app/lib/dashboard';
 import { hasExpiredPlan, isPagePaidAndLive } from '@/app/lib/plans';
 import { publicPageUrl } from '@/app/lib/share';
+import { fetchSetupCounts } from '@/app/lib/setup-progress';
 import type { UserPage } from '@/app/lib/definitions';
 import { getTheme } from '@/app/ui/themes/registry';
 import { formatDateRange } from '@/app/ui/themes/event-when';
@@ -64,6 +65,16 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
   const section = query.section && SECTIONS[query.section] ? query.section : '';
   const canCreate = quota.count < quota.limit;
   const now = today();
+
+  // Live, upcoming pages nobody has the link to yet (no share, invitation or
+  // RSVP): a "send it to your guests" line under each.
+  const unshared = new Set<number>();
+  await Promise.all(pages
+    .filter((p) => p.status === 'active' && !(p.event_date && (p.event_end_date || p.event_date) < now))
+    .map(async (p) => {
+      const c = await fetchSetupCounts(p.id);
+      if (!c.shared && c.invited === 0 && c.responded === 0) unshared.add(Number(p.id));
+    }));
 
   return (
     // paddingTop: room under the top bar (the dashboard content starts flush with it).
@@ -133,6 +144,12 @@ export default async function EventPages({ searchParams }: { searchParams: Promi
                 <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: '#B6584A', textDecoration: 'none', overflowWrap: 'anywhere' }}>
                   {url.replace(/^https?:\/\//, '')}
                 </a>
+                {unshared.has(Number(p.id)) && (
+                  <p style={{ fontSize: 13, color: '#9A4738', margin: '6px 0 0', lineHeight: 1.5 }}>
+                    {d.sharePrompt.nobodyHasTheLinkYet}{' '}
+                    <Link href={pagePath(p.id, '/invitations')} style={{ color: '#B6584A', fontWeight: 600 }}>{d.sharePrompt.sendItToYourGuests} →</Link>
+                  </p>
+                )}
               </div>
 
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

@@ -22,6 +22,39 @@ export type SetupCounts = { guests: number; invited: number; responded: number; 
 // as inviting guests one by one, so it completes the last step too.
 export const LINK_SHARED_SETTING = 'link_shared_at';
 
+// The "send it to your guests" pop-up (shown once per page) and card (closed
+// "count|when"; it comes back once, SHARE_CARD_RETURN_DAYS later).
+export const SHARE_PROMPT_SHOWN_SETTING = 'share_prompt_shown_at';
+export const SHARE_CARD_HIDDEN_SETTING = 'share_card_hidden';
+const SHARE_CARD_RETURN_DAYS = 3;
+// Events this close get the pop-up and card even before the details are in.
+export const SHARE_SOON_DAYS = 14;
+
+export type SharePrompt = { popup: boolean; card: boolean; daysToGo: number | null };
+
+// Whether to push the host to share: the page is live, the event hasn't
+// happened, nobody has the link yet (setup's share step isn't done), and the
+// page is worth sharing (date, time and place in) or the event is soon.
+export function sharePromptFor(page: UserPage, steps: SetupStep[], settings: Record<string, unknown>, today = new Date()): SharePrompt {
+  const none: SharePrompt = { popup: false, card: false, daysToGo: null };
+  if (page.status !== 'active') return none;
+  if (steps.find((s) => s.id === 'share')?.done !== false) return none;
+  const todayStr = today.toISOString().slice(0, 10);
+  const last = page.event_end_date || page.event_date;
+  if (last && last < todayStr) return none;
+  const daysToGo = page.event_date && page.event_date >= todayStr
+    ? Math.round((Date.parse(page.event_date) - Date.parse(todayStr)) / 86_400_000)
+    : page.event_date ? 0 : null; // started, not over yet: it's on now
+  const soon = daysToGo !== null && daysToGo <= SHARE_SOON_DAYS;
+  if (!steps[0]?.done && !soon) return { ...none, daysToGo };
+
+  const [count, when] = String(settings[SHARE_CARD_HIDDEN_SETTING] ?? '').split('|');
+  const hidden = Number(count) || 0;
+  const card = hidden === 0
+    || (hidden === 1 && !!when && today.getTime() - Date.parse(when) > SHARE_CARD_RETURN_DAYS * 86_400_000);
+  return { popup: !settings[SHARE_PROMPT_SHOWN_SETTING], card, daysToGo };
+}
+
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
   try {
     const { rows } = await sql<{ guests: string; invited: string; responded: string; shared: boolean; program: string; gallery: string; named: boolean | null }>`

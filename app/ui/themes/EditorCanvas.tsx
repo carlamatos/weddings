@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { EDITOR_PREVIEW_EVENT } from '@/app/ui/dashboard/share-prompt';
 import { useSearchParams } from 'next/navigation';
 import { EyeIcon, PencilSquareIcon } from '@heroicons/react/24/outline';
 import { OPEN_PARAM } from './open-editor';
@@ -45,6 +46,8 @@ export default function EditorCanvas({ children, unverified }: { children: React
 
   const choose = (next: 'edit' | 'preview') => {
     setMode(next);
+    // The "send it to your guests" pop-up waits for this (app/ui/dashboard/share-prompt.tsx).
+    if (next === 'preview') window.dispatchEvent(new Event(EDITOR_PREVIEW_EVENT));
     try { localStorage.setItem(KEY, next); } catch { /* not remembered */ }
   };
 
