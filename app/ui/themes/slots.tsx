@@ -426,6 +426,10 @@ export function EditableHeroDate({
   const [dEndDate, setDEndDate] = useState(eventEndDate ?? '');
   const [dEndTime, setDEndTime] = useState(eventEndTime ?? '');
   const endBeforeStart = !!dEndDate && !!dDate && dEndDate < dDate;
+  // The optional extras (end date and time, venue name and unit) stay behind
+  // a checkbox so the form starts short; open already when they're filled in.
+  const [showEnd, setShowEnd] = useState(!!(eventEndDate || eventEndTime));
+  const [showVenue, setShowVenue] = useState(!!(address?.venueName || address?.unitNumber));
   const [dLocation, setDLocation] = useState<'address' | 'virtual'>(location);
   const [dUrl, setDUrl] = useState(eventUrl);
   const virtual = dLocation === 'virtual';
@@ -517,14 +521,22 @@ export function EditableHeroDate({
                 <input id="hd-time" className="theme-sheet-input" type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
               </SheetField>
             </div>
-            <div className="theme-sheet-2col">
+            <label className="theme-sheet-check">
+              <input type="checkbox" checked={showEnd} onChange={(e) => {
+                setShowEnd(e.target.checked);
+                // Unticked: no end date or time, as the form shows.
+                if (!e.target.checked) { setDEndDate(''); setDEndTime(''); }
+              }} />
+              {d.editableSlots.addAnEndDateOrTime}
+            </label>
+            {showEnd && <div className="theme-sheet-2col">
               <SheetField label={d.editableSlots.endDate} optional htmlFor="hd-end-date" hint={d.editableSlots.onlyForEventsOverSeveral}>
                 <input id="hd-end-date" className="theme-sheet-input" type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
               </SheetField>
               <SheetField label={d.editableSlots.endTime} optional htmlFor="hd-end-time" hint={d.editableSlots.whenTheEventWrapsUp}>
                 <input id="hd-end-time" className="theme-sheet-input" type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />
               </SheetField>
-            </div>
+            </div>}
             {endBeforeStart && (
               <p className="theme-sheet-error" role="alert">{d.editableSlots.theEndDateCanT}</p>
             )}
@@ -551,17 +563,26 @@ export function EditableHeroDate({
               </SheetField>
             ) : (
               <>
+                <SheetField label={d.editableSlots.address} hint={d.editableSlots.startTypingThenPickThe}>
+                  <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
+                </SheetField>
+                <label className="theme-sheet-check">
+                  <input type="checkbox" checked={showVenue} onChange={(e) => {
+                    setShowVenue(e.target.checked);
+                    if (!e.target.checked) setDAddress((prev) => ({ ...prev, venueName: '', unitNumber: '' }));
+                  }} />
+                  {d.editableSlots.addAVenueNameOrUnit}
+                </label>
+                {showVenue && <>
                 <SheetField label={d.editableSlots.venueName} optional htmlFor="hd-venue" hint={d.editableSlots.theNameOfThePlace}>
                   <input id="hd-venue" className="theme-sheet-input" type="text" value={dAddress.venueName} placeholder={d.editableSlots.eGHycroftManor}
                     onChange={(e) => setDAddress((prev) => ({ ...prev, venueName: e.target.value }))} />
-                </SheetField>
-                <SheetField label={d.editableSlots.address} hint={d.editableSlots.startTypingThenPickThe}>
-                  <AddressAutocomplete onPlaceSelect={handlePlaceSelect} defaultValue={dAddress.formattedAddress} />
                 </SheetField>
                 <SheetField label={d.editableSlots.unit} optional htmlFor="hd-unit" hint={d.editableSlots.apartmentSuiteOrRoomNumber}>
                   <input id="hd-unit" className="theme-sheet-input" type="text" value={dAddress.unitNumber} placeholder={d.editableSlots.aptSuite}
                     onChange={(e) => setDAddress((prev) => ({ ...prev, unitNumber: e.target.value }))} />
                 </SheetField>
+                </>}
               </>
             )}
           </SheetSection>

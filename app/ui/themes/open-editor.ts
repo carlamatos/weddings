@@ -28,7 +28,10 @@ export function useOpenEditor(target: EditorTarget, open: (first: boolean) => vo
     rest.delete(OPEN_PARAM);
     rest.delete(FIRST_PARAM);
     const query = rest.toString();
-    window.history.replaceState(window.history.state, '', query ? `${pathname}?${query}` : pathname);
+    // null, not the current history state: Next.js only picks up a
+    // replaceState it didn't make itself, and it has to, or it keeps the old
+    // ?open= and reopens the popup when the page re-renders (a theme switch).
+    window.history.replaceState(null, '', query ? `${pathname}?${query}` : pathname);
     // `open` changes every render; only a new request should trigger this.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params, pathname, target]);
