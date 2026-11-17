@@ -30,7 +30,9 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, countRecentPageCreations, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
+import { isSuperAdmin } from './admin';
+import { MAX_NEW_PAGES_PER_DAY, MAX_NEW_PAGES_PER_MONTH } from './plans';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isSectionBgKey, parseSectionBackground, sectionBgSettingName, type SectionBackground } from './section-background';
@@ -171,6 +173,16 @@ function ensureOptionalEventDate(): Promise<unknown> {
         return { message: `You've reached the maximum of ${quota.limit} event pages for one account. Contact us if you need more.` };
       }
       if (!verified && quota.count >= 1) return { message: `${VERIFY_EMAIL_FIRST} Then you can create more event pages.` };
+      // Admins aren't limited. A failed count doesn't block anyone.
+      if (!isSuperAdmin(session?.user?.email)) {
+        const recent = await countRecentPageCreations(limitUserId).catch(() => null);
+        if (recent && recent.day >= MAX_NEW_PAGES_PER_DAY) {
+          return { message: `You can create up to ${MAX_NEW_PAGES_PER_DAY} event pages a day. Please try again tomorrow, or edit one of the pages you already have.` };
+        }
+        if (recent && recent.month >= MAX_NEW_PAGES_PER_MONTH) {
+          return { message: `You've created ${MAX_NEW_PAGES_PER_MONTH} event pages in the last 30 days, which is the limit. Please edit one of the pages you already have, or contact us if you need more.` };
+        }
+      }
     }
 
     let formSlug = formData.get('slug');

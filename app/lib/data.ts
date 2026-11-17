@@ -435,6 +435,24 @@ export async function countUserPages(userId: string): Promise<number> {
   return data.rows[0]?.n ?? 0;
 }
 
+// Pages the account created in the last 24 hours and the last 30 days,
+// counting ones deleted since (the trash keeps them 30 days), so deleting a
+// page doesn't free up room to make another.
+export async function countRecentPageCreations(userId: string): Promise<{ day: number; month: number }> {
+  const data = await sql<{ day: number; month: number }>`
+    SELECT COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '1 day')::int AS day,
+           COUNT(*)::int AS month
+    FROM (
+      SELECT created_at FROM user_page WHERE user_id::text = ${userId}
+      UNION ALL
+      SELECT (snapshot->'tables'->'user_page'->0->>'created_at')::timestamptz
+      FROM deleted_pages WHERE user_id::text = ${userId}
+    ) t
+    WHERE created_at > NOW() - INTERVAL '30 days'
+  `;
+  return { day: data.rows[0]?.day ?? 0, month: data.rows[0]?.month ?? 0 };
+}
+
 // How many pages the user has and how many an account may have.
 export async function fetchPageQuota(userId: string): Promise<{ count: number; limit: number }> {
   return { count: await countUserPages(userId), limit: maxPagesPerAccount() };

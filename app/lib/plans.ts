@@ -74,3 +74,8 @@ export function hasExpiredPlan(page: { plan_type?: string | null; plan_expires_a
   if (page.plan_type === 'paid' || !page.plan_expires_at) return false;
   return new Date(page.plan_expires_at).getTime() <= Date.now();
 }
+
+// New event pages one account can create: per 24 hours and per 30 days
+// (deleted pages count too). Stops runaway page-making; createUserPage.
+export const MAX_NEW_PAGES_PER_DAY = 2;
+export const MAX_NEW_PAGES_PER_MONTH = 10;
