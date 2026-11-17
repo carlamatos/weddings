@@ -650,7 +650,7 @@ export function EditableDescription({
 
   return (
     <span className="theme-editable" style={{ display: 'block' }} {...editTarget(startEdit, d.editableSlots.editStory)}>
-      <p ref={elRef} className={className} style={color ? { ...style, ...heroTextStyle(color) } : style} onClick={startEdit}>{current}</p>
+      <p ref={elRef} className={className} style={{ ...style, ...(color ? heroTextStyle(color) : {}), whiteSpace: 'pre-line' }} onClick={startEdit}>{current}</p>
       {editing && (
         <TextSheet
           title={d.editableSlots.editYourStory}
