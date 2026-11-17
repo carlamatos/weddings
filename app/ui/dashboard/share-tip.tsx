@@ -6,13 +6,14 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
 import { fill } from '@/app/lib/dash-text/fill';
-import { THEMES_TIP_DONE_EVENT, themesTipPending } from './theme-switcher';
+import { THEMES_TIP_DONE_EVENT, TIP_DELAY_MS, themesTipPending } from './theme-switcher';
 
 // "Your page is ready to share": a tip like the Themes one, under the top
 // bar's Share button (or, on phones and tablets, just above the Share
 // button fixed at the bottom right). It comes right after the Themes
 // tip, while the page is live and nobody has the link yet (the server
-// decides that: shareTipFor in app/lib/setup-progress.ts). Shown on up to
+// decides that: shareTipFor in app/lib/setup-progress.ts), 20 seconds after
+// the page opens (TIP_DELAY_MS). Shown on up to
 // three visits per page; closing it or opening Share ends it. Remembered in
 // this browser.
 const KEY = (pageId: number) => `mygala.shareTip.${pageId}`;
@@ -63,11 +64,19 @@ export function useShareTip(pageId: number | undefined, enabled: boolean) {
       }
       setShow(c.show);
     };
-    // Whether to show depends on this browser's storage, read after mount.
-    update();
-    window.addEventListener(THEMES_TIP_DONE_EVENT, update);
-    window.addEventListener(CHANGE_EVENT, update);
+    // Whether to show depends on this browser's storage, read after mount,
+    // and not straight away: TIP_DELAY_MS after the page opens (a visit only
+    // counts once the tip has shown).
+    let started = false;
+    const timer = window.setTimeout(() => {
+      started = true;
+      update();
+      window.addEventListener(THEMES_TIP_DONE_EVENT, update);
+      window.addEventListener(CHANGE_EVENT, update);
+    }, TIP_DELAY_MS);
     return () => {
+      window.clearTimeout(timer);
+      if (!started) return;
       window.removeEventListener(THEMES_TIP_DONE_EVENT, update);
       window.removeEventListener(CHANGE_EVENT, update);
     };
