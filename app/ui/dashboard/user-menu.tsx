@@ -445,14 +445,24 @@ export default function UserMenu({
   return (
     <>
       <div ref={ref} style={{ position: 'relative' }}>
-        <button onClick={() => setOpen((o) => !o)} className="dash-user dash-user--btn">
+        <button onClick={() => setOpen((o) => !o)} className="dash-user dash-user--btn" aria-label={displayName} aria-expanded={open}>
           <UserCircleIcon />
-          <span>{displayName}</span>
+          <span className="dash-user-name">{displayName}</span>
         </button>
 
 
         {open && (
           <div className="dash-user-menu">
+            {/* Phones and tablets: the name (not shown on the profile
+                button there) heads the menu, then Edit profile, then the
+                page's actions and the rest. */}
+            <p className="dash-user-menu-name">{displayName}</p>
+            <button
+              onClick={() => { setOpen(false); setShowProfile(true); }}
+              className="dash-user-menu-item dash-user-menu-item--phone"
+            >
+              {d.userMenu.editProfile}
+            </button>
             {phoneActions && (
               <div className="dash-user-menu-phone">
                 <button onClick={() => { setOpen(false); setSharing(true); endShareTip(phoneActions.pageId); }} className="dash-user-menu-item">
@@ -477,7 +487,7 @@ export default function UserMenu({
             )}
             <button
               onClick={() => { setOpen(false); setShowProfile(true); }}
-              className="dash-user-menu-item"
+              className="dash-user-menu-item dash-user-menu-item--desktop"
             >
               {d.userMenu.editProfile}
             </button>

@@ -378,6 +378,13 @@ body:has(.dash-shell) {
 a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 /* Phones and tablets: the top bar's buttons, at the top of this menu. */
 .dash-user-menu-phone { display: none; border-bottom: 1px solid var(--line); }
+/* The name at the top of the menu, and its Edit profile: phones and
+   tablets only (desktops show the name on the button). */
+.dash-user-menu-name { display: none; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-user-menu-item--phone { display: none; border-bottom: 1px solid var(--line); }
+/* Only one of the two Edit profile buttons shows: no extra line for the
+   hidden one. */
+.dash-user-menu-item--phone + .dash-user-menu-item { border-top: 0; }
 .dash-user-menu-picker { padding: 10px 16px 12px; border-top: 1px solid var(--line); }
 .dash-user-menu-picker .mobile-menu-theme-label { margin-bottom: 6px; }
 .dash-user-menu-picker .dash-theme-switcher { display: block; width: 100%; }
@@ -987,6 +994,10 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .dash-main:has(.dash-share-fab) .dash-content { padding-bottom: 88px; }
   .dash-topnav-actions { display: none; }
   .dash-user-menu-phone { display: block; }
+  .dash-user-menu-name, .dash-user-menu-item--phone { display: block; }
+  .dash-user-menu-item--desktop { display: none; }
+  .dash-user-menu-item--desktop + .dash-user-menu-item { border-top: 0; }
+  .dash-user--btn .dash-user-name { display: none; }
   .dash-user-menu:has(.dash-user-menu-phone) { width: min(280px, calc(100vw - 24px)); }
 }
 
