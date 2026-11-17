@@ -935,6 +935,7 @@ export const fr: DashText = {
     sendItToYourGuests: 'Envoyez-le à vos invités',
   },
   shareTip: {
+    saveTheDate: '<t0>Encore quelques mois ? Envoyez un « réservez la date ».</t0> Partagez votre lien dès maintenant : vos invités notent le jour, puis reviennent pour les détails et pour répondre.',
     ready: '<t0>Votre page est prête à partager.</t0> Envoyez votre lien : chaque personne qui répond est ajoutée automatiquement à votre liste d’invités.',
     soonToday: 'Votre événement a lieu aujourd’hui !',
     soonTomorrow: 'Votre événement a lieu demain !',
@@ -1313,6 +1314,9 @@ export const fr: DashText = {
     preview: 'Aperçu',
   },
   editableSlots: {
+    whenAndWhere: 'Quand et où ?',
+    whenAndWhereFirst: 'Ajoutez l’heure et le lieu pour que votre page soit prête à partager. Vos invités les voient sur votre bannière, dans le compte à rebours et dans leurs invitations. Vous pourrez les modifier à tout moment.',
+    skipForNow: 'Passer pour l’instant',
     textColour: 'Couleur du texte',
     clickTheColourSquareTo: 'Cliquez sur le carré de couleur pour choisir la couleur de ce texte. Choisissez-en une qui ressort sur la photo ou l’arrière-plan.',
     editTopLine: 'Modifier la ligne du haut',

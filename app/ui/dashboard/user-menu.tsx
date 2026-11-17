@@ -27,7 +27,7 @@ export type PhoneActions = {
   previewHref?: string;
   shareChoices: ShareChoice[];
   // The "ready to share" tip, under this button on phones and tablets.
-  shareTip?: { show: boolean; daysToGo: number | null };
+  shareTip?: { show: boolean; daysToGo: number | null; far?: boolean };
 };
 
 // The setup checklist's "Add your name" step opens the profile from here
@@ -450,7 +450,7 @@ export default function UserMenu({
           <span>{displayName}</span>
         </button>
 
-        {tipShown && !open && <ShareTipBubble daysToGo={phoneActions?.shareTip?.daysToGo ?? null} where="profile" onClose={dismissTip} />}
+        {tipShown && !open && <ShareTipBubble daysToGo={phoneActions?.shareTip?.daysToGo ?? null} far={!!phoneActions?.shareTip?.far} where="profile" onClose={dismissTip} />}
 
         {open && (
           <div className="dash-user-menu">

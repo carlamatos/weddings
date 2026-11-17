@@ -5,7 +5,7 @@ import { COMPANY } from './company';
 import { createToken } from './tokens';
 import { ensureAdminEmailTables, userUnsubscribeUrl } from './admin-email';
 import { ensureVisitColumns } from './dashboard-visits';
-import { LINK_SHARED_SETTING } from './setup-progress';
+import { LINK_SHARED_SETTING, SAVE_THE_DATE_DAYS, daysUntil } from './setup-progress';
 
 // Follow-up emails from the daily cron (app/api/cron/setup-reminders):
 //  1. sendSetupReminders — no event page yet (below).
@@ -100,6 +100,7 @@ export type FollowUpKind = 'confirm' | 'publish' | 'share';
 type FollowUpRow = {
   page_id: number; heading: string | null; slug: string; status: string; language: string | null;
   user_id: string; email: string; given_name: string | null; verified: boolean; has_guests: boolean; shared: boolean;
+  event_date: string | null;
 };
 
 // What the host still has to do, or null when the page is on its way.
@@ -137,6 +138,15 @@ const FOLLOW_UP_TEXT = {
       button: 'Invite my guests',
       after: 'You’ll get an email each time someone replies.',
     },
+    // share, when the event is months away (SAVE_THE_DATE_DAYS).
+    saveTheDate: {
+      subject: (h: string) => `Send a save-the-date for ${h}`,
+      heading: 'Let your guests save the date',
+      body: (h: string) => `<strong>${h}</strong> is online! Your event is still months away, but this is a good time to send the link as a save-the-date:
+        guests note the day now, and come back to your page for the details and to RSVP. Send it in a group chat or by email — it’s the same link you’ll share later.`,
+      button: 'Send my save-the-date',
+      after: 'Everyone who RSVPs is added to your guest list automatically, and you’ll get an email each time someone replies.',
+    },
     questions: 'Questions, or stuck on something? Write to us at',
     readEvery: '— we read every message.',
     signoff: 'Happy planning,<br />The MyGala team',
@@ -169,6 +179,14 @@ const FOLLOW_UP_TEXT = {
         ou envoyez des invitations personnelles — chaque personne qui répond est ajoutée automatiquement à votre liste d’invités, rien à saisir.`,
       button: 'Inviter mes invités',
       after: 'Vous recevrez un courriel à chaque réponse.',
+    },
+    saveTheDate: {
+      subject: (h: string) => `Envoyez un « réservez la date » pour ${h}`,
+      heading: 'Vos invités peuvent déjà réserver la date',
+      body: (h: string) => `<strong>${h}</strong> est en ligne ! Votre événement est encore dans plusieurs mois, mais c’est le bon moment pour envoyer le lien comme « réservez la date » :
+        vos invités notent le jour dès maintenant et reviennent sur votre page pour les détails et pour répondre. Envoyez-le dans une conversation de groupe ou par courriel — c’est le même lien que vous partagerez plus tard.`,
+      button: 'Envoyer mon « réservez la date »',
+      after: 'Chaque personne qui répond est ajoutée automatiquement à votre liste d’invités, et vous recevrez un courriel à chaque réponse.',
     },
     questions: 'Des questions ou un blocage ? Écrivez-nous à',
     readEvery: '— nous lisons chaque message.',
@@ -203,6 +221,14 @@ const FOLLOW_UP_TEXT = {
       button: 'Invitar a mis invitados',
       after: 'Recibirás un correo cada vez que alguien responda.',
     },
+    saveTheDate: {
+      subject: (h: string) => `Envía un «reserva la fecha» para ${h}`,
+      heading: 'Que tus invitados reserven la fecha',
+      body: (h: string) => `¡<strong>${h}</strong> ya está en línea! Tu evento todavía es dentro de unos meses, pero es buen momento para enviar el enlace como «reserva la fecha»:
+        tus invitados apartan el día desde ahora y vuelven a tu página para ver los detalles y confirmar. Envíalo por un grupo de chat o por correo — es el mismo enlace que compartirás después.`,
+      button: 'Enviar mi «reserva la fecha»',
+      after: 'Cada persona que confirma se añade sola a tu lista de invitados, y recibirás un correo cada vez que alguien responda.',
+    },
     questions: '¿Tienes preguntas o te atascaste? Escríbenos a',
     readEvery: '— leemos cada mensaje.',
     signoff: '¡Feliz organización!<br />El equipo de MyGala',
@@ -213,10 +239,11 @@ const FOLLOW_UP_TEXT = {
 
 export function followUpEmail(
   kind: FollowUpKind,
-  opts: { name: string | null; heading: string | null; link: string; unsubscribe: string; lang: MailLang },
+  // far: the event is months away, so "share" is worded as a save-the-date.
+  opts: { name: string | null; heading: string | null; link: string; unsubscribe: string; lang: MailLang; far?: boolean },
 ): { subject: string; html: string } {
   const t = FOLLOW_UP_TEXT[opts.lang];
-  const k = t[kind];
+  const k = kind === 'share' && opts.far ? t.saveTheDate : t[kind];
   const heading = escHtml((opts.heading ?? '').replace(/\s+/g, ' ').trim() || t.yourEvent);
   const name = escHtml((opts.name ?? '').trim());
   const p = 'margin: 0 0 16px; line-height: 1.6;';
@@ -244,7 +271,7 @@ export async function sendPageFollowUps(): Promise<{ sent: number; failed: numbe
   await Promise.all([ensureAdminEmailTables(), ensureVisitColumns()]);
   // user_page.created_at is a UTC time without a zone.
   const { rows } = await sql.query<FollowUpRow>(`
-    SELECT p.id AS page_id, p.heading, p.slug, COALESCE(p.status, 'active') AS status, p.language,
+    SELECT p.id AS page_id, p.heading, p.slug, COALESCE(p.status, 'active') AS status, p.language, p.event_date::text AS event_date,
            u.id AS user_id, u.email, u.given_name, (u.email_verified_at IS NOT NULL) AS verified,
            EXISTS (SELECT 1 FROM event_guests g WHERE g.user_page_id = p.id) AS has_guests,
            EXISTS (SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS shared
@@ -283,7 +310,10 @@ export async function sendPageFollowUps(): Promise<{ sent: number; failed: numbe
       }
       await sendMail({
         to: row.email,
-        ...followUpEmail(kind, { name: row.given_name, heading: row.heading, link, unsubscribe: userUnsubscribeUrl(row.user_id), lang }),
+        ...followUpEmail(kind, {
+          name: row.given_name, heading: row.heading, link, unsubscribe: userUnsubscribeUrl(row.user_id), lang,
+          far: (daysUntil(row.event_date) ?? 0) > SAVE_THE_DATE_DAYS,
+        }),
       });
       sent++;
     } catch (error) {

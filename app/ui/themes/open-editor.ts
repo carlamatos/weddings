@@ -9,22 +9,24 @@ import { usePathname, useSearchParams } from 'next/navigation';
 // removed, so the same link works again on a second click.
 export type EditorTarget = 'location' | 'banner' | 'description' | 'gallery';
 
-export const OPEN_PARAM = 'open';
+import { FIRST_PARAM, OPEN_PARAM } from './open-editor-params';
+export { FIRST_PARAM, OPEN_PARAM };
 
 // The search params object the last request was handled for: an element can
 // appear twice on a page, and only the first one should open.
 let handled: URLSearchParams | null = null;
 
-export function useOpenEditor(target: EditorTarget, open: () => void) {
+export function useOpenEditor(target: EditorTarget, open: (first: boolean) => void) {
   const params = useSearchParams();
   const pathname = usePathname();
 
   useEffect(() => {
     if (params.get(OPEN_PARAM) !== target || handled === params) return;
     handled = params;
-    open();
+    open(params.get(FIRST_PARAM) === '1');
     const rest = new URLSearchParams(params);
     rest.delete(OPEN_PARAM);
+    rest.delete(FIRST_PARAM);
     const query = rest.toString();
     window.history.replaceState(window.history.state, '', query ? `${pathname}?${query}` : pathname);
     // `open` changes every render; only a new request should trigger this.

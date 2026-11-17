@@ -1,6 +1,7 @@
 "use server"
 
 import { z } from 'zod';
+import { FIRST_PARAM, OPEN_PARAM } from '@/app/ui/themes/open-editor-params';
 import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
 import { revalidatePath } from 'next/cache';
@@ -345,7 +346,12 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // event pages list is the fallback if the id somehow didn't come back.
     const nextField = formData.get('next');
     const next = nextField === 'invitations' ? '/invitations' : nextField === 'gift-exchange' ? '/gift-exchange' : '';
-    redirect(newPageId ? pagePath(newPageId, next || undefined) : '/dashboard');
+    // A page going to the editor without its time and place opens straight
+    // into "When and where?" (the date and place popup, with "Skip for now"):
+    // most hosts never add them otherwise, and guests need them.
+    const hasWhenAndWhere = !!event_time && (location === 'virtual' ? !!url : !!(formatted_address || venue_name));
+    const firstStep = !next && !hasWhenAndWhere ? `?${OPEN_PARAM}=location&${FIRST_PARAM}=1` : '';
+    redirect(newPageId ? `${pagePath(newPageId, next || undefined)}${firstStep}` : '/dashboard');
   }
 
 export async function updateLocation(pageId: number, data: {

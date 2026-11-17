@@ -486,8 +486,10 @@ export function EditableHeroDate({
     );
   };
 
-  const openDialog = () => { setLook(readLook()); setDColor(color); setOpen(true); };
-  useOpenEditor('location', openDialog);
+  // first: opened right after the page was created, as "When and where?".
+  const [first, setFirst] = useState(false);
+  const openDialog = () => { setLook(readLook()); setDColor(color); setFirst(false); setOpen(true); };
+  useOpenEditor('location', (isFirst) => { openDialog(); setFirst(isFirst); });
 
   return (
     <span
@@ -499,11 +501,12 @@ export function EditableHeroDate({
 
       {open && (
         <EditSheet
-          title={d.editableSlots.editTheDateLocation}
-          intro={d.editableSlots.whenAndWhereYourEvent}
+          title={first ? d.editableSlots.whenAndWhere : d.editableSlots.editTheDateLocation}
+          intro={first ? d.editableSlots.whenAndWhereFirst : d.editableSlots.whenAndWhereYourEvent}
           onClose={() => setOpen(false)}
           onSave={save}
           saveDisabled={endBeforeStart || urlInvalid}
+          closeLabel={first ? d.editableSlots.skipForNow : undefined}
         >
           <SheetSection title={d.editableSlots.dateTime}>
             <div className="theme-sheet-2col">
@@ -563,7 +566,7 @@ export function EditableHeroDate({
             )}
           </SheetSection>
 
-          <SheetSection title={d.editableSlots.howItLooksOnYour}>
+          {!first && <SheetSection title={d.editableSlots.howItLooksOnYour}>
             <HeroColorField
               id="hd-color"
               label={d.editableSlots.textColour}
@@ -573,7 +576,7 @@ export function EditableHeroDate({
               hint={d.editableSlots.clickTheColourSquareTo2}
             />
             <TextPreview text={previewText || currentText} color={dColor} look={look} />
-          </SheetSection>
+          </SheetSection>}
         </EditSheet>
       )}
     </span>

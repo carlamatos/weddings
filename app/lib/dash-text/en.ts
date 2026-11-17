@@ -934,6 +934,7 @@ export const en = {
     sendItToYourGuests: 'Send it to your guests',
   },
   shareTip: {
+    saveTheDate: '<t0>Months to go? Send a save-the-date.</t0> Share your link now: guests note the day, then come back for the details and to RSVP.',
     ready: '<t0>Your page is ready to share.</t0> Send your link: everyone who RSVPs is added to your guest list automatically.',
     soonToday: 'Your event is today!',
     soonTomorrow: 'Your event is tomorrow!',
@@ -1312,6 +1313,9 @@ export const en = {
     preview: 'Preview',
   },
   editableSlots: {
+    whenAndWhere: 'When and where?',
+    whenAndWhereFirst: 'Add the time and place so your page is ready to share. Guests see them on your banner, in the countdown and in their invitations. You can change them any time.',
+    skipForNow: 'Skip for now',
     textColour: 'Text colour',
     clickTheColourSquareTo: 'Click the colour square to choose a colour for this text. Pick one that stands out from the photo or background behind it.',
     editTopLine: 'Edit top line',
