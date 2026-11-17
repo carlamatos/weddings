@@ -930,8 +930,16 @@ export const fr: DashText = {
     onlyGuestsOnYourList: 'Seuls les invités de votre liste peuvent répondre',
     youVeTurnedOn: 'Vous avez activé « Seuls les invités de ma liste peuvent répondre » : ajoutez donc d’abord vos invités ici. Leurs réponses sont associées par adresse courriel.',
   },
+  sharePrompt: {
+    nobodyHasTheLinkYet: 'Personne n’a encore le lien.',
+    sendItToYourGuests: 'Envoyez-le à vos invités',
+  },
   shareTip: {
-    noNeedToTypeIn: '<t0>Pas besoin de saisir votre liste d’invités.</t0> Partagez votre lien : chaque personne qui répond est ajoutée automatiquement.',
+    ready: '<t0>Votre page est prête à partager.</t0> Envoyez votre lien : chaque personne qui répond est ajoutée automatiquement à votre liste d’invités.',
+    soonToday: 'Votre événement a lieu aujourd’hui !',
+    soonTomorrow: 'Votre événement a lieu demain !',
+    soonDays: 'Votre événement a lieu dans {days} jours.',
+    onPhones: 'Ouvrez ce menu et touchez Partager.',
     closeTip: 'Fermer l’astuce',
   },
   registryForm: {

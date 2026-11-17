@@ -47,6 +47,13 @@ export const GIFT_COPY: Record<GiftLang, {
   msgLeadFromSanta: (event: string) => string;
   msgLeadFromGiftee: (name: string) => string;
   reply: string;
+  // the guest's "you're in" email, sent when they join
+  joinedSubject: (event: string) => string;
+  joinedLead: (event: string) => string;
+  yourIdeas: string;
+  joinedNoIdeas: string;
+  joinedNext: string;
+  joinedUpdate: string;
 }> = {
   en: {
     subject: (event) => `Your Secret Santa for ${event} 🎁`,
@@ -86,6 +93,12 @@ export const GIFT_COPY: Record<GiftLang, {
     msgLeadFromSanta: (event) => `Your Secret Santa for ${event} sent you a message:`,
     msgLeadFromGiftee: (name) => `${name}, the person you’re the Secret Santa for, wrote back:`,
     reply: 'Read and reply',
+    joinedSubject: (event) => `You’re in the ${event} Secret Santa 🎁`,
+    joinedLead: (event) => `You’re signed up for the ${event} gift exchange.`,
+    yourIdeas: 'Your gift ideas',
+    joinedNoIdeas: 'You didn’t add any gift ideas. Add some on the event page so your Secret Santa knows what you’d love.',
+    joinedNext: 'Once your host draws names, we’ll email you who you’re the Secret Santa for. To change your gift ideas, join again on the event page with this same email.',
+    joinedUpdate: 'Update your gift ideas',
   },
   fr: {
     subject: (event) => `Votre Père Noël secret pour ${event} 🎁`,
@@ -125,6 +138,12 @@ export const GIFT_COPY: Record<GiftLang, {
     msgLeadFromSanta: (event) => `Votre Père Noël secret pour ${event} vous a écrit :`,
     msgLeadFromGiftee: (name) => `${name}, la personne dont vous êtes le Père Noël secret, vous a répondu :`,
     reply: 'Lire et répondre',
+    joinedSubject: (event) => `Vous participez au Père Noël secret de ${event} 🎁`,
+    joinedLead: (event) => `Votre inscription à l’échange de cadeaux de ${event} est confirmée.`,
+    yourIdeas: 'Vos idées de cadeaux',
+    joinedNoIdeas: 'Vous n’avez pas ajouté d’idées de cadeaux. Ajoutez-en sur la page de l’événement pour que votre Père Noël secret sache ce qui vous ferait plaisir.',
+    joinedNext: 'Quand votre hôte aura fait le tirage, nous vous écrirons pour vous dire de qui vous êtes le Père Noël secret. Pour modifier vos idées de cadeaux, inscrivez-vous de nouveau sur la page de l’événement avec ce même courriel.',
+    joinedUpdate: 'Modifier mes idées de cadeaux',
   },
   es: {
     subject: (event) => `Tu amigo secreto para ${event} 🎁`,
@@ -164,5 +183,63 @@ export const GIFT_COPY: Record<GiftLang, {
     msgLeadFromSanta: (event) => `Tu amigo secreto de ${event} te escribió:`,
     msgLeadFromGiftee: (name) => `${name}, la persona de quien eres amigo secreto, te respondió:`,
     reply: 'Leer y responder',
+    joinedSubject: (event) => `Ya estás en el amigo secreto de ${event} 🎁`,
+    joinedLead: (event) => `Ya estás inscrito en el intercambio de regalos de ${event}.`,
+    yourIdeas: 'Tus ideas de regalo',
+    joinedNoIdeas: 'No agregaste ideas de regalo. Agrégalas en la página del evento para que tu amigo secreto sepa qué te gustaría.',
+    joinedNext: 'Cuando tu anfitrión haga el sorteo, te escribiremos para decirte de quién eres el amigo secreto. Para cambiar tus ideas de regalo, vuelve a inscribirte en la página del evento con este mismo correo.',
+    joinedUpdate: 'Cambiar mis ideas de regalo',
+  },
+};
+
+// The organizer's email when someone joins their Secret Santa from the
+// event page. Follows the page's language, like the other organizer emails.
+export const GIFT_HOST_COPY: Record<GiftLang, {
+  subject: (name: string, event: string) => string;
+  hi: (name: string) => string;
+  lead: (name: string, event: string) => string;
+  count: (n: number) => string;
+  ready: string;
+  needMore: (left: number) => string;
+  ideas: string;
+  noIdeas: string;
+  button: string;
+  footer: string;
+}> = {
+  en: {
+    subject: (name, event) => `${name} joined your Secret Santa · ${event}`,
+    hi: (name) => (name ? `Hi ${name},` : 'Hi there,'),
+    lead: (name, event) => `${name} just joined the gift exchange for ${event}.`,
+    count: (n) => `${n} ${n === 1 ? 'person has' : 'people have'} joined so far.`,
+    ready: 'You can draw names whenever everyone’s in. Sign-ups close once names are drawn.',
+    needMore: (left) => `${left} more ${left === 1 ? 'person' : 'people'} and you can draw names.`,
+    ideas: 'Their gift ideas',
+    noIdeas: 'No gift ideas yet',
+    button: 'Open your Secret Santa',
+    footer: 'You get this email because RSVP notifications are on for this page. To stop them, untick “Email me when someone RSVPs” in Guests & RSVPs.',
+  },
+  fr: {
+    subject: (name, event) => `${name} participe à votre Père Noël secret · ${event}`,
+    hi: (name) => (name ? `Bonjour ${name},` : 'Bonjour,'),
+    lead: (name, event) => `${name} vient de s’inscrire à l’échange de cadeaux de ${event}.`,
+    count: (n) => `${n} ${n === 1 ? 'personne inscrite' : 'personnes inscrites'} jusqu’à présent.`,
+    ready: 'Vous pouvez faire le tirage dès que tout le monde est inscrit. Les inscriptions ferment après le tirage.',
+    needMore: (left) => `Encore ${left} ${left === 1 ? 'personne' : 'personnes'} et vous pourrez faire le tirage.`,
+    ideas: 'Ses idées de cadeaux',
+    noIdeas: 'Pas encore d’idées de cadeaux',
+    button: 'Ouvrir mon Père Noël secret',
+    footer: 'Vous recevez ce courriel parce que les avis de réponse sont activés pour cette page. Pour les arrêter, décochez « M’écrire quand quelqu’un répond » dans Invités et réponses.',
+  },
+  es: {
+    subject: (name, event) => `${name} se unió a tu amigo secreto · ${event}`,
+    hi: (name) => (name ? `Hola, ${name}:` : 'Hola:'),
+    lead: (name, event) => `${name} acaba de inscribirse en el intercambio de regalos de ${event}.`,
+    count: (n) => `Hasta ahora ${n === 1 ? 'hay 1 persona inscrita' : `hay ${n} personas inscritas`}.`,
+    ready: 'Puedes hacer el sorteo cuando ya estén todos. Las inscripciones se cierran después del sorteo.',
+    needMore: (left) => `${left === 1 ? 'Falta 1 persona' : `Faltan ${left} personas`} para poder hacer el sorteo.`,
+    ideas: 'Sus ideas de regalo',
+    noIdeas: 'Todavía no hay ideas de regalo',
+    button: 'Abrir mi amigo secreto',
+    footer: 'Recibes este correo porque los avisos de confirmación están activados para esta página. Para dejar de recibirlos, desmarca «Escribirme cuando alguien responda» en Invitados y confirmaciones.',
   },
 };

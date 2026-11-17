@@ -34,6 +34,7 @@ type HostRow = {
   first_dashboard_at: Date | null; last_dashboard_at: Date | null; dashboard_visits: number;
   page_id: number | null; slug: string | null; heading: string | null; page_status: string | null;
   page_created: Date | null; guests: number; replies: number; follow_up: string | null;
+  santa: number; santa_drawn: boolean;
 };
 
 function when(value: Date | string | null): string {
@@ -70,6 +71,8 @@ export default async function AdminActivityPage() {
                (p.created_at AT TIME ZONE 'UTC') AS page_created,
                (SELECT count(*)::int FROM event_guests g WHERE g.user_page_id = p.id) AS guests,
                (SELECT count(*)::int FROM event_guests g WHERE g.user_page_id = p.id AND g.responded_at IS NOT NULL) AS replies,
+               (SELECT count(*)::int FROM page_gift_exchange x WHERE x.user_page_id = p.id) AS santa,
+               EXISTS (SELECT 1 FROM page_gift_exchange x WHERE x.user_page_id = p.id AND x.giftee_id IS NOT NULL) AS santa_drawn,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS follow_up
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
@@ -213,6 +216,7 @@ export default async function AdminActivityPage() {
                       <div style={{ color: c.muted, fontSize: 11 }}>
                         {u.page_status === 'draft' ? 'Draft' : u.page_status === 'active' ? 'Published' : u.page_status} · {u.guests} guest{u.guests === 1 ? '' : 's'}
                         {u.replies ? `, ${u.replies} repl${u.replies === 1 ? 'y' : 'ies'}` : ''}
+                        {u.santa ? ` · Secret Santa: ${u.santa} joined, ${u.santa_drawn ? 'names drawn' : 'not drawn yet'}` : ''}
                       </div>
                     </>
                   ) : <span style={{ color: c.muted }}>No page yet</span>}

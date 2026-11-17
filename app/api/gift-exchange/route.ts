@@ -6,6 +6,8 @@ import { guestAccessDenied } from '@/app/lib/page-access';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { GIFT_MAX_PARTICIPANTS, GIFT_NAME_MAX, GIFT_WISHLIST_MAX, isGiftExchangeOn } from '@/app/lib/gift-exchange';
+import { sendGiftJoinEmails } from '@/app/lib/gift-join-notify';
+import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
 
 const HOUR_MS = 60 * 60 * 1000;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,12 +69,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'This gift exchange is full.' }, { status: 403 });
     }
 
-    await sql`
+    const saved = await sql<{ inserted: boolean }>`
       INSERT INTO page_gift_exchange (user_page_id, name, email, phone, wishlist)
       VALUES (${pageId}, ${name}, ${email}, ${phone}, ${wishlist})
       ON CONFLICT (user_page_id, (lower(email))) WHERE email IS NOT NULL
       DO UPDATE SET name = EXCLUDED.name, wishlist = EXCLUDED.wishlist, updated_at = NOW()
+      RETURNING (xmax = 0) AS inserted
     `;
+    // A new sign-up: "you're in" to the guest, and a heads-up to the
+    // organizer unless they turned off RSVP emails for this page.
+    if (saved.rows[0]?.inserted) {
+      await sendGiftJoinEmails(pageId, { name, email, wishlist }, { host: isRsvpNotifyOn(settings) });
+    }
     return NextResponse.json({ ok: true, updated: false, drawn: false, count: (state.rows[0]?.n ?? 0) + 1 });
   } catch (err) {
     console.error('Gift exchange sign-up failed:', err);

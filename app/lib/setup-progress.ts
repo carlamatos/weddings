@@ -22,6 +22,30 @@ export type SetupCounts = { guests: number; invited: number; responded: number; 
 // as inviting guests one by one, so it completes the last step too.
 export const LINK_SHARED_SETTING = 'link_shared_at';
 
+// The top bar's Share tip (app/ui/dashboard/share-tip.tsx): shown while the
+// page is live, the event hasn't happened and nobody has the link yet (the
+// share step isn't done). daysToGo: when the event is this close, the tip
+// says so.
+export const SHARE_SOON_DAYS = 14;
+export type ShareTipState = { show: boolean; daysToGo: number | null };
+
+export function shareTipFor(page: UserPage, steps: SetupStep[], today = new Date()): ShareTipState {
+  const none: ShareTipState = { show: false, daysToGo: null };
+  if (page.status !== 'active') return none;
+  if (steps.find((s) => s.id === 'share')?.done !== false) return none;
+  const todayStr = today.toISOString().slice(0, 10);
+  const last = page.event_end_date || page.event_date;
+  if (last && last < todayStr) return none;
+  const daysToGo = page.event_date && page.event_date >= todayStr
+    ? Math.round((Date.parse(page.event_date) - Date.parse(todayStr)) / 86_400_000)
+    : page.event_date ? 0 : null; // started, not over yet: it's on now
+  const soon = daysToGo !== null && daysToGo <= SHARE_SOON_DAYS;
+  // "Ready to share" once the first step (date, time and place) is done, or
+  // right away when the event is soon.
+  if (!steps[0]?.done && !soon) return none;
+  return { show: true, daysToGo: soon ? daysToGo : null };
+}
+
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
   try {
     const { rows } = await sql<{ guests: string; invited: string; responded: string; shared: boolean; program: string; gallery: string; named: boolean | null }>`

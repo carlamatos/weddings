@@ -929,8 +929,16 @@ export const en = {
     onlyGuestsOnYourList: 'Only guests on your list can RSVP',
     youVeTurnedOn: 'You’ve turned on “Only guests on my guest list can RSVP”, so add your guests here first. Their replies are matched by email address.',
   },
+  sharePrompt: {
+    nobodyHasTheLinkYet: 'Nobody has the link yet.',
+    sendItToYourGuests: 'Send it to your guests',
+  },
   shareTip: {
-    noNeedToTypeIn: '<t0>No need to type in your guest list.</t0> Share your link and everyone who RSVPs is added automatically.',
+    ready: '<t0>Your page is ready to share.</t0> Send your link: everyone who RSVPs is added to your guest list automatically.',
+    soonToday: 'Your event is today!',
+    soonTomorrow: 'Your event is tomorrow!',
+    soonDays: 'Your event is in {days} days.',
+    onPhones: 'Open this menu and tap Share.',
     closeTip: 'Close tip',
   },
   registryForm: {

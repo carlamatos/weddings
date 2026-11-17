@@ -930,8 +930,16 @@ export const es: DashText = {
     onlyGuestsOnYourList: 'Solo los invitados de tu lista pueden confirmar',
     youVeTurnedOn: 'Activaste «Solo los invitados de mi lista pueden confirmar», así que primero añade a tus invitados aquí. Sus respuestas se relacionan por correo electrónico.',
   },
+  sharePrompt: {
+    nobodyHasTheLinkYet: 'Nadie tiene el enlace todavía.',
+    sendItToYourGuests: 'Envíalo a tus invitados',
+  },
   shareTip: {
-    noNeedToTypeIn: '<t0>No necesitas escribir tu lista de invitados.</t0> Comparte tu enlace y cada persona que confirme se añade automáticamente.',
+    ready: '<t0>Tu página está lista para compartir.</t0> Envía tu enlace: cada persona que confirme se añade automáticamente a tu lista de invitados.',
+    soonToday: '¡Tu evento es hoy!',
+    soonTomorrow: '¡Tu evento es mañana!',
+    soonDays: 'Tu evento es en {days} días.',
+    onPhones: 'Abre este menú y toca Compartir.',
     closeTip: 'Cerrar consejo',
   },
   registryForm: {

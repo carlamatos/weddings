@@ -771,12 +771,21 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .dash-themes-tip button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .dash-themes-tip button svg { width: 16px; height: 16px; }
-/* The Share button's tip (share-menu.tsx): the same look, from the right. */
+/* The Share tip (share-tip.tsx): the same look, from the right, under the
+   Share button; on phones and tablets (where Share is in the profile menu)
+   under the profile button instead. The Share button pulses like Themes. */
 .dash-share-tip { left: auto; right: 0; }
 .dash-share-tip::before { left: auto; right: 26px; }
+.dash-share-tip .dash-share-tip-soon { color: #F2C4B8; margin-bottom: 2px; }
+.dash-share-tip .dash-share-tip-where { display: block; margin-top: 6px; color: rgba(255, 255, 255, 0.75); }
+.dash-share-tip--profile { display: none; }
+@media (max-width: 1024px) {
+  .dash-share-tip--profile { display: flex; }
+}
+.dash-share.is-nudging > .dash-share-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
 @keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-themes-tip { animation: none; }
+  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-share.is-nudging > .dash-share-btn, .dash-themes-tip { animation: none; }
 }
 
 .dash-theme-dropdown {
