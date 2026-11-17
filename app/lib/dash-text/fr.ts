@@ -935,6 +935,7 @@ export const fr: DashText = {
     sendItToYourGuests: 'Envoyez-le à vos invités',
   },
   shareTip: {
+    saveTheDate: '<t0>Encore quelques mois ? Envoyez un « réservez la date ».</t0> Partagez votre lien dès maintenant : vos invités notent le jour, puis reviennent pour les détails et pour répondre.',
     ready: '<t0>Votre page est prête à partager.</t0> Envoyez votre lien : chaque personne qui répond est ajoutée automatiquement à votre liste d’invités.',
     soonToday: 'Votre événement a lieu aujourd’hui !',
     soonTomorrow: 'Votre événement a lieu demain !',
@@ -1313,6 +1314,9 @@ export const fr: DashText = {
     preview: 'Aperçu',
   },
   editableSlots: {
+    whenAndWhere: 'Quand et où ?',
+    whenAndWhereFirst: 'Ajoutez l’heure et le lieu pour que votre page soit prête à partager. Vos invités les voient sur votre bannière, dans le compte à rebours et dans leurs invitations. Vous pourrez les modifier à tout moment.',
+    skipForNow: 'Passer pour l’instant',
     textColour: 'Couleur du texte',
     clickTheColourSquareTo: 'Cliquez sur le carré de couleur pour choisir la couleur de ce texte. Choisissez-en une qui ressort sur la photo ou l’arrière-plan.',
     editTopLine: 'Modifier la ligne du haut',
@@ -1343,6 +1347,7 @@ export const fr: DashText = {
     theDayYourEventStarts: 'Le jour où commence votre événement.',
     startTime: 'Heure de début',
     whenGuestsShouldArrive: 'L’heure d’arrivée des invités.',
+    addAnEndDateOrTime: 'Ajouter une date ou une heure de fin',
     endDate: 'Date de fin',
     onlyForEventsOverSeveral: 'Seulement pour les événements sur plusieurs jours.',
     endTime: 'Heure de fin',
@@ -1359,6 +1364,7 @@ export const fr: DashText = {
     eGHttpsZoomUs: 'p. ex. https://zoom.us/j/123456789',
     pleaseEnterAWebLink: 'Veuillez entrer un lien Web, comme https://zoom.us/j/123456789.',
     savingAsAnOnlineEvent: 'Enregistrer comme événement en ligne retire l’adresse de votre page.',
+    addAVenueNameOrUnit: 'Ajouter le nom du lieu ou un numéro d’unité',
     venueName: 'Nom du lieu',
     theNameOfThePlace: 'Le nom du lieu, tel que les invités le connaissent.',
     eGHycroftManor: 'p. ex. Manoir Hycroft',

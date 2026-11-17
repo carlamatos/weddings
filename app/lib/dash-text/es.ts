@@ -935,6 +935,7 @@ export const es: DashText = {
     sendItToYourGuests: 'Envíalo a tus invitados',
   },
   shareTip: {
+    saveTheDate: '<t0>¿Faltan meses? Envía un «reserva la fecha».</t0> Comparte tu enlace ahora: tus invitados apartan el día y vuelven después para ver los detalles y confirmar.',
     ready: '<t0>Tu página está lista para compartir.</t0> Envía tu enlace: cada persona que confirme se añade automáticamente a tu lista de invitados.',
     soonToday: '¡Tu evento es hoy!',
     soonTomorrow: '¡Tu evento es mañana!',
@@ -1313,6 +1314,9 @@ export const es: DashText = {
     preview: 'Vista previa',
   },
   editableSlots: {
+    whenAndWhere: '¿Cuándo y dónde?',
+    whenAndWhereFirst: 'Agrega la hora y el lugar para que tu página esté lista para compartir. Tus invitados los ven en tu portada, en la cuenta regresiva y en sus invitaciones. Puedes cambiarlos cuando quieras.',
+    skipForNow: 'Omitir por ahora',
     textColour: 'Color del texto',
     clickTheColourSquareTo: 'Haz clic en el cuadro de color para elegir un color para este texto. Elige uno que resalte sobre la foto o el fondo.',
     editTopLine: 'Editar la línea superior',
@@ -1343,6 +1347,7 @@ export const es: DashText = {
     theDayYourEventStarts: 'El día en que empieza tu evento.',
     startTime: 'Hora de inicio',
     whenGuestsShouldArrive: 'Cuándo deben llegar los invitados.',
+    addAnEndDateOrTime: 'Añadir una fecha u hora de fin',
     endDate: 'Fecha de fin',
     onlyForEventsOverSeveral: 'Solo para eventos de varios días.',
     endTime: 'Hora de fin',
@@ -1359,6 +1364,7 @@ export const es: DashText = {
     eGHttpsZoomUs: 'p. ej. https://zoom.us/j/123456789',
     pleaseEnterAWebLink: 'Escribe un enlace web, como https://zoom.us/j/123456789.',
     savingAsAnOnlineEvent: 'Guardarlo como evento en línea quita la dirección de tu página.',
+    addAVenueNameOrUnit: 'Añadir el nombre del lugar o un número de unidad',
     venueName: 'Nombre del lugar',
     theNameOfThePlace: 'El nombre del lugar, como lo conocen los invitados.',
     eGHycroftManor: 'p. ej. Hacienda Los Olivos',

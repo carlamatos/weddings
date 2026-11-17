@@ -79,7 +79,8 @@ export function useShareTip(pageId: number | undefined, enabled: boolean) {
 
 // The bubble. where: 'share' under the Share button, 'profile' under the
 // profile button (phones and tablets, which adds "open this menu").
-export function ShareTipBubble({ daysToGo, where, onClose }: { daysToGo: number | null; where: 'share' | 'profile'; onClose: () => void }) {
+// far: the event is months away, so it's offered as a save-the-date.
+export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { daysToGo: number | null; far?: boolean; where: 'share' | 'profile'; onClose: () => void }) {
   const d = useDashText();
   const t = d.shareTip;
   const soon = daysToGo === null ? null : daysToGo <= 0 ? t.soonToday : daysToGo === 1 ? t.soonTomorrow : fill(t.soonDays, { days: daysToGo });
@@ -87,7 +88,7 @@ export function ShareTipBubble({ daysToGo, where, onClose }: { daysToGo: number 
     <div className={`dash-themes-tip dash-share-tip dash-share-tip--${where}`} role="status">
       <p>
         {soon && <strong className="dash-share-tip-soon">{soon}</strong>}
-        {rich(t.ready, { t0: (s) => <strong>{s}</strong> })}
+        {rich(far ? t.saveTheDate : t.ready, { t0: (s) => <strong>{s}</strong> })}
         {where === 'profile' && <span className="dash-share-tip-where">{t.onPhones}</span>}
       </p>
       <button type="button" onClick={onClose} aria-label={t.closeTip}><XMarkIcon /></button>

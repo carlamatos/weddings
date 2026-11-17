@@ -23,27 +23,30 @@ export type SetupCounts = { guests: number; invited: number; responded: number; 
 export const LINK_SHARED_SETTING = 'link_shared_at';
 
 // The top bar's Share tip (app/ui/dashboard/share-tip.tsx): shown while the
-// page is live, the event hasn't happened and nobody has the link yet (the
-// share step isn't done). daysToGo: when the event is this close, the tip
-// says so.
+// page is live, has a date that hasn't passed, and nobody has the link yet
+// (the share step isn't done). The date is enough: waiting for the time and
+// place too kept the tip from most hosts, who rarely add them first.
+// daysToGo: set when the event is this close, and the tip says so. far: the
+// event is months away, so the tip suggests sharing it as a save-the-date.
 export const SHARE_SOON_DAYS = 14;
-export type ShareTipState = { show: boolean; daysToGo: number | null };
+export const SAVE_THE_DATE_DAYS = 60;
+export type ShareTipState = { show: boolean; daysToGo: number | null; far?: boolean };
+
+export function daysUntil(date: string | null | undefined, today = new Date()): number | null {
+  if (!date) return null;
+  const todayStr = today.toISOString().slice(0, 10);
+  return Math.round((Date.parse(String(date).slice(0, 10)) - Date.parse(todayStr)) / 86_400_000);
+}
 
 export function shareTipFor(page: UserPage, steps: SetupStep[], today = new Date()): ShareTipState {
   const none: ShareTipState = { show: false, daysToGo: null };
-  if (page.status !== 'active') return none;
+  if (page.status !== 'active' || !page.event_date) return none;
   if (steps.find((s) => s.id === 'share')?.done !== false) return none;
   const todayStr = today.toISOString().slice(0, 10);
   const last = page.event_end_date || page.event_date;
-  if (last && last < todayStr) return none;
-  const daysToGo = page.event_date && page.event_date >= todayStr
-    ? Math.round((Date.parse(page.event_date) - Date.parse(todayStr)) / 86_400_000)
-    : page.event_date ? 0 : null; // started, not over yet: it's on now
-  const soon = daysToGo !== null && daysToGo <= SHARE_SOON_DAYS;
-  // "Ready to share" once the first step (date, time and place) is done, or
-  // right away when the event is soon.
-  if (!steps[0]?.done && !soon) return none;
-  return { show: true, daysToGo: soon ? daysToGo : null };
+  if (last < todayStr) return none;
+  const days = Math.max(0, daysUntil(page.event_date, today) ?? 0); // started, not over yet: it's on now
+  return { show: true, daysToGo: days <= SHARE_SOON_DAYS ? days : null, far: days > SAVE_THE_DATE_DAYS };
 }
 
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {

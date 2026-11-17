@@ -157,7 +157,7 @@ function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () =
 
 // The top bar's Share button, with the share options beneath it. tip: show
 // the "ready to share" tip (share-tip.tsx) when it's this page's turn.
-export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoice[]; pageId?: number; tip?: { show: boolean; daysToGo: number | null } }) {
+export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoice[]; pageId?: number; tip?: { show: boolean; daysToGo: number | null; far?: boolean } }) {
   const d = useDashText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -171,7 +171,7 @@ export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoi
         <ShareIcon />
         {d.shareMenu.share}
       </button>
-      {tipShown && !open && <ShareTipBubble daysToGo={tip?.daysToGo ?? null} where="share" onClose={dismissTip} />}
+      {tipShown && !open && <ShareTipBubble daysToGo={tip?.daysToGo ?? null} far={!!tip?.far} where="share" onClose={dismissTip} />}
       {open && (
         <div className="dash-share-panel" role="dialog" aria-label={d.shareMenu.share}>
           <ChoicePanel choices={choices} onDone={close} />

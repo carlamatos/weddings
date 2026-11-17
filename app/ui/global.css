@@ -134,3 +134,6 @@ input[type='number']::-webkit-outer-spin-button {
     width: auto;
 }
 }
+/* The story ("Your story") keeps the host's paragraphs and line breaks in
+   every theme (the editor's copy sets it itself, app/ui/themes/slots.tsx); extra spaces still collapse. */
+[data-story-text] { white-space: pre-line; }
