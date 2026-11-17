@@ -6,7 +6,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
 import { fill } from '@/app/lib/dash-text/fill';
-import { THEMES_TIP_DONE_EVENT, TIP_DELAY_MS, themesTipPending } from './theme-switcher';
+import { THEMES_TIP_DONE_EVENT, themesTipPending } from './theme-switcher';
 
 // "Your page is ready to share": a tip like the Themes one, under the top
 // bar's Share button (or, on phones and tablets, just above the Share
@@ -18,6 +18,9 @@ import { THEMES_TIP_DONE_EVENT, TIP_DELAY_MS, themesTipPending } from './theme-s
 // this browser.
 const KEY = (pageId: number) => `mygala.shareTip.${pageId}`;
 const VISITS = 3;
+// How long it waits after the page opens before appearing (the Themes tip
+// shows straight away).
+const TIP_DELAY_MS = 20_000;
 const CHANGE_EVENT = 'mygala:share-tip-change';
 // The dashboard mounts two of these (top bar button and bottom-right button): count each visit
 // once, and give both the same answer.

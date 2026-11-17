@@ -44,10 +44,6 @@ function writeNudge(v: { visits: number; done: boolean }) {
   try { localStorage.setItem(NUDGE_KEY, JSON.stringify(v)); } catch {}
 }
 
-// How long the dashboard's tips (this one and the Share tip) wait after the
-// page opens before appearing.
-export const TIP_DELAY_MS = 20_000;
-
 // The Share tip (share-tip.tsx) comes after this one: it waits while the
 // Themes tip still has visits to go, and appears as soon as it's done.
 export const THEMES_TIP_DONE_EVENT = 'mygala:themes-tip-done';
@@ -70,19 +66,14 @@ function useThemesNudge(enabled: boolean) {
       setShow(false);
       return;
     }
-    // Not straight away: TIP_DELAY_MS after the page opens, so the host
-    // first sees their page. A visit only counts once the tip has shown.
-    const timer = window.setTimeout(() => {
-      const v = readNudge();
-      if (v.done) return;
-      const visit = `${pathname}@${performance.timeOrigin}`;
-      if (countedVisit?.visit !== visit) {
-        countedVisit = { visit, show: v.visits < NUDGE_VISITS };
-        if (countedVisit.show) writeNudge({ ...v, visits: v.visits + 1 });
-      }
-      setShow(countedVisit.show);
-    }, TIP_DELAY_MS);
-    return () => window.clearTimeout(timer);
+    const v = readNudge();
+    if (v.done) return;
+    const visit = `${pathname}@${performance.timeOrigin}`;
+    if (countedVisit?.visit !== visit) {
+      countedVisit = { visit, show: v.visits < NUDGE_VISITS };
+      if (countedVisit.show) writeNudge({ ...v, visits: v.visits + 1 });
+    }
+    setShow(countedVisit.show);
   }, [onEditor, pathname]);
 
   const dismiss = () => {
