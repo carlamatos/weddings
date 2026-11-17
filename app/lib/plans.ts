@@ -79,3 +79,11 @@ export function hasExpiredPlan(page: { plan_type?: string | null; plan_expires_a
 // (deleted pages count too). Stops runaway page-making; createUserPage.
 export const MAX_NEW_PAGES_PER_DAY = 2;
 export const MAX_NEW_PAGES_PER_MONTH = 10;
+
+// When a Live Party purchase ends: PLAN_TERM_MONTHS from the payment itself
+// (the Checkout Session's `created`, in seconds), never from when the
+// confirmation is processed, so reopening an old confirmation link (or a
+// late webhook) can't stretch the term.
+export function planExpiryFromPayment(createdSeconds: number): Date {
+  return new Date(createdSeconds * 1000 + PLAN_TERM_MONTHS * 30 * 24 * 60 * 60 * 1000);
+}
