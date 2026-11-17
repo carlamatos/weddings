@@ -6,10 +6,11 @@ import { eventWhen } from '@/app/ui/themes/event-when';
 
 // The event's own facts for the invitation, in the page's language. Shared by
 // the Invite screen (preview/print) and the invitation emails. Pass the
-// page password to include it (see invitationPassword in page-password.ts).
+// page password to include it (see invitationPassword in page-password.ts),
+// and rsvpOn: false when the host hid the RSVP (isSectionOn 'show_rsvp').
 const PASSWORD_LABEL: Record<string, string> = { en: 'Page password', fr: 'Mot de passe de la page', es: 'Contraseña de la página' };
 
-export function invitationDetails(page: UserPage, password?: string | null): InvitationDetails {
+export function invitationDetails(page: UserPage, password?: string | null, rsvpOn = true): InvitationDetails {
   const t = getTranslations(page.language);
   const when = eventWhen(
     { eventDate: page.event_date, eventTime: page.event_time, eventEndDate: page.event_end_date, eventEndTime: page.event_end_time },
@@ -26,6 +27,7 @@ export function invitationDetails(page: UserPage, password?: string | null): Inv
     venue: virtual ? t.virtualEvent : page.venue_name || '',
     address,
     url: publicPageUrl(page),
+    ...(rsvpOn ? {} : { rsvpOff: true }),
     ...(password ? { password, passwordLabel: PASSWORD_LABEL[page.language ?? 'en'] ?? PASSWORD_LABEL.en } : {}),
   };
 }

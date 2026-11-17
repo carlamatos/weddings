@@ -7,10 +7,11 @@ import type { InvitationDesign, InvitationDetails } from './invitation';
 
 type Lang = 'en' | 'fr' | 'es';
 
-const COPY: Record<Lang, { greeting: (name: string) => string; invited: string; rsvp: string }> = {
-  en: { greeting: (name) => `Dear ${name},`, invited: 'You’re invited to', rsvp: 'Details & RSVP:' },
-  fr: { greeting: (name) => `Bonjour ${name},`, invited: 'Nous vous invitons à', rsvp: 'Détails et réponse :' },
-  es: { greeting: (name) => `Hola, ${name}:`, invited: 'Te invitamos a', rsvp: 'Detalles y confirmación:' },
+// details: the link's label when the host hid the RSVP.
+const COPY: Record<Lang, { greeting: (name: string) => string; invited: string; rsvp: string; details: string }> = {
+  en: { greeting: (name) => `Dear ${name},`, invited: 'You’re invited to', rsvp: 'Details & RSVP:', details: 'Details:' },
+  fr: { greeting: (name) => `Bonjour ${name},`, invited: 'Nous vous invitons à', rsvp: 'Détails et réponse :', details: 'Détails :' },
+  es: { greeting: (name) => `Hola, ${name}:`, invited: 'Te invitamos a', rsvp: 'Detalles y confirmación:', details: 'Detalles:' },
 };
 
 export function invitationText({
@@ -38,7 +39,7 @@ export function invitationText({
     `${lang === 'es' && !lead.startsWith('¡') ? '¡' : ''}${lead} ${details.name}!`,
     [when, where].filter(Boolean).join('\n'),
     note?.trim() ?? '',
-    `${t.rsvp} ${details.url}`,
+    `${details.rsvpOff ? t.details : t.rsvp} ${details.url}`,
     details.password ? `${details.passwordLabel ?? 'Page password'}: ${details.password}` : '',
     hostName?.trim() ? `— ${hostName.trim()}` : '',
   ];

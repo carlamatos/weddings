@@ -1,6 +1,6 @@
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
-import { fetchEventThemes } from '@/app/lib/data';
+import { fetchEventThemes, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import type { UserPage } from '@/app/lib/definitions';
 import ThemeSwitcher from './theme-switcher';
@@ -19,8 +19,8 @@ import { fill } from '@/app/lib/dash-text/fill';
 export default async function TopNav({ page: userPage, status, setup }: { page?: UserPage; status?: Record<string, boolean>; setup?: SetupStep[] }) {
   const d = await getDashText();
   const session = await auth();
-  const themes = await fetchEventThemes();
   const pageId = userPage ? Number(userPage.id) : undefined;
+  const [themes, settings] = await Promise.all([fetchEventThemes(), pageId !== undefined ? fetchPageSettings(pageId) : Promise.resolve({} as Record<string, string>)]);
 
   const isPaid = !!userPage && isPagePaidAndLive(userPage);
   const previewHref = userPage
@@ -28,11 +28,12 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
     : undefined;
   const pageUrl = userPage ? publicPageUrl(userPage) : '';
   const title = userPage?.heading || 'MyGala';
-  // One Share button: the page, or straight to its RSVP form.
+  // One Share button: the page, or straight to its RSVP form (unless the
+  // host hid the RSVP).
   const shareChoices: ShareChoice[] | undefined = userPage
     ? [
         { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } },
-        { tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } },
+        ...!isSectionOn(settings, 'show_rsvp') ? [] : [{ tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } }],
       ]
     : undefined;
   // Whether guests can see the page, with its address beside it.

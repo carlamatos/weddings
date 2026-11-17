@@ -110,7 +110,8 @@ export function invitationEmail({
   // The name and closing: the accent, made readable when it's too faint.
   const accentText = readableAccent(design);
   const text = design.textColor;
-  const rsvpUrl = `${details.url}#rsvp`;
+  // The RSVP hidden on the page: the button opens the page itself instead.
+  const rsvpUrl = details.rsvpOff ? details.url : `${details.url}#rsvp`;
   const divider = findOrnament('divider', design.divider);
   const frame = findOrnament('frame', design.frame);
 
@@ -142,10 +143,10 @@ export function invitationEmail({
     ${design.message ? p(escHtml(design.message).replace(/\n/g, '<br />'), 'font-size: 15px; line-height: 1.7; margin: 22px auto 0; max-width: 420px;') : ''}
     <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 28px auto 6px;">
       <tr><td style="border-radius: 999px; background: ${accent};">
-        <a href="${escHtml(rsvpUrl)}" style="display: inline-block; padding: 14px 34px; font-family: ${body}; font-size: 15px; font-weight: 600; letter-spacing: 1px; color: ${onColor(accent)}; text-decoration: none; border-radius: 999px;">${t.rsvp}</a>
+        <a href="${escHtml(rsvpUrl)}" style="display: inline-block; padding: 14px 34px; font-family: ${body}; font-size: 15px; font-weight: 600; letter-spacing: 1px; color: ${onColor(accent)}; text-decoration: none; border-radius: 999px;">${details.rsvpOff ? t.viewPage : t.rsvp}</a>
       </td></tr>
     </table>
-    <p style="margin: 10px 0 0; font-family: ${body}; font-size: 13px;"><a href="${escHtml(details.url)}" style="color: ${text}; text-decoration: underline;">${t.viewPage}</a></p>
+    ${details.rsvpOff ? '' : `<p style="margin: 10px 0 0; font-family: ${body}; font-size: 13px;"><a href="${escHtml(details.url)}" style="color: ${text}; text-decoration: underline;">${t.viewPage}</a></p>`}
     ${design.closing ? `<p style="margin: 26px 0 0; font-family: ${heading}; font-size: 26px; line-height: 1.3; color: ${accentText};">${escHtml(design.closing)}</p>` : ''}
   `;
 

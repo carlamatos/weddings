@@ -41,7 +41,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   const design = normalizeInvitation(saved, page.theme_slug);
 
   const pagePassword = invitationPassword(settings, true);
-  const details = invitationDetails(page, pagePassword.password);
+  const details = invitationDetails(page, pagePassword.password, isSectionOn(settings, 'show_rsvp'));
   const hostName = session?.user?.name?.trim() || '';
 
   const isPaid = isPagePaidAndLive(page);
