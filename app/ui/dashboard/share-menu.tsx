@@ -181,14 +181,15 @@ export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoi
   );
 }
 
-// The same options opened from elsewhere (the profile menu on phones), as a
-// panel under the top bar.
-export function ShareSheet({ onClose, choices }: { onClose: () => void; choices: ShareChoice[] }) {
+// The same options opened from elsewhere (the Share button at the bottom
+// right on phones and tablets), as a panel above that button (bottom) or
+// under the top bar.
+export function ShareSheet({ onClose, choices, bottom = false }: { onClose: () => void; choices: ShareChoice[]; bottom?: boolean }) {
   const d = useDashText();
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(true, onClose, ref);
   return (
-    <div className="dash-share-panel dash-share-panel--sheet" role="dialog" aria-label={d.shareMenu.share} ref={ref}>
+    <div className={`dash-share-panel dash-share-panel--sheet${bottom ? ' dash-share-panel--bottom' : ''}`} role="dialog" aria-label={d.shareMenu.share} ref={ref}>
       <ChoicePanel choices={choices} onDone={onClose} />
     </div>
   );

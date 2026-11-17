@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareChoice } from './share-menu';
@@ -450,7 +450,6 @@ export default function UserMenu({
           <span>{displayName}</span>
         </button>
 
-        {tipShown && !open && <ShareTipBubble daysToGo={phoneActions?.shareTip?.daysToGo ?? null} far={!!phoneActions?.shareTip?.far} where="profile" onClose={dismissTip} />}
 
         {open && (
           <div className="dash-user-menu">
@@ -536,7 +535,20 @@ export default function UserMenu({
 
       {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
 
-      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} />}
+      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} bottom />}
+
+      {/* Phones and tablets: a Share button fixed at the bottom right, with
+          the "ready to share" tip just above it. Hidden while the share
+          options are open. */}
+      {phoneActions && !sharing && (
+        <div className={`dash-share-fab${tipShown ? ' is-nudging' : ''}`}>
+          {tipShown && <ShareTipBubble daysToGo={phoneActions.shareTip?.daysToGo ?? null} far={!!phoneActions.shareTip?.far} where="fab" onClose={dismissTip} />}
+          <button type="button" className="dash-share-fab-btn" onClick={() => { setOpen(false); setSharing(true); endShareTip(phoneActions.pageId); }}>
+            <ShareIcon aria-hidden="true" />
+            {d.userMenu.share}
+          </button>
+        </div>
+      )}
     </>
   );
 }

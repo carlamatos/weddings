@@ -939,7 +939,6 @@ export const en = {
     soonToday: 'Your event is today!',
     soonTomorrow: 'Your event is tomorrow!',
     soonDays: 'Your event is in {days} days.',
-    onPhones: 'Open this menu and tap Share.',
     closeTip: 'Close tip',
   },
   registryForm: {

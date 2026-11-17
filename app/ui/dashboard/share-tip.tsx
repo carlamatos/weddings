@@ -9,8 +9,8 @@ import { fill } from '@/app/lib/dash-text/fill';
 import { THEMES_TIP_DONE_EVENT, themesTipPending } from './theme-switcher';
 
 // "Your page is ready to share": a tip like the Themes one, under the top
-// bar's Share button (or, on phones and tablets where Share sits in the
-// profile menu, under the profile button). It comes right after the Themes
+// bar's Share button (or, on phones and tablets, just above the Share
+// button fixed at the bottom right). It comes right after the Themes
 // tip, while the page is live and nobody has the link yet (the server
 // decides that: shareTipFor in app/lib/setup-progress.ts). Shown on up to
 // three visits per page; closing it or opening Share ends it. Remembered in
@@ -18,7 +18,7 @@ import { THEMES_TIP_DONE_EVENT, themesTipPending } from './theme-switcher';
 const KEY = (pageId: number) => `mygala.shareTip.${pageId}`;
 const VISITS = 3;
 const CHANGE_EVENT = 'mygala:share-tip-change';
-// The top bar mounts two of these (button and profile): count each visit
+// The dashboard mounts two of these (top bar button and bottom-right button): count each visit
 // once, and give both the same answer.
 const counted = new Map<number, { visit: string; show: boolean }>();
 
@@ -77,10 +77,10 @@ export function useShareTip(pageId: number | undefined, enabled: boolean) {
   return { show, dismiss };
 }
 
-// The bubble. where: 'share' under the Share button, 'profile' under the
-// profile button (phones and tablets, which adds "open this menu").
+// The bubble. where: 'share' under the top bar's Share button (desktops),
+// 'fab' just above the Share button at the bottom right (phones and tablets).
 // far: the event is months away, so it's offered as a save-the-date.
-export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { daysToGo: number | null; far?: boolean; where: 'share' | 'profile'; onClose: () => void }) {
+export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { daysToGo: number | null; far?: boolean; where: 'share' | 'fab'; onClose: () => void }) {
   const d = useDashText();
   const t = d.shareTip;
   const soon = daysToGo === null ? null : daysToGo <= 0 ? t.soonToday : daysToGo === 1 ? t.soonTomorrow : fill(t.soonDays, { days: daysToGo });
@@ -89,7 +89,6 @@ export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { days
       <p>
         {soon && <strong className="dash-share-tip-soon">{soon}</strong>}
         {rich(far ? t.saveTheDate : t.ready, { t0: (s) => <strong>{s}</strong> })}
-        {where === 'profile' && <span className="dash-share-tip-where">{t.onPhones}</span>}
       </p>
       <button type="button" onClick={onClose} aria-label={t.closeTip}><XMarkIcon /></button>
     </div>

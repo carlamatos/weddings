@@ -940,7 +940,6 @@ export const fr: DashText = {
     soonToday: 'Votre événement a lieu aujourd’hui !',
     soonTomorrow: 'Votre événement a lieu demain !',
     soonDays: 'Votre événement a lieu dans {days} jours.',
-    onPhones: 'Ouvrez ce menu et touchez Partager.',
     closeTip: 'Fermer l’astuce',
   },
   registryForm: {
