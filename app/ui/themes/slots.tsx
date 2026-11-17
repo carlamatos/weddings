@@ -13,6 +13,7 @@ import { heroTextStyle, type HeroTextKey } from './hero-style';
 import HeroColorField from './HeroColorField';
 import EditSheet, { SheetField, SheetSection, TextPreview } from './EditSheet';
 import { useThemeLook, type ThemeLook } from './theme-look';
+import { CalendarDaysIcon } from '@heroicons/react/24/outline';
 import { useOpenEditor } from './open-editor';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
@@ -396,8 +397,12 @@ export function EditableHeroDate({
   address,
   location = 'address',
   eventUrl = '',
+  asButton = false,
 }: {
   pageId: number;
+  // A plain "Edit date & location" button (the editor bar's, in
+  // app/ui/themes/EditorCanvas.tsx) instead of the banner's date.
+  asButton?: boolean;
   className?: string;
   initialColor?: string; // owner's text colour; '' = the theme's
   displayText: string;
@@ -490,27 +495,30 @@ export function EditableHeroDate({
     );
   };
 
-  // first: opened right after the page was created, as "When and where?".
-  const [first, setFirst] = useState(false);
-  const openDialog = () => { setLook(readLook()); setDColor(color); setFirst(false); setOpen(true); };
-  useOpenEditor('location', (isFirst) => { openDialog(); setFirst(isFirst); });
+  const openDialog = () => { if (!asButton) setLook(readLook()); setDColor(color); setOpen(true); };
+  useOpenEditor('location', openDialog);
 
   return (
     <span
-      className="theme-editable"
-      style={{ display: 'block', position: 'relative' }}
-      {...editTarget(openDialog, d.editableSlots.editDateLocation)}
+      {...(asButton
+        ? { style: { display: 'contents' } }
+        : { className: 'theme-editable', style: { display: 'block', position: 'relative' }, ...editTarget(openDialog, d.editableSlots.editDateLocation) })}
     >
-      <p ref={elRef} className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
+      {asButton ? (
+        <button type="button" className="theme-edit-date-btn" onClick={openDialog}>
+          <CalendarDaysIcon aria-hidden="true" />{d.editableSlots.editDateLocation}
+        </button>
+      ) : (
+        <p ref={elRef} className={className} style={heroTextStyle(color)} onClick={openDialog}>{currentText}</p>
+      )}
 
       {open && (
         <EditSheet
-          title={first ? d.editableSlots.whenAndWhere : d.editableSlots.editTheDateLocation}
-          intro={first ? d.editableSlots.whenAndWhereFirst : d.editableSlots.whenAndWhereYourEvent}
+          title={d.editableSlots.editTheDateLocation}
+          intro={d.editableSlots.whenAndWhereYourEvent}
           onClose={() => setOpen(false)}
           onSave={save}
           saveDisabled={endBeforeStart || urlInvalid}
-          closeLabel={first ? d.editableSlots.skipForNow : undefined}
         >
           <SheetSection title={d.editableSlots.dateTime}>
             <div className="theme-sheet-2col">
@@ -587,7 +595,8 @@ export function EditableHeroDate({
             )}
           </SheetSection>
 
-          {!first && <SheetSection title={d.editableSlots.howItLooksOnYour}>
+          {/* The banner text's colour: from the banner's date only. */}
+          {!asButton && <SheetSection title={d.editableSlots.howItLooksOnYour}>
             <HeroColorField
               id="hd-color"
               label={d.editableSlots.textColour}

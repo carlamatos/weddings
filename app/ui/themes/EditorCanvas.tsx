@@ -19,7 +19,9 @@ import { rich } from '@/app/ui/dashboard/rich';
 // locked) with a Resend email button — in place of the dashboard's banner.
 const KEY = 'mygala-editor-mode';
 
-export default function EditorCanvas({ children, unverified }: { children: React.ReactNode; unverified?: { uploadsPerDay: number } }) {
+// dateButton: "Edit date & location" (EditableHeroDate as a button), before
+// the Edit / Preview switch.
+export default function EditorCanvas({ children, unverified, dateButton }: { children: React.ReactNode; unverified?: { uploadsPerDay: number }; dateButton?: React.ReactNode }) {
   const d = useDashText();
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [showLocked, setShowLocked] = useState(false);
@@ -70,12 +72,11 @@ export default function EditorCanvas({ children, unverified }: { children: React
         </div>
       )}
       <div className="theme-edit-bar">
-        {/* Phones: this hint is hidden (.theme-edit-hint), so the bar is just Edit / Preview. */}
+        {/* Phones: this hint is hidden (.theme-edit-hint), so the bar is just the buttons. */}
         <p className="theme-edit-hint">
-          {mode === 'edit'
-            ? <><strong>{d.editorCanvas.clickOrTapAnyText}</strong>{unverified ? '' : d.editorCanvas.switchToPreviewToSee}</>
-            : <><strong>{d.editorCanvas.thisIsHowGuestsSee}</strong>{unverified ? '' : d.editorCanvas.switchToEditToMake}</>}
+          <strong>{mode === 'edit' ? d.editorCanvas.clickOrTapAnyText : d.editorCanvas.thisIsHowGuestsSee}</strong>
         </p>
+        {dateButton}
         <div className="theme-edit-modes" role="group" aria-label={d.editorCanvas.editorMode}>
           <button type="button" aria-pressed={mode === 'edit'} onClick={() => choose('edit')}><PencilSquareIcon aria-hidden="true" />{d.editorCanvas.edit}</button>
           <button type="button" aria-pressed={mode === 'preview'} onClick={() => choose('preview')}><EyeIcon aria-hidden="true" />{d.editorCanvas.preview}</button>

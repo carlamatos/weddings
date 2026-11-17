@@ -1100,6 +1100,13 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .theme-edit-bar { justify-content: center; }
   .theme-edit-bar p.theme-edit-hint { display: none; }
 }
+/* Narrow phones: "Edit date & location" and Edit / Preview on one line. */
+@media (max-width: 420px) {
+  .theme-edit-bar { gap: 8px; padding: 8px 10px; }
+  .theme-edit-date-btn { padding: 7px 10px; }
+  .theme-edit-modes button { padding: 7px 10px; }
+  .theme-edit-modes button svg { display: none; }
+}
 /* Unverified accounts: a slim line above the bar (not pinned) — the link
    that shows what's locked, the Resend button, and the details. */
 .theme-edit-verify-strip { padding: 5px 16px; background: #FFF8E7; border-bottom: 1px solid #E8D9A8; font-family: system-ui, sans-serif; }
@@ -1115,6 +1122,13 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .theme-edit-verify-short { display: inline; }
 }
 @media (max-width: 380px) { .theme-edit-verify-why { display: none; } }
+/* "Edit date & location" (EditableHeroDate as a button), before the switch. */
+.theme-edit-date-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid #E0D5D0; border-radius: 10px;
+  background: #fff; color: #241F2B; font: 600 13px system-ui, sans-serif; cursor: pointer; white-space: nowrap;
+}
+.theme-edit-date-btn:hover { border-color: #B6584A; background: #FDF8F6; }
+.theme-edit-date-btn svg { width: 15px; height: 15px; color: #B6584A; }
 .theme-edit-modes { display: inline-flex; padding: 3px; border-radius: 10px; background: #F3EEEA; }
 .theme-edit-modes button {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; border-radius: 8px;
