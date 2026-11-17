@@ -1083,6 +1083,11 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .theme-edit-bar p { flex: 1 1 260px; margin: 0; font-size: 14px; line-height: 1.45; color: #4A4350; }
 .theme-edit-bar p strong { color: #241F2B; }
+/* Phones: no "Click or tap any text…" hint in edit mode, just the toggle. */
+@media (max-width: 768px) {
+  .theme-edit-bar:has(.theme-edit-hint--edit) { justify-content: center; }
+  .theme-edit-bar p.theme-edit-hint--edit { display: none; }
+}
 /* Unverified accounts: a slim line above the bar (not pinned) — the link
    that shows what's locked, the Resend button, and the details. */
 .theme-edit-verify-strip { padding: 5px 16px; background: #FFF8E7; border-bottom: 1px solid #E8D9A8; font-family: system-ui, sans-serif; }

@@ -70,7 +70,8 @@ export default function EditorCanvas({ children, unverified }: { children: React
         </div>
       )}
       <div className="theme-edit-bar">
-        <p>
+        {/* Phones: the edit-mode hint is hidden (.theme-edit-hint--edit), so the bar is just Edit / Preview. */}
+        <p className={mode === 'edit' ? 'theme-edit-hint--edit' : undefined}>
           {mode === 'edit'
             ? <><strong>{d.editorCanvas.clickOrTapAnyText}</strong>{unverified ? '' : d.editorCanvas.switchToPreviewToSee}</>
             : <><strong>{d.editorCanvas.thisIsHowGuestsSee}</strong>{unverified ? '' : d.editorCanvas.switchToEditToMake}</>}
