@@ -93,6 +93,8 @@ export type InvitationDetails = {
   // invitations, with its label in the page's language.
   password?: string;
   passwordLabel?: string;
+  // The host hid the RSVP on the page: no "RSVP" button or wording.
+  rsvpOff?: boolean;
 };
 
 type Preset = Pick<InvitationDesign, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor'> & { bg: string };

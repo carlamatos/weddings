@@ -29,7 +29,7 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, countRecentPageCreations, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, countRecentPageCreations, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings, isSectionOn } from './data';
 import { isSuperAdmin } from './admin';
 import { MAX_NEW_PAGES_PER_DAY, MAX_NEW_PAGES_PER_MONTH } from './plans';
 import { createPlusCheckout } from './plus-checkout';
@@ -1040,7 +1040,7 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
       design: normalizeInvitation(saved, page.theme_slug),
       hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
       hostEmail,
-      details: invitationDetails(page, invitationPassword(settings, true).password),
+      details: invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')),
     },
   };
 }
