@@ -4,7 +4,7 @@ import { stripe } from '@/app/lib/stripe';
 import { sql } from '@vercel/postgres';
 import { enablePlusSetting } from '@/app/lib/plus-enable';
 import { isDeadSubscription, subscriptionPeriodEnd } from '@/app/lib/subscriptions';
-import { PLAN_TERM_MONTHS } from '@/app/lib/plans';
+import { planExpiryFromPayment } from '@/app/lib/plans';
 
 export async function POST(req: NextRequest) {
   const body = await req.text();
@@ -27,25 +27,27 @@ export async function POST(req: NextRequest) {
       case 'checkout.session.completed': {
         // One-time payment: mode is 'payment', not 'subscription', so this
         // fires once per purchase and there's no renewal to track. Grants
-        // PLAN_TERM_MONTHS from now, whether this is a first purchase or an
-        // extension of a lapsed (dropped-to-free) page. Deliberately doesn't
+        // PLAN_TERM_MONTHS from the payment (planExpiryFromPayment), whether
+        // this is a first purchase or an extension of a lapsed
+        // (dropped-to-free) page; a later expiry already there is kept. Deliberately doesn't
         // touch status — deactivation is a separate, manual choice.
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.userId;
         const pageId = session.metadata?.pageId ? Number(session.metadata.pageId) : null;
         const customerId = session.customer as string | null;
-        if (userId) {
-          const expiresAt = new Date(Date.now() + PLAN_TERM_MONTHS * 30 * 24 * 60 * 60 * 1000).toISOString();
+        const paidExpiry = planExpiryFromPayment(session.created);
+        if (userId && paidExpiry.getTime() > Date.now()) {
+          const expiresAt = paidExpiry.toISOString();
           await sql`
             INSERT INTO user_plans (user_id, plan_type, plan_expires_at, stripe_customer_id, updated_at)
             VALUES (${userId}, 'paid', ${expiresAt}, ${customerId}, NOW())
             ON CONFLICT (user_id) DO UPDATE
-              SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}, updated_at = NOW()
+              SET plan_type = 'paid', plan_expires_at = GREATEST(user_plans.plan_expires_at, ${expiresAt}::timestamp), stripe_customer_id = ${customerId}, updated_at = NOW()
           `;
           if (pageId) {
             await sql`
               UPDATE user_page
-              SET plan_type = 'paid', plan_expires_at = ${expiresAt}, stripe_customer_id = ${customerId}
+              SET plan_type = 'paid', plan_expires_at = GREATEST(plan_expires_at, ${expiresAt}::timestamp), stripe_customer_id = ${customerId}
               WHERE id = ${pageId} AND user_id = ${userId}
             `;
             await enablePlusSetting(pageId, userId, session.metadata?.enable);
