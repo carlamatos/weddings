@@ -248,7 +248,7 @@ export default function QuietCoastal({
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}
           <div className="hero-actions">
             <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
-            <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />
+            {(description || editSlots?.description) && <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>

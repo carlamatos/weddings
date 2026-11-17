@@ -378,6 +378,13 @@ body:has(.dash-shell) {
 a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 /* Phones and tablets: the top bar's buttons, at the top of this menu. */
 .dash-user-menu-phone { display: none; border-bottom: 1px solid var(--line); }
+/* The name at the top of the menu, and its Edit profile: phones and
+   tablets only (desktops show the name on the button). */
+.dash-user-menu-name { display: none; margin: 0; padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 14px; font-weight: 700; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-user-menu-item--phone { display: none; border-bottom: 1px solid var(--line); }
+/* Only one of the two Edit profile buttons shows: no extra line for the
+   hidden one. */
+.dash-user-menu-item--phone + .dash-user-menu-item { border-top: 0; }
 .dash-user-menu-picker { padding: 10px 16px 12px; border-top: 1px solid var(--line); }
 .dash-user-menu-picker .mobile-menu-theme-label { margin-bottom: 6px; }
 .dash-user-menu-picker .dash-theme-switcher { display: block; width: 100%; }
@@ -772,20 +779,17 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-themes-tip button:hover { background: rgba(255, 255, 255, 0.14); color: #fff; }
 .dash-themes-tip button svg { width: 16px; height: 16px; }
 /* The Share tip (share-tip.tsx): the same look, from the right, under the
-   Share button; on phones and tablets (where Share is in the profile menu)
-   under the profile button instead. The Share button pulses like Themes. */
+   Share button; on phones and tablets just above the Share button fixed at
+   the bottom right. The Share button pulses like Themes. */
 .dash-share-tip { left: auto; right: 0; }
 .dash-share-tip::before { left: auto; right: 26px; }
 .dash-share-tip .dash-share-tip-soon { color: #F2C4B8; margin-bottom: 2px; }
 .dash-share-tip .dash-share-tip-where { display: block; margin-top: 6px; color: rgba(255, 255, 255, 0.75); }
-.dash-share-tip--profile { display: none; }
-@media (max-width: 1024px) {
-  .dash-share-tip--profile { display: flex; }
-}
-.dash-share.is-nudging > .dash-share-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
+.dash-share.is-nudging > .dash-share-btn,
+.dash-share-fab.is-nudging > .dash-share-fab-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
 @keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-share.is-nudging > .dash-share-btn, .dash-themes-tip { animation: none; }
+  .dash-theme-switcher.is-nudging > .dash-theme-btn, .dash-share.is-nudging > .dash-share-btn, .dash-share-fab.is-nudging > .dash-share-fab-btn, .dash-themes-tip { animation: none; }
 }
 
 .dash-theme-dropdown {
@@ -967,9 +971,33 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 /* Phones and tablets: the menu button (below 1000px), the page's status and
    the profile stay in the top bar. Theme, Language and Share move into the
    profile menu. */
+/* Phones and tablets: Share, fixed at the bottom right (user-menu.tsx),
+   with its tip above it and its options opening just above it. Under the
+   mobile menu (200) and the editors (900+). */
+.dash-share-fab { display: none; }
+.dash-share-fab-btn {
+  display: flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px;
+  border: 1px solid var(--ink); border-radius: 999px; background: var(--ink); color: #fff;
+  font: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 10px 24px -10px rgba(36, 31, 43, 0.6);
+}
+.dash-share-fab-btn svg { width: 18px; height: 18px; }
+.dash-share-fab .dash-share-tip--fab { top: auto; bottom: calc(100% + 12px); right: 0; }
+.dash-share-fab .dash-share-tip--fab::before { top: auto; bottom: -6px; right: 30px; }
+.dash-share-panel--bottom { top: auto; bottom: calc(16px + env(safe-area-inset-bottom)); max-height: calc(100dvh - 96px); overflow-y: auto; }
 @media (max-width: 1024px) {
+  .dash-share-fab {
+    display: block; position: fixed; z-index: 150;
+    right: 16px; bottom: calc(16px + env(safe-area-inset-bottom));
+  }
+  /* Room so the button never covers the end of the page. */
+  .dash-main:has(.dash-share-fab) .dash-content { padding-bottom: 88px; }
   .dash-topnav-actions { display: none; }
   .dash-user-menu-phone { display: block; }
+  .dash-user-menu-name, .dash-user-menu-item--phone { display: block; }
+  .dash-user-menu-item--desktop { display: none; }
+  .dash-user-menu-item--desktop + .dash-user-menu-item { border-top: 0; }
+  .dash-user--btn .dash-user-name { display: none; }
   .dash-user-menu:has(.dash-user-menu-phone) { width: min(280px, calc(100vw - 24px)); }
 }
 
@@ -1066,6 +1094,19 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 }
 .theme-edit-bar p { flex: 1 1 260px; margin: 0; font-size: 14px; line-height: 1.45; color: #4A4350; }
 .theme-edit-bar p strong { color: #241F2B; }
+/* Phones: no hint ("Click or tap any text…" / "This is how guests see
+   your page…"), just the Edit / Preview switch, centred. */
+@media (max-width: 768px) {
+  .theme-edit-bar { justify-content: center; }
+  .theme-edit-bar p.theme-edit-hint { display: none; }
+}
+/* Narrow phones: "Edit date & location" and Edit / Preview on one line. */
+@media (max-width: 420px) {
+  .theme-edit-bar { gap: 8px; padding: 8px 10px; }
+  .theme-edit-date-btn { padding: 7px 10px; }
+  .theme-edit-modes button { padding: 7px 10px; }
+  .theme-edit-modes button svg { display: none; }
+}
 /* Unverified accounts: a slim line above the bar (not pinned) — the link
    that shows what's locked, the Resend button, and the details. */
 .theme-edit-verify-strip { padding: 5px 16px; background: #FFF8E7; border-bottom: 1px solid #E8D9A8; font-family: system-ui, sans-serif; }
@@ -1081,6 +1122,13 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
   .theme-edit-verify-short { display: inline; }
 }
 @media (max-width: 380px) { .theme-edit-verify-why { display: none; } }
+/* "Edit date & location" (EditableHeroDate as a button), before the switch. */
+.theme-edit-date-btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid #E0D5D0; border-radius: 10px;
+  background: #fff; color: #241F2B; font: 600 13px system-ui, sans-serif; cursor: pointer; white-space: nowrap;
+}
+.theme-edit-date-btn:hover { border-color: #B6584A; background: #FDF8F6; }
+.theme-edit-date-btn svg { width: 15px; height: 15px; color: #B6584A; }
 .theme-edit-modes { display: inline-flex; padding: 3px; border-radius: 10px; background: #F3EEEA; }
 .theme-edit-modes button {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; border-radius: 8px;

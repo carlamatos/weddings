@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
-import { UserCircleIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
 import { ShareSheet, type ShareChoice } from './share-menu';
@@ -445,15 +445,24 @@ export default function UserMenu({
   return (
     <>
       <div ref={ref} style={{ position: 'relative' }}>
-        <button onClick={() => setOpen((o) => !o)} className="dash-user dash-user--btn">
+        <button onClick={() => setOpen((o) => !o)} className="dash-user dash-user--btn" aria-label={displayName} aria-expanded={open}>
           <UserCircleIcon />
-          <span>{displayName}</span>
+          <span className="dash-user-name">{displayName}</span>
         </button>
 
-        {tipShown && !open && <ShareTipBubble daysToGo={phoneActions?.shareTip?.daysToGo ?? null} far={!!phoneActions?.shareTip?.far} where="profile" onClose={dismissTip} />}
 
         {open && (
           <div className="dash-user-menu">
+            {/* Phones and tablets: the name (not shown on the profile
+                button there) heads the menu, then Edit profile, then the
+                page's actions and the rest. */}
+            <p className="dash-user-menu-name">{displayName}</p>
+            <button
+              onClick={() => { setOpen(false); setShowProfile(true); }}
+              className="dash-user-menu-item dash-user-menu-item--phone"
+            >
+              {d.userMenu.editProfile}
+            </button>
             {phoneActions && (
               <div className="dash-user-menu-phone">
                 <button onClick={() => { setOpen(false); setSharing(true); endShareTip(phoneActions.pageId); }} className="dash-user-menu-item">
@@ -478,7 +487,7 @@ export default function UserMenu({
             )}
             <button
               onClick={() => { setOpen(false); setShowProfile(true); }}
-              className="dash-user-menu-item"
+              className="dash-user-menu-item dash-user-menu-item--desktop"
             >
               {d.userMenu.editProfile}
             </button>
@@ -536,7 +545,20 @@ export default function UserMenu({
 
       {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
 
-      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} />}
+      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} bottom />}
+
+      {/* Phones and tablets: a Share button fixed at the bottom right, with
+          the "ready to share" tip just above it. Hidden while the share
+          options are open. */}
+      {phoneActions && !sharing && (
+        <div className={`dash-share-fab${tipShown ? ' is-nudging' : ''}`}>
+          {tipShown && <ShareTipBubble daysToGo={phoneActions.shareTip?.daysToGo ?? null} far={!!phoneActions.shareTip?.far} where="fab" onClose={dismissTip} />}
+          <button type="button" className="dash-share-fab-btn" onClick={() => { setOpen(false); setSharing(true); endShareTip(phoneActions.pageId); }}>
+            <ShareIcon aria-hidden="true" />
+            {d.userMenu.share}
+          </button>
+        </div>
+      )}
     </>
   );
 }

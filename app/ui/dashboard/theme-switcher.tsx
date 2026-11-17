@@ -61,7 +61,11 @@ function useThemesNudge(enabled: boolean) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    if (!onEditor) { setShow(false); return; }
+    if (!onEditor) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShow(false);
+      return;
+    }
     const v = readNudge();
     if (v.done) return;
     const visit = `${pathname}@${performance.timeOrigin}`;

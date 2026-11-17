@@ -103,6 +103,30 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       ? 'eyebrow hero-eyebrow'
       : 'hero-eyebrow';
 
+  // The date and place editor: the banner's date (when there is one) and
+  // the editor bar's "Edit date & location" button.
+  const heroDateProps = {
+    pageId,
+    displayText: heroDateText,
+    initialColor: heroStyle.text.date,
+    eventDate: userPage.event_date || undefined,
+    eventTime: userPage.event_time || undefined,
+    eventEndDate: userPage.event_end_date || undefined,
+    eventEndTime: userPage.event_end_time || undefined,
+    city: userPage.city || undefined,
+    country: userPage.country || undefined,
+    location: userPage.location === 'virtual' ? 'virtual' as const : 'address' as const,
+    eventUrl: userPage.url || '',
+    address: {
+      venueName: userPage.venue_name || undefined,
+      streetAddress: userPage.street_address || undefined,
+      unitNumber: userPage.unit_number || undefined,
+      postalCode: userPage.postal_code || undefined,
+      placeId: userPage.place_id || undefined,
+      formattedAddress: userPage.formatted_address || undefined,
+    },
+  };
+
   const editSlots = {
     heroEditPageId: pageId,
     heroBg: (
@@ -131,29 +155,9 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         initialColor={heroStyle.text.name}
       />
     ),
-    heroDate: heroDateText ? (
-      <EditableHeroDate
-        pageId={pageId}
-        displayText={heroDateText}
-        initialColor={heroStyle.text.date}
-        eventDate={userPage.event_date || undefined}
-        eventTime={userPage.event_time || undefined}
-        eventEndDate={userPage.event_end_date || undefined}
-        eventEndTime={userPage.event_end_time || undefined}
-        city={userPage.city || undefined}
-        country={userPage.country || undefined}
-        location={userPage.location === 'virtual' ? 'virtual' : 'address'}
-        eventUrl={userPage.url || ''}
-        address={{
-          venueName: userPage.venue_name || undefined,
-          streetAddress: userPage.street_address || undefined,
-          unitNumber: userPage.unit_number || undefined,
-          postalCode: userPage.postal_code || undefined,
-          placeId: userPage.place_id || undefined,
-          formattedAddress: userPage.formatted_address || undefined,
-        }}
-      />
-    ) : undefined,
+    // Keyed on the text, so a save from the bar's button (below) shows here
+    // once the page refreshes.
+    heroDate: heroDateText ? <EditableHeroDate key={heroDateText} {...heroDateProps} /> : undefined,
     description: (
       <EditableDescription
         pageId={pageId}
@@ -179,7 +183,12 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
 
   return (
     <div className="dash-editor-bleed">
-      <EditorCanvas unverified={verifiedEmail ? undefined : { uploadsPerDay: UNVERIFIED_UPLOADS_PER_DAY }}>
+      <EditorCanvas
+        unverified={verifiedEmail ? undefined : { uploadsPerDay: UNVERIFIED_UPLOADS_PER_DAY }}
+        // Keyed on what it edits, so it starts from the saved values again
+        // after a save refreshes the page.
+        dateButton={<EditableHeroDate key={JSON.stringify(heroDateProps)} {...heroDateProps} asButton />}
+      >
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, userPage.language)}
