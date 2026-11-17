@@ -39,7 +39,11 @@ export function shareTipFor(page: UserPage, steps: SetupStep[], today = new Date
   const daysToGo = page.event_date && page.event_date >= todayStr
     ? Math.round((Date.parse(page.event_date) - Date.parse(todayStr)) / 86_400_000)
     : page.event_date ? 0 : null; // started, not over yet: it's on now
-  return { show: true, daysToGo: daysToGo !== null && daysToGo <= SHARE_SOON_DAYS ? daysToGo : null };
+  const soon = daysToGo !== null && daysToGo <= SHARE_SOON_DAYS;
+  // "Ready to share" once the first step (date, time and place) is done, or
+  // right away when the event is soon.
+  if (!steps[0]?.done && !soon) return none;
+  return { show: true, daysToGo: soon ? daysToGo : null };
 }
 
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
