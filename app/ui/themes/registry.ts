@@ -20,6 +20,7 @@ import TheDay, { HeroPreview as TheDayPreview } from './TheDay';
 import Love, { HeroPreview as LovePreview } from './Love';
 import Nature, { HeroPreview as NaturePreview } from './Nature';
 import WildFlores, { HeroPreview as WildFloresPreview } from './WildFlores';
+import Forest, { HeroPreview as ForestPreview } from './Forest';
 import Western, { HeroPreview as WesternPreview } from './Western';
 import ChristmasParty, { HeroPreview as ChristmasPartyPreview } from './ChristmasParty';
 import WhiteChristmas, { HeroPreview as WhiteChristmasPreview } from './WhiteChristmas';
@@ -62,6 +63,7 @@ export const themeRegistry: Record<string, ThemeEntry> = {
   'love':               { Page: Love,              Preview: LovePreview,   category: 'wedding',     label: 'Love' },
   'nature':             { Page: Nature,            Preview: NaturePreview, category: 'wedding',     label: 'Nature' },
   'wild-flores':        { Page: WildFlores,        Preview: WildFloresPreview, category: 'wedding', label: 'Wild Flowers' },
+  'forest':           { Page: Forest,            Preview: ForestPreview, category: 'wedding',     label: 'Forest' },
   'western':          { Page: Western,           Preview: WesternPreview, category: 'wedding',    label: 'Western' },
   'summit':             { Page: Summit,            Preview: SummitPreview, category: 'business',    label: 'Summit' },
   'alegria':            { Page: Alegria,           Preview: AlegriaPreview, category: 'birthdays',   label: 'Alegría' },

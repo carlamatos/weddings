@@ -54,7 +54,9 @@ export function Reveal({
       style={{
         ...style,
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translate(0, 0)' : from === 'right' ? 'translateX(16px)' : 'translateY(18px)',
+        // 'none' once shown, not a zero move: any transform would trap
+        // full-screen layers inside (the gallery's photo viewer).
+        transform: visible ? 'none' : from === 'right' ? 'translateX(16px)' : 'translateY(18px)',
         transition: `opacity 0.75s ease ${delayMs}ms, transform 0.75s ease ${delayMs}ms`,
       }}
     >

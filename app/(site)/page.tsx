@@ -295,6 +295,13 @@ export default async function Page() {
                     <p className="theme-desc">Linen and sage green with marigold and lilac, pressed wildflowers and pastel blooms that change shape — whimsical and joyful for meadow and garden weddings.</p>
                   </div>
                 </a>
+                <a href="/themes/forest" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
+                  <ThemePagePicture slug="forest" />
+                  <div className="theme-info">
+                    <p className="theme-name">Forest</p>
+                    <p className="theme-desc">Paper white and mist with sage, eucalyptus and forest green. Your photo beside a watercolour eucalyptus invitation and sunlight through the pines — soft and elegant for forest and garden weddings.</p>
+                  </div>
+                </a>
                 <a href="/themes/western" target="_blank" rel="noopener noreferrer" className="theme-card reveal delay-2" style={{ textDecoration: 'none' }}>
                   <ThemePagePicture slug="western" />
                   <div className="theme-info">
