@@ -1,5 +1,6 @@
 "use server"
 
+import { subscribeToNewsletter } from './newsletter';
 import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
@@ -352,6 +353,13 @@ function ensureOptionalEventDate(): Promise<unknown> {
     }
 
     revalidatePath(`/${slug}`);
+
+    // The newsletter checkbox (Google / Facebook / Apple sign-ups see it on
+    // their first page, not having had the sign-up form): only when ticked.
+    const accountEmail = session?.user?.email;
+    if (newPageId && formData.get('newsletter') === '1' && accountEmail) {
+      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+    }
 
     // Let the super admins know (never blocks or fails the request).
     if (newPageId) {
@@ -2326,6 +2334,11 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
     }
   }
 
+  // "Yes, I’d like to receive emails from MyGala": only when ticked (it
+  // starts unticked). Never blocks the sign-up.
+  if (newUserId && formData.get('newsletter') === '1') {
+    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+  }
   if (newUserId) await markSignUp('email');
   await rememberDashLang(lang);
   return { email, password };

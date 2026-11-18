@@ -60,7 +60,10 @@ const GOAL_TEXT_KEYS: Record<EventGoal, [string, string]> = {
   other: ['goalOther', 'goalOtherHint'],
 };
 
-export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null }) {
+// askNewsletter: the account hasn't been asked (a Google, Facebook or Apple
+// sign-up, on its first page) and isn't on the list: the newsletter checkbox,
+// unticked (CASL).
+export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null, askNewsletter = false }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null; askNewsletter?: boolean }) {
   const d = useDashText();
   const [eventName, setEventName] = useState('');
   const [eventDate, setEventDate] = useState('');
@@ -347,6 +350,13 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
           )}
           {state.errors?.slug && <p className="auth-field-error">{state.errors.slug[0]}</p>}
         </div>
+
+        {askNewsletter && (
+          <label className="auth-consent">
+            <input type="checkbox" name="newsletter" value="1" />
+            <span>{d.subscribeForm.newsletterOptIn}</span>
+          </label>
+        )}
 
         <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>
           {isPending ? d.subscribeForm.creating : forSecretSanta ? d.subscribeForm.createMySecretSanta : forInvitation ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />

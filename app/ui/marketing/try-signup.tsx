@@ -179,6 +179,12 @@ export function TrySignup({ choices, setupPath, heading, onBack }: {
           {(mismatch || state.errors?.confirmPassword) && <p className="auth-field-error" role="alert">Passwords don’t match.</p>}
         </div>
 
+        {/* Unticked until they tick it (CASL). */}
+        <label className="auth-consent">
+          <input type="checkbox" name="newsletter" value="1" />
+          <span>Yes, I’d like to receive emails from MyGala, including our newsletter and product updates</span>
+        </label>
+
         <button className="auth-btn" type="submit" disabled={busy}>
           {creating || state.ok ? 'Creating your page…' : isPending ? 'Creating your account…' : 'Create my account'} <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>

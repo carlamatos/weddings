@@ -433,3 +433,11 @@
 .setup-gift-option { align-items: flex-start; margin: 0 0 18px; }
 .setup-gift-option input { margin-top: 2px; }
 .setup-gift-option small { display: block; font-size: 12px; margin-top: 2px; }
+
+/* Newsletter consent on the sign-up and create-event forms: always
+   unticked until the person ticks it (CASL: express consent). */
+.auth-consent {
+  display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 18px;
+  font-size: 13px; line-height: 1.45; color: var(--ink-soft); cursor: pointer;
+}
+.auth-consent input { width: 16px; height: 16px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--rose); }
