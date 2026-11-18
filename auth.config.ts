@@ -27,6 +27,10 @@ const sharedSessionCookie = cookieDomain
 export const authConfig = {
   pages: {
     signIn: '/login',
+    // A failed social sign-in (an expired sign-in cookie, a reopened Google
+    // link) lands back on the login page with "please try again", not
+    // Auth.js's bare "Server error" page.
+    error: '/login',
   },
   ...(sharedSessionCookie ? { cookies: sharedSessionCookie } : {}),
   callbacks: {

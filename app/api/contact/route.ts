@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
+import { oneLineSubject } from '@/app/lib/mail';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 
 // The replies, in the form's language (English, or Spanish from /es/contacto).
@@ -53,7 +54,7 @@ export async function POST(req: Request) {
       to: 'info@mygala.ca',
       replyTo: email,
       // Messages from the Spanish page are marked, so they're answered in Spanish.
-      subject: `[${lang === 'es' ? 'Contact · Español' : 'Contact'}] ${subject?.trim() || `Message from ${name.trim()}`}`,
+      subject: oneLineSubject(`[${lang === 'es' ? 'Contact · Español' : 'Contact'}] ${subject?.trim() || `Message from ${name.trim()}`}`),
       html: `
         <div style="font-family: system-ui, sans-serif; max-width: 600px; color: #241F2B;">
           <h2 style="margin: 0 0 24px; font-size: 20px;">New contact form submission</h2>
