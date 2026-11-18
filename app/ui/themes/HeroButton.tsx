@@ -10,6 +10,9 @@ import { getTranslations } from '@/app/lib/translations';
 // becomes editable in place. On a Live Party page with the messages wall on,
 // the photos button's default (when the owner hasn't renamed it) is "Share a
 // photo or message", since guests can do both from the photo section.
+// giftExchangeInstead: the RSVP is hidden and the Gift Exchange is on, so the
+// RSVP button's place goes to "Gift Exchange" (linking to that section): the
+// owner's colours stay, their RSVP wording doesn't, and it isn't edited here.
 export default function HeroButton({
   id,
   href,
@@ -17,6 +20,7 @@ export default function HeroButton({
   label,
   heroStyle,
   editPageId,
+  giftExchangeInstead = false,
 }: {
   id: HeroButtonKey;
   href: string;
@@ -24,10 +28,14 @@ export default function HeroButton({
   label: string; // the theme's own label, used when the owner hasn't set one
   heroStyle?: HeroStyle;
   editPageId?: number;
+  giftExchangeInstead?: boolean;
 }) {
   const { messagesOn, language } = useLiveOptions();
   if (id === 'photos' && messagesOn) label = getTranslations(language).heroPhotosOrMessage;
   const custom = heroStyle?.buttons[id];
+  if (giftExchangeInstead) {
+    return <a href={href} className={className} style={heroButtonStyle(custom)}>{label}</a>;
+  }
   if (editPageId) {
     return <EditableHeroButton pageId={editPageId} id={id} href={href} className={className} defaultLabel={label} initial={custom} />;
   }

@@ -1,5 +1,6 @@
 "use server"
 
+import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
@@ -222,7 +223,8 @@ function ensureOptionalEventDate(): Promise<unknown> {
       event_time: (formData.get('eventTime') as string) || undefined,
       event_end_date: (formData.get('eventEndDate') as string) || undefined,
       event_end_time: (formData.get('eventEndTime') as string) || undefined,
-      event_type: formData.get('eventType'),
+      // "What are you planning?" decides the category when answered.
+      event_type: isEventGoal(formData.get('goal')) ? GOAL_RULES[formData.get('goal') as EventGoal].eventType : formData.get('eventType'),
       theme_slug: formData.get('themeSlug'),
       location: (formData.get('location') as string) || 'address',
       // The page's contact email starts as the account's; changed in the editor.
@@ -314,13 +316,32 @@ function ensureOptionalEventDate(): Promise<unknown> {
             (${newPageId}, 'show_in_search', 'false')
           ON CONFLICT (user_page_id, setting_name) DO NOTHING
         `;
-        // A Secret Santa (app/lib/start-intent.ts): the Gift Exchange starts on.
-        if (formData.get('next') === 'gift-exchange') {
+        // A Secret Santa (app/lib/start-intent.ts), or a Christmas party
+        // with "Add a Secret Santa" ticked: the Gift Exchange starts on.
+        if (formData.get('next') === 'gift-exchange' || formData.get('withGiftExchange') === '1') {
           await sql`
             INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
             VALUES (${newPageId}, 'show_gift_exchange', 'true')
             ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = 'true'
           `;
+        }
+        // "What are you planning?" (app/lib/event-goals.ts): kept on the
+        // page, the Gift Registry off where it doesn't fit, and a Secret
+        // Santa without a party has no RSVP (the banner's RSVP button
+        // becomes "Gift Exchange").
+        const goal = formData.get('goal');
+        if (isEventGoal(goal)) {
+          const rule = GOAL_RULES[goal];
+          const rows: [string, string][] = [[EVENT_GOAL_SETTING, goal]];
+          if (!rule.registry) rows.push(['show_registry', 'false']);
+          if (rule.giftDrawOnly) rows.push(['show_gift_exchange', 'true'], ['show_rsvp', 'false']);
+          for (const [name, value] of rows) {
+            await sql`
+              INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+              VALUES (${newPageId}, ${name}, ${value})
+              ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}
+            `;
+          }
         }
       }
     } catch (error) {
@@ -334,7 +355,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
 
     // Let the super admins know (never blocks or fails the request).
     if (newPageId) {
-      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free' });
+      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '' });
       await notifyAdminsOfNewPage(newPageId, prepaid ? 'Live Party (prepaid)' : wantsPlus ? 'Free — chose Live Party, sent to checkout' : 'Free');
     }
 

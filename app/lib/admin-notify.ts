@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { GOAL_ADMIN_LABELS } from './event-goals';
 import { sendMailBatch, wrap, button, escHtml } from './mail';
 import { siteUrl } from './site-url';
 
@@ -13,6 +14,7 @@ type NewPageRow = {
   heading: string | null;
   slug: string;
   event_type: string | null;
+  goal: string | null;
   event_date: string | null;
   event_time: string | null;
   location: string | null;
@@ -40,6 +42,7 @@ export function newPageAdminHtml(p: NewPageRow, plan: string): string {
     <strong>#${p.total_pages}</strong> on MyGala${p.owner_pages > 1 ? ` and their ${ordinal(p.owner_pages)} page` : ''}.</p>
     <table style="border-collapse: collapse; width: 100%; margin: 0 0 24px;">
       ${row('Event', escHtml(p.heading || '—'))}
+      ${row('Planning', p.goal ? escHtml(GOAL_ADMIN_LABELS[p.goal] ?? p.goal) : null)}
       ${row('Type', p.event_type ? escHtml(capitalize(p.event_type)) : null)}
       ${row('Date', when ? escHtml(when) : null)}
       ${row('Location', p.location ? escHtml(p.location) : null)}
@@ -68,7 +71,9 @@ export async function notifyAdminsOfNewPage(pageId: number | string, plan: strin
   if (!admins.length) return;
   try {
     const res = await sql<NewPageRow>`
-      SELECT up.heading, up.slug, up.event_type, up.event_date::text AS event_date, up.event_time::text AS event_time,
+      SELECT up.heading, up.slug, up.event_type,
+             (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = up.id AND s.setting_name = 'event_goal') AS goal,
+             up.event_date::text AS event_date, up.event_time::text AS event_time,
              COALESCE(NULLIF(up.formatted_address, ''), up.location) AS location, et.name AS theme_name,
              u.name AS owner_name, u.email AS owner_email, u.provider AS owner_provider, u.date::text AS owner_since,
              (SELECT COUNT(*)::int FROM user_page WHERE user_id = up.user_id) AS owner_pages,

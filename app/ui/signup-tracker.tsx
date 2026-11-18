@@ -28,7 +28,7 @@ function takeCookie(name: string): string | null {
 //   Tag Manager as 'mygala_signup' (a Custom Event trigger: gtag() calls
 //   don't fire those) for tags like Pinterest's;
 // - event_page_created: an event page was just created (markPageCreated left
-//   a cookie), with its event_type, theme and plan; also a Google Ads
+//   a cookie), with its event_type, theme, plan and event_goal; also a Google Ads
 //   conversion when one is configured, and 'mygala_event_page_created' for
 //   Tag Manager.
 export default function SignupTracker() {
@@ -61,10 +61,10 @@ export default function SignupTracker() {
 
   useEffect(() => {
     const method = takeCookie(SIGNUP_COOKIE);
-    let page: { eventType?: string; theme?: string; plan?: string } | null = null;
+    let page: { eventType?: string; theme?: string; plan?: string; goal?: string } | null = null;
     try { page = JSON.parse(takeCookie(PAGE_CREATED_COOKIE) ?? 'null'); } catch { page = null; }
     if (!method && !page) return;
-    const pageParams = page && { event_type: String(page.eventType ?? ''), theme: String(page.theme ?? ''), plan: String(page.plan ?? '') };
+    const pageParams = page && { event_type: String(page.eventType ?? ''), theme: String(page.theme ?? ''), plan: String(page.plan ?? ''), event_goal: String(page.goal ?? '') };
 
     // Queued for Tag Manager, which reads it whenever it loads (live site only).
     const w = window as Window & { dataLayer?: unknown[] };

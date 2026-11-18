@@ -11,11 +11,17 @@ import { clearStartIntent, readBrowsing, readStartIntent, type StartIntent } fro
 import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
 import { AuthDateInput } from './auth-date-input';
+import { EVENT_GOALS, GOAL_RULES, suggestedGoal, themeForGoal, type EventGoal } from '../lib/event-goals';
+import { THEME_CARDS } from '../lib/marketing/theme-cards';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
 import { rich } from '@/app/ui/dashboard/rich';
-// Create an event page on one screen, asking as little as possible: the
+// Create an event page in two short steps. First "What are you planning?"
+// (required, one tap: app/lib/event-goals.ts), which sets the starting theme
+// unless the host already chose one that suits, the sections the page starts
+// with and the checklist; a landing page's or browsed theme's event is
+// highlighted there. Then one screen asking as little as possible: the
 // event's name is the only required field. The theme starts chosen — the
 // landing page's (app/lib/start-intent.ts), else the theme page or landing
 // page the visitor last browsed, else that occasion's first theme, else
@@ -39,6 +45,20 @@ const DEFAULT_THEME = 'simple';
 // The short list without an occasion: the neutral theme, then one of each kind.
 const MIXED_THEMES = [DEFAULT_THEME, 'the-day', 'balloons', 'summit', 'community', 'christmas-party'];
 const SHORT_LIST = 6;
+const GOAL_ICONS: Record<EventGoal, string> = {
+  wedding: '💍', birthday: '🎂', 'baby-shower': '🍼', 'christmas-party': '🎄',
+  'secret-santa': '🎁', 'new-years': '🥂', business: '💼', other: '✨',
+};
+const GOAL_TEXT_KEYS: Record<EventGoal, [string, string]> = {
+  wedding: ['goalWedding', 'goalWeddingHint'],
+  birthday: ['goalBirthday', 'goalBirthdayHint'],
+  'baby-shower': ['goalBabyShower', 'goalBabyShowerHint'],
+  'christmas-party': ['goalChristmasParty', 'goalChristmasPartyHint'],
+  'secret-santa': ['goalSecretSanta', 'goalSecretSantaHint'],
+  'new-years': ['goalNewYears', 'goalNewYearsHint'],
+  business: ['goalBusiness', 'goalBusinessHint'],
+  other: ['goalOther', 'goalOtherHint'],
+};
 
 export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null }) {
   const d = useDashText();
@@ -51,6 +71,15 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const [forSecretSanta, setForSecretSanta] = useState(false);
   const [firstThemes, setFirstThemes] = useState<string[]>([]);
   const [changingSlug, setChangingSlug] = useState(false);
+  // "What are you planning?" (required): null until the host picks.
+  const [goal, setGoal] = useState<EventGoal | null>(null);
+  const [suggested, setSuggested] = useState<EventGoal | null>(null);
+  // A theme the host chose before (on a landing or theme page): kept when it suits the goal.
+  const [themeHint, setThemeHint] = useState<{ slug: string; category: string } | null>(null);
+  // Picked in the theme picker here: a later change of goal keeps it.
+  const [themeTouched, setThemeTouched] = useState(false);
+  // Christmas party: "Add a Secret Santa gift exchange".
+  const [withGift, setWithGift] = useState(false);
   // The previews only beside the form (wide screens). Phones and tablets would
   // show them under the Create button, mostly unseen, so they aren't rendered
   // there at all and their pictures and fonts don't load; the new page opens
@@ -81,10 +110,40 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     setThemeSlug(theme);
     // The short list: the chosen theme first, then the occasion's (or the mix).
     setFirstThemes([theme, ...list.filter((s) => s !== theme)]);
+    // What the host already chose, for "What are you planning?".
+    const explicit = [start?.theme, browsedTheme].find(known);
+    const hint = explicit ? { slug: explicit, category: themeCard(explicit)!.category } : null;
+    setThemeHint(hint);
+    setSuggested(suggestedGoal({ intent: start?.intent, occasion, theme: hint }));
     /* eslint-enable react-hooks/set-state-in-effect */
   }, [startFromAddress, d.subscribeForm.secretSantaName]);
   const chosenTheme = themeSlug ? themeCard(themeSlug) : undefined;
-  const eventType = themeRegistry[themeSlug]?.category ?? '';
+  const eventType = goal ? GOAL_RULES[goal].eventType : themeRegistry[themeSlug]?.category ?? '';
+  const goalText = (g: EventGoal) => {
+    const [name, hint] = GOAL_TEXT_KEYS[g];
+    const t = d.subscribeForm as Record<string, string>;
+    return { name: t[name], hint: t[hint] };
+  };
+  const chooseGoal = (g: EventGoal) => {
+    const rule = GOAL_RULES[g];
+    const theme = themeTouched ? themeSlug : themeForGoal(g, themeHint);
+    setGoal(g);
+    setThemeSlug(theme);
+    // The short list: the theme, then the others that suit this event.
+    const suits = rule.fits
+      ? THEME_CARDS.filter((c) => rule.fits!(c.slug, c.category)).map((c) => c.slug)
+      : MIXED_THEMES;
+    setFirstThemes([theme, ...suits.filter((s) => s !== theme)]);
+    const santaName = d.subscribeForm.secretSantaName;
+    if (rule.giftDrawOnly) {
+      setForSecretSanta(true);
+      if (!eventName.trim()) setEventName(santaName);
+    } else {
+      setForSecretSanta(false);
+      if (eventName === santaName) setEventName('');
+    }
+    window.scrollTo({ top: 0 });
+  };
   const [selectedSlug, setSelectedSlug] = useState<string>('');
   // Random suffixes for the unique-number addresses — set after mount only
   // to avoid an SSR/client mismatch.
@@ -149,8 +208,34 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const activeSlug = slugOptions.some((o) => o.value === selectedSlug) ? selectedSlug : slugOptions[0].value;
   const chooseTheme = (slug: string) => {
     setThemeSlug(slug);
+    setThemeTouched(true);
     setPicking(false);
   };
+
+  if (!goal) {
+    return (
+      <div className="auth-card setup-card--wide">
+        <h1 className="auth-heading">{d.subscribeForm.whatAreYouPlanning}</h1>
+        <p className="auth-subheading">{d.subscribeForm.pickOneWeLlSetUp}</p>
+        <ul className="setup-goals">
+          {EVENT_GOALS.map((g) => {
+            const { name, hint } = goalText(g);
+            return (
+              <li key={g}>
+                <button type="button" className={`setup-goal${suggested === g ? ' setup-goal--suggested' : ''}`} onClick={() => chooseGoal(g)}>
+                  <span className="setup-goal__icon" aria-hidden="true">{GOAL_ICONS[g]}</span>
+                  <span className="setup-goal__name">{name}</span>
+                  <span className="setup-goal__hint">{hint}</span>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    );
+  }
+
+  const giftExchangeOn = GOAL_RULES[goal].giftDrawOnly || (GOAL_RULES[goal].offersGiftExchange && withGift);
 
   return (
     <div className="auth-card setup-card--wide">
@@ -184,8 +269,17 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         <input type="hidden" name="plan" value="free" />
         <input type="hidden" name="location" value="address" />
         <input type="hidden" name="email" value={accountEmail} />
-        {forInvitation && <input type="hidden" name="next" value="invitations" />}
-        {forSecretSanta && <input type="hidden" name="next" value="gift-exchange" />}
+        <input type="hidden" name="goal" value={goal} />
+        {giftExchangeOn && <input type="hidden" name="withGiftExchange" value="1" />}
+        {giftExchangeOn
+          ? <input type="hidden" name="next" value="gift-exchange" />
+          : forInvitation && <input type="hidden" name="next" value="invitations" />}
+
+        {/* The answer to "What are you planning?", and going back to change it. */}
+        <div className="setup-slug-line setup-goal-line">
+          <span>{GOAL_ICONS[goal]} {rich(fill(d.subscribeForm.planning, { goal: goalText(goal).name }), { t0: (s) => <strong>{s}</strong> })}</span>
+          <button type="button" className="setup-slug-change" onClick={() => setGoal(null)}>{d.subscribeForm.change}</button>
+        </div>
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventName">{d.subscribeForm.eventName}</label>
@@ -206,6 +300,13 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
           </label>
           {state.errors?.event_date && <p className="auth-field-error">{state.errors.event_date[0]}</p>}
         </div>
+
+        {GOAL_RULES[goal].offersGiftExchange && (
+          <label className="setup-date-tbd setup-gift-option">
+            <input type="checkbox" checked={withGift} onChange={(e) => setWithGift(e.target.checked)} />
+            <span>{d.subscribeForm.addASecretSanta}<small>{d.subscribeForm.addASecretSantaHint}</small></span>
+          </label>
+        )}
 
         {/* Phones and tablets have no previews: the theme is named here instead. */}
         {chosenTheme && (
