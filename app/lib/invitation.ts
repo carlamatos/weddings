@@ -106,6 +106,7 @@ const THEME_PRESETS: Record<string, Preset> = {
   'nature': { bg: '#ECEEEE', textColor: '#2A231E', accentColor: '#2D4130', headingFont: 'parisienne', bodyFont: 'cormorant' },
   'western': { bg: '#F4EADB', textColor: '#2B1B12', accentColor: '#A4452B', headingFont: 'libre-baskerville', bodyFont: 'libre-baskerville' },
   'wild-flores': { bg: '#EEE3DD', textColor: '#3E3A2C', accentColor: '#BE7922', headingFont: 'playfair', bodyFont: 'lato' },
+  'forest': { bg: '#FEFEFE', textColor: '#2F3532', accentColor: '#5E7165', headingFont: 'playfair', bodyFont: 'lato' },
   'terracotta-harvest': { bg: '#F7F1E6', textColor: '#3D2B1F', accentColor: '#BC5A38', headingFont: 'playfair', bodyFont: 'lato' },
   'midnight-botanical': { bg: '#0F1F1A', textColor: '#E9E2CC', accentColor: '#C9A75D', headingFont: 'cormorant', bodyFont: 'cormorant' },
   'quiet-coastal': { bg: '#FFFFFF', textColor: '#3E4A45', accentColor: '#7D8F84', headingFont: 'cormorant', bodyFont: 'josefin' },
@@ -144,6 +145,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'love': { divider: 'wedding-heart', frame: 'wedding-pearls' }, // the same pearls as Quiet Coastal
   'nature': { divider: '', frame: '' }, // the watercolour greenery paper is decoration enough
   'wild-flores': { divider: 'wedding-vine', frame: '' },
+  'forest': { divider: 'wedding-vine', frame: '' },
   'western': { divider: 'wedding-diamond', frame: 'wedding-classic' }, // the rowel star and a double rule
   'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
   'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },

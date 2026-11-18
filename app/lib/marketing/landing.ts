@@ -328,6 +328,7 @@ export const WEDDING_LANDING_FR: LandingPage = {
     'the-day': 'Pivoines ivoire et bouquet blanc, verdure sauge et touches dorées. Intemporel et raffiné, pour les mariages classiques et élégants.',
     love: 'Rose poudré, rose et framboise, avec pêche et verts tendres. Calligraphie romantique et cœurs qui s’envolent, pour les mariages chaleureux.',
     nature: 'Noyer, chêne et vert feuille, à la lueur des chandelles. Feuilles qui tombent et lucioles, pour les mariages en forêt, en grange ou en plein air.',
+    forest: 'Blanc papier et brume, avec sauge, eucalyptus et vert forêt. Votre photo à côté d’un faire-part d’eucalyptus à l’aquarelle et le soleil entre les pins, doux et élégant pour les mariages en forêt et au jardin.',
     western: 'Cuir de selle, toile et rouille, avec un laiton doré. Des buttes au coucher du soleil, une affiche clouée et un juke-box, pour les mariages au ranch, en grange et dans l’Ouest.',
     'wild-flores': 'Lin et vert sauge, avec souci et lilas. Un cadre de fleurs sauvages et des fleurs pastel qui changent de forme, fantaisiste et joyeux, pour les mariages au jardin et dans les prés.',
     'terracotta-harvest': 'Rouille, ocre et lin. Heure dorée, terreux et intime, pour les mariages en plein air et au verger.',

@@ -48,8 +48,10 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
         ))}
       </div>
 
+      {/* Class names let a theme restyle the lightbox (Forest makes it light). */}
       {activeIndex !== null && (
         <div
+          className="gallery-lightbox"
           onClick={close}
           style={{
             position: 'fixed', inset: 0, zIndex: 1000,
@@ -58,13 +60,13 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
           }}
         >
           {/* Close */}
-          <button onClick={close} style={navBtnStyle({ top: 20, right: 20 })} title="Close">
+          <button className="gallery-lightbox-btn" onClick={close} style={navBtnStyle({ top: 20, right: 20 })} title="Close">
             <CloseIcon />
           </button>
 
           {/* Prev */}
           {images.length > 1 && (
-            <button onClick={(e) => { e.stopPropagation(); prev(); }} style={navBtnStyle({ left: 16, top: '50%', transform: 'translateY(-50%)' })} title="Previous">
+            <button className="gallery-lightbox-btn" onClick={(e) => { e.stopPropagation(); prev(); }} style={navBtnStyle({ left: 16, top: '50%', transform: 'translateY(-50%)' })} title="Previous">
               <ChevronIcon dir="left" />
             </button>
           )}
@@ -74,19 +76,20 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
           <img
             src={images[activeIndex].image_path}
             alt={images[activeIndex].image_name}
+            className="gallery-lightbox-img"
             onClick={(e) => e.stopPropagation()}
             style={{ maxWidth: '90vw', maxHeight: '88vh', objectFit: 'contain', borderRadius: 4, boxShadow: '0 8px 40px rgba(0,0,0,0.6)', userSelect: 'none' }}
           />
 
           {/* Next */}
           {images.length > 1 && (
-            <button onClick={(e) => { e.stopPropagation(); next(); }} style={navBtnStyle({ right: 16, top: '50%', transform: 'translateY(-50%)' })} title="Next">
+            <button className="gallery-lightbox-btn" onClick={(e) => { e.stopPropagation(); next(); }} style={navBtnStyle({ right: 16, top: '50%', transform: 'translateY(-50%)' })} title="Next">
               <ChevronIcon dir="right" />
             </button>
           )}
 
           {/* Counter */}
-          <div style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: 'system-ui', letterSpacing: 1 }}>
+          <div className="gallery-lightbox-count" style={{ position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)', color: 'rgba(255,255,255,0.5)', fontSize: 13, fontFamily: 'system-ui', letterSpacing: 1 }}>
             {activeIndex + 1} / {images.length}
           </div>
         </div>

@@ -87,6 +87,15 @@ export async function POST(request: Request) {
   `;
   await sql`UPDATE event_themes SET name = 'Wild Flowers' WHERE slug = 'wild-flores' AND name = 'Wild Flores'`;
 
+  // Forest theme (Weddings category, key 'wedding').
+  await sql`
+    INSERT INTO event_themes (name, description, slug)
+    SELECT 'Forest',
+           'Paper white and mist with sage, eucalyptus and a forest shadow green, set in Alex Brush, Cormorant and Montserrat. The couple''s photo beside an invitation hung with watercolour eucalyptus, watercolour blooms, the forest fixed behind the countdown, a white rose on the RSVP card and sunlight through the pines. For forest, garden and woodland weddings.',
+           'forest'
+    WHERE NOT EXISTS (SELECT 1 FROM event_themes WHERE slug = 'forest')
+  `;
+
   // Western theme (Weddings category, key 'wedding').
   await sql`
     INSERT INTO event_themes (name, description, slug)
