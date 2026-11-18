@@ -154,6 +154,7 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
   });
 
   const MAX_IMAGES = isPaid ? 100 : 8;
+  const removedRef = useRef(new Set<string>());
 
   const handleFiles = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -199,13 +200,21 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
 
         if (data.url) {
           setImages((prev) =>
-            prev.map((img) =>
-              img.id === tempId ? { ...img, id: `saved-${Date.now()}`, image_path: data.url! } : img
-            )
+            prev.map((img) => (img.id === tempId ? { ...img, image_path: data.url! } : img))
           );
-          startTransition(() =>
-            addGalleryImage(pageId, { imagePath: data.url!, imageName: file.name, imageType: 'image/webp' })
-          );
+          // Swap in the saved row's id, so deleting this photo before a reload
+          // works; if it was already removed while saving, delete it now.
+          const url = data.url;
+          startTransition(async () => {
+            const savedId = await addGalleryImage(pageId, { imagePath: url, imageName: file.name, imageType: 'image/webp' });
+            if (!savedId) return;
+            if (removedRef.current.has(tempId)) {
+              removedRef.current.delete(tempId);
+              await deleteGalleryImage(savedId);
+              return;
+            }
+            setImages((prev) => prev.map((img) => (img.id === tempId ? { ...img, id: savedId } : img)));
+          });
         } else {
           setImages((prev) => prev.filter((img) => img.id !== tempId));
           setError(data.error ?? 'Upload failed. Please try again.');
@@ -222,6 +231,8 @@ export function EditableGallery({ pageId, initialImages, isPaid }: { pageId: num
 
   const handleDelete = (imageId: string) => {
     setImages((prev) => prev.filter((img) => img.id !== imageId));
+    // Still saving: deleted once the save returns its id.
+    if (imageId.startsWith('temp-')) { removedRef.current.add(imageId); return; }
     startTransition(() => deleteGalleryImage(imageId));
   };
 

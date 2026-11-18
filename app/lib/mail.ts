@@ -9,6 +9,12 @@ const BRAND = {
   cream: '#F7F4F1',
 };
 
+// An email subject must be a single line (Resend rejects line breaks); event
+// names typed by hosts can contain them.
+export function oneLineSubject(subject: string): string {
+  return subject.replace(/\s+/g, ' ').trim().slice(0, 250);
+}
+
 // Shared with app/api/contact/route.ts's style, extracted so every
 // transactional email (verification, password reset, ...) looks the same.
 export async function sendMail({ to, subject, html }: { to: string; subject: string; html: string }): Promise<void> {
@@ -24,7 +30,7 @@ export async function sendMail({ to, subject, html }: { to: string; subject: str
   await resend.emails.send({
     from: 'MyGala <no-reply@mygala.ca>',
     to,
-    subject,
+    subject: oneLineSubject(subject),
     html,
   });
 }
@@ -54,7 +60,7 @@ export async function sendMailBatch(messages: MailMessage[]): Promise<void> {
   }
   const resend = new Resend(process.env.RESEND_API_KEY);
   for (let i = 0; i < messages.length; i += 100) {
-    const chunk = messages.slice(i, i + 100).map((m) => ({ from: 'MyGala <no-reply@mygala.ca>', ...m }));
+    const chunk = messages.slice(i, i + 100).map((m) => ({ from: 'MyGala <no-reply@mygala.ca>', ...m, subject: oneLineSubject(m.subject) }));
     const { error } = await resend.batch.send(chunk);
     if (error) throw new Error(`Resend batch failed: ${error.message}`);
   }

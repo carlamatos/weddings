@@ -1858,32 +1858,37 @@ export async function updateEventDateTime(pageId: number, data: {
   }
 }
 
-export async function addGalleryImage(pageId: number, data: { imagePath: string; imageName: string; imageType: string }) {
+// Returns the new row's id, so the editor can delete a photo added in the
+// same session (it shows the upload before this finishes).
+export async function addGalleryImage(pageId: number, data: { imagePath: string; imageName: string; imageType: string }): Promise<string | null> {
   const session = await auth();
   const userId = session?.user?.id;
   const pid = parsePageId(pageId);
-  if (!userId || pid === null) return;
+  if (!userId || pid === null) return null;
   try {
     const page = await sql`SELECT id, plan_type FROM user_page WHERE id = ${pid} AND user_id = ${userId}`;
     const ownedPageId = page.rows[0]?.id;
-    if (!ownedPageId) return;
+    if (!ownedPageId) return null;
     const maxImages = page.rows[0]?.plan_type === 'paid' ? 100 : 8;
     const count = await sql`SELECT COUNT(*) FROM event_gallery WHERE user_page_id = ${ownedPageId}`;
-    if (Number(count.rows[0].count) >= maxImages) return;
-    await sql`
+    if (Number(count.rows[0].count) >= maxImages) return null;
+    const inserted = await sql`
       INSERT INTO event_gallery (user_page_id, image_path, image_name, image_type)
       VALUES (${ownedPageId}, ${data.imagePath}, ${data.imageName}, ${data.imageType})
+      RETURNING id
     `;
     revalidatePath('/', 'layout');
+    return String(inserted.rows[0].id);
   } catch (error) {
     console.error('Failed to add gallery image:', error);
+    return null;
   }
 }
 
 export async function deleteGalleryImage(imageId: string) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return;
+  if (!userId || typeof imageId !== 'string' || !UUID_RE.test(imageId)) return;
   try {
     await sql`
       DELETE FROM event_gallery
