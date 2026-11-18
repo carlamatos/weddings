@@ -10,7 +10,7 @@ import '@/app/ui/auth.css';
 import { parseStartParams } from '@/app/lib/start-intent';
 import type { Metadata } from 'next';
 
-import { getDashText } from '@/app/lib/dash-text/server';
+import { getDashText, savedDashLang } from '@/app/lib/dash-text/server';
 import { fill } from '@/app/lib/dash-text/fill';
 export const metadata: Metadata = { title: 'Create an event page' };
 
@@ -31,6 +31,9 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     // The newsletter checkbox for social sign-ups (the email sign-up form
     // already asked), on their first page, unless they're on the list.
     const askNewsletter = await shouldAskNewsletter(userId, session?.user?.email, quota.count);
+    // The page's starting language: French or Spanish only when the host came
+    // from that sign-up page (or chose it for the dashboard), else English.
+    const language = await savedDashLang();
 
     return (
         <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
@@ -55,7 +58,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     </p>
                 </div>
             ) : (
-                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} askNewsletter={askNewsletter} />
+                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} askNewsletter={askNewsletter} language={language} />
             )}
         </div>
     );

@@ -290,15 +290,18 @@ function ensureOptionalEventDate(): Promise<unknown> {
       const plan_type = prepaid ? 'paid' : 'free';
       const plan_expires_at = planRow?.rows[0]?.plan_expires_at ?? null;
 
+      // The create form's "Language of your page" (English unless chosen).
+      const langField = formData.get('language');
+      const pageLanguage = langField === 'fr' || langField === 'es' ? langField : 'en';
       const inserted = await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address, venue_name, plan_type, plan_expires_at, status
+          place_id, formatted_address, venue_name, plan_type, plan_expires_at, status, language
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date ?? null}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}, ${pageLanguage}
         )
         RETURNING id
       `;

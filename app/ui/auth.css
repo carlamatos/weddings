@@ -441,3 +441,33 @@
   font-size: 13px; line-height: 1.45; color: var(--ink-soft); cursor: pointer;
 }
 .auth-consent input { width: 16px; height: 16px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--rose); }
+
+/* "Language of your page": three choices in one row. */
+.setup-lang__options { display: flex; gap: 6px; }
+.setup-lang__option {
+  position: relative; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 40px; padding: 8px 6px;
+  border: 1.5px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer;
+  font-size: 14px; font-weight: 500; color: var(--ink); text-align: center;
+}
+.setup-lang__option input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+.setup-lang__option--active { border-color: var(--rose); background: #FFF8F6; color: var(--rose-deep); font-weight: 600; }
+.setup-lang__option:has(input:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+/* Phones: the Create button above the fold. The intro sentence goes, and
+   the theme and page address (both already chosen, and easy to change
+   later) move below the button. */
+@media (max-width: 600px) {
+  .setup-form-sub { display: none; }
+  .setup-style__form { display: flex; flex-direction: column; }
+  .setup-style__form > .setup-theme-line,
+  .setup-style__form > .setup-address { order: 1; }
+  .setup-style__form > .setup-theme-line { margin-top: 22px; }
+  .setup-card--wide .auth-heading { font-size: 23px; margin-bottom: 14px; }
+  .setup-goal-line { flex-wrap: nowrap; align-items: center; padding: 10px 12px; font-size: 13px; }
+  .setup-goal-line > span { flex: 1; min-width: 0; }
+  .setup-gift-option small { display: none; }
+  .setup-style__form .auth-field { margin-bottom: 14px; }
+  .setup-style__form .setup-gift-option { margin-bottom: 14px; }
+  .setup-style__form .auth-consent { margin-bottom: 14px; font-size: 12.5px; }
+  .auth-card.setup-card--wide { padding-top: 22px; }
+}

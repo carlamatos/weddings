@@ -1,5 +1,7 @@
 "use client"
-import { useActionState, useState, useMemo, useEffect } from 'react';
+import { useActionState, useState, useMemo, useEffect, useRef, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { setDashLang } from '../lib/dash-text/actions';
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 
@@ -45,6 +47,9 @@ const DEFAULT_THEME = 'simple';
 // The short list without an occasion: the neutral theme, then one of each kind.
 const MIXED_THEMES = [DEFAULT_THEME, 'the-day', 'balloons', 'summit', 'community', 'christmas-party'];
 const SHORT_LIST = 6;
+// The page's language: each in its own words, so it reads the same in any dashboard language.
+type PageLanguage = 'en' | 'fr' | 'es';
+const PAGE_LANGUAGES: [PageLanguage, string][] = [['en', 'English'], ['fr', 'Français'], ['es', 'Español']];
 const GOAL_ICONS: Record<EventGoal, string> = {
   wedding: '💍', birthday: '🎂', 'baby-shower': '🍼', 'christmas-party': '🎄',
   'secret-santa': '🎁', 'new-years': '🥂', business: '💼', other: '✨',
@@ -63,9 +68,23 @@ const GOAL_TEXT_KEYS: Record<EventGoal, [string, string]> = {
 // askNewsletter: the account hasn't been asked (a Google, Facebook or Apple
 // sign-up, on its first page) and isn't on the list: the newsletter checkbox,
 // unticked (CASL).
-export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null, askNewsletter = false }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null; askNewsletter?: boolean }) {
+// language: the page's starting language — French or Spanish when the host
+// came from that sign-up page or chose it for the dashboard, else English.
+export default function Form({ prepaid = false, accountEmail = '', start: startFromAddress = null, askNewsletter = false, language: startLanguage = 'en' }: { prepaid?: boolean; accountEmail?: string; start?: StartIntent | null; askNewsletter?: boolean; language?: PageLanguage }) {
   const d = useDashText();
   const [eventName, setEventName] = useState('');
+  const [pageLanguage, setPageLanguage] = useState<PageLanguage>(startLanguage);
+  // Choosing the page's language switches the dashboard to it too (this
+  // form and the menus, at once; what's typed here stays).
+  const router = useRouter();
+  const [, startLangTransition] = useTransition();
+  const choosePageLanguage = (code: PageLanguage) => {
+    setPageLanguage(code);
+    startLangTransition(async () => {
+      await setDashLang(code);
+      router.refresh();
+    });
+  };
   const [eventDate, setEventDate] = useState('');
   const [noDate, setNoDate] = useState(false);
   const [themeSlug, setThemeSlug] = useState('');
@@ -96,7 +115,12 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     return () => query.removeEventListener('change', update);
   }, []);
   // The starting theme and the short list, after mount (browser storage).
+  // Once: switching the page's language refreshes the dashboard text, which
+  // mustn't reset what the host has chosen since.
+  const started = useRef(false);
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
     const start = startFromAddress ?? readStartIntent();
     const browsed = readBrowsing();
     const known = (slug?: string) => !!slug && !!themeRegistry[slug] && !!themeCard(slug);
@@ -243,7 +267,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   return (
     <div className="auth-card setup-card--wide">
       <h1 className="auth-heading">{forSecretSanta ? d.subscribeForm.createYourSecretSanta : forInvitation ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
-      <p className="auth-subheading">
+      <p className="auth-subheading setup-form-sub">
         {forSecretSanta ? d.subscribeForm.secretSantaLead : forInvitation
           ? d.subscribeForm.giveYourEventAName
           : <>{d.subscribeForm.giveYourEventAName2}</>}
@@ -284,6 +308,19 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
           <button type="button" className="setup-slug-change" onClick={() => setGoal(null)}>{d.subscribeForm.change}</button>
         </div>
 
+        {/* The page's language, in one row (the guests' words: RSVP, dates, buttons). */}
+        <div className="auth-field setup-lang">
+          <p className="auth-label" id="pageLanguageLabel">{d.subscribeForm.languageOfYourPage}</p>
+          <div className="setup-lang__options" role="radiogroup" aria-labelledby="pageLanguageLabel">
+            {PAGE_LANGUAGES.map(([code, name]) => (
+              <label key={code} className={`setup-lang__option${pageLanguage === code ? ' setup-lang__option--active' : ''}`} lang={code}>
+                <input type="radio" name="language" value={code} checked={pageLanguage === code} onChange={() => choosePageLanguage(code)} />
+                {name}
+              </label>
+            ))}
+          </div>
+        </div>
+
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventName">{d.subscribeForm.eventName}</label>
           <div className="auth-input-wrap">
@@ -296,7 +333,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventDate">{rich(d.subscribeForm.eventDateOptional, { t0: (s) => <span className="auth-label-optional">{s}</span> })}</label>
-          {!noDate && <AuthDateInput id="eventDate" name="eventDate" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />}
+          {!noDate && <AuthDateInput id="eventDate" name="eventDate" value={eventDate} placeholder={d.subscribeForm.chooseADate} onChange={(e) => setEventDate(e.target.value)} />}
           <label className="setup-date-tbd">
             <input type="checkbox" checked={noDate} onChange={(e) => setNoDate(e.target.checked)} />
             {d.subscribeForm.weHavenTPickedA}
@@ -320,7 +357,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         )}
 
         {/* Page address: the first free suggestion, or another one after "Change". */}
-        <div className="auth-field">
+        <div className="auth-field setup-address">
           <p className="auth-label">{d.subscribeForm.yourPageAddress}</p>
           <div className="setup-slug-line">
             <strong>mygala.ca/{activeSlug}</strong>

@@ -1426,6 +1426,8 @@ export const en = {
     addContactInfo: 'Add contact info',
   },
   subscribeForm: {
+    chooseADate: 'Choose a date',
+    languageOfYourPage: 'Language of your page',
     newsletterOptIn: 'Yes, I’d like to receive emails from MyGala, including our newsletter and product updates',
     whatAreYouPlanning: 'What are you planning?',
     pickOneWeLlSetUp: 'Pick one and we’ll set up your page to match. You can change everything later.',
