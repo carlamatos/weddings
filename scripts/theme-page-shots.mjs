@@ -7,10 +7,12 @@
 //
 //   npm run dev                       # the site on http://localhost:3000
 //   npm i --no-save playwright-core && npx playwright install chromium
-//   node scripts/theme-page-shots.mjs [--phone] [--es] [http://localhost:3000] [slug ...]
+//   node scripts/theme-page-shots.mjs [--phone] [--es | --fr] [http://localhost:3000] [slug ...]
 //
-// --es: the demo with MyGala's words in Spanish (/themes/<slug>?lang=es), for
-// the Spanish pages: public/images/theme-pages/es/[phone/]<slug>.webp.
+// --es / --fr: the demo with MyGala's words in Spanish or French
+// (/themes/<slug>?lang=es), for the Spanish pages and the create-event
+// form's preview when the page is in that language:
+// public/images/theme-pages/<es|fr>/[phone/]<slug>.webp.
 //
 // CHROMIUM_PATH picks another Chromium than Playwright's own.
 //
@@ -22,8 +24,8 @@ import { readFileSync } from 'node:fs';
 
 const args = process.argv.slice(2);
 const phone = args.includes('--phone');
-const es = args.includes('--es');
-const [base = 'http://localhost:3000', ...only] = args.filter((a) => a !== '--phone' && a !== '--es');
+const lang = args.includes('--es') ? 'es' : args.includes('--fr') ? 'fr' : null;
+const [base = 'http://localhost:3000', ...only] = args.filter((a) => a !== '--phone' && a !== '--es' && a !== '--fr');
 const cards = readFileSync(new URL('../app/lib/marketing/theme-cards.ts', import.meta.url), 'utf8');
 const slugs = only.length ? only : [...cards.matchAll(/\{ slug: '([a-z0-9-]+)'/g)].map((m) => m[1]);
 
@@ -32,7 +34,7 @@ const page = await browser.newPage(phone
   ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, reducedMotion: 'reduce' }
   : { viewport: { width: 1280, height: 860 }, reducedMotion: 'reduce' });
 for (const slug of slugs) {
-  await page.goto(`${base}/themes/${slug}${es ? '?lang=es' : ''}`, { waitUntil: 'networkidle', timeout: 180000 });
+  await page.goto(`${base}/themes/${slug}${lang ? `?lang=${lang}` : ''}`, { waitUntil: 'networkidle', timeout: 180000 });
   // Scroll through once so lazy images load.
   await page.evaluate(async () => {
     for (let y = 0; y < document.body.scrollHeight; y += 500) { scrollTo(0, y); await new Promise((r) => setTimeout(r, 120)); }
@@ -50,7 +52,7 @@ for (const slug of slugs) {
   await page.waitForLoadState('networkidle');
   await page.waitForTimeout(800);
   const png = await page.screenshot({ fullPage: true });
-  const out = `public/images/theme-pages/${es ? 'es/' : ''}${phone ? 'phone/' : ''}${slug}.webp`;
+  const out = `public/images/theme-pages/${lang ? `${lang}/` : ''}${phone ? 'phone/' : ''}${slug}.webp`;
   // WebP pictures can't be taller than 16383px: a very long page is made narrower.
   const { width: w = 1, height: h = 1 } = await sharp(png, { limitInputPixels: false }).metadata();
   const width = Math.min(phone ? 600 : 520, Math.floor((16383 * w) / h));
