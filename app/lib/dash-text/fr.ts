@@ -524,6 +524,13 @@ export const fr: DashText = {
     alreadyTakingPart: ' {skipped} participaient déjà.',
     alreadyGotTheirs: '\n\n{again} ont déjà reçu le leur et le recevront de nouveau.',
     noEmailSkipped: ' {skipped} n’ont pas de courriel — envoyez-leur un texto ou copiez leur lien.',
+    sendStepEmail: 'Touchez <t0>Écrire à tous</t0> pour envoyer un courriel aux {count} {v1} qui ont une adresse courriel.',
+    sendStepTextAll: 'Envoyez à chaque personne son lien privé avec <t0>Texto</t0> ou <t1>WhatsApp</t1>, à côté de son nom dans la liste ci-dessous — une personne à la fois.',
+    sendStepTextRest: 'Pour les autres, touchez <t0>Texto</t0> ou <t1>WhatsApp</t1> à côté de leur nom dans la liste ci-dessous — une personne à la fois.',
+    sendStepPhone: '<t0>Texto</t0> fonctionne mieux depuis votre téléphone. Sur un ordinateur, utilisez <t1>WhatsApp</t1>, ou <t2>Copier</t2> le message pour le coller où vous voulez.',
+    toldCount: '{told} sur {total} prévenus',
+    everyoneTold: '✓ Tout le monde a été prévenu',
+    noEmailNoReminders: ' Les {count} {v1} sans courriel ne recevront pas de rappel.',
   },
   guestListManager: {
     contact: 'Coordonnées',
