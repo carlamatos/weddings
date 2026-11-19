@@ -45,12 +45,15 @@ function ColorField({ id, text, value, onChange }: { id: string; text: string; v
 export function InvitationDesigner({
   pageId,
   themeSlug,
+  language,
   initial,
   details,
   editPageHref,
 }: {
   pageId: number;
   themeSlug: string | null;
+  // The page's language: "Reset" goes back to the starting wording in it.
+  language?: string | null;
   initial: InvitationDesign;
   details: InvitationDetails;
   editPageHref: string;
@@ -263,7 +266,7 @@ export function InvitationDesigner({
             {saving ? d.invitationDesigner.saving : d.invitationDesigner.saveInvitation}
           </button>
           <button type="button" style={btn} onClick={print}>{d.invitationDesigner.printSaveAsPdf}</button>
-          <button type="button" style={{ ...btn, border: 'none', background: 'transparent', color: '#6B6470', fontWeight: 500 }} onClick={() => { setDesign(defaultInvitation(themeSlug)); setMessage(null); }}>
+          <button type="button" style={{ ...btn, border: 'none', background: 'transparent', color: '#6B6470', fontWeight: 500 }} onClick={() => { setDesign(defaultInvitation(themeSlug, language)); setMessage(null); }}>
             {d.invitationDesigner.resetToThemeStyle}
           </button>
         </div>

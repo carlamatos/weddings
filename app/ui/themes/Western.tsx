@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -332,7 +333,6 @@ function formatDate(dateStr: string, city?: string, country?: string, locale = '
   return loc ? `${formatted} · ${loc}` : formatted;
 }
 
-const HERO_EYEBROW_DEFAULT = { en: 'Together with their families', fr: 'Avec leurs familles', es: 'Junto a sus familias' };
 // The theme's own section titles, used until the host writes their own.
 const TITLES = {
   story: { en: 'How the trail led here', fr: 'Le chemin jusqu’ici', es: 'El camino hasta aquí' },
@@ -495,7 +495,7 @@ export default function Western({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-veil" />
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('western', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}><Names heading={heading} /></h1>}
           <StarRule className="on-dark" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}><time dateTime={eventDate}>{heroDateText}</time></p>)}

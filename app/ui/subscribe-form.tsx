@@ -407,7 +407,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
 
       {chosenTheme && wide && (
         <div className="setup-style__previews">
-          <StylePreviews themeSlug={chosenTheme.slug} eventName={eventName} eventDate={noDate ? '' : eventDate} />
+          <StylePreviews themeSlug={chosenTheme.slug} eventName={eventName} eventDate={noDate ? '' : eventDate} language={pageLanguage} />
           <div className="setup-chosen-theme__row setup-style__theme">
             <span>
               <strong>{chosenTheme.name}</strong>

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { isDefaultHeroEyebrow } from '@/app/ui/themes/hero-eyebrow';
 import { areGuestMessagesOn } from '@/app/lib/guest-messages';
 import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import type { Metadata } from 'next';
@@ -212,7 +213,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         userPhone={data.user_phone || undefined}
         mapsKey={mapsKey}
         {...registryProps(data, isPaid, pageSettings)}
-        heroEyebrow={data.hero_eyebrow}
+        heroEyebrow={isDefaultHeroEyebrow(data.theme_slug, data.hero_eyebrow) ? undefined : data.hero_eyebrow}
         venueName={data.venue_name}
         language={data.language}
         galleryImages={galleryImages}

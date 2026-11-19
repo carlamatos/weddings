@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { ThemeProps, ThemePreviewProps } from './types';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -291,7 +292,7 @@ export default function TerracottaHarvest({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-overlay" />
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || 'Together with their families'}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('terracotta-harvest', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           <div className="hero-rule" />
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}

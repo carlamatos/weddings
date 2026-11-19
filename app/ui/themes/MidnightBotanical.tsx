@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import { HERO_DEFAULTS } from './hero-defaults';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -260,7 +261,7 @@ export default function MidnightBotanical({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
           <div className="hero-frame">
-            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || 'Save the date'}</p>}
+            {editSlots?.heroEyebrow ?? <p className="eyebrow on-dark hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('midnight-botanical', language)}</p>}
             {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
             <div className="hero-rule" />
             {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}

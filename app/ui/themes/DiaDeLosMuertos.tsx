@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -455,7 +456,6 @@ const OVERRIDES = {
   },
 } satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
 
-const HERO_EYEBROW_DEFAULT = { en: 'Celebrate with us', fr: 'Célébrez avec nous', es: 'Celebra con nosotros' };
 
 export default function DiaDeLosMuertos({
   heading,
@@ -563,7 +563,7 @@ export default function DiaDeLosMuertos({
         )}
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('dia-de-los-muertos', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDateText}</p>)}
           <div className="hero-actions">

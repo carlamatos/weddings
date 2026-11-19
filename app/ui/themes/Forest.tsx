@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -507,7 +508,6 @@ const css = `
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
 
-const HERO_EYEBROW_DEFAULT = { en: 'We can’t wait to celebrate with you', fr: 'Nous avons hâte de célébrer avec vous', es: 'Estamos deseando celebrarlo con ustedes' };
 const SAVE_THE_DATE = { en: 'Save the date', fr: 'Réservez la date', es: 'Reserva la fecha' };
 const VIEW_DETAILS = { en: 'View details', fr: 'Voir les détails', es: 'Ver los detalles' };
 
@@ -633,7 +633,7 @@ export default function Forest({
           <div className="hero-shade" />
           <div className="hero-names">
             {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
-            {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+            {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('forest', language)}</p>}
           </div>
         </div>
 

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { ThemeProps, ThemePreviewProps } from './types';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
@@ -295,7 +296,6 @@ const OVERRIDES = {
   },
 } satisfies Record<'en' | 'fr' | 'es', Partial<Translations>>;
 
-const HERO_EYEBROW_DEFAULT = { en: "It's party time", fr: "C'est l'heure de la fête", es: 'Es hora de la fiesta' };
 
 export default function Balloons({
   heading,
@@ -406,7 +406,7 @@ export default function Balloons({
         <img className="hero-balloons" src="/images/themes/balloons/hero-balloons.png" alt="" />
         <div className="hero-content">
           <Confetti style={{ justifyContent: 'center', display: 'flex' }} />
-          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroEyebrow ?? <p className="eyebrow hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('balloons', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDateText}</p>)}
           <div className="hero-actions">

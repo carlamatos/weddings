@@ -1069,7 +1069,7 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
     ok: true,
     value: {
       page,
-      design: normalizeInvitation(saved, page.theme_slug),
+      design: normalizeInvitation(saved, page.theme_slug, page.language),
       hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
       hostEmail,
       details: invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')),
