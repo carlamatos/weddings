@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { isDefaultHeroEyebrow } from '@/app/ui/themes/hero-eyebrow';
 import { notFound } from 'next/navigation';
 import { auth } from '@/auth';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
@@ -44,5 +45,7 @@ export default async function ThemePreviewPage({ params, searchParams }: {
   if (!demo || !themeRegistry[slug]) notFound();
   const session = await auth();
   const language = lang === 'es' || lang === 'fr' ? lang : demo.language;
-  return <ThemeRenderer themeSlug={slug} {...demo} language={language} demo isLoggedIn={!!session?.user} />;
+  // The sample's top line is the theme's own, so it follows ?lang too.
+  const heroEyebrow = isDefaultHeroEyebrow(slug, demo.heroEyebrow) ? undefined : demo.heroEyebrow;
+  return <ThemeRenderer themeSlug={slug} {...demo} heroEyebrow={heroEyebrow} language={language} demo isLoggedIn={!!session?.user} />;
 }

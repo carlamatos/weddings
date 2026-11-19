@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -563,7 +564,6 @@ const OVERRIDES = {
 
 // The footer's toast.
 const SIGNOFF = { en: 'Here’s to a night to remember!', fr: 'À une soirée inoubliable !', es: '¡Por una noche inolvidable!' };
-const HERO_EYEBROW_DEFAULT = { en: "You're invited", fr: 'Vous êtes invités', es: 'Estás invitado' };
 const HERO_ALT = { en: 'A glowing tree spiralling up through falling snow', fr: 'Un sapin lumineux qui s’élève en spirale sous la neige', es: 'Un árbol luminoso que sube en espiral bajo la nieve' };
 const STORY_ALT = { en: 'A champagne bottle popping with streamers and confetti', fr: 'Une bouteille de champagne qui éclate en serpentins et confettis', es: 'Una botella de champán que estalla en serpentinas y confeti' };
 
@@ -702,12 +702,12 @@ export default function Fireworks({
         <Bursts />
         <div className="hero-inner">
           <div className="hero-star"><Burst size={34} className="fw-twinkle" /></div>
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('fireworks', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           <span className="hero-line" aria-hidden="true" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}><time dateTime={eventDate}>{heroDateText}</time></p>)}
           <div className="hero-actions">
-            {showRsvp !== false && <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {(showRsvp !== false || giftExchange) && <HeroButton id="rsvp" href={showRsvp !== false ? '#rsvp' : '#gift-exchange'} className="btn" label={showRsvp !== false ? t.rsvpBtn : t.giftLabel} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} giftExchangeInstead={showRsvp === false} />}
             {(description || editSlots?.description) && <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>

@@ -38,7 +38,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
 
   let saved: unknown = null;
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
-  const design = normalizeInvitation(saved, page.theme_slug);
+  const design = normalizeInvitation(saved, page.theme_slug, page.language);
 
   const pagePassword = invitationPassword(settings, true);
   const details = invitationDetails(page, pagePassword.password, isSectionOn(settings, 'show_rsvp'));
@@ -97,6 +97,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
       <InvitationDesigner
         pageId={pageId}
         themeSlug={page.theme_slug ?? null}
+        language={page.language}
         initial={design}
         details={details}
         editPageHref={pagePath(pageId)}

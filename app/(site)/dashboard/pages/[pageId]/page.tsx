@@ -1,4 +1,5 @@
 import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
+import { heroEyebrowDefault, isDefaultHeroEyebrow } from '@/app/ui/themes/hero-eyebrow';
 import { areGuestMessagesOn } from '@/app/lib/guest-messages';
 import { isRsvpSongOn } from '@/app/lib/rsvp-song';
 import { requireOwnedPage } from '@/app/lib/dashboard';
@@ -77,24 +78,10 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
       })()
     : '';
 
-  const themeEyebrowDefault =
-    userPage.theme_slug === 'midnight-botanical'
-      ? 'Save the date'
-      : userPage.theme_slug === 'antique-cars'
-      ? 'Antique & Classic'
-      : userPage.theme_slug === 'baby-shower-girl'
-      ? "It's a girl!"
-      : userPage.theme_slug === 'baby-shower-neutral'
-      ? 'Baby on the way!'
-      : userPage.theme_slug === 'baby-shower-boy'
-      ? "It's a boy!"
-      : userPage.theme_slug === 'christmas-party' || userPage.theme_slug === 'white-christmas' || userPage.theme_slug === 'merry' || userPage.theme_slug === 'gnomes' || userPage.theme_slug === 'simple'
-      ? "You're invited"
-      : userPage.theme_slug === 'dia-de-los-muertos'
-      ? 'Celebrate with us'
-      : userPage.theme_slug === 'halloween-party'
-      ? 'You’re invited… if you dare'
-      : 'Together with their families';
+  // The banner's top line: the host's own, or the theme's in the page's
+  // language (a saved copy of a theme default counts as not written).
+  const ownEyebrow = isDefaultHeroEyebrow(userPage.theme_slug, userPage.hero_eyebrow) ? '' : userPage.hero_eyebrow || '';
+  const themeEyebrowDefault = heroEyebrowDefault(userPage.theme_slug, userPage.language);
 
   const themeEyebrowClass =
     userPage.theme_slug === 'midnight-botanical'
@@ -143,7 +130,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
     heroEyebrow: (
       <EditableHeroEyebrow
         pageId={pageId}
-        value={userPage.hero_eyebrow || themeEyebrowDefault}
+        value={ownEyebrow || themeEyebrowDefault}
         className={themeEyebrowClass}
         initialColor={heroStyle.text.eyebrow}
       />
@@ -217,7 +204,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         galleryToken={signPageId(pageId)}
         {...registryProps(userPage, isPaid, pageSettings)}
         galleryImages={galleryImages}
-        heroEyebrow={userPage.hero_eyebrow || undefined}
+        heroEyebrow={ownEyebrow || undefined}
         venueName={userPage.venue_name || undefined}
         language={userPage.language || 'en'}
         isPaid={isPaid}

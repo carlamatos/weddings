@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -437,12 +438,12 @@ export default function Simple({
         {!editSlots?.heroBg && <HeroOverlay overlay={heroOverlay} />}
         {hasPhoto && <div className="hero-veil" />}
         <div className="hero-content">
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || word('eyebrow')}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('simple', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           <Rule />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}><time dateTime={eventDate}>{heroDateText}</time></p>)}
           <div className="hero-actions">
-            {showRsvp !== false && <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {(showRsvp !== false || giftExchange) && <HeroButton id="rsvp" href={showRsvp !== false ? '#rsvp' : '#gift-exchange'} className="btn" label={showRsvp !== false ? t.rsvpBtn : t.giftLabel} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} giftExchangeInstead={showRsvp === false} />}
             {hasStory && <HeroButton id="story" href="#story" className="btn btn-outline" label={word('details')} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {hasPhotos && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>

@@ -1,5 +1,7 @@
 "use server"
 
+import { subscribeToNewsletter } from './newsletter';
+import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
@@ -222,7 +224,8 @@ function ensureOptionalEventDate(): Promise<unknown> {
       event_time: (formData.get('eventTime') as string) || undefined,
       event_end_date: (formData.get('eventEndDate') as string) || undefined,
       event_end_time: (formData.get('eventEndTime') as string) || undefined,
-      event_type: formData.get('eventType'),
+      // "What are you planning?" decides the category when answered.
+      event_type: isEventGoal(formData.get('goal')) ? GOAL_RULES[formData.get('goal') as EventGoal].eventType : formData.get('eventType'),
       theme_slug: formData.get('themeSlug'),
       location: (formData.get('location') as string) || 'address',
       // The page's contact email starts as the account's; changed in the editor.
@@ -287,15 +290,18 @@ function ensureOptionalEventDate(): Promise<unknown> {
       const plan_type = prepaid ? 'paid' : 'free';
       const plan_expires_at = planRow?.rows[0]?.plan_expires_at ?? null;
 
+      // The create form's "Language of your page" (English unless chosen).
+      const langField = formData.get('language');
+      const pageLanguage = langField === 'fr' || langField === 'es' ? langField : 'en';
       const inserted = await sql`
         INSERT INTO user_page (
           user_id, heading, main_content, description, event_date, event_time, event_end_date, event_end_time, event_type, theme_id,
           location, user_email, user_phone, slug, url, street_address, unit_number, postal_code, city, country,
-          place_id, formatted_address, venue_name, plan_type, plan_expires_at, status
+          place_id, formatted_address, venue_name, plan_type, plan_expires_at, status, language
         ) VALUES (
           ${user_id}, ${event_name}, ${description}, ${description}, ${event_date ?? null}, ${event_time ?? null}, ${event_end_date ?? null}, ${event_end_time ?? null}, ${event_type}, ${theme_id},
           ${location}, ${email}, ${user_phone}, ${slug}, ${url}, ${street_address}, ${unit_number}, ${postal_code}, ${city}, ${country},
-          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}
+          ${place_id ?? null}, ${formatted_address ?? null}, ${venue_name}, ${plan_type}, ${plan_expires_at}, ${verified ? 'active' : 'draft'}, ${pageLanguage}
         )
         RETURNING id
       `;
@@ -314,13 +320,32 @@ function ensureOptionalEventDate(): Promise<unknown> {
             (${newPageId}, 'show_in_search', 'false')
           ON CONFLICT (user_page_id, setting_name) DO NOTHING
         `;
-        // A Secret Santa (app/lib/start-intent.ts): the Gift Exchange starts on.
-        if (formData.get('next') === 'gift-exchange') {
+        // A Secret Santa (app/lib/start-intent.ts), or a Christmas party
+        // with "Add a Secret Santa" ticked: the Gift Exchange starts on.
+        if (formData.get('next') === 'gift-exchange' || formData.get('withGiftExchange') === '1') {
           await sql`
             INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
             VALUES (${newPageId}, 'show_gift_exchange', 'true')
             ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = 'true'
           `;
+        }
+        // "What are you planning?" (app/lib/event-goals.ts): kept on the
+        // page, the Gift Registry off where it doesn't fit, and a Secret
+        // Santa without a party has no RSVP (the banner's RSVP button
+        // becomes "Gift Exchange").
+        const goal = formData.get('goal');
+        if (isEventGoal(goal)) {
+          const rule = GOAL_RULES[goal];
+          const rows: [string, string][] = [[EVENT_GOAL_SETTING, goal]];
+          if (!rule.registry) rows.push(['show_registry', 'false']);
+          if (rule.giftDrawOnly) rows.push(['show_gift_exchange', 'true'], ['show_rsvp', 'false']);
+          for (const [name, value] of rows) {
+            await sql`
+              INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+              VALUES (${newPageId}, ${name}, ${value})
+              ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = ${value}
+            `;
+          }
         }
       }
     } catch (error) {
@@ -332,9 +357,16 @@ function ensureOptionalEventDate(): Promise<unknown> {
 
     revalidatePath(`/${slug}`);
 
+    // The newsletter checkbox (Google / Facebook / Apple sign-ups see it on
+    // their first page, not having had the sign-up form): only when ticked.
+    const accountEmail = session?.user?.email;
+    if (newPageId && formData.get('newsletter') === '1' && accountEmail) {
+      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+    }
+
     // Let the super admins know (never blocks or fails the request).
     if (newPageId) {
-      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free' });
+      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '' });
       await notifyAdminsOfNewPage(newPageId, prepaid ? 'Live Party (prepaid)' : wantsPlus ? 'Free — chose Live Party, sent to checkout' : 'Free');
     }
 
@@ -1037,7 +1069,7 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
     ok: true,
     value: {
       page,
-      design: normalizeInvitation(saved, page.theme_slug),
+      design: normalizeInvitation(saved, page.theme_slug, page.language),
       hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
       hostEmail,
       details: invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')),
@@ -2305,6 +2337,11 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
     }
   }
 
+  // "Yes, I’d like to receive emails from MyGala": only when ticked (it
+  // starts unticked). Never blocks the sign-up.
+  if (newUserId && formData.get('newsletter') === '1') {
+    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+  }
   if (newUserId) await markSignUp('email');
   await rememberDashLang(lang);
   return { email, password };

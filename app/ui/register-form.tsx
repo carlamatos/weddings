@@ -34,6 +34,7 @@ const TEXT = {
     submit: 'Create my free account',
     haveAccount: 'Already have an account?',
     login: 'Log in',
+    newsletter: 'Yes, I’d like to receive emails from MyGala, including our newsletter and product updates',
   },
   fr: {
     heading: 'Créez votre page gratuite',
@@ -50,6 +51,7 @@ const TEXT = {
     submit: 'Créer mon compte gratuit',
     haveAccount: 'Vous avez déjà un compte?',
     login: 'Se connecter',
+    newsletter: 'Oui, je souhaite recevoir des courriels de MyGala, dont l’infolettre et les nouveautés du produit',
   },
   es: {
     heading: 'Crea tu página gratis',
@@ -66,6 +68,7 @@ const TEXT = {
     submit: 'Crear mi cuenta gratis',
     haveAccount: '¿Ya tienes una cuenta?',
     login: 'Inicia sesión',
+    newsletter: 'Sí, quiero recibir correos de MyGala, incluido el boletín y las novedades del producto',
   },
 } as const;
 
@@ -179,6 +182,12 @@ export default function RegisterForm({ lang = 'en', start = null, plan = null }:
           </div>
           {confirmError && <p className="auth-field-error" id="confirmPassword-error" role="alert">{confirmError}</p>}
         </div>
+
+        {/* Unticked until they tick it (CASL). */}
+        <label className="auth-consent">
+          <input type="checkbox" name="newsletter" value="1" />
+          <span>{t.newsletter}</span>
+        </label>
 
         <button className="auth-btn" type="submit" disabled={isPending}>
           {t.submit} <ArrowRightIcon style={{ width: 16, height: 16 }} />

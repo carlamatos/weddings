@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { auth } from '@/auth';
 import { fetchPageQuota, hasPrepaidPlus } from '@/app/lib/data';
+import { sql } from '@vercel/postgres';
+import { isNewsletterSubscriber } from '@/app/lib/newsletter';
 import SubscribeForm from "@/app/ui/subscribe-form";
 import ResendVerificationButton from '@/app/ui/dashboard/resend-verification-button';
 import { greatVibes } from '@/app/ui/fonts';
@@ -8,7 +10,7 @@ import '@/app/ui/auth.css';
 import { parseStartParams } from '@/app/lib/start-intent';
 import type { Metadata } from 'next';
 
-import { getDashText } from '@/app/lib/dash-text/server';
+import { getDashText, savedDashLang } from '@/app/lib/dash-text/server';
 import { fill } from '@/app/lib/dash-text/fill';
 export const metadata: Metadata = { title: 'Create an event page' };
 
@@ -26,6 +28,12 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
     const [quota, prepaid] = userId
         ? await Promise.all([fetchPageQuota(userId), hasPrepaidPlus(userId)])
         : [{ count: 0, limit: 1 }, false];
+    // The newsletter checkbox for social sign-ups (the email sign-up form
+    // already asked), on their first page, unless they're on the list.
+    const askNewsletter = await shouldAskNewsletter(userId, session?.user?.email, quota.count);
+    // The page's starting language: French or Spanish only when the host came
+    // from that sign-up page (or chose it for the dashboard), else English.
+    const language = await savedDashLang();
 
     return (
         <div className={greatVibes.variable} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', paddingTop: '16px', paddingBottom: '48px' }}>
@@ -50,8 +58,20 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ s
                     </p>
                 </div>
             ) : (
-                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} />
+                <SubscribeForm start={start} prepaid={prepaid} accountEmail={session?.user?.email ?? ''} askNewsletter={askNewsletter} language={language} />
             )}
         </div>
     );
+}
+
+async function shouldAskNewsletter(userId: string | undefined, email: string | null | undefined, pages: number): Promise<boolean> {
+    if (!userId || !email || pages > 0) return false;
+    try {
+        const r = await sql<{ provider: string | null }>`SELECT provider FROM users WHERE id = ${userId}`;
+        const provider = r.rows[0]?.provider;
+        if (!provider || provider === 'credentials') return false;
+        return !(await isNewsletterSubscriber(email.trim().toLowerCase()));
+    } catch {
+        return false;
+    }
 }

@@ -102,7 +102,7 @@ export function TryInvitation({ initialTheme, isLoggedIn, occasion, text }: {
 
             <div className="auth-field">
               <label className="auth-label" htmlFor="tryEventDate">{text.dateLabel ?? 'Event date'}</label>
-              <AuthDateInput id="tryEventDate" value={eventDate}
+              <AuthDateInput id="tryEventDate" future value={eventDate}
                 onChange={(e) => { setEventDate(e.target.value); setMissing((m) => ({ ...m, date: false })); }} aria-invalid={missing.date || undefined} />
               {missing.date && <p className="auth-field-error" role="alert">Please add the date to save it.</p>}
             </div>

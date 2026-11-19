@@ -15,14 +15,23 @@ import { themeCard } from './theme-picker';
 // with this name and date (app/(frame)/theme-preview) instead of its
 // picture. websiteFirst: the website before the invitation. rsvp: the RSVP
 // form guests fill in, in place of the invitation (the party try page).
-export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = false, websiteFirst = false, rsvp = false }: {
-  themeSlug: string; eventName: string; eventDate: string; nameAs?: 'h2' | 'p'; live?: boolean; websiteFirst?: boolean; rsvp?: boolean;
+// language: the page's language (the create-event form's choice) for the
+// captions, the invitation's wording and the date.
+const CAPTIONS = {
+  en: { rsvp: 'Your RSVP form', invitation: 'Your invitation', website: 'Your website', event: 'Your event', locale: 'en-US' },
+  fr: { rsvp: 'Votre formulaire RSVP', invitation: 'Votre invitation', website: 'Votre site web', event: 'Votre événement', locale: 'fr-CA' },
+  es: { rsvp: 'Tu formulario de RSVP', invitation: 'Tu invitación', website: 'Tu sitio web', event: 'Tu evento', locale: 'es-ES' },
+} as const;
+
+export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = false, websiteFirst = false, rsvp = false, language = 'en' }: {
+  themeSlug: string; eventName: string; eventDate: string; nameAs?: 'h2' | 'p'; live?: boolean; websiteFirst?: boolean; rsvp?: boolean; language?: string;
 }) {
-  const design = defaultInvitation(themeSlug);
+  const words = CAPTIONS[language === 'fr' || language === 'es' ? language : 'en'];
+  const design = defaultInvitation(themeSlug, language);
   const card = themeCard(themeSlug);
   const details = {
-    name: eventName.trim() || card?.sample.heading || 'Your event',
-    date: eventWhen({ eventDate: eventDate || card?.sample.eventDate }, 'en-US').date,
+    name: eventName.trim() || card?.sample.heading || words.event,
+    date: eventWhen({ eventDate: eventDate || card?.sample.eventDate }, words.locale).date,
     time: '',
     venue: '',
     address: '',
@@ -30,27 +39,33 @@ export function StylePreviews({ themeSlug, eventName, eventDate, nameAs, live = 
   };
   const invitation = rsvp ? (
     <figure className="setup-preview setup-preview--invitation setup-preview--rsvp" key="invitation">
-      <figcaption>Your RSVP form</figcaption>
+      <figcaption>{words.rsvp}</figcaption>
       <div role="img" aria-label={`The RSVP form on your website: ${details.name}`}>
         <RsvpPreview design={design} name={details.name} date={details.date} />
       </div>
     </figure>
   ) : (
     <figure className="setup-preview setup-preview--invitation" key="invitation">
-      <figcaption>Your invitation</figcaption>
+      <figcaption>{words.invitation}</figcaption>
       <InvitationCard design={{ ...design, showQr: false }} details={details} nameAs={nameAs} />
     </figure>
   );
   const website = (
     <figure className="setup-preview setup-preview--website" key="website">
-      <figcaption>Your website</figcaption>
+      <figcaption>{words.website}</figcaption>
       {live ? (
         <LiveWebsite themeSlug={themeSlug} eventName={eventName} eventDate={eventDate} label={`${card?.name ?? 'Theme'}: your website`} />
       ) : (
         <div className="setup-phone">
           <div className="setup-phone__screen" tabIndex={0} aria-label={`${card?.name ?? 'Theme'}: picture of the whole page`}>
+            {/* In the page's language (scripts/theme-page-shots.mjs --fr / --es); the English picture if that one is missing. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={`/images/theme-pages/${themeSlug}.webp`} alt={`The ${card?.name ?? ''} theme, the whole page`} width={520} decoding="async" />
+            <img
+              key={`${themeSlug}-${language}`}
+              src={`/images/theme-pages/${language === 'fr' || language === 'es' ? `${language}/` : ''}${themeSlug}.webp`}
+              onError={(e) => { const en = `/images/theme-pages/${themeSlug}.webp`; if (!e.currentTarget.src.endsWith(en)) e.currentTarget.src = en; }}
+              alt={`The ${card?.name ?? ''} theme, the whole page`} width={520} decoding="async"
+            />
           </div>
           <span className="setup-phone__hint" aria-hidden="true" />
         </div>

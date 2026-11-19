@@ -178,15 +178,23 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'dia-de-los-muertos': { divider: 'birthday-papel', frame: '' },
 };
 
-export function defaultInvitation(themeSlug?: string | null): InvitationDesign {
+// The starting wording, in the page's language.
+const INVITATION_WORDS = {
+  en: { eyebrow: 'You’re invited to', message: 'We would love for you to join us.\nPlease RSVP on our event page.', closing: 'We can’t wait to celebrate with you!' },
+  fr: { eyebrow: 'Vous êtes invités à', message: 'Nous serions ravis de vous compter parmi nous.\nVeuillez répondre sur notre page d’événement.', closing: 'Nous avons hâte de célébrer avec vous !' },
+  es: { eyebrow: 'Estás invitado a', message: 'Nos encantaría que nos acompañaras.\nConfirma tu asistencia en nuestra página del evento.', closing: '¡Estamos deseando celebrarlo contigo!' },
+} as const;
+
+export function defaultInvitation(themeSlug?: string | null, language?: string | null): InvitationDesign {
+  const words = INVITATION_WORDS[language === 'fr' || language === 'es' ? language : 'en'];
   const p = (themeSlug && THEME_PRESETS[themeSlug]) || FALLBACK;
   const decor = (themeSlug && THEME_DECOR[themeSlug]) || THEME_DECOR['the-day'];
   return {
     headingFont: p.headingFont,
     bodyFont: p.bodyFont,
-    eyebrow: 'You’re invited to',
-    message: 'We would love for you to join us.\nPlease RSVP on our event page.',
-    closing: 'We can’t wait to celebrate with you!',
+    eyebrow: words.eyebrow,
+    message: words.message,
+    closing: words.closing,
     textColor: p.textColor,
     accentColor: p.accentColor,
     background: THEME_PAPER[themeSlug ?? '']
@@ -229,8 +237,8 @@ export function isInvitationImageUrl(v: unknown): v is string {
 
 // Cleans any input (saved JSON, a client payload) into a valid design,
 // falling back to the theme's defaults field by field.
-export function normalizeInvitation(raw: unknown, themeSlug?: string | null): InvitationDesign {
-  const d = defaultInvitation(themeSlug);
+export function normalizeInvitation(raw: unknown, themeSlug?: string | null, language?: string | null): InvitationDesign {
+  const d = defaultInvitation(themeSlug, language);
   if (!raw || typeof raw !== 'object') return d;
   const r = raw as Record<string, unknown>;
   const bg = (r.background && typeof r.background === 'object' ? r.background : {}) as Record<string, unknown>;

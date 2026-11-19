@@ -1,5 +1,6 @@
 'use client';
 
+import { useToday } from '@/app/ui/use-today';
 import { Fragment, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -77,6 +78,7 @@ export function GiftExchangeManager({
   language?: string | null;
   hostName?: string;
 }) {
+  const today = useToday(); // the exchange's date: today or later
   const d = useDashText();
   const router = useRouter();
   const copy = GIFT_COPY[giftLang(language)];
@@ -250,7 +252,7 @@ export function GiftExchangeManager({
             <input style={input} value={details.exchangeDate} maxLength={GIFT_DATE_MAX} placeholder={d.giftExchangeManager.eGDecember19At} onChange={(e) => setDetails({ ...details, exchangeDate: e.target.value })} />
           </label>
           <label style={label}>{d.giftExchangeManager.exchangeDay}
-            <input type="date" style={input} value={details.day} onChange={(e) => setDetails({ ...details, day: e.target.value })} />
+            <input type="date" style={input} value={details.day} min={today && !(details.day && details.day < today) ? today : undefined} onChange={(e) => setDetails({ ...details, day: e.target.value })} />
           </label>
           <p style={{ alignSelf: 'end', margin: '0 0 9px', fontSize: 13, color: '#6B6470', lineHeight: 1.5 }}>{d.giftExchangeManager.exchangeDayHint}</p>
           <label style={{ ...label, gridColumn: '1 / -1' }}>{d.giftExchangeManager.aNoteForEveryoneOptional}

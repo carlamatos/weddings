@@ -1,4 +1,5 @@
 import type { ThemeProps, ThemePreviewProps } from './types';
+import { heroEyebrowDefault } from './hero-eyebrow';
 import type { Translations } from '@/app/lib/translations';
 import { GalleryGrid } from './GallerySection';
 import { GuestPhotoSection } from './GuestPhotoSection';
@@ -509,7 +510,6 @@ const OVERRIDES = {
 
 // The footer's toast.
 const SIGNOFF = { en: 'Cheers to the new year!', fr: 'Santé à la nouvelle année !', es: '¡Salud por el año nuevo!' };
-const HERO_EYEBROW_DEFAULT = { en: "You're invited", fr: 'Vous êtes invités', es: 'Estás invitado' };
 const HERO_ALT = { en: 'Friends holding lit sparklers', fr: 'Des amis tenant des cierges magiques', es: 'Amigos con bengalas encendidas' };
 const STORY_ALT = { en: 'Two glasses of champagne with gold streamers', fr: 'Deux coupes de champagne et des serpentins dorés', es: 'Dos copas de champán con serpentinas doradas' };
 
@@ -653,12 +653,12 @@ export default function NewYearsEve({
         ))}
         <div className="hero-inner">
           <div className="hero-star"><Sparkle size={30} className="ny-twinkle" /></div>
-          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || pickByLanguage(HERO_EYEBROW_DEFAULT, language)}</p>}
+          {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('new-years-eve', language)}</p>}
           {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
           <span className="hero-line" aria-hidden="true" />
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}><time dateTime={eventDate}>{heroDateText}</time></p>)}
           <div className="hero-actions">
-            {showRsvp !== false && <HeroButton id="rsvp" href="#rsvp" className="btn" label={t.rsvpBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {(showRsvp !== false || giftExchange) && <HeroButton id="rsvp" href={showRsvp !== false ? '#rsvp' : '#gift-exchange'} className="btn" label={showRsvp !== false ? t.rsvpBtn : t.giftLabel} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} giftExchangeInstead={showRsvp === false} />}
             {(description || editSlots?.description) && <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
