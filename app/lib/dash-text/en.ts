@@ -523,6 +523,13 @@ export const en = {
     alreadyTakingPart: ' {skipped} were already taking part.',
     alreadyGotTheirs: '\n\n{again} already got theirs and will get it again.',
     noEmailSkipped: ' {skipped} have no email — send them a text or copy their link.',
+    sendStepEmail: 'Tap <t0>Email everyone</t0> to email the {count} {v1} with an email address.',
+    sendStepTextAll: 'Send each person their private link with <t0>Text</t0> or <t1>WhatsApp</t1>, next to their name in the list below — one person at a time.',
+    sendStepTextRest: 'For everyone else, tap <t0>Text</t0> or <t1>WhatsApp</t1> next to their name in the list below — one person at a time.',
+    sendStepPhone: '<t0>Text</t0> works best from your phone. On a computer, use <t1>WhatsApp</t1>, or <t2>Copy</t2> the message and paste it anywhere.',
+    toldCount: '{told} of {total} told',
+    everyoneTold: '✓ Everyone has been told',
+    noEmailNoReminders: ' {count} {v1} without an email won’t get reminders.',
   },
   guestListManager: {
     contact: 'Contact',

@@ -129,6 +129,9 @@ export function GiftExchangeManager({
 
   const availableGuests = guests.filter((g) => !g.inExchange);
   const withEmail = participants.filter((p) => p.email);
+  const withoutEmail = participants.length - withEmail.length;
+  const toldCount = participants.filter((p) => textedNow[p.id] ?? p.notifiedVia).length;
+  const plural = (n: number) => (n === 1 ? d.giftExchangeManager.person : d.giftExchangeManager.people);
 
   async function run<T>(key: string, fn: () => Promise<T>): Promise<T | null> {
     setBusy(key);
@@ -254,7 +257,7 @@ export function GiftExchangeManager({
           <label style={label}>{d.giftExchangeManager.exchangeDay}
             <input type="date" style={input} value={details.day} min={today && !(details.day && details.day < today) ? today : undefined} onChange={(e) => setDetails({ ...details, day: e.target.value })} />
           </label>
-          <p style={{ alignSelf: 'end', margin: '0 0 9px', fontSize: 13, color: '#6B6470', lineHeight: 1.5 }}>{d.giftExchangeManager.exchangeDayHint}</p>
+          <p style={{ alignSelf: 'end', margin: '0 0 9px', fontSize: 13, color: '#6B6470', lineHeight: 1.5 }}>{d.giftExchangeManager.exchangeDayHint}{withoutEmail > 0 && participants.length > 0 ? fill(d.giftExchangeManager.noEmailNoReminders, { count: withoutEmail, v1: plural(withoutEmail) }) : ''}</p>
           <label style={{ ...label, gridColumn: '1 / -1' }}>{d.giftExchangeManager.aNoteForEveryoneOptional}
             <textarea style={{ ...input, resize: 'vertical', lineHeight: 1.5 }} rows={2} value={details.note} maxLength={GIFT_NOTE_MAX} placeholder={d.giftExchangeManager.eGWrapYourGift} onChange={(e) => setDetails({ ...details, note: e.target.value })} />
           </label>
@@ -361,9 +364,11 @@ export function GiftExchangeManager({
               </button>
             ) : (
               <>
-                <button type="button" style={primary} disabled={!withEmail.length || busy === 'email'} onClick={emailAll}>
-                  {busy === 'email' ? d.giftExchangeManager.sending : fill(d.giftExchangeManager.emailEveryone, { length: withEmail.length })}
-                </button>
+                {withEmail.length > 0 && (
+                  <button type="button" style={primary} disabled={busy === 'email'} onClick={emailAll}>
+                    {busy === 'email' ? d.giftExchangeManager.sending : fill(d.giftExchangeManager.emailEveryone, { length: withEmail.length })}
+                  </button>
+                )}
                 <button type="button" style={btn} disabled={busy === 'draw'} onClick={draw}>{busy === 'draw' ? d.giftExchangeManager.drawing : d.giftExchangeManager.drawAgain}</button>
                 <button type="button" style={btn} disabled={busy === 'clear'} onClick={clearDraw}>{busy === 'clear' ? d.giftExchangeManager.clearing : d.giftExchangeManager.clearDraw}</button>
               </>
@@ -372,10 +377,28 @@ export function GiftExchangeManager({
           {!drawn && participants.length < GIFT_MIN_TO_DRAW && (
             <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0' }}>{fill(d.giftExchangeManager.addAtLeastPeopleTo, { GIFT_MIN_TO_DRAW })}</p>
           )}
-          {drawn && (
+          {drawn && (withoutEmail === 0 ? (
             <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
               {rich(d.giftExchangeManager.emailSendsEachPersonTheir, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong> })}
               {' '}{d.giftExchangeManager.matchesHidden}
+            </p>
+          ) : (
+            // Some (or all) people have no email: spell out the texting steps,
+            // since the email button can't reach them.
+            <div style={{ fontSize: 13, color: '#6B6470', margin: '10px 0 0', lineHeight: 1.6 }}>
+              <ol style={{ margin: 0, paddingLeft: 20, display: 'grid', gap: 4 }}>
+                {withEmail.length > 0 && (
+                  <li>{rich(fill(d.giftExchangeManager.sendStepEmail, { count: withEmail.length, v1: plural(withEmail.length) }), { t0: (s) => <strong>{s}</strong> })}</li>
+                )}
+                <li>{rich(withEmail.length > 0 ? d.giftExchangeManager.sendStepTextRest : d.giftExchangeManager.sendStepTextAll, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong> })}</li>
+                <li>{rich(d.giftExchangeManager.sendStepPhone, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong>, t2: (s) => <strong>{s}</strong> })}</li>
+              </ol>
+              <p style={{ margin: '8px 0 0' }}>{d.giftExchangeManager.matchesHidden}</p>
+            </div>
+          ))}
+          {drawn && participants.length > 0 && (
+            <p style={{ fontSize: 13, fontWeight: 600, margin: '8px 0 0', color: toldCount === participants.length ? '#3D6B46' : '#8B3A2A' }}>
+              {toldCount === participants.length ? d.giftExchangeManager.everyoneTold : fill(d.giftExchangeManager.toldCount, { told: toldCount, total: participants.length })}
             </p>
           )}
           <NoticeLine notice={drawNotice} />
