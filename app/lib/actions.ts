@@ -43,7 +43,6 @@ import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type Invi
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmail, type MailMessage } from './mail';
-import { notifyAdminsOfNewPage } from './admin-notify';
 import { randomInt } from 'crypto';
 import { drawCycle, giftExchangeDetails, isGiftDay, GIFT_BUDGET_MAX, GIFT_DATE_MAX, GIFT_MAX_PARTICIPANTS, GIFT_MIN_TO_DRAW, GIFT_NAME_MAX, GIFT_NOTE_MAX, GIFT_SETTINGS, GIFT_WISHLIST_MAX, type GiftExchangeDetails } from './gift-exchange';
 import { giftExchangeEmail } from './gift-exchange-email';
@@ -364,10 +363,10 @@ function ensureOptionalEventDate(): Promise<unknown> {
       try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event'); } catch (error) { console.error('Failed to add to newsletter:', error); }
     }
 
-    // Let the super admins know (never blocks or fails the request).
+    // For Google Analytics ("event_page_created"). The admins hear about a
+    // page once it's in use (app/lib/admin-notify.ts), not when it's made.
     if (newPageId) {
       await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '' });
-      await notifyAdminsOfNewPage(newPageId, prepaid ? 'Live Party (prepaid)' : wantsPlus ? 'Free — chose Live Party, sent to checkout' : 'Free');
     }
 
     // Chose Live Party for this event: the page exists (free) now, so pay for it.

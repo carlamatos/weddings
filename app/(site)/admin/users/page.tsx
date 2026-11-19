@@ -21,15 +21,18 @@ const badge: React.CSSProperties = {
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ offset?: string; q?: string }>;
+  searchParams: Promise<{ offset?: string; q?: string; joined?: string }>;
 }) {
   const admin = await getSuperAdmin();
   const sp = await searchParams;
   const offset = parseOffset(sp.offset);
   const q = (typeof sp.q === 'string' ? sp.q : '').trim().slice(0, ADMIN_SEARCH_MAX);
+  // Newest sign-ups first unless ?joined=oldest.
+  const joined = sp.joined === 'oldest' ? 'oldest' : 'newest';
+  const joinedHref = `/admin/users?${new URLSearchParams({ ...(q ? { q } : {}), ...(joined === 'newest' ? { joined: 'oldest' } : {}) })}`;
 
   const [{ rows, hasMore, error }, total, overall] = await Promise.all([
-    fetchAllUsers(offset, q),
+    fetchAllUsers(offset, q, joined),
     countUsers(q),
     q ? countUsers() : Promise.resolve(null),
   ]);
@@ -61,7 +64,11 @@ export default async function AdminUsersPage({
               <th style={th}>User</th>
               <th style={th}>Page</th>
               <th style={th}>Subscription</th>
-              <th style={th}>Joined</th>
+              <th style={th}>
+                <Link href={joinedHref} style={{ color: 'inherit', textDecoration: 'none' }} title={joined === 'newest' ? 'Showing newest first — click for oldest first' : 'Showing oldest first — click for newest first'}>
+                  Joined {joined === 'newest' ? '↓' : '↑'}
+                </Link>
+              </th>
               <th style={th}>Actions</th>
             </tr>
           </thead>
@@ -114,7 +121,7 @@ export default async function AdminUsersPage({
                       cancelAtPeriodEnd={u.cancel_at_period_end}
                     />
                   </td>
-                  <td style={{ ...td, whiteSpace: 'nowrap' }}>{formatDate(u.date)}</td>
+                  <td style={{ ...td, whiteSpace: 'nowrap' }}>{formatJoined(u.created_at, u.date)}</td>
                   <td style={td}>
                     <TrashUserButton userId={u.id} email={u.email} blockedReason={blockedReason} />
                   </td>
@@ -132,7 +139,15 @@ export default async function AdminUsersPage({
         </table>
       </div>
 
-      <Pagination path="/admin/users" params={q ? { q } : {}} offset={offset} hasMore={hasMore} />
+      <Pagination path="/admin/users" params={{ ...(q ? { q } : {}), ...(joined === 'oldest' ? { joined } : {}) }} offset={offset} hasMore={hasMore} />
     </>
   );
+}
+
+// The day and time they signed up, in Pacific time (as on the Activity tab).
+function formatJoined(createdAt: Date | string | null, day: Date | string | null): string {
+  if (!createdAt) return formatDate(day);
+  const d = new Date(createdAt);
+  if (Number.isNaN(d.getTime())) return formatDate(day);
+  return `${d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'America/Vancouver' })}, ${d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/Vancouver' })} PT`;
 }

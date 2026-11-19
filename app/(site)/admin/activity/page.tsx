@@ -22,6 +22,7 @@ const JOBS: { job: string; what: string; when: string }[] = [
   { job: 'reminders', what: 'Guest reminder emails (Live Party)', when: 'Every hour' },
   { job: 'plan-reminders', what: 'RSVP timeline and budget reminders to hosts', when: 'Daily, 6–7 am Pacific' },
   { job: 'purge-deleted-pages', what: 'Empties pages 30 days in the trash', when: 'Daily, 1–2 am Pacific' },
+  { job: 'daily-digest', what: 'Pages published today, emailed to you', when: 'Daily, 11:50 pm Pacific' },
 ];
 const OUTCOME: Record<string, { label: string; color: string; bg: string }> = {
   ok: { label: 'Ran', color: c.green, bg: c.greenBg },
@@ -55,8 +56,21 @@ const pill = (label: string, color: string, bg: string) => (
 
 const FOLLOW_UP_LABEL: Record<string, string> = { confirm: 'Confirm email', publish: 'Publish', share: 'Invite guests' };
 
-export default async function AdminActivityPage() {
+// The hosts table's order: ?sort=made|last|visits|followup and ?dir=asc|desc
+// (by default the last visit, newest first). Empty values go last.
+type HostSort = 'made' | 'last' | 'visits' | 'followup';
+const HOST_SORTS: Record<HostSort, (u: HostRow) => number | null> = {
+  made: (u) => (u.page_created ? new Date(u.page_created).getTime() : u.date ? new Date(u.date).getTime() : null),
+  last: (u) => (u.last_dashboard_at ? new Date(u.last_dashboard_at).getTime() : null),
+  visits: (u) => u.dashboard_visits || null,
+  followup: (u) => { const at = u.follow_up?.split(' ')[1]; const t = at ? new Date(at).getTime() : NaN; return Number.isNaN(t) ? null : t; },
+};
+
+export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string }> }) {
   await getSuperAdmin();
+  const sp = await searchParams;
+  const sort: HostSort = sp.sort && sp.sort in HOST_SORTS ? (sp.sort as HostSort) : 'last';
+  const dir: 'asc' | 'desc' = sp.dir === 'asc' ? 'asc' : 'desc';
   let hosts: HostRow[] = [];
   let runs: CronRunRow[] = [];
   let pages: { month: string; event_type: string | null; goal: string | null; upgraded: boolean; email: string }[] = [];
@@ -78,7 +92,7 @@ export default async function AdminActivityPage() {
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
-        LIMIT 150
+        LIMIT 500
       `, [FOLLOW_UP_SETTING]),
       fetchCronRuns(),
     ]);
@@ -119,6 +133,11 @@ export default async function AdminActivityPage() {
     return [...m.entries()].map(([k, rows]) => ({ k, ...rate(rows) }));
   };
   const overall = rate(pages);
+  const sortedHosts = [...hosts].sort((a, b) => {
+    const x = HOST_SORTS[sort](a), y = HOST_SORTS[sort](b);
+    if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
+    return dir === 'desc' ? y - x : x - y;
+  });
   const byMonth = group((r) => r.month).sort((a, b) => b.k.localeCompare(a.k));
   const byType = group((r) => r.event_type || 'Other').sort((a, b) => b.made - a.made);
   // "What are you planning?" (app/lib/event-goals.ts), asked since 2026-11-18.
@@ -201,12 +220,22 @@ export default async function AdminActivityPage() {
         <table style={table}>
           <thead>
             <tr>
-              <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Page made</th>
-              <th style={th}>Last visit</th><th style={th}>Visits</th><th style={th}>Follow-up email</th>
+              <th style={th}>Host</th><th style={th}>Page</th>
+              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email']] as const).map(([key, label]) => (
+                <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
+                  <Link
+                    href={`/admin/activity?sort=${key}&dir=${sort === key && dir === 'desc' ? 'asc' : 'desc'}`}
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                    title={`Sort by ${label.toLowerCase()}`}
+                  >
+                    {label}{sort === key ? (dir === 'desc' ? ' ↓' : ' ↑') : ''}
+                  </Link>
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {hosts.map((u) => (
+            {sortedHosts.map((u) => (
               <tr key={u.id}>
                 <td style={td}>
                   <div style={{ fontWeight: 600 }}>{u.name?.trim() || <span style={{ color: c.muted, fontWeight: 400 }}>No name yet</span>}</div>

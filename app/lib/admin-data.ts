@@ -1,4 +1,5 @@
 import { sql } from '@vercel/postgres';
+import { ensureUserCreatedAt } from './user-joined';
 import type { QueryResultRow } from '@vercel/postgres';
 
 export const ADMIN_PAGE_SIZE = 25;
@@ -9,6 +10,7 @@ export type AdminUserRow = {
   email: string;
   provider: string | null;
   date: Date | string | null;
+  created_at: Date | string | null; // when they signed up (see app/lib/user-joined.ts)
   email_verified_at: Date | string | null; // null = not verified yet
   plan_type: string;
   stripe_customer_id: string | null;
@@ -78,7 +80,7 @@ export function pageSearchTerm(raw: string | null | undefined): string {
 
 // SQL lives in plain strings so it can also be run directly in tests.
 export const USERS_SQL = `
-  SELECT u.id, u.name, u.email, u.provider, u.date, u.email_verified_at,
+  SELECT u.id, u.name, u.email, u.provider, u.date, u.created_at, u.email_verified_at,
          COALESCE(pl.plan_type, p.plan_type, 'free') AS plan_type,
          COALESCE(pl.stripe_customer_id, p.stripe_customer_id) AS stripe_customer_id,
          pl.current_period_end,
@@ -93,7 +95,7 @@ export const USERS_SQL = `
     FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1
   ) p ON true
   WHERE ${USER_SEARCH('$1')}
-  ORDER BY u.date DESC NULLS LAST, u.email
+  ORDER BY COALESCE(u.created_at, u.date::timestamp AT TIME ZONE 'UTC') DESC NULLS LAST, u.email
   LIMIT $2 OFFSET $3
 `;
 
@@ -199,8 +201,11 @@ async function list<T extends QueryResultRow>(text: string, params: unknown[], o
   }
 }
 
-export async function fetchAllUsers(offset = 0, search = '') {
-  return list<AdminUserRow>(USERS_SQL, [searchPattern(search)], offset);
+// joined: 'newest' (the default) or 'oldest' first, by when they signed up.
+export async function fetchAllUsers(offset = 0, search = '', joined: 'newest' | 'oldest' = 'newest') {
+  await ensureUserCreatedAt().catch((error) => console.error('Could not add users.created_at:', error));
+  const text = joined === 'oldest' ? USERS_SQL.replace(') DESC NULLS LAST, u.email', ') ASC NULLS LAST, u.email') : USERS_SQL;
+  return list<AdminUserRow>(text, [searchPattern(search)], offset);
 }
 
 export async function fetchAllUserPages(opts: {

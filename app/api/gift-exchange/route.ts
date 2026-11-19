@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { notifyAdminsPageActive } from '@/app/lib/admin-notify';
 import { sql } from '@vercel/postgres';
 import { verifyPageToken } from '@/app/lib/page-token';
 import { fetchPageSettings } from '@/app/lib/data';
@@ -80,6 +81,8 @@ export async function POST(request: Request) {
     // organizer unless they turned off RSVP emails for this page.
     if (saved.rows[0]?.inserted) {
       await sendGiftJoinEmails(pageId, { name, email, wishlist }, { host: isRsvpNotifyOn(settings) });
+      // The page's first guest reply: the admins hear it's in use (once per page).
+      await notifyAdminsPageActive(pageId, { kind: 'secret-santa', name, email });
     }
     return NextResponse.json({ ok: true, updated: false, drawn: false, count: (state.rows[0]?.n ?? 0) + 1 });
   } catch (err) {
