@@ -105,7 +105,7 @@ function reportDay(now = new Date()): string {
 export async function sendPublishedPagesDigest(now = new Date()): Promise<{ day: string; published: number; active: number; sent: boolean }> {
   const day = reportDay(now);
   const admins = superAdminEmails();
-  const adminList = admins.length ? admins : [''];
+  const adminList = admins.join(','); // emails can't contain commas
   // user_page.created_at is a UTC time without a zone; status_changed_at has one.
   const published = await sql<PageRow & { plan_type: string | null; was_draft: boolean }>`
     SELECT up.id, up.heading, up.slug, up.event_date::text AS event_date, up.plan_type,
@@ -115,7 +115,7 @@ export async function sendPublishedPagesDigest(now = new Date()): Promise<{ day:
     FROM user_page up LEFT JOIN users u ON u.id = up.user_id
     WHERE up.status = 'active'
       AND (COALESCE(up.status_changed_at, up.created_at AT TIME ZONE 'UTC') AT TIME ZONE ${TZ})::date = ${day}::date
-      AND NOT (lower(COALESCE(u.email, '')) = ANY(${adminList}::text[]))
+      AND NOT (lower(COALESCE(u.email, '')) = ANY(string_to_array(${adminList}, ',')))
     ORDER BY COALESCE(up.status_changed_at, up.created_at AT TIME ZONE 'UTC')
   `;
   const active = await sql<PageRow>`
@@ -127,7 +127,7 @@ export async function sendPublishedPagesDigest(now = new Date()): Promise<{ day:
     LEFT JOIN users u ON u.id = up.user_id
     WHERE s.setting_name = ${ACTIVE_NOTIFIED_SETTING}
       AND (s.setting_value::timestamptz AT TIME ZONE ${TZ})::date = ${day}::date
-      AND NOT (lower(COALESCE(u.email, '')) = ANY(${adminList}::text[]))
+      AND NOT (lower(COALESCE(u.email, '')) = ANY(string_to_array(${adminList}, ',')))
   `;
   if (!admins.length) return { day, published: published.rows.length, active: active.rows.length, sent: false };
 
