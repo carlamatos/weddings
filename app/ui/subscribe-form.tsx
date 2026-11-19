@@ -333,7 +333,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
 
         <div className="auth-field">
           <label className="auth-label" htmlFor="eventDate">{rich(d.subscribeForm.eventDateOptional, { t0: (s) => <span className="auth-label-optional">{s}</span> })}</label>
-          {!noDate && <AuthDateInput id="eventDate" name="eventDate" value={eventDate} placeholder={d.subscribeForm.chooseADate} onChange={(e) => setEventDate(e.target.value)} />}
+          {!noDate && <AuthDateInput id="eventDate" name="eventDate" future value={eventDate} placeholder={d.subscribeForm.chooseADate} onChange={(e) => setEventDate(e.target.value)} />}
           <label className="setup-date-tbd">
             <input type="checkbox" checked={noDate} onChange={(e) => setNoDate(e.target.checked)} />
             {d.subscribeForm.weHavenTPickedA}

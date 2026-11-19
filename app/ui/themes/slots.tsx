@@ -1,5 +1,6 @@
 'use client';
 
+import { useToday } from '@/app/ui/use-today';
 import { useState, useRef, useTransition, useId } from 'react';
 import { updateHeading, updateDescription, updateBannerImage, resetBannerImage, resetHeroColors, updateEventDateTime, updateHeroEyebrow, updatePageSetting, updateContactInfo, updateSectionText } from '@/app/lib/actions';
 import { SECTION_TEXT_MAX_LENGTH, type SectionTextKey } from '@/app/lib/section-text';
@@ -427,6 +428,10 @@ export function EditableHeroDate({
   const [, startTransition] = useTransition();
 
   const [dDate, setDDate] = useState(eventDate ?? '');
+  // Only today and later can be picked, unless the saved date has already
+  // passed (then it stays, so the other details can still be saved).
+  const today = useToday();
+  const dateMin = today && !(eventDate && eventDate.slice(0, 10) < today) ? today : undefined;
   const [dTime, setDTime] = useState(eventTime ?? '');
   const [dEndDate, setDEndDate] = useState(eventEndDate ?? '');
   const [dEndTime, setDEndTime] = useState(eventEndTime ?? '');
@@ -523,7 +528,7 @@ export function EditableHeroDate({
           <SheetSection title={d.editableSlots.dateTime}>
             <div className="theme-sheet-2col">
               <SheetField label={d.editableSlots.date} htmlFor="hd-date" hint={d.editableSlots.theDayYourEventStarts}>
-                <input id="hd-date" className="theme-sheet-input" type="date" value={dDate} onChange={(e) => setDDate(e.target.value)} />
+                <input id="hd-date" className="theme-sheet-input" type="date" value={dDate} min={dateMin} onChange={(e) => setDDate(e.target.value)} />
               </SheetField>
               <SheetField label={d.editableSlots.startTime} htmlFor="hd-time" hint={d.editableSlots.whenGuestsShouldArrive}>
                 <input id="hd-time" className="theme-sheet-input" type="time" value={dTime} onChange={(e) => setDTime(e.target.value)} />
@@ -539,7 +544,7 @@ export function EditableHeroDate({
             </label>
             {showEnd && <div className="theme-sheet-2col">
               <SheetField label={d.editableSlots.endDate} optional htmlFor="hd-end-date" hint={d.editableSlots.onlyForEventsOverSeveral}>
-                <input id="hd-end-date" className="theme-sheet-input" type="date" value={dEndDate} min={dDate || undefined} onChange={(e) => setDEndDate(e.target.value)} />
+                <input id="hd-end-date" className="theme-sheet-input" type="date" value={dEndDate} min={dDate || dateMin} onChange={(e) => setDEndDate(e.target.value)} />
               </SheetField>
               <SheetField label={d.editableSlots.endTime} optional htmlFor="hd-end-time" hint={d.editableSlots.whenTheEventWrapsUp}>
                 <input id="hd-end-time" className="theme-sheet-input" type="time" value={dEndTime} onChange={(e) => setDEndTime(e.target.value)} />

@@ -1,5 +1,6 @@
 'use client';
 
+import { useToday } from '@/app/ui/use-today';
 import { useState } from 'react';
 import type { EventProgramItem } from '@/app/lib/definitions';
 import { addEventProgramItem, updateEventProgramItem, deleteEventProgramItem, type EventProgramItemInput } from '@/app/lib/actions';
@@ -53,6 +54,7 @@ const emptyForm: EventProgramItemInput = { eventDate: '', name: '', startTime: '
 
 export function EventProgramManager({ pageId, initialItems }: { pageId: number; initialItems: EventProgramItem[] }) {
   const d = useDashText();
+  const today = useToday(); // new entries: today or later
   const [items, setItems] = useState<EventProgramItem[]>(sortItems(initialItems));
   const [form, setForm] = useState<EventProgramItemInput>(emptyForm);
   const [adding, setAdding] = useState(false);
@@ -125,7 +127,7 @@ export function EventProgramManager({ pageId, initialItems }: { pageId: number; 
       <form onSubmit={handleAdd} style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 28, alignItems: 'flex-end' }}>
         <div style={{ flex: '1 1 150px' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', display: 'block', marginBottom: 4 }}>{d.eventProgramManager.date}</label>
-          <input type="date" required value={form.eventDate} onChange={(e) => setForm({ ...form, eventDate: e.target.value })} style={inputStyle} />
+          <input type="date" required value={form.eventDate} min={today || undefined} onChange={(e) => setForm({ ...form, eventDate: e.target.value })} style={inputStyle} />
         </div>
         <div style={{ flex: '2 1 200px' }}>
           <label style={{ fontSize: 12, fontWeight: 600, color: '#6B6470', display: 'block', marginBottom: 4 }}>{d.eventProgramManager.phaseName}</label>
