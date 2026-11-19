@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { notifyAdminsPageActive } from '@/app/lib/admin-notify';
 import { isRsvpSongOn, RSVP_SONG_MAX } from '@/app/lib/rsvp-song';
 import { GIFT_MAX_PARTICIPANTS, GIFT_NAME_MAX, GIFT_WISHLIST_MAX, isGiftExchangeOn } from '@/app/lib/gift-exchange';
 import { guestAccessDenied, guestPageOffline, PAGE_UNAVAILABLE_ERROR } from '@/app/lib/page-access';
@@ -204,6 +205,9 @@ export async function POST(request: Request) {
         secretSanta,
       });
     }
+
+    // The page's first guest reply: the admins hear it's in use (once per page).
+    await notifyAdminsPageActive(pageId, { kind: 'rsvp', name: name.trim(), email: email.trim() });
 
     return NextResponse.json({ success: true });
   } catch (err) {
