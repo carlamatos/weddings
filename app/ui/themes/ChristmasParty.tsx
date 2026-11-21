@@ -25,6 +25,7 @@ import { heroTextStyle } from './hero-style';
 import HeroButton from './HeroButton';
 import { previewImage } from './preview-image';
 import PreviewFont from './PreviewFont';
+import { MADE_WITH_MYGALA_URL } from './made-with-mygala';
 
 const IMG = '/images/themes/christmas-party';
 
@@ -919,7 +920,7 @@ export default function ChristmasParty({
           <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={`${t.withLove} ${heading || t.theCouple}`} />
         </div>
         <SnowyHills />
-        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="nofollow noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href={MADE_WITH_MYGALA_URL} target="_blank" rel="nofollow noopener noreferrer" style={{ color: 'inherit' }}>mygala</a></p>
       </footer>
     </div>
   );

@@ -26,6 +26,7 @@ import { previewImage } from './preview-image';
 import PreviewFont from './PreviewFont';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { eventJsonLd } from './event-json-ld';
+import { MADE_WITH_MYGALA_URL } from './made-with-mygala';
 
 // "Blessings": a gentle theme for religious celebrations — baptisms and
 // christenings (bautizo, baptême), first communions (primera comunión),
@@ -732,7 +733,7 @@ export default function Blessings({
           </address>
         )}
         <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={word('signoff')} />
-        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="nofollow noopener noreferrer">mygala</a></p>
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href={MADE_WITH_MYGALA_URL} target="_blank" rel="nofollow noopener noreferrer">mygala</a></p>
       </footer>
     </div>
   );
