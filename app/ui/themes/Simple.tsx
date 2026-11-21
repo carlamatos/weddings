@@ -26,6 +26,7 @@ import { previewImage } from './preview-image';
 import PreviewFont from './PreviewFont';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import { eventJsonLd } from './event-json-ld';
+import { MADE_WITH_MYGALA_URL } from './made-with-mygala';
 
 // "Simple": a quiet, neutral theme for any kind of event — ivory, stone and
 // charcoal, Playfair Display and Lato, lots of space and no decoration
@@ -706,7 +707,7 @@ export default function Simple({
           </address>
         )}
         <SectionText ctx={sectionTextCtx} k="footer.signoff" className="footer-signoff" fallback={word('signoff')} />
-        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href="https://mygala.ca" target="_blank" rel="nofollow noopener noreferrer">mygala</a></p>
+        <p className="footer-credit">{t.madeWithMygala.split('mygala')[0]}<a href={MADE_WITH_MYGALA_URL} target="_blank" rel="nofollow noopener noreferrer">mygala</a></p>
       </footer>
     </div>
   );
