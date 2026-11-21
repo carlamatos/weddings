@@ -296,7 +296,22 @@ export function InvitationSender({
         <p style={{ fontSize: 14, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>
           {rich(d.invitationSender.yourGuestListIsEmpty, { t0: (s) => <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>{s}</Link> })}
         </p>
-      ) : (
+      ) : null}
+
+      {guests.length === 0 && (
+        // No guests yet: the host can still see the invitation email and
+        // send it to themselves before adding anyone.
+        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid #EDE8E3' }}>
+          <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 10px', lineHeight: 1.5 }}>{d.invitationSender.testBeforeGuests}</p>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={locked} onClick={openPreview}>{d.invitationSender.previewEmail}</button>
+            <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={locked || sending !== null} onClick={sendTest}>{sending === 'test' ? d.invitationSender.sending : d.invitationSender.sendMeATest}</button>
+          </div>
+          {sendNotice && <p role="status" style={{ fontSize: 14, margin: '12px 0 0', color: sendNotice.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{sendNotice.text}</p>}
+        </div>
+      )}
+
+      {guests.length > 0 && (
         <>
           <p style={{ margin: '0 0 14px', fontSize: 13, color: '#6B6470', lineHeight: 1.6 }}>
             {rich(d.invitationSender.byTextTapTextOr, { t0: (s) => <strong>{s}</strong>, t1: (s) => <strong>{s}</strong>, t2: (s) => <strong>{s}</strong>, t3: (s) => <strong>{s}</strong> })}
@@ -375,41 +390,6 @@ export function InvitationSender({
               </div>
             )}
           </div>
-
-          {previewOpen && (
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label={d.invitationSender.invitationEmailPreview}
-              onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
-              style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(36,31,43,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
-            >
-              <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, maxHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 60px rgba(36,31,43,0.25)' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid #EDE8E3', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                  <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: 12, color: '#9A8F8C' }}>{d.invitationSender.whatYourGuestsWillReceive}</p>
-                    <p style={{ margin: '2px 0 0', fontSize: 15, fontWeight: 600, color: '#241F2B', overflowWrap: 'anywhere' }}>
-                      {preview && 'subject' in preview ? preview.subject : d.invitationSender.loading}
-                    </p>
-                  </div>
-                  <select aria-label={d.invitationSender.previewAs} value={previewGuest} onChange={(e) => setPreviewGuest(e.target.value)} style={{ ...input, padding: '6px 8px', fontSize: 13, maxWidth: '100%' }}>
-                    <option value="">{d.invitationSender.asAnyGuest}</option>
-                    {emailable.map((g) => <option key={g.id} value={g.id}>{fill(d.invitationSender.as, { name: g.name })}</option>)}
-                  </select>
-                  <button type="button" onClick={() => setPreviewOpen(false)} aria-label={d.invitationSender.closeThePreview} style={{ ...btn, padding: '6px 12px' }}>{d.invitationSender.close}</button>
-                </div>
-                {preview && 'error' in preview ? (
-                  <p role="alert" style={{ margin: 0, padding: 24, fontSize: 14, color: '#B91C1C' }}>{preview.error}</p>
-                ) : (
-                  <iframe title={d.invitationSender.invitationEmail} sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
-                )}
-                <div style={{ padding: '12px 18px', borderTop: '1px solid #EDE8E3', display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>{d.invitationSender.linksInThePreviewAre}</span>
-                  <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={() => { setPreviewOpen(false); sendTest(); }}>{d.invitationSender.sendMeATest}</button>
-                </div>
-              </div>
-            </div>
-          )}
 
           {!firstTime && (
             <div style={{ marginBottom: 12 }}>
@@ -555,6 +535,42 @@ export function InvitationSender({
             </table>
           </div>
         </>
+      )}
+
+      {/* The email preview, opened from either button row. */}
+      {previewOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={d.invitationSender.invitationEmailPreview}
+          onClick={(e) => { if (e.target === e.currentTarget) setPreviewOpen(false); }}
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(36,31,43,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+        >
+          <div style={{ background: '#fff', borderRadius: 14, width: '100%', maxWidth: 680, maxHeight: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 60px rgba(36,31,43,0.25)' }}>
+            <div style={{ padding: '14px 18px', borderBottom: '1px solid #EDE8E3', display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+                <p style={{ margin: 0, fontSize: 12, color: '#9A8F8C' }}>{d.invitationSender.whatYourGuestsWillReceive}</p>
+                <p style={{ margin: '2px 0 0', fontSize: 15, fontWeight: 600, color: '#241F2B', overflowWrap: 'anywhere' }}>
+                  {preview && 'subject' in preview ? preview.subject : d.invitationSender.loading}
+                </p>
+              </div>
+              <select aria-label={d.invitationSender.previewAs} value={previewGuest} onChange={(e) => setPreviewGuest(e.target.value)} style={{ ...input, padding: '6px 8px', fontSize: 13, maxWidth: '100%' }}>
+                <option value="">{d.invitationSender.asAnyGuest}</option>
+                {emailable.map((g) => <option key={g.id} value={g.id}>{fill(d.invitationSender.as, { name: g.name })}</option>)}
+              </select>
+              <button type="button" onClick={() => setPreviewOpen(false)} aria-label={d.invitationSender.closeThePreview} style={{ ...btn, padding: '6px 12px' }}>{d.invitationSender.close}</button>
+            </div>
+            {preview && 'error' in preview ? (
+              <p role="alert" style={{ margin: 0, padding: 24, fontSize: 14, color: '#B91C1C' }}>{preview.error}</p>
+            ) : (
+              <iframe title={d.invitationSender.invitationEmail} sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
+            )}
+            <div style={{ padding: '12px 18px', borderTop: '1px solid #EDE8E3', display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>{d.invitationSender.linksInThePreviewAre}</span>
+              <button type="button" style={{ ...btn, padding: '9px 14px' }} disabled={sending !== null} onClick={() => { setPreviewOpen(false); sendTest(); }}>{d.invitationSender.sendMeATest}</button>
+            </div>
+          </div>
+        </div>
       )}
     </section>
   );

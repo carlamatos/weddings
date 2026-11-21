@@ -788,6 +788,7 @@ export const fr: DashText = {
     previewEmail: 'Aperçu du courriel',
     sending: 'Envoi…',
     sendMeATest: 'M’envoyer un test',
+    testBeforeGuests: 'Voyez votre invitation par courriel avant d’ajouter vos invités : affichez un aperçu ici, ou envoyez-vous un test.',
     emailGuest: '✉ Écrire à {length} invité{v1}',
     emailInvitations: '✉ Envoyer les invitations par courriel',
     sendingForTheFirstTime: 'Premier envoi ? <t0>Prévisualisez le courriel</t0> ou <t1>envoyez-vous un test</t1> pour voir exactement ce que recevront vos invités.',

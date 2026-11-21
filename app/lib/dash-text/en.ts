@@ -787,6 +787,7 @@ export const en = {
     previewEmail: 'Preview email',
     sending: 'Sending…',
     sendMeATest: 'Send me a test',
+    testBeforeGuests: 'See your invitation email before you add anyone: preview it here, or send yourself a test.',
     emailGuest: '✉ Email {length} guest{v1}',
     emailInvitations: '✉ Email invitations',
     sendingForTheFirstTime: 'Sending for the first time? <t0>Preview the email</t0> or <t1>send yourself a test</t1> to see exactly what your guests will receive.',
