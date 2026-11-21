@@ -103,6 +103,8 @@ export const INVITATION_FLOWER_TONES = {
   blush: 'sepia(0.2) saturate(0.55) brightness(1.13)',
   ivory: 'grayscale(0.85) sepia(0.35) brightness(1.18) contrast(0.92)',
   lilac: 'hue-rotate(-28deg) saturate(0.45) brightness(1.1)',
+  // White roses (The Day's): their cream taken down to white.
+  roses: 'saturate(0.35) brightness(1.07) contrast(1.02)',
 } as const;
 export type FlowerTone = keyof typeof INVITATION_FLOWER_TONES;
 const isFlowerTone = (v: unknown): v is FlowerTone => typeof v === 'string' && v in INVITATION_FLOWER_TONES;

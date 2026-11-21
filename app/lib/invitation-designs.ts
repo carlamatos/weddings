@@ -49,8 +49,8 @@ export type CatalogDesign = {
 // Styles: designs of their own, under an occasion but not tied to any theme.
 // They come first in their occasion, before the theme designs. Each is one
 // layout in a few colourways (tones).
-export type DesignStyle = 'paper-blooms' | 'portrait';
-export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac';
+export type DesignStyle = 'paper-blooms' | 'white-roses' | 'portrait';
+export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen';
 
 const solid = (color: string): InvitationLook['background'] => ({ kind: 'color', color, imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 });
 const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
@@ -74,6 +74,18 @@ const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTon
   // Portrait: the couple's photo in a circle inside a fine gold double ring, then
   // the names in spaced capitals (layout 'portrait'). Our sample couple until
   // the host uploads theirs.
+  // White Roses: like Paper Blooms, with The Day's white roses (its rose
+  // photo fading into the paper down the right side, white rose cutouts
+  // raised over it) in The Day's colours and lettering.
+  {
+    style: 'white-roses',
+    group: 'wedding',
+    tones: [
+      ['ivory', styleLook({ layout: 'blooms', flowers: 'roses', headingFont: 'cormorant', bodyFont: 'lato', bg: '#F6F2E9', textColor: '#33402F', accentColor: '#9C7C3C' })],
+      ['sage', styleLook({ layout: 'blooms', flowers: 'roses', headingFont: 'cormorant', bodyFont: 'lato', bg: '#EEF0E6', textColor: '#20371D', accentColor: '#395036' })],
+      ['linen', styleLook({ layout: 'blooms', flowers: 'roses', headingFont: 'cormorant', bodyFont: 'lato', bg: '#EFEEEA', textColor: '#33402F', accentColor: '#698B58' })],
+    ],
+  },
   {
     style: 'portrait',
     group: 'wedding',

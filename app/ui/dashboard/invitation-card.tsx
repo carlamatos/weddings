@@ -204,13 +204,20 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
 // down the right edge and in the bottom-left corner, sizes and positions in
 // cqw (the card is 140cqw tall). Later ones sit on top.
 const W = '/images/themes/wild-flores/';
-const BLOOMS: { src: string; top?: number; bottom?: number; left?: number; right?: number; width: number; rotate: number; depth: number }[] = [
+type Bloom = { src: string; top?: number; bottom?: number; left?: number; right?: number; width: number; rotate: number; depth: number; height?: number; mask?: string };
+const BLOOMS: Bloom[] = [
   { src: `${W}cosmos-3.webp`, top: 34, right: -15, width: 38, rotate: -24, depth: 0.8 },
   { src: `${W}cosmos-4.webp`, top: 100, right: -14, width: 42, rotate: -6, depth: 1 },
   { src: `${W}cosmos-2.webp`, top: 68, right: -4, width: 30, rotate: 32, depth: 0.9 },
   { src: `${W}cosmos-1.webp`, top: -12, right: -12, width: 52, rotate: 12, depth: 1 },
   { src: `${W}cosmos-2.webp`, top: 3, right: 42, width: 14, rotate: 48, depth: 0.7 },
   { src: `${W}cosmos-4.webp`, bottom: -8, left: -9, width: 30, rotate: 18, depth: 0.9 },
+];
+
+// The White Roses designs: The Day's white rose photo down the right edge,
+// fading into the paper (no shadow: depth 0).
+const ROSES: Bloom[] = [
+  { src: '/images/themes/the-day/photo-2.jpeg', top: 0, right: 0, width: 40, height: 140, rotate: 0, depth: 0, mask: 'linear-gradient(to left, rgba(0,0,0,0.9) 30%, transparent 100%)' },
 ];
 
 // The blooms layout: soft paper flowers raised off the card (layered
@@ -222,12 +229,12 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
   const tone = INVITATION_FLOWER_TONES[design.flowers] ?? INVITATION_FLOWER_TONES.peach;
   const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.35cqw' } as const;
   const rule = <div style={{ width: '100%', height: '0.25cqw', background: design.textColor, opacity: 0.55 }} />;
-  const size = Math.max(9, Math.min(15, 150 / Math.max(8, details.name.length)));
+  const size = Math.max(9, Math.min(15, 150 / Math.max(8, details.name.length))) * (design.flowers === 'roses' ? 1.15 : 1);
   return (
     <>
       {/* A soft light from the top left. */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 15% 20%, rgba(255,255,255,0.75), rgba(255,255,255,0) 60%)' }} />
-      {BLOOMS.map((b, i) => (
+      {(design.flowers === 'roses' ? ROSES : BLOOMS).map((b, i) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={i} src={b.src} alt="" aria-hidden="true" loading="lazy" decoding="async"
           style={{
@@ -235,7 +242,9 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
             ...(b.top !== undefined ? { top: `${b.top}cqw` } : { bottom: `${b.bottom}cqw` }),
             ...(b.right !== undefined ? { right: `${b.right}cqw` } : { left: `${b.left}cqw` }),
             transform: `rotate(${b.rotate}deg)`,
-            filter: `${tone} drop-shadow(${0.5 * b.depth}cqw ${1.2 * b.depth}cqw ${1.2 * b.depth}cqw rgba(90,55,40,0.32)) drop-shadow(0 ${0.35 * b.depth}cqw ${0.35 * b.depth}cqw rgba(90,55,40,0.25))`,
+            ...(b.height ? { height: `${b.height}cqw`, objectFit: 'cover' as const } : {}),
+            ...(b.mask ? { maskImage: b.mask, WebkitMaskImage: b.mask } : {}),
+            filter: b.depth === 0 ? tone : `${tone} drop-shadow(${0.5 * b.depth}cqw ${1.2 * b.depth}cqw ${1.2 * b.depth}cqw rgba(90,55,40,0.32)) drop-shadow(0 ${0.35 * b.depth}cqw ${0.35 * b.depth}cqw rgba(90,55,40,0.25))`,
           }} />
       ))}
       <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '10cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
