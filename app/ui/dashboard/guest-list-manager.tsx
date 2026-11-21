@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { removeGuest, updateGuest } from '@/app/lib/actions';
+import { removeGuest, setGuestEvents, updateGuest } from '@/app/lib/actions';
+import { parseEventReplies, parseInvitedEvents, type SubEvent } from '@/app/lib/sub-events';
 import { INVITATION_NOTE_MAX } from '@/app/lib/invitation';
 import type { Guest } from '@/app/lib/definitions';
 import {
@@ -33,7 +34,7 @@ import { rich } from '@/app/ui/dashboard/rich';
 // RSVP on the page join the list by themselves. Sending invitations is on
 // the Invite screen. showMeals: the RSVP form asks for meals (or someone
 // chose one before), so the table has a Meals column.
-export function GuestListManager({ pageId, guests, isPaid, invitationsHref, showMeals = false }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string; showMeals?: boolean }) {
+export function GuestListManager({ pageId, guests, isPaid, invitationsHref, showMeals = false, subEvents = [] }: { pageId: number; guests: Guest[]; isPaid: boolean; invitationsHref: string; showMeals?: boolean; subEvents?: SubEvent[] }) {
   const d = useDashText();
   const router = useRouter();
   const csvRef = useRef<HTMLInputElement>(null);
@@ -251,7 +252,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref, show
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: showMeals ? 940 : 760 }}>
             <thead>
               <tr>
-                {[d.guestListManager.name, d.guestListManager.status, d.guestListManager.guests, ...(showMeals ? [d.rsvp.meals] : []), d.guestListManager.contact, d.rsvp.note, d.rsvp.date, ''].map((h, i) => <th key={i} style={headCell}>{h}</th>)}
+                {[d.guestListManager.name, d.guestListManager.status, d.guestListManager.guests, ...(showMeals ? [d.rsvp.meals] : []), ...(subEvents.length ? [d.subEvents.column] : []), d.guestListManager.contact, d.rsvp.note, d.rsvp.date, ''].map((h, i) => <th key={i} style={headCell}>{h}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -274,6 +275,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref, show
                       </td>
                       <td style={cell}><input aria-label={d.guestListManager.numberOfGuests} type="number" min={1} max={MAX_PARTY_SIZE} style={{ ...input, width: 64 }} value={editing.guests} onChange={(e) => set({ guests: e.target.value })} onKeyDown={onKey} /></td>
                       {showMeals && <td style={cell} />}
+                      {subEvents.length > 0 && <td style={cell} />}
                       <td style={cell}><input aria-label={d.guestListManager.email} type="email" style={{ ...input, width: '100%', marginBottom: 6 }} value={editing.email} maxLength={254} onChange={(e) => set({ email: e.target.value })} onKeyDown={onKey} /><input aria-label={d.guestListManager.phone} type="tel" style={{ ...input, width: '100%' }} value={editing.phone} maxLength={40} onChange={(e) => set({ phone: e.target.value })} onKeyDown={onKey} /></td>
                       <td style={cell} />
                       <td style={cell} />
@@ -293,6 +295,7 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref, show
                     <td style={{ ...cell, whiteSpace: 'nowrap' }}><GuestStatusSelect key={g.status} pageId={pageId} guestId={g.id} guestName={g.name} initial={g.status} /></td>
                     <td style={{ ...cell, textAlign: 'center' }}>{g.status === 'not_attending' ? '—' : g.guests || 1}</td>
                     {showMeals && <td style={{ ...cell, fontSize: 13, minWidth: 150 }}><MealsCell guest={g} /></td>}
+                    {subEvents.length > 0 && <td style={{ ...cell, fontSize: 13, minWidth: 170 }}><GuestEventsCell pageId={pageId} guest={g} events={subEvents} /></td>}
                     <td style={{ ...cell, color: '#6B6470', fontSize: 13, whiteSpace: 'nowrap' }}>
                       {g.email || g.phone ? <>{g.email && <span style={{ display: 'block' }}>{g.email}</span>}{g.phone && <span style={{ display: 'block' }}>{g.phone}</span>}</> : '—'}
                     </td>
@@ -342,3 +345,64 @@ function MealsCell({ guest }: { guest: Guest }) {
 
 // Edit / Remove in each row: small text buttons, so the row's details get the room.
 const rowAction: React.CSSProperties = { border: 'none', background: 'transparent', padding: '4px 8px', borderRadius: 6, fontSize: 13, fontWeight: 600, color: '#241F2B', cursor: 'pointer', fontFamily: 'inherit' };
+
+// One guest's sub-events (app/lib/sub-events.ts): the ones they're invited
+// to, with their answer (✓ coming, ✕ not), and a quick way to change which.
+function GuestEventsCell({ pageId, guest, events }: { pageId: number; guest: Guest; events: SubEvent[] }) {
+  const d = useDashText();
+  const router = useRouter();
+  const invited = parseInvitedEvents(guest.invited_events);
+  const replies = parseEventReplies(guest.event_replies);
+  const mine = invited ? events.filter((e) => invited.includes(e.id)) : events;
+  const [open, setOpen] = useState(false);
+  const [picked, setPicked] = useState<Set<string>>(new Set(mine.map((e) => e.id)));
+  const [busy, setBusy] = useState(false);
+
+  async function save() {
+    setBusy(true);
+    // Every event ticked is saved as "all", so events added later include them.
+    const ids = events.filter((e) => picked.has(e.id)).map((e) => e.id);
+    await setGuestEvents(pageId, guest.id, ids.length === events.length ? null : ids).catch(() => null);
+    setBusy(false);
+    setOpen(false);
+    router.refresh();
+  }
+
+  if (open) {
+    return (
+      <div>
+        {events.map((e) => (
+          <label key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4, cursor: 'pointer' }}>
+            <input type="checkbox" checked={picked.has(e.id)} onChange={(x) => setPicked((p) => { const n = new Set(p); if (x.target.checked) n.add(e.id); else n.delete(e.id); return n; })} />
+            {e.name}
+          </label>
+        ))}
+        <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
+          <button type="button" style={{ ...primary, padding: '5px 10px', fontSize: 12 }} disabled={busy} onClick={save}>{busy ? d.guestListManager.saving : d.guestListManager.save}</button>
+          <button type="button" style={{ ...btn, padding: '5px 10px', fontSize: 12 }} disabled={busy} onClick={() => setOpen(false)}>{d.guestListManager.cancel}</button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div>
+      {mine.length === 0 ? <span style={{ color: '#9A8F8C' }}>{d.subEvents.none}</span> : (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 2 }}>
+          {mine.map((e) => {
+            const r = replies[e.id];
+            return (
+              <li key={e.id} style={{ color: r === true ? '#3D6B46' : r === false ? '#8B3A2A' : '#241F2B' }}>
+                <span aria-hidden="true">{r === true ? '✓ ' : r === false ? '✕ ' : '· '}</span>
+                {e.name}
+                <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>{r === true ? ` (${d.subEvents.coming})` : r === false ? ` (${d.subEvents.notComing})` : ''}</span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <button type="button" onClick={() => { setPicked(new Set(mine.map((e) => e.id))); setOpen(true); }} style={{ background: 'none', border: 'none', padding: 0, marginTop: 4, color: '#B6584A', fontWeight: 600, fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
+        {d.subEvents.change}
+      </button>
+    </div>
+  );
+}

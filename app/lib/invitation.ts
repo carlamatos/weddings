@@ -4,7 +4,8 @@
 // user_page_settings under INVITATION_SETTING. Shared by the dashboard, the
 // server action and the print view, so no server-only imports.
 
-import { findOrnament } from './invitation-ornaments';
+import { findOrnament, ornamentOccasion } from './invitation-ornaments';
+import { isEnvelopeLiner, isEnvelopeSeal, type EnvelopeLiner, type EnvelopeSeal, type InvitationEnvelope } from './invitation-envelope';
 
 export const INVITATION_SETTING = 'invitation_design';
 
@@ -56,10 +57,15 @@ export type InvitationDesign = {
   // heading font. monogram (weddings): the couple's initials in a leaf
   // wreath, "the WEDDING of" in the heading font and tall hand-lettered
   // capitals, then the names, details and closing in the body font's capitals.
+  // own: the host's finished invitation (an uploaded image) shown as it is,
+  // with no words, decorations or wash over it.
   layout: InvitationLayout;
+  // The envelope it arrives in (app/lib/invitation-envelope.ts): on, the
+  // email shows it sealed and guests open it on MyGala.
+  envelope: InvitationEnvelope;
 };
 
-export const INVITATION_LAYOUTS = ['classic', 'monogram'] as const;
+export const INVITATION_LAYOUTS = ['classic', 'monogram', 'own'] as const;
 export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn
@@ -95,6 +101,9 @@ export type InvitationDetails = {
   passwordLabel?: string;
   // The host hid the RSVP on the page: no "RSVP" button or wording.
   rsvpOff?: boolean;
+  // The guest's own sub-events (app/lib/sub-events.ts), when the page has
+  // them: shown with the invitation, not on the card itself.
+  events?: { name: string; when: string; venue: string }[];
 };
 
 type Preset = Pick<InvitationDesign, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor'> & { bg: string };
@@ -207,7 +216,21 @@ export function defaultInvitation(themeSlug?: string | null, language?: string |
     frameColor: p.accentColor,
     picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
     layout: 'classic',
+    envelope: defaultEnvelope(themeSlug, p.bg, p.accentColor),
   };
+}
+
+// The envelope a theme starts with: its paper colour, the accent for the
+// liner and the seal, and a liner and emblem for the occasion.
+const ENVELOPE_BY_OCCASION: Record<string, { liner: EnvelopeLiner; seal: EnvelopeSeal }> = {
+  wedding: { liner: 'leaves', seal: 'heart' },
+  christmas: { liner: 'stripes', seal: 'star' },
+  birthday: { liner: 'confetti', seal: 'star' },
+  halloween: { liner: 'dots', seal: 'star' },
+};
+export function defaultEnvelope(themeSlug: string | null | undefined, paper: string, accent: string): InvitationEnvelope {
+  const kind = ENVELOPE_BY_OCCASION[ornamentOccasion(themeSlug)] ?? ENVELOPE_BY_OCCASION.wedding;
+  return { on: true, color: paper, liner: kind.liner, linerColor: accent, seal: kind.seal, sealColor: accent };
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -219,13 +242,20 @@ const font = (v: unknown, fallback: InvitationFont): InvitationFont => (typeof v
 // Papers we design ourselves for a theme's starting invitation: already
 // light where the words go, so they need no wash; textLeft moves the words
 // right (a share of the card's width, cqw) to clear the artwork on the left.
-export const INVITATION_PAPERS: Record<string, { textLeft: number }> = {
+// box, when set, is the blank area of the artwork the words sit in: the space
+// kept clear on each side, in cqw (the card is 100 wide and 140 tall).
+export const INVITATION_PAPERS: Record<string, { textLeft: number; box?: { top: number; right: number; bottom: number; left: number } }> = {
   '/images/invitations/nature-greenery.jpg': { textLeft: 0 },
 };
+
+// An image the host uploaded (not one of our papers or theme photos).
+export const isOwnUpload = (v: string) => !!v && !v.startsWith('/images/');
 
 export function isInvitationImageUrl(v: unknown): v is string {
   if (typeof v !== 'string' || !v) return false;
   if (v in INVITATION_PAPERS) return true;
+  // Our own theme photos and invitation art (the design catalog).
+  if (/^\/images\/(themes|invitations)\/[\w-]+(\/[\w-]+)*\.(jpe?g|png|webp)$/i.test(v)) return true;
   if (v.startsWith('/uploads/')) return /^\/uploads\/[\w.-]+$/.test(v);
   try {
     const u = new URL(v);
@@ -267,7 +297,23 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
     frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
     // Saved designs from before pictures existed keep looking as they did.
     picture: isInvitationPicture(r.picture) ? r.picture : '',
-    layout: INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
+    // "Your own design" needs the host's own uploaded image.
+    layout: r.layout === 'own'
+      ? (bg.kind === 'image' && isOwnUpload(imageUrl) ? 'own' : 'classic')
+      : INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
+    envelope: (() => {
+      const e = (r.envelope && typeof r.envelope === 'object' ? r.envelope : {}) as Record<string, unknown>;
+      // Designs saved before envelopes existed take their colours from the design.
+      const base = r.envelope ? d.envelope : defaultEnvelope(themeSlug, color(bg.color, d.envelope.color), color(r.accentColor, d.envelope.sealColor));
+      return {
+        on: typeof e.on === 'boolean' ? e.on : base.on,
+        color: color(e.color, base.color),
+        liner: isEnvelopeLiner(e.liner) ? e.liner : base.liner,
+        linerColor: color(e.linerColor, base.linerColor),
+        seal: isEnvelopeSeal(e.seal) ? e.seal : base.seal,
+        sealColor: color(e.sealColor, base.sealColor),
+      };
+    })(),
   };
 }
 
@@ -309,7 +355,7 @@ export function readableAccent(design: InvitationDesign): string {
 export const MIN_PHOTO_WASH = 0.65;
 export function invitationOverlay(design: InvitationDesign): { color: string; opacity: number } | null {
   const bg = design.background;
-  if (bg.kind !== 'image' || !bg.imageUrl) return null;
+  if (bg.kind !== 'image' || !bg.imageUrl || design.layout === 'own') return null;
   // Our own papers are light where the words go: only the host's own wash, if any.
   if (bg.imageUrl in INVITATION_PAPERS) return bg.overlay && bg.overlayOpacity > 0 ? { color: bg.overlayColor, opacity: bg.overlayOpacity } : null;
   const lightText = luminance(design.textColor) > 0.4;

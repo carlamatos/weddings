@@ -90,6 +90,12 @@ export type Guest = {
   invitation_note: string | null; // the host's personal note in this guest's invitation email
   texted_at: string | null; // last time the host opened a pre-filled text to this guest
   texted_via: 'sms' | 'whatsapp' | null;
+  opened_at?: string | null; // their email app first showed the invitation (app/lib/invite-tracking.ts)
+  viewed_at?: string | null; // first opened the envelope or followed the invitation's link
+  save_the_date_at?: string | null; // their save-the-date was emailed
+  seats?: number | null; // seats the host saved for this household; their RSVP can't go over it
+  invited_events?: unknown; // sub-event ids they're invited to, null: all (app/lib/sub-events.ts)
+  event_replies?: unknown; // their answer for each sub-event
   seating_table?: string | null; // Find Your Table (Live Party); the column is added on first use (seating-data.ts)
   meals?: unknown; // meal choices per person (rsvp-meals.ts); JSONB, added on first use (rsvp-meals-data.ts)
 };

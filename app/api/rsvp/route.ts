@@ -11,6 +11,8 @@ import { sendGiftJoinEmails } from '@/app/lib/gift-join-notify';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
 import { cleanPartyMeals, mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { ensureMealsColumn } from '@/app/lib/rsvp-meals-data';
+import { ensureInviteColumns, verifyInviteToken } from '@/app/lib/invite-tracking';
+import { SUB_EVENTS_SETTING, eventsForGuest, parseInvitedEvents, parseSubEvents } from '@/app/lib/sub-events';
 
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_GUESTS = 50;
@@ -20,7 +22,7 @@ const str = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals, joinGiftExchange, giftIdeas, song } = body;
+    const { userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, meals, joinGiftExchange, giftIdeas, song, inviteToken, eventReplies } = body;
 
     // Honeypot: bots fill hidden fields, real users don't
     if (honeypot) {
@@ -86,8 +88,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'This page is receiving a lot of replies. Please try again shortly.' }, { status: 429 });
     }
 
+    // A guest who came from their own invitation link (app/lib/invite-tracking.ts):
+    // their reply goes on their own row, even with no email on the list.
+    await ensureInviteColumns();
+    const ref = verifyInviteToken(typeof inviteToken === 'string' ? inviteToken : null);
+    const invited = ref?.kind === 'guest'
+      ? (await sql<{ id: string; seats: number | null; guests: number | null; status: string; invited_events: unknown }>`
+          SELECT id, seats, guests, status, invited_events FROM event_guests WHERE id = ${ref.guestId}::uuid AND user_page_id = ${pageId}
+        `).rows[0]
+      : undefined;
+
     const requested = Math.floor(Number(guests));
-    const guestCount = status === 'attending' ? Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), MAX_GUESTS) : 1;
+    // A household's seats (set by the host) are the most this reply can bring.
+    const seatCap = invited ? (invited.seats ?? (invited.status === 'invited' ? invited.guests : null)) : null;
+    const maxGuests = seatCap && seatCap > 1 ? Math.min(seatCap, MAX_GUESTS) : MAX_GUESTS;
+    const guestCount = status === 'attending' ? Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), maxGuests) : 1;
     const cleanPhone = str(phone, 40) || null;
     const cleanMessage = str(message, 2000) || null;
 
@@ -103,11 +118,20 @@ export async function POST(request: Request) {
     // If the guest was already invited (same email), update their record;
     // otherwise insert fresh. With "only guests on the list" on, the email
     // must already be on the guest list, and a reply is never added as new.
-    const existing = await sql<{ id: number }>`
-      SELECT id FROM event_guests
+    const existing = invited
+      ? { rows: [{ id: invited.id as unknown as number, invited_events: invited.invited_events }] }
+      : await sql<{ id: number; invited_events: unknown }>`
+      SELECT id, invited_events FROM event_guests
       WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()})
       LIMIT 1
     `;
+
+    // Their answer for each of their sub-events (app/lib/sub-events.ts).
+    const myEvents = eventsForGuest(parseSubEvents(settings[SUB_EVENTS_SETTING]), parseInvitedEvents(existing.rows[0]?.invited_events));
+    const answers = eventReplies && typeof eventReplies === 'object' ? (eventReplies as Record<string, unknown>) : {};
+    const repliesJson = myEvents.length
+      ? JSON.stringify(Object.fromEntries(myEvents.map((e) => [e.id, status === 'attending' && answers[e.id] !== false])))
+      : null;
 
     if (isRsvpGuestListOnly(settings) && !existing.rows[0]) {
       return NextResponse.json(
@@ -125,9 +149,20 @@ export async function POST(request: Request) {
           guests = ${guestCount},
           message = ${cleanMessage},
           receive_updates = ${!!receiveUpdates},
-          responded_at = NOW()
+          responded_at = NOW(),
+          seats = COALESCE(seats, CASE WHEN status = 'invited' AND guests > 1 THEN guests END),
+          event_replies = COALESCE(${repliesJson}::jsonb, event_replies)
         WHERE id = ${existing.rows[0].id}
       `;
+      // From their own link: the email they typed joins their row, unless
+      // another guest on the list already has it.
+      if (invited) {
+        await sql`
+          UPDATE event_guests SET email = ${email.trim()}
+          WHERE id = ${existing.rows[0].id} AND (email IS NULL OR lower(email) <> lower(${email.trim()}))
+            AND NOT EXISTS (SELECT 1 FROM event_guests o WHERE o.user_page_id = ${pageId} AND lower(o.email) = lower(${email.trim()}) AND o.id <> ${existing.rows[0].id})
+        `;
+      }
       if (mealOptions) await sql`UPDATE event_guests SET meals = ${mealsJson}::jsonb WHERE id = ${existing.rows[0].id}`;
     } else if (mealOptions) {
       await sql`
@@ -149,6 +184,11 @@ export async function POST(request: Request) {
           NOW()
         )
       `;
+    }
+
+    // A new reply's answers for the page's sub-events.
+    if (!existing.rows[0] && repliesJson) {
+      await sql`UPDATE event_guests SET event_replies = ${repliesJson}::jsonb WHERE user_page_id = ${pageId} AND lower(email) = lower(${email.trim()})`;
     }
 
     // The free song question: saved as a song request, so the host sees it

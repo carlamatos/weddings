@@ -1,3 +1,4 @@
+import { ensureInviteColumns } from '@/app/lib/invite-tracking';
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
@@ -34,6 +35,8 @@ export async function POST(request: Request) {
   const emails = new Set(existing.rows.map((r) => r.email).filter(Boolean));
   const namePhones = new Set(existing.rows.map((r) => `${r.name}|${r.phone ?? ''}`));
 
+  // The seats saved for each household (app/lib/invite-tracking.ts).
+  await ensureInviteColumns();
   let imported = 0;
   let skipped = 0;
   for (const raw of body.contacts as Record<string, unknown>[]) {
@@ -47,8 +50,8 @@ export async function POST(request: Request) {
     if (!name || (email ? emails.has(email) : namePhones.has(key))) { skipped++; continue; }
 
     await sql`
-      INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, invitation_note)
-      VALUES (${pageId}, ${name}, ${email}, ${phone}, 'invited', ${guests}, ${note})
+      INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, invitation_note, seats)
+      VALUES (${pageId}, ${name}, ${email}, ${phone}, 'invited', ${guests}, ${note}, ${guests})
     `;
     if (email) emails.add(email);
     namePhones.add(key);

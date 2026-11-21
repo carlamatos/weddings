@@ -16,9 +16,13 @@ import {
 } from '@/app/lib/invitation';
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
+import { InvitationGallery } from '@/app/ui/dashboard/invitation-gallery';
+import { applyLook, lookOf } from '@/app/lib/invitation-designs';
 import { FontPicker } from '@/app/ui/dashboard/font-picker';
 import { OrnamentField } from '@/app/ui/dashboard/ornament-picker';
 import { ornamentOccasion, ornamentPalette } from '@/app/lib/invitation-ornaments';
+import { ENVELOPE_LINERS, ENVELOPE_SEALS, envelopeSvg, linerPattern, sealSvgInner, type InvitationEnvelope } from '@/app/lib/invitation-envelope';
+import { EnvelopeOpening } from '@/app/ui/invitation-envelope-opening';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
@@ -65,9 +69,16 @@ export function InvitationDesigner({
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
   const [qrSvg, setQrSvg] = useState('');
+  // The "Watch it open" preview; the key restarts it each time.
+  const [watching, setWatching] = useState(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const ownRef = useRef<HTMLInputElement>(null);
+  const own = design.layout === 'own';
+  const t = d.invitationDesigner;
+  const linerLabel = { plain: t.linerPlain, stripes: t.linerStripes, dots: t.linerDots, confetti: t.linerConfetti, leaves: t.linerLeaves };
+  const sealLabel = { heart: t.sealHeart, star: t.sealStar, flower: t.sealFlower, leaf: t.sealLeaf, plain: t.sealPlain };
   const dirty = JSON.stringify(design) !== saved;
   const occasion = ornamentOccasion(themeSlug);
   const palette = ornamentPalette(themeSlug, design);
@@ -80,6 +91,10 @@ export function InvitationDesigner({
 
   function set<K extends keyof InvitationDesign>(key: K, value: InvitationDesign[K]) {
     setDesign((d) => ({ ...d, [key]: value }));
+    setMessage(null);
+  }
+  function setEnv<K extends keyof InvitationEnvelope>(key: K, value: InvitationEnvelope[K]) {
+    setDesign((d) => ({ ...d, envelope: { ...d.envelope, [key]: value } }));
     setMessage(null);
   }
   function setBg<K extends keyof InvitationDesign['background']>(key: K, value: InvitationDesign['background'][K]) {
@@ -117,6 +132,26 @@ export function InvitationDesigner({
     }
   }
 
+  // "Upload your own": their finished invitation becomes the whole card.
+  async function onOwnDesign(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    setMessage(null);
+    try {
+      const url = await uploadImage(file);
+      setDesign((d) => ({
+        ...d, layout: 'own', divider: '', frame: '', picture: '',
+        background: { kind: 'image', color: '#FFFFFF', imageUrl: url, overlay: false, overlayColor: '#000000', overlayOpacity: 0 },
+      }));
+    } catch (err) {
+      setMessage({ kind: 'error', text: err instanceof Error ? err.message : d.invitationDesigner.uploadFailed });
+    } finally {
+      setUploading(false);
+    }
+  }
+
   // Prints just the card, 5×7in, from a hidden frame (or "Save as PDF").
   function print() {
     const frame = frameRef.current;
@@ -147,6 +182,27 @@ export function InvitationDesigner({
 
       <div>
         <section style={panel}>
+          <h3 style={h3}>{d.invitationDesigner.chooseADesign}</h3>
+          <p style={{ fontSize: 13, color: '#6B6470', margin: '-4px 0 14px', lineHeight: 1.6 }}>{d.invitationDesigner.chooseADesignHint}</p>
+          <InvitationGallery design={design} details={details} themeSlug={themeSlug} uploading={uploading}
+            onPick={(look) => { setDesign((cur) => applyLook(cur, look)); setMessage(null); }}
+            onUploadOwn={() => ownRef.current?.click()} />
+          <input ref={ownRef} type="file" accept="image/png,image/jpeg,image/webp,.heic,.heif" onChange={onOwnDesign} style={{ display: 'none' }} />
+        </section>
+
+        {own && (
+          <section style={panel}>
+            <h3 style={h3}>{d.invitationDesigner.ownDesign}</h3>
+            <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 12px', lineHeight: 1.6 }}>{d.invitationDesigner.ownDesignHint}</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" style={btn} disabled={uploading} onClick={() => ownRef.current?.click()}>{uploading ? d.invitationDesigner.uploading : d.invitationDesigner.replaceDesign}</button>
+              <button type="button" style={btn} onClick={() => { setDesign((cur) => applyLook(cur, lookOf(defaultInvitation(themeSlug, language)))); setMessage(null); }}>{d.invitationDesigner.useAMyGalaDesign}</button>
+            </div>
+            <ColorField id="inv-button" text={d.invitationDesigner.buttonColour} value={design.accentColor} onChange={(v) => set('accentColor', v)} />
+          </section>
+        )}
+
+        <section style={panel}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
             {/* Opens the page editor with its date, time and place popup. */}
@@ -168,6 +224,7 @@ export function InvitationDesigner({
           </dl>
         </section>
 
+        {!own && (<>
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.words}</h3>
           <label style={label} htmlFor="inv-eyebrow">{d.invitationDesigner.lineAboveTheEventName}</label>
@@ -257,6 +314,59 @@ export function InvitationDesigner({
             </div>
           )}
         </section>
+        </>)}
+
+        <section style={panel}>
+          <h3 style={h3}>{t.envelope}</h3>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: '#241F2B', cursor: 'pointer', lineHeight: 1.45 }}>
+            <input type="checkbox" checked={design.envelope.on} onChange={(e) => setEnv('on', e.target.checked)} style={{ marginTop: 3 }} />
+            {t.envelopeOn}
+          </label>
+          <p style={{ fontSize: 13, color: '#6B6470', margin: '8px 0 0', lineHeight: 1.6 }}>{t.envelopeHint}</p>
+          {design.envelope.on && (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', margin: '14px 0 4px' }}>
+                <div aria-hidden="true" style={{ width: 200, lineHeight: 0 }} dangerouslySetInnerHTML={{ __html: envelopeSvg(design.envelope, 200) }} />
+                <button type="button" style={btn} onClick={() => setWatching((n) => n + 1)}>▶ {t.watchItOpen}</button>
+              </div>
+              <ColorField id="inv-env-color" text={t.envelopeColour} value={design.envelope.color} onChange={(v) => setEnv('color', v)} />
+
+              <p style={label} id="inv-liner-label">{t.liner}</p>
+              <div role="radiogroup" aria-labelledby="inv-liner-label" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {ENVELOPE_LINERS.map((l) => (
+                  <button key={l} type="button" role="radio" aria-checked={design.envelope.liner === l} onClick={() => setEnv('liner', l)} title={linerLabel[l]}
+                    style={{ padding: 3, borderRadius: 8, border: `2px solid ${design.envelope.liner === l ? '#B6584A' : '#EDE8E3'}`, background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, fontFamily: 'inherit', fontSize: 11, color: '#6B6470' }}>
+                    <svg width="52" height="34" aria-hidden="true" dangerouslySetInnerHTML={{ __html: `<defs>${linerPattern(`inv-liner-${l}`, l, design.envelope.linerColor, 0.5)}</defs><rect width="52" height="34" rx="4" fill="url(#inv-liner-${l})"/>` }} />
+                    {linerLabel[l]}
+                  </button>
+                ))}
+              </div>
+              <ColorField id="inv-liner-color" text={t.linerColour} value={design.envelope.linerColor} onChange={(v) => setEnv('linerColor', v)} />
+
+              <p style={label} id="inv-seal-label">{t.seal}</p>
+              <div role="radiogroup" aria-labelledby="inv-seal-label" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {ENVELOPE_SEALS.map((x) => (
+                  <button key={x} type="button" role="radio" aria-checked={design.envelope.seal === x} onClick={() => setEnv('seal', x)} title={sealLabel[x]}
+                    style={{ padding: '4px 6px', borderRadius: 8, border: `2px solid ${design.envelope.seal === x ? '#B6584A' : '#EDE8E3'}`, background: '#fff', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, fontFamily: 'inherit', fontSize: 11, color: '#6B6470', minWidth: 52 }}>
+                    <svg width="36" height="36" viewBox="0 0 100 100" aria-hidden="true" dangerouslySetInnerHTML={{ __html: sealSvgInner(x, design.envelope.sealColor, `inv-seal-${x}`) }} />
+                    {sealLabel[x]}
+                  </button>
+                ))}
+              </div>
+              <ColorField id="inv-seal-color" text={t.sealColour} value={design.envelope.sealColor} onChange={(v) => setEnv('sealColor', v)} />
+            </>
+          )}
+        </section>
+
+        {watching > 0 && (
+          <div role="dialog" aria-modal="true" aria-label={t.watchItOpen} onClick={(e) => { if (e.target === e.currentTarget) setWatching(0); }}
+            style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(36,31,43,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+            <div style={{ position: 'relative', width: '100%', maxWidth: 460, maxHeight: '100%', overflow: 'auto', borderRadius: 14, boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+              <button type="button" onClick={() => setWatching(0)} style={{ ...btn, position: 'absolute', top: 10, right: 10, zIndex: 10, padding: '5px 11px', fontSize: 13 }}>{t.closePreview}</button>
+              <EnvelopeOpening key={watching} compact design={design} details={details} language={language} guestName={t.sampleGuest} />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="invitation-preview" style={{ position: 'sticky', top: 16 }}>

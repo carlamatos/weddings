@@ -8,6 +8,8 @@ import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
 import { invitationPassword } from '@/app/lib/page-password';
 import { auth } from '@/auth';
+import { ensureInviteColumns, inviteUrl } from '@/app/lib/invite-tracking';
+import { fetchScheduledSends } from '@/app/lib/invitation-send';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import { isCardImage, plainDescription, publicPageUrl, socialImageFor, socialImagePathFor } from '@/app/lib/share';
@@ -34,7 +36,12 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
-  const [settings, guests, session] = await Promise.all([fetchPageSettings(pageId), fetchGuests(pageId), auth()]);
+  // The tracking columns exist before the guest list is read.
+  await ensureInviteColumns().catch((error) => console.error('Failed to add invitation tracking columns:', error));
+  const [settings, guests, session, scheduledRows] = await Promise.all([fetchPageSettings(pageId), fetchGuests(pageId), auth(), fetchScheduledSends(pageId).catch(() => [])]);
+  const scheduled = scheduledRows.map((x) => ({ ...x, send_at: new Date(x.send_at).toISOString() }));
+  // Each guest's own link, for their text message: opening it shows as Viewed.
+  const inviteLinks = Object.fromEntries(guests.map((g) => [g.id, inviteUrl(g.id)]));
 
   let saved: unknown = null;
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
@@ -104,7 +111,7 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
       />
 
       <div style={{ marginTop: 32 }}>
-        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} />
+        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />
       </div>
 
       <section id="page-settings" style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginTop: 32, background: '#fff', scrollMarginTop: 80 }}>

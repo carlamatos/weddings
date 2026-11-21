@@ -384,6 +384,25 @@ export function parsePageId(value: unknown): number | null {
 // The one way to load a page on behalf of a signed-in user: returns the page
 // only if this user owns it. Use it for every dashboard page, server action
 // and owner API so one user can never reach another user's page.
+// Any page by id, for public views reached by a signed link (the guest's
+// invitation, /i/…). Callers check the page's status themselves.
+export async function fetchPageById(pageId: number): Promise<UserPage | undefined> {
+  try {
+    const data = await sql<UserPage>`
+      SELECT up.*, et.slug as theme_slug
+      FROM user_page up
+      LEFT JOIN event_themes et ON et.theme_id = up.theme_id
+      WHERE up.id = ${pageId}`;
+    if (!data.rows[0]) return undefined;
+    const page = normalizePage(data.rows[0]);
+    await expireIfPast(page);
+    return page;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch page.');
+  }
+}
+
 export async function fetchOwnedPage(userId: string, pageId: number): Promise<UserPage | undefined> {
   try {
     const data = await sql<UserPage>`

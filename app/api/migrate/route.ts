@@ -1,3 +1,4 @@
+import { addInviteColumns } from '@/app/lib/invite-tracking';
 import { ensureCronRunsTable } from '@/app/lib/cron-log';
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
@@ -319,6 +320,11 @@ export async function POST(request: Request) {
   // host's own phone, so this records the tap, not delivery.
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_at TIMESTAMPTZ`;
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS texted_via TEXT`;
+  // Invitation tracking (app/lib/invite-tracking.ts): when the guest's email
+  // app first showed the invitation, and when they first opened the envelope
+  // or followed its link. Also added on first use.
+  // Plus households' seats, sub-events, save-the-dates and scheduled sends.
+  await addInviteColumns();
   // Find Your Table (Plus): the guest's table, which guests look up at
   // <page>/table. Also added on first use (app/lib/seating-data.ts).
   await sql`ALTER TABLE event_guests ADD COLUMN IF NOT EXISTS seating_table TEXT`;

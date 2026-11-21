@@ -20,6 +20,7 @@ const TZ = 'America/Vancouver';
 const JOBS: { job: string; what: string; when: string }[] = [
   { job: 'setup-reminders', what: 'Follow-up emails to new hosts', when: 'Daily, 7–8 am Pacific' },
   { job: 'reminders', what: 'Guest reminder emails (Live Party)', when: 'Every hour' },
+  { job: 'scheduled-sends', what: 'Invitations and save-the-dates hosts scheduled', when: 'Every hour, at :05' },
   { job: 'plan-reminders', what: 'RSVP timeline and budget reminders to hosts', when: 'Daily, 6–7 am Pacific' },
   { job: 'purge-deleted-pages', what: 'Empties pages 30 days in the trash', when: 'Daily, 1–2 am Pacific' },
   { job: 'daily-digest', what: 'Pages published today, emailed to you', when: 'Daily, 11:50 pm Pacific' },

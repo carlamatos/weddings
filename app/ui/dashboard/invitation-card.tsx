@@ -21,12 +21,25 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     const divider = findOrnament('divider', design.divider);
     const frame = findOrnament('frame', design.frame);
     const picture = isInvitationPicture(design.picture) ? INVITATION_PICTURES[design.picture] : null;
-    // Our own papers can move the words right, clear of their artwork.
-    const textLeft = useImage ? INVITATION_PAPERS[bg.imageUrl]?.textLeft ?? 0 : 0;
+    // Our own papers can move the words right, clear of their artwork, or
+    // into the blank area (box) the artwork leaves for them.
+    const paper = useImage ? INVITATION_PAPERS[bg.imageUrl] : undefined;
+    const textLeft = paper?.textLeft ?? 0;
+    const box = paper?.box;
     // On a photo, a colour wash strong enough for the words to read clearly.
     const overlay = invitationOverlay(design);
     // The name and closing in the accent, made readable when it's too faint.
     const accentText = readableAccent(design);
+
+    // The host's own finished invitation, shown as it is.
+    if (design.layout === 'own' && useImage) {
+      return (
+        <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={bg.imageUrl} alt={details.name} {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+        </div>
+      );
+    }
 
     return (
       <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
@@ -52,7 +65,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         {design.layout === 'monogram' ? (
           <MonogramWords Name={Name} design={design} details={details} heading={heading} body={body} display={fonts?.amatic ?? INVITATION_FONTS.amatic.family} accentText={accentText} framed={!!frame} />
         ) : (
-        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), ...(box ? { padding: `${box.top}cqw ${box.right}cqw ${box.bottom}cqw ${box.left}cqw` } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
           <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</Name>
