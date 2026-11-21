@@ -72,12 +72,21 @@ export type InvitationDesign = {
   // ring (photo; our sample photo until the host adds theirs), the line above
   // the names in calligraphy, the names in spaced capitals with "and" in
   // calligraphy between.
+  // gilded (weddings): white paper in a fine gold frame, the couple's
+  // initials (initials) in calligraphy at the top, then everything in
+  // spaced gold capitals, the names largest with "and" between.
+  // embossed (weddings): a Victorian frame of scrolls, shells and acanthus
+  // pressed into the paper (raised, in the paper's own colour), the words
+  // centred inside: italic lines, the names in large capitals.
   // own: the host's finished invitation (an uploaded image) shown as it is,
   // with no words, decorations or wash over it.
   layout: InvitationLayout;
   // The couple's photo for the portrait layout: one the host uploaded, or ''
   // for our sample (COUPLE_SAMPLE_PHOTO). Kept when they pick another design.
   photo: string;
+  // The initials at the top of the gilded layout, as the host wrote them
+  // ('' : the first letters of the names). Kept when they change design.
+  initials: string;
   // The flowers' colour in the blooms layout (INVITATION_FLOWER_TONES).
   flowers: FlowerTone;
   // The envelope it arrives in (app/lib/invitation-envelope.ts): on, the
@@ -85,7 +94,7 @@ export type InvitationDesign = {
   envelope: InvitationEnvelope;
 };
 
-export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'own'] as const;
+export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'gilded', 'embossed', 'own'] as const;
 export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn
@@ -118,7 +127,7 @@ const THEME_PAPER: Partial<Record<string, string>> = { nature: '/images/invitati
 export const THEME_PICTURE: Partial<Record<string, InvitationPicture>> = { balloons: 'balloons', gnomes: 'gnome' };
 export const isInvitationPicture = (v: unknown): v is InvitationPicture => typeof v === 'string' && v in INVITATION_PICTURES;
 
-export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160 } as const;
+export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160, initials: 5 } as const;
 
 // The host's personal note for one guest (Guests → Invite).
 export const INVITATION_NOTE_MAX = 500;
@@ -253,6 +262,7 @@ export function defaultInvitation(themeSlug?: string | null, language?: string |
     picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
     layout: 'classic',
     photo: '',
+    initials: '',
     flowers: 'peach',
     envelope: defaultEnvelope(themeSlug, p.bg, p.accentColor),
   };
@@ -340,6 +350,7 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
       ? (bg.kind === 'image' && isOwnUpload(imageUrl) ? 'own' : 'classic')
       : INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
     photo: isInvitationImageUrl(r.photo) ? r.photo : '',
+    initials: text(r.initials, INVITATION_TEXT_MAX.initials, '').replace(/\s+/g, ' ').trim(),
     flowers: isFlowerTone(r.flowers) ? r.flowers : d.flowers,
     envelope: (() => {
       const e = (r.envelope && typeof r.envelope === 'object' ? r.envelope : {}) as Record<string, unknown>;

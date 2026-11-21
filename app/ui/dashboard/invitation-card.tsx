@@ -2,6 +2,7 @@ import { forwardRef, type ImgHTMLAttributes } from 'react';
 import { COUPLE_SAMPLE_PHOTO, INVITATION_FLOWER_TONES, INVITATION_FONTS, INVITATION_PAPERS, INVITATION_PICTURES, invitationOverlay, isInvitationPicture, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 import { MONOGRAM_WREATH_SVG, monogramNames } from '@/app/lib/invitation-monogram';
+import { mix } from '@/app/lib/invitation-envelope';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
@@ -62,7 +63,11 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
               ...(picture.corner === 'top-right' ? { top: '5cqw', right: '5cqw' } : { bottom: '4.5cqw', left: '5.5cqw' }),
             }} />
         )}
-        {design.layout === 'blooms' ? (
+        {design.layout === 'embossed' ? (
+          <EmbossedWords Name={Name} design={design} details={details} heading={heading} body={body} qrSvg={qrSvg} />
+        ) : design.layout === 'gilded' ? (
+          <GildedWords Name={Name} design={design} details={details} heading={heading} qrSvg={qrSvg} />
+        ) : design.layout === 'blooms' ? (
           <BloomsWords Name={Name} design={design} details={details} heading={heading} accentText={accentText} qrSvg={qrSvg} />
         ) : design.layout === 'portrait' ? (
           <PortraitWords Name={Name} design={design} details={details} heading={heading} accentText={accentText} qrSvg={qrSvg} />
@@ -271,6 +276,154 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
           <div style={{ width: '13cqw', height: '13cqw', background: '#fff', padding: '0.9cqw', borderRadius: '0.8cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ margin: 0, fontFamily: heading, fontSize: '5.4cqw', lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
+      </div>
+    </>
+  );
+}
+
+// The gilded layout (White & Gold): a fine frame in a gold sheen, the
+// couple's initials in calligraphy at the top (the host's, or the first
+// letters of the names), then everything in spaced capitals in the gold:
+// the names largest with "and" between, the date a little larger.
+function GildedWords({ Name, design, details, heading, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; qrSvg?: string;
+}) {
+  const { names, joiner } = monogramNames(details.name);
+  const letters = (design.initials || names.map((n) => n.charAt(0)).join('')).replace(/[^\p{L}]/gu, '').toUpperCase().slice(0, 3).split('');
+  const gold = design.accentColor;
+  const sheen = `linear-gradient(135deg, ${gold}, ${mix(gold, '#FFFFFF', 0.55)} 35%, ${gold} 55%, ${mix(gold, '#FFFFFF', 0.4)} 80%, ${gold})`;
+  const longest = Math.max(...names.map((n) => n.length));
+  const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.45cqw', lineHeight: 1.65, fontWeight: 600, color: design.textColor } as const;
+  return (
+    <>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: '6cqw', border: '0.55cqw solid transparent', borderImage: `${sheen} 1`, pointerEvents: 'none' }} />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '11cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
+        {letters.length > 0 && (
+          // Two initials overlap on a slant, the second lower and to the right.
+          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? '24cqw' : 'auto', height: '21cqw', marginBottom: '2cqw', fontFamily: heading, fontSize: '17cqw', lineHeight: 1, color: gold }}>
+            {letters.length === 2 ? (
+              <>
+                <span style={{ position: 'absolute', left: '1.5cqw', top: 0 }}>{letters[0]}</span>
+                <span style={{ position: 'absolute', right: '1.5cqw', top: '6cqw' }}>{letters[1]}</span>
+              </>
+            ) : (
+              <span style={{ letterSpacing: '0.8cqw' }}>{letters.join('')}</span>
+            )}
+          </div>
+        )}
+        {design.eyebrow && <p style={{ ...caps, fontSize: '3.1cqw', maxWidth: '88%' }}>{design.eyebrow}</p>}
+        {names.length === 2 ? (
+          <Name style={{ margin: '1.4cqw 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw', fontWeight: 600 }}>
+            <span style={{ ...caps, fontSize: `${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[0]}</span>
+            <span style={{ ...caps, fontSize: '3.4cqw', lineHeight: 1 }}>{joiner}</span>
+            <span style={{ ...caps, fontSize: `${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[1]}</span>
+          </Name>
+        ) : (
+          <Name style={{ ...caps, margin: '1.4cqw 0', fontSize: `${Math.max(4.2, Math.min(6, 70 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.3 }}>{names[0]}</Name>
+        )}
+        {design.message && <p style={{ ...caps, fontSize: '3cqw', whiteSpace: 'pre-line', maxWidth: '92%' }}>{design.message}</p>}
+        {details.date && <p style={{ ...caps, marginTop: '1.4cqw', fontSize: '4.2cqw', letterSpacing: '0.5cqw', lineHeight: 1.3 }}>{details.date}</p>}
+        {details.time && <p style={{ ...caps, fontSize: '3cqw' }}>{details.time}</p>}
+        {(details.venue || details.address) && (
+          <div>
+            {details.venue && <p style={{ ...caps, fontSize: '3cqw' }}>{details.venue}</p>}
+            {details.address && <p style={{ ...caps, fontSize: '3cqw' }}>{details.address}</p>}
+          </div>
+        )}
+        {details.password && <p style={{ ...caps, fontSize: '2.8cqw' }}>{details.passwordLabel}: {details.password}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.8cqw', borderRadius: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={{ ...caps, marginTop: '0.6cqw', fontSize: '2.8cqw' }}>{design.closing}</p>}
+      </div>
+    </>
+  );
+}
+
+// The Victorian ornaments of the embossed layout, in a 100 x 140 box (the
+// card), no ruled frame: a long flourish across the top and bottom (a spear
+// and teardrop in the middle, a curl either side sweeping out into an arch,
+// a dot at each end). Drawn in the paper's colour and raised by two shadows
+// (EmbossedWords), so they read as white on white.
+const VICTORIAN_BAR_HALF = (
+  <>
+    <path className="v-fill" d="M.5 -1.3C2.6 -3.6 4.4 -4.4 6 -4.4C5 -2.8 3.2 -1.4 .5 -1.3Z" />
+    <path d="M1.6 5.2C1 1 3.4 -2.4 6.4 -2.3C8.9 -2.2 9.8 .6 8.4 2C7.3 3 5.7 2.4 5.9 1.1" />
+    <circle className="v-fill" cx="6.6" cy=".3" r=".85" />
+    <path d="M1.6 5.2C3.6 7.6 9 7.6 13.4 4.8C17.6 2.1 20.4 -2.4 26.4 -2.7C31.4 -2.9 34.6 -.4 35.6 1.8" />
+    <path className="v-fill" d="M35.6 1.8C35.2 2.9 34 3.2 33.2 2.5C34.2 2.4 34.9 2.1 35.6 1.8Z" />
+    <circle className="v-fill" cx="42.4" cy="4.3" r="1" />
+  </>
+);
+const VICTORIAN_BAR = (
+  <>
+    <path className="v-fill" d="M0 -9C1.3 -5.6 1.7 -3.2 0 0C-1.7 -3.2 -1.3 -5.6 0 -9Z" />
+    <path className="v-fill" d="M0 1.2C.7 2.8 .6 3.9 0 4.8C-.6 3.9 -.7 2.8 0 1.2Z" />
+    <circle className="v-fill" cy="6.8" r="1.05" />
+    {VICTORIAN_BAR_HALF}
+    <g transform="scale(-1 1)">{VICTORIAN_BAR_HALF}</g>
+  </>
+);
+// Cotton paper with a sandy tooth for the embossed layout: the noise lit
+// from the top left (the little hills and hollows of the paper), a soft
+// mottling, and a sprinkle of fine warm flecks. Laid over the paper and the
+// frame in multiply, under the ink.
+const SANDY_PAPER = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" surfaceScale="1.6" lighting-color="#ffffff" diffuseConstant="1.05"><feDistantLight azimuth="225" elevation="58"/></feDiffuseLighting></filter><filter id="m"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="9" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0.16 0"/></filter><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="1" seed="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0 0.32  0 0 0 9 -6.1"/></filter><rect width="100%" height="100%" filter="url(#t)"/><rect width="100%" height="100%" filter="url(#m)"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.5"/></svg>')}")`;
+
+// The embossed layout (Victorian Emboss): the frame above raised in the
+// paper, the words centred in it in ink: italic lines, the names in large
+// light capitals with a small italic "and" between.
+function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; body: string; qrSvg?: string;
+}) {
+  const { names, joiner } = monogramNames(details.name);
+  const paper = design.background.color;
+  const raised = mix(paper, '#FFFFFF', 0.5);
+  const longest = Math.max(...names.map((n) => n.length));
+  const nameSize = `${Math.max(5.4, Math.min(9, 76 / longest))}cqw`;
+  const line = { margin: 0, fontFamily: body, fontStyle: 'italic', fontSize: '3.05cqw', letterSpacing: '0.22cqw', lineHeight: 1.6, color: design.textColor } as const;
+  const big = { margin: 0, fontFamily: heading, fontWeight: 400, textTransform: 'uppercase', fontSize: nameSize, letterSpacing: '0.25cqw', lineHeight: 1.05, color: design.textColor } as const;
+  return (
+    <>
+      <svg aria-hidden="true" viewBox="0 0 100 140" preserveAspectRatio="none"
+        style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible',
+          filter: `drop-shadow(-0.12cqw -0.12cqw 0.06cqw rgba(255,255,255,0.9)) drop-shadow(0.18cqw 0.25cqw 0.15cqw rgba(0,0,0,0.3))` }}>
+        <style>{`.v-orn{fill:none;stroke:${raised};stroke-width:.75;stroke-linecap:round;stroke-linejoin:round}.v-orn .v-fill{fill:${raised};stroke-width:.25}`}</style>
+        <g className="v-orn">
+          <g transform="translate(50 15)">{VICTORIAN_BAR}</g>
+          <g transform="translate(50 125) scale(1 -1)">{VICTORIAN_BAR}</g>
+        </g>
+      </svg>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: SANDY_PAPER, backgroundSize: '300px 300px', opacity: 0.55, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '25cqw 21cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.2cqw' }}>
+        {design.eyebrow && <p style={{ ...line, marginBottom: '3cqw' }}>{design.eyebrow}</p>}
+        {names.length === 2 ? (
+          <Name style={{ margin: '0 0 3cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1cqw', fontWeight: 400 }}>
+            <span style={big}>{names[0]}</span>
+            <span style={{ ...line, fontSize: '2.8cqw' }}>{joiner}</span>
+            <span style={big}>{names[1]}</span>
+          </Name>
+        ) : (
+          <Name style={{ ...big, marginBottom: '3cqw' }}>{names[0]}</Name>
+        )}
+        {design.message && <p style={{ ...line, whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {(details.date || details.time) && (
+          <div>
+            {details.date && <p style={line}>{details.date}</p>}
+            {details.time && <p style={line}>{details.time}</p>}
+          </div>
+        )}
+        {(details.venue || details.address) && (
+          <div style={{ marginTop: '2cqw' }}>
+            {details.venue && <p style={line}>{details.venue}</p>}
+            {details.address && <p style={line}>{details.address}</p>}
+          </div>
+        )}
+        {details.password && <p style={{ ...line, fontSize: '2.7cqw' }}>{details.passwordLabel}: {details.password}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.8cqw', borderRadius: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={{ ...line, marginTop: '2cqw' }}>{design.closing}</p>}
       </div>
     </>
   );

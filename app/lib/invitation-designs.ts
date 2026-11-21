@@ -13,7 +13,7 @@ import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 
 // The look: what a design sets. The words, the QR choice and the envelope's
 // liner and emblem stay the host's (its colours follow the design).
-export type InvitationLook = Omit<InvitationDesign, 'eyebrow' | 'message' | 'closing' | 'showQr' | 'envelope' | 'photo'>;
+export type InvitationLook = Omit<InvitationDesign, 'eyebrow' | 'message' | 'closing' | 'showQr' | 'envelope' | 'photo' | 'initials'>;
 
 export type DesignGroup = 'wedding' | 'party' | 'baby' | 'holiday' | 'business';
 export const DESIGN_GROUPS: DesignGroup[] = ['wedding', 'party', 'baby', 'holiday', 'business'];
@@ -49,8 +49,8 @@ export type CatalogDesign = {
 // Styles: designs of their own, under an occasion but not tied to any theme.
 // They come first in their occasion, before the theme designs. Each is one
 // layout in a few colourways (tones).
-export type DesignStyle = 'paper-blooms' | 'white-roses' | 'portrait';
-export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen';
+export type DesignStyle = 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
+export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold';
 
 const solid = (color: string): InvitationLook['background'] => ({ kind: 'color', color, imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 });
 const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
@@ -59,6 +59,27 @@ const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textCol
 });
 
 const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTone, InvitationLook][] }[] = [
+  // Victorian Emboss: white on white, a fine Victorian frame raised in the
+  // paper itself, the words in black ink (layout 'embossed').
+  {
+    style: 'victorian',
+    group: 'wedding',
+    tones: [
+      ['classic', styleLook({ layout: 'embossed', headingFont: 'cormorant', bodyFont: 'libre-baskerville', bg: '#FBFBF9', textColor: '#1C1C1C', accentColor: '#1C1C1C' })],
+    ],
+  },
+  // White & Gold: white paper in a fine gold frame, the couple's initials in
+  // calligraphy at the top, everything else in spaced gold capitals
+  // (layout 'gilded').
+  {
+    style: 'white-gold',
+    group: 'wedding',
+    tones: [
+      ['classic', styleLook({ layout: 'gilded', headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#FFFFFF', textColor: '#A8802F', accentColor: '#B48A33' })],
+      ['ivory', styleLook({ layout: 'gilded', headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#FBF7EE', textColor: '#9C772C', accentColor: '#A98232' })],
+      ['rose-gold', styleLook({ layout: 'gilded', headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#FFFFFF', textColor: '#A9695A', accentColor: '#B7735F' })],
+    ],
+  },
   // Paper Blooms: our flower cutouts in soft paper colours, raised off the
   // card with shadows, cascading down the right side (layout 'blooms').
   {

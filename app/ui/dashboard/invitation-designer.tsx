@@ -376,6 +376,15 @@ export function InvitationDesigner({
             <input type="checkbox" checked={design.showQr} onChange={(e) => set('showQr', e.target.checked)} />
             {d.invitationDesigner.showAQrCodeGuests}
           </label>
+          {design.layout === 'gilded' && (
+            <>
+              <label style={label} htmlFor="inv-initials">{t.initials}</label>
+              <input id="inv-initials" style={{ ...input, maxWidth: 140, fontSize: 16, letterSpacing: '0.08em' }} value={design.initials} maxLength={INVITATION_TEXT_MAX.initials}
+                placeholder={details.name.split(/\s*(?:&|\+|\band\b|\bet\b|\by\b)\s*/i).filter(Boolean).map((n) => n.trim().charAt(0).toUpperCase()).join('')}
+                onChange={(e) => set('initials', e.target.value)} />
+              <p style={{ fontSize: 12, color: '#6B6470', margin: '6px 0 0', lineHeight: 1.5 }}>{t.initialsHint}</p>
+            </>
+          )}
         </section>
         )}
 
