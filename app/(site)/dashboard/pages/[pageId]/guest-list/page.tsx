@@ -113,7 +113,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
             <strong>{prompt.title}</strong> <span style={{ color: '#6B6470' }}>{prompt.text}</span>
           </span>
           <Link
-            href={pagePath(pageId, '/invitations')}
+            href={`${pagePath(pageId, '/invitations')}?step=send`}
             style={{ padding: '9px 18px', borderRadius: 8, background: '#B6584A', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             {d.guestList.sendInvitations}
@@ -142,7 +142,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
         <MealSummaryCard summary={summarizeMeals(mealGuests, mealOptions ?? [])} rows={mealRows} heading={page.heading || ''} />
       )}
 
-      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} showMeals={showMeals} subEvents={subEvents} />
+      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={`${pagePath(pageId, '/invitations')}?step=send`} showMeals={showMeals} subEvents={subEvents} />
 
       <div style={{ marginTop: 28 }}>
         <SubEventsManager pageId={pageId} initial={subEvents} counts={subEventCounts} />

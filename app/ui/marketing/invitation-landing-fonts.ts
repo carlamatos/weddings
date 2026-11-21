@@ -1,6 +1,6 @@
 import {
   Amatic_SC, Cinzel, Cormorant_Garamond, Creepster, Dancing_Script, Fredoka, Josefin_Sans, Lato,
-  Libre_Baskerville, Montserrat, Parisienne, Playfair_Display, Poppins, Space_Grotesk,
+  Libre_Baskerville, Montserrat, Mrs_Saint_Delafield, Parisienne, Playfair_Display, Poppins, Space_Grotesk,
 } from 'next/font/google';
 import type { InvitationFont } from '@/app/lib/invitation';
 import { greatVibes } from '@/app/ui/fonts';
@@ -17,6 +17,7 @@ import { greatVibes } from '@/app/ui/fonts';
 // Variable fonts take no weight list.
 // Each call's options are written out: next/font reads them at build time.
 
+const mrsSaint = Mrs_Saint_Delafield({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
 const parisienne = Parisienne({ subsets: ['latin'], display: 'swap', preload: false, weight: '400' });
 const dancingScript = Dancing_Script({ subsets: ['latin'], display: 'swap', preload: false });
 const playfair = Playfair_Display({ subsets: ['latin'], display: 'swap', preload: false });
@@ -34,6 +35,7 @@ const amatic = Amatic_SC({ subsets: ['latin'], display: 'swap', preload: false, 
 
 export const LANDING_INVITATION_FONTS: Record<InvitationFont, string> = {
   'great-vibes': greatVibes.style.fontFamily,
+  'mrs-saint-delafield': mrsSaint.style.fontFamily,
   'parisienne': parisienne.style.fontFamily,
   'dancing-script': dancingScript.style.fontFamily,
   'playfair': playfair.style.fontFamily,

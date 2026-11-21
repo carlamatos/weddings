@@ -9,8 +9,16 @@ import { isEnvelopeLiner, isEnvelopeSeal, type EnvelopeLiner, type EnvelopeSeal,
 
 export const INVITATION_SETTING = 'invitation_design';
 
+// The invitation is made in steps, one screen at a time, ending with
+// sending it. A finished design the host uploaded skips Words and Style.
+export const INVITATION_STEPS = ['design', 'details', 'words', 'style', 'envelope', 'send'] as const;
+export type InvitationStep = (typeof INVITATION_STEPS)[number];
+export const isInvitationStep = (v: unknown): v is InvitationStep => typeof v === 'string' && (INVITATION_STEPS as readonly string[]).includes(v);
+
 export const INVITATION_FONTS = {
   'great-vibes': { label: 'Great Vibes (script)', family: "'Great Vibes', cursive", google: 'Great+Vibes' },
+  // Formal calligraphy (the Couple Portrait designs).
+  'mrs-saint-delafield': { label: 'Mrs Saint Delafield (calligraphy)', family: "'Mrs Saint Delafield', cursive", google: 'Mrs+Saint+Delafield' },
   'parisienne': { label: 'Parisienne (script)', family: "'Parisienne', cursive", google: 'Parisienne' },
   'dancing-script': { label: 'Dancing Script (handwritten)', family: "'Dancing Script', cursive", google: 'Dancing+Script:wght@400;600' },
   'playfair': { label: 'Playfair Display (elegant serif)', family: "'Playfair Display', serif", google: 'Playfair+Display:ital,wght@0,400;0,600;1,400' },
@@ -57,15 +65,27 @@ export type InvitationDesign = {
   // heading font. monogram (weddings): the couple's initials in a leaf
   // wreath, "the WEDDING of" in the heading font and tall hand-lettered
   // capitals, then the names, details and closing in the body font's capitals.
+  // blooms (weddings): our flower cutouts (the Wild Flores theme's) cascading
+  // down the right side in soft paper colours (flowers), raised off the card
+  // with shadows, the words set to their left.
+  // portrait (weddings): the couple's photo in a circle inside a fine double
+  // ring (photo; our sample photo until the host adds theirs), the line above
+  // the names in calligraphy, the names in spaced capitals with "and" in
+  // calligraphy between.
   // own: the host's finished invitation (an uploaded image) shown as it is,
   // with no words, decorations or wash over it.
   layout: InvitationLayout;
+  // The couple's photo for the portrait layout: one the host uploaded, or ''
+  // for our sample (COUPLE_SAMPLE_PHOTO). Kept when they pick another design.
+  photo: string;
+  // The flowers' colour in the blooms layout (INVITATION_FLOWER_TONES).
+  flowers: FlowerTone;
   // The envelope it arrives in (app/lib/invitation-envelope.ts): on, the
   // email shows it sealed and guests open it on MyGala.
   envelope: InvitationEnvelope;
 };
 
-export const INVITATION_LAYOUTS = ['classic', 'monogram', 'own'] as const;
+export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'own'] as const;
 export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn
@@ -76,6 +96,20 @@ export const INVITATION_PICTURES = {
   gnome: { label: 'Gnome', src: '/images/invitations/gnome.webp', corner: 'bottom-left', width: 13, rotate: -4 },
 } as const;
 export type InvitationPicture = keyof typeof INVITATION_PICTURES;
+// The blooms layout's flower colours: the cutouts softened into paper
+// tones with CSS filters (the shadows that raise them are added after).
+export const INVITATION_FLOWER_TONES = {
+  peach: 'sepia(0.6) saturate(1.25) hue-rotate(-14deg) brightness(1.1)',
+  blush: 'sepia(0.2) saturate(0.55) brightness(1.13)',
+  ivory: 'grayscale(0.85) sepia(0.35) brightness(1.18) contrast(0.92)',
+  lilac: 'hue-rotate(-28deg) saturate(0.45) brightness(1.1)',
+} as const;
+export type FlowerTone = keyof typeof INVITATION_FLOWER_TONES;
+const isFlowerTone = (v: unknown): v is FlowerTone => typeof v === 'string' && v in INVITATION_FLOWER_TONES;
+
+// The portrait layout's photo until the host adds their own.
+export const COUPLE_SAMPLE_PHOTO = '/images/themes/quiet-coastal/couple.png';
+
 // Themes whose invitation starts on one of our papers (INVITATION_PAPERS).
 const THEME_PAPER: Partial<Record<string, string>> = { nature: '/images/invitations/nature-greenery.jpg' };
 // Which theme starts with which picture.
@@ -216,6 +250,8 @@ export function defaultInvitation(themeSlug?: string | null, language?: string |
     frameColor: p.accentColor,
     picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
     layout: 'classic',
+    photo: '',
+    flowers: 'peach',
     envelope: defaultEnvelope(themeSlug, p.bg, p.accentColor),
   };
 }
@@ -301,6 +337,8 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
     layout: r.layout === 'own'
       ? (bg.kind === 'image' && isOwnUpload(imageUrl) ? 'own' : 'classic')
       : INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
+    photo: isInvitationImageUrl(r.photo) ? r.photo : '',
+    flowers: isFlowerTone(r.flowers) ? r.flowers : d.flowers,
     envelope: (() => {
       const e = (r.envelope && typeof r.envelope === 'object' ? r.envelope : {}) as Record<string, unknown>;
       // Designs saved before envelopes existed take their colours from the design.

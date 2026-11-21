@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QRCode from 'qrcode';
 import { saveInvitationDesign } from '@/app/lib/actions';
@@ -13,6 +14,7 @@ import {
   type InvitationDetails,
   type InvitationFont,
   INVITATION_PICTURES, THEME_PICTURE, isInvitationPicture,
+  INVITATION_STEPS, type InvitationStep,
 } from '@/app/lib/invitation';
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
@@ -29,6 +31,7 @@ import { rich } from '@/app/ui/dashboard/rich';
 import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
 import { PencilSquareIcon } from '@heroicons/react/24/outline';
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
+
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
 
 const panel: React.CSSProperties = { background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: 18, marginBottom: 14 };
@@ -53,6 +56,8 @@ export function InvitationDesigner({
   initial,
   details,
   editPageHref,
+  sendStep,
+  initialStep = 'design',
 }: {
   pageId: number;
   themeSlug: string | null;
@@ -61,6 +66,9 @@ export function InvitationDesigner({
   initial: InvitationDesign;
   details: InvitationDetails;
   editPageHref: string;
+  // The last step: the guest list and the Send button (InvitationSender).
+  sendStep: ReactNode;
+  initialStep?: InvitationStep;
 }) {
   const d = useDashText();
   const [design, setDesign] = useState(initial);
@@ -71,10 +79,21 @@ export function InvitationDesigner({
   const [qrSvg, setQrSvg] = useState('');
   // The "Watch it open" preview; the key restarts it each time.
   const [watching, setWatching] = useState(0);
+  const [step, setStep] = useState<InvitationStep>(initialStep);
+  const router = useRouter();
+  const topRef = useRef<HTMLDivElement>(null);
+  const stepsRef = useRef<HTMLOListElement>(null);
+  // On a phone the step bar is one scrolling row: keep the current step in it.
+  useEffect(() => {
+    const row = stepsRef.current;
+    const on = row?.querySelector<HTMLElement>('[aria-current="step"]');
+    if (row && on && row.scrollWidth > row.clientWidth) row.scrollTo({ left: on.offsetLeft - row.offsetLeft - 16, behavior: 'smooth' });
+  }, [step]);
   const cardRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLIFrameElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const ownRef = useRef<HTMLInputElement>(null);
+  const photoRef = useRef<HTMLInputElement>(null);
   const own = design.layout === 'own';
   const t = d.invitationDesigner;
   const linerLabel = { plain: t.linerPlain, stripes: t.linerStripes, dots: t.linerDots, confetti: t.linerConfetti, leaves: t.linerLeaves };
@@ -102,18 +121,37 @@ export function InvitationDesigner({
     setMessage(null);
   }
 
-  async function save() {
+  async function save(): Promise<boolean> {
     setSaving(true);
     setMessage(null);
     const result = await saveInvitationDesign(pageId, design);
     setSaving(false);
     if (!result.ok) {
       setMessage({ kind: 'error', text: result.error });
-      return;
+      return false;
     }
     setDesign(result.value);
     setSaved(JSON.stringify(result.value));
     setMessage({ kind: 'ok', text: d.invitationDesigner.invitationSaved });
+    return true;
+  }
+
+  // The steps this design has, and moving between them. Going on to Send
+  // saves the design first, since that's what the guests are sent.
+  const steps = INVITATION_STEPS.filter((s) => !(own && (s === 'words' || s === 'style')));
+  const current = steps.includes(step) ? step : 'design';
+  const at = steps.indexOf(current);
+  const stepName: Record<InvitationStep, string> = { design: t.stepDesign, details: t.stepDetails, words: t.stepWords, style: t.stepStyle, envelope: t.stepEnvelope, send: t.stepSend };
+  async function go(next: InvitationStep) {
+    if (next === current) return;
+    if (next === 'send' && dirty) {
+      if (!(await save())) return;
+      router.refresh();
+    }
+    setStep(next);
+    setMessage(null);
+    const top = topRef.current;
+    if (top && top.getBoundingClientRect().top < 0) top.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   async function onImage(e: React.ChangeEvent<HTMLInputElement>) {
@@ -125,6 +163,23 @@ export function InvitationDesigner({
     try {
       const url = await uploadImage(file);
       setDesign((d) => ({ ...d, background: { ...d.background, kind: 'image', imageUrl: url } }));
+    } catch (err) {
+      setMessage({ kind: 'error', text: err instanceof Error ? err.message : d.invitationDesigner.uploadFailed });
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  // The portrait layout's photo: theirs in place of our sample couple.
+  async function onPhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    setMessage(null);
+    try {
+      const url = await uploadImage(file);
+      setDesign((d) => ({ ...d, photo: url }));
     } catch (err) {
       setMessage({ kind: 'error', text: err instanceof Error ? err.message : d.invitationDesigner.uploadFailed });
     } finally {
@@ -175,12 +230,81 @@ export function InvitationDesigner({
   }
 
 
+  const nav = (
+    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginTop: 4 }}>
+      {at > 0 ? <button type="button" style={btn} onClick={() => go(steps[at - 1])}>← {t.back}</button> : <span />}
+      {at < steps.length - 1 && (
+        <button type="button" disabled={saving} onClick={() => go(steps[at + 1])} style={{ ...btn, border: 'none', background: '#B6584A', color: '#fff', opacity: saving ? 0.6 : 1 }}>
+          {saving ? t.saving : `${t.next}: ${stepName[steps[at + 1]]} →`}
+        </button>
+      )}
+    </div>
+  );
+
   return (
-    <div className="invitation-designer" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 420px)', gap: 24, alignItems: 'start' }}>
+    <div ref={topRef} style={{ scrollMarginTop: 80 }}>
       <link rel="stylesheet" href={FONTS_HREF} />
-      <style>{`@media (max-width: 900px) { .invitation-designer { grid-template-columns: 1fr !important; } .invitation-preview { position: static !important; } }`}</style>
+      {/* On a phone the invitation comes first, at the top, then the steps
+          and their settings below it (the preview column is hidden there). */}
+      {current !== 'send' && (
+        <div className="invitation-phone-card" style={{ display: 'none' }}>
+          <div style={{ width: 'min(72vw, 300px)', margin: '0 auto 18px' }}>
+            <InvitationCard design={design} details={details} qrSvg={qrSvg} nameAs="p" />
+          </div>
+        </div>
+      )}
+      {/* The steps: numbered, each one clickable. */}
+      <nav aria-label={t.stepsLabel} style={{ marginBottom: 18 }}>
+        <style>{`@media (max-width: 900px) { .invitation-steps { flex-wrap: nowrap !important; overflow-x: auto; padding-bottom: 4px !important; scrollbar-width: none; } .invitation-steps li { flex-shrink: 0; } }`}</style>
+        <ol ref={stepsRef} className="invitation-steps" style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {steps.map((s, i) => {
+            const on = s === current;
+            const done = i < at;
+            return (
+              <li key={s}>
+                <button type="button" aria-current={on ? 'step' : undefined} onClick={() => go(s)}
+                  style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 14px 7px 8px', borderRadius: 999, border: `1px solid ${on ? '#B6584A' : '#E2DAD3'}`, background: on ? '#B6584A' : '#fff', color: on ? '#fff' : '#241F2B', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <span aria-hidden="true" style={{ width: 22, height: 22, borderRadius: '50%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, background: on ? '#fff' : done ? '#3D6B46' : '#F3EEE9', color: on ? '#B6584A' : done ? '#fff' : '#6B6470' }}>
+                    {done ? '✓' : i + 1}
+                  </span>
+                  {stepName[s]}
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+        <p style={{ fontSize: 12, color: '#9A8F8C', margin: '8px 0 0' }}>{t.stepOf.replace('{n}', String(at + 1)).replace('{total}', String(steps.length))}</p>
+      </nav>
+
+      {current === 'send' ? (
+        <div>
+          {/* The invitation being sent, small, with a way back to change it. */}
+          <div style={{ ...panel, display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div style={{ width: 92, flexShrink: 0 }}><InvitationCard design={design} details={details} qrSvg={qrSvg} nameAs="p" /></div>
+            <div>
+              <p style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#241F2B' }}>{t.whatYoureSending}</p>
+              <p style={{ margin: '4px 0 10px', fontSize: 13, color: '#6B6470', lineHeight: 1.5 }}>{t.whatYoureSendingHint}</p>
+              <button type="button" style={{ ...btn, padding: '7px 12px', fontSize: 13 }} onClick={() => go('design')}>{t.changeDesign}</button>
+            </div>
+          </div>
+          {sendStep}
+          <div style={{ marginTop: 14 }}>{nav}</div>
+        </div>
+      ) : (
+    <div className="invitation-designer" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 420px)', gap: 24, alignItems: 'start' }}>
+      {/* On a phone: the invitation is shown at the top, above the steps
+          (invitation-phone-card), so this column's copy is hidden, and the
+          Save and Print buttons come after the settings. */}
+      <style>{`@media (max-width: 900px) {
+        .invitation-designer { grid-template-columns: 1fr !important; gap: 14px !important; }
+        .invitation-preview { position: static !important; }
+        .invitation-preview-card { display: none; }
+        .invitation-phone-card { display: block !important; }
+        .invitation-preview-actions > div:first-child { margin-top: 0 !important; }
+      }`}</style>
 
       <div>
+        {current === 'design' && (<>
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.chooseADesign}</h3>
           <p style={{ fontSize: 13, color: '#6B6470', margin: '-4px 0 14px', lineHeight: 1.6 }}>{d.invitationDesigner.chooseADesignHint}</p>
@@ -202,6 +326,20 @@ export function InvitationDesigner({
           </section>
         )}
 
+        {design.layout === 'portrait' && (
+          <section style={panel}>
+            <h3 style={h3}>{t.yourPhoto}</h3>
+            <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 12px', lineHeight: 1.6 }}>{design.photo ? t.yourPhotoHint : t.samplePhotoHint}</p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button type="button" style={btn} disabled={uploading} onClick={() => photoRef.current?.click()}>{uploading ? t.uploading : design.photo ? t.replacePhoto : t.uploadYourPhoto}</button>
+              {design.photo && <button type="button" style={btn} onClick={() => set('photo', '')}>{t.useSamplePhoto}</button>}
+            </div>
+            <input ref={photoRef} type="file" accept="image/*,.heic,.heif" onChange={onPhoto} style={{ display: 'none' }} />
+          </section>
+        )}
+        </>)}
+
+        {current === 'details' && (
         <section style={panel}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
@@ -223,8 +361,9 @@ export function InvitationDesigner({
             ))}
           </dl>
         </section>
+        )}
 
-        {!own && (<>
+        {current === 'words' && (
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.words}</h3>
           <label style={label} htmlFor="inv-eyebrow">{d.invitationDesigner.lineAboveTheEventName}</label>
@@ -238,7 +377,9 @@ export function InvitationDesigner({
             {d.invitationDesigner.showAQrCodeGuests}
           </label>
         </section>
+        )}
 
+        {current === 'style' && (<>
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.fontsColours}</h3>
           <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">{d.invitationDesigner.eventNameFont}</label>
@@ -316,6 +457,7 @@ export function InvitationDesigner({
         </section>
         </>)}
 
+        {current === 'envelope' && (
         <section style={panel}>
           <h3 style={h3}>{t.envelope}</h3>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 14, color: '#241F2B', cursor: 'pointer', lineHeight: 1.45 }}>
@@ -357,6 +499,9 @@ export function InvitationDesigner({
             </>
           )}
         </section>
+        )}
+
+        {nav}
 
         {watching > 0 && (
           <div role="dialog" aria-modal="true" aria-label={t.watchItOpen} onClick={(e) => { if (e.target === e.currentTarget) setWatching(0); }}
@@ -370,9 +515,12 @@ export function InvitationDesigner({
       </div>
 
       <div className="invitation-preview" style={{ position: 'sticky', top: 16 }}>
-        <InvitationCard ref={cardRef} design={design} details={details} qrSvg={qrSvg} />
+        <div className="invitation-preview-card">
+          <div><InvitationCard ref={cardRef} design={design} details={details} qrSvg={qrSvg} /></div>
+        </div>
+        <div className="invitation-preview-actions">
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 16, alignItems: 'center' }}>
-          <button type="button" onClick={save} disabled={!dirty || saving} style={{ ...btn, border: 'none', background: '#B6584A', color: '#fff', opacity: !dirty || saving ? 0.55 : 1 }}>
+          <button type="button" onClick={() => { void save(); }} disabled={!dirty || saving} style={{ ...btn, border: 'none', background: '#B6584A', color: '#fff', opacity: !dirty || saving ? 0.55 : 1 }}>
             {saving ? d.invitationDesigner.saving : d.invitationDesigner.saveInvitation}
           </button>
           <button type="button" style={btn} onClick={print}>{d.invitationDesigner.printSaveAsPdf}</button>
@@ -383,7 +531,10 @@ export function InvitationDesigner({
         {message && <p role="status" style={{ fontSize: 13, margin: '10px 0 0', color: message.kind === 'ok' ? '#3D6B46' : '#B91C1C' }}>{message.text}</p>}
         {dirty && !message && <p style={{ fontSize: 12, margin: '10px 0 0', color: '#8A6800' }}>{d.invitationDesigner.youHaveUnsavedChanges}</p>}
         <iframe ref={frameRef} title={d.invitationDesigner.printableInvitation} aria-hidden="true" tabIndex={-1} style={{ position: 'fixed', right: 0, bottom: 0, width: 0, height: 0, border: 0 }} />
+        </div>
       </div>
+    </div>
+      )}
     </div>
   );
 }

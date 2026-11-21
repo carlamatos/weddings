@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { fetchGuests, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
+import { INVITATION_SETTING, isInvitationStep, normalizeInvitation } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
@@ -31,8 +31,10 @@ export const metadata: Metadata = { title: 'Invite' };
 // (designed here, sent to the guest list), and last the switches for what
 // the event page shows: its Share section and search engines. Paid pages
 // with a verified custom domain share that domain.
-export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
+export default async function InvitationsPage({ params, searchParams }: { params: Promise<{ pageId: string }>; searchParams: Promise<{ step?: string }> }) {
   const d = await getDashText();
+  // ?step=send (the guest list's "Send invitations"): open on that step.
+  const { step } = await searchParams;
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
@@ -108,11 +110,9 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
         initial={design}
         details={details}
         editPageHref={pagePath(pageId)}
+        initialStep={isInvitationStep(step) ? step : 'design'}
+        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
       />
-
-      <div style={{ marginTop: 32 }}>
-        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />
-      </div>
 
       <section id="page-settings" style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginTop: 32, background: '#fff', scrollMarginTop: 80 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.share.shareSectionOnYourPage}</h2>

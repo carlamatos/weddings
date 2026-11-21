@@ -1,5 +1,5 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
-import { INVITATION_FONTS, INVITATION_PAPERS, INVITATION_PICTURES, invitationOverlay, isInvitationPicture, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
+import { COUPLE_SAMPLE_PHOTO, INVITATION_FLOWER_TONES, INVITATION_FONTS, INVITATION_PAPERS, INVITATION_PICTURES, invitationOverlay, isInvitationPicture, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 import { MONOGRAM_WREATH_SVG, monogramNames } from '@/app/lib/invitation-monogram';
 
@@ -62,7 +62,11 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
               ...(picture.corner === 'top-right' ? { top: '5cqw', right: '5cqw' } : { bottom: '4.5cqw', left: '5.5cqw' }),
             }} />
         )}
-        {design.layout === 'monogram' ? (
+        {design.layout === 'blooms' ? (
+          <BloomsWords Name={Name} design={design} details={details} heading={heading} accentText={accentText} qrSvg={qrSvg} />
+        ) : design.layout === 'portrait' ? (
+          <PortraitWords Name={Name} design={design} details={details} heading={heading} accentText={accentText} qrSvg={qrSvg} />
+        ) : design.layout === 'monogram' ? (
           <MonogramWords Name={Name} design={design} details={details} heading={heading} body={body} display={fonts?.amatic ?? INVITATION_FONTS.amatic.family} accentText={accentText} framed={!!frame} />
         ) : (
         <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), ...(box ? { padding: `${box.top}cqw ${box.right}cqw ${box.bottom}cqw ${box.left}cqw` } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -140,5 +144,125 @@ function MonogramWords({ Name, design, details, heading, body, display, accentTe
       {design.message && <p style={{ margin: 0, fontSize: '3.3cqw', lineHeight: 1.5, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
       {design.closing && <p style={{ ...caps, marginTop: '1cqw', fontSize: '3.3cqw', fontWeight: 600, color: accentText }}>{design.closing}</p>}
     </div>
+  );
+}
+
+// A fine paper grain (SVG noise), laid over the portrait layout's paper.
+const PAPER_GRAIN = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.45  0 0 0 0 0.38  0 0 0 0 0.28  0 0 0 0.22 0"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>')}")`;
+
+// The portrait layout: the couple's photo in a circle inside a fine double
+// ring in the accent colour, on paper with a fine grain; the line above the
+// name in calligraphy, the names in
+// spaced capitals with "and" in calligraphy between, then the details in
+// italics. One name (not two people) is set whole.
+function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; accentText: string; qrSvg?: string;
+}) {
+  const { names, joiner } = monogramNames(details.name);
+  const longest = Math.max(...names.map((n) => n.length));
+  const capsSize = Math.max(5, Math.min(8, 88 / longest));
+  const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.5cqw', fontSize: `${capsSize}cqw`, fontWeight: 400, lineHeight: 1.15, color: accentText, overflowWrap: 'anywhere' } as const;
+  const italic = { margin: 0, fontStyle: 'italic', fontSize: '4.1cqw', lineHeight: 1.5 } as const;
+  const photo = design.photo || COUPLE_SAMPLE_PHOTO;
+  const crowded = (design.message ? 1 : 0) + (design.closing ? 1 : 0) + (design.showQr && qrSvg ? 1 : 0) > 1;
+  return (
+    <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '4cqw 7cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
+      {/* Fine paper grain over the whole card. */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: PAPER_GRAIN, opacity: 0.3, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
+      {/* The photo in a circle inside a fine double ring in the accent. */}
+      <div style={{ position: 'relative', width: crowded ? '50cqw' : '60cqw', aspectRatio: '1', flexShrink: 0, marginBottom: '4cqw' }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={photo} alt="" loading="lazy" decoding="async" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 1.4cqw 3cqw rgba(60,40,20,0.18)' }} />
+        <div aria-hidden="true" style={{ position: 'absolute', inset: '-2.2cqw', borderRadius: '50%', border: `0.35cqw solid ${design.accentColor}` }} />
+        <div aria-hidden="true" style={{ position: 'absolute', inset: '-3.6cqw', borderRadius: '50%', border: `0.15cqw solid ${design.accentColor}`, opacity: 0.7 }} />
+      </div>
+      {design.eyebrow && <p style={{ margin: 0, fontFamily: heading, fontSize: '7.5cqw', lineHeight: 1.1, color: accentText, maxWidth: '92%' }}>{design.eyebrow}</p>}
+      {names.length === 2 ? (
+        <Name style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', fontWeight: 400 }}>
+          <span style={{ ...caps, display: 'block' }}>{names[0]}</span>
+          <span style={{ display: 'block', fontFamily: heading, fontSize: '10cqw', lineHeight: 1, color: accentText, margin: '0.4cqw 0' }}>{joiner}</span>
+          <span style={{ ...caps, display: 'block' }}>{names[1]}</span>
+        </Name>
+      ) : (
+        <Name style={caps}>{names[0]}</Name>
+      )}
+      <div style={{ marginTop: '1.6cqw' }}>
+        {(details.date || details.time) && <p style={italic}>{[details.date, details.time].filter(Boolean).join(' · ')}</p>}
+        {(details.venue || details.address) && <p style={italic}>{[details.venue, details.address].filter(Boolean).join(', ')}</p>}
+      </div>
+      {details.password && <p style={{ margin: 0, fontSize: '3cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
+      {design.message && <p style={{ ...italic, fontSize: '3.7cqw', whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
+      {design.showQr && qrSvg && (
+        <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.9cqw', borderRadius: '0.8cqw', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+      )}
+      {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: '7cqw', lineHeight: 1.1, color: accentText }}>{design.closing}</p>}
+    </div>
+  );
+}
+
+// The blooms layout's flowers: our cutouts (the Wild Flores theme's), placed
+// down the right edge and in the bottom-left corner, sizes and positions in
+// cqw (the card is 140cqw tall). Later ones sit on top.
+const W = '/images/themes/wild-flores/';
+const BLOOMS: { src: string; top?: number; bottom?: number; left?: number; right?: number; width: number; rotate: number; depth: number }[] = [
+  { src: `${W}cosmos-3.webp`, top: 34, right: -15, width: 38, rotate: -24, depth: 0.8 },
+  { src: `${W}cosmos-4.webp`, top: 100, right: -14, width: 42, rotate: -6, depth: 1 },
+  { src: `${W}cosmos-2.webp`, top: 68, right: -4, width: 30, rotate: 32, depth: 0.9 },
+  { src: `${W}cosmos-1.webp`, top: -12, right: -12, width: 52, rotate: 12, depth: 1 },
+  { src: `${W}cosmos-2.webp`, top: 3, right: 42, width: 14, rotate: 48, depth: 0.7 },
+  { src: `${W}cosmos-4.webp`, bottom: -8, left: -9, width: 30, rotate: 18, depth: 0.9 },
+];
+
+// The blooms layout: soft paper flowers raised off the card (layered
+// shadows), and the words to the left: the event name large in the heading font, the line
+// above it in spaced capitals, the date between two fine rules.
+function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; accentText: string; qrSvg?: string;
+}) {
+  const tone = INVITATION_FLOWER_TONES[design.flowers] ?? INVITATION_FLOWER_TONES.peach;
+  const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.35cqw' } as const;
+  const rule = <div style={{ width: '100%', height: '0.25cqw', background: design.textColor, opacity: 0.55 }} />;
+  const size = Math.max(9, Math.min(15, 150 / Math.max(8, details.name.length)));
+  return (
+    <>
+      {/* A soft light from the top left. */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 15% 20%, rgba(255,255,255,0.75), rgba(255,255,255,0) 60%)' }} />
+      {BLOOMS.map((b, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={i} src={b.src} alt="" aria-hidden="true" loading="lazy" decoding="async"
+          style={{
+            position: 'absolute', width: `${b.width}cqw`, height: 'auto', pointerEvents: 'none',
+            ...(b.top !== undefined ? { top: `${b.top}cqw` } : { bottom: `${b.bottom}cqw` }),
+            ...(b.right !== undefined ? { right: `${b.right}cqw` } : { left: `${b.left}cqw` }),
+            transform: `rotate(${b.rotate}deg)`,
+            filter: `${tone} drop-shadow(${0.5 * b.depth}cqw ${1.2 * b.depth}cqw ${1.2 * b.depth}cqw rgba(90,55,40,0.32)) drop-shadow(0 ${0.35 * b.depth}cqw ${0.35 * b.depth}cqw rgba(90,55,40,0.25))`,
+          }} />
+      ))}
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '10cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
+        {design.eyebrow && <p style={{ ...caps, fontSize: '2.7cqw', lineHeight: 1.5 }}>{design.eyebrow}</p>}
+        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${size}cqw`, lineHeight: 1.05, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</Name>
+        {(details.date || details.time) && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw', marginTop: '1cqw' }}>
+            {rule}
+            {details.date && <p style={{ ...caps, fontSize: '3.1cqw', fontWeight: 600, color: accentText, lineHeight: 1.35 }}>{details.date}</p>}
+            {rule}
+            {details.time && <p style={{ ...caps, fontSize: '2.8cqw', fontWeight: 600 }}>{details.time}</p>}
+          </div>
+        )}
+        {(details.venue || details.address) && (
+          <p style={{ margin: 0, fontSize: '2.9cqw', lineHeight: 1.5 }}>
+            {details.venue && <strong style={{ fontWeight: 600 }}>{details.venue}</strong>}
+            {details.venue && details.address && <br />}
+            {details.address}
+          </p>
+        )}
+        {details.password && <p style={{ margin: 0, fontSize: '2.8cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
+        {design.message && <p style={{ margin: 0, fontSize: '2.9cqw', lineHeight: 1.55, whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '13cqw', height: '13cqw', background: '#fff', padding: '0.9cqw', borderRadius: '0.8cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={{ margin: 0, fontFamily: heading, fontSize: '5.4cqw', lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
+      </div>
+    </>
   );
 }

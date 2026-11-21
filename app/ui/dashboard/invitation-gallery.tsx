@@ -31,15 +31,17 @@ export function InvitationGallery({ design, details, themeSlug, onPick, onUpload
 
   const list = useMemo(() => {
     const inGroup = INVITATION_CATALOG.filter((x) => group === 'all' || x.group === group);
-    return [...inGroup.filter((x) => x.theme === themeSlug), ...inGroup.filter((x) => x.theme !== themeSlug)];
+    // Styles first, then the designs from the host's theme, then the rest.
+    return [...inGroup.filter((x) => x.style), ...inGroup.filter((x) => !x.style && x.theme === themeSlug), ...inGroup.filter((x) => !x.style && x.theme !== themeSlug)];
   }, [group, themeSlug]);
   const shown = showAll ? list : list.slice(0, FIRST);
 
   const groupLabel: Record<DesignGroup | 'all', string> = {
     all: t.groupAll, wedding: t.groupWedding, party: t.groupParty, baby: t.groupBaby, holiday: t.groupHoliday, business: t.groupBusiness,
   };
+  const nameOf = (x: CatalogDesign) => (x.style ? t.styles[x.style] : x.themeName);
   const variantLabel = (x: CatalogDesign) =>
-    x.variant === 'photo' ? t.variantPhoto : x.variant === 'monogram' ? t.variantMonogram : x.variant === 'framed' ? t.variantFramed : '';
+    x.tone ? t.tones[x.tone] : x.variant === 'photo' ? t.variantPhoto : x.variant === 'monogram' ? t.variantMonogram : x.variant === 'framed' ? t.variantFramed : '';
 
   return (
     <div>
@@ -65,11 +67,11 @@ export function InvitationGallery({ design, details, themeSlug, onPick, onUpload
         </li>
         {shown.map((x) => {
           const picked = sameLook(design, x.look);
-          const matches = x.theme === themeSlug;
+          const matches = !x.style && x.theme === themeSlug;
           return (
             <li key={x.id}>
               <button type="button" aria-pressed={picked} onClick={() => onPick(x.look)}
-                aria-label={`${x.themeName}${variantLabel(x) ? ` · ${variantLabel(x)}` : ''}`}
+                aria-label={`${nameOf(x)}${variantLabel(x) ? ` · ${variantLabel(x)}` : ''}`}
                 style={{ display: 'block', width: '100%', padding: 0, border: 'none', background: 'none', cursor: 'pointer', borderRadius: 6, outline: picked ? '3px solid #B6584A' : 'none', outlineOffset: 3 }}>
                 <div aria-hidden="true" style={{ pointerEvents: 'none' }}>
                   <InvitationCard design={applyLook(design, x.look)} details={details} nameAs="p" bgImage={{ loading: 'lazy', decoding: 'async' }} />
@@ -77,7 +79,7 @@ export function InvitationGallery({ design, details, themeSlug, onPick, onUpload
               </button>
               <p style={{ margin: '6px 0 0', fontSize: 12, lineHeight: 1.35, color: '#241F2B', fontWeight: picked ? 700 : 500 }}>
                 {picked && <span style={{ color: '#B6584A' }}>✓ </span>}
-                {x.themeName}{variantLabel(x) && <span style={{ color: '#6B6470' }}> · {variantLabel(x)}</span>}
+                {nameOf(x)}{variantLabel(x) && <span style={{ color: '#6B6470' }}> · {variantLabel(x)}</span>}
               </p>
               {matches && <p style={{ margin: '2px 0 0', fontSize: 11, color: '#3D6B46', fontWeight: 600 }}>{t.matchesYourWebsite}</p>}
             </li>
