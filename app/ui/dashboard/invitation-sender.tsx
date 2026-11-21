@@ -563,7 +563,7 @@ export function InvitationSender({
             {preview && 'error' in preview ? (
               <p role="alert" style={{ margin: 0, padding: 24, fontSize: 14, color: '#B91C1C' }}>{preview.error}</p>
             ) : (
-              <iframe title={d.invitationSender.invitationEmail} sandbox="" srcDoc={preview && 'html' in preview ? preview.html : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
+              <iframe title={d.invitationSender.invitationEmail} sandbox="" srcDoc={preview && 'html' in preview ? inertLinks(preview.html) : ''} style={{ width: '100%', height: '70vh', border: 'none', background: '#F7F4F1' }} />
             )}
             <div style={{ padding: '12px 18px', borderTop: '1px solid #EDE8E3', display: 'flex', gap: 10, justifyContent: 'flex-end', alignItems: 'center', flexWrap: 'wrap' }}>
               <span style={{ fontSize: 12, color: '#9A8F8C', marginRight: 'auto' }}>{d.invitationSender.linksInThePreviewAre}</span>
@@ -574,4 +574,10 @@ export function InvitationSender({
       )}
     </section>
   );
+}
+
+// The preview's links do nothing: inside the preview window they would open
+// MyGala in the frame, which the site refuses ("refused to connect").
+function inertLinks(html: string): string {
+  return html.replace(/<a\b([^>]*?)\shref=("[^"]*"|'[^']*')/gi, '<a$1').replace('</head>', '<style>a{cursor:default}</style></head>');
 }

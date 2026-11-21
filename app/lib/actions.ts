@@ -1166,7 +1166,12 @@ export async function previewInvitationEmail(pageId: number, guestId?: string, k
       `;
       guest = res.rows[0];
     }
-    const { subject, html } = buildEmail(ctx.value, isSendKind(kind) ? kind : 'invitation', guest);
+    // The preview loads its pictures from the site the host is on (staging,
+    // a preview deployment), not the live address the emails link to.
+    const h = await headers();
+    const host = h.get('x-forwarded-host') || h.get('host');
+    const siteBase = host ? `${h.get('x-forwarded-proto') || (host.startsWith('localhost') ? 'http' : 'https')}://${host}` : undefined;
+    const { subject, html } = buildEmail(ctx.value, isSendKind(kind) ? kind : 'invitation', guest, { siteBase });
     return { ok: true, subject, html };
   } catch (error) {
     console.error('Failed to preview invitation:', error);

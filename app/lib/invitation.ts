@@ -11,7 +11,7 @@ export const INVITATION_SETTING = 'invitation_design';
 
 // The invitation is made in steps, one screen at a time, ending with
 // sending it. A finished design the host uploaded skips Words and Style.
-export const INVITATION_STEPS = ['design', 'details', 'words', 'style', 'envelope', 'send'] as const;
+export const INVITATION_STEPS = ['design', 'words', 'style', 'envelope', 'send'] as const;
 export type InvitationStep = (typeof INVITATION_STEPS)[number];
 export const isInvitationStep = (v: unknown): v is InvitationStep => typeof v === 'string' && (INVITATION_STEPS as readonly string[]).includes(v);
 
@@ -87,6 +87,14 @@ export type InvitationDesign = {
   // The initials at the top of the gilded layout, as the host wrote them
   // ('' : the first letters of the names). Kept when they change design.
   initials: string;
+  // The event's facts as the invitation says them: the host can word them
+  // here without changing the event page ('' : the page's own, see
+  // withInvitationText).
+  eventName: string;
+  eventDate: string;
+  eventTime: string;
+  eventVenue: string;
+  eventAddress: string;
   // The flowers' colour in the blooms layout (INVITATION_FLOWER_TONES).
   flowers: FlowerTone;
   // The envelope it arrives in (app/lib/invitation-envelope.ts): on, the
@@ -127,7 +135,7 @@ const THEME_PAPER: Partial<Record<string, string>> = { nature: '/images/invitati
 export const THEME_PICTURE: Partial<Record<string, InvitationPicture>> = { balloons: 'balloons', gnomes: 'gnome' };
 export const isInvitationPicture = (v: unknown): v is InvitationPicture => typeof v === 'string' && v in INVITATION_PICTURES;
 
-export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160, initials: 5 } as const;
+export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160, initials: 5, eventName: 120, eventDate: 80, eventTime: 80, eventVenue: 120, eventAddress: 200 } as const;
 
 // The host's personal note for one guest (Guests → Invite).
 export const INVITATION_NOTE_MAX = 500;
@@ -263,6 +271,11 @@ export function defaultInvitation(themeSlug?: string | null, language?: string |
     layout: 'classic',
     photo: '',
     initials: '',
+    eventName: '',
+    eventDate: '',
+    eventTime: '',
+    eventVenue: '',
+    eventAddress: '',
     flowers: 'peach',
     envelope: defaultEnvelope(themeSlug, p.bg, p.accentColor),
   };
@@ -351,6 +364,11 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
       : INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
     photo: isInvitationImageUrl(r.photo) ? r.photo : '',
     initials: text(r.initials, INVITATION_TEXT_MAX.initials, '').replace(/\s+/g, ' ').trim(),
+    eventName: text(r.eventName, INVITATION_TEXT_MAX.eventName, '').trim(),
+    eventDate: text(r.eventDate, INVITATION_TEXT_MAX.eventDate, '').trim(),
+    eventTime: text(r.eventTime, INVITATION_TEXT_MAX.eventTime, '').trim(),
+    eventVenue: text(r.eventVenue, INVITATION_TEXT_MAX.eventVenue, '').trim(),
+    eventAddress: text(r.eventAddress, INVITATION_TEXT_MAX.eventAddress, '').trim(),
     flowers: isFlowerTone(r.flowers) ? r.flowers : d.flowers,
     envelope: (() => {
       const e = (r.envelope && typeof r.envelope === 'object' ? r.envelope : {}) as Record<string, unknown>;
@@ -361,7 +379,8 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
         color: color(e.color, base.color),
         liner: isEnvelopeLiner(e.liner) ? e.liner : base.liner,
         linerColor: color(e.linerColor, base.linerColor),
-        seal: isEnvelopeSeal(e.seal) ? e.seal : base.seal,
+        // The leaf seal became the balloon.
+        seal: e.seal === 'leaf' ? 'balloon' : isEnvelopeSeal(e.seal) ? e.seal : base.seal,
         sealColor: color(e.sealColor, base.sealColor),
       };
     })(),
@@ -419,4 +438,17 @@ export function invitationOverlay(design: InvitationDesign): { color: string; op
 export function googleFontsHref(fonts: InvitationFont[]): string {
   const families = [...new Set(fonts)].map((f) => `family=${INVITATION_FONTS[f].google}`).join('&');
   return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
+// The event's facts as the invitation shows them: the host's own wording
+// from the Words step where there is one, else the event page's.
+export function withInvitationText<T extends InvitationDetails>(details: T, design: Pick<InvitationDesign, 'eventName' | 'eventDate' | 'eventTime' | 'eventVenue' | 'eventAddress'>): T {
+  return {
+    ...details,
+    name: design.eventName || details.name,
+    date: design.eventDate || details.date,
+    time: design.eventTime || details.time,
+    venue: design.eventVenue || details.venue,
+    address: design.eventAddress || details.address,
+  };
 }

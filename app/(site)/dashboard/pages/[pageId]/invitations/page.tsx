@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { fetchGuests, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { INVITATION_SETTING, isInvitationStep, normalizeInvitation } from '@/app/lib/invitation';
+import { INVITATION_SETTING, isInvitationStep, normalizeInvitation, withInvitationText } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
@@ -111,7 +111,7 @@ export default async function InvitationsPage({ params, searchParams }: { params
         details={details}
         editPageHref={pagePath(pageId)}
         initialStep={isInvitationStep(step) ? step : 'design'}
-        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
+        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
       />
 
       <section id="page-settings" style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginTop: 32, background: '#fff', scrollMarginTop: 80 }}>

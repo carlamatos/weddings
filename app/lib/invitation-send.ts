@@ -1,7 +1,7 @@
 import { sql } from '@vercel/postgres';
 import type { UserPage } from './definitions';
 import { fetchPageById, fetchPageSettings, isSectionOn } from './data';
-import { INVITATION_SETTING, normalizeInvitation, type InvitationDesign, type InvitationDetails } from './invitation';
+import { INVITATION_SETTING, normalizeInvitation, withInvitationText, type InvitationDesign, type InvitationDetails } from './invitation';
 import { invitationDetails } from './invitation-details';
 import { invitationPassword } from './page-password';
 import { invitationEmail, saveTheDateEmail } from './invitation-email';
@@ -43,12 +43,13 @@ export async function loadInvitationContext(pageOrId: UserPage | number, host?: 
   ]);
   let saved: unknown = null;
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
+  const design = normalizeInvitation(saved, page.theme_slug, page.language);
   return {
     page,
-    design: normalizeInvitation(saved, page.theme_slug, page.language),
+    design,
     hostName: user.rows[0]?.name?.trim() || host?.name?.trim() || page.heading || 'Your host',
     hostEmail: user.rows[0]?.email ?? host?.email ?? null,
-    details: invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')),
+    details: withInvitationText(invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')), design),
     subEvents: parseSubEvents(settings[SUB_EVENTS_SETTING]),
   };
 }
@@ -62,7 +63,7 @@ export function guestEventLines(ctx: InvitationContext, invited: unknown) {
 type Recipient = { id: string; name: string; email: string; invitation_note: string | null; invited_events: unknown };
 
 // One email for one guest (or, without a guest, the generic one).
-export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<Recipient, 'id' | 'name' | 'invitation_note' | 'invited_events'>, opts: { inviteLink?: string; withTracking?: boolean } = {}) {
+export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<Recipient, 'id' | 'name' | 'invitation_note' | 'invited_events'>, opts: { inviteLink?: string; withTracking?: boolean; siteBase?: string } = {}) {
   const { page, design, hostName, details } = ctx;
   const withEvents = { ...details, events: guest ? guestEventLines(ctx, guest.invited_events) : guestEventLines(ctx, null) };
   const common = {
@@ -71,7 +72,7 @@ export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<
     language: page.language,
     hostName,
     guestName: guest ? guest.name?.trim() || '' : opts.inviteLink ? hostName : '',
-    siteBase: siteUrl(),
+    siteBase: opts.siteBase || siteUrl(),
     ...(guest && opts.withTracking ? { unsubscribeLink: unsubscribeUrl(guest.id) } : {}),
   };
   if (kind === 'save_the_date') return saveTheDateEmail(common);

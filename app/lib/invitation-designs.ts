@@ -13,7 +13,7 @@ import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 
 // The look: what a design sets. The words, the QR choice and the envelope's
 // liner and emblem stay the host's (its colours follow the design).
-export type InvitationLook = Omit<InvitationDesign, 'eyebrow' | 'message' | 'closing' | 'showQr' | 'envelope' | 'photo' | 'initials'>;
+export type InvitationLook = Omit<InvitationDesign, 'eyebrow' | 'message' | 'closing' | 'showQr' | 'envelope' | 'photo' | 'initials' | 'eventName' | 'eventDate' | 'eventTime' | 'eventVenue' | 'eventAddress'>;
 
 export type DesignGroup = 'wedding' | 'party' | 'baby' | 'holiday' | 'business';
 export const DESIGN_GROUPS: DesignGroup[] = ['wedding', 'party', 'baby', 'holiday', 'business'];
@@ -112,10 +112,6 @@ const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTon
     group: 'wedding',
     tones: [
       ['classic', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#FFFFFF', textColor: '#2A2A2A', accentColor: '#A88A4E' })],
-      ['champagne', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#F3EADB', textColor: '#7A6235', accentColor: '#9A7840' })],
-      ['sage', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#EDF0E8', textColor: '#3F4B38', accentColor: '#5E7150' })],
-      ['blush', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#F7ECE7', textColor: '#5C4544', accentColor: '#B08A5A' })],
-      ['charcoal', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#2B2B2E', textColor: '#EDE5D6', accentColor: '#C9A96A' })],
     ],
   },
 ];

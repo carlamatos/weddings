@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { sql } from '@vercel/postgres';
 import { auth } from '@/auth';
 import { fetchPageById, fetchPageSettings, isSectionOn } from '@/app/lib/data';
-import { INVITATION_SETTING, googleFontsHref, normalizeInvitation } from '@/app/lib/invitation';
+import { INVITATION_SETTING, googleFontsHref, normalizeInvitation, withInvitationText } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
 import { invitationPassword } from '@/app/lib/page-password';
 import { ensureInviteColumns, verifyInviteToken } from '@/app/lib/invite-tracking';
@@ -53,7 +53,7 @@ export default async function InvitationPage({ params, searchParams }: { params:
   const locale = localeOf(page.language);
   const events = eventsForGuest(parseSubEvents(settings[SUB_EVENTS_SETTING]), guest ? parseInvitedEvents(guest.invited_events) : null)
     .map((e) => ({ name: e.name, when: subEventWhen(e, locale), venue: e.venue }));
-  const details = { ...invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')), events };
+  const details = { ...withInvitationText(invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')), design), events };
   const withGuest = guest ? `${details.url}?g=${encodeURIComponent(token)}` : details.url;
   const hostName = host.rows[0]?.name?.trim() || page.heading || '';
   const go = to === 'rsvp' ? (details.rsvpOff ? withGuest : `${withGuest}#rsvp`) : to === 'page' ? withGuest : null;

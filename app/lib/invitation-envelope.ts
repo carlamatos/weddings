@@ -7,7 +7,7 @@
 
 export const ENVELOPE_LINERS = ['plain', 'stripes', 'dots', 'confetti', 'leaves'] as const;
 export type EnvelopeLiner = (typeof ENVELOPE_LINERS)[number];
-export const ENVELOPE_SEALS = ['heart', 'star', 'flower', 'leaf', 'plain'] as const;
+export const ENVELOPE_SEALS = ['heart', 'star', 'flower', 'balloon', 'plain'] as const;
 export type EnvelopeSeal = (typeof ENVELOPE_SEALS)[number];
 
 export type InvitationEnvelope = {
@@ -97,8 +97,12 @@ function emblem(seal: EnvelopeSeal, fill: string): string {
         const a = (Math.PI / 3) * i;
         return `<ellipse cx="${(50 + 10 * Math.cos(a)).toFixed(1)}" cy="${(50 + 10 * Math.sin(a)).toFixed(1)}" rx="8" ry="5.5" transform="rotate(${(i * 60).toFixed(0)} ${(50 + 10 * Math.cos(a)).toFixed(1)} ${(50 + 10 * Math.sin(a)).toFixed(1)})" fill="${fill}"/>`;
       }).join('') + `<circle cx="50" cy="50" r="5" fill="${shade(fill, -0.25)}"/>`;
-    case 'leaf':
-      return `<path d="M50 28 C 65 38, 66 58, 50 72 C 34 58, 35 38, 50 28 Z" fill="${fill}"/><path d="M50 32 L 50 70" stroke="${shade(fill, -0.3)}" stroke-width="2"/>`;
+    case 'balloon':
+      // A balloon with its knot and a curl of string, a little shine top left.
+      return `<path d="M50 26 C 62 26, 68 36, 67 45 C 66 55, 57 62, 50 63 C 43 62, 34 55, 33 45 C 32 36, 38 26, 50 26 Z" fill="${fill}"/>`
+        + `<path d="M47.4 66.4 L 50 62.6 L 52.6 66.4 Z" fill="${fill}"/>`
+        + `<path d="M50 66.4 C 46.5 69.5, 53.5 72, 50 76" fill="none" stroke="${fill}" stroke-width="1.8" stroke-linecap="round"/>`
+        + `<ellipse cx="43" cy="38" rx="2.6" ry="5" transform="rotate(-28 43 38)" fill="${shade(fill, 0.35)}"/>`;
     default:
       return '';
   }

@@ -14,13 +14,17 @@ import { mix } from '@/app/lib/invitation-envelope';
 // headings (the "design your invitation" pages), so search engines don't
 // read the sample names as one.
 export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDesign; details: InvitationDetails; qrSvg?: string; bgImage?: ImgHTMLAttributes<HTMLImageElement>; fonts?: Partial<Record<InvitationFont, string>>; nameAs?: 'h2' | 'p' }>(
-  function InvitationCard({ design, details, qrSvg, bgImage, fonts, nameAs: Name = 'h2' }, ref) {
+  function InvitationCard({ design, details, qrSvg: rawQr, bgImage, fonts, nameAs: Name = 'h2' }, ref) {
+    // The QR code printed straight on the paper in the text colour, no white box.
+    const qrSvg = rawQr ? blendQr(rawQr) : undefined;
     const heading = fonts?.[design.headingFont] ?? INVITATION_FONTS[design.headingFont].family;
     const body = fonts?.[design.bodyFont] ?? INVITATION_FONTS[design.bodyFont].family;
     const bg = design.background;
     const useImage = bg.kind === 'image' && !!bg.imageUrl;
-    const divider = findOrnament('divider', design.divider);
-    const frame = findOrnament('frame', design.frame);
+    // Dividers belong to the classic layout and frames to classic and
+    // monogram; the styles of their own have their own decoration.
+    const divider = design.layout === 'classic' ? findOrnament('divider', design.divider) : null;
+    const frame = design.layout === 'classic' || design.layout === 'monogram' ? findOrnament('frame', design.frame) : null;
     const picture = isInvitationPicture(design.picture) ? INVITATION_PICTURES[design.picture] : null;
     // Our own papers can move the words right, clear of their artwork, or
     // into the blank area (box) the artwork leaves for them.
@@ -43,7 +47,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     }
 
     return (
-      <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)' }}>
+      <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)', overflowWrap: 'normal', wordBreak: 'normal', hyphens: 'manual' }}>
         {useImage && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={bg.imageUrl} alt="" {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -77,7 +81,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), ...(box ? { padding: `${box.top}cqw ${box.right}cqw ${box.bottom}cqw ${box.left}cqw` } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
           {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
-          <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: '10cqw', lineHeight: 1.1, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</Name>
+          <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${fitWords(details.name, design.headingFont, 10, frame ? 70 : 82)}cqw`, lineHeight: 1.1, color: accentText }}>{details.name}</Name>
           {divider
             ? <div aria-hidden="true" style={{ width: '50cqw', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
             : <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />}
@@ -94,7 +98,7 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
           {design.message && <p style={{ margin: '1cqw 0 0', fontSize: '3.6cqw', lineHeight: 1.55, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
           {design.showQr && qrSvg && (
             <div style={{ marginTop: '1cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw' }}>
-              <div style={{ width: frame ? '16cqw' : '20cqw', height: frame ? '16cqw' : '20cqw', background: '#fff', padding: '1.2cqw', borderRadius: '1cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+              <div style={{ width: frame ? '16cqw' : '20cqw', height: frame ? '16cqw' : '20cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
               <p style={{ margin: 0, fontSize: '2.8cqw', opacity: 0.85, overflowWrap: 'anywhere' }}>{details.url.replace(/^https?:\/\//, '')}</p>
             </div>
           )}
@@ -128,11 +132,11 @@ function MonogramWords({ Name, design, details, heading, body, display, accentTe
         <span style={{ fontFamily: display, fontSize: '17cqw', fontWeight: 700, letterSpacing: '0.3cqw' }}>WEDDING</span>
         <span style={{ fontFamily: heading, fontSize: '9cqw' }}>of</span>
       </p>
-      <Name style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[0]}</Name>
+      <Name style={{ ...caps, fontSize: `${fitWords(names[0], design.bodyFont, 5.4, 72, 1.2)}cqw`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[0]}</Name>
       {names[1] && (
         <>
           <p style={{ ...caps, display: 'flex', alignItems: 'center', gap: '2cqw', fontSize: '2.8cqw', fontWeight: 600 }}>{rule}and{rule}</p>
-          <Name style={{ ...caps, fontSize: '5.4cqw', fontWeight: 600, color: accentText, lineHeight: 1.15, overflowWrap: 'anywhere' }}>{names[1]}</Name>
+          <Name style={{ ...caps, fontSize: `${fitWords(names[1], design.bodyFont, 5.4, 72, 1.2)}cqw`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[1]}</Name>
         </>
       )}
       <div style={{ marginTop: '1.4cqw' }}>
@@ -166,26 +170,49 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
   const { names, joiner } = monogramNames(details.name);
   const longest = Math.max(...names.map((n) => n.length));
   const capsSize = Math.max(5, Math.min(8, 88 / longest));
-  const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.5cqw', fontSize: `${capsSize}cqw`, fontWeight: 400, lineHeight: 1.15, color: accentText, overflowWrap: 'anywhere' } as const;
-  const italic = { margin: 0, fontStyle: 'italic', fontSize: '4.1cqw', lineHeight: 1.5 } as const;
+  // Everything must fit under the photo, which always shows whole: guess the
+  // height the words take (lines of each, at their sizes), shrink the photo a
+  // little, then the words (k) until it all fits the card.
+  const lines = (text: string, size: number, charW: number, width = 84) =>
+    text.split('\n').reduce((n, part) => n + Math.max(1, Math.ceil((part.length * size * charW) / width)), 0);
+  const items: number[] = [];
+  if (design.eyebrow) items.push(lines(design.eyebrow, 7.5, 0.3) * 7.5 * 1.1);
+  items.push(names.length === 2 ? capsSize * 1.15 * 2 + 10.8 : lines(names[0], capsSize, 0.8) * capsSize * 1.15);
+  const when = [details.date, details.time].filter(Boolean).join(' · ');
+  const where = [details.venue, details.address].filter(Boolean).join(', ');
+  items.push(((when ? lines(when, 4.1, 0.4) : 0) + (where ? lines(where, 4.1, 0.4) : 0)) * 4.1 * 1.5 + 1.6);
+  if (details.password) items.push(4.5);
+  if (design.message) items.push(lines(design.message, 3.7, 0.4, 72) * 3.7 * 1.5);
+  if (design.showQr && qrSvg) items.push(12.6);
+  if (design.closing) items.push(lines(design.closing, 7, 0.3) * 7 * 1.1 + 0.6);
+  // (The guess runs a little high, which is the safe side: the photo takes up any room left.)
+  const words = items.reduce((a, b) => a + b, 0) + items.length * 1.6;
+  const room = 140 - 9; // the card less its top and bottom padding
+  // The photo gives way first (down to 34cqw, by flex below), then the words.
+  const k = Math.max(0.5, Math.min(1, (room - 11.2 - 34) / words));
+  const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.5cqw', fontSize: `${capsSize * k}cqw`, fontWeight: 400, lineHeight: 1.15, color: accentText } as const;
+  const italic = { margin: 0, fontStyle: 'italic', fontSize: `${4.1 * k}cqw`, lineHeight: 1.5 } as const;
   const photo = design.photo || COUPLE_SAMPLE_PHOTO;
-  const crowded = (design.message ? 1 : 0) + (design.closing ? 1 : 0) + (design.showQr && qrSvg ? 1 : 0) > 1;
   return (
     <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '4cqw 7cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
       {/* Fine paper grain over the whole card. */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: PAPER_GRAIN, opacity: 0.3, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
       {/* The photo in a circle inside a fine double ring in the accent. */}
-      <div style={{ position: 'relative', width: crowded ? '50cqw' : '60cqw', aspectRatio: '1', flexShrink: 0, marginBottom: '4cqw' }}>
+      {/* The photo takes the room the words leave, from 34 to 60cqw: always
+          whole, never pushed off the card. */}
+      <div style={{ flex: '1 1 60cqw', minHeight: '34cqw', maxHeight: '60cqw', alignSelf: 'stretch', display: 'flex', justifyContent: 'center', margin: '3.6cqw 0 4cqw' }}>
+      <div style={{ position: 'relative', height: '100%', aspectRatio: '1' }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photo} alt="" loading="lazy" decoding="async" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 1.4cqw 3cqw rgba(60,40,20,0.18)' }} />
         <div aria-hidden="true" style={{ position: 'absolute', inset: '-2.2cqw', borderRadius: '50%', border: `0.35cqw solid ${design.accentColor}` }} />
         <div aria-hidden="true" style={{ position: 'absolute', inset: '-3.6cqw', borderRadius: '50%', border: `0.15cqw solid ${design.accentColor}`, opacity: 0.7 }} />
       </div>
-      {design.eyebrow && <p style={{ margin: 0, fontFamily: heading, fontSize: '7.5cqw', lineHeight: 1.1, color: accentText, maxWidth: '92%' }}>{design.eyebrow}</p>}
+      </div>
+      {design.eyebrow && <p style={{ margin: 0, fontFamily: heading, fontSize: `${7.5 * k}cqw`, lineHeight: 1.1, color: accentText, maxWidth: '92%' }}>{design.eyebrow}</p>}
       {names.length === 2 ? (
         <Name style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', fontWeight: 400 }}>
           <span style={{ ...caps, display: 'block' }}>{names[0]}</span>
-          <span style={{ display: 'block', fontFamily: heading, fontSize: '10cqw', lineHeight: 1, color: accentText, margin: '0.4cqw 0' }}>{joiner}</span>
+          <span style={{ display: 'block', fontFamily: heading, fontSize: `${10 * k}cqw`, lineHeight: 1, color: accentText, margin: '0.4cqw 0' }}>{joiner}</span>
           <span style={{ ...caps, display: 'block' }}>{names[1]}</span>
         </Name>
       ) : (
@@ -196,11 +223,11 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
         {(details.venue || details.address) && <p style={italic}>{[details.venue, details.address].filter(Boolean).join(', ')}</p>}
       </div>
       {details.password && <p style={{ margin: 0, fontSize: '3cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
-      {design.message && <p style={{ ...italic, fontSize: '3.7cqw', whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
+      {design.message && <p style={{ ...italic, fontSize: `${3.7 * k}cqw`, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
       {design.showQr && qrSvg && (
-        <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.9cqw', borderRadius: '0.8cqw', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
       )}
-      {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: '7cqw', lineHeight: 1.1, color: accentText }}>{design.closing}</p>}
+      {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: `${7 * k}cqw`, lineHeight: 1.1, color: accentText }}>{design.closing}</p>}
     </div>
   );
 }
@@ -234,12 +261,15 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
   const tone = INVITATION_FLOWER_TONES[design.flowers] ?? INVITATION_FLOWER_TONES.peach;
   const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.35cqw' } as const;
   const rule = <div style={{ width: '100%', height: '0.25cqw', background: design.textColor, opacity: 0.55 }} />;
-  const size = Math.max(9, Math.min(15, 150 / Math.max(8, details.name.length))) * (design.flowers === 'roses' ? 1.15 : 1);
+  const roses = design.flowers === 'roses';
+  // The words' column: White Roses' photo fades out, so its words have more room.
+  const column = roses ? 64 : 55;
+  const size = fitWords(details.name, design.headingFont, Math.max(9, Math.min(15, 150 / Math.max(8, details.name.length))) * (roses ? 0.82 : 1), column);
   return (
     <>
       {/* A soft light from the top left. */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 80% at 15% 20%, rgba(255,255,255,0.75), rgba(255,255,255,0) 60%)' }} />
-      {(design.flowers === 'roses' ? ROSES : BLOOMS).map((b, i) => (
+      {(roses ? ROSES : BLOOMS).map((b, i) => (
         // eslint-disable-next-line @next/next/no-img-element
         <img key={i} src={b.src} alt="" aria-hidden="true" loading="lazy" decoding="async"
           style={{
@@ -252,9 +282,9 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
             filter: b.depth === 0 ? tone : `${tone} drop-shadow(${0.5 * b.depth}cqw ${1.2 * b.depth}cqw ${1.2 * b.depth}cqw rgba(90,55,40,0.32)) drop-shadow(0 ${0.35 * b.depth}cqw ${0.35 * b.depth}cqw rgba(90,55,40,0.25))`,
           }} />
       ))}
-      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '10cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: roses ? '10cqw 30cqw 12cqw 6cqw' : '10cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
         {design.eyebrow && <p style={{ ...caps, fontSize: '2.7cqw', lineHeight: 1.5 }}>{design.eyebrow}</p>}
-        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${size}cqw`, lineHeight: 1.05, color: accentText, overflowWrap: 'anywhere' }}>{details.name}</Name>
+        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${size}cqw`, lineHeight: 1.05, color: accentText }}>{details.name}</Name>
         {(details.date || details.time) && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw', marginTop: '1cqw' }}>
             {rule}
@@ -273,7 +303,7 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
         {details.password && <p style={{ margin: 0, fontSize: '2.8cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
         {design.message && <p style={{ margin: 0, fontSize: '2.9cqw', lineHeight: 1.55, whiteSpace: 'pre-line' }}>{design.message}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '13cqw', height: '13cqw', background: '#fff', padding: '0.9cqw', borderRadius: '0.8cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: '13cqw', height: '13cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ margin: 0, fontFamily: heading, fontSize: '5.4cqw', lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
       </div>
@@ -300,14 +330,14 @@ function GildedWords({ Name, design, details, heading, qrSvg }: {
       <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '11cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
         {letters.length > 0 && (
           // Two initials overlap on a slant, the second lower and to the right.
-          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? '24cqw' : 'auto', height: '21cqw', marginBottom: '2cqw', fontFamily: heading, fontSize: '17cqw', lineHeight: 1, color: gold }}>
+          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? '46cqw' : 'auto', height: '21cqw', marginBottom: '2cqw', fontFamily: heading, fontSize: '17cqw', lineHeight: 1, color: gold }}>
             {letters.length === 2 ? (
               <>
-                <span style={{ position: 'absolute', left: '1.5cqw', top: 0 }}>{letters[0]}</span>
-                <span style={{ position: 'absolute', right: '1.5cqw', top: '6cqw' }}>{letters[1]}</span>
+                <span style={{ position: 'absolute', left: '2cqw', top: 0 }}>{letters[0]}</span>
+                <span style={{ position: 'absolute', right: '2cqw', top: '6cqw' }}>{letters[1]}</span>
               </>
             ) : (
-              <span style={{ letterSpacing: '0.8cqw' }}>{letters.join('')}</span>
+              <span style={{ letterSpacing: '4cqw', marginRight: '-4cqw' }}>{letters.join('')}</span>
             )}
           </div>
         )}
@@ -332,7 +362,7 @@ function GildedWords({ Name, design, details, heading, qrSvg }: {
         )}
         {details.password && <p style={{ ...caps, fontSize: '2.8cqw' }}>{details.passwordLabel}: {details.password}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.8cqw', borderRadius: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ ...caps, marginTop: '0.6cqw', fontSize: '2.8cqw' }}>{design.closing}</p>}
       </div>
@@ -368,7 +398,7 @@ const VICTORIAN_BAR = (
 // from the top left (the little hills and hollows of the paper), a soft
 // mottling, and a sprinkle of fine warm flecks. Laid over the paper and the
 // frame in multiply, under the ink.
-const SANDY_PAPER = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" surfaceScale="1.6" lighting-color="#ffffff" diffuseConstant="1.05"><feDistantLight azimuth="225" elevation="58"/></feDiffuseLighting></filter><filter id="m"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="9" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0.16 0"/></filter><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="1" seed="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0 0.32  0 0 0 9 -6.1"/></filter><rect width="100%" height="100%" filter="url(#t)"/><rect width="100%" height="100%" filter="url(#m)"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.5"/></svg>')}")`;
+const SANDY_PAPER = `url("data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300"><filter id="t" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" seed="4" stitchTiles="stitch" result="n"/><feDiffuseLighting in="n" surfaceScale="0.8" lighting-color="#ffffff" diffuseConstant="1.02"><feDistantLight azimuth="225" elevation="58"/></feDiffuseLighting></filter><filter id="m"><feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="9" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0.16 0"/></filter><filter id="f"><feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="1" seed="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0.5  0 0 0 0 0.42  0 0 0 0 0.32  0 0 0 9 -6.1"/></filter><rect width="100%" height="100%" filter="url(#t)"/><rect width="100%" height="100%" filter="url(#m)"/><rect width="100%" height="100%" filter="url(#f)" opacity="0.5"/></svg>')}")`;
 
 // The embossed layout (Victorian Emboss): the frame above raised in the
 // paper, the words centred in it in ink: italic lines, the names in large
@@ -387,14 +417,14 @@ function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
     <>
       <svg aria-hidden="true" viewBox="0 0 100 140" preserveAspectRatio="none"
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', overflow: 'visible',
-          filter: `drop-shadow(-0.12cqw -0.12cqw 0.06cqw rgba(255,255,255,0.9)) drop-shadow(0.18cqw 0.25cqw 0.15cqw rgba(0,0,0,0.3))` }}>
+          filter: `drop-shadow(0 0 0.05cqw rgba(0,0,0,0.28)) drop-shadow(-0.12cqw -0.12cqw 0.06cqw rgba(255,255,255,0.9)) drop-shadow(0.18cqw 0.25cqw 0.15cqw rgba(0,0,0,0.3))` }}>
         <style>{`.v-orn{fill:none;stroke:${raised};stroke-width:.75;stroke-linecap:round;stroke-linejoin:round}.v-orn .v-fill{fill:${raised};stroke-width:.25}`}</style>
         <g className="v-orn">
-          <g transform="translate(50 15)">{VICTORIAN_BAR}</g>
-          <g transform="translate(50 125) scale(1 -1)">{VICTORIAN_BAR}</g>
+          <g transform="translate(50 18)">{VICTORIAN_BAR}</g>
+          <g transform="translate(50 122) scale(1 -1)">{VICTORIAN_BAR}</g>
         </g>
       </svg>
-      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: SANDY_PAPER, backgroundSize: '300px 300px', opacity: 0.55, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: SANDY_PAPER, backgroundSize: '300px 300px', opacity: 0.3, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
       <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '25cqw 21cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.2cqw' }}>
         {design.eyebrow && <p style={{ ...line, marginBottom: '3cqw' }}>{design.eyebrow}</p>}
         {names.length === 2 ? (
@@ -421,10 +451,31 @@ function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
         )}
         {details.password && <p style={{ ...line, fontSize: '2.7cqw' }}>{details.passwordLabel}: {details.password}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '12cqw', height: '12cqw', background: '#fff', padding: '0.8cqw', borderRadius: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ ...line, marginTop: '2cqw' }}>{design.closing}</p>}
       </div>
     </>
   );
+}
+
+// The QR code on the paper itself: the white squares dropped and the dark
+// ones in the text colour (currentColor), so it blends into the design.
+function blendQr(svg: string): string {
+  return svg.replace(/<path fill="#ffffff"[^>]*\/>/i, '').replace(/(stroke|fill)="#241f2b"/gi, '$1="currentColor"');
+}
+
+// About how wide a letter is in each font, as a share of the font size, to
+// size a line so its longest word fits the width: words are never broken
+// across two lines.
+const CHAR_WIDTH: Partial<Record<InvitationFont, number>> = {
+  'great-vibes': 0.42, 'mrs-saint-delafield': 0.4, parisienne: 0.45, 'dancing-script': 0.5, playfair: 0.56, cormorant: 0.5,
+  cinzel: 0.78, 'libre-baskerville': 0.62, montserrat: 0.66, josefin: 0.56, lato: 0.56, poppins: 0.66, 'space-grotesk': 0.62,
+  fredoka: 0.6, creepster: 0.6, amatic: 0.36,
+};
+// The size (cqw) for text in this font, at most max, so its longest word fits
+// width (cqw); caps: how much wider capitals (and their spacing) run.
+function fitWords(text: string, font: InvitationFont, max: number, width: number, caps = 1): number {
+  const longest = Math.max(1, ...text.split(/\s+/).map((w) => w.length));
+  return Math.min(max, width / (longest * (CHAR_WIDTH[font] ?? 0.6) * caps));
 }

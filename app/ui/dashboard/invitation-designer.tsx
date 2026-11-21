@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import QRCode from 'qrcode';
 import { saveInvitationDesign } from '@/app/lib/actions';
 import {
   INVITATION_FONTS,
   INVITATION_TEXT_MAX,
+  withInvitationText,
   defaultInvitation,
   googleFontsHref,
   type InvitationDesign,
@@ -27,9 +27,6 @@ import { ENVELOPE_LINERS, ENVELOPE_SEALS, envelopeSvg, linerPattern, sealSvgInne
 import { EnvelopeOpening } from '@/app/ui/invitation-envelope-opening';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
-import { rich } from '@/app/ui/dashboard/rich';
-import { OPEN_PARAM } from '@/app/ui/themes/open-editor';
-import { PencilSquareIcon } from '@heroicons/react/24/outline';
 const ALL_FONTS = Object.keys(INVITATION_FONTS) as InvitationFont[];
 
 const FONTS_HREF = googleFontsHref(ALL_FONTS);
@@ -54,8 +51,7 @@ export function InvitationDesigner({
   themeSlug,
   language,
   initial,
-  details,
-  editPageHref,
+  details: eventDetails,
   sendStep,
   initialStep = 'design',
 }: {
@@ -64,6 +60,7 @@ export function InvitationDesigner({
   // The page's language: "Reset" goes back to the starting wording in it.
   language?: string | null;
   initial: InvitationDesign;
+  // The event page's facts; the invitation can word them its own way (Words).
   details: InvitationDetails;
   editPageHref: string;
   // The last step: the guest list and the Send button (InvitationSender).
@@ -72,6 +69,7 @@ export function InvitationDesigner({
 }) {
   const d = useDashText();
   const [design, setDesign] = useState(initial);
+  const details = withInvitationText(eventDetails, design);
   const [saved, setSaved] = useState(JSON.stringify(initial));
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -97,7 +95,7 @@ export function InvitationDesigner({
   const own = design.layout === 'own';
   const t = d.invitationDesigner;
   const linerLabel = { plain: t.linerPlain, stripes: t.linerStripes, dots: t.linerDots, confetti: t.linerConfetti, leaves: t.linerLeaves };
-  const sealLabel = { heart: t.sealHeart, star: t.sealStar, flower: t.sealFlower, leaf: t.sealLeaf, plain: t.sealPlain };
+  const sealLabel = { heart: t.sealHeart, star: t.sealStar, flower: t.sealFlower, balloon: t.sealBalloon, plain: t.sealPlain };
   const dirty = JSON.stringify(design) !== saved;
   const occasion = ornamentOccasion(themeSlug);
   const palette = ornamentPalette(themeSlug, design);
@@ -141,7 +139,7 @@ export function InvitationDesigner({
   const steps = INVITATION_STEPS.filter((s) => !(own && (s === 'words' || s === 'style')));
   const current = steps.includes(step) ? step : 'design';
   const at = steps.indexOf(current);
-  const stepName: Record<InvitationStep, string> = { design: t.stepDesign, details: t.stepDetails, words: t.stepWords, style: t.stepStyle, envelope: t.stepEnvelope, send: t.stepSend };
+  const stepName: Record<InvitationStep, string> = { design: t.stepDesign, words: t.stepWords, style: t.stepStyle, envelope: t.stepEnvelope, send: t.stepSend };
   async function go(next: InvitationStep) {
     if (next === current) return;
     if (next === 'send' && dirty) {
@@ -339,33 +337,27 @@ export function InvitationDesigner({
         )}
         </>)}
 
-        {current === 'details' && (
-        <section style={panel}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-            <h3 style={h3}>{d.invitationDesigner.eventDetails}</h3>
-            {/* Opens the page editor with its date, time and place popup. */}
-            <Link href={`${editPageHref}?${OPEN_PARAM}=location`} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color: '#B6584A', textDecoration: 'none', marginBottom: 12 }}>
-              <PencilSquareIcon style={{ width: 15, height: 15 }} />
-              {d.invitationDesigner.editEventDetails}
-            </Link>
-          </div>
-          <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 10px', lineHeight: 1.6 }}>
-            {rich(d.invitationDesigner.theseComeFromYourEvent, { t0: (s) => <Link href={editPageHref} style={{ color: '#B6584A' }}>{s}</Link> })}
-          </p>
-          <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 14px', margin: 0, fontSize: 14 }}>
-            {([[d.invitationDesigner.event, details.name], [d.invitationDesigner.date, details.date], [d.invitationDesigner.time, details.time], [d.invitationDesigner.place, [details.venue, details.address].filter(Boolean).join(', ')]] as const).map(([k, v]) => (
-              <div key={k} style={{ display: 'contents' }}>
-                <dt style={{ color: '#9A8F8C' }}>{k}</dt>
-                <dd style={{ margin: 0, color: '#241F2B' }}>{v || '—'}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
-        )}
-
         {current === 'words' && (
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.words}</h3>
+          {/* The event's facts, worded for the invitation only: the event
+              page keeps its own. Empty: the page's (shown as the hint). */}
+          <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 4px', lineHeight: 1.6 }}>{t.invitationWordingHint}</p>
+          {([
+            ['eventName', t.eventNameLabel, eventDetails.name],
+            ['eventDate', d.invitationDesigner.date, eventDetails.date],
+            ['eventTime', d.invitationDesigner.time, eventDetails.time],
+            ['eventVenue', t.venueLabel, eventDetails.venue],
+            ['eventAddress', t.addressLabel, eventDetails.address],
+          ] as const).map(([key, text, fromPage]) => (
+            <div key={key}>
+              <label style={label} htmlFor={`inv-${key}`}>{text}</label>
+              {/* Empty: the page's, shown greyed; clicking in fills it in to edit. */}
+              <input id={`inv-${key}`} style={input} value={design[key]} placeholder={fromPage} maxLength={INVITATION_TEXT_MAX[key]}
+                onFocus={() => { if (!design[key] && fromPage) set(key, fromPage); }}
+                onChange={(e) => set(key, e.target.value)} />
+            </div>
+          ))}
           <label style={label} htmlFor="inv-eyebrow">{d.invitationDesigner.lineAboveTheEventName}</label>
           <input id="inv-eyebrow" style={input} value={design.eyebrow} maxLength={INVITATION_TEXT_MAX.eyebrow} onChange={(e) => set('eyebrow', e.target.value)} />
           <label style={label} htmlFor="inv-message">{d.invitationDesigner.message}</label>
@@ -399,9 +391,13 @@ export function InvitationDesigner({
           <ColorField id="inv-accent" text={d.invitationDesigner.eventNameAccentColour} value={design.accentColor} onChange={(v) => set('accentColor', v)} />
         </section>
 
+        {(design.layout === 'classic' || design.layout === 'monogram' || (themeSlug && THEME_PICTURE[themeSlug]) || isInvitationPicture(design.picture)) && (
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.decorations}</h3>
-          {(['divider', 'frame'] as const).map((kind) => (
+          {/* Only the layouts that draw them: the divider in the classic
+              layout, the frame in classic and monogram (the styles of their
+              own have their own decoration). */}
+          {(['divider', 'frame'] as const).filter((kind) => design.layout === 'classic' || (kind === 'frame' && design.layout === 'monogram')).map((kind) => (
             <OrnamentField
               key={kind}
               kind={kind}
@@ -426,6 +422,7 @@ export function InvitationDesigner({
             );
           })()}
         </section>
+        )}
 
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.background}</h3>
