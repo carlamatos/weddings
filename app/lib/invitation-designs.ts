@@ -82,7 +82,7 @@ const PHOTO_WASH: Partial<Record<string, number>> = { love: 0.85, 'fun-party': 0
 const FRAMED: Partial<Record<string, Partial<InvitationLook>>> = {
   'the-day': { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'wedding-rings', frame: 'wedding-ribbon' },
   love: { divider: 'wedding-rose', frame: 'wedding-floral' },
-  nature: { background: { kind: 'color', color: '#F4F1EA', imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 }, divider: 'wedding-fern', frame: 'wedding-fern' },
+  nature: { background: { kind: 'color', color: '#F4F1EA', imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 }, divider: 'wedding-diamond', frame: 'wedding-arch' },
   'wild-flores': { divider: 'wedding-vine', frame: 'wedding-floral' },
   forest: { divider: 'wedding-eucalyptus', frame: 'wedding-eucalyptus' },
   western: { divider: 'wedding-arrow', frame: 'wedding-scallop' },
