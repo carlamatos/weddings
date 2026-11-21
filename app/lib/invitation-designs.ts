@@ -59,13 +59,13 @@ const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textCol
 });
 
 const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTone, InvitationLook][] }[] = [
-  // Victorian Emboss: white on white, a fine Victorian frame raised in the
-  // paper itself, the words in black ink (layout 'embossed').
+  // Victorian Emboss: slate-blue paper with Victorian flourishes raised in
+  // the paper itself, the words in near-white (layout 'embossed').
   {
     style: 'victorian',
     group: 'wedding',
     tones: [
-      ['classic', styleLook({ layout: 'embossed', headingFont: 'cormorant', bodyFont: 'libre-baskerville', bg: '#FBFBF9', textColor: '#1C1C1C', accentColor: '#1C1C1C' })],
+      ['classic', styleLook({ layout: 'embossed', headingFont: 'cormorant', bodyFont: 'libre-baskerville', bg: '#74859A', textColor: '#F5F5F5', accentColor: '#F5F5F5' })],
     ],
   },
   // White & Gold: white paper in a fine gold frame, the couple's initials in
@@ -130,7 +130,11 @@ export const applyLook = (design: InvitationDesign, look: InvitationLook): Invit
   ...design,
   ...look,
   background: { ...look.background },
-  envelope: { ...design.envelope, color: look.layout === 'own' ? design.envelope.color : look.background.color, linerColor: look.accentColor, sealColor: look.accentColor },
+  envelope: look.layout === 'embossed'
+    // Victorian Emboss: a light envelope (the letters' colour) closed with a
+    // seal in the paper's colour.
+    ? { ...design.envelope, color: look.textColor, linerColor: look.background.color, sealColor: look.background.color }
+    : { ...design.envelope, color: look.layout === 'own' ? design.envelope.color : look.background.color, linerColor: look.accentColor, sealColor: look.accentColor },
 });
 
 export const sameLook = (design: InvitationDesign, look: InvitationLook) => JSON.stringify(lookOf(design)) === JSON.stringify(look);

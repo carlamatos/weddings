@@ -63,7 +63,7 @@ export function guestEventLines(ctx: InvitationContext, invited: unknown) {
 type Recipient = { id: string; name: string; email: string; invitation_note: string | null; invited_events: unknown };
 
 // One email for one guest (or, without a guest, the generic one).
-export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<Recipient, 'id' | 'name' | 'invitation_note' | 'invited_events'>, opts: { inviteLink?: string; withTracking?: boolean; siteBase?: string } = {}) {
+export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<Recipient, 'id' | 'name' | 'invitation_note' | 'invited_events'>, opts: { inviteLink?: string; withTracking?: boolean } = {}) {
   const { page, design, hostName, details } = ctx;
   const withEvents = { ...details, events: guest ? guestEventLines(ctx, guest.invited_events) : guestEventLines(ctx, null) };
   const common = {
@@ -72,7 +72,7 @@ export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<
     language: page.language,
     hostName,
     guestName: guest ? guest.name?.trim() || '' : opts.inviteLink ? hostName : '',
-    siteBase: opts.siteBase || siteUrl(),
+    siteBase: siteUrl(),
     ...(guest && opts.withTracking ? { unsubscribeLink: unsubscribeUrl(guest.id) } : {}),
   };
   if (kind === 'save_the_date') return saveTheDateEmail(common);
