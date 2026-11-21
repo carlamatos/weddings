@@ -17,6 +17,8 @@ import { EVENT_GOALS, GOAL_RULES, suggestedGoal, themeForGoal, type EventGoal } 
 import { THEME_CARDS } from '../lib/marketing/theme-cards';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
+import NewsletterConsent from '@/app/ui/newsletter-consent';
+import { isConsentLang } from '@/app/lib/newsletter-consent';
 import { fill } from '@/app/lib/dash-text/fill';
 import { rich } from '@/app/ui/dashboard/rich';
 // Create an event page in two short steps. First "What are you planning?"
@@ -389,10 +391,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         </div>
 
         {askNewsletter && (
-          <label className="auth-consent">
-            <input type="checkbox" name="newsletter" value="1" />
-            <span>{d.subscribeForm.newsletterOptIn}</span>
-          </label>
+          <NewsletterConsent lang={isConsentLang(d.meta.lang) ? d.meta.lang : 'en'} />
         )}
 
         <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>

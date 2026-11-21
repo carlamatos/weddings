@@ -1,5 +1,6 @@
 'use client';
 
+import NewsletterConsent from '@/app/ui/newsletter-consent';
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { EyeIcon, EyeSlashIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
@@ -180,10 +181,7 @@ export function TrySignup({ choices, setupPath, heading, onBack }: {
         </div>
 
         {/* Unticked until they tick it (CASL). */}
-        <label className="auth-consent">
-          <input type="checkbox" name="newsletter" value="1" />
-          <span>Yes, I’d like to receive emails from MyGala, including our newsletter and product updates</span>
-        </label>
+        <NewsletterConsent lang="en" />
 
         <button className="auth-btn" type="submit" disabled={busy}>
           {creating || state.ok ? 'Creating your page…' : isPending ? 'Creating your account…' : 'Create my account'} <ArrowRightIcon style={{ width: 16, height: 16 }} />

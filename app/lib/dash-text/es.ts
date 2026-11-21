@@ -1543,7 +1543,6 @@ export const es: DashText = {
   subscribeForm: {
     chooseADate: 'Elige una fecha',
     languageOfYourPage: 'Idioma de tu página',
-    newsletterOptIn: 'Sí, quiero recibir correos de MyGala, incluido el boletín y las novedades del producto',
     whatAreYouPlanning: '¿Qué estás organizando?',
     pickOneWeLlSetUp: 'Elige uno y prepararemos tu página a medida. Puedes cambiarlo todo después.',
     goalWedding: 'Boda',

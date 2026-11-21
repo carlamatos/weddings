@@ -1,6 +1,7 @@
 "use server"
 
 import { subscribeToNewsletter } from './newsletter';
+import { isConsentLang, newsletterConsentRecord } from './newsletter-consent';
 import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
@@ -360,7 +361,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // their first page, not having had the sign-up form): only when ticked.
     const accountEmail = session?.user?.email;
     if (newPageId && formData.get('newsletter') === '1' && accountEmail) {
-      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event', consentRecordFrom(formData)); } catch (error) { console.error('Failed to add to newsletter:', error); }
     }
 
     // For Google Analytics ("event_page_created"). The admins hear about a
@@ -2344,10 +2345,11 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
     }
   }
 
-  // "Yes, I’d like to receive emails from MyGala": only when ticked (it
-  // starts unticked). Never blocks the sign-up.
+  // The newsletter checkbox (app/ui/newsletter-consent.tsx): only when
+  // ticked (it starts unticked), saved with the wording shown. Never blocks
+  // the sign-up.
   if (newUserId && formData.get('newsletter') === '1') {
-    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup', consentRecordFrom(formData)); } catch (error) { console.error('Failed to add to newsletter:', error); }
   }
   if (newUserId) await markSignUp('email');
   await rememberDashLang(lang);
@@ -2357,6 +2359,12 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
 // The "design your invitation" pages' sign-up step: the account, signed in
 // without leaving the page, which then creates the event itself
 // (createUserPage). ok: signed in.
+// The newsletter wording the person saw and ticked (CASL proof of consent).
+function consentRecordFrom(formData: FormData): string {
+  const lang = formData.get('newsletter_lang');
+  return newsletterConsentRecord(isConsentLang(lang) ? lang : 'en');
+}
+
 export async function registerOnTryPage(prevState: RegisterState & { ok?: boolean }, formData: FormData): Promise<RegisterState & { ok?: boolean }> {
   const account = await createCredentialsAccount(formData);
   if ('state' in account) return account.state;
