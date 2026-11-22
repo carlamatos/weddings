@@ -210,7 +210,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'forest': { divider: 'wedding-vine', frame: '' },
   'western': { divider: 'wedding-diamond', frame: 'wedding-classic' }, // the rowel star and a double rule
   'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
-  'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
+  'midnight-botanical': { divider: 'wedding-line', frame: 'wedding-double-rule' }, // fine gold lines, no loops
   'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
   'vilma': { divider: 'wedding-rose', frame: '' },
   'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },

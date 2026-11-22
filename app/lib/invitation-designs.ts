@@ -162,10 +162,10 @@ const FRAMED: Partial<Record<string, Partial<InvitationLook>>> = {
   love: { divider: 'wedding-rose', frame: 'wedding-floral' },
   nature: { background: { kind: 'color', color: '#F4F1EA', imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 }, divider: 'wedding-diamond', frame: 'wedding-arch' },
   'wild-flores': { divider: 'wedding-vine', frame: 'wedding-floral' },
-  forest: { divider: 'wedding-eucalyptus', frame: 'wedding-eucalyptus' },
+  forest: { divider: 'wedding-stem', frame: 'wedding-rule' },
   western: { divider: 'wedding-arrow', frame: 'wedding-scallop' },
   'terracotta-harvest': { divider: 'wedding-laurel', frame: 'wedding-arch' },
-  'midnight-botanical': { divider: 'wedding-deco', frame: 'wedding-deco' },
+  'midnight-botanical': { divider: 'wedding-deco-line', frame: 'wedding-deco-rule' },
   'quiet-coastal': { divider: 'wedding-scroll', frame: 'wedding-scallop' },
   vilma: { divider: 'wedding-rose', frame: 'wedding-rose' },
 };

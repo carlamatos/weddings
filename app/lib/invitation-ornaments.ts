@@ -457,12 +457,27 @@ const DIVIDER_LIST: Ornament[] = [
     body: mirrorX(seg('M142 30H214M152 34.5H200M162 25.5H190', 'stroke-width="1"') + diamond(222, 30, 7, 7, F)) + decoFan(120, 30, 21, 10) + seg('M96 30H144', 'stroke-width="1.3"'),
   },
   {
+    // The Art deco divider without its fan: the stepped lines and a diamond at the middle.
+    id: 'wedding-deco-line', name: 'Art deco lines', occasion: 'wedding',
+    body: mirrorX(seg('M128 30H214M152 34.5H200M162 25.5H190', 'stroke-width="1"') + diamond(222, 30, 7, 7, F)) + diamond(120, 30, 9, 12, F),
+  },
+  {
     id: 'wedding-eucalyptus', name: 'Eucalyptus', occasion: 'wedding',
     body: mirrorX(eucalyptus(sample((t) => [126 + 98 * t, 20 + 3 * Math.sin(Math.PI * 1.6 * t)], 36), 4.2, 4)),
   },
   {
+    // The eucalyptus stems without their round leaves, a dot between.
+    id: 'wedding-stem', name: 'Stem', occasion: 'wedding',
+    body: mirrorX(line(sample((t) => [128 + 96 * t, 20 + 3 * Math.sin(Math.PI * 1.6 * t)], 36), 'stroke-width="1"')) + dot(120, 20, 1.6),
+  },
+  {
     id: 'wedding-filigree', name: 'Filigree', occasion: 'wedding',
     body: mirrorX(filigree(158, 20, 26) + seg('M184 20H222', 'stroke-width="1"') + dot(227, 20, 1.3)) + diamond(120, 20, 10, 14, F),
+  },
+  {
+    // The filigree divider without its loops: fine lines out to a dot either side of a diamond.
+    id: 'wedding-line', name: 'Line & diamond', occasion: 'wedding',
+    body: mirrorX(seg('M134 20H222', 'stroke-width="1"') + dot(227, 20, 1.3)) + diamond(120, 20, 10, 14, F),
   },
   {
     id: 'wedding-rose', name: 'Rose', occasion: 'wedding',
@@ -627,6 +642,10 @@ const laurelFrame = rect(24, 0, 'stroke-width=".9"') + mirrorX(laurelHalf, 500) 
 
 // Wedding: art deco — fans at top and bottom, stepped corners.
 const decoCorner = seg('M36 120V36H120M50 106V50H106M64 92V64H92', 'stroke-width="1.1"') + diamond(36, 36, 12, 12, F) + diamond(78, 78, 8, 8, F);
+// The same without the fans or the inner corner brackets: the rule, its
+// corners and diamonds, and the bold bars top and bottom.
+const decoRuleFrame = rect(36, 0, 'stroke-width=".9"') + fourCorners(seg('M36 120V36H120', 'stroke-width="1.1"') + diamond(36, 36, 12, 12, F))
+  + seg('M150 36H350M150 664H350', 'stroke-width="1.6"');
 const decoFrame = rect(36, 0, 'stroke-width=".9"') + fourCorners(decoCorner) + g('translate(500 92) rotate(180)', decoFan(250, 56, 42, 12)) + decoFan(250, 644, 42, 12)
   + seg('M150 36H350M150 664H350', 'stroke-width="1.6"');
 
@@ -732,10 +751,15 @@ const FRAME_LIST: Ornament[] = [
   // ── More for every occasion, so no two invitations look alike ──
   { id: 'wedding-laurel', name: 'Laurel', occasion: 'wedding', body: laurelFrame },
   { id: 'wedding-deco', name: 'Art deco', occasion: 'wedding', body: decoFrame },
+  { id: 'wedding-deco-rule', name: 'Art deco rule', occasion: 'wedding', body: decoRuleFrame },
   { id: 'wedding-pearls', name: 'Pearls', occasion: 'wedding', body: pearlFrame },
   { id: 'wedding-eucalyptus', name: 'Eucalyptus', occasion: 'wedding', body: eucalyptusFrame },
+  // A single fine rule with rounded corners (the eucalyptus frame without its leaves).
+  { id: 'wedding-rule', name: 'Fine rule', occasion: 'wedding', body: rect(24, 4, 'stroke-width=".9"') },
   { id: 'wedding-arch', name: 'Arch', occasion: 'wedding', body: archFrame },
   { id: 'wedding-filigree', name: 'Filigree', occasion: 'wedding', body: filigreeFrame },
+  // The filigree frame without its loops: just the two fine rules.
+  { id: 'wedding-double-rule', name: 'Double rule', occasion: 'wedding', body: rect(28, 0, 'stroke-width="1.2"') + rect(34, 0, 'stroke-width=".6"') },
   { id: 'wedding-rose', name: 'Roses', occasion: 'wedding', body: roseFrame },
   { id: 'wedding-fern', name: 'Ferns', occasion: 'wedding', body: fernFrame },
   { id: 'wedding-geometric', name: 'Diamonds', occasion: 'wedding', body: geoFrame },

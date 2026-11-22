@@ -78,31 +78,31 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
         ) : design.layout === 'monogram' ? (
           <MonogramWords Name={Name} design={design} details={details} heading={heading} body={body} display={fonts?.amatic ?? INVITATION_FONTS.amatic.family} accentText={accentText} framed={!!frame} />
         ) : (
-        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: frame ? '15cqw 14cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), ...(box ? { padding: `${box.top}cqw ${box.right}cqw ${box.bottom}cqw ${box.left}cqw` } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: classicFit(design, details, !!divider, !!frame, !!(design.showQr && qrSvg), textLeft, box), padding: frame ? '20cqw 18cqw' : '9cqw 8cqw', ...(textLeft ? { paddingLeft: `${textLeft + 8}cqw`, paddingRight: '6cqw' } : {}), ...(box ? { padding: `${box.top}cqw ${box.right}cqw ${box.bottom}cqw ${box.left}cqw` } : {}), display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: frame ? '2.2cqw' : '3cqw' }}>
-          {design.eyebrow && <p style={{ margin: 0, fontSize: '3.4cqw', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
-          <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${fitWords(details.name, design.headingFont, 10, frame ? 70 : 82)}cqw`, lineHeight: 1.1, color: accentText }}>{details.name}</Name>
+          {design.eyebrow && <p style={{ margin: 0, fontSize: 'calc(3.4cqw * var(--k, 1))', letterSpacing: '0.3cqw', textTransform: 'uppercase' }}>{design.eyebrow}</p>}
+          <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `calc(${fitWords(details.name, design.headingFont, 10, frame ? 62 : 82)}cqw * var(--k, 1))`, lineHeight: 1.1, color: accentText }}>{details.name}</Name>
           {divider
-            ? <div aria-hidden="true" style={{ width: '50cqw', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
+            ? <div aria-hidden="true" style={{ width: 'calc(50cqw * var(--k, 1))', color: design.dividerColor }} dangerouslySetInnerHTML={{ __html: ornamentSvg('divider', divider) }} />
             : <div style={{ width: '14cqw', height: '0.4cqw', background: design.accentColor, opacity: 0.8 }} />}
-          {details.date && <p style={{ margin: 0, fontSize: '4.2cqw', fontWeight: 600 }}>{details.date}</p>}
-          {details.time && <p style={{ margin: 0, fontSize: '3.8cqw' }}>{details.time}</p>}
+          {details.date && <p style={{ margin: 0, fontSize: 'calc(4.2cqw * var(--k, 1))', fontWeight: 600 }}>{details.date}</p>}
+          {details.time && <p style={{ margin: 0, fontSize: 'calc(3.8cqw * var(--k, 1))' }}>{details.time}</p>}
           {(details.venue || details.address) && (
-            <p style={{ margin: 0, fontSize: '3.6cqw', lineHeight: 1.45 }}>
+            <p style={{ margin: 0, fontSize: 'calc(3.6cqw * var(--k, 1))', lineHeight: 1.45 }}>
               {details.venue && <strong style={{ fontWeight: 600 }}>{details.venue}</strong>}
               {details.venue && details.address && <br />}
               {details.address}
             </p>
           )}
-          {details.password && <p style={{ margin: 0, fontSize: '3.4cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
-          {design.message && <p style={{ margin: '1cqw 0 0', fontSize: '3.6cqw', lineHeight: 1.55, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
+          {details.password && <p style={{ margin: 0, fontSize: 'calc(3.4cqw * var(--k, 1))' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
+          {design.message && <p style={{ margin: '1cqw 0 0', fontSize: 'calc(3.6cqw * var(--k, 1))', lineHeight: 1.55, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
           {design.showQr && qrSvg && (
             <div style={{ marginTop: '1cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw' }}>
-              <div style={{ width: frame ? '16cqw' : '20cqw', height: frame ? '16cqw' : '20cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
-              <p style={{ margin: 0, fontSize: '2.8cqw', opacity: 0.85, overflowWrap: 'anywhere' }}>{details.url.replace(/^https?:\/\//, '')}</p>
+              <div style={{ width: `calc(${frame ? 16 : 20}cqw * var(--k, 1))`, height: `calc(${frame ? 16 : 20}cqw * var(--k, 1))` }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+              <p style={{ margin: 0, fontSize: 'calc(2.8cqw * var(--k, 1))', opacity: 0.85, overflowWrap: 'anywhere' }}>{details.url.replace(/^https?:\/\//, '')}</p>
             </div>
           )}
-          {design.closing && <p style={{ margin: '1cqw 0 0', fontFamily: heading, fontSize: '5.6cqw', color: accentText }}>{design.closing}</p>}
+          {design.closing && <p style={{ margin: '1cqw 0 0', fontFamily: heading, fontSize: 'calc(5.6cqw * var(--k, 1))', color: accentText }}>{design.closing}</p>}
         </div>
         </div>
         )}
@@ -120,38 +120,49 @@ function MonogramWords({ Name, design, details, heading, body, display, accentTe
   const { names, initials } = monogramNames(details.name);
   const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.25cqw' } as const;
   const rule = <span style={{ flex: '0 0 9cqw', height: '0.25cqw', background: accentText, opacity: 0.7 }} />;
+  const cw = charW(design.bodyFont);
+  const W = framed ? 64 : 84;
+  const k = fitScale([
+    design.eyebrow && [design.eyebrow, 2.6, 1.3, cw * 1.2],
+    [names[0], 5.4, 1.15, cw * 1.25], names[1] && [names[1], 5.4, 1.15, cw * 1.25],
+    details.date && [details.date, 3.3, 1.3, cw * 1.2], details.time && [details.time, 3.3, 1.3, cw * 1.2],
+    details.venue && [details.venue, 3.3, 1.3, cw * 1.2], details.address && [details.address, 3.3, 1.3, cw * 1.2],
+    details.password && [details.password, 3.2, 1.3, cw],
+    design.message && [design.message, 3.3, 1.5, cw, W * 0.86],
+    design.closing && [design.closing, 3.3, 1.3, cw * 1.2],
+  ], W, framed ? 140 - 36 : 140 - 14, 31 + 9 + 0.6 + (names[1] ? 2.8 * 1.2 : 0) + 3, 9 * 1.6 + 2.4);
   return (
-    <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: framed ? '13cqw 13cqw' : '7cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw', fontFamily: body }}>
-      <div style={{ position: 'relative', width: '34cqw', color: accentText, marginBottom: '1cqw' }}>
+    <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: k, padding: framed ? '20cqw 18cqw' : '7cqw 8cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw', fontFamily: body }}>
+      <div style={{ position: 'relative', width: 'calc(34cqw * var(--k, 1))', color: accentText, marginBottom: '1cqw' }}>
         <div aria-hidden="true" dangerouslySetInnerHTML={{ __html: MONOGRAM_WREATH_SVG }} />
-        <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: display, fontSize: '11cqw', fontWeight: 700, lineHeight: 1 }}>{initials}</span>
+        <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: display, fontSize: 'calc(11cqw * var(--k, 1))', fontWeight: 700, lineHeight: 1 }}>{initials}</span>
       </div>
-      {design.eyebrow && <p style={{ ...caps, fontSize: '2.6cqw', letterSpacing: '0.15cqw', fontWeight: 600 }}>{design.eyebrow}</p>}
+      {design.eyebrow && <p style={{ ...caps, fontSize: 'calc(2.6cqw * var(--k, 1))', letterSpacing: '0.15cqw', fontWeight: 600 }}>{design.eyebrow}</p>}
       <p aria-hidden="true" style={{ margin: '0 0 0.6cqw', display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '1.2cqw', color: accentText, lineHeight: 1 }}>
-        <span style={{ fontFamily: heading, fontSize: '9cqw' }}>the</span>
-        <span style={{ fontFamily: display, fontSize: '17cqw', fontWeight: 700, letterSpacing: '0.3cqw' }}>WEDDING</span>
-        <span style={{ fontFamily: heading, fontSize: '9cqw' }}>of</span>
+        <span style={{ fontFamily: heading, fontSize: 'calc(9cqw * var(--k, 1))' }}>the</span>
+        <span style={{ fontFamily: display, fontSize: 'calc(17cqw * var(--k, 1))', fontWeight: 700, letterSpacing: '0.3cqw' }}>WEDDING</span>
+        <span style={{ fontFamily: heading, fontSize: 'calc(9cqw * var(--k, 1))' }}>of</span>
       </p>
-      <Name style={{ ...caps, fontSize: `${fitWords(names[0], design.bodyFont, 5.4, 72, 1.2)}cqw`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[0]}</Name>
+      <Name style={{ ...caps, fontSize: `calc(${fitWords(names[0], design.bodyFont, 5.4, 72, 1.2)}cqw * var(--k, 1))`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[0]}</Name>
       {names[1] && (
         <>
-          <p style={{ ...caps, display: 'flex', alignItems: 'center', gap: '2cqw', fontSize: '2.8cqw', fontWeight: 600 }}>{rule}and{rule}</p>
-          <Name style={{ ...caps, fontSize: `${fitWords(names[1], design.bodyFont, 5.4, 72, 1.2)}cqw`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[1]}</Name>
+          <p style={{ ...caps, display: 'flex', alignItems: 'center', gap: '2cqw', fontSize: 'calc(2.8cqw * var(--k, 1))', fontWeight: 600 }}>{rule}and{rule}</p>
+          <Name style={{ ...caps, fontSize: `calc(${fitWords(names[1], design.bodyFont, 5.4, 72, 1.2)}cqw * var(--k, 1))`, fontWeight: 600, color: accentText, lineHeight: 1.15 }}>{names[1]}</Name>
         </>
       )}
       <div style={{ marginTop: '1.4cqw' }}>
-        {details.date && <p style={{ ...caps, fontSize: '3.3cqw', fontWeight: 600 }}>{details.date}</p>}
-        {details.time && <p style={{ ...caps, fontSize: '3.3cqw', fontWeight: 600 }}>{details.time}</p>}
+        {details.date && <p style={{ ...caps, fontSize: 'calc(3.3cqw * var(--k, 1))', fontWeight: 600 }}>{details.date}</p>}
+        {details.time && <p style={{ ...caps, fontSize: 'calc(3.3cqw * var(--k, 1))', fontWeight: 600 }}>{details.time}</p>}
       </div>
       {(details.venue || details.address) && (
         <div>
-          {details.venue && <p style={{ ...caps, fontSize: '3.3cqw', fontWeight: 600 }}>{details.venue}</p>}
-          {details.address && <p style={{ ...caps, fontSize: '3.3cqw', fontWeight: 600 }}>{details.address}</p>}
+          {details.venue && <p style={{ ...caps, fontSize: 'calc(3.3cqw * var(--k, 1))', fontWeight: 600 }}>{details.venue}</p>}
+          {details.address && <p style={{ ...caps, fontSize: 'calc(3.3cqw * var(--k, 1))', fontWeight: 600 }}>{details.address}</p>}
         </div>
       )}
-      {details.password && <p style={{ margin: 0, fontSize: '3.2cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
-      {design.message && <p style={{ margin: 0, fontSize: '3.3cqw', lineHeight: 1.5, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
-      {design.closing && <p style={{ ...caps, marginTop: '1cqw', fontSize: '3.3cqw', fontWeight: 600, color: accentText }}>{design.closing}</p>}
+      {details.password && <p style={{ margin: 0, fontSize: 'calc(3.2cqw * var(--k, 1))' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
+      {design.message && <p style={{ margin: 0, fontSize: 'calc(3.3cqw * var(--k, 1))', lineHeight: 1.5, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
+      {design.closing && <p style={{ ...caps, marginTop: '1cqw', fontSize: 'calc(3.3cqw * var(--k, 1))', fontWeight: 600, color: accentText }}>{design.closing}</p>}
     </div>
   );
 }
@@ -225,7 +236,7 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
       {details.password && <p style={{ margin: 0, fontSize: '3cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
       {design.message && <p style={{ ...italic, fontSize: `${3.7 * k}cqw`, whiteSpace: 'pre-line', maxWidth: '86%' }}>{design.message}</p>}
       {design.showQr && qrSvg && (
-        <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        <div style={{ width: '12cqw', height: '12cqw', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
       )}
       {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: `${7 * k}cqw`, lineHeight: 1.1, color: accentText }}>{design.closing}</p>}
     </div>
@@ -282,30 +293,38 @@ function BloomsWords({ Name, design, details, heading, accentText, qrSvg }: {
             filter: b.depth === 0 ? tone : `${tone} drop-shadow(${0.5 * b.depth}cqw ${1.2 * b.depth}cqw ${1.2 * b.depth}cqw rgba(90,55,40,0.32)) drop-shadow(0 ${0.35 * b.depth}cqw ${0.35 * b.depth}cqw rgba(90,55,40,0.25))`,
           }} />
       ))}
-      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: roses ? '10cqw 30cqw 12cqw 6cqw' : '10cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
-        {design.eyebrow && <p style={{ ...caps, fontSize: '2.7cqw', lineHeight: 1.5 }}>{design.eyebrow}</p>}
-        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `${size}cqw`, lineHeight: 1.05, color: accentText }}>{details.name}</Name>
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 2.7, 1.5, charW(design.bodyFont) * 1.2],
+        [details.name, size, 1.05, charW(design.headingFont)],
+        details.date && [details.date, 3.1, 1.35, charW(design.bodyFont) * 1.25], details.time && [details.time, 2.8, 1.3, charW(design.bodyFont) * 1.2],
+        details.venue && [details.venue, 2.9, 1.5, charW(design.bodyFont)], details.address && [details.address, 2.9, 1.5, charW(design.bodyFont)],
+        details.password && [details.password, 2.8, 1.3, charW(design.bodyFont)],
+        design.message && [design.message, 2.9, 1.55, charW(design.bodyFont)],
+        design.closing && [design.closing, 5.4, 1.15, charW(design.headingFont)],
+      ], column, 140 - 24, (details.date || details.time ? 5 : 0) + (design.showQr && qrSvg ? 13 : 0), 9 * 2), padding: roses ? '12cqw 30cqw 12cqw 6cqw' : '12cqw 38cqw 12cqw 7cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2cqw' }}>
+        {design.eyebrow && <p style={{ ...caps, fontSize: 'calc(2.7cqw * var(--k, 1))', lineHeight: 1.5 }}>{design.eyebrow}</p>}
+        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, fontSize: `calc(${size}cqw * var(--k, 1))`, lineHeight: 1.05, color: accentText }}>{details.name}</Name>
         {(details.date || details.time) && (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw', marginTop: '1cqw' }}>
             {rule}
-            {details.date && <p style={{ ...caps, fontSize: '3.1cqw', fontWeight: 600, color: accentText, lineHeight: 1.35 }}>{details.date}</p>}
+            {details.date && <p style={{ ...caps, fontSize: 'calc(3.1cqw * var(--k, 1))', fontWeight: 600, color: accentText, lineHeight: 1.35 }}>{details.date}</p>}
             {rule}
-            {details.time && <p style={{ ...caps, fontSize: '2.8cqw', fontWeight: 600 }}>{details.time}</p>}
+            {details.time && <p style={{ ...caps, fontSize: 'calc(2.8cqw * var(--k, 1))', fontWeight: 600 }}>{details.time}</p>}
           </div>
         )}
         {(details.venue || details.address) && (
-          <p style={{ margin: 0, fontSize: '2.9cqw', lineHeight: 1.5 }}>
+          <p style={{ margin: 0, fontSize: 'calc(2.9cqw * var(--k, 1))', lineHeight: 1.5 }}>
             {details.venue && <strong style={{ fontWeight: 600 }}>{details.venue}</strong>}
             {details.venue && details.address && <br />}
             {details.address}
           </p>
         )}
-        {details.password && <p style={{ margin: 0, fontSize: '2.8cqw' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
-        {design.message && <p style={{ margin: 0, fontSize: '2.9cqw', lineHeight: 1.55, whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {details.password && <p style={{ margin: 0, fontSize: 'calc(2.8cqw * var(--k, 1))' }}>{details.passwordLabel}: <strong style={{ fontWeight: 700, letterSpacing: '0.2cqw' }}>{details.password}</strong></p>}
+        {design.message && <p style={{ margin: 0, fontSize: 'calc(2.9cqw * var(--k, 1))', lineHeight: 1.55, whiteSpace: 'pre-line' }}>{design.message}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '13cqw', height: '13cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: 'calc(13cqw * var(--k, 1))', height: 'calc(13cqw * var(--k, 1))' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
-        {design.closing && <p style={{ margin: 0, fontFamily: heading, fontSize: '5.4cqw', lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
+        {design.closing && <p style={{ margin: 0, fontFamily: heading, fontSize: 'calc(5.4cqw * var(--k, 1))', lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
       </div>
     </>
   );
@@ -327,44 +346,52 @@ function GildedWords({ Name, design, details, heading, qrSvg }: {
   return (
     <>
       <div aria-hidden="true" style={{ position: 'absolute', inset: '6cqw', border: '0.55cqw solid transparent', borderImage: `${sheen} 1`, pointerEvents: 'none' }} />
-      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '11cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 3.1, 1.65, charW(design.bodyFont) * 1.3, 78 * 0.88],
+        names.length !== 2 && [names[0], Math.max(4.2, Math.min(6, 70 / longest)), 1.3, charW(design.bodyFont) * 1.35],
+        design.message && [design.message, 3, 1.65, charW(design.bodyFont) * 1.3, 78 * 0.92],
+        details.date && [details.date, 4.2, 1.3, charW(design.bodyFont) * 1.3], details.time && [details.time, 3, 1.65, charW(design.bodyFont) * 1.3],
+        details.venue && [details.venue, 3, 1.65, charW(design.bodyFont) * 1.3], details.address && [details.address, 3, 1.65, charW(design.bodyFont) * 1.3],
+        details.password && [details.password, 2.8, 1.65, charW(design.bodyFont) * 1.3],
+        design.closing && [design.closing, 2.8, 1.65, charW(design.bodyFont) * 1.3],
+      ], 78, 140 - 26, (letters.length ? 23 : 0) + (names.length === 2 ? 2 * Math.max(4.2, Math.min(5.6, 66 / longest)) * 1.2 + 3.4 + 2.8 : 2.8) + (design.showQr && qrSvg ? 12 : 0), 10 * 1.6), padding: '13cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
         {letters.length > 0 && (
           // Two initials overlap on a slant, the second lower and to the right.
-          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? '46cqw' : 'auto', height: '21cqw', marginBottom: '2cqw', fontFamily: heading, fontSize: '17cqw', lineHeight: 1, color: gold }}>
+          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? 'calc(46cqw * var(--k, 1))' : 'auto', height: 'calc(21cqw * var(--k, 1))', marginBottom: '2cqw', fontFamily: heading, fontSize: 'calc(17cqw * var(--k, 1))', lineHeight: 1, color: gold }}>
             {letters.length === 2 ? (
               <>
                 <span style={{ position: 'absolute', left: '2cqw', top: 0 }}>{letters[0]}</span>
-                <span style={{ position: 'absolute', right: '2cqw', top: '6cqw' }}>{letters[1]}</span>
+                <span style={{ position: 'absolute', right: '2cqw', top: 'calc(6cqw * var(--k, 1))' }}>{letters[1]}</span>
               </>
             ) : (
               <span style={{ letterSpacing: '4cqw', marginRight: '-4cqw' }}>{letters.join('')}</span>
             )}
           </div>
         )}
-        {design.eyebrow && <p style={{ ...caps, fontSize: '3.1cqw', maxWidth: '88%' }}>{design.eyebrow}</p>}
+        {design.eyebrow && <p style={{ ...caps, fontSize: 'calc(3.1cqw * var(--k, 1))', maxWidth: '88%' }}>{design.eyebrow}</p>}
         {names.length === 2 ? (
           <Name style={{ margin: '1.4cqw 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.4cqw', fontWeight: 600 }}>
-            <span style={{ ...caps, fontSize: `${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[0]}</span>
-            <span style={{ ...caps, fontSize: '3.4cqw', lineHeight: 1 }}>{joiner}</span>
-            <span style={{ ...caps, fontSize: `${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[1]}</span>
+            <span style={{ ...caps, fontSize: `calc(${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw * var(--k, 1))`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[0]}</span>
+            <span style={{ ...caps, fontSize: 'calc(3.4cqw * var(--k, 1))', lineHeight: 1 }}>{joiner}</span>
+            <span style={{ ...caps, fontSize: `calc(${Math.max(4.2, Math.min(5.6, 66 / longest))}cqw * var(--k, 1))`, letterSpacing: '0.6cqw', lineHeight: 1.2 }}>{names[1]}</span>
           </Name>
         ) : (
-          <Name style={{ ...caps, margin: '1.4cqw 0', fontSize: `${Math.max(4.2, Math.min(6, 70 / longest))}cqw`, letterSpacing: '0.6cqw', lineHeight: 1.3 }}>{names[0]}</Name>
+          <Name style={{ ...caps, margin: '1.4cqw 0', fontSize: `calc(${Math.max(4.2, Math.min(6, 70 / longest))}cqw * var(--k, 1))`, letterSpacing: '0.6cqw', lineHeight: 1.3 }}>{names[0]}</Name>
         )}
-        {design.message && <p style={{ ...caps, fontSize: '3cqw', whiteSpace: 'pre-line', maxWidth: '92%' }}>{design.message}</p>}
-        {details.date && <p style={{ ...caps, marginTop: '1.4cqw', fontSize: '4.2cqw', letterSpacing: '0.5cqw', lineHeight: 1.3 }}>{details.date}</p>}
-        {details.time && <p style={{ ...caps, fontSize: '3cqw' }}>{details.time}</p>}
+        {design.message && <p style={{ ...caps, fontSize: 'calc(3cqw * var(--k, 1))', whiteSpace: 'pre-line', maxWidth: '92%' }}>{design.message}</p>}
+        {details.date && <p style={{ ...caps, marginTop: '1.4cqw', fontSize: 'calc(4.2cqw * var(--k, 1))', letterSpacing: '0.5cqw', lineHeight: 1.3 }}>{details.date}</p>}
+        {details.time && <p style={{ ...caps, fontSize: 'calc(3cqw * var(--k, 1))' }}>{details.time}</p>}
         {(details.venue || details.address) && (
           <div>
-            {details.venue && <p style={{ ...caps, fontSize: '3cqw' }}>{details.venue}</p>}
-            {details.address && <p style={{ ...caps, fontSize: '3cqw' }}>{details.address}</p>}
+            {details.venue && <p style={{ ...caps, fontSize: 'calc(3cqw * var(--k, 1))' }}>{details.venue}</p>}
+            {details.address && <p style={{ ...caps, fontSize: 'calc(3cqw * var(--k, 1))' }}>{details.address}</p>}
           </div>
         )}
-        {details.password && <p style={{ ...caps, fontSize: '2.8cqw' }}>{details.passwordLabel}: {details.password}</p>}
+        {details.password && <p style={{ ...caps, fontSize: 'calc(2.8cqw * var(--k, 1))' }}>{details.passwordLabel}: {details.password}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: '12cqw', height: '12cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
-        {design.closing && <p style={{ ...caps, marginTop: '0.6cqw', fontSize: '2.8cqw' }}>{design.closing}</p>}
+        {design.closing && <p style={{ ...caps, marginTop: '0.6cqw', fontSize: 'calc(2.8cqw * var(--k, 1))' }}>{design.closing}</p>}
       </div>
     </>
   );
@@ -425,12 +452,20 @@ function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
         </g>
       </svg>
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: SANDY_PAPER, backgroundSize: '300px 300px', opacity: 0.3, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
-      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', padding: '25cqw 21cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.2cqw' }}>
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 3.05, 1.6, charW(design.bodyFont) * 0.95],
+        names.length !== 2 && [names[0], parseFloat(nameSize), 1.05, charW(design.headingFont) * 1.3],
+        design.message && [design.message, 3.05, 1.6, charW(design.bodyFont) * 0.95],
+        details.date && [details.date, 3.05, 1.6, charW(design.bodyFont) * 0.95], details.time && [details.time, 3.05, 1.6, charW(design.bodyFont) * 0.95],
+        details.venue && [details.venue, 3.05, 1.6, charW(design.bodyFont) * 0.95], details.address && [details.address, 3.05, 1.6, charW(design.bodyFont) * 0.95],
+        details.password && [details.password, 2.7, 1.6, charW(design.bodyFont) * 0.95],
+        design.closing && [design.closing, 3.05, 1.6, charW(design.bodyFont) * 0.95],
+      ], 58, 140 - 60, (names.length === 2 ? 2 * parseFloat(nameSize) * 1.05 + 2.8 * 1.6 + 2 : 0) + 3 + 3 + (design.showQr && qrSvg ? 12 : 0), 10 * 1.2), padding: '30cqw 21cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.2cqw' }}>
         {design.eyebrow && <p style={{ ...line, marginBottom: '3cqw' }}>{design.eyebrow}</p>}
         {names.length === 2 ? (
           <Name style={{ margin: '0 0 3cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1cqw', fontWeight: 400 }}>
             <span style={big}>{names[0]}</span>
-            <span style={{ ...line, fontSize: '2.8cqw' }}>{joiner}</span>
+            <span style={{ ...line, fontSize: 'calc(2.8cqw * var(--k, 1))' }}>{joiner}</span>
             <span style={big}>{names[1]}</span>
           </Name>
         ) : (
@@ -449,9 +484,9 @@ function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
             {details.address && <p style={line}>{details.address}</p>}
           </div>
         )}
-        {details.password && <p style={{ ...line, fontSize: '2.7cqw' }}>{details.passwordLabel}: {details.password}</p>}
+        {details.password && <p style={{ ...line, fontSize: 'calc(2.7cqw * var(--k, 1))' }}>{details.passwordLabel}: {details.password}</p>}
         {design.showQr && qrSvg && (
-          <div style={{ width: '12cqw', height: '12cqw', mixBlendMode: 'multiply' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+          <div style={{ width: '12cqw', height: '12cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ ...line, marginTop: '2cqw' }}>{design.closing}</p>}
       </div>
@@ -478,4 +513,47 @@ const CHAR_WIDTH: Partial<Record<InvitationFont, number>> = {
 function fitWords(text: string, font: InvitationFont, max: number, width: number, caps = 1): number {
   const longest = Math.max(1, ...text.split(/\s+/).map((w) => w.length));
   return Math.min(max, width / (longest * (CHAR_WIDTH[font] ?? 0.6) * caps));
+}
+
+// Shrinking the words to fit: about how many lines a text takes at a size
+// (cqw) in a width, and the scale (1 down to 0.5) at which all of a layout's
+// words fit its height, so they never reach the frame or the edge. A block:
+// [text, size, line height, letter width as a share of the size, width?];
+// scaled: heights that shrink with the words (names, pictures, the QR code);
+// fixed: those that don't (gaps). Each layout sets the scale as --k, which
+// every font size there is multiplied by.
+type FitBlock = [text: string, size: number, lineHeight: number, charWidth: number, width?: number];
+const linesOf = (text: string, size: number, charWidth: number, width: number) =>
+  text.split('\n').reduce((n, part) => n + Math.max(1, Math.ceil((part.length * size * charWidth) / width)), 0);
+function fitScale(blocks: (FitBlock | false | '' | null | undefined)[], width: number, height: number, scaled: number, fixed: number): number {
+  for (let k = 1; k > 0.5; k -= 0.025) {
+    let h = fixed + scaled * k;
+    for (const b of blocks) {
+      if (!b || !b[0]) continue;
+      const [text, size, lh, cw, w = width] = b;
+      h += linesOf(text, size * k, cw, w) * size * k * lh;
+    }
+    if (h <= height) return Math.round(k * 1000) / 1000;
+  }
+  return 0.5;
+}
+const charW = (font: InvitationFont) => CHAR_WIDTH[font] ?? 0.6;
+
+// The classic layout's scale: its words, divider and QR code inside the
+// frame's padding (or the paper's own text area).
+function classicFit(design: InvitationDesign, details: InvitationDetails, divider: boolean, frame: boolean, qr: boolean, textLeft: number, box?: { top: number; right: number; bottom: number; left: number }): number {
+  const width = box ? 100 - box.left - box.right : textLeft ? 100 - textLeft - 14 : frame ? 64 : 84;
+  const height = box ? 140 - box.top - box.bottom : frame ? 140 - 40 : 140 - 18;
+  const cb = charW(design.bodyFont), ch = charW(design.headingFont);
+  const blocks: (FitBlock | false | '' | undefined)[] = [
+    design.eyebrow && [design.eyebrow, 3.4, 1.3, cb * 1.3],
+    [details.name, fitWords(details.name, design.headingFont, 10, frame ? 62 : 82), 1.1, ch],
+    details.date && [details.date, 4.2, 1.3, cb * 1.05], details.time && [details.time, 3.8, 1.3, cb],
+    details.venue && [details.venue, 3.6, 1.45, cb * 1.05], details.address && [details.address, 3.6, 1.45, cb],
+    details.password && [`${details.passwordLabel}: ${details.password}`, 3.4, 1.3, cb],
+    design.message && [design.message, 3.6, 1.55, cb, width * 0.86],
+    design.closing && [design.closing, 5.6, 1.2, ch],
+  ];
+  const count = blocks.filter(Boolean).length + 1 + (qr ? 1 : 0);
+  return fitScale(blocks, width, height, (divider ? 8.3 : 0.4) + (qr ? (frame ? 16 : 20) + 1.4 + 3.6 : 0), count * (frame ? 2.2 : 3) + 3);
 }
