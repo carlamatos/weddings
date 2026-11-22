@@ -656,9 +656,8 @@ const pearlFrame = rect(44, 0, 'stroke-width=".7"') + rectDots(30, 14, 2.4, `${S
 const eucalyptusCorner = eucalyptus(sample((t) => [40 + 240 * t, 44 + 8 * Math.sin(Math.PI * 2 * t)], 70), 9, 5) + eucalyptus(sample((t) => [44 + 8 * Math.sin(Math.PI * 2 * t), 40 + 300 * t], 80), 9, 5);
 const eucalyptusFrame = rect(24, 4, 'stroke-width=".9"') + oppositeCorner(eucalyptusCorner);
 
-// Wedding: an arched window, doubled, with a flower at the top.
-const archFrame = seg('M34 674V230A216 216 0 0 1 466 230V674Z', 'stroke-width="1.4"') + seg('M46 662V232A204 204 0 0 1 454 232V662Z', 'stroke-width=".8"')
-  + flower(250, 26, 10, 6, 0) + leaf(236, 30, 200, 16, SOFT) + leaf(264, 30, -20, 16, SOFT) + fourCorners(dot(34, 674, 0) + dot(18, 18, 0)) + dot(34, 680, 2) + dot(466, 680, 2);
+// Wedding: an arched window, doubled.
+const archFrame = seg('M34 674V230A216 216 0 0 1 466 230V674Z', 'stroke-width="1.4"') + seg('M46 662V232A204 204 0 0 1 454 232V662Z', 'stroke-width=".8"');
 
 // Wedding: filigree loops in the corners and at the middle of each long side.
 const filigreeFrame = rect(28, 0, 'stroke-width="1.2"') + rect(34, 0, 'stroke-width=".6"')
@@ -674,10 +673,9 @@ const roseFrame = rect(22, 0, 'stroke-width="1"') + oppositeCorner(roseCorner);
 // Wedding: fern fronds rising up both sides.
 const fernFrame = rect(26, 0, 'stroke-width=".9"') + fern(44, 678, -84, 170) + fern(456, 678, -96, 170) + fern(52, 38, 70, 104) + fern(448, 38, 110, 104);
 
-// Wedding: diamonds at the corners and middles, double rule.
+// Wedding: a double rule with short lines between the rules at each corner.
 const geoFrame = rect(24, 0, 'stroke-width="1.3"') + rect(40, 0, 'stroke-width=".7"')
-  + fourCorners(diamond(32, 32, 26, 26, `${SOFT} stroke-width="1"`) + diamond(32, 32, 10, 10, F) + seg('M58 32H110M32 58V110', 'stroke-width="1.1"'))
-  + diamond(250, 32, 22, 22, `${SOFT} stroke-width="1"`) + diamond(250, 668, 22, 22, `${SOFT} stroke-width="1"`) + diamond(32, 350, 22, 22, `${SOFT} stroke-width="1"`) + diamond(468, 350, 22, 22, `${SOFT} stroke-width="1"`);
+  + fourCorners(seg('M58 32H110M32 58V110', 'stroke-width="1.1"'));
 
 // Wedding: a bow at the top with its ribbon running along the edge.
 const ribbonFrame = rect(30, 0, 'stroke-width="1"') + ribbon(sample((t) => [238 - 200 * t, 40 + 8 * Math.sin(Math.PI * 3 * t)], 40), 5, (t) => 1 - t * 0.85)
@@ -762,7 +760,7 @@ const FRAME_LIST: Ornament[] = [
   { id: 'wedding-double-rule', name: 'Double rule', occasion: 'wedding', body: rect(28, 0, 'stroke-width="1.2"') + rect(34, 0, 'stroke-width=".6"') },
   { id: 'wedding-rose', name: 'Roses', occasion: 'wedding', body: roseFrame },
   { id: 'wedding-fern', name: 'Ferns', occasion: 'wedding', body: fernFrame },
-  { id: 'wedding-geometric', name: 'Diamonds', occasion: 'wedding', body: geoFrame },
+  { id: 'wedding-geometric', name: 'Double rule, corner lines', occasion: 'wedding', body: geoFrame },
   { id: 'wedding-ribbon', name: 'Ribbon', occasion: 'wedding', body: ribbonFrame },
   { id: 'christmas-mistletoe', name: 'Mistletoe', occasion: 'christmas', body: mistletoeFrame },
   { id: 'christmas-baubles', name: 'Baubles', occasion: 'christmas', body: baublesFrame },

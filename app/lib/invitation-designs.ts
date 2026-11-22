@@ -50,7 +50,7 @@ export type CatalogDesign = {
 // They come first in their occasion, before the theme designs. Each is one
 // layout in a few colourways (tones).
 export type DesignStyle = 'garden-scroll' | 'rustic-lace' | 'wildflower-meadow' | 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
-export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold' | 'walnut' | 'driftwood';
+export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold' | 'walnut';
 
 const solid = (color: string): InvitationLook['background'] => ({ kind: 'color', color, imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 });
 const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
@@ -71,13 +71,12 @@ const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTon
     ],
   },
   // Rustic Lace: dark wood planks with white lace flowers in two corners
-  // (layout 'lace'); the paper colour tints the wood.
+  // (layout 'lace'); the paper colour tints the wood. One colourway: walnut.
   {
     style: 'rustic-lace',
     group: 'wedding',
     tones: [
       ['walnut', styleLook({ layout: 'lace', headingFont: 'cormorant', bodyFont: 'montserrat', bg: '#5A3F2E', textColor: '#FFFFFF', accentColor: '#F7F2EA' })],
-      ['driftwood', styleLook({ layout: 'lace', headingFont: 'cormorant', bodyFont: 'montserrat', bg: '#7A7067', textColor: '#FFFFFF', accentColor: '#FAF7F2' })],
     ],
   },
   // Wildflower Meadow: watercolour wildflower garlands top and bottom on

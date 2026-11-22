@@ -109,23 +109,58 @@ function emblem(seal: EnvelopeSeal, fill: string): string {
 }
 
 // The wax seal on its own, in a 100×100 viewBox (with a little room for its
-// shadow). uid keeps gradient ids apart when several are on one page.
+// shadow), drawn like real sealing wax: an uneven poured edge, a glossy
+// raised rim where the wax was squeezed out, a flat stamped disc pressed into
+// the middle, and the emblem debossed in it (shadow on the edges away from
+// the light, top left; a lit edge opposite). uid keeps the ids apart when
+// several are on one page.
 export function sealSvgInner(seal: EnvelopeSeal, color: string, uid = 's'): string {
-  // A slightly uneven edge, like poured wax.
-  const edge = Array.from({ length: 48 }, (_, i) => {
-    const a = (Math.PI * 2 * i) / 48;
-    const r = 40 + 1.6 * Math.sin(a * 7) + 1.1 * Math.sin(a * 11 + 1);
-    return `${(50 + r * Math.cos(a)).toFixed(2)},${(50 + r * Math.sin(a)).toFixed(2)}`;
+  // The poured edge: a smooth, irregular blob (a closed curve through
+  // uneven points), a little wider at the bottom right where the wax ran.
+  const n = 36;
+  const pts = Array.from({ length: n }, (_, i) => {
+    const a = (Math.PI * 2 * i) / n;
+    const r = 40.5 + 1.5 * Math.sin(a * 3 + 0.7) + 1.1 * Math.sin(a * 5 + 2.1) + 0.7 * Math.sin(a * 9 + 0.3) + 1.6 * Math.max(0, Math.cos(a - 0.8)) ** 6;
+    return [50 + r * Math.cos(a), 50 + r * Math.sin(a)];
   });
-  const dark = shade(color, -0.32);
-  return `<defs><radialGradient id="${uid}-wax" cx="38%" cy="34%" r="70%"><stop offset="0" stop-color="${shade(color, 0.28)}"/><stop offset="0.55" stop-color="${color}"/><stop offset="1" stop-color="${shade(color, -0.22)}"/></radialGradient></defs>`
-    + `<polygon points="${edge.join(' ')}" fill="${shade(color, -0.45)}" opacity="0.28" transform="translate(1.5 3)"/>`
-    + `<polygon points="${edge.join(' ')}" fill="url(#${uid}-wax)"/>`
-    + `<circle cx="50" cy="50" r="29" fill="none" stroke="${dark}" stroke-width="2.2" opacity="0.7"/>`
-    + `<circle cx="50" cy="50" r="29" fill="none" stroke="${shade(color, 0.35)}" stroke-width="1" opacity="0.6" transform="translate(-0.8 -0.8)"/>`
-    // The emblem pressed in: a light edge above-left, the dark shape on top.
-    + `<g opacity="0.55" transform="translate(-0.9 -0.9)">${emblem(seal, shade(color, 0.4))}</g>`
-    + emblem(seal, dark);
+  const f = (v: number) => v.toFixed(2);
+  let edge = `M${f(pts[0][0])} ${f(pts[0][1])}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+    edge += `C${f(p1[0] + (p2[0] - p0[0]) / 6)} ${f(p1[1] + (p2[1] - p0[1]) / 6)} ${f(p2[0] - (p3[0] - p1[0]) / 6)} ${f(p2[1] - (p3[1] - p1[1]) / 6)} ${f(p2[0])} ${f(p2[1])}`;
+  }
+  edge += 'Z';
+  const deep = shade(color, -0.42), dark = shade(color, -0.24), lit = shade(color, 0.3), face = shade(color, -0.06);
+  const id = (k: string) => `${uid}-${k}`;
+  // The emblem debossed: its dark wall top left, its lit wall bottom right,
+  // the floor a touch darker than the disc.
+  const pressed = `<g transform="translate(-0.9 -0.9)">${emblem(seal, deep)}</g>`
+    + `<g transform="translate(0.8 0.8)" opacity="0.8">${emblem(seal, lit)}</g>`
+    + emblem(seal, shade(color, -0.14));
+  return `<defs>`
+    + `<radialGradient id="${id('wax')}" cx="36%" cy="32%" r="75%"><stop offset="0" stop-color="${shade(color, 0.18)}"/><stop offset="0.5" stop-color="${color}"/><stop offset="1" stop-color="${shade(color, -0.3)}"/></radialGradient>`
+    + `<radialGradient id="${id('disc')}" cx="60%" cy="62%" r="70%"><stop offset="0" stop-color="${face}"/><stop offset="1" stop-color="${shade(color, -0.16)}"/></radialGradient>`
+    + `<filter id="${id('soft')}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="1.6"/></filter>`
+    + `<filter id="${id('blur')}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="0.7"/></filter>`
+    + `<clipPath id="${id('in')}"><path d="${edge}"/></clipPath>`
+    + `</defs>`
+    // Its shadow on the paper.
+    + `<path d="${edge}" fill="#000" opacity="0.32" transform="translate(1.2 2.6)" filter="url(#${id('soft')})"/>`
+    // The wax, with its rounded rim: dark round the outside, light inside the top left.
+    + `<path d="${edge}" fill="url(#${id('wax')})"/>`
+    + `<g clip-path="url(#${id('in')})">`
+    + `<path d="${edge}" fill="none" stroke="${deep}" stroke-width="3" opacity="0.45" filter="url(#${id('blur')})"/>`
+    // Soft gloss on the rim, top left, and a small glint bottom right.
+    + `<path d="M17.5 47 A33 33 0 0 1 42 17.5" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" opacity="0.38" filter="url(#${id('blur')})"/>`
+    + `<path d="M76 70 A33 33 0 0 1 66 79" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity="0.25" filter="url(#${id('blur')})"/>`
+    + `</g>`
+    // The stamped disc: pressed down, so its wall is dark top left and lit bottom right.
+    + `<circle cx="50" cy="50" r="28.5" fill="${lit}" opacity="0.55" transform="translate(0.9 0.9)"/>`
+    + `<circle cx="50" cy="50" r="28.5" fill="${dark}" transform="translate(-0.8 -0.8)"/>`
+    + `<circle cx="50" cy="50" r="28" fill="url(#${id('disc')})"/>`
+    + `<circle cx="50" cy="50" r="25.5" fill="none" stroke="${shade(color, -0.2)}" stroke-width="0.6" opacity="0.7"/>`
+    + `<circle cx="50" cy="50" r="25.5" fill="none" stroke="${lit}" stroke-width="0.5" opacity="0.5" transform="translate(0.5 0.5)"/>`
+    + pressed;
 }
 
 export const ENVELOPE_RATIO = 5 / 7; // height / width, like an A7 envelope
