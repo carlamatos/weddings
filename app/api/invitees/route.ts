@@ -39,6 +39,8 @@ export async function POST(request: Request) {
   await ensureInviteColumns();
   let imported = 0;
   let skipped = 0;
+  // The new guests' ids, so the Invite screen can tick them to send to.
+  const ids: string[] = [];
   for (const raw of body.contacts as Record<string, unknown>[]) {
     const name = field(raw?.name, 120);
     const emailRaw = field(raw?.email, 254).toLowerCase();
@@ -49,14 +51,16 @@ export async function POST(request: Request) {
     const key = `${name.toLowerCase()}|${phone ?? ''}`;
     if (!name || (email ? emails.has(email) : namePhones.has(key))) { skipped++; continue; }
 
-    await sql`
+    const added = await sql`
       INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, invitation_note, seats)
       VALUES (${pageId}, ${name}, ${email}, ${phone}, 'invited', ${guests}, ${note}, ${guests})
+      RETURNING id
     `;
+    if (added.rows[0]) ids.push(String(added.rows[0].id));
     if (email) emails.add(email);
     namePhones.add(key);
     imported++;
   }
 
-  return NextResponse.json({ success: true, imported, skipped });
+  return NextResponse.json({ success: true, imported, skipped, ids });
 }

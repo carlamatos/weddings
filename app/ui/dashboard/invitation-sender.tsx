@@ -10,6 +10,7 @@ import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text
 import type { Guest } from '@/app/lib/definitions';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 import { LocalDate } from './local-date';
+import { QuickAddGuest } from './quick-add-guest';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
@@ -297,6 +298,9 @@ export function InvitationSender({
           {rich(d.invitationSender.yourGuestListIsEmpty, { t0: (s) => <Link href={guestListHref} style={{ color: '#B6584A', fontWeight: 600 }}>{s}</Link> })}
         </p>
       ) : null}
+
+      {/* Add a guest here; they join the Guests & RSVPs list, ticked to send. */}
+      <QuickAddGuest pageId={pageId} onAdded={(ids) => setSelected((prev) => new Set([...prev, ...ids]))} />
 
       {guests.length === 0 && (
         // No guests yet: the host can still see the invitation email and
