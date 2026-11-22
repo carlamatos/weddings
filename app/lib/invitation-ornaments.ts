@@ -767,6 +767,7 @@ const FRAME_LIST: Ornament[] = [
   { id: 'christmas-mistletoe', name: 'Mistletoe', occasion: 'christmas', body: mistletoeFrame },
   { id: 'christmas-baubles', name: 'Baubles', occasion: 'christmas', body: baublesFrame },
   { id: 'christmas-stars', name: 'Star garland', occasion: 'christmas', body: starsFrame },
+  { id: 'christmas-border', name: 'Fine border', occasion: 'christmas', body: rect(22, 14, 'stroke-width="1.1"') },
   { id: 'christmas-bells', name: 'Bells', occasion: 'christmas', body: bellsFrame },
   { id: 'christmas-gift', name: 'Presents', occasion: 'christmas', body: giftFrame },
   { id: 'christmas-candy', name: 'Candy canes', occasion: 'christmas', body: rect(24, 0, 'stroke-width="1.1"') + rectDots(34, 16, 1.4) + fourCorners(candyCane(54, 40, 70, 1, -30) + candyCane(80, 46, 54, -1, 24) + bow(66, 104, 12)) },

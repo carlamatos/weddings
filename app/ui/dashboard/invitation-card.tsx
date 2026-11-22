@@ -190,13 +190,18 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
   const { names, joiner } = monogramNames(details.name);
   const longest = Math.max(...names.map((n) => n.length));
   const capsSize = Math.max(5, Math.min(8, 88 / longest));
+  // The calligraphy lines (above, between the names, below) sized for their
+  // font: a wider script (Dancing Script) a little smaller than a fine one.
+  const cw = charW(design.headingFont);
+  const sc = Math.min(1, 0.45 / cw);
+  const eyebrowSize = 7.5 * sc, joinerSize = 10 * sc, closingSize = 7 * sc;
   // Everything must fit under the photo, which always shows whole: guess the
   // height the words take (lines of each, at their sizes), shrink the photo a
   // little, then the words (k) until it all fits the card.
   const lines = (text: string, size: number, charW: number, width = 84) =>
     text.split('\n').reduce((n, part) => n + Math.max(1, Math.ceil((part.length * size * charW) / width)), 0);
   const items: number[] = [];
-  if (design.eyebrow) items.push(lines(design.eyebrow, 7.5, 0.3) * 7.5 * 1.1);
+  if (design.eyebrow) items.push(lines(design.eyebrow, eyebrowSize, cw * 0.8) * eyebrowSize * 1.15);
   items.push(names.length === 2 ? capsSize * 1.15 * 2 + 10.8 : lines(names[0], capsSize, 0.8) * capsSize * 1.15);
   const when = [details.date, details.time].filter(Boolean).join(' · ');
   const where = [details.venue, details.address].filter(Boolean).join(', ');
@@ -204,7 +209,7 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
   if (details.password) items.push(4.5);
   if (design.message) items.push(lines(design.message, 3.7, 0.4, 72) * 3.7 * 1.5);
   if (design.showQr && qrSvg) items.push(12.6);
-  if (design.closing) items.push(lines(design.closing, 7, 0.3) * 7 * 1.1 + 0.6);
+  if (design.closing) items.push(lines(design.closing, closingSize, cw * 0.8) * closingSize * 1.15 + 0.6);
   // (The guess runs a little high, which is the safe side: the photo takes up any room left.)
   const words = items.reduce((a, b) => a + b, 0) + items.length * 1.6;
   const room = 140 - 9; // the card less its top and bottom padding
@@ -228,11 +233,11 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
         <div aria-hidden="true" style={{ position: 'absolute', inset: '-3.6cqw', borderRadius: '50%', border: `0.15cqw solid ${design.accentColor}`, opacity: 0.7 }} />
       </div>
       </div>
-      {design.eyebrow && <p style={{ margin: 0, fontFamily: heading, fontSize: `${7.5 * k}cqw`, lineHeight: 1.1, color: accentText, maxWidth: '92%' }}>{design.eyebrow}</p>}
+      {design.eyebrow && <p style={{ margin: 0, fontFamily: heading, fontSize: `${eyebrowSize * k}cqw`, lineHeight: 1.15, color: accentText, maxWidth: '92%' }}>{design.eyebrow}</p>}
       {names.length === 2 ? (
         <Name style={{ margin: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', fontWeight: 400 }}>
           <span style={{ ...caps, display: 'block' }}>{names[0]}</span>
-          <span style={{ display: 'block', fontFamily: heading, fontSize: `${10 * k}cqw`, lineHeight: 1, color: accentText, margin: '0.4cqw 0' }}>{joiner}</span>
+          <span style={{ display: 'block', fontFamily: heading, fontSize: `${joinerSize * k}cqw`, lineHeight: 1, color: accentText, margin: '0.4cqw 0' }}>{joiner}</span>
           <span style={{ ...caps, display: 'block' }}>{names[1]}</span>
         </Name>
       ) : (
@@ -247,7 +252,7 @@ function PortraitWords({ Name, design, details, heading, accentText, qrSvg }: {
       {design.showQr && qrSvg && (
         <div style={{ width: '12cqw', height: '12cqw', marginTop: '0.6cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
       )}
-      {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: `${7 * k}cqw`, lineHeight: 1.1, color: accentText }}>{design.closing}</p>}
+      {design.closing && <p style={{ margin: '0.6cqw 0 0', fontFamily: heading, fontSize: `${closingSize * k}cqw`, lineHeight: 1.15, color: accentText }}>{design.closing}</p>}
     </div>
   );
 }

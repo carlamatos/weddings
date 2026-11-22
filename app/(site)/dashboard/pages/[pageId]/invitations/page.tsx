@@ -44,6 +44,9 @@ export default async function InvitationsPage({ params, searchParams }: { params
   const scheduled = scheduledRows.map((x) => ({ ...x, send_at: new Date(x.send_at).toISOString() }));
   // Each guest's own link, for their text message: opening it shows as Viewed.
   const inviteLinks = Object.fromEntries(guests.map((g) => [g.id, inviteUrl(g.id)]));
+  // Once invitations have gone out (or are scheduled), the page opens on the
+  // Send step, where the host follows who opened and replied.
+  const sentAlready = guests.some((g) => g.invited_at) || scheduled.some((x) => x.status === 'pending');
 
   let saved: unknown = null;
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
@@ -90,7 +93,7 @@ export default async function InvitationsPage({ params, searchParams }: { params
         initial={design}
         details={details}
         editPageHref={pagePath(pageId)}
-        initialStep={isInvitationStep(step) ? step : 'design'}
+        initialStep={isInvitationStep(step) ? step : sentAlready ? 'send' : 'design'}
         sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
       />
 

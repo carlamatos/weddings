@@ -142,7 +142,7 @@ const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTon
     style: 'portrait',
     group: 'wedding',
     tones: [
-      ['classic', styleLook({ layout: 'portrait', headingFont: 'mrs-saint-delafield', bodyFont: 'playfair', bg: '#FFFFFF', textColor: '#2A2A2A', accentColor: '#A88A4E' })],
+      ['classic', styleLook({ layout: 'portrait', headingFont: 'dancing-script', bodyFont: 'playfair', bg: '#FFFFFF', textColor: '#2A2A2A', accentColor: '#A88A4E' })],
     ],
   },
 ];
@@ -174,7 +174,9 @@ export const sameLook = (design: InvitationDesign, look: InvitationLook) => JSON
 // already its watercolour paper, and these show people's faces.
 const NO_PHOTO = new Set(['nature', 'forest', 'quiet-coastal', 'community', 'dia-de-los-muertos']);
 // Themes whose invitation photo isn't their banner.
-const PHOTO_OVERRIDE: Partial<Record<string, string>> = { merry: '/images/invitations/merry-village.jpeg' };
+// baby-shower-neutral: the right of its banner cut to the card's shape, so
+// the bunny shows (the middle of the banner is bare wood).
+const PHOTO_OVERRIDE: Partial<Record<string, string>> = { merry: '/images/invitations/merry-village.jpeg', 'baby-shower-neutral': '/images/invitations/baby-shower-bunny.jpeg' };
 
 // Banner photos that work as an invitation background (no videos or SVG).
 function photoOf(theme: string): string | null {

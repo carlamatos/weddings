@@ -392,12 +392,16 @@ export function InvitationDesigner({
         {current === 'style' && (<>
         <section style={panel}>
           <h3 style={h3}>{d.invitationDesigner.fontsColours}</h3>
-          <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">{d.invitationDesigner.eventNameFont}</label>
+          <label style={label} id="inv-heading-font-label" htmlFor="inv-heading-font">{
+            // What the first font is used for depends on the layout.
+            design.layout === 'portrait' ? d.invitationDesigner.openingClosingFont
+              : design.layout === 'gilded' ? d.invitationDesigner.initialsFont
+              : d.invitationDesigner.eventNameFont}</label>
           <FontPicker id="inv-heading-font" labelledBy="inv-heading-font-label" value={design.headingFont} onChange={(f) => set('headingFont', f)} />
           <label style={label} id="inv-body-font-label" htmlFor="inv-body-font">{d.invitationDesigner.textFont}</label>
           <FontPicker id="inv-body-font" labelledBy="inv-body-font-label" value={design.bodyFont} onChange={(f) => set('bodyFont', f)} />
           <ColorField id="inv-text" text={d.invitationDesigner.textColour} value={design.textColor} onChange={(v) => set('textColor', v)} />
-          <ColorField id="inv-accent" text={d.invitationDesigner.eventNameAccentColour} value={design.accentColor} onChange={(v) => set('accentColor', v)} />
+          <ColorField id="inv-accent" text={design.layout === 'portrait' || design.layout === 'gilded' ? d.invitationDesigner.accentColour : d.invitationDesigner.eventNameAccentColour} value={design.accentColor} onChange={(v) => set('accentColor', v)} />
         </section>
 
         {(design.layout === 'classic' || design.layout === 'monogram' || (themeSlug && THEME_PICTURE[themeSlug]) || isInvitationPicture(design.picture)) && (

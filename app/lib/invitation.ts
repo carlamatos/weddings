@@ -237,7 +237,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'christmas-party': { divider: 'christmas-evergreen', frame: '' },
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
   'gnomes': { divider: 'christmas-holly', frame: '' }, // the gnome picture instead
-  'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
+  'merry': { divider: 'christmas-stars', frame: 'christmas-border' },
   // New Year's Eve and Fireworks
   'new-years-eve': { divider: 'birthday-stars', frame: 'wedding-deco' },
   'fireworks': { divider: 'birthday-confetti', frame: 'birthday-sparkle' }, // confetti and a sparkle border
