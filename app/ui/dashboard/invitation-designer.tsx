@@ -18,6 +18,7 @@ import {
 } from '@/app/lib/invitation';
 import { uploadImage } from '@/app/ui/dashboard/upload-image';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
+import { autoInitials, monogramNames } from '@/app/lib/invitation-monogram';
 import { InvitationGallery } from '@/app/ui/dashboard/invitation-gallery';
 import { applyLook, lookOf } from '@/app/lib/invitation-designs';
 import { FontPicker } from '@/app/ui/dashboard/font-picker';
@@ -304,8 +305,16 @@ export function InvitationDesigner({
       <div>
         {current === 'design' && (<>
         <section style={panel}>
-          <h3 style={h3}>{d.invitationDesigner.chooseADesign}</h3>
-          <p style={{ fontSize: 13, color: '#6B6470', margin: '-4px 0 14px', lineHeight: 1.6 }}>{d.invitationDesigner.chooseADesignHint}</p>
+          {/* The design list is long: Next is offered here too, beside the title. */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
+            <h3 style={{ ...h3, margin: 0 }}>{d.invitationDesigner.chooseADesign}</h3>
+            {at < steps.length - 1 && (
+              <button type="button" disabled={saving} onClick={() => go(steps[at + 1])} style={{ ...btn, padding: '7px 14px', fontSize: 13, border: 'none', background: '#B6584A', color: '#fff', opacity: saving ? 0.6 : 1 }}>
+                {saving ? t.saving : `${t.next}: ${stepName[steps[at + 1]]} →`}
+              </button>
+            )}
+          </div>
+          <p style={{ fontSize: 13, color: '#6B6470', margin: '0 0 14px', lineHeight: 1.6 }}>{d.invitationDesigner.chooseADesignHint}</p>
           <InvitationGallery design={design} details={details} themeSlug={themeSlug} uploading={uploading}
             onPick={(look) => { setDesign((cur) => applyLook(cur, look)); setMessage(null); }}
             onUploadOwn={() => ownRef.current?.click()} />
@@ -372,7 +381,7 @@ export function InvitationDesigner({
             <>
               <label style={label} htmlFor="inv-initials">{t.initials}</label>
               <input id="inv-initials" style={{ ...input, maxWidth: 140, fontSize: 16, letterSpacing: '0.08em' }} value={design.initials} maxLength={INVITATION_TEXT_MAX.initials}
-                placeholder={details.name.split(/\s*(?:&|\+|\band\b|\bet\b|\by\b)\s*/i).filter(Boolean).map((n) => n.trim().charAt(0).toUpperCase()).join('')}
+                placeholder={autoInitials(monogramNames(details.name).names).toUpperCase()}
                 onChange={(e) => set('initials', e.target.value)} />
               <p style={{ fontSize: 12, color: '#6B6470', margin: '6px 0 0', lineHeight: 1.5 }}>{t.initialsHint}</p>
             </>

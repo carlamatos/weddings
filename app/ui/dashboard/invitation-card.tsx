@@ -1,8 +1,11 @@
 import { forwardRef, type ImgHTMLAttributes } from 'react';
 import { COUPLE_SAMPLE_PHOTO, INVITATION_FLOWER_TONES, INVITATION_FONTS, INVITATION_PAPERS, INVITATION_PICTURES, invitationOverlay, isInvitationPicture, readableAccent, type InvitationDesign, type InvitationDetails, type InvitationFont } from '@/app/lib/invitation';
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
-import { MONOGRAM_WREATH_SVG, monogramNames } from '@/app/lib/invitation-monogram';
+import { MONOGRAM_WREATH_SVG, autoInitials, monogramNames } from '@/app/lib/invitation-monogram';
 import { mix } from '@/app/lib/invitation-envelope';
+import { GARDEN_SCROLL_SVG } from '@/app/lib/invitation-garden-frame';
+import { LACE_SVG, woodPaper } from '@/app/lib/invitation-lace';
+import { MEADOW_SVG } from '@/app/lib/invitation-meadow';
 
 // The invitation itself (5×7 portrait). Sized with container query units
 // (cqw), so the same markup looks identical in the dashboard preview and
@@ -67,7 +70,13 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
               ...(picture.corner === 'top-right' ? { top: '5cqw', right: '5cqw' } : { bottom: '4.5cqw', left: '5.5cqw' }),
             }} />
         )}
-        {design.layout === 'embossed' ? (
+        {design.layout === 'garden' ? (
+          <GardenWords Name={Name} design={design} details={details} heading={heading} body={body} script={fonts?.['great-vibes'] ?? INVITATION_FONTS['great-vibes'].family} qrSvg={qrSvg} />
+        ) : design.layout === 'meadow' ? (
+          <MeadowWords Name={Name} design={design} details={details} heading={heading} body={body} qrSvg={qrSvg} />
+        ) : design.layout === 'lace' ? (
+          <LaceWords Name={Name} design={design} details={details} heading={heading} body={body} qrSvg={qrSvg} />
+        ) : design.layout === 'embossed' ? (
           <EmbossedWords Name={Name} design={design} details={details} heading={heading} body={body} qrSvg={qrSvg} />
         ) : design.layout === 'gilded' ? (
           <GildedWords Name={Name} design={design} details={details} heading={heading} qrSvg={qrSvg} />
@@ -338,9 +347,14 @@ function GildedWords({ Name, design, details, heading, qrSvg }: {
   Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; qrSvg?: string;
 }) {
   const { names, joiner } = monogramNames(details.name);
-  const letters = (design.initials || names.map((n) => n.charAt(0)).join('')).replace(/[^\p{L}]/gu, '').toUpperCase().slice(0, 3).split('');
+  const letters = (design.initials || autoInitials(names)).replace(/[^\p{L}]/gu, '').toUpperCase().slice(0, 3).split('');
   const gold = design.accentColor;
   const sheen = `linear-gradient(135deg, ${gold}, ${mix(gold, '#FFFFFF', 0.55)} 35%, ${gold} 55%, ${mix(gold, '#FFFFFF', 0.4)} 80%, ${gold})`;
+  // The initials' full height, tails included (in calligraphy J, Y, G… drop
+  // well below the line), so the words below never meet them; the second
+  // initial sits 6cqw lower.
+  const tails = letters.some((l) => 'JYGQZPF'.includes(l));
+  const initialsHeight = letters.length ? (letters.length === 2 ? 6 : 0) + 17 * (tails ? 1.5 : 1.12) : 0;
   const longest = Math.max(...names.map((n) => n.length));
   const caps = { margin: 0, textTransform: 'uppercase', letterSpacing: '0.45cqw', lineHeight: 1.65, fontWeight: 600, color: design.textColor } as const;
   return (
@@ -354,10 +368,11 @@ function GildedWords({ Name, design, details, heading, qrSvg }: {
         details.venue && [details.venue, 3, 1.65, charW(design.bodyFont) * 1.3], details.address && [details.address, 3, 1.65, charW(design.bodyFont) * 1.3],
         details.password && [details.password, 2.8, 1.65, charW(design.bodyFont) * 1.3],
         design.closing && [design.closing, 2.8, 1.65, charW(design.bodyFont) * 1.3],
-      ], 78, 140 - 26, (letters.length ? 23 : 0) + (names.length === 2 ? 2 * Math.max(4.2, Math.min(5.6, 66 / longest)) * 1.2 + 3.4 + 2.8 : 2.8) + (design.showQr && qrSvg ? 12 : 0), 10 * 1.6), padding: '13cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
+      ], 78, 140 - 26, (letters.length ? initialsHeight + 2.5 : 0) + (names.length === 2 ? 2 * Math.max(4.2, Math.min(5.6, 66 / longest)) * 1.2 + 3.4 + 2.8 : 2.8) + (design.showQr && qrSvg ? 12 : 0), 10 * 1.6), padding: '13cqw 11cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.6cqw' }}>
         {letters.length > 0 && (
-          // Two initials overlap on a slant, the second lower and to the right.
-          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? 'calc(46cqw * var(--k, 1))' : 'auto', height: 'calc(21cqw * var(--k, 1))', marginBottom: '2cqw', fontFamily: heading, fontSize: 'calc(17cqw * var(--k, 1))', lineHeight: 1, color: gold }}>
+          // Two initials on a slant, the second lower and to the right, close
+          // together: the pair is wider when a letter is a wide one (M, W…).
+          <div aria-hidden="true" style={{ position: 'relative', width: letters.length === 2 ? `calc(${31 + letters.filter((l) => 'MWHNUKY'.includes(l)).length * 8}cqw * var(--k, 1))` : 'auto', height: `calc(${initialsHeight}cqw * var(--k, 1))`, marginBottom: '2.5cqw', fontFamily: heading, fontSize: 'calc(17cqw * var(--k, 1))', lineHeight: 1, color: gold }}>
             {letters.length === 2 ? (
               <>
                 <span style={{ position: 'absolute', left: '2cqw', top: 0 }}>{letters[0]}</span>
@@ -489,6 +504,164 @@ function EmbossedWords({ Name, design, details, heading, body, qrSvg }: {
           <div style={{ width: '12cqw', height: '12cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
         )}
         {design.closing && <p style={{ ...line, marginTop: '2cqw' }}>{design.closing}</p>}
+      </div>
+    </>
+  );
+}
+
+// The garden layout (Garden Scroll): our engraved frame of scrolls, leaves
+// and blossoms (app/lib/invitation-garden-frame.ts) in the ink colour, on a
+// fine-grained paper; the words in spaced capitals, the names largest, with
+// "and" and the place in calligraphy (script: Great Vibes).
+function GardenWords({ Name, design, details, heading, body, script, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; body: string; script: string; qrSvg?: string;
+}) {
+  const { names, joiner } = monogramNames(details.name);
+  const ink = design.accentColor;
+  const cw = charW(design.bodyFont) * 1.4;
+  const nameSize = Math.min(...names.map((n) => fitWords(n, design.headingFont, 7, 58, 1.4)));
+  const caps = { margin: 0, fontFamily: body, textTransform: 'uppercase', letterSpacing: '0.42cqw', lineHeight: 1.75, fontWeight: 500, color: design.textColor } as const;
+  const small = (size: number) => ({ ...caps, fontSize: `calc(${size}cqw * var(--k, 1))` });
+  return (
+    <>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: PAPER_GRAIN, opacity: 0.22, mixBlendMode: 'multiply', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: ink, pointerEvents: 'none' }}
+        dangerouslySetInnerHTML={{ __html: GARDEN_SCROLL_SVG.replace('<g>', `<style>.gs-cut{fill:${design.background.color}}.gs-cut-line{fill:none;stroke:${design.background.color};stroke-width:.16;stroke-linecap:round}</style><g>`) }} />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 2.5, 1.75, cw],
+        names.length !== 2 && [names[0], nameSize, 1.2, charW(design.headingFont) * 1.4],
+        design.message && [design.message, 2.5, 1.75, cw],
+        details.date && [details.date, 2.6, 1.75, cw], details.time && [details.time, 2.6, 1.75, cw],
+        details.venue && [details.venue, 5.6, 1.25, charW('great-vibes')],
+        details.address && [details.address, 2.4, 1.75, cw],
+        details.password && [details.password, 2.4, 1.75, cw],
+        design.closing && [design.closing, 2.4, 1.75, cw],
+      ], 60, 140 - 50, (names.length === 2 ? 2 * nameSize * 1.2 + 5 * 1.1 : 0) + (design.showQr && qrSvg ? 12 : 0), 10 * 1.8), padding: '25cqw 20cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '1.8cqw' }}>
+        {design.eyebrow && <p style={{ ...small(2.5), whiteSpace: 'pre-line' }}>{design.eyebrow}</p>}
+        {names.length === 2 ? (
+          <Name style={{ margin: '1.4cqw 0', display: 'flex', flexDirection: 'column', alignItems: 'center', fontWeight: 400 }}>
+            <span style={{ ...caps, fontFamily: heading, fontWeight: 400, fontSize: `calc(${nameSize}cqw * var(--k, 1))`, letterSpacing: '0.5cqw', lineHeight: 1.2 }}>{names[0]}</span>
+            <span style={{ fontFamily: script, fontSize: 'calc(5cqw * var(--k, 1))', lineHeight: 1.1, color: ink }}>{joiner}</span>
+            <span style={{ ...caps, fontFamily: heading, fontWeight: 400, fontSize: `calc(${nameSize}cqw * var(--k, 1))`, letterSpacing: '0.5cqw', lineHeight: 1.2 }}>{names[1]}</span>
+          </Name>
+        ) : (
+          <Name style={{ ...caps, margin: '1.4cqw 0', fontFamily: heading, fontWeight: 400, fontSize: `calc(${nameSize}cqw * var(--k, 1))`, letterSpacing: '0.5cqw', lineHeight: 1.2 }}>{names[0]}</Name>
+        )}
+        {design.message && <p style={{ ...small(2.5), whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {(details.date || details.time) && (
+          <div>
+            {details.date && <p style={small(2.6)}>{details.date}</p>}
+            {details.time && <p style={small(2.6)}>{details.time}</p>}
+          </div>
+        )}
+        {(details.venue || details.address) && (
+          <div>
+            {details.venue && <p style={{ margin: '0 0 0.6cqw', fontFamily: script, fontSize: `calc(${fitWords(details.venue, 'great-vibes', 5.6, 60)}cqw * var(--k, 1))`, lineHeight: 1.25, color: ink }}>{details.venue}</p>}
+            {details.address && <p style={small(2.4)}>{details.address}</p>}
+          </div>
+        )}
+        {details.password && <p style={small(2.4)}>{details.passwordLabel}: {details.password}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '12cqw', height: '12cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={small(2.4)}>{design.closing}</p>}
+      </div>
+    </>
+  );
+}
+
+// The meadow layout (Wildflower Meadow): watercolour wildflower garlands
+// along the top and bottom (app/lib/invitation-meadow.ts), the name in large
+// calligraphy, headings in widely spaced capitals and the rest in italics.
+function MeadowWords({ Name, design, details, heading, body, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; body: string; qrSvg?: string;
+}) {
+  const cb = charW(design.bodyFont);
+  const nameSize = fitWords(details.name, design.headingFont, 13, 72);
+  const caps = (size: number) => ({ margin: 0, fontFamily: body, textTransform: 'uppercase', letterSpacing: '0.9cqw', fontSize: `calc(${size}cqw * var(--k, 1))`, lineHeight: 1.5 } as const);
+  const italic = (size: number) => ({ margin: 0, fontFamily: body, fontStyle: 'italic', letterSpacing: '0.15cqw', fontSize: `calc(${size}cqw * var(--k, 1))`, lineHeight: 1.6 } as const);
+  return (
+    <>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: MEADOW_SVG }} />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 3.2, 1.5, cb * 1.6],
+        [details.name, nameSize, 1.15, charW(design.headingFont)],
+        details.date && [details.date, 3.4, 1.5, cb * 1.6], details.time && [details.time, 3.3, 1.6, cb],
+        details.venue && [details.venue, 3.4, 1.5, cb * 1.6], details.address && [details.address, 3.3, 1.6, cb],
+        details.password && [details.password, 3, 1.6, cb],
+        design.message && [design.message, 3.3, 1.6, cb],
+        design.closing && [design.closing, 3.3, 1.6, cb],
+      ], 72, 140 - 50, (design.showQr && qrSvg ? 13 : 0), 10 * 2.4), padding: '25cqw 14cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2.4cqw', color: design.textColor }}>
+        {design.eyebrow && <p style={caps(3.2)}>{design.eyebrow}</p>}
+        <Name style={{ margin: '0 0 1cqw', fontFamily: heading, fontWeight: 400, fontSize: `calc(${nameSize}cqw * var(--k, 1))`, lineHeight: 1.15, color: design.accentColor }}>{details.name}</Name>
+        {(details.date || details.time) && (
+          <div>
+            {details.date && <p style={caps(3.4)}>{details.date}</p>}
+            {details.time && <p style={italic(3.3)}>{details.time}</p>}
+          </div>
+        )}
+        {(details.venue || details.address) && (
+          <div>
+            {details.venue && <p style={caps(3.4)}>{details.venue}</p>}
+            {details.address && <p style={italic(3.3)}>{details.address}</p>}
+          </div>
+        )}
+        {details.password && <p style={italic(3)}>{details.passwordLabel}: {details.password}</p>}
+        {design.message && <p style={{ ...italic(3.3), whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '13cqw', height: '13cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={italic(3.3)}>{design.closing}</p>}
+      </div>
+    </>
+  );
+}
+
+// The lace layout (Rustic Lace): dark wood planks in the paper's colour,
+// white lace flowers spilling in from the top right and bottom left
+// (app/lib/invitation-lace.ts), the words in the middle: the name in large
+// serif capitals, short rules round the details, the place in serif.
+function LaceWords({ Name, design, details, heading, body, qrSvg }: {
+  Name: 'h2' | 'p'; design: InvitationDesign; details: InvitationDetails; heading: string; body: string; qrSvg?: string;
+}) {
+  const cb = charW(design.bodyFont), ch = charW(design.headingFont);
+  const nameSize = fitWords(details.name, design.headingFont, 7.2, 60, 1.15);
+  const p = (size: number) => ({ margin: 0, fontFamily: body, fontSize: `calc(${size}cqw * var(--k, 1))`, lineHeight: 1.5 });
+  const rule = <div aria-hidden="true" style={{ width: '12cqw', height: '0.3cqw', background: design.accentColor, opacity: 0.85 }} />;
+  return (
+    <>
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: woodPaper(design.background.color), backgroundSize: '100% 100%', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.35))', pointerEvents: 'none' }} />
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.accentColor, opacity: 0.94, filter: 'drop-shadow(0 0.3cqw 0.4cqw rgba(0,0,0,0.45))', pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: LACE_SVG }} />
+      <div style={{ position: 'relative', height: '100%', boxSizing: 'border-box', ['--k' as string]: fitScale([
+        design.eyebrow && [design.eyebrow, 3, 1.5, cb * 1.25],
+        [details.name, nameSize, 1.2, ch * 1.15],
+        details.time && [details.time, 3.2, 1.5, cb],
+        details.date && [details.date, 3.6, 1.5, cb],
+        details.venue && [details.venue, 4.6, 1.3, ch],
+        details.address && [details.address, 3.1, 1.5, cb],
+        details.password && [details.password, 3, 1.5, cb],
+        design.message && [design.message, 3.1, 1.55, cb],
+        design.closing && [design.closing, 3.4, 1.5, cb],
+      ], 62, 140 - 56, (design.showQr && qrSvg ? 13 : 0), 10 * 2.2), padding: '28cqw 19cqw', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', gap: '2.2cqw', color: design.textColor, textShadow: '0 0.2cqw 0.6cqw rgba(0,0,0,0.5)' }}>
+        {design.eyebrow && <p style={{ ...p(3), textTransform: 'uppercase', letterSpacing: '0.4cqw' }}>{design.eyebrow}</p>}
+        <Name style={{ margin: 0, fontFamily: heading, fontWeight: 400, textTransform: 'uppercase', fontSize: `calc(${nameSize}cqw * var(--k, 1))`, lineHeight: 1.2, letterSpacing: '0.2cqw' }}>{details.name}</Name>
+        {rule}
+        {details.date && <p style={{ ...p(3.6), fontWeight: 600 }}>{details.date}</p>}
+        {details.time && <p style={p(3.2)}>{details.time}</p>}
+        {(details.venue || details.address) && (
+          <div>
+            {details.venue && <p style={{ margin: 0, fontFamily: heading, fontSize: `calc(${fitWords(details.venue, design.headingFont, 4.6, 62)}cqw * var(--k, 1))`, lineHeight: 1.3 }}>{details.venue}</p>}
+            {details.address && <p style={p(3.1)}>{details.address}</p>}
+          </div>
+        )}
+        {details.password && <p style={p(3)}>{details.passwordLabel}: <strong>{details.password}</strong></p>}
+        {(design.message || design.closing || (design.showQr && qrSvg)) && rule}
+        {design.message && <p style={{ ...p(3.1), lineHeight: 1.55, whiteSpace: 'pre-line' }}>{design.message}</p>}
+        {design.showQr && qrSvg && (
+          <div style={{ width: '13cqw', height: '13cqw' }} dangerouslySetInnerHTML={{ __html: qrSvg }} />
+        )}
+        {design.closing && <p style={{ ...p(3.4), fontFamily: heading }}>{design.closing}</p>}
       </div>
     </>
   );

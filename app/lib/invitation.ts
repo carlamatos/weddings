@@ -78,6 +78,12 @@ export type InvitationDesign = {
   // embossed (weddings): a Victorian frame of scrolls, shells and acanthus
   // pressed into the paper (raised, in the paper's own colour), the words
   // centred inside: italic lines, the names in large capitals.
+  // garden (weddings): an engraved frame of scrolls, leaves and blossoms,
+  // the words in spaced capitals with "and" and the place in calligraphy.
+  // lace (weddings): dark wood planks with white lace flowers in two
+  // corners, the name in large serif capitals.
+  // meadow (weddings): watercolour wildflower garlands along the top and
+  // bottom, the name in large calligraphy.
   // own: the host's finished invitation (an uploaded image) shown as it is,
   // with no words, decorations or wash over it.
   layout: InvitationLayout;
@@ -102,7 +108,7 @@ export type InvitationDesign = {
   envelope: InvitationEnvelope;
 };
 
-export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'gilded', 'embossed', 'own'] as const;
+export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'gilded', 'embossed', 'garden', 'lace', 'meadow', 'own'] as const;
 export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn

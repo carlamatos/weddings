@@ -53,3 +53,12 @@ export function monogramNames(name: string): { names: string[]; initials: string
   return { names, initials, joiner: word ?? 'and' };
 }
 
+// The initials when the host hasn't written any: always two letters. Two
+// names: their first letters; one name of several words: the first letters
+// of the first two; one word: its first two letters.
+export function autoInitials(names: string[]): string {
+  const letters = (w: string) => w.replace(/[^\p{L}]/gu, '');
+  if (names.length >= 2) return names.slice(0, 2).map((n) => letters(n).charAt(0)).join('');
+  const words = (names[0] ?? '').split(/\s+/).map(letters).filter(Boolean);
+  return words.length >= 2 ? words[0].charAt(0) + words[1].charAt(0) : (words[0] ?? '').slice(0, 2);
+}

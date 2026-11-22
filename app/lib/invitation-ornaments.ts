@@ -695,7 +695,7 @@ const baublesFrame = rect(22, 0, 'stroke-width="1.2"') + seg('M22 22H478', 'stro
 
 // Christmas: strings of stars swagged across the top and bottom.
 const starsLine = (y: number, sag: number) => { const pts = swag(22, 478, y, sag); return line(pts, 'stroke-width=".9"') + pts.filter((_, i) => i % 5 === 2).map((p, i) => star(p[0], p[1] + 6, i % 2 ? 5 : 7.5)).join(''); };
-const starsFrame = rect(22, 14, 'stroke-width="1.1"') + starsLine(36, 40) + starsLine(664, -30) + fourCorners(sparkle(46, 46, 9));
+const starsFrame = rect(22, 14, 'stroke-width="1.1"') + starsLine(36, 40) + starsLine(664, -30);
 
 // Christmas: a pair of bells with a bow at the top, small bells below.
 const bellsFrame = rect(20, 0, 'stroke-width="1.5"') + rect(27, 0, 'stroke-width=".7"')

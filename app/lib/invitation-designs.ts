@@ -49,8 +49,8 @@ export type CatalogDesign = {
 // Styles: designs of their own, under an occasion but not tied to any theme.
 // They come first in their occasion, before the theme designs. Each is one
 // layout in a few colourways (tones).
-export type DesignStyle = 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
-export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold';
+export type DesignStyle = 'garden-scroll' | 'rustic-lace' | 'wildflower-meadow' | 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
+export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold' | 'walnut' | 'driftwood';
 
 const solid = (color: string): InvitationLook['background'] => ({ kind: 'color', color, imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 });
 const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
@@ -59,6 +59,37 @@ const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textCol
 });
 
 const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTone, InvitationLook][] }[] = [
+  // Garden Scroll: our engraved frame of scrolls, leaves and blossoms in
+  // one ink on white paper (layout 'garden').
+  {
+    style: 'garden-scroll',
+    group: 'wedding',
+    tones: [
+      ['classic', styleLook({ layout: 'garden', headingFont: 'cormorant', bodyFont: 'cormorant', bg: '#FFFFFF', textColor: '#9A7436', accentColor: '#A57B37' })],
+      ['ivory', styleLook({ layout: 'garden', headingFont: 'cormorant', bodyFont: 'cormorant', bg: '#FBF7EE', textColor: '#8E6C33', accentColor: '#9B7536' })],
+      ['sage', styleLook({ layout: 'garden', headingFont: 'cormorant', bodyFont: 'cormorant', bg: '#FAFAF6', textColor: '#56684D', accentColor: '#617558' })],
+    ],
+  },
+  // Rustic Lace: dark wood planks with white lace flowers in two corners
+  // (layout 'lace'); the paper colour tints the wood.
+  {
+    style: 'rustic-lace',
+    group: 'wedding',
+    tones: [
+      ['walnut', styleLook({ layout: 'lace', headingFont: 'cormorant', bodyFont: 'montserrat', bg: '#5A3F2E', textColor: '#FFFFFF', accentColor: '#F7F2EA' })],
+      ['driftwood', styleLook({ layout: 'lace', headingFont: 'cormorant', bodyFont: 'montserrat', bg: '#7A7067', textColor: '#FFFFFF', accentColor: '#FAF7F2' })],
+    ],
+  },
+  // Wildflower Meadow: watercolour wildflower garlands top and bottom on
+  // white, the name in calligraphy (layout 'meadow').
+  {
+    style: 'wildflower-meadow',
+    group: 'wedding',
+    tones: [
+      ['classic', styleLook({ layout: 'meadow', headingFont: 'parisienne', bodyFont: 'cormorant', bg: '#FFFFFF', textColor: '#5A5550', accentColor: '#4A4642' })],
+      ['ivory', styleLook({ layout: 'meadow', headingFont: 'parisienne', bodyFont: 'cormorant', bg: '#FBF8F1', textColor: '#5A5550', accentColor: '#4A4642' })],
+    ],
+  },
   // Victorian Emboss: slate-blue paper with Victorian flourishes raised in
   // the paper itself, the words in near-white (layout 'embossed').
   {
