@@ -2,7 +2,7 @@
 
 import { subscribeToNewsletter } from './newsletter';
 import { isConsentLang, newsletterConsentRecord } from './newsletter-consent';
-import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
+import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal, PAGE_PURPOSE_SETTING, isPagePurpose } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
@@ -338,7 +338,12 @@ function ensureOptionalEventDate(): Promise<unknown> {
         if (isEventGoal(goal)) {
           const rule = GOAL_RULES[goal];
           const rows: [string, string][] = [[EVENT_GOAL_SETTING, goal]];
-          if (!rule.registry) rows.push(['show_registry', 'false']);
+          // Invitation + RSVP: a lean page (the details and the RSVP), the
+          // extra sections off until the host turns them on.
+          const purpose = formData.get('purpose');
+          if (isPagePurpose(purpose)) rows.push([PAGE_PURPOSE_SETTING, purpose]);
+          if (!rule.registry || purpose === 'invitation') rows.push(['show_registry', 'false']);
+          if (purpose === 'invitation') rows.push(['show_custom_sections', 'false'], ['show_event_program', 'false']);
           if (rule.giftDrawOnly) rows.push(['show_gift_exchange', 'true'], ['show_rsvp', 'false']);
           for (const [name, value] of rows) {
             await sql`
@@ -368,7 +373,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // For Google Analytics ("event_page_created"). The admins hear about a
     // page once it's in use (app/lib/admin-notify.ts), not when it's made.
     if (newPageId) {
-      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '' });
+      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '', purpose: isPagePurpose(formData.get('purpose')) ? String(formData.get('purpose')) : '' });
     }
 
     // Chose Live Party for this event: the page exists (free) now, so pay for it.

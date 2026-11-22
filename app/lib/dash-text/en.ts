@@ -1568,6 +1568,11 @@ export const en = {
     addContactInfo: 'Add contact info',
   },
   subscribeForm: {
+    whatToMake: 'What would you like to make?',
+    makeInvitation: 'Invitation + RSVP',
+    makeInvitationHint: 'Design an invitation, email or text it, and collect replies.',
+    makeWebsite: 'Invitation + Website + RSVP',
+    makeWebsiteHint: 'A full event website with your story, photos, schedule and more.',
     chooseADate: 'Choose a date',
     languageOfYourPage: 'Language of your page',
     whatAreYouPlanning: 'What are you planning?',
@@ -1653,6 +1658,9 @@ export const en = {
     settings: 'Settings',
   },
   setupSteps: {
+    designYourInvitation: 'Design your invitation',
+    addYourGuests: 'Add your guests',
+    sendYourInvitations: 'Send your invitations',
     addYourGiftRegistry: 'Add your gift registry',
     setUpTheGiftExchange: 'Set the gift exchange budget and date',
     addPeopleToTheDraw: 'Add people to the Secret Santa',

@@ -1569,6 +1569,11 @@ export const fr: DashText = {
     addContactInfo: 'Ajouter des coordonnées',
   },
   subscribeForm: {
+    whatToMake: 'Que souhaitez-vous créer ?',
+    makeInvitation: 'Invitation + RSVP',
+    makeInvitationHint: 'Créez une invitation, envoyez-la par courriel ou texto et recevez les réponses.',
+    makeWebsite: 'Invitation + site Web + RSVP',
+    makeWebsiteHint: 'Un site complet pour votre événement : votre histoire, vos photos, le programme et plus encore.',
     chooseADate: 'Choisissez une date',
     languageOfYourPage: 'Langue de votre page',
     whatAreYouPlanning: 'Que préparez-vous ?',
@@ -1654,6 +1659,9 @@ export const fr: DashText = {
     settings: 'Réglages',
   },
   setupSteps: {
+    designYourInvitation: 'Créez votre invitation',
+    addYourGuests: 'Ajoutez vos invités',
+    sendYourInvitations: 'Envoyez vos invitations',
     addYourGiftRegistry: 'Ajoutez votre liste de cadeaux',
     setUpTheGiftExchange: 'Fixez le budget et la date de l’échange',
     addPeopleToTheDraw: 'Ajoutez les participants au Père Noël secret',

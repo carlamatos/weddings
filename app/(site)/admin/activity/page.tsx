@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { GOAL_ADMIN_LABELS } from '@/app/lib/event-goals';
+import { GOAL_ADMIN_LABELS, PURPOSE_ADMIN_LABELS, isPagePurpose } from '@/app/lib/event-goals';
 import { sql } from '@vercel/postgres';
 import type { Metadata } from 'next';
 import { getSuperAdmin, isSuperAdmin } from '@/app/lib/admin';
@@ -74,7 +74,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   const dir: 'asc' | 'desc' = sp.dir === 'asc' ? 'asc' : 'desc';
   let hosts: HostRow[] = [];
   let runs: CronRunRow[] = [];
-  let pages: { month: string; event_type: string | null; goal: string | null; upgraded: boolean; email: string }[] = [];
+  let pages: { month: string; event_type: string | null; goal: string | null; purpose: string | null; upgraded: boolean; email: string }[] = [];
   let error: string | null = null;
   try {
     await ensureVisitColumns();
@@ -99,9 +99,10 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
     ]);
     // Live Party upgrades: every page made in the last 12 months, and whether
     // it was ever paid (paid now, or an expiry date left from a past term).
-    const pg = await sql.query<{ month: string; event_type: string | null; goal: string | null; upgraded: boolean; email: string }>(`
+    const pg = await sql.query<{ month: string; event_type: string | null; goal: string | null; purpose: string | null; upgraded: boolean; email: string }>(`
       SELECT to_char(p.created_at, 'YYYY-MM') AS month, p.event_type,
              (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'event_goal') AS goal,
+             (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'page_purpose') AS purpose,
              (p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL) AS upgraded, u.email
       FROM user_page p JOIN users u ON u.id = p.user_id
       WHERE p.created_at >= (NOW() AT TIME ZONE 'UTC') - interval '12 months'
@@ -143,6 +144,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   const byType = group((r) => r.event_type || 'Other').sort((a, b) => b.made - a.made);
   // "What are you planning?" (app/lib/event-goals.ts), asked since 2026-11-18.
   const byGoal = group((r) => (r.goal ? GOAL_ADMIN_LABELS[r.goal] ?? r.goal : 'Not asked (made before)')).sort((a, b) => b.made - a.made);
+  const byPurpose = group((r) => (isPagePurpose(r.purpose) ? PURPOSE_ADMIN_LABELS[r.purpose] : 'Not asked (made before, or a Secret Santa)')).sort((a, b) => b.made - a.made);
   const tracking = hosts.reduce<Date | null>((min, u) => (u.first_dashboard_at && (!min || new Date(u.first_dashboard_at) < min) ? new Date(u.first_dashboard_at) : min), null);
 
   return (
@@ -171,7 +173,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
         <strong> {overall.up} of {overall.made} ({overall.pct}%)</strong>.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
-        {[{ title: 'By month the page was made', rows: byMonth }, { title: 'By event type', rows: byType }, { title: 'By what they’re planning', rows: byGoal }].map((t) => (
+        {[{ title: 'By month the page was made', rows: byMonth }, { title: 'By event type', rows: byType }, { title: 'By what they’re planning', rows: byGoal }, { title: 'By what they want to make', rows: byPurpose }].map((t) => (
           <div key={t.title} style={tableWrap}>
             <table style={table}>
               <thead><tr><th style={th}>{t.title}</th><th style={th}>Pages</th><th style={th}>Upgraded</th><th style={th}>Rate</th></tr></thead>

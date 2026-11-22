@@ -20,6 +20,16 @@ export type EventGoal = (typeof EVENT_GOALS)[number];
 
 export const EVENT_GOAL_SETTING = 'event_goal';
 
+// "What would you like to make?", asked with the goal: an invitation with an
+// RSVP (the page starts lean: the details and the RSVP; the host lands in
+// the invitation designer and the setup checklist is about sending it), or
+// the whole event website as well. Kept on the page as 'page_purpose'.
+export const PAGE_PURPOSES = ['invitation', 'website'] as const;
+export type PagePurpose = (typeof PAGE_PURPOSES)[number];
+export const PAGE_PURPOSE_SETTING = 'page_purpose';
+export const isPagePurpose = (v: unknown): v is PagePurpose => typeof v === 'string' && (PAGE_PURPOSES as readonly string[]).includes(v);
+export const PURPOSE_ADMIN_LABELS: Record<PagePurpose, string> = { invitation: 'Invitation + RSVP', website: 'Invitation + website + RSVP' };
+
 // For the admin screens and emails (English only).
 export const GOAL_ADMIN_LABELS: Record<string, string> = {
   wedding: 'Wedding', birthday: 'Birthday', 'baby-shower': 'Baby shower', 'christmas-party': 'Christmas party',

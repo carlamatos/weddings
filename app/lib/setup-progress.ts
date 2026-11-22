@@ -16,12 +16,14 @@ import type { DashText } from '@/app/lib/dash-text/en';
 export type SetupStep = { label: string; done: boolean; section: string; action?: 'profile'; open?: EditorTarget; id?: 'share' };
 
 // goal: what the host said they're planning (app/lib/event-goals.ts), or ''
-// for pages made before the question. registryOn / giftOn: those sections are
+// for pages made before the question; purpose: 'invitation' when they came
+// to send an invitation with an RSVP; designed: the invitation is saved.
+// registryOn / giftOn: those sections are
 // on; registryLink: the registry has its link; giftSetUp: the exchange has a
 // budget or date; giftPeople: who's in the draw.
 export type SetupCounts = {
   guests: number; invited: number; responded: number; shared: boolean; program: number; gallery: number; named: boolean;
-  goal?: string; registryOn?: boolean; registryLink?: boolean; giftOn?: boolean; giftSetUp?: boolean; giftPeople?: number;
+  goal?: string; purpose?: string; designed?: boolean; registryOn?: boolean; registryLink?: boolean; giftOn?: boolean; giftSetUp?: boolean; giftPeople?: number;
 };
 
 // Set (to when) the first time the owner copies or shares the page's link
@@ -58,7 +60,7 @@ export function shareTipFor(page: UserPage, steps: SetupStep[], today = new Date
 
 export async function fetchSetupCounts(pageId: number | string): Promise<SetupCounts> {
   try {
-    const { rows } = await sql<{ guests: string; invited: string; responded: string; shared: boolean; program: string; gallery: string; named: boolean | null; goal: string | null; registry_on: boolean; registry_link: boolean; gift_on: boolean; gift_set_up: boolean; gift_people: string }>`
+    const { rows } = await sql<{ guests: string; invited: string; responded: string; shared: boolean; program: string; gallery: string; named: boolean | null; goal: string | null; purpose: string | null; designed: boolean; registry_on: boolean; registry_link: boolean; gift_on: boolean; gift_set_up: boolean; gift_people: string }>`
       SELECT
         (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId})::text AS guests,
         (SELECT COUNT(*) FROM event_guests WHERE user_page_id = ${pageId} AND (invited_at IS NOT NULL OR texted_at IS NOT NULL))::text AS invited,
@@ -69,6 +71,8 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
         (SELECT COALESCE(TRIM(u.given_name), '') <> '' AND COALESCE(TRIM(u.family_name), '') <> ''
            FROM users u JOIN user_page p ON p.user_id = u.id WHERE p.id = ${pageId}) AS named,
         (SELECT setting_value FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = 'event_goal') AS goal,
+        (SELECT setting_value FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = 'page_purpose') AS purpose,
+        EXISTS (SELECT 1 FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = 'invitation_design') AS designed,
         NOT EXISTS (SELECT 1 FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = 'show_registry' AND setting_value = 'false') AS registry_on,
         EXISTS (SELECT 1 FROM user_page WHERE id = ${pageId} AND COALESCE(TRIM(section_2_button_link), '') <> '') AS registry_link,
         EXISTS (SELECT 1 FROM user_page_settings WHERE user_page_id = ${pageId} AND setting_name = 'show_gift_exchange' AND setting_value = 'true') AS gift_on,
@@ -84,6 +88,8 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
       gallery: Number(rows[0]?.gallery ?? 0),
       named: rows[0]?.named !== false,
       goal: rows[0]?.goal ?? '',
+      purpose: rows[0]?.purpose ?? '',
+      designed: !!rows[0]?.designed,
       registryOn: !!rows[0]?.registry_on,
       registryLink: !!rows[0]?.registry_link,
       giftOn: !!rows[0]?.gift_on,
@@ -98,6 +104,21 @@ export async function fetchSetupCounts(pageId: number | string): Promise<SetupCo
 
 export function setupSteps(page: UserPage, counts: SetupCounts, t: DashText['setupSteps']): SetupStep[] {
   const filled = (v?: string | null) => !!v && v.trim() !== '';
+  // Invitation + RSVP: the steps to send the invitation, not to fill a website.
+  if (counts.purpose === 'invitation' && counts.goal !== 'secret-santa') {
+    return [
+      {
+        label: filled(page.event_date) ? t.addTheTimeAndPlace : t.addTheDateTimeAndPlace,
+        done: filled(page.event_date) && filled(page.event_time) && (page.location === 'virtual' ? filled(page.url) : filled(page.formatted_address) || filled(page.venue_name)),
+        section: '',
+        open: 'location',
+      },
+      { label: t.addYourName, done: counts.named, section: '', action: 'profile' },
+      { label: t.designYourInvitation, done: !!counts.designed, section: '/invitations' },
+      { label: t.addYourGuests, done: counts.guests > 0, section: '/guest-list' },
+      { id: 'share', label: t.sendYourInvitations, done: counts.shared || counts.invited > 0 || counts.responded > 0, section: '/invitations' },
+    ];
+  }
   const all: (SetupStep | false)[] = [
     {
       label: filled(page.event_date) ? t.addTheTimeAndPlace : t.addTheDateTimeAndPlace,
