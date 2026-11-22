@@ -663,7 +663,7 @@ export const en = {
     variantPhoto: 'Photo',
     variantMonogram: 'Monogram',
     variantFramed: 'Framed',
-    styles: { 'garden-scroll': 'Garden Scroll', 'rustic-lace': 'Rustic Lace', 'wildflower-meadow': 'Wildflower Meadow', victorian: 'Victorian Emboss', 'white-gold': 'White & Gold', 'white-roses': 'White Roses', 'paper-blooms': 'Paper Blooms', portrait: 'Couple Portrait' },
+    styles: { 'wedding-gold-wreath': 'Gold Wreath', 'wedding-flower-wall': 'Flower Wall', 'wedding-gold-flourish': 'Gold Flourish', 'wedding-rose-marble': 'Rose Marble', 'wedding-eucalyptus': 'Eucalyptus Bouquet', 'wedding-mandala': 'Golden Mandala', 'christmas-evergreen': 'Evergreen & Baubles', 'christmas-red-ribbon': 'Red Ribbon', 'christmas-rustic': 'Rustic Christmas', 'christmas-candy-baubles': 'Candy Cane Baubles', 'birthday-cake': 'Birthday Cake', 'birthday-party-table': 'Party Table', 'birthday-bunting': 'Bunting', 'birthday-blue-balloons': 'Blue Balloons', 'birthday-confetti': 'Confetti', 'birthday-candles': 'Birthday Candles', 'garden-scroll': 'Garden Scroll', 'rustic-lace': 'Rustic Lace', 'wildflower-meadow': 'Wildflower Meadow', victorian: 'Victorian Emboss', 'white-gold': 'White & Gold', 'white-roses': 'White Roses', 'paper-blooms': 'Paper Blooms', portrait: 'Couple Portrait' },
     tones: { walnut: 'Walnut', classic: 'Classic', charcoal: 'Charcoal', blush: 'Blush', sage: 'Sage', champagne: 'Champagne', peach: 'Rose', ivory: 'Ivory', lilac: 'Lilac', linen: 'Linen', 'rose-gold': 'Rose gold' },
     yourPhoto: 'Your photo',
     samplePhotoHint: 'This design shows a sample couple until you add a photo of the two of you. A photo with your faces near the middle fits the circle best.',

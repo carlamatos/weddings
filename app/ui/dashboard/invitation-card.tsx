@@ -3,6 +3,8 @@ import { COUPLE_SAMPLE_PHOTO, INVITATION_FLOWER_TONES, INVITATION_FONTS, INVITAT
 import { findOrnament, ornamentSvg } from '@/app/lib/invitation-ornaments';
 import { MONOGRAM_WREATH_SVG, autoInitials, monogramNames } from '@/app/lib/invitation-monogram';
 import { mix } from '@/app/lib/invitation-envelope';
+import { PAPER_MOTION } from '@/app/lib/invitation-motion';
+import { PaperMotionLayer } from '@/app/ui/dashboard/invitation-motion';
 import { GARDEN_SCROLL_SVG } from '@/app/lib/invitation-garden-frame';
 import { LACE_SVG, woodPaper } from '@/app/lib/invitation-lace';
 import { MEADOW_SVG } from '@/app/lib/invitation-meadow';
@@ -34,6 +36,9 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
     const paper = useImage ? INVITATION_PAPERS[bg.imageUrl] : undefined;
     const textLeft = paper?.textLeft ?? 0;
     const box = paper?.box;
+    // Birthday papers that move: the card shows the base paper (the moving
+    // pieces cut out) with them on top; the email keeps the still paper.
+    const motion = useImage ? PAPER_MOTION[bg.imageUrl] : undefined;
     // On a photo, a colour wash strong enough for the words to read clearly.
     const overlay = invitationOverlay(design);
     // The name and closing in the accent, made readable when it's too faint.
@@ -53,11 +58,12 @@ export const InvitationCard = forwardRef<HTMLDivElement, { design: InvitationDes
       <div ref={ref} className="invitation-card" style={{ containerType: 'inline-size', width: '100%', aspectRatio: '5 / 7', position: 'relative', overflow: 'hidden', borderRadius: 4, background: bg.color, color: design.textColor, fontFamily: body, boxShadow: '0 18px 40px -18px rgba(36,31,43,0.35)', overflowWrap: 'normal', wordBreak: 'normal', hyphens: 'manual' }}>
         {useImage && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={bg.imageUrl} alt="" {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img src={motion && motion.kind !== 'confetti' ? motion.base : bg.imageUrl} alt="" {...bgImage} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
         )}
         {overlay && (
           <div style={{ position: 'absolute', inset: 0, background: overlay.color, opacity: overlay.opacity }} />
         )}
+        {motion && <PaperMotionLayer motion={motion} />}
         {frame && (
           <div aria-hidden="true" style={{ position: 'absolute', inset: 0, color: design.frameColor, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: ornamentSvg('frame', frame) }} />
         )}

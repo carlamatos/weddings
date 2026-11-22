@@ -6,6 +6,9 @@
 //
 // Every design is our own, built from the motifs below (tapered strokes,
 // spirals, leaves, flowers, holly, snowflakes, bats…).
+// The calligraphic flourish dividers are licensed artwork, traced
+// (app/lib/invitation-flourishes.ts).
+import { FLOURISH_DIVIDERS } from './invitation-flourishes';
 
 export type OrnamentKind = 'divider' | 'frame';
 export type OrnamentOccasion = 'wedding' | 'christmas' | 'birthday' | 'halloween';
@@ -65,10 +68,6 @@ function ribbon(pts: Pt[], width: number, profile: (t: number) => number = (t) =
   right.reverse();
   return seg(`${curve(left)}L${P(right[0])}${curve(right, false)}Z`, F);
 }
-// Thick at the start, fine at the end (most flourishes).
-const fade = (t: number) => Math.min(1, t * 5) * (1 - 0.8 * t);
-// Fine at both ends.
-const swell = (t: number) => Math.sin(Math.PI * t) ** 0.7;
 
 // Points on a spiral around (cx, cy), angles in degrees (clockwise on screen).
 const spiral = (cx: number, cy: number, r0: number, r1: number, a0: number, a1: number, n = 36): Pt[] =>
@@ -371,7 +370,31 @@ function papel(x: number, y: number, w: number, h: number, variant = 0): string 
 // ─── Dividers (240×40, centre 120,20) ───────────────────
 
 const scrollCurl = ribbon([[178, 20], [168, 19.2], [159, 16.5], ...spiral(148, 12.5, 7.5, 1.4, 25, -335, 44)], 3, (t) => (0.5 + 0.5 * Math.min(1, t * 3)) * (1 - 0.82 * t));
+// Wedding: a natural laurel sprig (one side; mirrored): a fine stem arching
+// out from the middle, pairs of slender pointed leaves angled towards its
+// tip, getting smaller as they go, the upper leaf of each pair a little ahead
+// of the lower, and one leaf at the tip.
+const laurelSprig = (() => {
+  const stemAt = (t: number): Pt => [128 + 96 * t, 23 - 5 * Math.sin(Math.PI * t * 0.85)];
+  const dirAt = (t: number) => { const a = stemAt(t), b = stemAt(Math.min(1, t + 0.01)); return Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI; };
+  const leafShape = (base: Pt, deg: number, len: number) => {
+    const d: Pt = [Math.cos(rad(deg)), Math.sin(rad(deg))], n: Pt = [-d[1], d[0]], w = len * 0.3;
+    const p = (al: number, side: number): Pt => [base[0] + d[0] * len * al + n[0] * side, base[1] + d[1] * len * al + n[1] * side];
+    return seg(`M${P(base)}C${P(p(0.25, w))} ${P(p(0.7, w * 0.75))} ${P(p(1, 0))}C${P(p(0.72, -w * 0.6))} ${P(p(0.28, -w * 0.85))} ${P(base)}Z`, F)
+      + seg(`M${P(p(0.12, 0))}L${P(p(0.75, 0))}`, 'fill="none" stroke="#fff" stroke-opacity=".35" stroke-width=".45"');
+  };
+  let out = seg(`M${sample((t) => stemAt(t), 24).map(P).join('L')}`, 'fill="none" stroke-width=".9" stroke-linecap="round"');
+  const pairs = 7;
+  for (let i = 0; i < pairs; i++) {
+    const t = 0.06 + (i / pairs) * 0.84, len = 15 * (1 - 0.42 * (i / pairs));
+    out += leafShape(stemAt(t + 0.035), dirAt(t) - 40 + (i % 2) * 4, len) + leafShape(stemAt(t), dirAt(t) + 38 - (i % 2) * 5, len * 0.94);
+  }
+  return out + leafShape(stemAt(0.96), dirAt(0.96) - 6, 9.5);
+})();
+
 const DIVIDER_LIST: Ornament[] = [
+  // The calligraphic flourishes first (filled outlines, even-odd).
+  ...FLOURISH_DIVIDERS.map((x): Ornament => ({ id: x.id, name: x.name, occasion: 'wedding', body: `<path d="${x.d}" fill="currentColor" fill-rule="evenodd" stroke="none"/>` })),
   {
     id: 'wedding-scroll', name: 'Scroll', occasion: 'wedding',
     body: mirrorX(mirrorY(scrollCurl) + ribbon(wave(176, 228, 20, 1.4, 104), 2.6, (t) => (1 - t) ** 0.9 + 0.1) + dot(233, 20, 1.5) + leaf(186, 19.5, -32, 9) + leaf(186, 20.5, 32, 9) + line([[127, 20], [134, 20]], 'stroke-width=".9"'))
@@ -442,7 +465,7 @@ const DIVIDER_LIST: Ornament[] = [
   // ── More for every occasion, so no two invitations look alike ──
   {
     id: 'wedding-laurel', name: 'Laurel', occasion: 'wedding',
-    body: mirrorX(branch(sample((t) => [127 + 96 * t, 21 - 3 * Math.sin(Math.PI * t)], 24), 13, 3, SOFT + ' stroke-width=".8"')) + dot(120, 21, 2.4),
+    body: mirrorX(laurelSprig) + dot(120, 22, 1.8),
   },
   {
     id: 'wedding-rings', name: 'Rings', occasion: 'wedding',
@@ -482,10 +505,6 @@ const DIVIDER_LIST: Ornament[] = [
   {
     id: 'wedding-rose', name: 'Rose', occasion: 'wedding',
     body: mirrorX(line([[131, 22], [150, 24], [172, 20], [200, 21], [222, 19]], 'stroke-width="1.1"') + veinLeaf(140, 23, 20, 11) + veinLeaf(158, 23, -24, 9) + bud(206, 21, -6, 12)) + rose(120, 20, 10),
-  },
-  {
-    id: 'wedding-fern', name: 'Fern', occasion: 'wedding',
-    body: mirrorX(fern(128, 21, -4, 92)) + dot(120, 21, 2),
   },
   {
     id: 'wedding-diamond', name: 'Diamonds', occasion: 'wedding',
@@ -542,13 +561,6 @@ const DIVIDER_LIST: Ornament[] = [
 ];
 
 // ─── Frames (500×700, the card) ─────────────────────────
-
-// Wedding: a scroll in each corner inside a double rule.
-const classicCorner = diagonal(
-  ribbon([[46, 54], [56, 45], [68, 40.5], ...spiral(86, 50, 12, 2.2, -122, 238, 44)], 3.2, fade)
-  + ribbon(sample((t) => [100 + 56 * t, 41 - 2.5 * Math.sin(Math.PI * t)], 24), 2.2, swell)
-  + leaf(112, 47, 18, 13) + leaf(130, 38.5, -22, 11) + dot(162, 40.5, 1.6),
-) + flower(44, 44, 10, 4, 45);
 
 // Wedding: a leafy vine along two edges from a flower in the corner.
 const vinePts = sample((t) => [58 + 250 * t, 44 - 5 * Math.sin(Math.PI * 2.4 * t) * (1 - t * 0.6)], 60);
@@ -732,8 +744,14 @@ const papelRow = (y: number, w: number, h: number, n: number, sag: number) =>
   line(swag(22, 478, y, sag), 'stroke-width="1"') + Array.from({ length: n }, (_, i) => { const t = (i + 0.5) / n; const x = 22 + 456 * t; return papel(x, y + sag * Math.sin(Math.PI * t), w, h, i); }).join('');
 const papelFrame = rect(22, 0, 'stroke-width="1"') + papelRow(26, 46, 40, 8, 8) + papelRow(644, 30, 28, 10, 4);
 
+// Wedding: a classic stationery border, a fine double rule with notched
+// (inward-curved) corners, a small dot in each notch.
+const classicFrame = seg('M46 20H454A26 26 0 0 0 480 46V654A26 26 0 0 0 454 680H46A26 26 0 0 0 20 654V46A26 26 0 0 0 46 20Z', 'stroke-width="1.5"')
+  + seg('M53.05 28H446.95A34 34 0 0 0 472 53.05V646.95A34 34 0 0 0 446.95 672H53.05A34 34 0 0 0 28 646.95V53.05A34 34 0 0 0 53.05 28Z', 'stroke-width=".75"')
+  + fourCorners(dot(32, 32, 2.6));
+
 const FRAME_LIST: Ornament[] = [
-  { id: 'wedding-classic', name: 'Classic scroll', occasion: 'wedding', body: rect(18, 0, 'stroke-width="1.6"') + rect(26, 0, 'stroke-width=".8"') + fourCorners(g('translate(-14 -14) scale(1.55)', classicCorner, 'stroke-width=".9"')) },
+  { id: 'wedding-classic', name: 'Classic', occasion: 'wedding', body: classicFrame },
   { id: 'wedding-vine', name: 'Leafy vine', occasion: 'wedding', body: rect(30, 0, 'stroke-width="1.1"') + oppositeCorner(g('translate(-12 -12) scale(1.3)', vineCorner, 'stroke-width="1"'), 0.8) },
   { id: 'wedding-floral', name: 'Flowers', occasion: 'wedding', body: rect(24, 6, 'stroke-width="1.1"') + oppositeCorner(g('translate(-12 -12) scale(1.4)', floralCluster, 'stroke-width="1"')) + g('translate(500 0) scale(-1 1)', floralSprig) + g('translate(0 700) scale(1 -1)', floralSprig) },
   { id: 'wedding-scallop', name: 'Scalloped', occasion: 'wedding', body: scallops + rect(42, 0, 'stroke-width=".8"') + fourCorners(flower(42, 42, 7, 4, 45)) },

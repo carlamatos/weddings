@@ -205,26 +205,28 @@ const THEME_PRESETS: Record<string, Preset> = {
 const FALLBACK: Preset = THEME_PRESETS['the-day'];
 
 // The decorations a theme's invitation starts with
-// (app/lib/invitation-ornaments.ts), chosen for each theme's mood. Only the
-// starting design: saved invitations keep exactly what their host chose.
+// (app/lib/invitation-ornaments.ts), chosen for each theme's mood: the
+// calligraphic flourishes (flourish-N) for the weddings and formal themes,
+// the themed ones for parties and holidays. Only the starting design: saved
+// invitations keep exactly what their host chose.
 const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Weddings (and the formal business themes, from the same elegant set)
-  'the-day': { divider: 'wedding-scroll', frame: '' },
-  'love': { divider: 'wedding-heart', frame: 'wedding-pearls' }, // the same pearls as Quiet Coastal
+  'the-day': { divider: 'flourish-1', frame: '' }, // Swirl crest
+  'love': { divider: 'flourish-20', frame: 'wedding-pearls' }, // Linked loops; the same pearls as Quiet Coastal
   'nature': { divider: '', frame: '' }, // the watercolour greenery paper is decoration enough
-  'wild-flores': { divider: 'wedding-vine', frame: '' },
-  'forest': { divider: 'wedding-vine', frame: '' },
-  'western': { divider: 'wedding-diamond', frame: 'wedding-classic' }, // the rowel star and a double rule
-  'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
+  'wild-flores': { divider: 'flourish-13', frame: '' }, // Light swirls
+  'forest': { divider: 'flourish-22', frame: '' }, // Simple flourish
+  'western': { divider: 'flourish-12', frame: 'wedding-classic' }, // Lens bar and the classic double rule
+  'terracotta-harvest': { divider: 'flourish-16', frame: 'wedding-classic' }, // Fleur rule
   'midnight-botanical': { divider: 'wedding-line', frame: 'wedding-double-rule' }, // fine gold lines, no loops
   'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
-  'vilma': { divider: 'wedding-rose', frame: '' },
-  'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
-  'nexus': { divider: 'wedding-deco', frame: '' },
-  'dinner-gala': { divider: 'wedding-laurel', frame: '' },
-  'simple': { divider: 'wedding-diamond', frame: '' }, // a small diamond, nothing more
-  'blessings': { divider: 'wedding-laurel', frame: '' }, // an olive-like laurel sprig
-  'community': { divider: 'wedding-bow', frame: 'wedding-arch' },
+  'vilma': { divider: 'flourish-5', frame: '' }, // Crested scrolls
+  'summit': { divider: 'flourish-6', frame: 'wedding-geometric' }, // Lattice line
+  'nexus': { divider: 'flourish-10', frame: '' }, // Fleur-de-lis bar
+  'dinner-gala': { divider: 'flourish-4', frame: '' }, // Baroque bar
+  'simple': { divider: 'flourish-18', frame: '' }, // Fine flourish line
+  'blessings': { divider: 'flourish-3', frame: '' }, // Fleur sweep
+  'community': { divider: 'flourish-14', frame: 'wedding-arch' }, // Curl chain
   // Celebrations
   'alegria': { divider: 'birthday-stars', frame: '' },
   'fun-party': { divider: 'birthday-confetti', frame: '' },
@@ -239,7 +241,7 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'gnomes': { divider: 'christmas-holly', frame: '' }, // the gnome picture instead
   'merry': { divider: 'christmas-stars', frame: 'christmas-border' },
   // New Year's Eve and Fireworks
-  'new-years-eve': { divider: 'birthday-stars', frame: 'wedding-deco' },
+  'new-years-eve': { divider: 'flourish-15', frame: 'wedding-deco' }, // Loops
   'fireworks': { divider: 'birthday-confetti', frame: 'birthday-sparkle' }, // confetti and a sparkle border
   // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
@@ -313,6 +315,25 @@ const font = (v: unknown, fallback: InvitationFont): InvitationFont => (typeof v
 // kept clear on each side, in cqw (the card is 100 wide and 140 tall).
 export const INVITATION_PAPERS: Record<string, { textLeft: number; box?: { top: number; right: number; bottom: number; left: number } }> = {
   '/images/invitations/nature-greenery.jpg': { textLeft: 0 },
+  // The birthday papers (Party styles): the words in the space each leaves.
+  '/images/invitations/birthday-candles.jpeg': { textLeft: 0, box: { top: 9, right: 8, bottom: 56, left: 8 } },
+  '/images/invitations/birthday-party-table.jpeg': { textLeft: 0, box: { top: 37, right: 9, bottom: 30, left: 9 } },
+  '/images/invitations/birthday-bunting.jpeg': { textLeft: 0, box: { top: 33, right: 8, bottom: 9, left: 8 } },
+  '/images/invitations/birthday-confetti.jpeg': { textLeft: 0, box: { top: 19, right: 9, bottom: 19, left: 9 } },
+  '/images/invitations/birthday-blue-balloons.jpeg': { textLeft: 0, box: { top: 33, right: 9, bottom: 25, left: 9 } },
+  '/images/invitations/birthday-cake.jpeg': { textLeft: 0, box: { top: 9, right: 8, bottom: 56, left: 8 } },
+  // The Christmas papers (Holiday styles).
+  '/images/invitations/christmas-evergreen.jpeg': { textLeft: 0, box: { top: 38, right: 9, bottom: 9, left: 9 } },
+  '/images/invitations/christmas-candy-baubles.jpeg': { textLeft: 0, box: { top: 28, right: 9, bottom: 27, left: 9 } },
+  '/images/invitations/christmas-rustic.jpeg': { textLeft: 0, box: { top: 64, right: 9, bottom: 6, left: 9 } },
+  '/images/invitations/christmas-red-ribbon.jpeg': { textLeft: 0, box: { top: 44, right: 9, bottom: 10, left: 9 } },
+  // The wedding papers (Wedding styles).
+  '/images/invitations/wedding-flower-wall.jpeg': { textLeft: 0, box: { top: 52, right: 9, bottom: 8, left: 9 } },
+  '/images/invitations/wedding-eucalyptus.jpeg': { textLeft: 0, box: { top: 8, right: 9, bottom: 64, left: 9 } },
+  '/images/invitations/wedding-mandala.jpeg': { textLeft: 0, box: { top: 31, right: 9, bottom: 27, left: 9 } },
+  '/images/invitations/wedding-gold-flourish.jpeg': { textLeft: 0, box: { top: 28, right: 10, bottom: 28, left: 10 } },
+  '/images/invitations/wedding-gold-wreath.jpeg': { textLeft: 0, box: { top: 29, right: 16, bottom: 29, left: 17 } },
+  '/images/invitations/wedding-rose-marble.jpeg': { textLeft: 0, box: { top: 30, right: 9, bottom: 32, left: 9 } },
 };
 
 // An image the host uploaded (not one of our papers or theme photos).

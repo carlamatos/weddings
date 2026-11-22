@@ -49,16 +49,40 @@ export type CatalogDesign = {
 // Styles: designs of their own, under an occasion but not tied to any theme.
 // They come first in their occasion, before the theme designs. Each is one
 // layout in a few colourways (tones).
-export type DesignStyle = 'garden-scroll' | 'rustic-lace' | 'wildflower-meadow' | 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
+export type DesignStyle = 'wedding-flower-wall' | 'wedding-eucalyptus' | 'wedding-mandala' | 'wedding-gold-flourish' | 'wedding-gold-wreath' | 'wedding-rose-marble' | 'christmas-evergreen' | 'christmas-candy-baubles' | 'christmas-rustic' | 'christmas-red-ribbon' | 'birthday-candles' | 'birthday-party-table' | 'birthday-bunting' | 'birthday-confetti' | 'birthday-blue-balloons' | 'birthday-cake' | 'garden-scroll' | 'rustic-lace' | 'wildflower-meadow' | 'victorian' | 'white-gold' | 'paper-blooms' | 'white-roses' | 'portrait';
 export type DesignTone = 'classic' | 'charcoal' | 'blush' | 'sage' | 'champagne' | 'peach' | 'ivory' | 'lilac' | 'linen' | 'rose-gold' | 'walnut';
 
 const solid = (color: string): InvitationLook['background'] => ({ kind: 'color', color, imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 });
-const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
+// paper: one of our papers (INVITATION_PAPERS) under the words; bg is then
+// what shows while it loads.
+const styleLook = (l: Pick<InvitationLook, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor' | 'layout'> & { bg: string; paper?: string; frame?: string; divider?: string; flowers?: InvitationLook['flowers'] }): InvitationLook => ({
   headingFont: l.headingFont, bodyFont: l.bodyFont, textColor: l.textColor, accentColor: l.accentColor, layout: l.layout, flowers: l.flowers ?? 'peach',
-  background: solid(l.bg), divider: l.divider ?? '', dividerColor: l.accentColor, frame: l.frame ?? '', frameColor: l.accentColor, picture: '',
+  background: l.paper ? { ...solid(l.bg), kind: 'image', imageUrl: l.paper } : solid(l.bg), divider: l.divider ?? '', dividerColor: l.accentColor, frame: l.frame ?? '', frameColor: l.accentColor, picture: '',
 });
 
+const bday = (name: string) => `/images/invitations/birthday-${name}.jpeg`;
+const xmas = (name: string) => `/images/invitations/christmas-${name}.jpeg`;
+const wed = (name: string) => `/images/invitations/wedding-${name}.jpeg`;
 const DESIGN_STYLES: { style: DesignStyle; group: DesignGroup; tones: [DesignTone, InvitationLook][] }[] = [
+  // The wedding, birthday (Party) and Christmas (Holiday) papers: photos and cutouts
+  // MyGala licensed from Adobe Stock, set on card-shaped papers with room
+  // for the words.
+  { style: 'wedding-gold-wreath', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('gold-wreath'), headingFont: 'great-vibes', bodyFont: 'montserrat', bg: '#FFFCF7', textColor: '#4B3B2E', accentColor: '#B07E32' })]] },
+  { style: 'wedding-flower-wall', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('flower-wall'), headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#F3F2F0', textColor: '#45403F', accentColor: '#A85C70' })]] },
+  { style: 'wedding-gold-flourish', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('gold-flourish'), headingFont: 'great-vibes', bodyFont: 'cinzel', bg: '#13203A', textColor: '#F1E7D6', accentColor: '#D9B062' })]] },
+  { style: 'wedding-rose-marble', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('rose-marble'), headingFont: 'parisienne', bodyFont: 'montserrat', bg: '#FFF7F5', textColor: '#4A3340', accentColor: '#A4566A' })]] },
+  { style: 'wedding-eucalyptus', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('eucalyptus'), headingFont: 'parisienne', bodyFont: 'cormorant', bg: '#F2F2F3', textColor: '#3D4A3A', accentColor: '#5F7C55' })]] },
+  { style: 'wedding-mandala', group: 'wedding', tones: [['classic', styleLook({ layout: 'classic', paper: wed('mandala'), headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#FBF4E6', textColor: '#6E0F33', accentColor: '#A8236A' })]] },
+  { style: 'christmas-evergreen', group: 'holiday', tones: [['classic', styleLook({ layout: 'classic', paper: xmas('evergreen'), headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#F1F1F2', textColor: '#23402E', accentColor: '#B01E2A' })]] },
+  { style: 'christmas-red-ribbon', group: 'holiday', tones: [['classic', styleLook({ layout: 'classic', paper: xmas('red-ribbon'), headingFont: 'great-vibes', bodyFont: 'cormorant', bg: '#123F2B', textColor: '#F7F0E1', accentColor: '#E8C77E' })]] },
+  { style: 'christmas-rustic', group: 'holiday', tones: [['classic', styleLook({ layout: 'classic', paper: xmas('rustic'), headingFont: 'great-vibes', bodyFont: 'montserrat', bg: '#3A281C', textColor: '#FFFFFF', accentColor: '#F4E7D0' })]] },
+  { style: 'christmas-candy-baubles', group: 'holiday', tones: [['classic', styleLook({ layout: 'classic', paper: xmas('candy-baubles'), headingFont: 'playfair', bodyFont: 'lato', bg: '#FFFFFF', textColor: '#2E2A2A', accentColor: '#C4122F' })]] },
+  { style: 'birthday-cake', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('cake'), headingFont: 'dancing-script', bodyFont: 'poppins', bg: '#FFF3F5', textColor: '#4A3040', accentColor: '#D63F78' })]] },
+  { style: 'birthday-party-table', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('party-table'), headingFont: 'fredoka', bodyFont: 'poppins', bg: '#CFE7EC', textColor: '#26394A', accentColor: '#C93A72' })]] },
+  { style: 'birthday-bunting', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('bunting'), headingFont: 'fredoka', bodyFont: 'poppins', bg: '#FFFAF2', textColor: '#3A3346', accentColor: '#D9423B' })]] },
+  { style: 'birthday-blue-balloons', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('blue-balloons'), headingFont: 'playfair', bodyFont: 'montserrat', bg: '#143764', textColor: '#FFFFFF', accentColor: '#A9D4FF' })]] },
+  { style: 'birthday-confetti', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('confetti'), headingFont: 'dancing-script', bodyFont: 'poppins', bg: '#FFFFFF', textColor: '#2C2440', accentColor: '#CC1F78' })]] },
+  { style: 'birthday-candles', group: 'party', tones: [['classic', styleLook({ layout: 'classic', paper: bday('candles'), headingFont: 'parisienne', bodyFont: 'montserrat', bg: '#FFFBF5', textColor: '#40345A', accentColor: '#7F4AB0' })]] },
   // Garden Scroll: our engraved frame of scrolls, leaves and blossoms in
   // one ink on white paper (layout 'garden').
   {
@@ -175,7 +199,9 @@ const NO_PHOTO = new Set(['nature', 'forest', 'quiet-coastal', 'community', 'dia
 // Themes whose invitation photo isn't their banner.
 // baby-shower-neutral: the right of its banner cut to the card's shape, so
 // the bunny shows (the middle of the banner is bare wood).
-const PHOTO_OVERRIDE: Partial<Record<string, string>> = { merry: '/images/invitations/merry-village.jpeg', 'baby-shower-neutral': '/images/invitations/baby-shower-bunny.jpeg' };
+// midnight-botanical: its woods with the couple painted out (the path left
+// empty in the mist), cut to the card's shape.
+const PHOTO_OVERRIDE: Partial<Record<string, string>> = { merry: '/images/invitations/merry-village.jpeg', 'baby-shower-neutral': '/images/invitations/baby-shower-bunny.jpeg', 'midnight-botanical': '/images/invitations/midnight-woods.jpeg' };
 
 // Banner photos that work as an invitation background (no videos or SVG).
 function photoOf(theme: string): string | null {
@@ -190,15 +216,15 @@ const PHOTO_WASH: Partial<Record<string, number>> = { love: 0.85, 'fun-party': 0
 // The framed wedding designs: a frame (and a divider to go with it) from the
 // same line-art set, chosen for each theme's mood.
 const FRAMED: Partial<Record<string, Partial<InvitationLook>>> = {
-  'the-day': { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'wedding-rings', frame: 'wedding-ribbon' },
-  love: { divider: 'wedding-rose', frame: 'wedding-floral' },
-  nature: { background: { kind: 'color', color: '#F4F1EA', imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 }, divider: 'wedding-diamond', frame: 'wedding-arch' },
-  'wild-flores': { divider: 'wedding-vine', frame: 'wedding-floral' },
+  'the-day': { headingFont: 'great-vibes', bodyFont: 'cormorant', divider: 'flourish-7', frame: 'wedding-ribbon' }, // Looped ribbon
+  love: { divider: 'flourish-17', frame: 'wedding-floral' }, // Dotted scroll
+  nature: { background: { kind: 'color', color: '#F4F1EA', imageUrl: '', overlay: false, overlayColor: '#000000', overlayOpacity: 0 }, divider: 'flourish-21', frame: 'wedding-arch' }, // Swash
+  'wild-flores': { divider: 'flourish-8', frame: 'wedding-floral' }, // Scroll line
   forest: { divider: 'wedding-stem', frame: 'wedding-rule' },
-  western: { divider: 'wedding-arrow', frame: 'wedding-scallop' },
+  western: { divider: 'flourish-19', frame: 'wedding-scallop' }, // Grand flourish
   'terracotta-harvest': { divider: 'wedding-laurel', frame: 'wedding-arch' },
   'midnight-botanical': { divider: 'wedding-deco-line', frame: 'wedding-deco-rule' },
-  'quiet-coastal': { divider: 'wedding-scroll', frame: 'wedding-scallop' },
+  'quiet-coastal': { divider: 'flourish-11', frame: 'wedding-scallop' }, // Spiral line, like waves
   vilma: { divider: 'wedding-rose', frame: 'wedding-rose' },
 };
 
