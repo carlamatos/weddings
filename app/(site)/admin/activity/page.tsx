@@ -37,7 +37,7 @@ type HostRow = {
   first_dashboard_at: Date | null; last_dashboard_at: Date | null; dashboard_visits: number;
   page_id: number | null; slug: string | null; heading: string | null; page_status: string | null;
   page_created: Date | null; guests: number; replies: number; follow_up: string | null;
-  santa: number; santa_drawn: boolean;
+  santa: number; santa_drawn: boolean; goal: string | null; purpose: string | null;
 };
 
 function when(value: Date | string | null): string {
@@ -89,7 +89,9 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                (SELECT count(*)::int FROM event_guests g WHERE g.user_page_id = p.id AND g.responded_at IS NOT NULL) AS replies,
                (SELECT count(*)::int FROM page_gift_exchange x WHERE x.user_page_id = p.id) AS santa,
                EXISTS (SELECT 1 FROM page_gift_exchange x WHERE x.user_page_id = p.id AND x.giftee_id IS NOT NULL) AS santa_drawn,
-               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS follow_up
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS follow_up,
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'event_goal') AS goal,
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'page_purpose') AS purpose
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
@@ -223,7 +225,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
         <table style={table}>
           <thead>
             <tr>
-              <th style={th}>Host</th><th style={th}>Page</th>
+              <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
               {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email']] as const).map(([key, label]) => (
                 <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
                   <Link
@@ -257,6 +259,11 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                     </>
                   ) : <span style={{ color: c.muted }}>No page yet</span>}
                 </td>
+                {/* "What would you like to make?" and "What are you planning?" (app/lib/event-goals.ts). */}
+                <td style={td}>
+                  {isPagePurpose(u.purpose) ? PURPOSE_ADMIN_LABELS[u.purpose] : <span style={{ color: c.muted }}>{u.slug ? 'Not asked' : '—'}</span>}
+                  {u.goal && <div style={{ color: c.muted, fontSize: 11 }}>{GOAL_ADMIN_LABELS[u.goal] ?? u.goal}</div>}
+                </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{u.page_created ? when(u.page_created) : u.date ? new Date(u.date).toISOString().slice(0, 10) : '—'}</td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{when(u.last_dashboard_at)}</td>
                 <td style={td}>{u.dashboard_visits || '—'}</td>
@@ -268,7 +275,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
               </tr>
             ))}
             {!hosts.length && !error && (
-              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={6}>No hosts yet.</td></tr>
+              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={7}>No hosts yet.</td></tr>
             )}
           </tbody>
         </table>
