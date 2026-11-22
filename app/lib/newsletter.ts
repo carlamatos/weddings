@@ -22,30 +22,35 @@ export function normalizeNewsletterEmail(raw: unknown): string | null {
 }
 
 // The table is created on first use, so a new environment needs no setup
-// step (it's also in /api/db-setup).
+// step (it's also in /api/db-setup). consent_text: the wording the person
+// agreed to (the sign-up checkbox, app/lib/newsletter-consent.ts), kept with
+// subscribed_at and source as proof of consent under CASL.
 let tableReady: Promise<unknown> | null = null;
 export function ensureNewsletterTable(): Promise<unknown> {
-  tableReady ??= sql`
-    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
-      id SERIAL PRIMARY KEY,
-      email TEXT NOT NULL UNIQUE,
-      source TEXT,
-      subscribed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-      unsubscribed_at TIMESTAMPTZ
-    )
-  `.catch((error) => { tableReady = null; throw error; });
+  tableReady ??= (async () => {
+    await sql`
+      CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+        id SERIAL PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        source TEXT,
+        subscribed_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        unsubscribed_at TIMESTAMPTZ
+      )
+    `;
+    await sql`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS consent_text TEXT`;
+  })().catch((error) => { tableReady = null; throw error; });
   return tableReady;
 }
 
 // Adds (or re-subscribes) an address. True when the address is newly on the
 // list, false when it was already subscribed.
-export async function subscribeToNewsletter(email: string, source: string): Promise<boolean> {
+export async function subscribeToNewsletter(email: string, source: string, consentText: string | null = null): Promise<boolean> {
   await ensureNewsletterTable();
   const existing = await sql`SELECT unsubscribed_at FROM newsletter_subscribers WHERE email = ${email}`;
   if (existing.rows[0] && !existing.rows[0].unsubscribed_at) return false;
   await sql`
-    INSERT INTO newsletter_subscribers (email, source) VALUES (${email}, ${source})
-    ON CONFLICT (email) DO UPDATE SET unsubscribed_at = NULL, subscribed_at = NOW(), source = ${source}
+    INSERT INTO newsletter_subscribers (email, source, consent_text) VALUES (${email}, ${source}, ${consentText})
+    ON CONFLICT (email) DO UPDATE SET unsubscribed_at = NULL, subscribed_at = NOW(), source = ${source}, consent_text = ${consentText}
   `;
   return true;
 }

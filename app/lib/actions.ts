@@ -1,7 +1,8 @@
 "use server"
 
 import { subscribeToNewsletter } from './newsletter';
-import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal } from './event-goals';
+import { isConsentLang, newsletterConsentRecord } from './newsletter-consent';
+import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal, PAGE_PURPOSE_SETTING, isPagePurpose } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
 import { MEALS_ON_SETTING, MEAL_OPTIONS_SETTING, parseMealOptions } from './rsvp-meals';
@@ -19,11 +20,12 @@ import { movePageToTrash } from './page-trash-core';
 import { runInTransaction } from './trash-core';
 
 import { headers } from 'next/headers';
+import { inlineEmailPictures } from './invitation-email-preview';
 import { markPageCreated, markSignUp } from './signup-signal';
 import { signIn } from '@/auth';
 import { isRateLimited, clearRateLimit, recordAttempt, overRateLimit, clientIp } from './rate-limit';
 
-import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type UserPage, type Guest } from './definitions';
+import { EventProgramItem, CustomSection, CustomSectionBlock, Sponsor, type Guest } from './definitions';
 import {
   CUSTOM_SECTION_TITLE_MAX, SPONSOR_DESCRIPTION_MAX, SPONSOR_MAX_COUNT,
   isHexColor, isUploadedImageUrl, isValidSectionPosition, normalizeBlocks,
@@ -31,15 +33,15 @@ import {
 import { normalizeRegistryLink, isRegistryLink, REGISTRY_BUTTON_TEXT_MAX, REGISTRY_MESSAGE_MAX } from './registry';
 import { normalizeLivestreamInput, isLivestreamLink, LIVESTREAM_SETTINGS, LIVESTREAM_BUTTON_TEXT_MAX, LIVESTREAM_MESSAGE_MAX, type LivestreamDisplay } from './livestream';
 import { auth } from '@/auth';
-import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, countRecentPageCreations, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings, isSectionOn } from './data';
+import { fetchUserPage, fetchOwnedPage, parsePageId, fetchPageQuota, countRecentPageCreations, hasPrepaidPlus, normalizeEventProgramItem, fetchGiftParticipants, fetchGiftExclusions, fetchPageSettings } from './data';
 import { isSuperAdmin } from './admin';
 import { MAX_NEW_PAGES_PER_DAY, MAX_NEW_PAGES_PER_MONTH } from './plans';
 import { createPlusCheckout } from './plus-checkout';
 import { safeHttpUrl } from './safe-url';
 import { isSectionBgKey, parseSectionBackground, sectionBgSettingName, type SectionBackground } from './section-background';
 import { isReservedSlug } from './reserved-slugs';
-import { encryptPagePassword, invitationPassword, PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
-import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign, type InvitationDetails } from './invitation';
+import { encryptPagePassword, PAGE_PASSWORD_MAX, PAGE_PASSWORD_MIN } from './page-password';
+import { INVITATION_NOTE_MAX, INVITATION_SETTING, normalizeInvitation, type InvitationDesign } from './invitation';
 import { AuthError } from 'next-auth';
 import { createToken } from './tokens';
 import { sendMail, sendMailBatch, fromName, verificationEmail, type MailMessage } from './mail';
@@ -49,11 +51,11 @@ import { giftExchangeEmail } from './gift-exchange-email';
 import { giftRevealUrl } from './gift-token';
 import { clearGiftMessages } from './gift-messages';
 import { publicPageUrl } from './share';
-import { invitationEmail } from './invitation-email';
-import { invitationDetails } from './invitation-details';
 import { isEmailVerified, VERIFY_EMAIL_FIRST } from './require-verified';
 import { THEME_CARDS } from './marketing/theme-cards';
-import { unsubscribeUrl, oneClickUnsubscribeUrl } from './unsubscribe-token';
+import { ensureInviteColumns, pageInviteUrl } from './invite-tracking';
+import { MAX_INVITATION_RECIPIENTS, buildEmail, deliver, isSendKind, loadInvitationContext, type InvitationContext, type SendKind } from './invitation-send';
+import { SUB_EVENTS_SETTING, parseInvitedEvents, parseSubEvents, type SubEvent } from './sub-events';
 import { siteUrl } from './site-url';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE } from './phone';
 import { partySize } from './guest-import';
@@ -336,7 +338,12 @@ function ensureOptionalEventDate(): Promise<unknown> {
         if (isEventGoal(goal)) {
           const rule = GOAL_RULES[goal];
           const rows: [string, string][] = [[EVENT_GOAL_SETTING, goal]];
-          if (!rule.registry) rows.push(['show_registry', 'false']);
+          // Invitation + RSVP: a lean page (the details and the RSVP), the
+          // extra sections off until the host turns them on.
+          const purpose = formData.get('purpose');
+          if (isPagePurpose(purpose)) rows.push([PAGE_PURPOSE_SETTING, purpose]);
+          if (!rule.registry || purpose === 'invitation') rows.push(['show_registry', 'false']);
+          if (purpose === 'invitation') rows.push(['show_custom_sections', 'false'], ['show_event_program', 'false']);
           if (rule.giftDrawOnly) rows.push(['show_gift_exchange', 'true'], ['show_rsvp', 'false']);
           for (const [name, value] of rows) {
             await sql`
@@ -360,13 +367,13 @@ function ensureOptionalEventDate(): Promise<unknown> {
     // their first page, not having had the sign-up form): only when ticked.
     const accountEmail = session?.user?.email;
     if (newPageId && formData.get('newsletter') === '1' && accountEmail) {
-      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+      try { await subscribeToNewsletter(accountEmail.trim().toLowerCase(), 'create-event', consentRecordFrom(formData)); } catch (error) { console.error('Failed to add to newsletter:', error); }
     }
 
     // For Google Analytics ("event_page_created"). The admins hear about a
     // page once it's in use (app/lib/admin-notify.ts), not when it's made.
     if (newPageId) {
-      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '' });
+      await markPageCreated({ eventType: event_type, theme: theme_slug, plan: prepaid || wantsPlus ? 'plus' : 'free', goal: isEventGoal(formData.get('goal')) ? String(formData.get('goal')) : '', purpose: isPagePurpose(formData.get('purpose')) ? String(formData.get('purpose')) : '' });
     }
 
     // Chose Live Party for this event: the page exists (free) now, so pay for it.
@@ -927,9 +934,13 @@ export async function updateGuest(
       `;
       if (dup.rows.length) return fail('Another guest on your list already has that email.');
     }
+    // While the guest hasn't replied, the number is the seats saved for them
+    // (a household), which their RSVP can't go over.
+    await ensureInviteColumns();
     const res = await sql`
       UPDATE event_guests
-      SET name = ${name}, email = ${email || null}, phone = ${phone}, guests = ${guests}, status = ${status}
+      SET name = ${name}, email = ${email || null}, phone = ${phone}, guests = ${guests}, status = ${status},
+          seats = CASE WHEN ${status} = 'invited' THEN ${guests} ELSE seats END
       WHERE id = ${guestId}::uuid
         AND user_page_id IN (SELECT id FROM user_page WHERE id = ${pid} AND user_id = ${userId})
     `;
@@ -1039,16 +1050,11 @@ export async function saveInvitationDesign(pageId: number, design: unknown): Pro
 }
 
 // ─── Invitations: emailing the guest list ───────────────
+// The sending itself is in app/lib/invitation-send.ts (shared with the
+// hourly cron that sends scheduled ones).
 
-// Most guests one send can reach; the guest list import is capped the same way.
-const MAX_INVITATION_RECIPIENTS = 1000;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-type InvitationContext = { page: UserPage; design: InvitationDesign; hostName: string; hostEmail: string | null; details: InvitationDetails };
-
-// The signed-in owner's page (invitations are free on every plan), its saved
-// invitation design, the host's name/email (for the From name and Reply-To)
-// and the event details (with the page password, when the host includes it).
+// The signed-in owner's page (invitations are free on every plan) with its
+// saved invitation, ready to send.
 async function invitationContext(pageId: number): Promise<PlusResult<InvitationContext>> {
   const session = await auth();
   const userId = session?.user?.id;
@@ -1057,118 +1063,93 @@ async function invitationContext(pageId: number): Promise<PlusResult<InvitationC
   if (!session?.user?.verifiedEmail) return { ok: false, error: VERIFY_EMAIL_FIRST };
   const page = await fetchOwnedPage(userId, pid);
   if (!page) return { ok: false, error: 'Page not found.' };
-  const [settings, user] = await Promise.all([
-    fetchPageSettings(pid),
-    sql<{ name: string | null; email: string | null }>`SELECT name, email FROM users WHERE id = ${userId}`,
-  ]);
-  let saved: unknown = null;
-  try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
-  const hostEmail = user.rows[0]?.email ?? session?.user?.email ?? null;
-  return {
-    ok: true,
-    value: {
-      page,
-      design: normalizeInvitation(saved, page.theme_slug, page.language),
-      hostName: user.rows[0]?.name?.trim() || page.heading || 'Your host',
-      hostEmail,
-      details: invitationDetails(page, invitationPassword(settings, true).password, isSectionOn(settings, 'show_rsvp')),
-    },
-  };
+  const ctx = await loadInvitationContext(page, { name: session.user.name, email: session.user.email });
+  return ctx ? { ok: true, value: ctx } : { ok: false, error: 'Page not found.' };
 }
 
-// Emails the saved invitation to the chosen guests. Guests without an email,
-// or who unsubscribed from this event, are skipped; each address gets one
-// email even if it's on the list twice. Records invited_at for those sent.
+// The furthest ahead a send can be scheduled.
+const MAX_SCHEDULE_MS = 400 * 24 * 60 * 60 * 1000;
+
+// Emails the saved invitation (or a save-the-date) to the chosen guests, now
+// or, with sendAt (an ISO time), then: the hourly cron sends it in the hour
+// after. A scheduled send uses the design as it is when it goes out.
 export async function sendInvitations(
   pageId: number,
   guestIds: string[],
-): Promise<{ ok: true; sent: number; skipped: number } | { ok: false; error: string }> {
+  kind: SendKind = 'invitation',
+  sendAt?: string,
+): Promise<{ ok: true; sent: number; skipped: number; scheduled?: string } | { ok: false; error: string }> {
   try {
+    if (!isSendKind(kind)) return { ok: false, error: 'Choose what to send.' };
     const ids = [...new Set(Array.isArray(guestIds) ? guestIds.filter((id) => typeof id === 'string' && UUID_RE.test(id)) : [])];
     if (!ids.length) return { ok: false, error: 'Choose at least one guest.' };
     if (ids.length > MAX_INVITATION_RECIPIENTS) return { ok: false, error: `You can send to up to ${MAX_INVITATION_RECIPIENTS} guests at a time.` };
 
     const ctx = await invitationContext(pageId);
     if (!ctx.ok) return ctx;
-    const { page, design, hostName, hostEmail, details } = ctx.value;
-    if (await overRateLimit(`invitations:${page.id}`, 10, 60 * 60 * 1000)) {
+    const pid = Number(ctx.value.page.id);
+
+    if (sendAt) {
+      const when = new Date(sendAt);
+      const ms = when.getTime() - Date.now();
+      if (!Number.isFinite(ms) || ms < 5 * 60 * 1000) return { ok: false, error: 'Please choose a time at least a few minutes from now.' };
+      if (ms > MAX_SCHEDULE_MS) return { ok: false, error: 'Please choose a time within the next year.' };
+      await ensureInviteColumns();
+      const pending = await sql`SELECT count(*)::int AS n FROM scheduled_sends WHERE user_page_id = ${pid} AND status = 'pending'`;
+      if ((pending.rows[0]?.n ?? 0) >= 10) return { ok: false, error: 'You have 10 sends scheduled already. Cancel one first.' };
+      await sql`
+        INSERT INTO scheduled_sends (user_page_id, kind, guest_ids, send_at)
+        VALUES (${pid}, ${kind}, ${ids.join(',')}, ${when.toISOString()})
+      `;
+      revalidatePath('/dashboard', 'layout');
+      return { ok: true, sent: 0, skipped: 0, scheduled: when.toISOString() };
+    }
+
+    if (await overRateLimit(`invitations:${pid}`, 10, 60 * 60 * 1000)) {
       return { ok: false, error: 'You’ve sent invitations 10 times in the last hour. Please try again later.' };
     }
-
-    const guests = await sql<{ id: string; name: string; email: string; invitation_note: string | null }>`
-      SELECT DISTINCT ON (lower(g.email)) g.id, g.name, g.email, g.invitation_note
-      FROM event_guests g
-      WHERE g.user_page_id = ${page.id}
-        AND g.id = ANY(string_to_array(${ids.join(',')}, ',')::uuid[])
-        AND g.email IS NOT NULL AND NOT g.email_opt_out
-      ORDER BY lower(g.email), g.created_at
-    `;
-    const recipients = guests.rows.filter((g) => EMAIL_RE.test(g.email.trim()));
-    if (!recipients.length) return { ok: false, error: 'None of the chosen guests have an email address you can send to.' };
-
-    const messages: MailMessage[] = recipients.map((g) => {
-      const { subject, html } = invitationEmail({
-        design,
-        details,
-        language: page.language,
-        hostName,
-        guestName: g.name?.trim() || '',
-        note: g.invitation_note,
-        unsubscribeLink: unsubscribeUrl(g.id),
-        siteBase: siteUrl(),
-      });
-      return {
-        to: g.email.trim(),
-        subject,
-        html,
-        from: fromName(hostName),
-        ...(hostEmail ? { replyTo: hostEmail } : {}),
-        headers: { 'List-Unsubscribe': `<${oneClickUnsubscribeUrl(g.id)}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
-      };
-    });
-
-    // In batches of 100 (Resend's limit), marking each batch as invited once
-    // it's accepted, so a failure part-way never re-sends to earlier batches.
-    let sent = 0;
+    let result: { sent: number; skipped: number };
     try {
-      for (let i = 0; i < messages.length; i += 100) {
-        await sendMailBatch(messages.slice(i, i + 100));
-        const batchIds = recipients.slice(i, i + 100).map((g) => g.id);
-        await sql`
-          UPDATE event_guests SET invited_at = NOW()
-          WHERE user_page_id = ${page.id} AND id = ANY(string_to_array(${batchIds.join(',')}, ',')::uuid[])
-        `;
-        sent += batchIds.length;
-      }
+      result = await deliver(ctx.value, ids, kind);
     } finally {
-      if (sent) revalidatePath('/dashboard', 'layout');
+      revalidatePath('/dashboard', 'layout');
     }
-    return { ok: true, sent, skipped: ids.length - recipients.length };
+    if (!result.sent) return { ok: false, error: 'None of the chosen guests have an email address you can send to.' };
+    return { ok: true, ...result };
   } catch (error) {
     console.error('Failed to send invitations:', error);
     return { ok: false, error: 'Couldn’t send all the invitations. Guests marked “Sent” got theirs — please try again for the rest.' };
   }
 }
 
-// Sends the saved invitation to the signed-in owner, so they can see it in
-// their own inbox first. Limited to 5 an hour.
-export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean; message: string }> {
+// Cancels a scheduled send that hasn't gone out yet.
+export async function cancelScheduledSend(pageId: number, id: number): Promise<{ ok: boolean }> {
+  try {
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok || !Number.isInteger(id)) return { ok: false };
+    await ensureInviteColumns();
+    const res = await sql`UPDATE scheduled_sends SET status = 'cancelled' WHERE id = ${id} AND user_page_id = ${owned.value} AND status = 'pending'`;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to cancel scheduled send:', error);
+    return { ok: false };
+  }
+}
+
+// Sends the saved invitation (or save-the-date) to the signed-in owner, so
+// they can see it in their own inbox first. Limited to 5 an hour.
+export async function sendTestInvitation(pageId: number, kind: SendKind = 'invitation'): Promise<{ ok: boolean; message: string }> {
   try {
     const ctx = await invitationContext(pageId);
     if (!ctx.ok) return { ok: false, message: ctx.error };
-    const { page, design, hostName, hostEmail, details } = ctx.value;
+    const { page, hostName, hostEmail } = ctx.value;
     if (!hostEmail) return { ok: false, message: 'Your account has no email address.' };
     if (await overRateLimit(`invitation-test:${page.id}`, 5, 60 * 60 * 1000)) {
       return { ok: false, message: 'You’ve sent 5 tests in the last hour. Please try again later.' };
     }
-    const { subject, html } = invitationEmail({
-      design,
-      details,
-      language: page.language,
-      hostName,
-      guestName: hostName,
-      siteBase: siteUrl(),
-    });
+    // The page's own link, so the host can open the envelope too.
+    const { subject, html } = buildEmail(ctx.value, isSendKind(kind) ? kind : 'invitation', undefined, { inviteLink: pageInviteUrl(page.id) });
     await sendMailBatch([{ to: hostEmail, subject: `[Test] ${subject}`, html, from: fromName(hostName), replyTo: hostEmail }]);
     return { ok: true, message: `Test sent to ${hostEmail}.` };
   } catch (error) {
@@ -1177,33 +1158,70 @@ export async function sendTestInvitation(pageId: number): Promise<{ ok: boolean;
   }
 }
 
-// The invitation email as one guest will see it (their name and note), or
-// as a generic guest, for the preview beside the Send button.
-export async function previewInvitationEmail(pageId: number, guestId?: string): Promise<{ ok: true; subject: string; html: string } | { ok: false; error: string }> {
+// The email as one guest will see it (their name, note and events), or as a
+// generic guest, for the preview beside the Send button.
+export async function previewInvitationEmail(pageId: number, guestId?: string, kind: SendKind = 'invitation'): Promise<{ ok: true; subject: string; html: string } | { ok: false; error: string }> {
   try {
     const ctx = await invitationContext(pageId);
     if (!ctx.ok) return ctx;
-    const { page, design, hostName, details } = ctx.value;
-    let guest: { name: string; invitation_note: string | null } | undefined;
+    let guest: { id: string; name: string; invitation_note: string | null; invited_events: unknown } | undefined;
     if (guestId && UUID_RE.test(guestId)) {
-      const res = await sql<{ name: string; invitation_note: string | null }>`
-        SELECT name, invitation_note FROM event_guests WHERE id = ${guestId}::uuid AND user_page_id = ${page.id}
+      await ensureInviteColumns();
+      const res = await sql<{ id: string; name: string; invitation_note: string | null; invited_events: unknown }>`
+        SELECT id, name, invitation_note, invited_events FROM event_guests WHERE id = ${guestId}::uuid AND user_page_id = ${ctx.value.page.id}
       `;
       guest = res.rows[0];
     }
-    const { subject, html } = invitationEmail({
-      design,
-      details,
-      language: page.language,
-      hostName,
-      guestName: guest?.name?.trim() || '',
-      note: guest?.invitation_note,
-      siteBase: siteUrl(),
-    });
-    return { ok: true, subject, html };
+    const { subject, html } = buildEmail(ctx.value, isSendKind(kind) ? kind : 'invitation', guest);
+    // The envelope and decorations are drawn into the preview itself, so it
+    // shows them whatever the site allows the preview to load (a protected
+    // staging, a release that doesn't have the picture yet).
+    return { ok: true, subject, html: inlineEmailPictures(html) };
   } catch (error) {
     console.error('Failed to preview invitation:', error);
     return { ok: false, error: 'Couldn’t load the preview. Please try again.' };
+  }
+}
+
+// ─── Sub-events (Guests & RSVPs → Events) ───────────────
+
+// Saves the page's sub-events (app/lib/sub-events.ts). Guests invited to an
+// event that's removed simply lose it.
+export async function saveSubEvents(pageId: number, raw: unknown): Promise<PlusResult<SubEvent[]>> {
+  try {
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok) return owned;
+    const list = parseSubEvents(raw);
+    await sql`
+      INSERT INTO user_page_settings (user_page_id, setting_name, setting_value)
+      VALUES (${owned.value}, ${SUB_EVENTS_SETTING}, ${JSON.stringify(list)})
+      ON CONFLICT (user_page_id, setting_name) DO UPDATE SET setting_value = EXCLUDED.setting_value
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: true, value: list };
+  } catch (error) {
+    console.error('Failed to save sub-events:', error);
+    return { ok: false, error: GENERIC_PLUS_ERROR };
+  }
+}
+
+// Which sub-events one guest is invited to: a list of ids, or null for all.
+export async function setGuestEvents(pageId: number, guestId: string, ids: string[] | null): Promise<{ ok: boolean }> {
+  try {
+    if (!UUID_RE.test(guestId)) return { ok: false };
+    const owned = await ownedPlusPageId(pageId, { setup: true });
+    if (!owned.ok) return { ok: false };
+    await ensureInviteColumns();
+    const clean = ids === null ? null : parseInvitedEvents(ids);
+    const res = await sql`
+      UPDATE event_guests SET invited_events = ${clean === null ? null : JSON.stringify(clean)}::jsonb
+      WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+    `;
+    revalidatePath('/dashboard', 'layout');
+    return { ok: (res.rowCount ?? 0) > 0 };
+  } catch (error) {
+    console.error('Failed to set guest events:', error);
+    return { ok: false };
   }
 }
 
@@ -2336,10 +2354,11 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
     }
   }
 
-  // "Yes, I’d like to receive emails from MyGala": only when ticked (it
-  // starts unticked). Never blocks the sign-up.
+  // The newsletter checkbox (app/ui/newsletter-consent.tsx): only when
+  // ticked (it starts unticked), saved with the wording shown. Never blocks
+  // the sign-up.
   if (newUserId && formData.get('newsletter') === '1') {
-    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup'); } catch (error) { console.error('Failed to add to newsletter:', error); }
+    try { await subscribeToNewsletter(email.trim().toLowerCase(), 'signup', consentRecordFrom(formData)); } catch (error) { console.error('Failed to add to newsletter:', error); }
   }
   if (newUserId) await markSignUp('email');
   await rememberDashLang(lang);
@@ -2349,6 +2368,12 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
 // The "design your invitation" pages' sign-up step: the account, signed in
 // without leaving the page, which then creates the event itself
 // (createUserPage). ok: signed in.
+// The newsletter wording the person saw and ticked (CASL proof of consent).
+function consentRecordFrom(formData: FormData): string {
+  const lang = formData.get('newsletter_lang');
+  return newsletterConsentRecord(isConsentLang(lang) ? lang : 'en');
+}
+
 export async function registerOnTryPage(prevState: RegisterState & { ok?: boolean }, formData: FormData): Promise<RegisterState & { ok?: boolean }> {
   const account = await createCredentialsAccount(formData);
   if ('state' in account) return account.state;
@@ -2378,3 +2403,4 @@ export async function registerUser(prevState: RegisterState, formData: FormData)
   }
   redirect(`/check-email?email=${encodeURIComponent(email)}${lang === 'en' ? '' : `&lang=${lang}`}`);
 }
+

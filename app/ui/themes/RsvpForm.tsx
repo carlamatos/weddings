@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Translations } from '@/app/lib/translations';
 import { useRsvpOptions } from './rsvp-options';
+import { subEventWhen, type SubEvent } from '@/app/lib/sub-events';
 
 declare global {
   interface Window {
@@ -44,8 +45,17 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   const [guests, setGuests] = useState(1);
   // What's typed in the number box, which may be empty mid-edit.
   const [guestsDraft, setGuestsDraft] = useState('1');
+  // From the guest's own invitation link (?g=…): their token, the seats saved
+  // for their household, and the sub-events they're invited to (or, without
+  // a link, the page's sub-events), from /api/rsvp/guest.
+  const [inviteToken, setInviteToken] = useState('');
+  const [seatCap, setSeatCap] = useState<number | null>(null);
+  const [forName, setForName] = useState('');
+  const [events, setEvents] = useState<SubEvent[]>([]);
+  const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const maxParty = seatCap ?? MAX_PARTY;
   const setPartySize = (n: number) => {
-    const next = Math.min(Math.max(Number.isFinite(n) ? Math.floor(n) : 1, 1), MAX_PARTY);
+    const next = Math.min(Math.max(Number.isFinite(n) ? Math.floor(n) : 1, 1), maxParty);
     setGuests(next);
     setGuestsDraft(String(next));
   };
@@ -73,6 +83,34 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   const [bridgeSrc, setBridgeSrc] = useState('');
   const bridgeRef = useRef<HTMLIFrameElement>(null);
   const useTurnstile = turnstileMode === 'direct';
+
+  useEffect(() => {
+    if (disabled || !userPageId || !/^\d+$/.test(userPageId)) return;
+    const token = new URLSearchParams(window.location.search).get('g') ?? '';
+    let live = true;
+    fetch(`/api/rsvp/guest?p=${userPageId}${token ? `&t=${encodeURIComponent(token)}` : ''}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { events?: SubEvent[]; guest?: { name: string; email: string | null; seats: number | null; replies: Record<string, boolean> } | null } | null) => {
+        if (!live || !data) return;
+        const list = Array.isArray(data.events) ? data.events : [];
+        setEvents(list);
+        setAnswers(Object.fromEntries(list.map((e) => [e.id, data.guest?.replies?.[e.id] ?? true])));
+        if (data.guest) {
+          setInviteToken(token);
+          setForName(data.guest.name);
+          setName((v) => v || data.guest!.name);
+          setEmail((v) => v || data.guest!.email || '');
+          if (data.guest.seats && data.guest.seats > 1) {
+            const cap = Math.min(data.guest.seats, MAX_PARTY);
+            setSeatCap(cap);
+            setGuests(cap);
+            setGuestsDraft(String(cap));
+          }
+        }
+      })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [disabled, userPageId]);
 
   useEffect(() => {
     if (!SITE_KEY || disabled) return;
@@ -138,7 +176,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(inviteToken ? { inviteToken } : {}), ...(events.length ? { eventReplies: answers } : {}), ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -192,7 +230,10 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       </div>
 
       {/* The host only accepts replies from their guest list, matched by email. */}
-      {guestListOnly && (
+      {forName && (
+        <p className="rsvp-for-guest" style={{ margin: 0, fontWeight: 600 }}>{t.rsvpForGuest.replace('{{name}}', forName)}</p>
+      )}
+      {guestListOnly && !inviteToken && (
         <p id="rsvp-guest-list-note" className="rsvp-guest-list-note" style={{ margin: 0, fontSize: '0.95em', lineHeight: 1.55 }}>
           {t.rsvpGuestListNote}
         </p>
@@ -237,6 +278,24 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           </label>
         </div>
       </div>
+      {status === 'attending' && events.length > 0 && (
+        <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+          <legend className="field-label">{t.whichEvents}</legend>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {events.map((ev) => (
+              <label key={ev.id} className="check-label" style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer' }}>
+                <input type="checkbox" checked={answers[ev.id] !== false} onChange={(e) => setAnswers((a) => ({ ...a, [ev.id]: e.target.checked }))} style={{ marginTop: 4 }} />
+                <span>
+                  <strong>{ev.name}</strong>
+                  {(ev.date || ev.time || ev.venue) && (
+                    <span style={{ display: 'block', fontSize: '0.9em', opacity: 0.8 }}>{[subEventWhen(ev, t.dateLocale), ev.venue].filter(Boolean).join(' · ')}</span>
+                  )}
+                </span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
       {status === 'attending' && (
         <div>
           <label className="field-label" htmlFor="rsvp-guests">{t.numberOfGuests}</label>
@@ -247,18 +306,19 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
               type="number"
               inputMode="numeric"
               min={1}
-              max={MAX_PARTY}
+              max={maxParty}
               value={guestsDraft}
               onChange={(e) => {
                 setGuestsDraft(e.target.value);
                 const n = Number(e.target.value);
-                if (e.target.value !== '' && Number.isFinite(n) && n >= 1) setGuests(Math.min(Math.floor(n), MAX_PARTY));
+                if (e.target.value !== '' && Number.isFinite(n) && n >= 1) setGuests(Math.min(Math.floor(n), maxParty));
               }}
               onBlur={() => setPartySize(Number(guestsDraft) || 1)}
               style={{ width: 84, flex: '0 0 auto', textAlign: 'center' }}
             />
-            <button type="button" className="rsvp-step" aria-label={t.moreGuests} disabled={guests >= MAX_PARTY} onClick={() => setPartySize(guests + 1)} style={stepBtn}><StepIcon plus /></button>
+            <button type="button" className="rsvp-step" aria-label={t.moreGuests} disabled={guests >= maxParty} onClick={() => setPartySize(guests + 1)} style={stepBtn}><StepIcon plus /></button>
             <span className="check-hint" style={{ margin: 0 }}>{guests === 1 ? t.justMe : t.includingYou}</span>
+            {seatCap && <span className="check-hint" style={{ margin: 0, flexBasis: '100%' }}>{t.seatsSaved.replace('{{n}}', String(seatCap))}</span>}
           </div>
         </div>
       )}

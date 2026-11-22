@@ -96,6 +96,9 @@ export interface Translations {
   numberOfGuests: string;
   justMe: string;
   includingYou: string;
+  seatsSaved: string; // {{n}}: the seats the host saved for this household
+  whichEvents: string;
+  rsvpForGuest: string; // {{name}}
   fewerGuests: string;
   moreGuests: string;
   guests: string;
@@ -275,6 +278,9 @@ const en: Translations = {
   numberOfGuests: 'number of guests',
   justMe: 'just me',
   includingYou: 'including you',
+  seatsSaved: 'We’ve saved {{n}} seats for you',
+  whichEvents: 'Which will you attend?',
+  rsvpForGuest: 'Replying for {{name}}',
   fewerGuests: 'One guest fewer',
   moreGuests: 'One guest more',
   guests: 'guests',
@@ -444,6 +450,9 @@ const fr: Translations = {
   numberOfGuests: "nombre d'invités",
   justMe: 'juste moi',
   includingYou: 'vous compris',
+  seatsSaved: 'Nous vous avons réservé {{n}} places',
+  whichEvents: 'À quoi assisterez-vous ?',
+  rsvpForGuest: 'Réponse pour {{name}}',
   fewerGuests: 'Un invité de moins',
   moreGuests: 'Un invité de plus',
   guests: 'invités',
@@ -613,6 +622,9 @@ const es: Translations = {
   numberOfGuests: 'número de invitados',
   justMe: 'solo yo',
   includingYou: 'contándote a ti',
+  seatsSaved: 'Te reservamos {{n}} lugares',
+  whichEvents: '¿A cuáles asistirás?',
+  rsvpForGuest: 'Respuesta de {{name}}',
   fewerGuests: 'Un invitado menos',
   moreGuests: 'Un invitado más',
   guests: 'invitados',

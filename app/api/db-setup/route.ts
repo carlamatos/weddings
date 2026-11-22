@@ -116,6 +116,7 @@ export async function POST() {
       unsubscribed_at TIMESTAMPTZ
     )
   `;
+  await sql`ALTER TABLE newsletter_subscribers ADD COLUMN IF NOT EXISTS consent_text TEXT`;
 
   // The admin email sender (app/lib/admin-email.ts, which also creates
   // these on first use).

@@ -5,6 +5,7 @@ import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { useActionState, useEffect, useState } from 'react';
 import { registerUser, RegisterState } from '@/app/lib/actions';
 import Link from 'next/link';
+import NewsletterConsent from '@/app/ui/newsletter-consent';
 import GoogleButton from '@/app/ui/google-button';
 import FacebookButton from '@/app/ui/facebook-button';
 import { saveStartIntent, type StartIntent } from '@/app/lib/start-intent';
@@ -34,7 +35,6 @@ const TEXT = {
     submit: 'Create my free account',
     haveAccount: 'Already have an account?',
     login: 'Log in',
-    newsletter: 'Yes, I’d like to receive emails from MyGala, including our newsletter and product updates',
   },
   fr: {
     heading: 'Créez votre page gratuite',
@@ -51,7 +51,6 @@ const TEXT = {
     submit: 'Créer mon compte gratuit',
     haveAccount: 'Vous avez déjà un compte?',
     login: 'Se connecter',
-    newsletter: 'Oui, je souhaite recevoir des courriels de MyGala, dont l’infolettre et les nouveautés du produit',
   },
   es: {
     heading: 'Crea tu página gratis',
@@ -68,7 +67,6 @@ const TEXT = {
     submit: 'Crear mi cuenta gratis',
     haveAccount: '¿Ya tienes una cuenta?',
     login: 'Inicia sesión',
-    newsletter: 'Sí, quiero recibir correos de MyGala, incluido el boletín y las novedades del producto',
   },
 } as const;
 
@@ -184,10 +182,7 @@ export default function RegisterForm({ lang = 'en', start = null, plan = null }:
         </div>
 
         {/* Unticked until they tick it (CASL). */}
-        <label className="auth-consent">
-          <input type="checkbox" name="newsletter" value="1" />
-          <span>{t.newsletter}</span>
-        </label>
+        <NewsletterConsent lang={lang} />
 
         <button className="auth-btn" type="submit" disabled={isPending}>
           {t.submit} <ArrowRightIcon style={{ width: 16, height: 16 }} />

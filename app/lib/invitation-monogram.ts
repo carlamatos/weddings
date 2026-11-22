@@ -44,9 +44,21 @@ export const MONOGRAM_WREATH_SVG = wreath();
 // "Isabella & Mateo" → names ['Isabella', 'Mateo'], initials 'I+M'. A name
 // that isn't two people joined by &, +, "and" or "et" stays whole, with its
 // first letter as the monogram.
-export function monogramNames(name: string): { names: string[]; initials: string } {
-  const parts = name.split(/\s*(?:&|\+|\band\b|\bet\b)\s*/i).map((p) => p.trim()).filter(Boolean);
+export function monogramNames(name: string): { names: string[]; initials: string; joiner: string } {
+  const parts = name.split(/\s*(?:&|\+|\band\b|\bet\b|\by\b)\s*/i).map((p) => p.trim()).filter(Boolean);
   const names = parts.length === 2 ? parts : [name.trim()];
   const initials = names.map((n) => n.charAt(0).toUpperCase()).join('+');
-  return { names, initials };
+  // The word between the names as the host wrote it ("et", "y"), else "and".
+  const word = /\b(and|et|y)\b/i.exec(name)?.[1]?.toLowerCase();
+  return { names, initials, joiner: word ?? 'and' };
+}
+
+// The initials when the host hasn't written any: always two letters. Two
+// names: their first letters; one name of several words: the first letters
+// of the first two; one word: its first two letters.
+export function autoInitials(names: string[]): string {
+  const letters = (w: string) => w.replace(/[^\p{L}]/gu, '');
+  if (names.length >= 2) return names.slice(0, 2).map((n) => letters(n).charAt(0)).join('');
+  const words = (names[0] ?? '').split(/\s+/).map(letters).filter(Boolean);
+  return words.length >= 2 ? words[0].charAt(0) + words[1].charAt(0) : (words[0] ?? '').slice(0, 2);
 }

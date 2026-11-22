@@ -4,12 +4,21 @@
 // user_page_settings under INVITATION_SETTING. Shared by the dashboard, the
 // server action and the print view, so no server-only imports.
 
-import { findOrnament } from './invitation-ornaments';
+import { findOrnament, ornamentOccasion } from './invitation-ornaments';
+import { isEnvelopeLiner, isEnvelopeSeal, type EnvelopeLiner, type EnvelopeSeal, type InvitationEnvelope } from './invitation-envelope';
 
 export const INVITATION_SETTING = 'invitation_design';
 
+// The invitation is made in steps, one screen at a time, ending with
+// sending it. A finished design the host uploaded skips Words and Style.
+export const INVITATION_STEPS = ['design', 'words', 'style', 'envelope', 'send'] as const;
+export type InvitationStep = (typeof INVITATION_STEPS)[number];
+export const isInvitationStep = (v: unknown): v is InvitationStep => typeof v === 'string' && (INVITATION_STEPS as readonly string[]).includes(v);
+
 export const INVITATION_FONTS = {
   'great-vibes': { label: 'Great Vibes (script)', family: "'Great Vibes', cursive", google: 'Great+Vibes' },
+  // Formal calligraphy (the Couple Portrait designs).
+  'mrs-saint-delafield': { label: 'Mrs Saint Delafield (calligraphy)', family: "'Mrs Saint Delafield', cursive", google: 'Mrs+Saint+Delafield' },
   'parisienne': { label: 'Parisienne (script)', family: "'Parisienne', cursive", google: 'Parisienne' },
   'dancing-script': { label: 'Dancing Script (handwritten)', family: "'Dancing Script', cursive", google: 'Dancing+Script:wght@400;600' },
   'playfair': { label: 'Playfair Display (elegant serif)', family: "'Playfair Display', serif", google: 'Playfair+Display:ital,wght@0,400;0,600;1,400' },
@@ -56,10 +65,50 @@ export type InvitationDesign = {
   // heading font. monogram (weddings): the couple's initials in a leaf
   // wreath, "the WEDDING of" in the heading font and tall hand-lettered
   // capitals, then the names, details and closing in the body font's capitals.
+  // blooms (weddings): our flower cutouts (the Wild Flores theme's) cascading
+  // down the right side in soft paper colours (flowers), raised off the card
+  // with shadows, the words set to their left.
+  // portrait (weddings): the couple's photo in a circle inside a fine double
+  // ring (photo; our sample photo until the host adds theirs), the line above
+  // the names in calligraphy, the names in spaced capitals with "and" in
+  // calligraphy between.
+  // gilded (weddings): white paper in a fine gold frame, the couple's
+  // initials (initials) in calligraphy at the top, then everything in
+  // spaced gold capitals, the names largest with "and" between.
+  // embossed (weddings): a Victorian frame of scrolls, shells and acanthus
+  // pressed into the paper (raised, in the paper's own colour), the words
+  // centred inside: italic lines, the names in large capitals.
+  // garden (weddings): an engraved frame of scrolls, leaves and blossoms,
+  // the words in spaced capitals with "and" and the place in calligraphy.
+  // lace (weddings): dark wood planks with white lace flowers in two
+  // corners, the name in large serif capitals.
+  // meadow (weddings): watercolour wildflower garlands along the top and
+  // bottom, the name in large calligraphy.
+  // own: the host's finished invitation (an uploaded image) shown as it is,
+  // with no words, decorations or wash over it.
   layout: InvitationLayout;
+  // The couple's photo for the portrait layout: one the host uploaded, or ''
+  // for our sample (COUPLE_SAMPLE_PHOTO). Kept when they pick another design.
+  photo: string;
+  // The initials at the top of the gilded layout, as the host wrote them
+  // ('' : the first letters of the names). Kept when they change design.
+  initials: string;
+  // The event's facts as the invitation says them: the host can word them
+  // here without changing the event page ('' : the page's own, see
+  // withInvitationText).
+  eventName: string;
+  eventDate: string;
+  eventTime: string;
+  eventVenue: string;
+  eventAddress: string;
+  // The flowers' colour in the blooms layout (INVITATION_FLOWER_TONES).
+  flowers: FlowerTone;
+  // The envelope it arrives in (app/lib/invitation-envelope.ts): on, the
+  // email shows it sealed and guests open it on MyGala.
+  envelope: InvitationEnvelope;
 };
 
-export const INVITATION_LAYOUTS = ['classic', 'monogram'] as const;
+export const INVITATION_LAYOUTS = ['classic', 'monogram', 'portrait', 'blooms', 'gilded', 'embossed', 'garden', 'lace', 'meadow', 'own'] as const;
 export type InvitationLayout = (typeof INVITATION_LAYOUTS)[number];
 
 // Pictures from a theme that its invitation can show in a corner: drawn
@@ -70,13 +119,29 @@ export const INVITATION_PICTURES = {
   gnome: { label: 'Gnome', src: '/images/invitations/gnome.webp', corner: 'bottom-left', width: 13, rotate: -4 },
 } as const;
 export type InvitationPicture = keyof typeof INVITATION_PICTURES;
+// The blooms layout's flower colours: the cutouts softened into paper
+// tones with CSS filters (the shadows that raise them are added after).
+export const INVITATION_FLOWER_TONES = {
+  peach: 'sepia(0.6) saturate(1.25) hue-rotate(-14deg) brightness(1.1)',
+  blush: 'sepia(0.2) saturate(0.55) brightness(1.13)',
+  ivory: 'grayscale(0.85) sepia(0.35) brightness(1.18) contrast(0.92)',
+  lilac: 'hue-rotate(-28deg) saturate(0.45) brightness(1.1)',
+  // White roses (The Day's): their cream taken down to white.
+  roses: 'saturate(0.35) brightness(1.07) contrast(1.02)',
+} as const;
+export type FlowerTone = keyof typeof INVITATION_FLOWER_TONES;
+const isFlowerTone = (v: unknown): v is FlowerTone => typeof v === 'string' && v in INVITATION_FLOWER_TONES;
+
+// The portrait layout's photo until the host adds their own.
+export const COUPLE_SAMPLE_PHOTO = '/images/themes/quiet-coastal/couple.png';
+
 // Themes whose invitation starts on one of our papers (INVITATION_PAPERS).
 const THEME_PAPER: Partial<Record<string, string>> = { nature: '/images/invitations/nature-greenery.jpg' };
 // Which theme starts with which picture.
 export const THEME_PICTURE: Partial<Record<string, InvitationPicture>> = { balloons: 'balloons', gnomes: 'gnome' };
 export const isInvitationPicture = (v: unknown): v is InvitationPicture => typeof v === 'string' && v in INVITATION_PICTURES;
 
-export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160 } as const;
+export const INVITATION_TEXT_MAX = { eyebrow: 80, message: 600, closing: 160, initials: 5, eventName: 120, eventDate: 80, eventTime: 80, eventVenue: 120, eventAddress: 200 } as const;
 
 // The host's personal note for one guest (Guests → Invite).
 export const INVITATION_NOTE_MAX = 500;
@@ -95,6 +160,9 @@ export type InvitationDetails = {
   passwordLabel?: string;
   // The host hid the RSVP on the page: no "RSVP" button or wording.
   rsvpOff?: boolean;
+  // The guest's own sub-events (app/lib/sub-events.ts), when the page has
+  // them: shown with the invitation, not on the card itself.
+  events?: { name: string; when: string; venue: string }[];
 };
 
 type Preset = Pick<InvitationDesign, 'headingFont' | 'bodyFont' | 'textColor' | 'accentColor'> & { bg: string };
@@ -137,26 +205,28 @@ const THEME_PRESETS: Record<string, Preset> = {
 const FALLBACK: Preset = THEME_PRESETS['the-day'];
 
 // The decorations a theme's invitation starts with
-// (app/lib/invitation-ornaments.ts), chosen for each theme's mood. Only the
-// starting design: saved invitations keep exactly what their host chose.
+// (app/lib/invitation-ornaments.ts), chosen for each theme's mood: the
+// calligraphic flourishes (flourish-N) for the weddings and formal themes,
+// the themed ones for parties and holidays. Only the starting design: saved
+// invitations keep exactly what their host chose.
 const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   // Weddings (and the formal business themes, from the same elegant set)
-  'the-day': { divider: 'wedding-scroll', frame: '' },
-  'love': { divider: 'wedding-heart', frame: 'wedding-pearls' }, // the same pearls as Quiet Coastal
+  'the-day': { divider: 'flourish-1', frame: '' }, // Swirl crest
+  'love': { divider: 'flourish-20', frame: 'wedding-pearls' }, // Linked loops; the same pearls as Quiet Coastal
   'nature': { divider: '', frame: '' }, // the watercolour greenery paper is decoration enough
-  'wild-flores': { divider: 'wedding-vine', frame: '' },
-  'forest': { divider: 'wedding-vine', frame: '' },
-  'western': { divider: 'wedding-diamond', frame: 'wedding-classic' }, // the rowel star and a double rule
-  'terracotta-harvest': { divider: 'wedding-eucalyptus', frame: 'wedding-classic' },
-  'midnight-botanical': { divider: 'wedding-filigree', frame: 'wedding-filigree' },
+  'wild-flores': { divider: 'flourish-13', frame: '' }, // Light swirls
+  'forest': { divider: 'flourish-22', frame: '' }, // Simple flourish
+  'western': { divider: 'flourish-12', frame: 'wedding-classic' }, // Lens bar and the classic double rule
+  'terracotta-harvest': { divider: 'flourish-16', frame: 'wedding-classic' }, // Fleur rule
+  'midnight-botanical': { divider: 'wedding-line', frame: 'wedding-double-rule' }, // fine gold lines, no loops
   'quiet-coastal': { divider: 'wedding-pearls', frame: 'wedding-pearls' },
-  'vilma': { divider: 'wedding-rose', frame: '' },
-  'summit': { divider: 'wedding-diamond', frame: 'wedding-geometric' },
-  'nexus': { divider: 'wedding-deco', frame: '' },
-  'dinner-gala': { divider: 'wedding-laurel', frame: '' },
-  'simple': { divider: 'wedding-diamond', frame: '' }, // a small diamond, nothing more
-  'blessings': { divider: 'wedding-laurel', frame: '' }, // an olive-like laurel sprig
-  'community': { divider: 'wedding-bow', frame: 'wedding-arch' },
+  'vilma': { divider: 'flourish-5', frame: '' }, // Crested scrolls
+  'summit': { divider: 'flourish-6', frame: 'wedding-geometric' }, // Lattice line
+  'nexus': { divider: 'flourish-10', frame: '' }, // Fleur-de-lis bar
+  'dinner-gala': { divider: 'flourish-4', frame: '' }, // Baroque bar
+  'simple': { divider: 'flourish-18', frame: '' }, // Fine flourish line
+  'blessings': { divider: 'flourish-3', frame: '' }, // Fleur sweep
+  'community': { divider: 'flourish-14', frame: 'wedding-arch' }, // Curl chain
   // Celebrations
   'alegria': { divider: 'birthday-stars', frame: '' },
   'fun-party': { divider: 'birthday-confetti', frame: '' },
@@ -169,9 +239,9 @@ const THEME_DECOR: Record<string, { divider: string; frame: string }> = {
   'christmas-party': { divider: 'christmas-evergreen', frame: '' },
   'white-christmas': { divider: 'christmas-snowflake', frame: 'christmas-snow' },
   'gnomes': { divider: 'christmas-holly', frame: '' }, // the gnome picture instead
-  'merry': { divider: 'christmas-stars', frame: 'christmas-stars' },
+  'merry': { divider: 'christmas-stars', frame: 'christmas-border' },
   // New Year's Eve and Fireworks
-  'new-years-eve': { divider: 'birthday-stars', frame: 'wedding-deco' },
+  'new-years-eve': { divider: 'flourish-15', frame: 'wedding-deco' }, // Loops
   'fireworks': { divider: 'birthday-confetti', frame: 'birthday-sparkle' }, // confetti and a sparkle border
   // Halloween and Día de los Muertos
   'halloween-party': { divider: 'halloween-bats', frame: 'halloween-webs' },
@@ -207,7 +277,29 @@ export function defaultInvitation(themeSlug?: string | null, language?: string |
     frameColor: p.accentColor,
     picture: (themeSlug && THEME_PICTURE[themeSlug]) || '',
     layout: 'classic',
+    photo: '',
+    initials: '',
+    eventName: '',
+    eventDate: '',
+    eventTime: '',
+    eventVenue: '',
+    eventAddress: '',
+    flowers: 'peach',
+    envelope: defaultEnvelope(themeSlug, p.bg, p.accentColor),
   };
+}
+
+// The envelope a theme starts with: its paper colour, the accent for the
+// liner and the seal, and a liner and emblem for the occasion.
+const ENVELOPE_BY_OCCASION: Record<string, { liner: EnvelopeLiner; seal: EnvelopeSeal }> = {
+  wedding: { liner: 'leaves', seal: 'heart' },
+  christmas: { liner: 'stripes', seal: 'star' },
+  birthday: { liner: 'confetti', seal: 'star' },
+  halloween: { liner: 'dots', seal: 'star' },
+};
+export function defaultEnvelope(themeSlug: string | null | undefined, paper: string, accent: string): InvitationEnvelope {
+  const kind = ENVELOPE_BY_OCCASION[ornamentOccasion(themeSlug)] ?? ENVELOPE_BY_OCCASION.wedding;
+  return { on: true, color: paper, liner: kind.liner, linerColor: accent, seal: kind.seal, sealColor: accent };
 }
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
@@ -219,13 +311,39 @@ const font = (v: unknown, fallback: InvitationFont): InvitationFont => (typeof v
 // Papers we design ourselves for a theme's starting invitation: already
 // light where the words go, so they need no wash; textLeft moves the words
 // right (a share of the card's width, cqw) to clear the artwork on the left.
-export const INVITATION_PAPERS: Record<string, { textLeft: number }> = {
+// box, when set, is the blank area of the artwork the words sit in: the space
+// kept clear on each side, in cqw (the card is 100 wide and 140 tall).
+export const INVITATION_PAPERS: Record<string, { textLeft: number; box?: { top: number; right: number; bottom: number; left: number } }> = {
   '/images/invitations/nature-greenery.jpg': { textLeft: 0 },
+  // The birthday papers (Party styles): the words in the space each leaves.
+  '/images/invitations/birthday-candles.jpeg': { textLeft: 0, box: { top: 9, right: 8, bottom: 56, left: 8 } },
+  '/images/invitations/birthday-party-table.jpeg': { textLeft: 0, box: { top: 37, right: 9, bottom: 30, left: 9 } },
+  '/images/invitations/birthday-bunting.jpeg': { textLeft: 0, box: { top: 33, right: 8, bottom: 9, left: 8 } },
+  '/images/invitations/birthday-confetti.jpeg': { textLeft: 0, box: { top: 19, right: 9, bottom: 19, left: 9 } },
+  '/images/invitations/birthday-blue-balloons.jpeg': { textLeft: 0, box: { top: 33, right: 9, bottom: 25, left: 9 } },
+  '/images/invitations/birthday-cake.jpeg': { textLeft: 0, box: { top: 9, right: 8, bottom: 56, left: 8 } },
+  // The Christmas papers (Holiday styles).
+  '/images/invitations/christmas-evergreen.jpeg': { textLeft: 0, box: { top: 38, right: 9, bottom: 9, left: 9 } },
+  '/images/invitations/christmas-candy-baubles.jpeg': { textLeft: 0, box: { top: 28, right: 9, bottom: 27, left: 9 } },
+  '/images/invitations/christmas-rustic.jpeg': { textLeft: 0, box: { top: 64, right: 9, bottom: 6, left: 9 } },
+  '/images/invitations/christmas-red-ribbon.jpeg': { textLeft: 0, box: { top: 44, right: 9, bottom: 10, left: 9 } },
+  // The wedding papers (Wedding styles).
+  '/images/invitations/wedding-flower-wall.jpeg': { textLeft: 0, box: { top: 52, right: 9, bottom: 8, left: 9 } },
+  '/images/invitations/wedding-eucalyptus.jpeg': { textLeft: 0, box: { top: 8, right: 9, bottom: 64, left: 9 } },
+  '/images/invitations/wedding-mandala.jpeg': { textLeft: 0, box: { top: 31, right: 9, bottom: 27, left: 9 } },
+  '/images/invitations/wedding-gold-flourish.jpeg': { textLeft: 0, box: { top: 28, right: 10, bottom: 28, left: 10 } },
+  '/images/invitations/wedding-gold-wreath.jpeg': { textLeft: 0, box: { top: 29, right: 16, bottom: 29, left: 17 } },
+  '/images/invitations/wedding-rose-marble.jpeg': { textLeft: 0, box: { top: 30, right: 9, bottom: 32, left: 9 } },
 };
+
+// An image the host uploaded (not one of our papers or theme photos).
+export const isOwnUpload = (v: string) => !!v && !v.startsWith('/images/');
 
 export function isInvitationImageUrl(v: unknown): v is string {
   if (typeof v !== 'string' || !v) return false;
   if (v in INVITATION_PAPERS) return true;
+  // Our own theme photos and invitation art (the design catalog).
+  if (/^\/images\/(themes|invitations)\/[\w-]+(\/[\w-]+)*\.(jpe?g|png|webp)$/i.test(v)) return true;
   if (v.startsWith('/uploads/')) return /^\/uploads\/[\w.-]+$/.test(v);
   try {
     const u = new URL(v);
@@ -267,7 +385,32 @@ export function normalizeInvitation(raw: unknown, themeSlug?: string | null, lan
     frameColor: color(r.frameColor, color(r.accentColor, d.frameColor)),
     // Saved designs from before pictures existed keep looking as they did.
     picture: isInvitationPicture(r.picture) ? r.picture : '',
-    layout: INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
+    // "Your own design" needs the host's own uploaded image.
+    layout: r.layout === 'own'
+      ? (bg.kind === 'image' && isOwnUpload(imageUrl) ? 'own' : 'classic')
+      : INVITATION_LAYOUTS.includes(r.layout as InvitationLayout) ? (r.layout as InvitationLayout) : 'classic',
+    photo: isInvitationImageUrl(r.photo) ? r.photo : '',
+    initials: text(r.initials, INVITATION_TEXT_MAX.initials, '').replace(/\s+/g, ' ').trim(),
+    eventName: text(r.eventName, INVITATION_TEXT_MAX.eventName, '').trim(),
+    eventDate: text(r.eventDate, INVITATION_TEXT_MAX.eventDate, '').trim(),
+    eventTime: text(r.eventTime, INVITATION_TEXT_MAX.eventTime, '').trim(),
+    eventVenue: text(r.eventVenue, INVITATION_TEXT_MAX.eventVenue, '').trim(),
+    eventAddress: text(r.eventAddress, INVITATION_TEXT_MAX.eventAddress, '').trim(),
+    flowers: isFlowerTone(r.flowers) ? r.flowers : d.flowers,
+    envelope: (() => {
+      const e = (r.envelope && typeof r.envelope === 'object' ? r.envelope : {}) as Record<string, unknown>;
+      // Designs saved before envelopes existed take their colours from the design.
+      const base = r.envelope ? d.envelope : defaultEnvelope(themeSlug, color(bg.color, d.envelope.color), color(r.accentColor, d.envelope.sealColor));
+      return {
+        on: typeof e.on === 'boolean' ? e.on : base.on,
+        color: color(e.color, base.color),
+        liner: isEnvelopeLiner(e.liner) ? e.liner : base.liner,
+        linerColor: color(e.linerColor, base.linerColor),
+        // The leaf seal became the balloon.
+        seal: e.seal === 'leaf' ? 'balloon' : isEnvelopeSeal(e.seal) ? e.seal : base.seal,
+        sealColor: color(e.sealColor, base.sealColor),
+      };
+    })(),
   };
 }
 
@@ -309,7 +452,7 @@ export function readableAccent(design: InvitationDesign): string {
 export const MIN_PHOTO_WASH = 0.65;
 export function invitationOverlay(design: InvitationDesign): { color: string; opacity: number } | null {
   const bg = design.background;
-  if (bg.kind !== 'image' || !bg.imageUrl) return null;
+  if (bg.kind !== 'image' || !bg.imageUrl || design.layout === 'own') return null;
   // Our own papers are light where the words go: only the host's own wash, if any.
   if (bg.imageUrl in INVITATION_PAPERS) return bg.overlay && bg.overlayOpacity > 0 ? { color: bg.overlayColor, opacity: bg.overlayOpacity } : null;
   const lightText = luminance(design.textColor) > 0.4;
@@ -322,4 +465,17 @@ export function invitationOverlay(design: InvitationDesign): { color: string; op
 export function googleFontsHref(fonts: InvitationFont[]): string {
   const families = [...new Set(fonts)].map((f) => `family=${INVITATION_FONTS[f].google}`).join('&');
   return `https://fonts.googleapis.com/css2?${families}&display=swap`;
+}
+
+// The event's facts as the invitation shows them: the host's own wording
+// from the Words step where there is one, else the event page's.
+export function withInvitationText<T extends InvitationDetails>(details: T, design: Pick<InvitationDesign, 'eventName' | 'eventDate' | 'eventTime' | 'eventVenue' | 'eventAddress'>): T {
+  return {
+    ...details,
+    name: design.eventName || details.name,
+    date: design.eventDate || details.date,
+    time: design.eventTime || details.time,
+    venue: design.eventVenue || details.venue,
+    address: design.eventAddress || details.address,
+  };
 }

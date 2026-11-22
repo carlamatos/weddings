@@ -441,6 +441,10 @@
   font-size: 13px; line-height: 1.45; color: var(--ink-soft); cursor: pointer;
 }
 .auth-consent input { width: 16px; height: 16px; margin: 1px 0 0; flex-shrink: 0; accent-color: var(--rose); }
+.auth-consent-wrap { margin: 4px 0 18px; }
+.auth-consent-wrap .auth-consent { margin: 0; }
+.auth-consent-fine { margin: 6px 0 0 26px; font-size: 11.5px; line-height: 1.45; color: var(--ink-soft); opacity: 0.85; }
+.auth-consent-fine a { color: inherit; text-decoration: underline; }
 
 /* "Language of your page": three choices in one row. */
 .setup-lang__options { display: flex; gap: 6px; }
@@ -452,6 +456,26 @@
 .setup-lang__option input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
 .setup-lang__option--active { border-color: var(--rose); background: #FFF8F6; color: var(--rose-deep); font-weight: 600; }
 .setup-lang__option:has(input:focus-visible) { outline: 2px solid var(--rose); outline-offset: 2px; }
+
+/* "What would you like to make?": two cards side by side (stacked on phones). */
+.setup-purpose__options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.setup-purpose__option {
+  position: relative; display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+  border: 1.5px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; color: var(--ink);
+}
+.setup-purpose__option input { margin: 3px 0 0; accent-color: var(--rose); flex-shrink: 0; }
+.setup-purpose__option span { display: flex; flex-direction: column; gap: 2px; }
+.setup-purpose__option strong { font-size: 14px; font-weight: 600; }
+.setup-purpose__option small { font-size: 12px; line-height: 1.4; color: var(--ink-soft); }
+.setup-purpose__option--active { border-color: var(--rose); background: #FFF8F6; }
+.setup-purpose__option--active strong { color: var(--rose-deep); }
+/* Phones: one under the other, titles only, so the Create button stays above the fold. */
+@media (max-width: 480px) {
+  .setup-purpose__options { grid-template-columns: 1fr; gap: 6px; }
+  .setup-purpose__option { padding: 9px 12px; align-items: center; }
+  .setup-purpose__option input { margin: 0; }
+  .setup-purpose__option small { display: none; }
+}
 
 /* Phones: the Create button above the fold. The intro sentence goes, and
    the theme and page address (both already chosen, and easy to change
@@ -468,6 +492,7 @@
   .setup-gift-option small { display: none; }
   .setup-style__form .auth-field { margin-bottom: 14px; }
   .setup-style__form .setup-gift-option { margin-bottom: 14px; }
-  .setup-style__form .auth-consent { margin-bottom: 14px; font-size: 12.5px; }
+  .setup-style__form .auth-consent-wrap { margin-bottom: 14px; }
+  .setup-style__form .auth-consent { font-size: 12.5px; }
   .auth-card.setup-card--wide { padding-top: 22px; }
 }

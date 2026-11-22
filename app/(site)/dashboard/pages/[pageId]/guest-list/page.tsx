@@ -17,6 +17,9 @@ import { publicPageUrl } from '@/app/lib/share';
 import { GuestListStart } from '@/app/ui/dashboard/guest-list-start';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
+import { SubEventsManager, type SubEventCounts } from '@/app/ui/dashboard/sub-events-manager';
+import { SUB_EVENTS_SETTING, parseEventReplies, parseInvitedEvents, parseSubEvents } from '@/app/lib/sub-events';
+import { ensureInviteColumns } from '@/app/lib/invite-tracking';
 import { PlanningToolTip } from '@/app/ui/dashboard/planning-tool-tip';
 import { HelpLink } from '@/app/ui/dashboard/help-link';
 import { siteHref } from '@/app/lib/app-url';
@@ -37,7 +40,19 @@ export default async function GuestListPage({ params, searchParams }: { params: 
   const d = await getDashText();
   const [page, { saved }] = await Promise.all([requireOwnedPage(params), searchParams]);
   const pageId = Number(page.id);
+  // The sub-event columns exist before the guest list is read.
+  await ensureInviteColumns().catch((error) => console.error('Failed to add invitation columns:', error));
   const [guests, settings, savedPlan, session] = await Promise.all([fetchGuests(pageId), fetchPageSettings(pageId), fetchPlan(pageId, 'guests'), auth()]);
+
+  // Sub-events: who's invited to each, and who's coming (people).
+  const subEvents = parseSubEvents(settings[SUB_EVENTS_SETTING]);
+  const subEventCounts: SubEventCounts = Object.fromEntries(subEvents.map((e) => {
+    const mine = guests.filter((g) => { const ids = parseInvitedEvents(g.invited_events); return !ids || ids.includes(e.id); });
+    // Attending with no answer for this event (they replied before it was added) counts as coming.
+    const yes = mine.filter((g) => g.status === 'attending' && parseEventReplies(g.event_replies)[e.id] !== false);
+    const no = mine.filter((g) => g.status === 'not_attending' || parseEventReplies(g.event_replies)[e.id] === false);
+    return [e.id, { invited: mine.length, coming: yes.length, people: yes.reduce((n, g) => n + (g.guests || 1), 0), declined: no.length }];
+  }));
 
   const attending = guests.filter((g) => g.status === 'attending');
   const declining = guests.filter((g) => g.status === 'not_attending');
@@ -98,7 +113,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
             <strong>{prompt.title}</strong> <span style={{ color: '#6B6470' }}>{prompt.text}</span>
           </span>
           <Link
-            href={pagePath(pageId, '/invitations')}
+            href={`${pagePath(pageId, '/invitations')}?step=send`}
             style={{ padding: '9px 18px', borderRadius: 8, background: '#B6584A', color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             {d.guestList.sendInvitations}
@@ -127,7 +142,11 @@ export default async function GuestListPage({ params, searchParams }: { params: 
         <MealSummaryCard summary={summarizeMeals(mealGuests, mealOptions ?? [])} rows={mealRows} heading={page.heading || ''} />
       )}
 
-      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={pagePath(pageId, '/invitations')} showMeals={showMeals} />
+      <GuestListManager pageId={pageId} guests={guests} isPaid={page.plan_type === 'paid'} invitationsHref={`${pagePath(pageId, '/invitations')}?step=send`} showMeals={showMeals} subEvents={subEvents} />
+
+      <div style={{ marginTop: 28 }}>
+        <SubEventsManager pageId={pageId} initial={subEvents} counts={subEventCounts} />
+      </div>
 
       <section id="rsvp-settings" style={{ background: '#fff', border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px 6px', marginTop: 28, scrollMarginTop: 80 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.guestList.rsvpFormSettings}</h2>

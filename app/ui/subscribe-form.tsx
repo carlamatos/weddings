@@ -13,10 +13,12 @@ import { clearStartIntent, readBrowsing, readStartIntent, type StartIntent } fro
 import { StylePreviews } from './style-previews';
 import { slugify } from '../lib/slugify';
 import { AuthDateInput } from './auth-date-input';
-import { EVENT_GOALS, GOAL_RULES, suggestedGoal, themeForGoal, type EventGoal } from '../lib/event-goals';
+import { EVENT_GOALS, GOAL_RULES, suggestedGoal, themeForGoal, type EventGoal, type PagePurpose } from '../lib/event-goals';
 import { THEME_CARDS } from '../lib/marketing/theme-cards';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
+import NewsletterConsent from '@/app/ui/newsletter-consent';
+import { isConsentLang } from '@/app/lib/newsletter-consent';
 import { fill } from '@/app/lib/dash-text/fill';
 import { rich } from '@/app/ui/dashboard/rich';
 // Create an event page in two short steps. First "What are you planning?"
@@ -90,6 +92,9 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const [themeSlug, setThemeSlug] = useState('');
   const [picking, setPicking] = useState(false);
   const [forInvitation, setForInvitation] = useState(false);
+  // "What would you like to make?": an invitation with an RSVP, or the whole
+  // website too (app/lib/event-goals.ts). Invitation from an invitation landing page.
+  const [purpose, setPurpose] = useState<PagePurpose>('website');
   const [forSecretSanta, setForSecretSanta] = useState(false);
   const [firstThemes, setFirstThemes] = useState<string[]>([]);
   const [changingSlug, setChangingSlug] = useState(false);
@@ -125,7 +130,7 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
     const browsed = readBrowsing();
     const known = (slug?: string) => !!slug && !!themeRegistry[slug] && !!themeCard(slug);
     /* eslint-disable react-hooks/set-state-in-effect -- the landing page's choice and the browsing history live in browser storage */
-    if (start?.intent === 'invitation') setForInvitation(true);
+    if (start?.intent === 'invitation') { setForInvitation(true); setPurpose('invitation'); }
     if (start?.intent === 'secret-santa') { setForSecretSanta(true); if (!start.name) setEventName(d.subscribeForm.secretSantaName); }
     if (start?.name) setEventName(start.name);
     if (start?.date) setEventDate(start.date);
@@ -263,12 +268,15 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   }
 
   const giftExchangeOn = GOAL_RULES[goal].giftDrawOnly || (GOAL_RULES[goal].offersGiftExchange && withGift);
+  // Invitation + RSVP: straight to the invitation designer (not for a Secret
+  // Santa, which starts in the Gift Exchange).
+  const invitationFirst = !giftExchangeOn && purpose === 'invitation';
 
   return (
     <div className="auth-card setup-card--wide">
-      <h1 className="auth-heading">{forSecretSanta ? d.subscribeForm.createYourSecretSanta : forInvitation ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
+      <h1 className="auth-heading">{forSecretSanta ? d.subscribeForm.createYourSecretSanta : invitationFirst ? d.subscribeForm.createYourInvitation : d.subscribeForm.createYourEventPage}</h1>
       <p className="auth-subheading setup-form-sub">
-        {forSecretSanta ? d.subscribeForm.secretSantaLead : forInvitation
+        {forSecretSanta ? d.subscribeForm.secretSantaLead : invitationFirst
           ? d.subscribeForm.giveYourEventAName
           : <>{d.subscribeForm.giveYourEventAName2}</>}
       </p>
@@ -298,15 +306,34 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         <input type="hidden" name="email" value={accountEmail} />
         <input type="hidden" name="goal" value={goal} />
         {giftExchangeOn && <input type="hidden" name="withGiftExchange" value="1" />}
+        {!giftExchangeOn && <input type="hidden" name="purpose" value={purpose} />}
         {giftExchangeOn
           ? <input type="hidden" name="next" value="gift-exchange" />
-          : forInvitation && <input type="hidden" name="next" value="invitations" />}
+          : invitationFirst && <input type="hidden" name="next" value="invitations" />}
 
         {/* The answer to "What are you planning?", and going back to change it. */}
         <div className="setup-slug-line setup-goal-line">
           <span>{GOAL_ICONS[goal]} {rich(fill(d.subscribeForm.planning, { goal: goalText(goal).name }), { t0: (s) => <strong>{s}</strong> })}</span>
           <button type="button" className="setup-slug-change" onClick={() => setGoal(null)}>{d.subscribeForm.change}</button>
         </div>
+
+        {/* What they'd like to make: an invitation with an RSVP, or the whole website too. */}
+        {!giftExchangeOn && (
+          <div className="auth-field setup-purpose">
+            <p className="auth-label" id="purposeLabel">{d.subscribeForm.whatToMake}</p>
+            <div className="setup-purpose__options" role="radiogroup" aria-labelledby="purposeLabel">
+              {(['invitation', 'website'] as const).map((p) => (
+                <label key={p} className={`setup-purpose__option${purpose === p ? ' setup-purpose__option--active' : ''}`}>
+                  <input type="radio" name="purposeRadio" value={p} checked={purpose === p} onChange={() => setPurpose(p)} />
+                  <span>
+                    <strong>{p === 'invitation' ? d.subscribeForm.makeInvitation : d.subscribeForm.makeWebsite}</strong>
+                    <small>{p === 'invitation' ? d.subscribeForm.makeInvitationHint : d.subscribeForm.makeWebsiteHint}</small>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* The page's language, in one row (the guests' words: RSVP, dates, buttons). */}
         <div className="auth-field setup-lang">
@@ -389,14 +416,11 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
         </div>
 
         {askNewsletter && (
-          <label className="auth-consent">
-            <input type="checkbox" name="newsletter" value="1" />
-            <span>{d.subscribeForm.newsletterOptIn}</span>
-          </label>
+          <NewsletterConsent lang={isConsentLang(d.meta.lang) ? d.meta.lang : 'en'} />
         )}
 
         <button className="auth-btn" type="submit" disabled={isPending || !themeSlug}>
-          {isPending ? d.subscribeForm.creating : forSecretSanta ? d.subscribeForm.createMySecretSanta : forInvitation ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />
+          {isPending ? d.subscribeForm.creating : forSecretSanta ? d.subscribeForm.createMySecretSanta : invitationFirst ? d.subscribeForm.designMyInvitation : d.subscribeForm.createMyEventPage} <ArrowRightIcon style={{ width: 16, height: 16 }} />
         </button>
         <p className="auth-address-hint" style={{ textAlign: 'center', marginTop: 10 }}>
           {prepaid

@@ -1,5 +1,5 @@
 import { sql } from '@vercel/postgres';
-import { GOAL_ADMIN_LABELS } from './event-goals';
+import { GOAL_ADMIN_LABELS, PURPOSE_ADMIN_LABELS, isPagePurpose } from './event-goals';
 import { sendMailBatch, wrap, button, escHtml } from './mail';
 import { siteUrl } from './site-url';
 
@@ -26,6 +26,7 @@ type PageRow = {
   heading: string | null;
   slug: string;
   goal: string | null;
+  purpose?: string | null;
   event_date: string | null;
   owner_name: string | null;
   owner_email: string | null;
@@ -47,6 +48,7 @@ export async function notifyAdminsPageActive(
     const res = await sql<PageRow & { replies: number; santas: number }>`
       SELECT up.id, up.heading, up.slug, up.event_date::text AS event_date,
              (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = up.id AND s.setting_name = 'event_goal') AS goal,
+             (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = up.id AND s.setting_name = 'page_purpose') AS purpose,
              u.name AS owner_name, u.email AS owner_email,
              (SELECT COUNT(*)::int FROM event_guests g WHERE g.user_page_id = up.id AND g.responded_at IS NOT NULL
                 AND lower(COALESCE(g.email, '')) <> lower(COALESCE(u.email, ''))) AS replies,
@@ -81,6 +83,7 @@ export async function notifyAdminsPageActive(
       <table style="border-collapse: collapse; width: 100%; margin: 0 0 24px;">
         ${row('Page', link(url))}
         ${row('Planning', page.goal ? escHtml(GOAL_ADMIN_LABELS[page.goal] ?? page.goal) : null)}
+        ${row('Making', isPagePurpose(page.purpose) ? escHtml(PURPOSE_ADMIN_LABELS[page.purpose]) : null)}
         ${row('Date', page.event_date ? escHtml(page.event_date.slice(0, 10)) : null)}
         ${row('Host', `${escHtml(page.owner_name || '—')}${page.owner_email ? `<br /><a href="mailto:${escHtml(page.owner_email)}" style="color: #B6584A;">${escHtml(page.owner_email)}</a>` : ''}`)}
       </table>

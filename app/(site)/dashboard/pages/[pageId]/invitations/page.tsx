@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { fetchGuests, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
-import { INVITATION_SETTING, normalizeInvitation } from '@/app/lib/invitation';
+import { INVITATION_SETTING, isInvitationStep, normalizeInvitation, withInvitationText } from '@/app/lib/invitation';
 import { invitationDetails } from '@/app/lib/invitation-details';
 import { InvitationDesigner } from '@/app/ui/dashboard/invitation-designer';
 import { InvitationSender } from '@/app/ui/dashboard/invitation-sender';
 import { InvitationPasswordOption } from '@/app/ui/dashboard/invitation-password-option';
 import { invitationPassword } from '@/app/lib/page-password';
 import { auth } from '@/auth';
+import { ensureInviteColumns, inviteUrl } from '@/app/lib/invite-tracking';
+import { fetchScheduledSends } from '@/app/lib/invitation-send';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import { isCardImage, plainDescription, publicPageUrl, socialImageFor, socialImagePathFor } from '@/app/lib/share';
@@ -29,12 +31,22 @@ export const metadata: Metadata = { title: 'Invite' };
 // (designed here, sent to the guest list), and last the switches for what
 // the event page shows: its Share section and search engines. Paid pages
 // with a verified custom domain share that domain.
-export default async function InvitationsPage({ params }: { params: Promise<{ pageId: string }> }) {
+export default async function InvitationsPage({ params, searchParams }: { params: Promise<{ pageId: string }>; searchParams: Promise<{ step?: string }> }) {
   const d = await getDashText();
+  // ?step=send (the guest list's "Send invitations"): open on that step.
+  const { step } = await searchParams;
   const page = await requireOwnedPage(params);
   const pageId = Number(page.id);
 
-  const [settings, guests, session] = await Promise.all([fetchPageSettings(pageId), fetchGuests(pageId), auth()]);
+  // The tracking columns exist before the guest list is read.
+  await ensureInviteColumns().catch((error) => console.error('Failed to add invitation tracking columns:', error));
+  const [settings, guests, session, scheduledRows] = await Promise.all([fetchPageSettings(pageId), fetchGuests(pageId), auth(), fetchScheduledSends(pageId).catch(() => [])]);
+  const scheduled = scheduledRows.map((x) => ({ ...x, send_at: new Date(x.send_at).toISOString() }));
+  // Each guest's own link, for their text message: opening it shows as Viewed.
+  const inviteLinks = Object.fromEntries(guests.map((g) => [g.id, inviteUrl(g.id)]));
+  // Once invitations have gone out (or are scheduled), the page opens on the
+  // Send step, where the host follows who opened and replied.
+  const sentAlready = guests.some((g) => g.invited_at) || scheduled.some((x) => x.status === 'pending');
 
   let saved: unknown = null;
   try { saved = JSON.parse(settings[INVITATION_SETTING] ?? 'null'); } catch { saved = null; }
@@ -66,6 +78,26 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
         </div>
       )}
 
+      {/* The invitation first; sharing the page's link after it. */}
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.invitations.sendPersonalInvitations}</h2>
+      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', maxWidth: 680, lineHeight: 1.6 }}>{d.invitations.designAnInvitationThatMatches}</p>
+
+      {pagePassword.state !== 'none' && (
+        <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
+      )}
+
+      <InvitationDesigner
+        pageId={pageId}
+        themeSlug={page.theme_slug ?? null}
+        language={page.language}
+        initial={design}
+        details={details}
+        editPageHref={pagePath(pageId)}
+        initialStep={isInvitationStep(step) ? step : sentAlready ? 'send' : 'design'}
+        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
+      />
+
+      <div style={{ marginTop: 32 }} />
       <QuickShare pageId={pageId} url={url} title={title} draft={page.status === 'draft'} />
 
       <details style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '14px 20px', marginBottom: 28, background: '#fff' }}>
@@ -86,26 +118,6 @@ export default async function InvitationsPage({ params }: { params: Promise<{ pa
           </p>
         )}
       </details>
-
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.invitations.sendPersonalInvitations}</h2>
-      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', maxWidth: 680, lineHeight: 1.6 }}>{d.invitations.designAnInvitationThatMatches}</p>
-
-      {pagePassword.state !== 'none' && (
-        <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
-      )}
-
-      <InvitationDesigner
-        pageId={pageId}
-        themeSlug={page.theme_slug ?? null}
-        language={page.language}
-        initial={design}
-        details={details}
-        editPageHref={pagePath(pageId)}
-      />
-
-      <div style={{ marginTop: 32 }}>
-        <InvitationSender pageId={pageId} guests={guests} design={design} details={details} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} />
-      </div>
 
       <section id="page-settings" style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginTop: 32, background: '#fff', scrollMarginTop: 80 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.share.shareSectionOnYourPage}</h2>
