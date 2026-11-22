@@ -75,6 +75,26 @@ export default async function InvitationsPage({ params, searchParams }: { params
         </div>
       )}
 
+      {/* The invitation first; sharing the page's link after it. */}
+      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.invitations.sendPersonalInvitations}</h2>
+      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', maxWidth: 680, lineHeight: 1.6 }}>{d.invitations.designAnInvitationThatMatches}</p>
+
+      {pagePassword.state !== 'none' && (
+        <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
+      )}
+
+      <InvitationDesigner
+        pageId={pageId}
+        themeSlug={page.theme_slug ?? null}
+        language={page.language}
+        initial={design}
+        details={details}
+        editPageHref={pagePath(pageId)}
+        initialStep={isInvitationStep(step) ? step : 'design'}
+        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
+      />
+
+      <div style={{ marginTop: 32 }} />
       <QuickShare pageId={pageId} url={url} title={title} draft={page.status === 'draft'} />
 
       <details style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '14px 20px', marginBottom: 28, background: '#fff' }}>
@@ -95,24 +115,6 @@ export default async function InvitationsPage({ params, searchParams }: { params
           </p>
         )}
       </details>
-
-      <h2 style={{ fontSize: 18, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.invitations.sendPersonalInvitations}</h2>
-      <p style={{ fontSize: 14, color: '#6B6470', margin: '0 0 18px', maxWidth: 680, lineHeight: 1.6 }}>{d.invitations.designAnInvitationThatMatches}</p>
-
-      {pagePassword.state !== 'none' && (
-        <InvitationPasswordOption pageId={pageId} state={pagePassword.state} passwordHref={pagePath(pageId, '/password')} />
-      )}
-
-      <InvitationDesigner
-        pageId={pageId}
-        themeSlug={page.theme_slug ?? null}
-        language={page.language}
-        initial={design}
-        details={details}
-        editPageHref={pagePath(pageId)}
-        initialStep={isInvitationStep(step) ? step : 'design'}
-        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
-      />
 
       <section id="page-settings" style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '18px 20px', marginTop: 32, background: '#fff', scrollMarginTop: 80 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600, color: '#241F2B', margin: '0 0 4px' }}>{d.share.shareSectionOnYourPage}</h2>
