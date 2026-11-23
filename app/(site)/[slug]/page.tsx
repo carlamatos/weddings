@@ -22,6 +22,7 @@ import '@/app/ui/wedding.css';
 import { appHref } from '@/app/lib/app-url';
 import { pagePath } from '@/app/lib/dashboard';
 import { isPageDraft, isPageOffline } from '@/app/lib/page-status';
+import { getSuperAdmin } from '@/app/lib/admin';
 import { areSongRequestsOn } from '@/app/lib/song-requests';
 import { isHeroObjectPosition } from '@/app/ui/themes/hero-media';
 import { heroOverlayFromSettings } from '@/app/ui/themes/hero-overlay';
@@ -132,7 +133,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const isOwner = session?.user?.id === data.user_id;
   // A draft is only for its owner until it's published.
   const ownDraft = isPageDraft(data.status) && isOwner;
-  if (isPageOffline(data.status) && !ownDraft) return <PageUnavailable draft={isPageDraft(data.status)} />;
+  // A super admin (verified, past 2FA) can look at any hidden page: a draft,
+  // or one deactivated or taken down, to help a host or review it.
+  const adminView = isPageOffline(data.status) && !ownDraft && !!(await getSuperAdmin());
+  if (isPageOffline(data.status) && !ownDraft && !adminView) return <PageUnavailable draft={isPageDraft(data.status)} />;
   const isPaid = data.plan_type === 'paid';
   const pageSettings = await fetchPageSettings(data.id);
 
@@ -172,6 +176,11 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <div role="status" style={{ position: 'sticky', top: 0, zIndex: 50, background: '#241F2B', color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 14, lineHeight: 1.5, padding: '10px 16px', textAlign: 'center' }}>
           <strong>Draft</strong> — only you can see this page. Guests&rsquo; forms open once it&rsquo;s published.{' '}
           <Link href={appHref(pagePath(data.id))} style={{ color: '#F2C8BF', fontWeight: 600 }}>Publish it from your dashboard</Link>
+        </div>
+      )}
+      {adminView && (
+        <div role="status" style={{ position: 'sticky', top: 0, zIndex: 50, background: '#7A2E1F', color: '#fff', fontFamily: 'system-ui, sans-serif', fontSize: 14, lineHeight: 1.5, padding: '10px 16px', textAlign: 'center' }}>
+          <strong>Admin view</strong> — this page is {isPageDraft(data.status) ? 'a draft (not published yet)' : data.status === 'suspended' ? 'taken down' : 'deactivated'}. Guests can&rsquo;t see it.
         </div>
       )}
       {/* Edit button — visible to page owner only; opens this page's editor. */}
