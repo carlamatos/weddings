@@ -1,5 +1,7 @@
 import type { SeoMeta } from './types';
 import { defaultInvitation, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
+import { INVITATION_CATALOG, applyLook, type DesignStyle } from '@/app/lib/invitation-designs';
+import { en } from '@/app/lib/dash-text/en';
 import { THEME_DEMOS } from '@/app/ui/themes/demo-content';
 import { HERO_DEFAULTS } from '@/app/ui/themes/hero-defaults';
 import { eventWhen } from '@/app/ui/themes/event-when';
@@ -19,6 +21,10 @@ import { CELEBRATION_THEMES, THEME_CARDS } from './theme-cards';
 // host uploads.
 export type InvitationSample = {
   theme: string;
+  // One of the designer's styles (app/lib/invitation-designs.ts) instead of
+  // the theme's own look: its artwork, fonts and colours, and its name on
+  // the card. The theme still gives the sample event and the page it opens.
+  style?: DesignStyle;
   image?: string; // background photo; none = the theme's colour
   wash?: { color: string; opacity: number }; // over the photo, for legible text
   design?: Partial<Omit<InvitationDesign, 'background'>>;
@@ -77,6 +83,11 @@ const WEDDING_THEMES = THEME_CARDS.filter((t) => t.category === 'wedding').map((
 
 // The Christmas invitations in the gallery (the Christmas and celebration pages).
 const CHRISTMAS_GALLERY: InvitationSample[] = [
+      // The Christmas designs from our licensed artwork, first.
+      { theme: 'christmas-party', style: 'christmas-evergreen', design: CHRISTMAS_COPY },
+      { theme: 'christmas-party', style: 'christmas-red-ribbon', design: CHRISTMAS_COPY },
+      { theme: 'christmas-party', style: 'christmas-rustic', design: CHRISTMAS_COPY },
+      { theme: 'christmas-party', style: 'christmas-candy-baubles', design: CHRISTMAS_COPY },
       { theme: 'white-christmas', image: '/images/themes/white-christmas/bauble.jpeg', wash: { color: '#10251C', opacity: 0.38 },
         design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#FFFFFF', accentColor: '#EBC595', ...CHRISTMAS_COPY } },
       { theme: 'christmas-party', image: heroPhoto('christmas-party'), wash: { color: '#1F2A36', opacity: 0.25 },
@@ -286,7 +297,9 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
 
 // The invitation's design and its sample event, as the designer would make it.
 export function sampleInvitation(sample: InvitationSample): { design: InvitationDesign; details: InvitationDetails } {
-  const base = defaultInvitation(sample.theme);
+  const start = defaultInvitation(sample.theme);
+  const look = sample.style ? INVITATION_CATALOG.find((x) => x.style === sample.style)?.look : undefined;
+  const base = look ? applyLook(start, look) : start;
   const design: InvitationDesign = {
     ...base,
     ...sample.design,
@@ -309,3 +322,7 @@ export function sampleInvitation(sample: InvitationSample): { design: Invitation
   };
   return { design, details };
 }
+
+// The name under a gallery card: the style's, when it has one.
+export const sampleStyleName = (sample: InvitationSample): string | undefined =>
+  sample.style ? en.invitationDesigner.styles[sample.style] : undefined;
