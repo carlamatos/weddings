@@ -334,6 +334,9 @@ export const INVITATION_PAPERS: Record<string, { textLeft: number; box?: { top: 
   '/images/invitations/wedding-gold-flourish.jpeg': { textLeft: 0, box: { top: 28, right: 10, bottom: 28, left: 10 } },
   '/images/invitations/wedding-gold-wreath.jpeg': { textLeft: 0, box: { top: 29, right: 16, bottom: 29, left: 17 } },
   '/images/invitations/wedding-rose-marble.jpeg': { textLeft: 0, box: { top: 30, right: 9, bottom: 32, left: 9 } },
+  '/images/invitations/wedding-engraved-scroll.jpeg': { textLeft: 0, box: { top: 33, right: 10, bottom: 33, left: 10 } },
+  '/images/invitations/wedding-green-filigree.jpeg': { textLeft: 0, box: { top: 14, right: 15, bottom: 14, left: 15 } },
+  '/images/invitations/wedding-baroque-frame.jpeg': { textLeft: 0, box: { top: 30, right: 13, bottom: 32, left: 13 } },
 };
 
 // An image the host uploaded (not one of our papers or theme photos).
