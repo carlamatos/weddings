@@ -3,6 +3,7 @@ import { auth } from '@/auth';
 import { fetchOwnedPage, parsePageId } from '@/app/lib/data';
 import { createPlusCheckout } from '@/app/lib/plus-checkout';
 import { PLUS_ENABLE_SETTINGS, isPageReturnPath } from '@/app/lib/plus-features';
+import { plusSection, recordPlusInterest } from '@/app/lib/plus-interest';
 
 // Buy (or extend) Live Party for one of the user's event pages. Live Party is charged
 // per event, so a page id is required.
@@ -38,5 +39,8 @@ export async function POST(req: Request) {
     userId, email: session.user.email ?? undefined, pageId, origin,
     cancelPath: returnPath ?? '/dashboard', returnPath, enable,
   });
+  // For the admin's Activity tab: a checkout was started, from which section
+  // (/dashboard/pages/<id>/seating → '/seating').
+  if (url) await recordPlusInterest(userId, pageId, 'checkout', plusSection(returnPath?.replace(/^\/dashboard\/pages\/\d+/, '')));
   return NextResponse.json({ url });
 }

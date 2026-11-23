@@ -4,6 +4,8 @@ import { sql } from '@vercel/postgres';
 import type { Metadata } from 'next';
 import { getSuperAdmin, isSuperAdmin } from '@/app/lib/admin';
 import { ensureVisitColumns } from '@/app/lib/dashboard-visits';
+import { ensurePlusInterestTable } from '@/app/lib/plus-interest';
+import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { fetchCronRuns, type CronRunRow } from '@/app/lib/cron-log';
 import { FOLLOW_UP_SETTING } from '@/app/lib/setup-reminder';
 import { siteHref } from '@/app/lib/app-url';
@@ -13,7 +15,8 @@ export const metadata: Metadata = { title: 'Activity' };
 export const dynamic = 'force-dynamic';
 
 // Who comes back to their dashboard (app/lib/dashboard-visits.ts), which
-// follow-up emails went out (app/lib/setup-reminder.ts), and whether the
+// follow-up emails went out (app/lib/setup-reminder.ts), who opened the
+// Live Party box or started a checkout (app/lib/plus-interest.ts), and whether the
 // scheduled jobs in vercel.json actually run (app/lib/cron-log.ts).
 
 const TZ = 'America/Vancouver';
@@ -38,6 +41,7 @@ type HostRow = {
   page_id: number | null; slug: string | null; heading: string | null; page_status: string | null;
   page_created: Date | null; guests: number; replies: number; follow_up: string | null;
   santa: number; santa_drawn: boolean; goal: string | null; purpose: string | null;
+  plus_box: number; plus_checkout: number; plus_last: Date | null; plus_sections: string | null; plus_paid: boolean;
 };
 
 function when(value: Date | string | null): string {
@@ -59,13 +63,17 @@ const FOLLOW_UP_LABEL: Record<string, string> = { confirm: 'Confirm email', publ
 
 // The hosts table's order: ?sort=made|last|visits|followup and ?dir=asc|desc
 // (by default the last visit, newest first). Empty values go last.
-type HostSort = 'made' | 'last' | 'visits' | 'followup';
+type HostSort = 'made' | 'last' | 'visits' | 'followup' | 'plus';
 const HOST_SORTS: Record<HostSort, (u: HostRow) => number | null> = {
   made: (u) => (u.page_created ? new Date(u.page_created).getTime() : u.date ? new Date(u.date).getTime() : null),
   last: (u) => (u.last_dashboard_at ? new Date(u.last_dashboard_at).getTime() : null),
   visits: (u) => u.dashboard_visits || null,
   followup: (u) => { const at = u.follow_up?.split(' ')[1]; const t = at ? new Date(at).getTime() : NaN; return Number.isNaN(t) ? null : t; },
+  plus: (u) => (u.plus_last ? new Date(u.plus_last).getTime() : null),
 };
+
+// '/seating' → 'Find Your Table'.
+const plusName = (section: string) => PLUS_FEATURES[section]?.name ?? section.slice(1).replace(/-/g, ' ');
 
 export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string }> }) {
   await getSuperAdmin();
@@ -77,7 +85,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   let pages: { month: string; event_type: string | null; goal: string | null; purpose: string | null; upgraded: boolean; email: string }[] = [];
   let error: string | null = null;
   try {
-    await ensureVisitColumns();
+    await Promise.all([ensureVisitColumns(), ensurePlusInterestTable()]);
     // user_page.created_at is a UTC time without a zone.
     const [h, r] = await Promise.all([
       sql.query<HostRow>(`
@@ -91,7 +99,12 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                EXISTS (SELECT 1 FROM page_gift_exchange x WHERE x.user_page_id = p.id AND x.giftee_id IS NOT NULL) AS santa_drawn,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS follow_up,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'event_goal') AS goal,
-               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'page_purpose') AS purpose
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'page_purpose') AS purpose,
+               (SELECT count(*)::int FROM plus_interest i WHERE i.user_id = u.id AND i.kind = 'box') AS plus_box,
+               (SELECT count(*)::int FROM plus_interest i WHERE i.user_id = u.id AND i.kind = 'checkout') AS plus_checkout,
+               (SELECT max(i.created_at) FROM plus_interest i WHERE i.user_id = u.id) AS plus_last,
+               (SELECT string_agg(DISTINCT i.section, ',') FROM plus_interest i WHERE i.user_id = u.id) AS plus_sections,
+               COALESCE(p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL, false) AS plus_paid
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
@@ -125,6 +138,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
     { n: hosts.filter((u) => within(u.last_dashboard_at, 7)).length, label: 'In the dashboard, last 7 days' },
     { n: `${cameBack.length} of ${tracked.length}`, label: 'Came back for a 2nd visit or more' },
     { n: hosts.filter((u) => u.follow_up).length, label: 'Follow-up emails sent' },
+    { n: hosts.filter((u) => u.plus_box && within(u.plus_last, 7)).length, label: 'Opened the Live Party box, last 7 days' },
   ];
   // Upgrade rate overall, by the month pages were made, and by event type.
   const rate = (rows: typeof pages) => {
@@ -172,6 +186,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
       <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Live Party upgrades</h2>
       <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
         Of the event pages made in the last 12 months, how many were ever upgraded to Live Party (paid now, or paid for a past term).
+        Who opened the Live Party box or started a checkout is in the Hosts table&apos;s Live Party column.
         <strong> {overall.up} of {overall.made} ({overall.pct}%)</strong>.
       </p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 28 }}>
@@ -226,7 +241,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
           <thead>
             <tr>
               <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
-              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email']] as const).map(([key, label]) => (
+              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
                 <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
                   <Link
                     href={`/admin/activity?sort=${key}&dir=${sort === key && dir === 'desc' ? 'asc' : 'desc'}`}
@@ -272,10 +287,23 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                     <>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></>
                   ) : '—'}
                 </td>
+                {/* Live Party box opens and checkouts started, on any of their pages (app/lib/plus-interest.ts). */}
+                <td style={td}>
+                  {u.plus_box || u.plus_checkout ? (
+                    <>
+                      <div style={{ whiteSpace: 'nowrap' }}>
+                        {u.plus_box ? `Opened the box ${u.plus_box}×` : ''}{u.plus_box && u.plus_checkout ? ' · ' : ''}{u.plus_checkout ? `Checkout ${u.plus_checkout}×` : ''}
+                      </div>
+                      {u.plus_sections && <div style={{ color: c.muted, fontSize: 11 }}>{u.plus_sections.split(',').map(plusName).join(', ')}</div>}
+                      <div style={{ color: c.muted, fontSize: 11, whiteSpace: 'nowrap' }}>{when(u.plus_last)}</div>
+                    </>
+                  ) : !u.plus_paid && '—'}
+                  {u.plus_paid && <div>{pill('Paid', c.green, c.greenBg)}</div>}
+                </td>
               </tr>
             ))}
             {!hosts.length && !error && (
-              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={7}>No hosts yet.</td></tr>
+              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={8}>No hosts yet.</td></tr>
             )}
           </tbody>
         </table>
