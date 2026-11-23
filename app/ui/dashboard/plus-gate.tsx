@@ -7,6 +7,7 @@ import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { PLAN_PRICE_PLUS_TAX, PLAN_TERM_MONTHS } from '@/app/lib/plans';
 import { startPlusCheckout } from './upgrade-button';
 import { siteHref } from '@/app/lib/app-url';
+import { markPlusBoxOpened } from '@/app/lib/plus-interest-actions';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill } from '@/app/lib/dash-text/fill';
@@ -44,6 +45,9 @@ function UpgradeDialog({ pageId, section, turnOn, expired, onClose }: Ask & { pa
   const ref = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
   useEffect(() => { closeRef.current = onClose; });
+
+  // For the admin's Activity tab: who opens this box, and for what.
+  useEffect(() => { void markPlusBoxOpened(pageId, section).catch(() => {}); }, [pageId, section]);
 
   useEffect(() => {
     ref.current?.focus();

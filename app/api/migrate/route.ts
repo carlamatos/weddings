@@ -1,5 +1,6 @@
 import { addInviteColumns } from '@/app/lib/invite-tracking';
 import { ensureCronRunsTable } from '@/app/lib/cron-log';
+import { ensurePlusInterestTable } from '@/app/lib/plus-interest';
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { timingSafeStringEqual } from '@/app/lib/timing-safe-equal';
@@ -375,6 +376,8 @@ export async function POST(request: Request) {
   await sql`ALTER TABLE users ADD COLUMN IF NOT EXISTS dashboard_visits INTEGER NOT NULL DEFAULT 0`;
   // How each scheduled job's calls went (app/lib/cron-log.ts).
   await ensureCronRunsTable();
+  // Live Party box opens and checkouts started (app/lib/plus-interest.ts).
+  await ensurePlusInterestTable();
   // Pages made before the date is picked (the create form's date is optional).
   await sql`ALTER TABLE user_page ALTER COLUMN event_date DROP NOT NULL`;
 
