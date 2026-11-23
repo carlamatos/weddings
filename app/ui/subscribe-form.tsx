@@ -197,11 +197,14 @@ export default function Form({ prepaid = false, accountEmail = '', start: startF
   const slugCandidates = useMemo(() => {
     const base = slugify(eventName) || 'your-event';
     const year = eventDate && !noDate ? eventDate.slice(0, 4) : '';
+    // Only real addresses: no "+ year" option until there's a date (it used
+    // to offer, and save, a literal "-year"), and no unique-number options
+    // until their numbers are picked after mount.
     const all = [
-      { id: 'name',    value: base,                                       label: d.subscribeForm.eventNameOnly },
-      { id: 'date',    value: year ? `${base}-${year}` : `${base}-year`,   label: d.subscribeForm.eventNameYear },
-      { id: 'random',  value: randomSuffix ? `${base}-${randomSuffix}` : `${base}-????`,   label: d.subscribeForm.eventNameUniqueNumber },
-      { id: 'random2', value: randomSuffix2 ? `${base}-${randomSuffix2}` : `${base}-?????`, label: d.subscribeForm.eventNameUniqueNumber },
+      { id: 'name',    value: base,                                 label: d.subscribeForm.eventNameOnly },
+      ...(year ? [{ id: 'date', value: `${base}-${year}`,           label: d.subscribeForm.eventNameYear }] : []),
+      ...(randomSuffix ? [{ id: 'random', value: `${base}-${randomSuffix}`,   label: d.subscribeForm.eventNameUniqueNumber }] : []),
+      ...(randomSuffix2 ? [{ id: 'random2', value: `${base}-${randomSuffix2}`, label: d.subscribeForm.eventNameUniqueNumber }] : []),
     ];
     return all.filter((o, i) => all.findIndex((x) => x.value === o.value) === i);
   }, [eventName, eventDate, noDate, randomSuffix, randomSuffix2, d]);

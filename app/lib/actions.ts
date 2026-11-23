@@ -196,6 +196,13 @@ function ensureOptionalEventDate(): Promise<unknown> {
     if (typeof formSlug === 'string' && formSlug.trim() !== '' && formData.get('slugAuto') === '1') {
       formSlug = await freeSlug(formSlug);
     }
+    // Page addresses are lowercase letters, numbers and hyphens only.
+    if (typeof formSlug === 'string' && formSlug.trim() !== '' && !/^[a-z0-9-]+$/.test(formSlug)) {
+      return {
+        errors: { slug: ['Page addresses can only use lowercase letters, numbers and hyphens'] },
+        message: 'Page addresses can only use lowercase letters, numbers and hyphens',
+      };
+    }
     if (typeof formSlug === 'string' && isReservedSlug(formSlug)) {
       return {
         errors: { slug: [`The URL '${formSlug}' is reserved, please choose another`] },
