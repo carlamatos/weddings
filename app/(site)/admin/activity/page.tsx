@@ -9,6 +9,8 @@ import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { fetchCronRuns, type CronRunRow } from '@/app/lib/cron-log';
 import { FOLLOW_UP_SETTING } from '@/app/lib/setup-reminder';
 import { siteHref } from '@/app/lib/app-url';
+import { INVITATION_SETTING } from '@/app/lib/invitation';
+import { identifyInvitationDesign } from '@/app/lib/admin-invitation-designs';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 
 export const metadata: Metadata = { title: 'Activity' };
@@ -75,6 +77,8 @@ const HOST_SORTS: Record<HostSort, (u: HostRow) => number | null> = {
 // '/seating' → 'Find Your Table'.
 const plusName = (section: string) => PLUS_FEATURES[section]?.name ?? section.slice(1).replace(/-/g, ' ');
 
+type ThemePageRow = { theme: string; slug: string | null; status: string; recent: boolean; upgraded: boolean; email: string };
+
 export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string }> }) {
   await getSuperAdmin();
   const sp = await searchParams;
@@ -83,6 +87,8 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   let hosts: HostRow[] = [];
   let runs: CronRunRow[] = [];
   let pages: { month: string; event_type: string | null; goal: string | null; purpose: string | null; upgraded: boolean; email: string }[] = [];
+  let themePages: ThemePageRow[] = [];
+  let invitations: { name: string; edited: boolean; custom: boolean }[] = [];
   let error: string | null = null;
   try {
     await Promise.all([ensureVisitColumns(), ensurePlusInterestTable()]);
@@ -123,6 +129,26 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
       WHERE p.created_at >= (NOW() AT TIME ZONE 'UTC') - interval '12 months'
     `);
     pages = pg.rows.filter((r) => !isSuperAdmin(r.email));
+    // Themes in use: every page ever made (not only the last 12 months).
+    const themeRes = await sql.query<ThemePageRow>(`
+      SELECT COALESCE(et.name, 'No theme') AS theme, et.slug, COALESCE(p.status, 'active') AS status,
+             (p.created_at >= (NOW() AT TIME ZONE 'UTC') - interval '30 days') AS recent,
+             (p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL) AS upgraded, u.email
+      FROM user_page p JOIN users u ON u.id = p.user_id
+      LEFT JOIN event_themes et ON et.theme_id = p.theme_id
+    `);
+    themePages = themeRes.rows.filter((r) => !isSuperAdmin(r.email));
+    // Invitation designs: every page with a saved invitation, matched to the
+    // gallery design it came from (app/lib/admin-invitation-designs.ts).
+    const invRes = await sql.query<{ design: string; slug: string | null; email: string }>(`
+      SELECT s.setting_value AS design, et.slug, u.email
+      FROM user_page_settings s
+      JOIN user_page p ON p.id = s.user_page_id
+      JOIN users u ON u.id = p.user_id
+      LEFT JOIN event_themes et ON et.theme_id = p.theme_id
+      WHERE s.setting_name = $1
+    `, [INVITATION_SETTING]);
+    invitations = invRes.rows.filter((r) => !isSuperAdmin(r.email)).map((r) => identifyInvitationDesign(r.design, r.slug));
     hosts = h.rows.filter((u) => !isSuperAdmin(u.email));
     runs = r;
   } catch (e) {
@@ -161,6 +187,26 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   // "What are you planning?" (app/lib/event-goals.ts), asked since 2026-11-18.
   const byGoal = group((r) => (r.goal ? GOAL_ADMIN_LABELS[r.goal] ?? r.goal : 'Not asked (made before)')).sort((a, b) => b.made - a.made);
   const byPurpose = group((r) => (isPagePurpose(r.purpose) ? PURPOSE_ADMIN_LABELS[r.purpose] : 'Not asked (made before, or a Secret Santa)')).sort((a, b) => b.made - a.made);
+  // Most-used theme first; ties broken by the newer interest (last 30 days).
+  const byTheme = [...themePages.reduce((m, r) => {
+    const t = m.get(r.theme) ?? { theme: r.theme, slug: r.slug, pages: 0, active: 0, recent: 0, upgraded: 0 };
+    t.pages++;
+    if (r.status === 'active') t.active++;
+    if (r.recent) t.recent++;
+    if (r.upgraded) t.upgraded++;
+    return m.set(r.theme, t);
+  }, new Map<string, { theme: string; slug: string | null; pages: number; active: number; recent: number; upgraded: number }>()).values()]
+    .sort((a, b) => b.pages - a.pages || b.recent - a.recent || a.theme.localeCompare(b.theme));
+  const topTheme = byTheme[0]?.pages ?? 0;
+  // Most-used invitation design first; "Customised" always last.
+  const byDesign = [...invitations.reduce((m, r) => {
+    const d = m.get(r.name) ?? { name: r.name, custom: r.custom, pages: 0, edited: 0 };
+    d.pages++;
+    if (r.edited) d.edited++;
+    return m.set(r.name, d);
+  }, new Map<string, { name: string; custom: boolean; pages: number; edited: number }>()).values()]
+    .sort((a, b) => Number(a.custom) - Number(b.custom) || b.pages - a.pages || a.name.localeCompare(b.name));
+  const topDesign = Math.max(0, ...byDesign.map((d) => d.pages));
   const tracking = hosts.reduce<Date | null>((min, u) => (u.first_dashboard_at && (!min || new Date(u.first_dashboard_at) < min) ? new Date(u.first_dashboard_at) : min), null);
 
   return (
@@ -203,6 +249,72 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
             </table>
           </div>
         ))}
+      </div>
+
+      <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Themes in use</h2>
+      <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
+        How many event pages use each theme, most popular first, across every page ever made ({themePages.length} pages).
+        <strong> Live</strong> = guests can see it now; <strong>Last 30 days</strong> = pages made recently, to spot themes that are trending.
+      </p>
+      <div style={{ ...tableWrap, marginBottom: 28 }}>
+        <table style={table}>
+          <thead>
+            <tr><th style={th}>Theme</th><th style={th}>Pages</th><th style={th}>Share</th><th style={th}>Live</th><th style={th}>Last 30 days</th><th style={th}>Live Party</th></tr>
+          </thead>
+          <tbody>
+            {byTheme.length === 0 && <tr><td style={td} colSpan={6}>No pages yet.</td></tr>}
+            {byTheme.map((t) => (
+              <tr key={t.theme}>
+                <td style={td}><div style={{ fontWeight: 600 }}>{t.theme}</div>{t.slug && <div style={{ color: c.muted, fontSize: 11 }}>{t.slug}</div>}</td>
+                <td style={{ ...td, minWidth: 160 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 600, minWidth: 24, fontVariantNumeric: 'tabular-nums' }}>{t.pages}</span>
+                    <span style={{ flex: 1, height: 8, background: c.greyBg, borderRadius: 4, overflow: 'hidden' }}>
+                      <span style={{ display: 'block', height: '100%', width: `${topTheme ? (t.pages / topTheme) * 100 : 0}%`, background: c.accent, borderRadius: 4 }} />
+                    </span>
+                  </div>
+                </td>
+                <td style={td}>{themePages.length ? Math.round((t.pages / themePages.length) * 1000) / 10 : 0}%</td>
+                <td style={td}>{t.active}</td>
+                <td style={td}>{t.recent}</td>
+                <td style={td}>{t.upgraded}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Invitation designs</h2>
+      <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
+        Which gallery design each saved invitation uses, most popular first ({invitations.length} of {themePages.length} pages have
+        saved an invitation). Invitations don&apos;t record the design they were picked from, so it&apos;s worked out from the look:
+        <strong> Edited</strong> = started from that design and then changed some fonts or colours; <strong>Customised</strong> = changed
+        too much to tell.
+      </p>
+      <div style={{ ...tableWrap, marginBottom: 28 }}>
+        <table style={table}>
+          <thead>
+            <tr><th style={th}>Design</th><th style={th}>Pages</th><th style={th}>As picked</th><th style={th}>Edited</th></tr>
+          </thead>
+          <tbody>
+            {byDesign.length === 0 && <tr><td style={td} colSpan={4}>No saved invitations yet.</td></tr>}
+            {byDesign.map((d) => (
+              <tr key={d.name}>
+                <td style={{ ...td, fontWeight: 600, color: d.custom ? c.soft : c.ink }}>{d.name}</td>
+                <td style={{ ...td, minWidth: 160 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontWeight: 600, minWidth: 24, fontVariantNumeric: 'tabular-nums' }}>{d.pages}</span>
+                    <span style={{ flex: 1, height: 8, background: c.greyBg, borderRadius: 4, overflow: 'hidden' }}>
+                      <span style={{ display: 'block', height: '100%', width: `${topDesign ? (d.pages / topDesign) * 100 : 0}%`, background: d.custom ? c.muted : c.accent, borderRadius: 4 }} />
+                    </span>
+                  </div>
+                </td>
+                <td style={td}>{d.custom ? '—' : d.pages - d.edited}</td>
+                <td style={td}>{d.custom ? '—' : d.edited}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       <h2 style={{ fontSize: 16, margin: '0 0 10px' }}>Scheduled jobs</h2>

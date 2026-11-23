@@ -117,6 +117,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
         <table style={table}>
           <thead>
             <tr>
+              <th style={th}>ID</th>
               <th style={th}>Page</th>
               <th style={th}>Owner</th>
               <th style={th}>Plan</th>
@@ -128,6 +129,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
           <tbody>
             {rows.map((p) => (
               <tr key={p.id}>
+                <td style={{ ...td, color: c.soft, fontVariantNumeric: 'tabular-nums' }}>{p.id}</td>
                 <td style={td}>
                   <div style={{ fontWeight: 600 }}>{p.heading || 'Untitled'}</div>
                   <Link href={siteHref(`/${p.slug}`)} target="_blank" style={{ color: c.soft }}>
@@ -166,7 +168,7 @@ export default async function AdminPagesPage({ searchParams }: { searchParams: P
             ))}
             {!rows.length && !error && (
               <tr>
-                <td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={6}>
+                <td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={7}>
                   No pages match these filters.
                 </td>
               </tr>
