@@ -3,7 +3,7 @@ import { CameraIcon, CheckIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { greatVibes } from '@/app/ui/fonts';
 import { appHref } from '@/app/lib/app-url';
 import { startQuery } from '@/app/lib/start-intent';
-import { sampleInvitation, type InvitationLandingPage } from '@/app/lib/marketing/invitation-landing';
+import { sampleInvitation, sampleStyleName, type InvitationLandingPage } from '@/app/lib/marketing/invitation-landing';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
 import { previewImage } from '@/app/ui/themes/preview-image';
@@ -49,12 +49,12 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
             {g.title && <h3 className="ilp-group-title">{g.title}</h3>}
             <ul className="ilp-cards">
               {g.cards.map(({ sample, design, details }, i) => (
-                <li key={`${sample.theme}-${i}`}>
-                  <a href={start(sample.theme)} className="ilp-card" data-cta={cta(`card-${sample.theme}`)}>
+                <li key={`${sample.style ?? sample.theme}-${i}`}>
+                  <a href={start(sample.theme)} className="ilp-card" data-cta={cta(`card-${sample.style ?? sample.theme}`)}>
                     <InvitationCard fonts={LANDING_INVITATION_FONTS} design={design} details={details}
                       bgImage={design.background.kind === 'image' ? previewImage(design.background.imageUrl, '(max-width: 640px) 46vw, 230px') : undefined} />
                     <span className="ilp-card-label">
-                      <strong>{themeName(sample.theme)}</strong>
+                      <strong>{sampleStyleName(sample) ?? themeName(sample.theme)}</strong>
                       <span>Use this design →</span>
                     </span>
                   </a>
