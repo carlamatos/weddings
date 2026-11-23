@@ -12,11 +12,13 @@ export default function Pagination({
   params,
   offset,
   hasMore,
+  pageSize = ADMIN_PAGE_SIZE,
 }: {
   path: string;
   params: Record<string, string>;
   offset: number;
   hasMore: boolean;
+  pageSize?: number; // rows per page (default ADMIN_PAGE_SIZE)
 }) {
   if (offset === 0 && !hasMore) return null;
 
@@ -33,13 +35,13 @@ export default function Pagination({
   return (
     <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 16, fontSize: 12, color: c.soft }}>
       {offset > 0 ? (
-        <Link href={href(Math.max(0, offset - ADMIN_PAGE_SIZE))} style={link}>← Previous</Link>
+        <Link href={href(Math.max(0, offset - pageSize))} style={link}>← Previous</Link>
       ) : (
         <span style={off}>← Previous</span>
       )}
-      <span>Page {Math.floor(offset / ADMIN_PAGE_SIZE) + 1}</span>
+      <span>Page {Math.floor(offset / pageSize) + 1}</span>
       {hasMore ? (
-        <Link href={href(offset + ADMIN_PAGE_SIZE)} style={link}>Next →</Link>
+        <Link href={href(offset + pageSize)} style={link}>Next →</Link>
       ) : (
         <span style={off}>Next →</span>
       )}

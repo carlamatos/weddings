@@ -12,6 +12,7 @@ import { siteHref } from '@/app/lib/app-url';
 import { INVITATION_SETTING } from '@/app/lib/invitation';
 import { identifyInvitationDesign } from '@/app/lib/admin-invitation-designs';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
+import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
 
 export const metadata: Metadata = { title: 'Activity' };
 export const dynamic = 'force-dynamic';
@@ -79,7 +80,9 @@ const plusName = (section: string) => PLUS_FEATURES[section]?.name ?? section.sl
 
 type ThemePageRow = { theme: string; slug: string | null; status: string; recent: boolean; upgraded: boolean; email: string };
 
-export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string }> }) {
+const HOSTS_PER_PAGE = 10;
+
+export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string; offset?: string }> }) {
   await getSuperAdmin();
   const sp = await searchParams;
   const sort: HostSort = sp.sort && sp.sort in HOST_SORTS ? (sp.sort as HostSort) : 'last';
@@ -182,6 +185,9 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
     if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
     return dir === 'desc' ? y - x : x - y;
   });
+  // Hosts are paged 10 at a time; an offset past the end shows the last page.
+  const lastPage = Math.max(0, Math.floor((sortedHosts.length - 1) / HOSTS_PER_PAGE) * HOSTS_PER_PAGE);
+  const hostOffset = Math.min(Math.floor(parseOffset(sp.offset) / HOSTS_PER_PAGE) * HOSTS_PER_PAGE, lastPage);
   const byMonth = group((r) => r.month).sort((a, b) => b.k.localeCompare(a.k));
   const byType = group((r) => r.event_type || 'Other').sort((a, b) => b.made - a.made);
   // "What are you planning?" (app/lib/event-goals.ts), asked since 2026-11-18.
@@ -228,6 +234,88 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
           </div>
         ))}
       </div>
+
+      <h2 style={{ fontSize: 16, margin: '0 0 10px' }}>Hosts</h2>
+      {sortedHosts.length > 0 && (
+        <p style={{ margin: '0 0 10px', fontSize: 13, color: c.soft }}>
+          {hostOffset + 1}–{Math.min(hostOffset + HOSTS_PER_PAGE, sortedHosts.length)} of {sortedHosts.length} hosts
+        </p>
+      )}
+      <div style={tableWrap}>
+        <table style={table}>
+          <thead>
+            <tr>
+              <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
+              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
+                <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
+                  <Link
+                    href={`/admin/activity?sort=${key}&dir=${sort === key && dir === 'desc' ? 'asc' : 'desc'}`}
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                    title={`Sort by ${label.toLowerCase()}`}
+                  >
+                    {label}{sort === key ? (dir === 'desc' ? ' ↓' : ' ↑') : ''}
+                  </Link>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {sortedHosts.slice(hostOffset, hostOffset + HOSTS_PER_PAGE).map((u) => (
+              <tr key={u.id}>
+                <td style={td}>
+                  <div style={{ fontWeight: 600 }}>{u.name?.trim() || <span style={{ color: c.muted, fontWeight: 400 }}>No name yet</span>}</div>
+                  <div style={{ color: c.soft }}>{u.email}</div>
+                  {!u.verified && pill('Email not confirmed', c.amber, c.amberBg)}
+                </td>
+                <td style={td}>
+                  {u.slug ? (
+                    <>
+                      <Link href={siteHref(`/${u.slug}`)} target="_blank" style={{ color: c.ink }}>{u.heading?.replace(/\s+/g, ' ') || `/${u.slug}`}</Link>
+                      <div style={{ color: c.muted, fontSize: 11 }}>
+                        {u.page_status === 'draft' ? 'Draft' : u.page_status === 'active' ? 'Published' : u.page_status} · {u.guests} guest{u.guests === 1 ? '' : 's'}
+                        {u.replies ? `, ${u.replies} repl${u.replies === 1 ? 'y' : 'ies'}` : ''}
+                        {u.santa ? ` · Secret Santa: ${u.santa} joined, ${u.santa_drawn ? 'names drawn' : 'not drawn yet'}` : ''}
+                      </div>
+                    </>
+                  ) : <span style={{ color: c.muted }}>No page yet</span>}
+                </td>
+                {/* "What would you like to make?" and "What are you planning?" (app/lib/event-goals.ts). */}
+                <td style={td}>
+                  {isPagePurpose(u.purpose) ? PURPOSE_ADMIN_LABELS[u.purpose] : <span style={{ color: c.muted }}>{u.slug ? 'Not asked' : '—'}</span>}
+                  {u.goal && <div style={{ color: c.muted, fontSize: 11 }}>{GOAL_ADMIN_LABELS[u.goal] ?? u.goal}</div>}
+                </td>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>{u.page_created ? when(u.page_created) : u.date ? new Date(u.date).toISOString().slice(0, 10) : '—'}</td>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>{when(u.last_dashboard_at)}</td>
+                <td style={td}>{u.dashboard_visits || '—'}</td>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                  {u.follow_up ? (
+                    <>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></>
+                  ) : '—'}
+                </td>
+                {/* Live Party box opens and checkouts started, on any of their pages (app/lib/plus-interest.ts). */}
+                <td style={td}>
+                  {u.plus_box || u.plus_checkout ? (
+                    <>
+                      <div style={{ whiteSpace: 'nowrap' }}>
+                        {u.plus_box ? `Opened the box ${u.plus_box}×` : ''}{u.plus_box && u.plus_checkout ? ' · ' : ''}{u.plus_checkout ? `Checkout ${u.plus_checkout}×` : ''}
+                      </div>
+                      {u.plus_sections && <div style={{ color: c.muted, fontSize: 11 }}>{u.plus_sections.split(',').map(plusName).join(', ')}</div>}
+                      <div style={{ color: c.muted, fontSize: 11, whiteSpace: 'nowrap' }}>{when(u.plus_last)}</div>
+                    </>
+                  ) : !u.plus_paid && '—'}
+                  {u.plus_paid && <div>{pill('Paid', c.green, c.greenBg)}</div>}
+                </td>
+              </tr>
+            ))}
+            {!hosts.length && !error && (
+              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={8}>No hosts yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <Pagination path="/admin/activity" params={{ sort, dir }} offset={hostOffset} hasMore={hostOffset + HOSTS_PER_PAGE < sortedHosts.length} pageSize={HOSTS_PER_PAGE} />
+
+      <div style={{ marginBottom: 28 }} />
 
       <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Live Party upgrades</h2>
       <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
@@ -343,80 +431,6 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                 </tr>
               );
             })}
-          </tbody>
-        </table>
-      </div>
-
-      <h2 style={{ fontSize: 16, margin: '0 0 10px' }}>Hosts</h2>
-      <div style={tableWrap}>
-        <table style={table}>
-          <thead>
-            <tr>
-              <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
-              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
-                <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
-                  <Link
-                    href={`/admin/activity?sort=${key}&dir=${sort === key && dir === 'desc' ? 'asc' : 'desc'}`}
-                    style={{ color: 'inherit', textDecoration: 'none' }}
-                    title={`Sort by ${label.toLowerCase()}`}
-                  >
-                    {label}{sort === key ? (dir === 'desc' ? ' ↓' : ' ↑') : ''}
-                  </Link>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {sortedHosts.map((u) => (
-              <tr key={u.id}>
-                <td style={td}>
-                  <div style={{ fontWeight: 600 }}>{u.name?.trim() || <span style={{ color: c.muted, fontWeight: 400 }}>No name yet</span>}</div>
-                  <div style={{ color: c.soft }}>{u.email}</div>
-                  {!u.verified && pill('Email not confirmed', c.amber, c.amberBg)}
-                </td>
-                <td style={td}>
-                  {u.slug ? (
-                    <>
-                      <Link href={siteHref(`/${u.slug}`)} target="_blank" style={{ color: c.ink }}>{u.heading?.replace(/\s+/g, ' ') || `/${u.slug}`}</Link>
-                      <div style={{ color: c.muted, fontSize: 11 }}>
-                        {u.page_status === 'draft' ? 'Draft' : u.page_status === 'active' ? 'Published' : u.page_status} · {u.guests} guest{u.guests === 1 ? '' : 's'}
-                        {u.replies ? `, ${u.replies} repl${u.replies === 1 ? 'y' : 'ies'}` : ''}
-                        {u.santa ? ` · Secret Santa: ${u.santa} joined, ${u.santa_drawn ? 'names drawn' : 'not drawn yet'}` : ''}
-                      </div>
-                    </>
-                  ) : <span style={{ color: c.muted }}>No page yet</span>}
-                </td>
-                {/* "What would you like to make?" and "What are you planning?" (app/lib/event-goals.ts). */}
-                <td style={td}>
-                  {isPagePurpose(u.purpose) ? PURPOSE_ADMIN_LABELS[u.purpose] : <span style={{ color: c.muted }}>{u.slug ? 'Not asked' : '—'}</span>}
-                  {u.goal && <div style={{ color: c.muted, fontSize: 11 }}>{GOAL_ADMIN_LABELS[u.goal] ?? u.goal}</div>}
-                </td>
-                <td style={{ ...td, whiteSpace: 'nowrap' }}>{u.page_created ? when(u.page_created) : u.date ? new Date(u.date).toISOString().slice(0, 10) : '—'}</td>
-                <td style={{ ...td, whiteSpace: 'nowrap' }}>{when(u.last_dashboard_at)}</td>
-                <td style={td}>{u.dashboard_visits || '—'}</td>
-                <td style={{ ...td, whiteSpace: 'nowrap' }}>
-                  {u.follow_up ? (
-                    <>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></>
-                  ) : '—'}
-                </td>
-                {/* Live Party box opens and checkouts started, on any of their pages (app/lib/plus-interest.ts). */}
-                <td style={td}>
-                  {u.plus_box || u.plus_checkout ? (
-                    <>
-                      <div style={{ whiteSpace: 'nowrap' }}>
-                        {u.plus_box ? `Opened the box ${u.plus_box}×` : ''}{u.plus_box && u.plus_checkout ? ' · ' : ''}{u.plus_checkout ? `Checkout ${u.plus_checkout}×` : ''}
-                      </div>
-                      {u.plus_sections && <div style={{ color: c.muted, fontSize: 11 }}>{u.plus_sections.split(',').map(plusName).join(', ')}</div>}
-                      <div style={{ color: c.muted, fontSize: 11, whiteSpace: 'nowrap' }}>{when(u.plus_last)}</div>
-                    </>
-                  ) : !u.plus_paid && '—'}
-                  {u.plus_paid && <div>{pill('Paid', c.green, c.greenBg)}</div>}
-                </td>
-              </tr>
-            ))}
-            {!hosts.length && !error && (
-              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={8}>No hosts yet.</td></tr>
-            )}
           </tbody>
         </table>
       </div>
