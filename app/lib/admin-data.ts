@@ -1,5 +1,6 @@
 import { sql } from '@vercel/postgres';
 import { ensureUserCreatedAt } from './user-joined';
+import { ensureNewsletterTable } from './newsletter';
 import type { QueryResultRow } from '@vercel/postgres';
 
 export const ADMIN_PAGE_SIZE = 25;
@@ -242,3 +243,34 @@ export const countTrashedUsers = () => count(TRASH_COUNT_SQL);
 export const countDeletedPages = () => count(DELETED_PAGES_COUNT_SQL);
 export const countUserPages = (plan: PlanFilter = 'all', status: StatusFilter = 'all', search = '') =>
   count(PAGES_COUNT_SQL, [plan, status, searchPattern(pageSearchTerm(search))]);
+
+// ── Newsletter (Admin → Newsletter) ────────────────────────────────────────
+// Everyone on the list, newest first, with their account if the address has
+// one. consent_text is null for people who joined before the CASL wording was
+// saved (app/lib/newsletter-consent.ts), so there's no proof of what they saw.
+export type NewsletterSubscriberRow = {
+  id: number;
+  email: string;
+  source: string | null;
+  subscribed_at: Date | string;
+  unsubscribed_at: Date | string | null;
+  consent_text: string | null;
+  user_name: string | null;
+};
+
+const NEWSLETTER_SQL = `
+  SELECT n.id, n.email, n.source, n.subscribed_at, n.unsubscribed_at, n.consent_text, u.name AS user_name
+  FROM newsletter_subscribers n
+  LEFT JOIN users u ON lower(u.email) = n.email
+  ORDER BY n.subscribed_at DESC, n.id DESC
+  LIMIT $1 OFFSET $2
+`;
+const NEWSLETTER_COUNT_SQL = `
+  SELECT count(*) FILTER (WHERE unsubscribed_at IS NULL)::int AS n FROM newsletter_subscribers
+`;
+
+export async function fetchNewsletterSubscribers(offset = 0) {
+  await ensureNewsletterTable().catch((error) => console.error('Could not create newsletter_subscribers:', error));
+  return list<NewsletterSubscriberRow>(NEWSLETTER_SQL, [], offset);
+}
+export const countNewsletterSubscribers = () => count(NEWSLETTER_COUNT_SQL);
