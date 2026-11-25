@@ -10,6 +10,7 @@ import { fetchUserPage, fetchUserPages, fetchGalleryImages, fetchGuestPhotos, fe
 import { auth } from '@/auth';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import PageViewBeacon from '@/app/ui/page-view-beacon';
 import { livestreamFromSettings } from '@/app/lib/livestream';
 import { isPageLocked } from '@/app/lib/page-password';
 import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate';
@@ -195,6 +196,8 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </Link>
       )}
 
+      {/* Guest views (app/lib/page-views.ts): not the owner's own. */}
+      {!isOwner && <PageViewBeacon pageId={Number(data.id)} />}
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}

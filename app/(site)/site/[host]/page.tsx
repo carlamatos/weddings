@@ -8,6 +8,7 @@ import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/li
 import { fetchUserPageByDomain, fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSettings, fetchEventProgram, isSectionOn, fetchPlusContent, registryProps, potluckProps, giftExchangeProps } from '@/app/lib/data';
 import { signPageId } from '@/app/lib/page-token';
 import ThemeRenderer from '@/app/ui/themes/ThemeRenderer';
+import PageViewBeacon from '@/app/ui/page-view-beacon';
 import { livestreamFromSettings } from '@/app/lib/livestream';
 import { isPageLocked } from '@/app/lib/page-password';
 import { LOCKED_PAGE_METADATA, mustShowPasswordGate } from '@/app/lib/page-gate';
@@ -77,6 +78,9 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
+    <>
+    {/* Guest views (app/lib/page-views.ts). */}
+    <PageViewBeacon pageId={Number(data.id)} />
     <ThemeRenderer
       rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
       rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
@@ -136,5 +140,6 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
         giftExchange={giftExchange}
         shareUrl={publicPageUrl(data)}
     />
+    </>
   );
 }

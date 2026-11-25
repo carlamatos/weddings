@@ -5,6 +5,7 @@ import type { Metadata } from 'next';
 import { getSuperAdmin, isSuperAdmin } from '@/app/lib/admin';
 import { ensureVisitColumns } from '@/app/lib/dashboard-visits';
 import { ensurePlusInterestTable } from '@/app/lib/plus-interest';
+import { ensurePageViewsTable } from '@/app/lib/page-views';
 import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { fetchCronRuns, type CronRunRow } from '@/app/lib/cron-log';
 import { FOLLOW_UP_SETTING } from '@/app/lib/setup-reminder';
@@ -46,6 +47,8 @@ type HostRow = {
   santa: number; santa_drawn: boolean; goal: string | null; purpose: string | null;
   plus_box: number; plus_checkout: number; plus_last: Date | null; plus_sections: string | null; plus_paid: boolean;
   event_date: string | null; // YYYY-MM-DD, the page's event date
+  // Guest views of the page (app/lib/page-views.ts): all time, and the last 7 days.
+  views: number; visitors: number; visitors_7d: number;
 };
 
 // Days from today (Pacific) to the event: 0 today, negative once it's past.
@@ -79,15 +82,16 @@ const pill = (label: string, color: string, bg: string) => (
 
 const FOLLOW_UP_LABEL: Record<string, string> = { confirm: 'Confirm email', publish: 'Publish', share: 'Invite guests' };
 
-// The hosts table's order: ?sort=event|made|last|visits|followup|plus and ?dir=asc|desc
+// The hosts table's order: ?sort=event|made|last|visits|views|followup|plus and ?dir=asc|desc
 // (by default the last visit, newest first). Empty values go last.
-type HostSort = 'made' | 'last' | 'visits' | 'followup' | 'plus' | 'event';
+type HostSort = 'made' | 'last' | 'visits' | 'followup' | 'plus' | 'event' | 'views';
 const HOST_SORTS: Record<HostSort, (u: HostRow) => number | null> = {
   made: (u) => (u.page_created ? new Date(u.page_created).getTime() : u.date ? new Date(u.date).getTime() : null),
   last: (u) => (u.last_dashboard_at ? new Date(u.last_dashboard_at).getTime() : null),
   visits: (u) => u.dashboard_visits || null,
   followup: (u) => { const at = u.follow_up?.split(' ')[1]; const t = at ? new Date(at).getTime() : NaN; return Number.isNaN(t) ? null : t; },
   plus: (u) => (u.plus_last ? new Date(u.plus_last).getTime() : null),
+  views: (u) => u.visitors || null,
   // Soonest upcoming event first (ascending); past events after every upcoming one.
   event: (u) => { const d = daysUntil(u.event_date); return d === null ? null : d >= 0 ? d : 100_000 - d; },
 };
@@ -111,7 +115,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   let invitations: { name: string; edited: boolean; custom: boolean }[] = [];
   let error: string | null = null;
   try {
-    await Promise.all([ensureVisitColumns(), ensurePlusInterestTable()]);
+    await Promise.all([ensureVisitColumns(), ensurePlusInterestTable(), ensurePageViewsTable()]);
     // user_page.created_at is a UTC time without a zone.
     const [h, r] = await Promise.all([
       sql.query<HostRow>(`
@@ -131,7 +135,10 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                (SELECT max(i.created_at) FROM plus_interest i WHERE i.user_id = u.id) AS plus_last,
                (SELECT string_agg(DISTINCT i.section, ',') FROM plus_interest i WHERE i.user_id = u.id) AS plus_sections,
                COALESCE(p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL, false) AS plus_paid,
-               to_char(p.event_date, 'YYYY-MM-DD') AS event_date
+               to_char(p.event_date, 'YYYY-MM-DD') AS event_date,
+               COALESCE((SELECT sum(v.views)::int FROM page_view_days v WHERE v.user_page_id = p.id), 0) AS views,
+               COALESCE((SELECT sum(v.visitors)::int FROM page_view_days v WHERE v.user_page_id = p.id), 0) AS visitors,
+               COALESCE((SELECT sum(v.visitors)::int FROM page_view_days v WHERE v.user_page_id = p.id AND v.day > (NOW() AT TIME ZONE 'America/Vancouver')::date - 7), 0) AS visitors_7d
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
@@ -184,6 +191,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
     { n: hosts.filter((u) => within(u.last_dashboard_at, 1)).length, label: 'In the dashboard, last 24 hours' },
     { n: hosts.filter((u) => within(u.last_dashboard_at, 7)).length, label: 'In the dashboard, last 7 days' },
     { n: `${cameBack.length} of ${tracked.length}`, label: 'Came back for a 2nd visit or more' },
+    { n: hosts.reduce((sum, u) => sum + u.visitors_7d, 0), label: 'Guest page visitors, last 7 days' },
     { n: hosts.filter((u) => u.follow_up).length, label: 'Follow-up emails sent' },
     { n: hosts.filter((u) => u.plus_box && within(u.plus_last, 7)).length, label: 'Opened the Live Party box, last 7 days' },
   ];
@@ -240,6 +248,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
         When hosts come back to their dashboard. A visit is a stretch of dashboard use; coming back 30 minutes or more later counts
         as a new visit. Times are Pacific. Super admins are left out.
         {tracking ? ` Tracking since ${when(tracking)}; visits before that weren’t recorded.` : ' Nothing recorded yet — visits are counted from now on.'}
+        {' '}Guest visits are people (not the host) who opened the host’s event page, each browser once a day; counted from Nov 25, 2026.
       </p>
 
       {error && <div role="alert" style={{ ...alertError, marginBottom: 16 }}>Couldn&apos;t load activity: {error}</div>}
@@ -264,7 +273,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
           <thead>
             <tr>
               <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
-              {([['event', 'Event date'], ['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
+              {([['event', 'Event date'], ['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Dashboard visits'], ['views', 'Guest visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
                 <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
                   <Link
                     href={`/admin/activity?sort=${key}&dir=${sort === key ? (dir === 'desc' ? 'asc' : 'desc') : key === 'event' ? 'asc' : 'desc'}`}
@@ -317,6 +326,15 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{u.page_created ? when(u.page_created) : u.date ? new Date(u.date).toISOString().slice(0, 10) : '—'}</td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{when(u.last_dashboard_at)}</td>
                 <td style={td}>{u.dashboard_visits || '—'}</td>
+                {/* People who looked at their page (app/lib/page-views.ts), counted from 2026-11-25. */}
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                  {u.visitors ? (
+                    <>
+                      {u.visitors} visitor{u.visitors === 1 ? '' : 's'}
+                      <div style={{ color: c.muted, fontSize: 11 }}>{u.views} view{u.views === 1 ? '' : 's'} · {u.visitors_7d} this week</div>
+                    </>
+                  ) : '—'}
+                </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>
                   {u.follow_up ? (
                     <>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></>
@@ -338,7 +356,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
               </tr>
             ))}
             {!hosts.length && !error && (
-              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={9}>No hosts yet.</td></tr>
+              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={10}>No hosts yet.</td></tr>
             )}
           </tbody>
         </table>
