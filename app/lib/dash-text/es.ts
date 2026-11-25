@@ -1185,6 +1185,17 @@ export const es: DashText = {
     askForASong: 'Pedir una canción a los invitados',
     askForASongHint: 'Los invitados que asisten pueden sugerir una canción para la pista de baile. Sus elecciones aparecen en Song Requests.',
   },
+  rsvpFormOption: {
+    guestsCanReplyForOthers: 'Los invitados pueden responder por otras personas',
+    guestsCanReplyForOthersHint: 'Los invitados indican cuántas personas vienen. Desmárcalo para que cada respuesta sea de una sola persona: el contador se oculta y cada uno responde por sí mismo.',
+    choiceWording: 'Texto de las dos opciones',
+    choiceWordingHint: 'Lo que marcan los invitados para decir sí o no. Deja una casilla vacía para usar el texto habitual.',
+    acceptLabel: 'Sí',
+    declineLabel: 'No',
+    save: 'Guardar texto',
+    saving: 'Guardando…',
+    saved: 'Guardado. Tu formulario RSVP muestra el nuevo texto.',
+  },
   rsvpNotifyOption: {
     emailMeWhenSomeoneRsvps: 'Escribirme cuando alguien responda',
     eachTimeAGuestReplies: 'Cada vez que un invitado responda (o cambie su respuesta), enviaremos los detalles a',

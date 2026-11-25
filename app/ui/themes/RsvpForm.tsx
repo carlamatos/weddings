@@ -37,7 +37,10 @@ function onRootDomain(hostname: string): boolean {
 const MAX_PARTY = 50;
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
-  const { guestListOnly, meals: mealOptions, giftExchange, askSong } = useRsvpOptions();
+  const { guestListOnly, meals: mealOptions, giftExchange, askSong, form } = useRsvpOptions();
+  // The host's RSVP form settings (app/lib/rsvp-form-options.ts): one person
+  // per reply hides the people counter and every reply counts as 1.
+  const onePerson = !!form?.onePerson;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -54,6 +57,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   const [events, setEvents] = useState<SubEvent[]>([]);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const maxParty = seatCap ?? MAX_PARTY;
+  const partySize = onePerson ? 1 : guests;
   const setPartySize = (n: number) => {
     const next = Math.min(Math.max(Number.isFinite(n) ? Math.floor(n) : 1, 1), maxParty);
     setGuests(next);
@@ -176,7 +180,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests, message, receiveUpdates, honeypot, cfToken, ...(inviteToken ? { inviteToken } : {}), ...(events.length ? { eventReplies: answers } : {}), ...(mealOptions ? { meals: party.slice(0, guests) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests: partySize, message, receiveUpdates, honeypot, cfToken, ...(inviteToken ? { inviteToken } : {}), ...(events.length ? { eventReplies: answers } : {}), ...(mealOptions ? { meals: party.slice(0, partySize) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -269,12 +273,12 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           <label className="radio-label">
             <input type="radio" name="rsvp-attending" value="attending"
               checked={status === 'attending'} onChange={() => setStatus('attending')} />
-            {t.joyfullyAccepts}
+            {form?.acceptText || t.joyfullyAccepts}
           </label>
           <label className="radio-label">
             <input type="radio" name="rsvp-attending" value="not_attending"
               checked={status === 'not_attending'} onChange={() => setStatus('not_attending')} />
-            {t.regretfullyDeclines}
+            {form?.declineText || t.regretfullyDeclines}
           </label>
         </div>
       </div>
@@ -296,7 +300,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           </div>
         </fieldset>
       )}
-      {status === 'attending' && (
+      {status === 'attending' && !onePerson && (
         <div>
           <label className="field-label" htmlFor="rsvp-guests">{t.numberOfGuests}</label>
           <div className="rsvp-party-size" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -328,9 +332,9 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           <label className="field-label" id="rsvp-meals-label" htmlFor="rsvp-meal-0">{t.mealsHeading}</label>
           <p className="check-hint" style={{ margin: '0 0 10px' }}>{t.mealsHint}</p>
           <div style={{ display: 'grid', gap: 14 }}>
-            {party.slice(0, guests).map((row, i) => (
+            {party.slice(0, partySize).map((row, i) => (
               <div key={i} className="rsvp-meal-person" style={{ display: 'grid', gap: 8 }}>
-                {guests > 1 && (
+                {partySize > 1 && (
                   i === 0 ? (
                     <p style={{ margin: 0, fontWeight: 600, fontSize: '0.95em' }}>{t.mealsYou}{name.trim() ? ` · ${name.trim()}` : ''}</p>
                   ) : (
@@ -340,7 +344,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
                     </label>
                   )
                 )}
-                <select id={`rsvp-meal-${i}`} value={row.meal} aria-label={`${t.mealsHeading}${guests > 1 ? ` · ${i === 0 ? t.mealsYou : t.mealsGuestLabel.replace('{{n}}', String(i + 1))}` : ''}`} onChange={(e) => setPerson(i, { meal: e.target.value })}>
+                <select id={`rsvp-meal-${i}`} value={row.meal} aria-label={`${t.mealsHeading}${partySize > 1 ? ` · ${i === 0 ? t.mealsYou : t.mealsGuestLabel.replace('{{n}}', String(i + 1))}` : ''}`} onChange={(e) => setPerson(i, { meal: e.target.value })}>
                   <option value="">{t.mealsChoose}</option>
                   {mealOptions.map((m) => <option key={m} value={m}>{m}</option>)}
                 </select>

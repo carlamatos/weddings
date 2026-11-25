@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { isDefaultHeroEyebrow } from '@/app/ui/themes/hero-eyebrow';
 import { areGuestMessagesOn } from '@/app/lib/guest-messages';
 import { isRsvpSongOn } from '@/app/lib/rsvp-song';
+import { rsvpFormFromSettings } from '@/app/lib/rsvp-form-options';
 import type { Metadata } from 'next';
 import { eventPageMetadata, publicPageUrl, withSearchVisibility } from '@/app/lib/share';
 import Link from 'next/link';
@@ -198,6 +199,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
         rsvpAskSong={isRsvpSongOn(pageSettings)}
+        rsvpForm={rsvpFormFromSettings(pageSettings)}
         guestMessagesOn={isPaid && areGuestMessagesOn(pageSettings)}
         themeSlug={data.theme_slug}
         heading={data.heading}

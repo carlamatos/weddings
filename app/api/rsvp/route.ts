@@ -9,6 +9,7 @@ import { fetchPageSettings } from '@/app/lib/data';
 import { isRsvpNotifyOn, notifyOwnerOfRsvp } from '@/app/lib/rsvp-notify';
 import { sendGiftJoinEmails } from '@/app/lib/gift-join-notify';
 import { isRsvpGuestListOnly } from '@/app/lib/rsvp-settings';
+import { rsvpFormFromSettings } from '@/app/lib/rsvp-form-options';
 import { cleanPartyMeals, mealOptionsFromSettings } from '@/app/lib/rsvp-meals';
 import { ensureMealsColumn } from '@/app/lib/rsvp-meals-data';
 import { ensureInviteColumns, verifyInviteToken } from '@/app/lib/invite-tracking';
@@ -101,12 +102,12 @@ export async function POST(request: Request) {
     const requested = Math.floor(Number(guests));
     // A household's seats (set by the host) are the most this reply can bring.
     const seatCap = invited ? (invited.seats ?? (invited.status === 'invited' ? invited.guests : null)) : null;
-    const maxGuests = seatCap && seatCap > 1 ? Math.min(seatCap, MAX_GUESTS) : MAX_GUESTS;
+    const settings = await fetchPageSettings(pageId);
+    // "One person per reply" (app/lib/rsvp-form-options.ts) caps every reply at 1.
+    const maxGuests = rsvpFormFromSettings(settings).onePerson ? 1 : seatCap && seatCap > 1 ? Math.min(seatCap, MAX_GUESTS) : MAX_GUESTS;
     const guestCount = status === 'attending' ? Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), maxGuests) : 1;
     const cleanPhone = str(phone, 40) || null;
     const cleanMessage = str(message, 2000) || null;
-
-    const settings = await fetchPageSettings(pageId);
 
     // Meal choices, when the host asks for them (all optional for guests).
     // When the host doesn't ask, what a guest chose before is left as it is.

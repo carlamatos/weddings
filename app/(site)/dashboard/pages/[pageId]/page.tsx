@@ -2,6 +2,7 @@ import { fetchGalleryImages, fetchGuestPhotos, fetchGuestSongs, fetchPageSetting
 import { heroEyebrowDefault, isDefaultHeroEyebrow } from '@/app/ui/themes/hero-eyebrow';
 import { areGuestMessagesOn } from '@/app/lib/guest-messages';
 import { isRsvpSongOn } from '@/app/lib/rsvp-song';
+import { rsvpFormFromSettings } from '@/app/lib/rsvp-form-options';
 import { requireOwnedPage } from '@/app/lib/dashboard';
 import { signPageId } from '@/app/lib/page-token';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -180,6 +181,7 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, userPage.language)}
         rsvpAskSong={isRsvpSongOn(pageSettings)}
+        rsvpForm={rsvpFormFromSettings(pageSettings)}
         guestMessagesOn={isPaid && areGuestMessagesOn(pageSettings)}
         themeSlug={userPage.theme_slug}
         heading={userPage.heading || ''}
