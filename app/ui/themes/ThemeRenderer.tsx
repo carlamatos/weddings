@@ -1,6 +1,7 @@
 import { getTheme } from './registry';
 import type { ThemeProps } from './types';
 import { RsvpOptionsProvider } from './rsvp-options';
+import type { RsvpFormOptions } from '@/app/lib/rsvp-form-options';
 import { LiveOptionsProvider } from './live-options';
 import HappeningNow from './happening-now';
 import SectionBackgrounds from './SectionBackgrounds';
@@ -15,6 +16,8 @@ interface ThemeRendererProps extends ThemeProps {
   rsvpMeals?: string[] | null;
   // Ask attending guests for a song (app/lib/rsvp-song.ts).
   rsvpAskSong?: boolean;
+  // One person per reply, and the host's accept / decline wording (app/lib/rsvp-form-options.ts).
+  rsvpForm?: RsvpFormOptions;
   // Guests can leave a message on the live wall (Live Party, app/lib/guest-messages.ts).
   guestMessagesOn?: boolean;
   // The page's own section backgrounds (app/lib/section-background.ts).
@@ -23,7 +26,7 @@ interface ThemeRendererProps extends ThemeProps {
   storyTextColor?: string;
 }
 
-export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rsvpMeals = null, rsvpAskSong = false, guestMessagesOn = false, sectionBackgrounds, storyTextColor, ...props }: ThemeRendererProps) {
+export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rsvpMeals = null, rsvpAskSong = false, rsvpForm, guestMessagesOn = false, sectionBackgrounds, storyTextColor, ...props }: ThemeRendererProps) {
   const { Page } = getTheme(themeSlug);
   const hasBackgrounds = !!sectionBackgrounds && Object.keys(sectionBackgrounds).length > 0;
   // On the guests' page the backgrounds go on as the page is read (before
@@ -31,7 +34,7 @@ export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rs
   const early = hasBackgrounds && !props.sectionTextPageId;
   return (
     <LiveOptionsProvider messagesOn={guestMessagesOn} language={props.language || 'en'}>
-    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals} giftExchange={!!props.giftExchange && !props.giftExchange.drawn} askSong={rsvpAskSong}>
+    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals} giftExchange={!!props.giftExchange && !props.giftExchange.drawn} askSong={rsvpAskSong} form={rsvpForm}>
       {/* The story text's colour: every theme marks its story paragraph (the editor colours its own). */}
       {storyTextColor && /^#[0-9a-f]{6}$/i.test(storyTextColor) && !props.sectionTextPageId && (
         <style>{`[data-mg-theme] [data-story-text]{color:${storyTextColor}!important;-webkit-text-fill-color:${storyTextColor}!important}`}</style>

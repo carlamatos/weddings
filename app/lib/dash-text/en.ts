@@ -1184,6 +1184,17 @@ export const en = {
     askForASong: 'Ask guests for a song',
     askForASongHint: 'Attending guests can suggest one song for the dance floor. Their picks appear in Song Requests.',
   },
+  rsvpFormOption: {
+    guestsCanReplyForOthers: 'Guests can reply for others in their party',
+    guestsCanReplyForOthersHint: 'Guests choose how many people are coming. Untick it so each reply is for one person only: the counter is hidden and everyone replies for themselves.',
+    choiceWording: 'Wording of the two choices',
+    choiceWordingHint: 'What guests tick to say yes or no. Leave a box empty to use the usual wording.',
+    acceptLabel: 'Yes',
+    declineLabel: 'No',
+    save: 'Save wording',
+    saving: 'Saving…',
+    saved: 'Saved. Your RSVP form shows the new wording.',
+  },
   rsvpNotifyOption: {
     emailMeWhenSomeoneRsvps: 'Email me when someone RSVPs',
     eachTimeAGuestReplies: 'Each time a guest replies (or changes their reply), we’ll send the details to',

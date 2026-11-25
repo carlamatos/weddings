@@ -27,6 +27,9 @@ import { readGuestPlan } from '@/app/lib/saved-plans';
 import { fetchPlan } from '@/app/lib/saved-plans-data';
 import { SavedPlanNotice } from '@/app/ui/dashboard/saved-plan-notice';
 import type { Metadata } from 'next';
+import { RsvpFormOption } from '@/app/ui/dashboard/rsvp-form-option';
+import { rsvpFormFromSettings } from '@/app/lib/rsvp-form-options';
+import { getTranslations } from '@/app/lib/translations';
 
 import { getDashText } from '@/app/lib/dash-text/server';
 import { fill } from '@/app/lib/dash-text/fill';
@@ -61,6 +64,8 @@ export default async function GuestListPage({ params, searchParams }: { params: 
 
   // Meal choices (when the host asks for them, or anyone chose one before).
   const mealOptions = mealOptionsFromSettings(settings, page.language);
+  const rsvpForm = rsvpFormFromSettings(settings);
+  const pageT = getTranslations(page.language);
   const mealGuests = guests.map((g) => ({ name: g.name, status: g.status, guests: g.guests, meals: readPartyMeals(g.meals), table: g.seating_table ?? '' }));
   const showMeals = !!mealOptions || mealGuests.some((g) => g.meals.some((r) => r.meal || r.diet));
   const mealRows: MealRow[] = mealGuests.filter((g) => g.status === 'attending').flatMap((g) =>
@@ -157,6 +162,14 @@ export default async function GuestListPage({ params, searchParams }: { params: 
           initialOn={isRsvpGuestListOnly(settings)}
           guestCount={guests.length}
           guestListHref={pagePath(pageId, '/guest-list')}
+        />
+        <RsvpFormOption
+          pageId={pageId}
+          initialOnePerson={rsvpForm.onePerson}
+          initialAccept={rsvpForm.acceptText}
+          initialDecline={rsvpForm.declineText}
+          defaultAccept={pageT.joyfullyAccepts}
+          defaultDecline={pageT.regretfullyDeclines}
         />
         <RsvpSongOption pageId={pageId} initialOn={isRsvpSongOn(settings)} />
         <RsvpMealsOption
