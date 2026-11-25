@@ -45,7 +45,22 @@ type HostRow = {
   page_created: Date | null; guests: number; replies: number; follow_up: string | null;
   santa: number; santa_drawn: boolean; goal: string | null; purpose: string | null;
   plus_box: number; plus_checkout: number; plus_last: Date | null; plus_sections: string | null; plus_paid: boolean;
+  event_date: string | null; // YYYY-MM-DD, the page's event date
 };
+
+// Days from today (Pacific) to the event: 0 today, negative once it's past.
+const todayPacific = () => new Date().toLocaleDateString('en-CA', { timeZone: TZ });
+function daysUntil(eventDate: string | null): number | null {
+  if (!eventDate) return null;
+  const ms = Date.parse(`${eventDate}T00:00:00Z`) - Date.parse(`${todayPacific()}T00:00:00Z`);
+  return Number.isNaN(ms) ? null : Math.round(ms / 86_400_000);
+}
+function eventIn(days: number): string {
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  if (days === -1) return 'Yesterday';
+  return days > 0 ? `In ${days} days` : `${-days} days ago`;
+}
 
 function when(value: Date | string | null): string {
   if (!value) return '—';
@@ -64,15 +79,17 @@ const pill = (label: string, color: string, bg: string) => (
 
 const FOLLOW_UP_LABEL: Record<string, string> = { confirm: 'Confirm email', publish: 'Publish', share: 'Invite guests' };
 
-// The hosts table's order: ?sort=made|last|visits|followup and ?dir=asc|desc
+// The hosts table's order: ?sort=event|made|last|visits|followup|plus and ?dir=asc|desc
 // (by default the last visit, newest first). Empty values go last.
-type HostSort = 'made' | 'last' | 'visits' | 'followup' | 'plus';
+type HostSort = 'made' | 'last' | 'visits' | 'followup' | 'plus' | 'event';
 const HOST_SORTS: Record<HostSort, (u: HostRow) => number | null> = {
   made: (u) => (u.page_created ? new Date(u.page_created).getTime() : u.date ? new Date(u.date).getTime() : null),
   last: (u) => (u.last_dashboard_at ? new Date(u.last_dashboard_at).getTime() : null),
   visits: (u) => u.dashboard_visits || null,
   followup: (u) => { const at = u.follow_up?.split(' ')[1]; const t = at ? new Date(at).getTime() : NaN; return Number.isNaN(t) ? null : t; },
   plus: (u) => (u.plus_last ? new Date(u.plus_last).getTime() : null),
+  // Soonest upcoming event first (ascending); past events after every upcoming one.
+  event: (u) => { const d = daysUntil(u.event_date); return d === null ? null : d >= 0 ? d : 100_000 - d; },
 };
 
 // '/seating' → 'Find Your Table'.
@@ -113,7 +130,8 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                (SELECT count(*)::int FROM plus_interest i WHERE i.user_id = u.id AND i.kind = 'checkout') AS plus_checkout,
                (SELECT max(i.created_at) FROM plus_interest i WHERE i.user_id = u.id) AS plus_last,
                (SELECT string_agg(DISTINCT i.section, ',') FROM plus_interest i WHERE i.user_id = u.id) AS plus_sections,
-               COALESCE(p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL, false) AS plus_paid
+               COALESCE(p.plan_type = 'paid' OR p.plan_expires_at IS NOT NULL, false) AS plus_paid,
+               to_char(p.event_date, 'YYYY-MM-DD') AS event_date
         FROM users u
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
@@ -246,10 +264,10 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
           <thead>
             <tr>
               <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
-              {([['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
+              {([['event', 'Event date'], ['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
                 <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
                   <Link
-                    href={`/admin/activity?sort=${key}&dir=${sort === key && dir === 'desc' ? 'asc' : 'desc'}`}
+                    href={`/admin/activity?sort=${key}&dir=${sort === key ? (dir === 'desc' ? 'asc' : 'desc') : key === 'event' ? 'asc' : 'desc'}`}
                     style={{ color: 'inherit', textDecoration: 'none' }}
                     title={`Sort by ${label.toLowerCase()}`}
                   >
@@ -284,6 +302,18 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                   {isPagePurpose(u.purpose) ? PURPOSE_ADMIN_LABELS[u.purpose] : <span style={{ color: c.muted }}>{u.slug ? 'Not asked' : '—'}</span>}
                   {u.goal && <div style={{ color: c.muted, fontSize: 11 }}>{GOAL_ADMIN_LABELS[u.goal] ?? u.goal}</div>}
                 </td>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                  {u.event_date ? (() => {
+                    const days = daysUntil(u.event_date) ?? 0;
+                    const soon = days >= 0 && days <= 14;
+                    return (
+                      <>
+                        {new Date(`${u.event_date}T12:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' })}
+                        <div style={{ marginTop: 2 }}>{soon ? pill(eventIn(days), c.amber, c.amberBg) : <span style={{ color: c.muted, fontSize: 11 }}>{eventIn(days)}</span>}</div>
+                      </>
+                    );
+                  })() : <span style={{ color: c.muted }}>{u.slug ? 'No date' : '—'}</span>}
+                </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{u.page_created ? when(u.page_created) : u.date ? new Date(u.date).toISOString().slice(0, 10) : '—'}</td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>{when(u.last_dashboard_at)}</td>
                 <td style={td}>{u.dashboard_visits || '—'}</td>
@@ -308,7 +338,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
               </tr>
             ))}
             {!hosts.length && !error && (
-              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={8}>No hosts yet.</td></tr>
+              <tr><td style={{ ...td, textAlign: 'center', color: c.muted }} colSpan={9}>No hosts yet.</td></tr>
             )}
           </tbody>
         </table>
