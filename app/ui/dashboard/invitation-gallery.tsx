@@ -90,7 +90,8 @@ export function InvitationGallery({ design, details, themeSlug, onPick, onUpload
         ))}
       </div>
 
-      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(112px, 1fr))', gap: 14 }}>
+      {/* At most 6 per row (2 rows of 12 per page), growing with the space; narrower screens fit as many 112px cards as they can. */}
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(max(112px, calc((100% - 70px) / 6)), 1fr))', gap: 14 }}>
         {current === 0 && <li>
           <button type="button" onClick={onUploadOwn} disabled={uploading} title={t.uploadYourOwnHint}
             style={{ width: '100%', aspectRatio: '5 / 7', border: `2px dashed ${design.layout === 'own' ? '#B6584A' : '#D9CFC8'}`, borderRadius: 6, background: '#FBF9F7', color: '#6B6470', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, padding: 8 }}>
