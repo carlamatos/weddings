@@ -5,6 +5,7 @@ import { INVITATION_SETTING, normalizeInvitation, withInvitationText, type Invit
 import { invitationDetails } from './invitation-details';
 import { invitationPassword } from './page-password';
 import { invitationEmail, saveTheDateEmail } from './invitation-email';
+import { calendarEvent, googleCalendarUrl, hasSaveTheDate, icsUrl, saveTheDateUrl } from './save-the-date';
 import { ensureInviteColumns, inviteToken, inviteUrl } from './invite-tracking';
 import { sendMailBatch, fromName, type MailMessage } from './mail';
 import { oneClickUnsubscribeUrl, unsubscribeUrl } from './unsubscribe-token';
@@ -75,7 +76,11 @@ export function buildEmail(ctx: InvitationContext, kind: SendKind, guest?: Pick<
     siteBase: siteUrl(),
     ...(guest && opts.withTracking ? { unsubscribeLink: unsubscribeUrl(guest.id) } : {}),
   };
-  if (kind === 'save_the_date') return saveTheDateEmail(common);
+  if (kind === 'save_the_date') {
+    const event = calendarEvent(page);
+    // The button opens the save-the-date page (its card and calendar buttons).
+    return saveTheDateEmail({ ...common, ...(event ? { calendar: { google: googleCalendarUrl(event), apple: icsUrl(page) } } : {}), ...(hasSaveTheDate(page) ? { link: saveTheDateUrl(page) } : {}) });
+  }
   return invitationEmail({
     ...common,
     note: guest?.invitation_note,

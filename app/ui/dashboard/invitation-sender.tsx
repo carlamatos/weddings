@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { cancelScheduledSend, markGuestTexted, previewInvitationEmail, saveInvitationNote, sendInvitations, sendTestInvitation } from '@/app/lib/actions';
 import type { ScheduledSend, SendKind } from '@/app/lib/invitation-send';
 import { INVITATION_NOTE_MAX, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
-import { invitationText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
+import { invitationText, saveTheDateText, smsHref, whatsappHref } from '@/app/lib/invitation-text';
 import type { Guest } from '@/app/lib/definitions';
 import { STATUS, btn, card, cell, headCell, input, primary, statusPill } from './guest-ui';
 import { LocalDate } from './local-date';
@@ -63,6 +63,7 @@ export function InvitationSender({
   guestListHref,
   locked = false,
   inviteLinks = {},
+  saveTheDate,
   scheduled = [],
 }: {
   pageId: number;
@@ -76,6 +77,9 @@ export function InvitationSender({
   locked?: boolean;
   // Each guest's own invitation link (/i/…), for their text message.
   inviteLinks?: Record<string, string>;
+  // The page's save-the-date (app/lib/save-the-date.ts), when it has a date to
+  // come: with "Save the date" chosen, texts send it instead of the invitation.
+  saveTheDate?: { url: string; place: string };
   // Sends the host scheduled (pending, and the last two weeks').
   scheduled?: ScheduledSend[];
 }) {
@@ -97,10 +101,16 @@ export function InvitationSender({
   const [previewGuest, setPreviewGuest] = useState('');
   const [preview, setPreview] = useState<{ subject: string; html: string } | { error: string } | null>(null);
 
-  const messageFor = (g: Guest) => invitationText({ design, details: { ...details, url: inviteLinks[g.id] ?? details.url }, language, guestName: g.name, note: g.invitation_note, hostName });
-  const [filter, setFilter] = useState<Filter>('all');
-  // What to send (the invitation or a save-the-date) and when.
   const [kind, setKind] = useState<SendKind>('invitation');
+  // Texting (and copying) follows "What to send".
+  const textingSaveTheDate = kind === 'save_the_date' && !!saveTheDate;
+  const messageFor = (g: Guest) => textingSaveTheDate
+    ? saveTheDateText({ name: details.name, date: details.date, place: saveTheDate!.place, url: saveTheDate!.url, language, guestName: g.name, hostName })
+    : invitationText({ design, details: { ...details, url: inviteLinks[g.id] ?? details.url }, language, guestName: g.name, note: g.invitation_note, hostName });
+  // Save-the-dates texted on this visit, shown before the page refreshes.
+  const [savedNow, setSavedNow] = useState<Record<string, string>>({});
+  const [filter, setFilter] = useState<Filter>('all');
+  // When to send.
   const [later, setLater] = useState(false);
   const [laterAt, setLaterAt] = useState('');
   const [minLater, setMinLater] = useState('');
@@ -165,9 +175,11 @@ export function InvitationSender({
     });
   }
 
+  // A texted save-the-date counts as their save-the-date, not their invitation.
   function onTexted(g: Guest, via: 'sms' | 'whatsapp') {
-    setTextedNow((prev) => ({ ...prev, [g.id]: via }));
-    markGuestTexted(pageId, g.id, via).then((r) => { if (r.ok) router.refresh(); }).catch(() => {});
+    if (textingSaveTheDate) setSavedNow((prev) => ({ ...prev, [g.id]: new Date().toISOString() }));
+    else setTextedNow((prev) => ({ ...prev, [g.id]: via }));
+    markGuestTexted(pageId, g.id, via, textingSaveTheDate ? 'save_the_date' : 'invitation').then((r) => { if (r.ok) router.refresh(); }).catch(() => {});
   }
 
   async function copyMessage(g: Guest) {
@@ -465,11 +477,11 @@ export function InvitationSender({
                           <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
                             {g.phone && !locked && (
                               <>
-                                <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={fill(d.invitationSender.textTheInvitationToFrom, { name: g.name })}>{d.invitationSender.text}</a>
-                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={fill(d.invitationSender.sendTheInvitationToOn, { name: g.name })}>{d.invitationSender.whatsapp}</a>
+                                <a href={smsHref(g.phone, messageFor(g))} onClick={() => onTexted(g, 'sms')} style={phoneBtn} title={fill(textingSaveTheDate ? d.invitationSender.textTheSaveTheDateTo : d.invitationSender.textTheInvitationToFrom, { name: g.name })}>{d.invitationSender.text}</a>
+                                <a href={whatsappHref(g.phone, messageFor(g))} target="_blank" rel="noopener noreferrer" onClick={() => onTexted(g, 'whatsapp')} style={phoneBtn} title={fill(textingSaveTheDate ? d.invitationSender.sendTheSaveTheDateOn : d.invitationSender.sendTheInvitationToOn, { name: g.name })}>{d.invitationSender.whatsapp}</a>
                               </>
                             )}
-                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title={d.invitationSender.copyTheInvitationMessage}>{copied === g.id ? d.invitationSender.copied : d.invitationSender.copy}</button>}
+                            {!locked && <button type="button" onClick={() => copyMessage(g)} style={phoneBtn} title={textingSaveTheDate ? d.invitationSender.copyTheSaveTheDateMessage : d.invitationSender.copyTheInvitationMessage}>{copied === g.id ? d.invitationSender.copied : d.invitationSender.copy}</button>}
                           </div>
                         </td>
                         <td style={cell}><span style={{ ...statusPill, ...style }}>{text}</span></td>
@@ -484,9 +496,9 @@ export function InvitationSender({
                               ✓ {texted === 'whatsapp' ? d.invitationSender.whatsapp : d.invitationSender.texted} <LocalDate iso={textedNow[g.id] || !g.texted_at ? new Date().toISOString() : g.texted_at} options={{ month: 'short', day: 'numeric' }} />
                             </div>
                           )}
-                          {g.save_the_date_at && (
+                          {(g.save_the_date_at || savedNow[g.id]) && (
                             <div style={{ color: '#3D6B46', fontWeight: 600, marginTop: 4 }}>
-                              {d.invitationSender.savedTheDate} <LocalDate iso={g.save_the_date_at} options={{ month: 'short', day: 'numeric' }} />
+                              {d.invitationSender.savedTheDate} <LocalDate iso={(g.save_the_date_at || savedNow[g.id])!} options={{ month: 'short', day: 'numeric' }} />
                             </div>
                           )}
                           {(invitedOf(g, textedNow) || g.viewed_at) && <Progress g={g} labels={[s.stepOpened, s.stepViewed, s.stepReplied]} />}

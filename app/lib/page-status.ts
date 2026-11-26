@@ -30,3 +30,12 @@ export function isPageDraft(status?: string | null): boolean {
 export function isPageSuspended(status?: string | null): boolean {
   return status === 'suspended';
 }
+
+// Why a page's link can't be shared yet (app/ui/dashboard/quick-share.tsx,
+// share-menu.tsx): 'verify', the account's email isn't confirmed (so the page
+// is a draft), or 'publish', confirmed but not published. Unconfirmed
+// accounts never get share buttons: the link would only show guests "not
+// published yet", and unconfirmed pages aren't sent out.
+export type ShareLock = 'verify' | 'publish' | undefined;
+export const shareLockOf = (status: string | null | undefined, verified: boolean): ShareLock =>
+  status === 'draft' ? (verified ? 'publish' : 'verify') : undefined;

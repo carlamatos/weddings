@@ -2,14 +2,15 @@
 
 import { ArrowDownIcon, LinkIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { useDashText } from '@/app/ui/dashboard/dash-text';
-import { DraftNote, ShareLinkButtons } from '@/app/ui/dashboard/quick-share';
+import { ShareLinkButtons, ShareLocked } from '@/app/ui/dashboard/quick-share';
+import type { ShareLock } from '@/app/lib/page-status';
 
 // The empty guest list's start (Guests & RSVPs): hosts often think they must type in every
 // guest before anyone can RSVP. Sharing the link is enough (guests who RSVP
 // join the list by themselves); the list is for personal invitations,
 // reminders and seeing who hasn't replied. With "Only guests on my guest
 // list can RSVP" on, the list comes first, so only that way is offered.
-export function GuestListStart({ pageId, url, title, draft, listOnly }: { pageId: number; url: string; title: string; draft: boolean; listOnly: boolean }) {
+export function GuestListStart({ pageId, url, title, lock, listOnly }: { pageId: number; url: string; title: string; lock?: ShareLock; listOnly: boolean }) {
   const d = useDashText();
   const t = d.guestListStart;
   return (
@@ -28,8 +29,7 @@ export function GuestListStart({ pageId, url, title, draft, listOnly }: { pageId
             <div style={{ flex: 1, minWidth: 0 }}>
               <h3 style={wayTitle}>1. {t.shareYourLinkQuickest}</h3>
               <p style={{ ...text, margin: '0 0 12px' }}>{t.postYourPageInA}</p>
-              {draft && <DraftNote />}
-              <ShareLinkButtons pageId={pageId} url={url} title={title} />
+              {lock ? <ShareLocked lock={lock} pageId={pageId} /> : <ShareLinkButtons pageId={pageId} url={url} title={title} />}
             </div>
           </div>
           <div style={{ ...way, borderTop: '1px solid #EAD9D3', paddingTop: 16, marginTop: 18 }}>
