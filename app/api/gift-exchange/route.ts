@@ -7,16 +7,18 @@ import { guestAccessDenied } from '@/app/lib/page-access';
 import { clientIp, overRateLimit } from '@/app/lib/rate-limit';
 import { cleanPhone, isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
 import { GIFT_MAX_PARTICIPANTS, GIFT_NAME_MAX, GIFT_WISHLIST_MAX, isGiftExchangeOn } from '@/app/lib/gift-exchange';
-import { sendGiftJoinEmails } from '@/app/lib/gift-join-notify';
+import { sendGiftJoinEmails, sendGiftLateJoinEmail } from '@/app/lib/gift-join-notify';
 import { isRsvpNotifyOn } from '@/app/lib/rsvp-notify';
 
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const field = (v: unknown, max: number) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 // A guest joins the Gift Exchange from the event page. One entry per email per
 // page: sending again with the same email updates it. Once names are drawn,
-// sign-ups close, but existing participants can still update their gift ideas.
+// sign-ups close, but existing participants can still update their gift ideas;
+// someone new is turned away and the organizer is told (sendGiftLateJoinEmail).
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => null);
@@ -64,7 +66,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: true, updated: true, drawn });
     }
     if (drawn) {
-      return NextResponse.json({ error: 'Names have already been drawn, so sign-ups are closed.' }, { status: 403 });
+      // Too late to join: the organizer hears who'd like to, once per person a
+      // day and at most 10 a day per page. The page shows the guest its own
+      // wording for `code`, in the page's language.
+      const tellHost = !(await overRateLimit(`gift-late:${pageId}:${email}`, 1, DAY_MS))
+        && !(await overRateLimit(`gift-late:${pageId}`, 10, DAY_MS));
+      const hostTold = tellHost && await sendGiftLateJoinEmail(pageId, { name, email, wishlist });
+      return NextResponse.json({ error: 'Names have already been drawn, so sign-ups are closed.', code: 'drawn', hostTold }, { status: 403 });
     }
     if ((state.rows[0]?.n ?? 0) >= GIFT_MAX_PARTICIPANTS) {
       return NextResponse.json({ error: 'This gift exchange is full.' }, { status: 403 });

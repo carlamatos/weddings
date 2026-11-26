@@ -440,6 +440,7 @@ export const es: DashText = {
     added2: 'Se añadieron {added} {v1}.{v2}',
     couldnTAddGuestsPlease: 'No se pudieron añadir los invitados. Inténtalo de nuevo.',
     removeFromTheGiftExchange: '¿Quitar a {name} del intercambio de regalos?',
+    signUpsCloseOnDraw: '\n\nLas inscripciones se cierran después del sorteo, así que asegúrate primero de que ya estén todos. Quien intente inscribirse después no podrá, y te llegará un correo para que puedas agregarle.',
     thisReplacesTheCurrentDraw: '\n\nEsto reemplaza el sorteo actual: todos tendrán una persona nueva, así que tendrás que avisar a todos otra vez.',
     drawNamesForPeople: '¿Sortear nombres para {length} personas?{again}',
     namesDrawnForPeopleNow: 'Nombres sorteados para {count} personas. Ahora dile a cada uno a quién le regala.',

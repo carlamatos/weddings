@@ -1,7 +1,7 @@
 import { escHtml } from './mail';
 import { companyMailingLine } from './company';
 import { siteUrl } from './site-url';
-import { GIFT_COPY, GIFT_HOST_COPY, giftLang, type GiftLang } from './gift-exchange-copy';
+import { GIFT_COPY, GIFT_HOST_COPY, GIFT_LATE_COPY, giftLang, type GiftLang } from './gift-exchange-copy';
 import type { GiftExchangeDetails } from './gift-exchange';
 
 // The email telling one participant who they're the Secret Santa for. Inline
@@ -207,6 +207,31 @@ export function giftJoinedHostEmail({ language, eventName, ownerName, name, wish
         ${ideasBox(h.ideas, wishlist, h.noIdeas)}
         <p style="margin: 18px 0 0; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;"><strong>${escHtml(h.count(count))}</strong>
         ${escHtml(count >= minToDraw ? h.ready : h.needMore(minToDraw - count))}</p>
+        ${cta(link, h.button)}`;
+  return { subject, html: shell(lang, subject, inner, eventName, { footer: h.footer }) };
+}
+
+// Sent to the organizer when someone tries to join after names were drawn.
+export function giftLateJoinHostEmail({ language, eventName, ownerName, name, email, wishlist, link }: {
+  language?: string | null;
+  eventName: string;
+  ownerName: string;
+  name: string;
+  email: string;
+  wishlist: string | null;
+  link: string;
+}): { subject: string; html: string } {
+  const lang = giftLang(language);
+  const h = GIFT_LATE_COPY[lang];
+  const subject = h.subject(name, eventName);
+  const steps = h.steps.map((step) => `<li style="margin: 0 0 6px;">${escHtml(step)}</li>`).join('');
+  const inner = `
+        <p style="margin: 0 0 6px; font-size: 15px; color: ${C.text}; text-align: left;">${escHtml(h.hi(ownerName))}</p>
+        <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;">${escHtml(h.lead(name, email, eventName))}</p>
+        ${ideasBox(h.ideas, wishlist, h.noIdeas)}
+        <p style="margin: 18px 0 6px; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;"><strong>${escHtml(h.how)}</strong></p>
+        <ol style="margin: 0; padding: 0 0 0 20px; font-size: 15px; line-height: 1.6; color: ${C.text}; text-align: left;">${steps}</ol>
+        <p style="margin: 12px 0 0; font-size: 14px; line-height: 1.6; color: ${C.soft}; text-align: left;">${escHtml(h.noAction)}</p>
         ${cta(link, h.button)}`;
   return { subject, html: shell(lang, subject, inner, eventName, { footer: h.footer }) };
 }

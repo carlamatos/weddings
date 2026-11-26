@@ -243,3 +243,67 @@ export const GIFT_HOST_COPY: Record<GiftLang, {
     footer: 'Recibes este correo porque los avisos de confirmación están activados para esta página. Para dejar de recibirlos, desmarca «Escribirme cuando alguien responda» en Invitados y confirmaciones.',
   },
 };
+
+// Sent to the organizer when someone tries to join after names were drawn
+// (sign-ups are closed then), with how to let them in.
+export const GIFT_LATE_COPY: Record<GiftLang, {
+  subject: (name: string, event: string) => string;
+  hi: (name: string) => string;
+  lead: (name: string, email: string, event: string) => string;
+  how: string;
+  steps: string[];
+  noAction: string;
+  ideas: string;
+  noIdeas: string;
+  button: string;
+  footer: string;
+}> = {
+  en: {
+    subject: (name, event) => `${name} would like to join your Secret Santa · ${event}`,
+    hi: (name) => (name ? `Hi ${name},` : 'Hi there,'),
+    lead: (name, email, event) => `${name} (${email}) tried to join the gift exchange for ${event}, but names had already been drawn, so sign-ups were closed.`,
+    how: 'To add them:',
+    steps: [
+      'Open your Secret Santa and tap “Clear draw”. Sign-ups reopen.',
+      'Add them, or ask them to join again from your page.',
+      'Tap “Draw names”, then tell everyone their new match (“Email everyone” or by text).',
+    ],
+    noAction: 'If you’d rather keep the current draw, there’s nothing to do.',
+    ideas: 'Their gift ideas',
+    noIdeas: 'No gift ideas',
+    button: 'Open your Secret Santa',
+    footer: 'You get this email because someone tried to join your gift exchange after names were drawn.',
+  },
+  fr: {
+    subject: (name, event) => `${name} aimerait participer à votre Père Noël secret · ${event}`,
+    hi: (name) => (name ? `Bonjour ${name},` : 'Bonjour,'),
+    lead: (name, email, event) => `${name} (${email}) a essayé de s’inscrire à l’échange de cadeaux de ${event}, mais le tirage avait déjà eu lieu : les inscriptions étaient fermées.`,
+    how: 'Pour l’ajouter :',
+    steps: [
+      'Ouvrez votre Père Noël secret et touchez « Effacer le tirage ». Les inscriptions rouvrent.',
+      'Ajoutez cette personne, ou demandez-lui de s’inscrire de nouveau depuis votre page.',
+      'Touchez « Tirer les noms », puis donnez à chacun son nouveau nom (« Écrire à tous » ou par texto).',
+    ],
+    noAction: 'Si vous préférez garder le tirage actuel, vous n’avez rien à faire.',
+    ideas: 'Ses idées de cadeaux',
+    noIdeas: 'Pas d’idées de cadeaux',
+    button: 'Ouvrir mon Père Noël secret',
+    footer: 'Vous recevez ce courriel parce que quelqu’un a essayé de s’inscrire à votre échange de cadeaux après le tirage.',
+  },
+  es: {
+    subject: (name, event) => `${name} quiere unirse a tu amigo secreto · ${event}`,
+    hi: (name) => (name ? `Hola, ${name}:` : 'Hola:'),
+    lead: (name, email, event) => `${name} (${email}) intentó inscribirse en el intercambio de regalos de ${event}, pero el sorteo ya se había hecho y las inscripciones estaban cerradas.`,
+    how: 'Para agregarle:',
+    steps: [
+      'Abre tu amigo secreto y toca «Borrar sorteo». Las inscripciones se reabren.',
+      'Agrégale tú, o pídele que se inscriba de nuevo desde tu página.',
+      'Toca «Sortear nombres» y luego avisa a todos su nuevo nombre («Escribir a todos» o por mensaje).',
+    ],
+    noAction: 'Si prefieres mantener el sorteo actual, no tienes que hacer nada.',
+    ideas: 'Sus ideas de regalo',
+    noIdeas: 'Sin ideas de regalo',
+    button: 'Abrir mi amigo secreto',
+    footer: 'Recibes este correo porque alguien intentó unirse a tu intercambio de regalos después del sorteo.',
+  },
+};

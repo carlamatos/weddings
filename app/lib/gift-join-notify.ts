@@ -4,7 +4,7 @@ import { siteUrl } from './site-url';
 import { publicPageUrl } from './share';
 import { fetchPageSettings } from './data';
 import { GIFT_MIN_TO_DRAW, giftExchangeDetails } from './gift-exchange';
-import { giftJoinedEmail, giftJoinedHostEmail } from './gift-exchange-email';
+import { giftJoinedEmail, giftJoinedHostEmail, giftLateJoinHostEmail } from './gift-exchange-email';
 import type { UserPage } from './definitions';
 
 // Emails sent when a guest joins a page's Secret Santa: a "you're in" note to
@@ -64,5 +64,40 @@ export async function sendGiftJoinEmails(
   } catch (error) {
     console.error('Failed to send Secret Santa sign-up emails:', error);
     return null;
+  }
+}
+
+// Someone tried to join after names were drawn: tells the organizer who, and
+// how to let them in (clear the draw, add them, draw again). Returns whether
+// the email went out. Never throws.
+export async function sendGiftLateJoinEmail(
+  pageId: number,
+  joiner: { name: string; email: string; wishlist: string | null },
+): Promise<boolean> {
+  try {
+    const res = await sql<{ heading: string | null; language: string | null; owner_email: string | null; given_name: string | null }>`
+      SELECT up.heading, up.language, u.email AS owner_email, u.given_name
+      FROM user_page up JOIN users u ON u.id = up.user_id
+      WHERE up.id = ${pageId}
+    `;
+    const page = res.rows[0];
+    if (!page?.owner_email || page.owner_email.toLowerCase() === joiner.email.toLowerCase()) return false;
+    const eventName = (page.heading ?? '').replace(/\s+/g, ' ').trim() || 'MyGala';
+    await sendMailBatch([{
+      to: page.owner_email,
+      ...giftLateJoinHostEmail({
+        language: page.language,
+        eventName,
+        ownerName: (page.given_name ?? '').trim(),
+        name: joiner.name,
+        email: joiner.email,
+        wishlist: joiner.wishlist,
+        link: `${siteUrl()}/dashboard/pages/${pageId}/gift-exchange`,
+      }),
+    }]);
+    return true;
+  } catch (error) {
+    console.error('Failed to send the Secret Santa late sign-up email:', error);
+    return false;
   }
 }
