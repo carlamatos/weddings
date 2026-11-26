@@ -12,6 +12,8 @@ import { shareTipFor, type SetupStep } from '@/app/lib/setup-progress';
 import { publicPageUrl } from '@/app/lib/share';
 import { pagePath } from '@/app/lib/dashboard';
 import { siteHref } from '@/app/lib/app-url';
+import { shareLockOf } from '@/app/lib/page-status';
+import { isSaveTheDateTime, saveTheDateUrl } from '@/app/lib/save-the-date';
 
 import { getDashText } from '@/app/lib/dash-text/server';
 import type { DashText } from '@/app/lib/dash-text/en';
@@ -29,11 +31,16 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
   const pageUrl = userPage ? publicPageUrl(userPage) : '';
   const title = userPage?.heading || 'MyGala';
   // One Share button: the page, or straight to its RSVP form (unless the
-  // host hid the RSVP).
+  // host hid the RSVP). Months before the event, the save-the-date
+  // (app/lib/save-the-date.ts) comes first, and opens selected. A draft
+  // shows how to publish instead of the link (lock).
+  const lock = shareLockOf(userPage?.status, !!session?.user?.verifiedEmail);
+  const invitePath = userPage ? pagePath(userPage.id, '/invitations') : '';
   const shareChoices: ShareChoice[] | undefined = userPage
     ? [
-        { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } },
-        ...!isSectionOn(settings, 'show_rsvp') ? [] : [{ tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: pagePath(userPage.id, '/invitations'), pageId: Number(userPage.id) } }],
+        ...!isSaveTheDateTime(userPage) ? [] : [{ tab: d.topnav.saveTheDate, target: { url: saveTheDateUrl(userPage), title: `${d.topnav.saveTheDate}: ${title}`, heading: d.topnav.shareYourSaveTheDate, sharePageHref: invitePath, pageId: Number(userPage.id), lock, message: fill(d.quickShare.saveTheDateMessage, { title, url: saveTheDateUrl(userPage) }) } }],
+        { tab: d.topnav.yourPage, target: { url: pageUrl, title, heading: d.topnav.shareYourPage, sharePageHref: invitePath, pageId: Number(userPage.id), lock } },
+        ...!isSectionOn(settings, 'show_rsvp') ? [] : [{ tab: d.topnav.rsvpForm, target: { url: `${pageUrl}#rsvp`, title: `RSVP — ${title}`, heading: d.topnav.shareYourRsvpForm, sharePageHref: invitePath, pageId: Number(userPage.id), lock } }],
       ]
     : undefined;
   // Whether guests can see the page, with its address beside it.

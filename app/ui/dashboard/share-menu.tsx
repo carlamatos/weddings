@@ -8,6 +8,8 @@ import {
 import { NETWORKS } from './share-buttons';
 import { markLinkShared } from '@/app/lib/actions';
 import { ShareTipBubble, useShareTip } from './share-tip';
+import { ShareLocked } from './quick-share';
+import type { ShareLock } from '@/app/lib/page-status';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 const enc = encodeURIComponent;
@@ -17,12 +19,26 @@ const enc = encodeURIComponent;
 const QUICK = ['WhatsApp', 'Facebook', 'Messenger', 'X', 'LinkedIn', 'Telegram'];
 
 // pageId: copying or sharing the link counts as inviting guests on the
-// page's setup checklist (markLinkShared).
-export type ShareTarget = { url: string; title: string; heading: string; sharePageHref: string; pageId?: number };
+// page's setup checklist (markLinkShared). lock: a draft, so instead of the
+// link, confirm the email or publish (app/lib/page-status.ts). message: the
+// text sent with the link (the save-the-date's own), else the title.
+export type ShareTarget = { url: string; title: string; heading: string; sharePageHref: string; pageId?: number; lock?: ShareLock; message?: string };
 
 // The share options themselves: the link with Copy, then the apps.
 // `onDone` closes whatever holds the panel.
-export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone }: ShareTarget & { onDone: () => void }) {
+export function SharePanel(props: ShareTarget & { onDone: () => void }) {
+  if (props.lock && props.pageId !== undefined) {
+    return (
+      <>
+        <p className="dash-share-title">{props.heading}</p>
+        <ShareLocked lock={props.lock} pageId={props.pageId} />
+      </>
+    );
+  }
+  return <OpenSharePanel {...props} />;
+}
+
+function OpenSharePanel({ url, title, heading, sharePageHref, pageId, message, onDone }: ShareTarget & { onDone: () => void }) {
   const d = useDashText();
   const shared = () => { if (pageId !== undefined) markLinkShared(pageId).catch(() => {}); };
   const sharedAndDone = () => { shared(); onDone(); };
@@ -50,14 +66,14 @@ export function SharePanel({ url, title, heading, sharePageHref, pageId, onDone 
 
   async function nativeShare() {
     try {
-      await navigator.share({ title, text: title, url });
+      await navigator.share({ title, text: message ?? title, url });
       shared();
     } catch {
       // Dismissed by the user — nothing to do.
     }
   }
 
-  const text = `${title} ${url}`;
+  const text = message ?? `${title} ${url}`;
   const params = { url, title, text, shareImage: '' };
   // Messenger's share intent only works from the mobile app.
   const networks = QUICK

@@ -1280,16 +1280,23 @@ export async function saveInvitationNote(pageId: number, guestId: string, raw: s
 // Records that the host opened a pre-filled invitation text (SMS or WhatsApp)
 // to this guest from the guest list. The message goes from their own phone,
 // so this marks the tap, not delivery.
-export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp'): Promise<{ ok: boolean }> {
+// kind 'save_the_date': they texted the save-the-date, which is recorded as
+// the guest's save-the-date (save_the_date_at), not as their invitation.
+export async function markGuestTexted(pageId: number, guestId: string, via: 'sms' | 'whatsapp', kind: 'invitation' | 'save_the_date' = 'invitation'): Promise<{ ok: boolean }> {
   try {
     if (!UUID_RE.test(guestId) || (via !== 'sms' && via !== 'whatsapp')) return { ok: false };
     if (!(await isEmailVerified())) return { ok: false };
     const owned = await ownedPlusPageId(pageId, { setup: true });
     if (!owned.ok) return { ok: false };
-    const res = await sql`
-      UPDATE event_guests SET texted_at = NOW(), texted_via = ${via}
-      WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
-    `;
+    const res = kind === 'save_the_date'
+      ? await sql`
+        UPDATE event_guests SET save_the_date_at = NOW()
+        WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+      `
+      : await sql`
+        UPDATE event_guests SET texted_at = NOW(), texted_via = ${via}
+        WHERE id = ${guestId}::uuid AND user_page_id = ${owned.value}
+      `;
     revalidatePath('/dashboard', 'layout');
     return { ok: (res.rowCount ?? 0) > 0 };
   } catch (error) {

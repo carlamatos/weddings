@@ -13,7 +13,9 @@ import { fetchScheduledSends } from '@/app/lib/invitation-send';
 import { normalizeHashtag } from '@/app/lib/hashtag';
 import { isPagePaidAndLive } from '@/app/lib/plans';
 import { isCardImage, plainDescription, publicPageUrl, socialImageFor, socialImagePathFor } from '@/app/lib/share';
-import { QuickShare } from '@/app/ui/dashboard/quick-share';
+import { QuickShare, ShareLocked } from '@/app/ui/dashboard/quick-share';
+import { shareLockOf } from '@/app/lib/page-status';
+import { hasSaveTheDate, isSaveTheDateTime, saveTheDateUrl } from '@/app/lib/save-the-date';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { HashtagForm } from '@/app/ui/dashboard/hashtag-form';
 import { ShareButtons } from '@/app/ui/dashboard/share-buttons';
@@ -61,6 +63,8 @@ export default async function InvitationsPage({ params, searchParams }: { params
   const title = page.heading || d.invitations.ourEvent;
   const hashtag = normalizeHashtag(settings['share_hashtag']);
   const usingBanner = isCardImage(page.banner_image);
+  // A draft can't be shared: confirm the email, or publish (page-status.ts).
+  const lock = shareLockOf(page.status, !!session?.user?.verifiedEmail);
 
   return (
     <div style={{ fontFamily: 'system-ui, sans-serif' }}>
@@ -94,16 +98,18 @@ export default async function InvitationsPage({ params, searchParams }: { params
         details={details}
         editPageHref={pagePath(pageId)}
         initialStep={isInvitationStep(step) ? step : sentAlready ? 'send' : 'design'}
-        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled} />}
+        sendStep={<InvitationSender pageId={pageId} guests={guests} design={design} details={withInvitationText(details, design)} language={page.language} hostName={hostName} guestListHref={pagePath(pageId, '/guest-list')} locked={!session?.user?.verifiedEmail} inviteLinks={inviteLinks} scheduled={scheduled}
+          saveTheDate={hasSaveTheDate(page) ? { url: saveTheDateUrl(page), place: page.location === 'virtual' ? details.venue : [page.city, page.country].filter(Boolean).join(', ') } : undefined} />}
       />
 
       <div style={{ marginTop: 32 }} />
-      <QuickShare pageId={pageId} url={url} title={title} draft={page.status === 'draft'} />
+      <QuickShare pageId={pageId} url={url} title={title} lock={lock}
+        saveTheDate={isSaveTheDateTime(page) ? { url: saveTheDateUrl(page), title: `${d.topnav.saveTheDate}: ${title}` } : undefined} />
 
       <details style={{ border: '1px solid #EDE8E3', borderRadius: 12, padding: '14px 20px', marginBottom: 28, background: '#fff' }}>
         <summary style={{ cursor: 'pointer', fontSize: 15, fontWeight: 600, color: '#241F2B' }}>{d.invitations.moreWaysToShare}</summary>
         <p style={{ fontSize: 13, color: '#6B6470', margin: '10px 0 16px', lineHeight: 1.6 }}>{d.share.sendYourEventPageTo}</p>
-        <ShareButtons url={url} title={title} description={plainDescription(page)} image={socialImagePathFor(page)} shareImage={socialImageFor(page)} hashtag={hashtag || undefined} pageId={pageId} />
+        {lock ? <ShareLocked lock={lock} pageId={pageId} /> : <ShareButtons url={url} title={title} description={plainDescription(page)} image={socialImagePathFor(page)} shareImage={socialImageFor(page)} hashtag={hashtag || undefined} pageId={pageId} />}
         <p style={{ fontSize: 13, color: '#6B6470', marginTop: 16, lineHeight: 1.6 }}>
           {usingBanner
             ? d.share.thePreviewUsesYourTop

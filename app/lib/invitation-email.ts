@@ -3,6 +3,7 @@ import { googleFontsHref, INVITATION_FONTS, invitationOverlay, readableAccent, t
 import { companyMailingLine } from './company';
 import { findOrnament } from './invitation-ornaments';
 import { envelopeCopy, inkOn, lightness, shade } from './invitation-envelope';
+import { saveTheDateCopy } from './save-the-date';
 
 // The invitation email a guest receives (Invitations → Send). It carries the
 // host's saved design — colours, wording, fonts, background — rebuilt with
@@ -294,6 +295,8 @@ export function saveTheDateEmail({
   hostName,
   guestName,
   unsubscribeLink,
+  calendar,
+  link,
 }: {
   design: InvitationDesign;
   details: InvitationDetails;
@@ -302,9 +305,15 @@ export function saveTheDateEmail({
   guestName?: string;
   unsubscribeLink?: string;
   siteBase: string;
+  // "Add it to your calendar": Google Calendar and the .ics file
+  // (app/lib/save-the-date.ts), when the event has a date.
+  calendar?: { google: string; apple: string };
+  // The shareable save-the-date page, for the button (else the event page).
+  link?: string;
 }): { subject: string; html: string } {
   const lang: Lang = language === 'fr' || language === 'es' ? language : 'en';
   const t = COPY[lang];
+  const cal = saveTheDateCopy(lang);
   const heading = fontStack(design.headingFont);
   const body = fontStack(design.bodyFont);
   // Their own uploaded design has no colours of its own: the envelope's.
@@ -341,9 +350,11 @@ export function saveTheDateEmail({
           ${p(escHtml(t.invitationToFollow), `font-family: ${heading}; font-size: 24px; margin: 26px 0 0; color: ${accentText};`)}
           <table role="presentation" cellpadding="0" cellspacing="0" align="center" style="margin: 26px auto 0;">
             <tr><td style="border-radius: 999px; background: ${accent};">
-              <a href="${escHtml(details.url)}" style="display: inline-block; padding: 13px 30px; font-family: ${body}; font-size: 15px; font-weight: 600; letter-spacing: 1px; color: ${onColor(accent)}; text-decoration: none; border-radius: 999px;">${t.visitPage}</a>
+              <a href="${escHtml(link ?? details.url)}" style="display: inline-block; padding: 13px 30px; font-family: ${body}; font-size: 15px; font-weight: 600; letter-spacing: 1px; color: ${onColor(accent)}; text-decoration: none; border-radius: 999px;">${link ? escHtml(cal.open) : t.visitPage}</a>
             </td></tr>
           </table>
+          ${calendar ? `${p(escHtml(cal.addToCalendar), 'font-size: 14px; margin: 24px 0 8px;')}
+          <p style="margin: 0; font-family: ${body}; font-size: 14px;"><a href="${escHtml(calendar.google)}" style="color: ${accentText}; font-weight: 600;">${escHtml(cal.google)}</a> &nbsp;·&nbsp; <a href="${escHtml(calendar.apple)}" style="color: ${accentText}; font-weight: 600;">${escHtml(cal.apple)}</a></p>` : ''}
         </td></tr>
       </table>
       <p style="max-width: 520px; margin: 20px auto 0; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; font-size: 12px; line-height: 1.6; color: #8A8086; text-align: center;">

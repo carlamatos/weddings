@@ -15,6 +15,7 @@ import { rsvpCalculatorHref } from '@/app/ui/dashboard/planning-tool-tip';
 import { auth } from '@/auth';
 import { publicPageUrl } from '@/app/lib/share';
 import { GuestListStart } from '@/app/ui/dashboard/guest-list-start';
+import { shareLockOf } from '@/app/lib/page-status';
 import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
 import { GuestListManager } from '@/app/ui/dashboard/guest-list-manager';
 import { SubEventsManager, type SubEventCounts } from '@/app/ui/dashboard/sub-events-manager';
@@ -130,7 +131,7 @@ export default async function GuestListPage({ params, searchParams }: { params: 
           pageId={pageId}
           url={publicPageUrl(page)}
           title={page.heading || d.invitations.ourEvent}
-          draft={page.status === 'draft'}
+          lock={shareLockOf(page.status, !!session?.user?.verifiedEmail)}
           listOnly={settings[RSVP_GUEST_LIST_ONLY_SETTING] === 'true'}
         />
       )}

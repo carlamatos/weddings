@@ -46,6 +46,31 @@ export function invitationText({
   return parts.filter(Boolean).join('\n\n');
 }
 
+// The save-the-date as a text message (the Send step with "Save the date"
+// chosen): the event's name, the date and city, and the save-the-date's link
+// (app/lib/save-the-date.ts), where guests add it to their calendar.
+const STD_COPY: Record<Lang, { saveTheDate: string; calendar: string; toFollow: string }> = {
+  en: { saveTheDate: 'Save the date:', calendar: 'Add it to your calendar:', toFollow: 'Invitation to follow.' },
+  fr: { saveTheDate: 'Réservez la date :', calendar: 'Ajoutez-la à votre agenda :', toFollow: 'Invitation à suivre.' },
+  es: { saveTheDate: 'Reserva la fecha:', calendar: 'Agrégala a tu calendario:', toFollow: 'Invitación a continuación.' },
+};
+
+export function saveTheDateText({ name, date, place, url, language, guestName, hostName }: {
+  name: string; date: string; place: string; url: string; language?: string | null; guestName?: string; hostName?: string;
+}): string {
+  const lang: Lang = language === 'fr' || language === 'es' ? language : 'en';
+  const t = STD_COPY[lang];
+  const parts = [
+    guestName?.trim() ? COPY[lang].greeting(guestName.trim()) : '',
+    `${lang === 'es' ? '¡' : ''}${t.saveTheDate} ${name}!`,
+    [date, place].filter(Boolean).join('\n'),
+    t.toFollow,
+    `${t.calendar} ${url}`,
+    hostName?.trim() ? `— ${hostName.trim()}` : '',
+  ];
+  return parts.filter(Boolean).join('\n\n');
+}
+
 // A number the Messages app can dial: digits, keeping a leading +.
 export function smsNumber(phone: string): string {
   const trimmed = phone.trim();
