@@ -439,6 +439,7 @@ export const en = {
     added2: 'Added {added} {v1}.{v2}',
     couldnTAddGuestsPlease: 'Couldn’t add guests. Please try again.',
     removeFromTheGiftExchange: 'Remove {name} from the gift exchange?',
+    signUpsCloseOnDraw: '\n\nSign-ups close once names are drawn, so make sure everyone has joined first. Anyone who tries to join later is turned away, and you get an email so you can add them.',
     thisReplacesTheCurrentDraw: '\n\nThis replaces the current draw: everyone will have a new person, so you’ll need to tell everyone again.',
     drawNamesForPeople: 'Draw names for {length} people?{again}',
     namesDrawnForPeopleNow: 'Names drawn for {count} people. Now let everyone know who they’re buying for.',

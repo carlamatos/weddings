@@ -187,7 +187,7 @@ export function GiftExchangeManager({
   async function draw() {
     const again = drawn
       ? d.giftExchangeManager.thisReplacesTheCurrentDraw
-      : '';
+      : d.giftExchangeManager.signUpsCloseOnDraw;
     if (!window.confirm(fill(d.giftExchangeManager.drawNamesForPeople, { length: participants.length, again }))) return;
     setDrawNotice(null);
     const result = await run('draw', () => drawGiftNames(pageId));

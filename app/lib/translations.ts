@@ -65,6 +65,11 @@ export interface Translations {
   giftDrawn: string;
   giftUpdateIdeas: string;
   giftAnother: string;
+  giftClosedAsk: string; // after the draw, in place of the join form
+  giftShowUpdate: string; // opens the form for people already taking part
+  giftUpdateBtn: string;
+  giftClosedHostTold: string; // a newcomer tried to join after the draw
+  giftClosedNotTold: string;
   // Password-protected page (Live Party)
   privateTitle: string;
   privateText: string;
@@ -251,6 +256,11 @@ const en: Translations = {
   giftDrawn: 'Names have been drawn! Check your email or messages to see who you’re buying for.',
   giftUpdateIdeas: 'Already taking part? Enter the same email to update your gift ideas.',
   giftAnother: 'Change my answer',
+  giftClosedAsk: 'Sign-ups are closed. If you’d like to join, ask the host to add you.',
+  giftShowUpdate: 'Already taking part? Update your gift ideas',
+  giftUpdateBtn: 'Update my gift ideas',
+  giftClosedHostTold: 'Names have already been drawn, so sign-ups are closed. We’ve let the host know you’d like to join.',
+  giftClosedNotTold: 'Names have already been drawn, so sign-ups are closed. If you’d like to join, ask the host to add you.',
   privateTitle: 'This event is private',
   privateText: 'Enter the password the host shared with you to see the event page.',
   privatePassword: 'Password',
@@ -423,6 +433,11 @@ const fr: Translations = {
   giftDrawn: 'Le tirage a eu lieu ! Consultez vos courriels ou messages pour savoir à qui offrir un cadeau.',
   giftUpdateIdeas: 'Déjà inscrit ? Entrez le même courriel pour modifier vos idées de cadeaux.',
   giftAnother: 'Modifier ma réponse',
+  giftClosedAsk: 'Les inscriptions sont fermées. Pour participer, demandez à l’hôte de vous ajouter.',
+  giftShowUpdate: 'Déjà inscrit ? Modifier vos idées de cadeaux',
+  giftUpdateBtn: 'Modifier mes idées de cadeaux',
+  giftClosedHostTold: 'Le tirage a déjà eu lieu, les inscriptions sont donc fermées. Nous avons prévenu l’hôte que vous aimeriez participer.',
+  giftClosedNotTold: 'Le tirage a déjà eu lieu, les inscriptions sont donc fermées. Pour participer, demandez à l’hôte de vous ajouter.',
   privateTitle: 'Cet événement est privé',
   privateText: 'Entrez le mot de passe que l’hôte vous a communiqué pour voir la page.',
   privatePassword: 'Mot de passe',
@@ -595,6 +610,11 @@ const es: Translations = {
   giftDrawn: '¡Ya se hizo el sorteo! Revisa tu correo o tus mensajes para ver a quién le haces el regalo.',
   giftUpdateIdeas: '¿Ya participas? Escribe el mismo correo para cambiar tus ideas de regalo.',
   giftAnother: 'Cambiar mi respuesta',
+  giftClosedAsk: 'Las inscripciones están cerradas. Si quieres participar, pide al anfitrión que te agregue.',
+  giftShowUpdate: '¿Ya participas? Cambia tus ideas de regalo',
+  giftUpdateBtn: 'Cambiar mis ideas de regalo',
+  giftClosedHostTold: 'El sorteo ya se hizo, así que las inscripciones están cerradas. Le avisamos al anfitrión que te gustaría participar.',
+  giftClosedNotTold: 'El sorteo ya se hizo, así que las inscripciones están cerradas. Si quieres participar, pide al anfitrión que te agregue.',
   privateTitle: 'Este evento es privado',
   privateText: 'Escribe la contraseña que te dio el anfitrión para ver la página del evento.',
   privatePassword: 'Contraseña',

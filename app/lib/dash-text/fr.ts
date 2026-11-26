@@ -440,6 +440,7 @@ export const fr: DashText = {
     added2: '{added} {v1} ajoutée(s).{v2}',
     couldnTAddGuestsPlease: 'Échec de l’ajout des invités. Veuillez réessayer.',
     removeFromTheGiftExchange: 'Retirer {name} de l’échange de cadeaux ?',
+    signUpsCloseOnDraw: '\n\nLes inscriptions ferment après le tirage : assurez-vous d’abord que tout le monde est inscrit. Les personnes qui essaient de s’inscrire ensuite sont refusées, et vous recevez un courriel pour pouvoir les ajouter.',
     thisReplacesTheCurrentDraw: '\n\nCela remplace le tirage actuel : chacun aura une nouvelle personne, il faudra donc prévenir tout le monde à nouveau.',
     drawNamesForPeople: 'Tirer les noms pour {length} personnes ?{again}',
     namesDrawnForPeopleNow: 'Noms tirés pour {count} personnes. Dites maintenant à chacun pour qui acheter.',

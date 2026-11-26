@@ -7,8 +7,10 @@ import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@
 
 // The Gift Exchange section (Plus): guests join the Secret Santa and add gift
 // ideas. Uses the RSVP form's classes, so each theme styles it like its RSVP
-// card. Sending again with the same email updates the entry; after the draw,
-// only existing participants can update their gift ideas (see /api/gift-exchange).
+// card. Sending again with the same email updates the entry. After the draw,
+// sign-ups are closed: the form is folded away behind "Already taking part?"
+// for people updating their gift ideas, and someone new who sends it anyway is
+// told the host has heard they'd like to join (see /api/gift-exchange).
 export default function GiftExchangeSection({
   giftExchange,
   translations: t,
@@ -28,6 +30,8 @@ export default function GiftExchangeSection({
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<'joined' | 'updated' | null>(null);
   const [error, setError] = useState('');
+  // After the draw, the form only opens for people already taking part.
+  const [showUpdate, setShowUpdate] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -45,7 +49,7 @@ export default function GiftExchangeSection({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? t.errorGeneral);
+        setError(data.code === 'drawn' ? (data.hostTold ? t.giftClosedHostTold : t.giftClosedNotTold) : data.error ?? t.errorGeneral);
         return;
       }
       setDone(data.updated ? 'updated' : 'joined');
@@ -73,7 +77,14 @@ export default function GiftExchangeSection({
         {count > 0 && <p className="check-hint" style={{ margin: 0 }}>{t.giftCount.replace('{n}', String(count))}</p>}
       </div>
 
-      {done ? (
+      {drawn && !showUpdate && !done && !disabled ? (
+        <div style={{ textAlign: 'center' }}>
+          <p className="rsvp-sub" style={{ margin: '0 0 16px', lineHeight: 1.6 }}>{t.giftClosedAsk}</p>
+          <button type="button" className="btn" style={{ width: 'fit-content', margin: '0 auto' }} onClick={() => setShowUpdate(true)}>
+            {t.giftShowUpdate}
+          </button>
+        </div>
+      ) : done ? (
         <div className="rsvp-success">
           <p className="rsvp-headline">{done === 'updated' ? t.giftUpdated : t.giftJoined}</p>
           <button type="button" className="btn" style={{ width: 'fit-content', margin: '16px auto 0' }} onClick={() => setDone(null)}>
@@ -112,7 +123,7 @@ export default function GiftExchangeSection({
             </div>
             {error && <p className="rsvp-error">{error}</p>}
             <button type="submit" className="btn" disabled={submitting} style={{ width: 'fit-content' }}>
-              {submitting ? t.sending : t.giftJoin}
+              {submitting ? t.sending : drawn ? t.giftUpdateBtn : t.giftJoin}
             </button>
           </fieldset>
         </form>
