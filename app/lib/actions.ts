@@ -2,7 +2,7 @@
 
 import { subscribeToNewsletter } from './newsletter';
 import { isConsentLang, newsletterConsentRecord } from './newsletter-consent';
-import { RSVP_ALLOW_PARTY_SETTING, RSVP_ACCEPT_TEXT_SETTING, RSVP_DECLINE_TEXT_SETTING, cleanRsvpChoiceText } from './rsvp-form-options';
+import { RSVP_ALLOW_PARTY_SETTING, RSVP_ACCEPT_TEXT_SETTING, RSVP_DECLINE_TEXT_SETTING, RSVP_NOTE_LABEL_SETTING, RSVP_NOTE_PLACEHOLDER_SETTING, cleanRsvpChoiceText, cleanRsvpNoteText } from './rsvp-form-options';
 import { EVENT_GOAL_SETTING, GOAL_RULES, isEventGoal, type EventGoal, PAGE_PURPOSE_SETTING, isPagePurpose } from './event-goals';
 import { z } from 'zod';
 import { LINK_SHARED_SETTING } from './setup-progress';
@@ -500,6 +500,7 @@ function isWritableSetting(name: string, value: string): boolean {
   if (name === 'rsvp_guest_list_only') return value === 'true' || value === 'false';
   if (name === RSVP_ALLOW_PARTY_SETTING) return value === 'true' || value === 'false';
   if (name === RSVP_ACCEPT_TEXT_SETTING || name === RSVP_DECLINE_TEXT_SETTING) return value === cleanRsvpChoiceText(value);
+  if (name === RSVP_NOTE_LABEL_SETTING || name === RSVP_NOTE_PLACEHOLDER_SETTING) return value === cleanRsvpNoteText(value);
   if (name === MEALS_ON_SETTING) return value === 'true' || value === 'false';
   if (name === MEAL_OPTIONS_SETTING) return parseMealOptions(value) !== null && value.length <= 1000;
   if (/^hero_(eyebrow|name|date)_color$/.test(name)) return value === '' || isHeroColor(value);

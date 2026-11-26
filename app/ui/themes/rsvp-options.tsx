@@ -10,10 +10,10 @@ import type { RsvpFormOptions } from '@/app/lib/rsvp-form-options';
 // the page's Gift Exchange is open for sign-ups, so attending guests can join
 // it from the RSVP form. askSong: the free "a song for the dance floor"
 // question (app/lib/rsvp-song.ts). form: one person per reply, and the
-// host's wording for accept / decline (app/lib/rsvp-form-options.ts).
+// host's wording for accept / decline and the note box (app/lib/rsvp-form-options.ts).
 type RsvpOptions = { guestListOnly: boolean; meals: string[] | null; giftExchange?: boolean; askSong?: boolean; form?: RsvpFormOptions };
 
-const NO_FORM_OPTIONS: RsvpFormOptions = { onePerson: false, acceptText: '', declineText: '' };
+const NO_FORM_OPTIONS: RsvpFormOptions = { onePerson: false, acceptText: '', declineText: '', noteLabel: '', notePlaceholder: '' };
 const Ctx = createContext<RsvpOptions>({ guestListOnly: false, meals: null, giftExchange: false, askSong: false, form: NO_FORM_OPTIONS });
 
 export function RsvpOptionsProvider({ guestListOnly, meals, giftExchange = false, askSong = false, form = NO_FORM_OPTIONS, children }: RsvpOptions & { children: React.ReactNode }) {

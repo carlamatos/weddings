@@ -171,6 +171,10 @@ export default async function GuestListPage({ params, searchParams }: { params: 
           initialDecline={rsvpForm.declineText}
           defaultAccept={pageT.joyfullyAccepts}
           defaultDecline={pageT.regretfullyDeclines}
+          initialNoteLabel={rsvpForm.noteLabel}
+          initialNotePlaceholder={rsvpForm.notePlaceholder}
+          defaultNoteLabel={pageT.noteForCouple}
+          defaultNotePlaceholder={pageT.noteForCouplePlaceholder}
         />
         <RsvpSongOption pageId={pageId} initialOn={isRsvpSongOn(settings)} />
         <RsvpMealsOption

@@ -4,25 +4,32 @@ import { useState, useTransition } from 'react';
 import { updatePageSetting } from '@/app/lib/actions';
 import {
   RSVP_ACCEPT_TEXT_SETTING, RSVP_ALLOW_PARTY_SETTING, RSVP_CHOICE_TEXT_MAX, RSVP_DECLINE_TEXT_SETTING, cleanRsvpChoiceText,
+  RSVP_NOTE_LABEL_SETTING, RSVP_NOTE_PLACEHOLDER_SETTING, RSVP_NOTE_TEXT_MAX, cleanRsvpNoteText,
 } from '@/app/lib/rsvp-form-options';
 import { card, input, primary } from './guest-ui';
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 
 // Guests & RSVPs: whether a reply can be for a whole party (the default) or
 // for one person only, and the host's own wording for "accepts" / "declines"
-// (app/lib/rsvp-form-options.ts). The placeholders show the usual wording in
-// the page's language, used while a box is empty.
-export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initialDecline, defaultAccept, defaultDecline }: {
+// (app/lib/rsvp-form-options.ts), and for the note box (its label and the
+// example in it: a host can ask for the plus ones' names there). The
+// placeholders show the usual wording in the page's language, used while a
+// box is empty.
+export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initialDecline, defaultAccept, defaultDecline, initialNoteLabel, initialNotePlaceholder, defaultNoteLabel, defaultNotePlaceholder }: {
   pageId: number; initialOnePerson: boolean; initialAccept: string; initialDecline: string; defaultAccept: string; defaultDecline: string;
+  initialNoteLabel: string; initialNotePlaceholder: string; defaultNoteLabel: string; defaultNotePlaceholder: string;
 }) {
   const d = useDashText().rsvpFormOption;
   const [allowParty, setAllowParty] = useState(!initialOnePerson);
   const [accept, setAccept] = useState(initialAccept);
   const [decline, setDecline] = useState(initialDecline);
-  const [saved, setSaved] = useState({ accept: initialAccept, decline: initialDecline });
+  const [noteLabel, setNoteLabel] = useState(initialNoteLabel);
+  const [notePlaceholder, setNotePlaceholder] = useState(initialNotePlaceholder);
+  const [saved, setSaved] = useState({ accept: initialAccept, decline: initialDecline, noteLabel: initialNoteLabel, notePlaceholder: initialNotePlaceholder });
   const [message, setMessage] = useState('');
   const [pending, startTransition] = useTransition();
-  const changed = cleanRsvpChoiceText(accept) !== saved.accept || cleanRsvpChoiceText(decline) !== saved.decline;
+  const changed = cleanRsvpChoiceText(accept) !== saved.accept || cleanRsvpChoiceText(decline) !== saved.decline
+    || cleanRsvpNoteText(noteLabel) !== saved.noteLabel || cleanRsvpNoteText(notePlaceholder) !== saved.notePlaceholder;
 
   const toggle = (next: boolean) => {
     setAllowParty(next);
@@ -32,13 +39,17 @@ export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initia
   };
 
   const save = () => {
-    const next = { accept: cleanRsvpChoiceText(accept), decline: cleanRsvpChoiceText(decline) };
+    const next = { accept: cleanRsvpChoiceText(accept), decline: cleanRsvpChoiceText(decline), noteLabel: cleanRsvpNoteText(noteLabel), notePlaceholder: cleanRsvpNoteText(notePlaceholder) };
     startTransition(async () => {
       await updatePageSetting(pageId, RSVP_ACCEPT_TEXT_SETTING, next.accept);
       await updatePageSetting(pageId, RSVP_DECLINE_TEXT_SETTING, next.decline);
+      await updatePageSetting(pageId, RSVP_NOTE_LABEL_SETTING, next.noteLabel);
+      await updatePageSetting(pageId, RSVP_NOTE_PLACEHOLDER_SETTING, next.notePlaceholder);
       setSaved(next);
       setAccept(next.accept);
       setDecline(next.decline);
+      setNoteLabel(next.noteLabel);
+      setNotePlaceholder(next.notePlaceholder);
       setMessage(d.saved);
     });
   };
@@ -68,6 +79,21 @@ export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initia
             {d.declineLabel}
             <input value={decline} maxLength={RSVP_CHOICE_TEXT_MAX} placeholder={defaultDecline} style={input}
               onChange={(e) => { setMessage(''); setDecline(e.target.value); }} />
+          </label>
+        </div>
+
+        <strong style={{ display: 'block', fontSize: 14, color: '#241F2B', marginTop: 16 }}>{d.noteWording}</strong>
+        <p style={{ margin: '2px 0 10px', color: '#6B6470', fontSize: 13, lineHeight: 1.5 }}>{d.noteWordingHint}</p>
+        <div style={{ display: 'grid', gap: 10, maxWidth: 420 }}>
+          <label style={fieldLabel}>
+            {d.noteLabel}
+            <input value={noteLabel} maxLength={RSVP_NOTE_TEXT_MAX} placeholder={defaultNoteLabel} style={input}
+              onChange={(e) => { setMessage(''); setNoteLabel(e.target.value); }} />
+          </label>
+          <label style={fieldLabel}>
+            {d.notePlaceholder}
+            <input value={notePlaceholder} maxLength={RSVP_NOTE_TEXT_MAX} placeholder={noteLabel.trim() ? d.notePlaceholderNone : defaultNotePlaceholder} style={input}
+              onChange={(e) => { setMessage(''); setNotePlaceholder(e.target.value); }} />
           </label>
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, marginTop: 10 }}>
