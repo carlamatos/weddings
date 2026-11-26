@@ -561,6 +561,7 @@ export const en = {
     andOptionallyInvitationNotes: ' and, optionally, Invitation Notes',
     foundGuest: 'Found <t0>{length}</t0> guest',
     inYour: 'in your {source}:',
+    withParty: 'with {names}',
     partyOf: ' · party of {guests}',
     note: ' · 📝 note',
     and: '…and',
@@ -1201,6 +1202,10 @@ export const en = {
   rsvpFormOption: {
     guestsCanReplyForOthers: 'Guests can reply for others in their party',
     guestsCanReplyForOthersHint: 'Guests choose how many people are coming. Untick it so each reply is for one person only: the counter is hidden and everyone replies for themselves.',
+    partyNamesRequired: 'Ask for the name of each person in the party (required)',
+    partyNamesRequiredHint: 'When a guest replies for more than one person, they fill in each person’s name before sending. Their names show next to theirs in your guest list.',
+    askPhone: 'Ask guests for a phone number',
+    askPhoneHint: 'An optional phone box on the form. Untick it to leave it out; guests still give their email, so they can change their reply later.',
     choiceWording: 'Wording of the two choices',
     choiceWordingHint: 'What guests tick to say yes or no. Leave a box empty to use the usual wording.',
     acceptLabel: 'Yes',

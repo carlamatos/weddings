@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { updatePageSetting } from '@/app/lib/actions';
 import {
-  RSVP_ACCEPT_TEXT_SETTING, RSVP_ALLOW_PARTY_SETTING, RSVP_CHOICE_TEXT_MAX, RSVP_DECLINE_TEXT_SETTING, cleanRsvpChoiceText,
+  RSVP_ACCEPT_TEXT_SETTING, RSVP_ALLOW_PARTY_SETTING, RSVP_PARTY_NAMES_SETTING, RSVP_ASK_PHONE_SETTING, RSVP_CHOICE_TEXT_MAX, RSVP_DECLINE_TEXT_SETTING, cleanRsvpChoiceText,
   RSVP_NOTE_LABEL_SETTING, RSVP_NOTE_PLACEHOLDER_SETTING, RSVP_NOTE_TEXT_MAX, cleanRsvpNoteText,
 } from '@/app/lib/rsvp-form-options';
 import { card, input, primary } from './guest-ui';
@@ -14,13 +14,16 @@ import { useDashText } from '@/app/ui/dashboard/dash-text';
 // (app/lib/rsvp-form-options.ts), and for the note box (its label and the
 // example in it: a host can ask for the plus ones' names there). The
 // placeholders show the usual wording in the page's language, used while a
-// box is empty.
-export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initialDecline, defaultAccept, defaultDecline, initialNoteLabel, initialNotePlaceholder, defaultNoteLabel, defaultNotePlaceholder }: {
-  pageId: number; initialOnePerson: boolean; initialAccept: string; initialDecline: string; defaultAccept: string; defaultDecline: string;
+// box is empty. Also: every name in a party required, and whether to ask
+// for a phone number.
+export function RsvpFormOption({ pageId, initialOnePerson, initialNamesRequired, initialAskPhone, initialAccept, initialDecline, defaultAccept, defaultDecline, initialNoteLabel, initialNotePlaceholder, defaultNoteLabel, defaultNotePlaceholder }: {
+  pageId: number; initialOnePerson: boolean; initialNamesRequired: boolean; initialAskPhone: boolean; initialAccept: string; initialDecline: string; defaultAccept: string; defaultDecline: string;
   initialNoteLabel: string; initialNotePlaceholder: string; defaultNoteLabel: string; defaultNotePlaceholder: string;
 }) {
   const d = useDashText().rsvpFormOption;
   const [allowParty, setAllowParty] = useState(!initialOnePerson);
+  const [namesRequired, setNamesRequired] = useState(initialNamesRequired);
+  const [askPhone, setAskPhone] = useState(initialAskPhone);
   const [accept, setAccept] = useState(initialAccept);
   const [decline, setDecline] = useState(initialDecline);
   const [noteLabel, setNoteLabel] = useState(initialNoteLabel);
@@ -37,6 +40,15 @@ export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initia
       await updatePageSetting(pageId, RSVP_ALLOW_PARTY_SETTING, next ? 'true' : 'false');
     });
   };
+
+  const toggleSetting = (setting: string, next: boolean, set: (v: boolean) => void) => {
+    set(next);
+    startTransition(async () => {
+      await updatePageSetting(pageId, setting, next ? 'true' : 'false');
+    });
+  };
+
+  const checkRow = { display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer', fontSize: 14, color: '#241F2B', lineHeight: 1.5 } as const;
 
   const save = () => {
     const next = { accept: cleanRsvpChoiceText(accept), decline: cleanRsvpChoiceText(decline), noteLabel: cleanRsvpNoteText(noteLabel), notePlaceholder: cleanRsvpNoteText(notePlaceholder) };
@@ -63,6 +75,23 @@ export function RsvpFormOption({ pageId, initialOnePerson, initialAccept, initia
         <span>
           <strong>{d.guestsCanReplyForOthers}</strong>
           <span style={{ display: 'block', color: '#6B6470', fontSize: 13 }}>{d.guestsCanReplyForOthersHint}</span>
+        </span>
+      </label>
+      {/* Only matters when a reply can be for a party. */}
+      {allowParty && (
+        <label style={{ ...checkRow, marginTop: 12 }}>
+          <input type="checkbox" checked={namesRequired} disabled={pending} onChange={(e) => toggleSetting(RSVP_PARTY_NAMES_SETTING, e.target.checked, setNamesRequired)} style={{ marginTop: 3, accentColor: '#B6584A' }} />
+          <span>
+            <strong>{d.partyNamesRequired}</strong>
+            <span style={{ display: 'block', color: '#6B6470', fontSize: 13 }}>{d.partyNamesRequiredHint}</span>
+          </span>
+        </label>
+      )}
+      <label style={{ ...checkRow, marginTop: 12 }}>
+        <input type="checkbox" checked={askPhone} disabled={pending} onChange={(e) => toggleSetting(RSVP_ASK_PHONE_SETTING, e.target.checked, setAskPhone)} style={{ marginTop: 3, accentColor: '#B6584A' }} />
+        <span>
+          <strong>{d.askPhone}</strong>
+          <span style={{ display: 'block', color: '#6B6470', fontSize: 13 }}>{d.askPhoneHint}</span>
         </span>
       </label>
 

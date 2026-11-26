@@ -19,7 +19,7 @@ export type RsvpSubmission = {
   status: 'attending' | 'not_attending';
   guests: number;
   message: string | null;
-  meals?: PartyMeal[] | null; // when the host asks for meal choices
+  meals?: PartyMeal[] | null; // when the host asks for meal choices or every name in the party
   updated: boolean; // the guest had already replied or been invited
   secretSanta?: number | null; // joined the Secret Santa with this RSVP: how many are in now
 };
@@ -45,7 +45,9 @@ export function rsvpNotificationHtml(pageId: number, heading: string, ownerName:
       ${attending ? row('Guests', String(r.guests)) : ''}
       ${row('Email', `<a href="mailto:${escHtml(r.email)}" style="color: #B6584A;">${escHtml(r.email)}</a>`)}
       ${r.phone ? row('Phone', escHtml(r.phone)) : ''}
-      ${attending && r.meals?.length ? row('Meals', r.meals.map((m, i) => `${escHtml(personName(r.name, r.meals!, i))}: ${m.meal ? escHtml(m.meal) : '<span style="color: #9A8F8C;">no choice</span>'}${m.diet ? ` <span style="color: #8B3A2A;">(${escHtml(m.diet)})</span>` : ''}`).join('<br>')) : ''}
+      ${attending && r.meals?.length && !r.meals.some((m) => m.meal || m.diet) && r.meals.some((m) => m.name)
+        ? row('With', escHtml(r.meals.slice(1).map((m) => m.name).filter(Boolean).join(', '))) : ''}
+      ${attending && r.meals?.some((m) => m.meal || m.diet) ? row('Meals', r.meals.map((m, i) => `${escHtml(personName(r.name, r.meals!, i))}: ${m.meal ? escHtml(m.meal) : '<span style="color: #9A8F8C;">no choice</span>'}${m.diet ? ` <span style="color: #8B3A2A;">(${escHtml(m.diet)})</span>` : ''}`).join('<br>')) : ''}
       ${r.secretSanta ? row('Secret Santa', `Joined (${r.secretSanta} ${r.secretSanta === 1 ? 'person' : 'people'} so far)`) : ''}
       ${r.message ? row('Message', `<span style="white-space: pre-wrap;">${escHtml(r.message)}</span>`) : ''}
     </table>

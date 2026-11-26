@@ -291,7 +291,14 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref, show
                 }
                 return (
                   <tr key={g.id}>
-                    <td style={{ ...cell, fontWeight: 500, minWidth: 120 }}>{g.name}</td>
+                    <td style={{ ...cell, fontWeight: 500, minWidth: 120 }}>
+                      {g.name}
+                      {(() => {
+                        // The names of the people with them, when the RSVP asked.
+                        const names = g.status === 'not_attending' ? [] : readPartyMeals(g.meals).slice(1, Math.max(1, g.guests || 1)).map((r) => r.name).filter(Boolean);
+                        return names.length > 0 && <span style={{ display: 'block', fontWeight: 400, fontSize: 12, color: '#6B6470' }}>{fill(d.guestListManager.withParty, { names: names.join(', ') })}</span>;
+                      })()}
+                    </td>
                     <td style={{ ...cell, whiteSpace: 'nowrap' }}><GuestStatusSelect key={g.status} pageId={pageId} guestId={g.id} guestName={g.name} initial={g.status} /></td>
                     <td style={{ ...cell, textAlign: 'center' }}>{g.status === 'not_attending' ? '—' : g.guests || 1}</td>
                     {showMeals && <td style={{ ...cell, fontSize: 13, minWidth: 150 }}><MealsCell guest={g} /></td>}
