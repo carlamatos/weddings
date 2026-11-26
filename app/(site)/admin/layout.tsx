@@ -63,7 +63,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </span>
       </header>
       <AdminNav />
-      <main style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 20px 60px' }}>{children}</main>
+      <main style={{ maxWidth: 1380, margin: '0 auto', padding: '24px 20px 60px' }}>{children}</main>
     </div>
   );
 }
