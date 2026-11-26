@@ -1,5 +1,7 @@
 import { fetchGuestSongs, fetchPageSettings } from '@/app/lib/data';
-import { requireOwnedPage } from '@/app/lib/dashboard';
+import { pagePath, requireOwnedPage } from '@/app/lib/dashboard';
+import { isRsvpSongOn } from '@/app/lib/rsvp-song';
+import Link from 'next/link';
 import { DashboardSongRequests } from '@/app/ui/themes/SongRequestSection';
 import { SectionToggle } from '@/app/ui/dashboard/section-toggle';
 import { PlusSetupNote } from '@/app/ui/dashboard/plus-gate';
@@ -33,6 +35,22 @@ export default async function SongRequestsPage({ params }: { params: Promise<{ p
           {' '}<HelpLink guide="take-song-requests" />
         </p>
       </div>
+
+      {/* On a free page, the free way in: songs from the RSVP form land here
+          (app/lib/rsvp-song.ts); the section on the page is Live Party. */}
+      {userPage.plan_type !== 'paid' && (
+        <div style={{ border: '1px solid #CFE3D5', background: '#F2F8F4', borderRadius: 10, padding: '12px 14px', margin: '0 0 18px', fontSize: 14, lineHeight: 1.55, color: '#241F2B' }}>
+          {isRsvpSongOn(settings) ? (
+            <p style={{ margin: 0 }}>{d.songRequests.rsvpSongsFree}</p>
+          ) : (
+            <p style={{ margin: 0 }}>
+              {d.songRequests.rsvpSongsOff}{' '}
+              <Link href={`${pagePath(userPage.id, '/guest-list')}#rsvp-song`} style={{ color: '#B6584A', fontWeight: 600 }}>{d.songRequests.rsvpSongsOffLink}</Link>
+            </p>
+          )}
+          <p style={{ margin: '6px 0 0', color: '#6B6470', fontSize: 13 }}>{d.songRequests.rsvpSongsPlus}</p>
+        </div>
+      )}
 
       <SectionToggle
         pageId={Number(userPage.id)}
