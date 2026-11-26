@@ -14,6 +14,7 @@ export const ADMIN_EMAIL_AUDIENCES = {
   free_with_guests: { label: 'Free pages with guests', hint: 'Live pages with at least one guest, not on Live Party.' },
   upcoming: { label: 'Events in the next 30 days', hint: 'Live free pages whose event date is within 30 days.' },
   no_page: { label: 'No page yet', hint: 'Signed up but never created a page.' },
+  one: { label: 'One person', hint: 'Find them by email or name. For a personal reply: it goes even if they had an email from here in the last 7 days.' },
 } as const;
 export type AdminEmailAudience = keyof typeof ADMIN_EMAIL_AUDIENCES;
 
@@ -150,6 +151,24 @@ There’s no wrong answer, and even a single sentence helps. Simply reply to thi
 Thank you so much for your time, and congratulations on your celebration!
 
 Kind regards,`,
+    buttonLabel: '',
+    buttonLink: 'none',
+  },
+  {
+    id: 'personal-reply',
+    name: 'Reply to one person',
+    description: 'A personal answer to someone who wrote to us. Choose them under “One person”.',
+    audience: 'one',
+    subject: 'Thank you for your message',
+    body: `Hi {first_name},
+
+Thank you so much for writing to us.
+
+
+
+If you have any other questions, just reply to this email. We’re happy to help.
+
+Warm regards,`,
     buttonLabel: '',
     buttonLink: 'none',
   },

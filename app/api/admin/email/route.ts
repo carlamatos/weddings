@@ -80,6 +80,7 @@ export async function POST(req: Request) {
     if (body.action === 'send') {
       const ids = Array.isArray(body.userIds) ? [...new Set(body.userIds.filter((v): v is string => typeof v === 'string'))] : [];
       if (!ids.length) return NextResponse.json({ error: 'Choose at least one person.' }, { status: 400 });
+      if (audience === 'one' && ids.length !== 1) return NextResponse.json({ error: 'Choose one person.' }, { status: 400 });
       if (ids.length > ADMIN_EMAIL_MAX_RECIPIENTS) {
         return NextResponse.json({ error: `You can send to up to ${ADMIN_EMAIL_MAX_RECIPIENTS} people at a time.` }, { status: 400 });
       }
@@ -89,7 +90,7 @@ export async function POST(req: Request) {
         const page = c ? audiencePage(c, audience) : undefined;
         if (c && page !== undefined) recipients.push({ candidate: c, page });
       }
-      const result = await sendAdminEmail(draft, recipients, admin.email);
+      const result = await sendAdminEmail(draft, recipients, admin.email, { personal: audience === 'one' });
       return NextResponse.json({ ok: true, ...result });
     }
 
