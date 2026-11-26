@@ -273,7 +273,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
           <thead>
             <tr>
               <th style={th}>Host</th><th style={th}>Page</th><th style={th}>Making</th>
-              {([['event', 'Event date'], ['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Dashboard visits'], ['views', 'Guest visits'], ['followup', 'Follow-up email'], ['plus', 'Live Party']] as const).map(([key, label]) => (
+              {([['event', 'Event date'], ['made', 'Page made'], ['last', 'Last visit'], ['visits', 'Dashboard visits'], ['views', 'Guest visits'], ['followup', 'Emails'], ['plus', 'Live Party']] as const).map(([key, label]) => (
                 <th key={key} style={{ ...th, whiteSpace: 'nowrap' }}>
                   <Link
                     href={`/admin/activity?sort=${key}&dir=${sort === key ? (dir === 'desc' ? 'asc' : 'desc') : key === 'event' ? 'asc' : 'desc'}`}
