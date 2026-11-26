@@ -16,6 +16,8 @@ export type ComposerPerson = {
   name: string;
   joined: string | null;
   blocked: string | null;
+  // The same for a personal reply ("One person"): no 7-day gap.
+  blockedPersonal: string | null;
   sentTemplates: Record<string, string>;
   // The page each audience is about for this person (null: in it, no page).
   audiences: Partial<Record<AdminEmailAudience, { heading: string; slug: string; guests: number; eventDate: string | null } | null>>;
@@ -63,16 +65,27 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
     try { localStorage.setItem(SIGNATURE_KEY, v); } catch { /* private window */ }
   };
 
-  const inAudience = useMemo(() => people.filter((p) => p.audiences[audience] !== undefined), [people, audience]);
-  const sendable = (p: ComposerPerson) => !p.blocked;
+  // "One person": found by email or name (at least 2 letters).
+  const one = audience === 'one';
+  const [query, setQuery] = useState('');
+  const q = query.trim().toLowerCase();
+  const inAudience = useMemo(() => people.filter((p) => p.audiences[audience] !== undefined
+    && (!one || (q.length >= 2 && (p.email.toLowerCase().includes(q) || p.name.toLowerCase().includes(q))))).slice(0, one ? 20 : undefined),
+  [people, audience, one, q]);
+  const blockedOf = (p: ComposerPerson) => (one ? p.blockedPersonal : p.blocked);
+  const sendable = (p: ComposerPerson) => !blockedOf(p);
 
   // A new template or audience picks everyone in it who can be emailed and
   // hasn't had this template yet.
+  // For one person: whoever's address was typed in full.
   useEffect(() => {
-    const ids = inAudience.filter((p) => sendable(p) && !p.sentTemplates[templateId]).map((p) => p.id);
+    const ids = one
+      ? inAudience.filter((p) => sendable(p) && p.email.toLowerCase() === q).map((p) => p.id).slice(0, 1)
+      : inAudience.filter((p) => sendable(p) && !p.sentTemplates[templateId]).map((p) => p.id);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSelected(new Set(ids.slice(0, ADMIN_EMAIL_MAX_RECIPIENTS)));
     setPreviewId(ids[0] ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [inAudience, templateId]);
 
   const chooseTemplate = (id: string) => {
@@ -136,6 +149,8 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
   }
 
   const toggle = (id: string) => setSelected((s) => {
+    // One person: ticking someone chooses them (and previews as them).
+    if (one) { setPreviewId(s.has(id) ? '' : id); return s.has(id) ? new Set() : new Set([id]); }
     const next = new Set(s);
     if (next.has(id)) next.delete(id);
     else if (next.size < ADMIN_EMAIL_MAX_RECIPIENTS) next.add(id);
@@ -238,15 +253,19 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
               {Object.entries(ADMIN_EMAIL_AUDIENCES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
             </select>
             <p style={{ fontSize: 12, color: c.muted, margin: '6px 0 0' }}>{ADMIN_EMAIL_AUDIENCES[audience].hint}</p>
+            {one && (
+              <input type="search" aria-label="Find by email or name" placeholder="Email or name" autoComplete="off" style={{ ...input, marginTop: 8 }}
+                value={query} onChange={(e) => setQuery(e.target.value)} />
+            )}
           </div>
-          <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
+          {!one && <div style={{ display: 'flex', gap: 8, fontSize: 12 }}>
             <button type="button" style={buttonBase} onClick={() => setSelected(new Set(inAudience.filter(sendable).map((p) => p.id).slice(0, ADMIN_EMAIL_MAX_RECIPIENTS)))}>Select all</button>
             <button type="button" style={buttonBase} onClick={() => setSelected(new Set())}>Select none</button>
-          </div>
+          </div>}
         </div>
 
         {inAudience.length === 0 ? (
-          <p style={{ fontSize: 13, color: c.soft, margin: 0 }}>Nobody fits this group right now.</p>
+          <p style={{ fontSize: 13, color: c.soft, margin: 0 }}>{one ? (q.length >= 2 ? 'No account matches.' : 'Type their email or name to find them.') : 'Nobody fits this group right now.'}</p>
         ) : (
           <div style={{ border: `1px solid ${c.line}`, borderRadius: 8, maxHeight: 360, overflowY: 'auto' }}>
             {inAudience.map((p) => {
@@ -257,10 +276,10 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
                   key={p.id}
                   style={{
                     display: 'flex', gap: 10, alignItems: 'flex-start', padding: '10px 12px', borderBottom: `1px solid ${c.line}`,
-                    fontSize: 13, cursor: p.blocked ? 'not-allowed' : 'pointer', opacity: p.blocked ? 0.55 : 1,
+                    fontSize: 13, cursor: blockedOf(p) ? 'not-allowed' : 'pointer', opacity: blockedOf(p) ? 0.55 : 1,
                   }}
                 >
-                  <input type="checkbox" checked={selected.has(p.id)} disabled={!!p.blocked} onChange={() => toggle(p.id)} style={{ marginTop: 3 }} />
+                  <input type={one ? 'radio' : 'checkbox'} name={one ? 'ae-one' : undefined} checked={selected.has(p.id)} disabled={!!blockedOf(p)} onChange={() => toggle(p.id)} style={{ marginTop: 3 }} />
                   <span style={{ flex: 1, minWidth: 0 }}>
                     <span style={{ fontWeight: 600 }}>{p.name || p.email}</span>
                     {p.name && <span style={{ color: c.soft }}> · {p.email}</span>}
@@ -269,9 +288,9 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
                       {' · '}joined {formatDate(p.joined)}
                     </span>
                   </span>
-                  {(p.blocked || sentThis) && (
-                    <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', color: p.blocked ? c.amber : c.soft }}>
-                      {p.blocked ?? `Got this ${formatDate(sentThis)}`}
+                  {(blockedOf(p) || sentThis) && (
+                    <span style={{ fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap', color: blockedOf(p) ? c.amber : c.soft }}>
+                      {blockedOf(p) ?? `Got this ${formatDate(sentThis)}`}
                     </span>
                   )}
                 </label>

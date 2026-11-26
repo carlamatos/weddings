@@ -21,7 +21,7 @@ export default async function AdminEmailPage() {
         const page = audiencePage(p, a);
         if (page !== undefined) audiences[a] = page ? { heading: page.heading, slug: page.slug, guests: page.guests, eventDate: page.event_date } : null;
       }
-      return { id: p.id, email: p.email, name: p.name, joined: p.joined, blocked: blockedReason(p), sentTemplates: p.sentTemplates, audiences };
+      return { id: p.id, email: p.email, name: p.name, joined: p.joined, blocked: blockedReason(p), blockedPersonal: blockedReason(p, { personal: true }), sentTemplates: p.sentTemplates, audiences };
     });
   } catch (err) {
     error = err instanceof Error ? err.message : 'unknown error';
@@ -33,7 +33,8 @@ export default async function AdminEmailPage() {
       <p style={{ margin: '0 0 20px', fontSize: 13, color: c.soft, lineHeight: 1.6, maxWidth: 760 }}>
         Pick a template, choose who gets it, and edit the text before sending. Each email is filled in with the person&apos;s name and
         page. Replies go to {COMPANY.email}. Everyone gets an unsubscribe link, and to protect your email reputation, people who
-        unsubscribed, unverified addresses and anyone emailed in the last {ADMIN_EMAIL_COOLDOWN_DAYS} days are skipped.
+        unsubscribed, unverified addresses and anyone emailed in the last {ADMIN_EMAIL_COOLDOWN_DAYS} days are skipped (except a
+        personal reply to one person).
       </p>
 
       {error && (

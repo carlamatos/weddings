@@ -182,6 +182,7 @@ export function audiencePage(c: AdminEmailCandidate, audience: AdminEmailAudienc
   const live = (p: AdminEmailPage) => p.status === 'active';
   switch (audience) {
     case 'all':
+    case 'one':
       return c.pages[0] ?? null;
     case 'no_page':
       return c.pages.length ? undefined : null;
@@ -200,10 +201,12 @@ export function audiencePage(c: AdminEmailCandidate, audience: AdminEmailAudienc
 }
 
 // Why this person can't be emailed right now, or null when they can.
-export function blockedReason(c: AdminEmailCandidate): string | null {
+// personal: a one-to-one reply ("One person"), which the 7-day gap between
+// group emails doesn't hold back.
+export function blockedReason(c: AdminEmailCandidate, { personal = false } = {}): string | null {
   if (c.optedOut) return 'Unsubscribed';
   if (!c.verified) return 'Email not verified';
-  if (c.lastSentAt && Date.now() - new Date(c.lastSentAt).getTime() < ADMIN_EMAIL_COOLDOWN_DAYS * 86_400_000) {
+  if (!personal && c.lastSentAt && Date.now() - new Date(c.lastSentAt).getTime() < ADMIN_EMAIL_COOLDOWN_DAYS * 86_400_000) {
     return `Emailed in the last ${ADMIN_EMAIL_COOLDOWN_DAYS} days`;
   }
   return null;
@@ -326,11 +329,12 @@ export async function sendAdminEmail(
   draft: AdminEmailDraft,
   recipients: { candidate: AdminEmailCandidate; page: AdminEmailPage | null }[],
   sentBy: string,
+  { personal = false } = {},
 ): Promise<{ sent: number; skipped: { email: string; reason: string }[] }> {
   await ensureAdminEmailTables();
   const skipped: { email: string; reason: string }[] = [];
   const ok = recipients.filter(({ candidate }) => {
-    const reason = blockedReason(candidate);
+    const reason = blockedReason(candidate, { personal });
     if (reason) skipped.push({ email: candidate.email, reason });
     return !reason;
   });
