@@ -9,6 +9,11 @@
 //     note box ("A note for the hosts"), e.g. "Names of your plus ones", and
 //     the example in it; '' = the usual. With their own label and no example,
 //     the box shows no example (the usual one wouldn't fit their question).
+//   rsvp_party_names_required: 'true' = a guest replying for a party must
+//     give the name of each person with them (the form shows a name box for
+//     each, and the RSVP API refuses a reply without them). Unset = off.
+//   rsvp_ask_phone: 'false' = the form doesn't ask for a phone number. Unset
+//     or 'true' = it asks (optional for guests), as before.
 // Client-safe: no server imports.
 
 export const RSVP_ALLOW_PARTY_SETTING = 'rsvp_allow_party';
@@ -18,8 +23,10 @@ export const RSVP_CHOICE_TEXT_MAX = 80;
 export const RSVP_NOTE_LABEL_SETTING = 'rsvp_note_label';
 export const RSVP_NOTE_PLACEHOLDER_SETTING = 'rsvp_note_placeholder';
 export const RSVP_NOTE_TEXT_MAX = 120;
+export const RSVP_PARTY_NAMES_SETTING = 'rsvp_party_names_required';
+export const RSVP_ASK_PHONE_SETTING = 'rsvp_ask_phone';
 
-export type RsvpFormOptions = { onePerson: boolean; acceptText: string; declineText: string; noteLabel: string; notePlaceholder: string };
+export type RsvpFormOptions = { onePerson: boolean; acceptText: string; declineText: string; noteLabel: string; notePlaceholder: string; partyNamesRequired: boolean; askPhone: boolean };
 
 export const cleanRsvpChoiceText = (v: string) => v.replace(/\s+/g, ' ').trim().slice(0, RSVP_CHOICE_TEXT_MAX);
 export const cleanRsvpNoteText = (v: string) => v.replace(/\s+/g, ' ').trim().slice(0, RSVP_NOTE_TEXT_MAX);
@@ -31,5 +38,7 @@ export function rsvpFormFromSettings(settings: Record<string, string>): RsvpForm
     declineText: cleanRsvpChoiceText(settings[RSVP_DECLINE_TEXT_SETTING] ?? ''),
     noteLabel: cleanRsvpNoteText(settings[RSVP_NOTE_LABEL_SETTING] ?? ''),
     notePlaceholder: cleanRsvpNoteText(settings[RSVP_NOTE_PLACEHOLDER_SETTING] ?? ''),
+    partyNamesRequired: settings[RSVP_PARTY_NAMES_SETTING] === 'true',
+    askPhone: settings[RSVP_ASK_PHONE_SETTING] !== 'false',
   };
 }

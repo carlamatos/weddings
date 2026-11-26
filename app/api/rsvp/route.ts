@@ -103,18 +103,28 @@ export async function POST(request: Request) {
     // A household's seats (set by the host) are the most this reply can bring.
     const seatCap = invited ? (invited.seats ?? (invited.status === 'invited' ? invited.guests : null)) : null;
     const settings = await fetchPageSettings(pageId);
+    const rsvpForm = rsvpFormFromSettings(settings);
     // "One person per reply" (app/lib/rsvp-form-options.ts) caps every reply at 1.
-    const maxGuests = rsvpFormFromSettings(settings).onePerson ? 1 : seatCap && seatCap > 1 ? Math.min(seatCap, MAX_GUESTS) : MAX_GUESTS;
+    const maxGuests = rsvpForm.onePerson ? 1 : seatCap && seatCap > 1 ? Math.min(seatCap, MAX_GUESTS) : MAX_GUESTS;
     const guestCount = status === 'attending' ? Math.min(Math.max(Number.isFinite(requested) ? requested : 1, 1), maxGuests) : 1;
-    const cleanPhone = str(phone, 40) || null;
+    // With phone turned off, a number sent anyway isn't kept.
+    const cleanPhone = rsvpForm.askPhone ? str(phone, 40) || null : null;
     const cleanMessage = str(message, 2000) || null;
 
     // Meal choices, when the host asks for them (all optional for guests).
     // When the host doesn't ask, what a guest chose before is left as it is.
     const mealOptions = mealOptionsFromSettings(settings, page.rows[0].language);
-    const partyMeals = mealOptions && status === 'attending' ? cleanPartyMeals(meals, guestCount, mealOptions) : null;
+    // When the host requires every name in the party, the names are kept in
+    // the same per-person rows as meals (with no meal when meals are off).
+    const namesRequired = rsvpForm.partyNamesRequired;
+    const keepParty = !!mealOptions || namesRequired;
+    const partyMeals = keepParty && status === 'attending' ? cleanPartyMeals(meals, guestCount, mealOptions ?? []) : null;
+    if (namesRequired && status === 'attending' && guestCount > 1
+      && Array.from({ length: guestCount - 1 }, (_, i) => partyMeals?.[i + 1]?.name ?? '').some((n) => !n)) {
+      return NextResponse.json({ error: 'Please add the name of each person in your party.', code: 'party_names' }, { status: 400 });
+    }
     const mealsJson = partyMeals ? JSON.stringify(partyMeals) : null;
-    if (mealOptions) await ensureMealsColumn();
+    if (keepParty) await ensureMealsColumn();
 
     // If the guest was already invited (same email), update their record;
     // otherwise insert fresh. With "only guests on the list" on, the email
@@ -164,8 +174,8 @@ export async function POST(request: Request) {
             AND NOT EXISTS (SELECT 1 FROM event_guests o WHERE o.user_page_id = ${pageId} AND lower(o.email) = lower(${email.trim()}) AND o.id <> ${existing.rows[0].id})
         `;
       }
-      if (mealOptions) await sql`UPDATE event_guests SET meals = ${mealsJson}::jsonb WHERE id = ${existing.rows[0].id}`;
-    } else if (mealOptions) {
+      if (keepParty) await sql`UPDATE event_guests SET meals = ${mealsJson}::jsonb WHERE id = ${existing.rows[0].id}`;
+    } else if (keepParty) {
       await sql`
         INSERT INTO event_guests (user_page_id, name, email, phone, status, guests, message, receive_updates, responded_at, meals)
         VALUES (${pageId}, ${name.trim()}, ${email.trim()}, ${cleanPhone}, ${status}, ${guestCount}, ${cleanMessage}, ${!!receiveUpdates}, NOW(), ${mealsJson}::jsonb)

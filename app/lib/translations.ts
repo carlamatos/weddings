@@ -154,6 +154,9 @@ export interface Translations {
   mealsYou: string;
   mealsGuestLabel: string; // contains {{n}}
   mealsGuestNamePlaceholder: string;
+  partyNamesHeading: string; // when the host asks for every name in the party
+  errorPartyNames: string;
+  rsvpEmailHint: string; // under the RSVP email box
   mealsChoose: string;
   mealsDiet: string;
   mealsDietPlaceholder: string;
@@ -332,10 +335,13 @@ const en: Translations = {
   errorNotOnGuestList: 'We couldn’t find this email on the guest list. Please use the email address your host has for you, or contact your host.',
   rsvpGuestListNote: 'This RSVP is for guests on the guest list. Please use the email address your host has for you.',
   mealsHeading: 'Meal choices',
-  mealsHint: 'Optional. It helps the hosts plan with the caterer.',
+  mealsHint: 'It helps the hosts plan with the caterer.',
   mealsYou: 'You',
   mealsGuestLabel: 'Guest {{n}}',
-  mealsGuestNamePlaceholder: 'Name (optional)',
+  mealsGuestNamePlaceholder: 'Name',
+  partyNamesHeading: 'Who’s coming with you',
+  errorPartyNames: 'Please add the name of each person in your party.',
+  rsvpEmailHint: 'Use this same email if you need to change your reply later.',
   mealsChoose: 'Choose a meal',
   mealsDiet: 'Allergies or dietary needs',
   mealsDietPlaceholder: 'e.g. nut allergy, gluten-free',
@@ -509,10 +515,13 @@ const fr: Translations = {
   errorNotOnGuestList: 'Nous ne trouvons pas ce courriel sur la liste des invités. Utilisez l’adresse courriel que votre hôte a pour vous, ou communiquez avec votre hôte.',
   rsvpGuestListNote: 'Cette réponse est réservée aux invités de la liste. Utilisez l’adresse courriel que votre hôte a pour vous.',
   mealsHeading: 'Choix des repas',
-  mealsHint: 'Facultatif. Cela aide les hôtes à planifier avec le traiteur.',
+  mealsHint: 'Cela aide les hôtes à planifier avec le traiteur.',
   mealsYou: 'Vous',
   mealsGuestLabel: 'Invité {{n}}',
-  mealsGuestNamePlaceholder: 'Nom (facultatif)',
+  mealsGuestNamePlaceholder: 'Nom',
+  partyNamesHeading: 'Qui vous accompagne',
+  errorPartyNames: 'Veuillez indiquer le nom de chaque personne qui vous accompagne.',
+  rsvpEmailHint: 'Utilisez ce même courriel si vous devez modifier votre réponse plus tard.',
   mealsChoose: 'Choisir un repas',
   mealsDiet: 'Allergies ou restrictions alimentaires',
   mealsDietPlaceholder: 'p. ex. allergie aux noix, sans gluten',
@@ -686,10 +695,13 @@ const es: Translations = {
   errorNotOnGuestList: 'No encontramos este correo en la lista de invitados. Usa el correo electrónico que tu anfitrión tiene de ti, o comunícate con tu anfitrión.',
   rsvpGuestListNote: 'Esta confirmación es para los invitados de la lista. Usa el correo electrónico que tu anfitrión tiene de ti.',
   mealsHeading: 'Elección de menú',
-  mealsHint: 'Opcional. Ayuda a los anfitriones a planificar con el servicio de comida.',
+  mealsHint: 'Ayuda a los anfitriones a planificar con el servicio de comida.',
   mealsYou: 'Tú',
   mealsGuestLabel: 'Invitado {{n}}',
-  mealsGuestNamePlaceholder: 'Nombre (opcional)',
+  mealsGuestNamePlaceholder: 'Nombre',
+  partyNamesHeading: 'Quiénes vienen contigo',
+  errorPartyNames: 'Por favor, escribe el nombre de cada persona que viene contigo.',
+  rsvpEmailHint: 'Usa este mismo correo si necesitas cambiar tu respuesta más adelante.',
   mealsChoose: 'Elige un menú',
   mealsDiet: 'Alergias o necesidades alimentarias',
   mealsDietPlaceholder: 'p. ej. alergia a frutos secos, sin gluten',

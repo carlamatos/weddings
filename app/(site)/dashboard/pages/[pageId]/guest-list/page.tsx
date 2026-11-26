@@ -167,6 +167,8 @@ export default async function GuestListPage({ params, searchParams }: { params: 
         <RsvpFormOption
           pageId={pageId}
           initialOnePerson={rsvpForm.onePerson}
+          initialNamesRequired={rsvpForm.partyNamesRequired}
+          initialAskPhone={rsvpForm.askPhone}
           initialAccept={rsvpForm.acceptText}
           initialDecline={rsvpForm.declineText}
           defaultAccept={pageT.joyfullyAccepts}

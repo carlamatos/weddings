@@ -41,6 +41,9 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
   // The host's RSVP form settings (app/lib/rsvp-form-options.ts): one person
   // per reply hides the people counter and every reply counts as 1.
   const onePerson = !!form?.onePerson;
+  // Every name in the party required, and whether to ask for a phone number.
+  const namesRequired = !!form?.partyNamesRequired;
+  const askPhone = form?.askPhone !== false;
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -170,6 +173,9 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
     if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError(t.errorEmail); return;
     }
+    if (namesRequired && status === 'attending' && party.slice(1, partySize).some((p) => !p.name.trim())) {
+      setError(t.errorPartyNames); return;
+    }
     if (turnstileMode !== 'none' && !cfToken) {
       setError('Please complete the security check.');
       return;
@@ -180,11 +186,11 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
       const res = await fetch('/api/rsvp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userPageId, name, email, phone, status, guests: partySize, message, receiveUpdates, honeypot, cfToken, ...(inviteToken ? { inviteToken } : {}), ...(events.length ? { eventReplies: answers } : {}), ...(mealOptions ? { meals: party.slice(0, partySize) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
+        body: JSON.stringify({ userPageId, name, email, phone, status, guests: partySize, message, receiveUpdates, honeypot, cfToken, ...(inviteToken ? { inviteToken } : {}), ...(events.length ? { eventReplies: answers } : {}), ...(mealOptions || namesRequired ? { meals: party.slice(0, partySize) } : {}), ...(giftExchange && joinGift && status === 'attending' ? { joinGiftExchange: true, giftIdeas } : {}), ...(askSong && status === 'attending' && song.trim() ? { song } : {}) }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.code === 'not_on_guest_list' ? t.errorNotOnGuestList : data.error ?? t.errorGeneral);
+        setError(data.code === 'not_on_guest_list' ? t.errorNotOnGuestList : data.code === 'party_names' ? t.errorPartyNames : data.error ?? t.errorGeneral);
         // Tokens are single-use: get a fresh one for the next attempt.
         if (widgetIdRef.current && window.turnstile) {
           window.turnstile.reset(widgetIdRef.current);
@@ -256,17 +262,20 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           type="email" id="rsvp-email" value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="jane@email.com" required
-          aria-describedby={guestListOnly ? 'rsvp-guest-list-note' : undefined}
+          aria-describedby={guestListOnly ? 'rsvp-guest-list-note rsvp-email-hint' : 'rsvp-email-hint'}
         />
+        <p className="check-hint" id="rsvp-email-hint">{t.rsvpEmailHint}</p>
       </div>
-      <div>
-        <label className="field-label" htmlFor="rsvp-phone">{t.phoneOptional}</label>
-        <input
-          type="tel" id="rsvp-phone" value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="+1 (555) 000-0000"
-        />
-      </div>
+      {askPhone && (
+        <div>
+          <label className="field-label" htmlFor="rsvp-phone">{t.phoneOptional}</label>
+          <input
+            type="tel" id="rsvp-phone" value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+1 (555) 000-0000"
+          />
+        </div>
+      )}
       <div>
         <label className="field-label">{t.willYouAttend}</label>
         <div className="attend-options">
@@ -326,6 +335,21 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           </div>
         </div>
       )}
+      {/* The host wants every name but doesn't ask for meals: a name box for
+          each person with the guest (with meals, they're in the meal rows). */}
+      {status === 'attending' && namesRequired && !mealOptions && partySize > 1 && (
+        <div role="group" aria-labelledby="rsvp-party-names-label">
+          <label className="field-label" id="rsvp-party-names-label" htmlFor="rsvp-party-name-1">{t.partyNamesHeading}</label>
+          <div style={{ display: 'grid', gap: 10 }}>
+            {party.slice(1, partySize).map((row, j) => (
+              <label key={j + 1} style={{ display: 'grid', gap: 4 }}>
+                <span style={{ fontWeight: 600, fontSize: '0.95em' }}>{t.mealsGuestLabel.replace('{{n}}', String(j + 2))}</span>
+                <input id={`rsvp-party-name-${j + 1}`} type="text" value={row.name} maxLength={80} placeholder={t.mealsGuestNamePlaceholder} required onChange={(e) => setPerson(j + 1, { name: e.target.value })} />
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
       {status === 'attending' && mealOptions && (
         <div className="rsvp-meals" role="group" aria-labelledby="rsvp-meals-label">
           {/* A label like the form's others, so it takes the theme's look. */}
@@ -340,7 +364,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
                   ) : (
                     <label style={{ display: 'grid', gap: 4 }}>
                       <span style={{ fontWeight: 600, fontSize: '0.95em' }}>{t.mealsGuestLabel.replace('{{n}}', String(i + 1))}</span>
-                      <input type="text" value={row.name} maxLength={80} placeholder={t.mealsGuestNamePlaceholder} onChange={(e) => setPerson(i, { name: e.target.value })} />
+                      <input type="text" value={row.name} maxLength={80} placeholder={t.mealsGuestNamePlaceholder} required={namesRequired} onChange={(e) => setPerson(i, { name: e.target.value })} />
                     </label>
                   )
                 )}

@@ -13,7 +13,7 @@ import type { RsvpFormOptions } from '@/app/lib/rsvp-form-options';
 // host's wording for accept / decline and the note box (app/lib/rsvp-form-options.ts).
 type RsvpOptions = { guestListOnly: boolean; meals: string[] | null; giftExchange?: boolean; askSong?: boolean; form?: RsvpFormOptions };
 
-const NO_FORM_OPTIONS: RsvpFormOptions = { onePerson: false, acceptText: '', declineText: '', noteLabel: '', notePlaceholder: '' };
+const NO_FORM_OPTIONS: RsvpFormOptions = { onePerson: false, acceptText: '', declineText: '', noteLabel: '', notePlaceholder: '', partyNamesRequired: false, askPhone: true };
 const Ctx = createContext<RsvpOptions>({ guestListOnly: false, meals: null, giftExchange: false, askSong: false, form: NO_FORM_OPTIONS });
 
 export function RsvpOptionsProvider({ guestListOnly, meals, giftExchange = false, askSong = false, form = NO_FORM_OPTIONS, children }: RsvpOptions & { children: React.ReactNode }) {

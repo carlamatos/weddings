@@ -562,6 +562,7 @@ export const es: DashText = {
     andOptionallyInvitationNotes: ' y, si quieres, Invitation Notes',
     foundGuest: 'Se encontraron <t0>{length}</t0> invitado(s)',
     inYour: 'en tu {source}:',
+    withParty: 'con {names}',
     partyOf: ' · grupo de {guests}',
     note: ' · 📝 nota',
     and: '…y',
@@ -1202,6 +1203,10 @@ export const es: DashText = {
   rsvpFormOption: {
     guestsCanReplyForOthers: 'Los invitados pueden responder por otras personas',
     guestsCanReplyForOthersHint: 'Los invitados indican cuántas personas vienen. Desmárcalo para que cada respuesta sea de una sola persona: el contador se oculta y cada uno responde por sí mismo.',
+    partyNamesRequired: 'Pedir el nombre de cada persona del grupo (obligatorio)',
+    partyNamesRequiredHint: 'Cuando un invitado responde por más de una persona, escribe el nombre de cada una antes de enviar. Sus nombres aparecen junto al suyo en tu lista de invitados.',
+    askPhone: 'Pedir un número de teléfono a los invitados',
+    askPhoneHint: 'Una casilla de teléfono opcional en el formulario. Desmárcala para quitarla; los invitados igual dan su correo, para poder cambiar su respuesta más adelante.',
     choiceWording: 'Texto de las dos opciones',
     choiceWordingHint: 'Lo que marcan los invitados para decir sí o no. Deja una casilla vacía para usar el texto habitual.',
     acceptLabel: 'Sí',
