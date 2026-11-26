@@ -375,11 +375,12 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
         </div>
       )}
       <div>
-        <label className="field-label" htmlFor="rsvp-note">{t.noteForCouple}</label>
+        {/* The host's own question here, e.g. "Names of your plus ones". */}
+        <label className="field-label" htmlFor="rsvp-note">{form?.noteLabel || t.noteForCouple}</label>
         <textarea
           id="rsvp-note" value={message} rows={3}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder={t.noteForCouplePlaceholder}
+          placeholder={form?.noteLabel ? form.notePlaceholder : form?.notePlaceholder || t.noteForCouplePlaceholder}
           style={{ resize: 'vertical' }}
         />
       </div>
