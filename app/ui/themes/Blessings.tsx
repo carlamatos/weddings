@@ -471,7 +471,7 @@ export default function Blessings({
           {heroDateText && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}><time dateTime={eventDate}>{heroDateText}</time></p>)}
           <div className="hero-actions">
             {(showRsvp !== false || giftExchange) && <HeroButton id="rsvp" href={showRsvp !== false ? '#rsvp' : '#gift-exchange'} className="btn" label={showRsvp !== false ? t.rsvpBtn : t.giftLabel} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} giftExchangeInstead={showRsvp === false} />}
-            {hasStory && <HeroButton id="story" href="#story" className="btn btn-outline" label={word('details')} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {description && <HeroButton id="story" href="#story" className="btn btn-outline" label={word('details')} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {hasPhotos && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>

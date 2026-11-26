@@ -250,7 +250,7 @@ export default function QuietCoastal({
           {heroDate && (editSlots?.heroDate ?? <p className="hero-date" style={heroTextStyle(heroStyle?.text.date)}>{heroDate}</p>)}
           <div className="hero-actions">
             {(showRsvp !== false || giftExchange) && <HeroButton id="rsvp" href={showRsvp !== false ? '#rsvp' : '#gift-exchange'} className="btn" label={showRsvp !== false ? t.rsvpBtn.toLowerCase() : t.giftLabel.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} giftExchangeInstead={showRsvp === false} />}
-            {(description || editSlots?.description) && <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
+            {description && <HeroButton id="story" href="#story" className="btn btn-outline" label={t.ourStoryBtn.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
             {galleryToken && showGuestPhotos !== false && <HeroButton id="photos" href="#photos" className="btn btn-outline" label={t.shareYourPhoto.toLowerCase()} heroStyle={heroStyle} editPageId={editSlots?.heroEditPageId} />}
           </div>
         </div>
