@@ -272,11 +272,17 @@ const css = `
     background: linear-gradient(to bottom, rgba(16,26,37,0.18) 0%, rgba(16,26,37,0.62) 38%, rgba(16,26,37,0.9) 100%); -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
     animation: mr-rise 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both; }
   .mr .hero-arch::before { content: ''; position: absolute; inset: 12px 12px 0; border-radius: 999px 999px 0 0; border: 1px solid rgba(211,181,96,0.45); border-bottom: none; pointer-events: none; }
-  .mr .hero-arch-inner { position: relative; width: 100%; padding: 0 48px 76px; }
+  /* The names always stay inside the arch. Across: the name's size is capped
+     so its longest word fits the arch's width (--mr-name-fit is that word's
+     length in average letter widths, set from the name; 100cqi is the width
+     inside the arch). Up: the text never starts higher than 26% of the arch's
+     width from its top, below where the curve gets narrower than the text,
+     so a long name makes the arch taller rather than spilling over its curve. */
+  .mr .hero-arch-inner { position: relative; width: 100%; padding: 26% 48px 76px; container-type: inline-size; }
   .mr .hero-arch-inner > * { animation: mr-in 1.2s ease both; }
   .mr .hero-star { display: flex; justify-content: center; margin: 0 0 26px; animation-delay: 0.6s !important; }
   .mr .hero-eyebrow { animation-delay: 0.75s !important; font-family: var(--mr-font-sans); font-size: 11px; letter-spacing: 6px; text-transform: uppercase; font-weight: 600; color: var(--mr-gold-bright); margin: 0 0 18px; }
-  .mr .hero-name { animation-delay: 0.95s !important; font-family: var(--mr-font-display); font-style: italic; font-size: clamp(54px, 7.4vw, 104px); font-weight: 400; color: var(--mr-snow); margin: 0 0 20px; line-height: 1; letter-spacing: -1px; text-shadow: 0 4px 30px rgba(16,26,37,0.6); }
+  .mr .hero-name { animation-delay: 0.95s !important; font-family: var(--mr-font-display); font-style: italic; font-size: min(clamp(54px, 7.4vw, 104px), calc(100cqi / var(--mr-name-fit, 6))); font-weight: 400; color: var(--mr-snow); margin: 0 0 20px; line-height: 1; letter-spacing: -1px; overflow-wrap: anywhere; text-shadow: 0 4px 30px rgba(16,26,37,0.6); }
   .mr .hero-line { display: block; width: 160px; height: 1px; margin: 0 auto 20px; background: linear-gradient(to right, rgba(211,181,96,0), var(--mr-gold), rgba(211,181,96,0)); transform-origin: center; animation: mr-line 1.4s ease 1.2s both !important; }
   .mr .hero-date { animation-delay: 1.1s !important; font-family: var(--mr-font-sans); font-size: 12px; letter-spacing: 4px; text-transform: uppercase; color: var(--mr-cream); font-weight: 500; margin: 0 0 36px; }
   .mr .hero-actions { animation-delay: 1.3s !important; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
@@ -285,8 +291,8 @@ const css = `
   @media (max-width: 640px) {
     .mr .hero { padding: 96px 14px 0; }
     .mr .hero-arch { min-height: 78vh; }
-    .mr .hero-arch-inner { padding: 0 22px 56px; }
-    .mr .hero-name { font-size: clamp(46px, 13vw, 64px); }
+    .mr .hero-arch-inner { padding: 26% 22px 56px; }
+    .mr .hero-name { font-size: min(clamp(46px, 13vw, 64px), calc(100cqi / var(--mr-name-fit, 6))); }
     .mr .hero-date { letter-spacing: 3px; margin-bottom: 28px; }
   }
 
@@ -454,6 +460,13 @@ const css = `
   .mr .mr-flake { position: absolute; top: 0; z-index: 1; border-radius: 50%; background: #fff; pointer-events: none; box-shadow: 0 0 6px rgba(255,255,255,0.8); animation: mr-snow 14s linear infinite; }
   @media (max-width: 640px) { .mr .footer { min-height: 640px; padding-top: 84px; background-size: 200% auto; background-color: ${MIDNIGHT}; } }
 `;
+
+// The name's longest word in Bodoni Moda italic's average letter width
+// (about 0.58 of the font size), at least 6, for --mr-name-fit.
+function nameFit(heading: string): string {
+  const longest = Math.max(0, ...(heading || '').split(/\s+/).map((w) => [...w].length));
+  return (Math.max(longest, 6) * 0.58).toFixed(2);
+}
 
 function isVideoUrl(url: string) { return /\.(mp4|mov|webm|ogv)(\?|$)/i.test(url); }
 
@@ -669,7 +682,7 @@ export default function Merry({
           <Star key={`${s.left}-${s.top}`} size={s.size} fill={GOLD_BRIGHT} className="mr-sparkle" style={{ left: s.left, top: s.top, animationDelay: s.delay }} />
         ))}
         <div className="hero-arch">
-          <div className="hero-arch-inner">
+          <div className="hero-arch-inner" style={{ '--mr-name-fit': nameFit(heading) } as React.CSSProperties}>
             <div className="hero-star"><Star size={34} fill={GOLD_BRIGHT} className="mr-twinkle" /></div>
             {editSlots?.heroEyebrow ?? <p className="hero-eyebrow" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.eyebrow) }}>{heroEyebrow || heroEyebrowDefault('merry', language)}</p>}
             {editSlots?.heroName ?? <h1 className="hero-name" style={{ whiteSpace: 'pre-line', ...heroTextStyle(heroStyle?.text.name) }}>{heading}</h1>}
