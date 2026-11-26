@@ -300,6 +300,10 @@ export const es: DashText = {
   songRequests: {
     songRequests: 'Peticiones de canciones',
     songsRequestedByYourGuests: 'Las canciones que piden tus invitados. Puedes borrar cualquier petición.',
+    rsvpSongsFree: 'Las canciones de tu formulario de confirmación aparecen aquí, gratis en todas las páginas.',
+    rsvpSongsOff: '¿Quieres ideas de canciones sin Live Party? Activa «Pedir una canción a los invitados» en Invitados y confirmaciones: los invitados sugieren una canción al confirmar, y sus elecciones aparecen aquí, gratis.',
+    rsvpSongsOffLink: 'Ir a Invitados y confirmaciones',
+    rsvpSongsPlus: 'Con Live Party, los invitados también pueden pedir canciones desde tu página en cualquier momento, y tu DJ recibe una lista en vivo.',
   },
   sponsors: {
     sponsors: 'Patrocinadores',
@@ -1198,7 +1202,8 @@ export const es: DashText = {
   },
   rsvpSongOption: {
     askForASong: 'Pedir una canción a los invitados',
-    askForASongHint: 'Los invitados que asisten pueden sugerir una canción para la pista de baile. Sus elecciones aparecen en Song Requests.',
+    askForASongHint: 'Los invitados que asisten pueden sugerir una canción para la pista de baile. Sus elecciones aparecen en Peticiones de canciones. Gratis en todas las páginas.',
+    free: 'Gratis',
   },
   rsvpFormOption: {
     guestsCanReplyForOthers: 'Los invitados pueden responder por otras personas',

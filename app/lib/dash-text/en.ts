@@ -299,6 +299,10 @@ export const en = {
   songRequests: {
     songRequests: 'Song Requests',
     songsRequestedByYourGuests: 'Songs requested by your guests. You can delete any entry.',
+    rsvpSongsFree: 'Songs from your RSVP form appear here, free on every page.',
+    rsvpSongsOff: 'Want song ideas without Live Party? Turn on “Ask guests for a song” in Guests & RSVPs: guests suggest a song when they RSVP, and their picks appear here, free.',
+    rsvpSongsOffLink: 'Go to Guests & RSVPs',
+    rsvpSongsPlus: 'With Live Party, guests can also request songs from your page at any time, and your DJ gets a live list.',
   },
   sponsors: {
     sponsors: 'Sponsors',
@@ -1197,7 +1201,8 @@ export const en = {
   },
   rsvpSongOption: {
     askForASong: 'Ask guests for a song',
-    askForASongHint: 'Attending guests can suggest one song for the dance floor. Their picks appear in Song Requests.',
+    askForASongHint: 'Attending guests can suggest one song for the dance floor. Their picks appear in Song Requests. Free on every page.',
+    free: 'Free',
   },
   rsvpFormOption: {
     guestsCanReplyForOthers: 'Guests can reply for others in their party',
