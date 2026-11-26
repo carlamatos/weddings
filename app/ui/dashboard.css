@@ -1125,10 +1125,10 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 /* "Edit date & location" (EditableHeroDate as a button), before the switch. */
 .theme-edit-date-btn {
   display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border: 1px solid #E0D5D0; border-radius: 10px;
-  background: #fff; color: #241F2B; font: 600 13px system-ui, sans-serif; cursor: pointer; white-space: nowrap;
+  background: #B6584A; color: #fff; font: 600 13px system-ui, sans-serif; cursor: pointer; white-space: nowrap;
 }
-.theme-edit-date-btn:hover { border-color: #B6584A; background: #FDF8F6; }
-.theme-edit-date-btn svg { width: 15px; height: 15px; color: #B6584A; }
+.theme-edit-date-btn:hover { border-color: #9E4A3E; background: #9E4A3E; }
+.theme-edit-date-btn svg { width: 15px; height: 15px; color: #fff; }
 .theme-edit-modes { display: inline-flex; padding: 3px; border-radius: 10px; background: #F3EEEA; }
 .theme-edit-modes button {
   display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border: none; border-radius: 8px;
