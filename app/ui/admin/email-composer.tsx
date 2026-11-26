@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ADMIN_EMAIL_AUDIENCES, ADMIN_EMAIL_BODY_MAX, ADMIN_EMAIL_BUTTON_LINKS, ADMIN_EMAIL_BUTTON_MAX, ADMIN_EMAIL_DEFAULT_SIGNATURE,
@@ -48,6 +48,7 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
   const [preview, setPreview] = useState<{ subject: string; html: string } | null>(null);
   const [busy, setBusy] = useState<'test' | 'send' | null>(null);
   const [notice, setNotice] = useState<{ ok: boolean; text: string } | null>(null);
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   // The signature is remembered in this browser.
   useEffect(() => {
@@ -178,13 +179,20 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
           <input id="ae-subject" style={{ ...input, marginBottom: 14 }} value={subject} maxLength={ADMIN_EMAIL_SUBJECT_MAX} onChange={(e) => setSubject(e.target.value)} />
 
           <label style={label} htmlFor="ae-body">Message</label>
-          <textarea id="ae-body" style={{ ...input, minHeight: 320, lineHeight: 1.55, resize: 'vertical' }} value={body} maxLength={ADMIN_EMAIL_BODY_MAX} onChange={(e) => setBody(e.target.value)} />
+          <FormatBar target={bodyRef} value={body} onChange={setBody} />
+          <textarea id="ae-body" ref={bodyRef} style={{ ...input, minHeight: 320, lineHeight: 1.55, resize: 'vertical', borderTopLeftRadius: 0, borderTopRightRadius: 0 }} value={body} maxLength={ADMIN_EMAIL_BODY_MAX}
+            onChange={(e) => setBody(e.target.value)}
+            onKeyDown={(e) => {
+              if (!(e.metaKey || e.ctrlKey) || e.altKey) return;
+              const k = e.key.toLowerCase();
+              if (k === 'b' || k === 'i' || k === 'k') { e.preventDefault(); applyFormat(bodyRef.current, body, setBody, k === 'b' ? 'bold' : k === 'i' ? 'italic' : 'link'); }
+            }} />
           <p style={{ fontSize: 11.5, color: c.muted, margin: '6px 0 14px', lineHeight: 1.6 }}>
             Filled in for each person:{' '}
             {ADMIN_EMAIL_PLACEHOLDERS.map((p, i) => (
               <span key={p.key} title={p.hint}><code>{p.key}</code>{i < ADMIN_EMAIL_PLACEHOLDERS.length - 1 ? ', ' : ''}</span>
             ))}
-            . Leave a blank line between paragraphs.
+            . Leave a blank line between paragraphs. Formatting: <code>**bold**</code>, <code>*italic*</code>, lines starting with <code>-</code> or <code>1.</code> for lists, <code>[text](https://…)</code> for a link (or use the bar; ⌘/Ctrl + B, I, K).
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 14 }}>
@@ -283,6 +291,90 @@ export default function EmailComposer({ people }: { people: ComposerPerson[] }) 
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Formatting bar ─────────────────────────────────────────────────────────
+// Writes the marks the email understands (renderAdminEmail in
+// app/lib/admin-email.ts): **bold**, *italic*, "- " and "1. " lists,
+// [text](link). The text stays plain, so what's saved is what's sent.
+
+type Format = 'bold' | 'italic' | 'bullets' | 'numbers' | 'link';
+
+function applyFormat(el: HTMLTextAreaElement | null, value: string, onChange: (v: string) => void, format: Format) {
+  if (!el) return;
+  const start = el.selectionStart, end = el.selectionEnd;
+  const chosen = value.slice(start, end);
+  let next = value, selStart = start, selEnd = end;
+
+  if (format === 'bold' || format === 'italic') {
+    const mark = format === 'bold' ? '**' : '*';
+    // Already wrapped: take the marks off.
+    if (value.slice(start - mark.length, start) === mark && value.slice(end, end + mark.length) === mark
+      && (format === 'bold' || (value[start - 2] !== '*' && value[end + 1] !== '*'))) {
+      next = value.slice(0, start - mark.length) + chosen + value.slice(end + mark.length);
+      selStart = start - mark.length; selEnd = end - mark.length;
+    } else {
+      // Keep spaces outside the marks ("**word** ", not "**word **").
+      const lead = chosen.match(/^\s*/)![0], trail = chosen.match(/\s*$/)![0];
+      const inner = chosen.trim() || (format === 'bold' ? 'bold text' : 'italic text');
+      next = value.slice(0, start) + lead + mark + inner + mark + trail + value.slice(end);
+      selStart = start + lead.length + mark.length; selEnd = selStart + inner.length;
+    }
+  } else if (format === 'link') {
+    const url = window.prompt('Link address (https://…)', 'https://');
+    if (!url || !/^https?:\/\/\S+$/.test(url.trim())) return;
+    const text = chosen.trim() || 'link text';
+    const insert = `[${text}](${url.trim()})`;
+    next = value.slice(0, start) + insert + value.slice(end);
+    selStart = start + 1; selEnd = selStart + text.length;
+  } else {
+    // Lists: every line the selection touches; again to take it off.
+    const from = value.lastIndexOf('\n', start - 1) + 1;
+    const lineEnd = value.indexOf('\n', end);
+    const to = lineEnd === -1 ? value.length : lineEnd;
+    const lines = value.slice(from, to).split('\n');
+    const re = format === 'bullets' ? /^\s*[-•]\s+/ : /^\s*\d{1,3}[.)]\s+/;
+    const on = lines.filter((l) => l.trim()).every((l) => re.test(l)) && lines.some((l) => l.trim());
+    let n = 0;
+    const changed = lines.map((l) => {
+      if (!l.trim()) return l;
+      const bare = l.replace(/^\s*([-•]|\d{1,3}[.)])\s+/, '');
+      if (on) return bare;
+      n += 1;
+      return `${format === 'bullets' ? '-' : `${n}.`} ${bare}`;
+    }).join('\n');
+    // A list is its own paragraph: blank lines around it.
+    const before = value.slice(0, from), after = value.slice(to);
+    const gapBefore = on || !before || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+    const gapAfter = on || !after || after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+    next = before + gapBefore + changed + gapAfter + after;
+    selStart = from + gapBefore.length; selEnd = selStart + changed.length;
+  }
+  onChange(next);
+  requestAnimationFrame(() => { el.focus(); el.setSelectionRange(selStart, selEnd); });
+}
+
+function FormatBar({ target, value, onChange }: { target: React.RefObject<HTMLTextAreaElement | null>; value: string; onChange: (v: string) => void }) {
+  const tools: { format: Format; label: React.ReactNode; title: string }[] = [
+    { format: 'bold', label: <strong>B</strong>, title: 'Bold (⌘/Ctrl + B)' },
+    { format: 'italic', label: <em style={{ fontFamily: 'Georgia, serif' }}>I</em>, title: 'Italic (⌘/Ctrl + I)' },
+    { format: 'bullets', label: '• List', title: 'Bulleted list' },
+    { format: 'numbers', label: '1. List', title: 'Numbered list' },
+    { format: 'link', label: 'Link', title: 'Link (⌘/Ctrl + K)' },
+  ];
+  return (
+    <div role="toolbar" aria-label="Formatting" style={{ display: 'flex', gap: 4, flexWrap: 'wrap', padding: 5, border: `1px solid ${c.line}`, borderBottom: 'none', borderRadius: '8px 8px 0 0', background: '#FAF8F6' }}>
+      {tools.map((t) => (
+        <button key={t.format} type="button" title={t.title} aria-label={t.title}
+          // Keep the text selected while clicking.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => applyFormat(target.current, value, onChange, t.format)}
+          style={{ minWidth: 34, padding: '5px 10px', border: `1px solid ${c.line}`, borderRadius: 6, background: '#fff', color: c.ink, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+          {t.label}
+        </button>
+      ))}
     </div>
   );
 }

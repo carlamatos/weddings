@@ -229,11 +229,33 @@ function fill(text: string, vars: Record<string, string>): string {
   return text.replace(/\{(first_name|page_name|event_date|page_link|plus_price)\}/g, (_, k: string) => vars[k] ?? '');
 }
 
-// Escaped text with line breaks and clickable web addresses.
+// Escaped text with line breaks and clickable web addresses, plus the
+// composer's formatting bar (app/ui/admin/email-composer.tsx): **bold**,
+// *italic* and [text](https://link).
+const LINK_STYLE = 'color: #B6584A;';
 function textHtml(text: string): string {
+  const links: string[] = [];
+  const keep = (html: string) => `\u0000${links.push(html) - 1}\u0000`;
   return escHtml(text)
-    .replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)'"]/g, (url) => `<a href="${url}" style="color: #B6584A;">${url}</a>`)
+    .replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, (_, label: string, url: string) => keep(`<a href="${url}" style="${LINK_STYLE}">${label}</a>`))
+    .replace(/https?:\/\/[^\s<\u0000]+[^\s<.,;:!?)'"\u0000]/g, (url) => keep(`<a href="${url}" style="${LINK_STYLE}">${url}</a>`))
+    .replace(/\*\*(?=\S)([^*\n]*?\S)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*(?=[^\s*])([^*\n]*?[^\s*])\*(?![*\w])/gm, '$1<em>$2</em>')
+    .replace(/\u0000(\d+)\u0000/g, (_, i: string) => links[Number(i)])
     .replace(/\n/g, '<br />');
+}
+
+// One paragraph: a bulleted list when every line starts with "- " (or "• "),
+// a numbered one when every line starts with "1. ", else text.
+const BULLET_RE = /^\s*[-•]\s+/;
+const NUMBER_RE = /^\s*\d{1,3}[.)]\s+/;
+function blockHtml(paragraph: string, p: string): string {
+  const lines = paragraph.split('\n').filter((l) => l.trim());
+  const list = (tag: 'ul' | 'ol', re: RegExp) =>
+    `<${tag} style="margin: 0 0 16px; padding-left: 24px; line-height: 1.6;">${lines.map((l) => `<li style="margin: 0 0 6px;">${textHtml(l.replace(re, ''))}</li>`).join('')}</${tag}>`;
+  if (lines.every((l) => BULLET_RE.test(l))) return list('ul', BULLET_RE);
+  if (lines.every((l) => NUMBER_RE.test(l))) return list('ol', NUMBER_RE);
+  return `<p style="${p}">${textHtml(paragraph)}</p>`;
 }
 
 export function renderAdminEmail(draft: AdminEmailDraft, c: Pick<AdminEmailCandidate, 'id' | 'email' | 'firstName'>, page: AdminEmailPage | null) {
@@ -267,7 +289,7 @@ export function renderAdminEmail(draft: AdminEmailDraft, c: Pick<AdminEmailCandi
   const signature = draft.signature.trim() ? `<p style="margin: ${signOff ? '4px' : '0'} 0 0; line-height: 1.6;">${textHtml(draft.signature.trim())}</p>` : '';
 
   const html = wrap(`
-    ${main.map((t) => `<p style="${p}">${textHtml(t)}</p>`).join('\n')}
+    ${main.map((t) => blockHtml(t, p)).join('\n')}
     ${buttonHtml}
     ${signOff}
     ${signature}
