@@ -4,8 +4,8 @@ import { sql } from '@vercel/postgres';
 // (Pacific), with views (every load) and visitors (each browser counted once
 // a day, from a date the page keeps in that browser's localStorage; see
 // app/ui/page-view-beacon.tsx). No cookies, IPs or anything about the
-// person is stored. The page's owner, the editor preview and the admin view
-// aren't counted, nor are known bots. For Admin → Activity. Server only.
+// person is stored. Anyone signed in to MyGala (the owner, admins opening a
+// page from Admin, other hosts) isn't counted, nor are known bots. For Admin → Activity. Server only.
 
 let tableReady: Promise<unknown> | null = null;
 export function ensurePageViewsTable(): Promise<unknown> {

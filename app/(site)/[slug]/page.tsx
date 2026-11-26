@@ -196,8 +196,10 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </Link>
       )}
 
-      {/* Guest views (app/lib/page-views.ts): not the owner's own. */}
-      {!isOwner && <PageViewBeacon pageId={Number(data.id)} />}
+      {/* Guest views (app/lib/page-views.ts): only people who aren't signed
+          in, so the owner, admins opening it from Admin, and any other host
+          looking around aren't counted. */}
+      {!session?.user && <PageViewBeacon pageId={Number(data.id)} />}
       <ThemeRenderer
         rsvpGuestListOnly={isRsvpGuestListOnly(pageSettings)}
         rsvpMeals={mealOptionsFromSettings(pageSettings, data.language)}
