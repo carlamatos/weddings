@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Translations } from '@/app/lib/translations';
 import { GIFT_NAME_MAX, GIFT_WISHLIST_MAX, type GiftExchangeProps } from '@/app/lib/gift-exchange';
 import { isValidOptionalPhone, PHONE_INVALID_MESSAGE, PHONE_MAX_LENGTH } from '@/app/lib/phone';
+import { OwnPageLine, useRsvpOptions } from './rsvp-options';
 
 // The Gift Exchange section (Plus): guests join the Secret Santa and add gift
 // ideas. Uses the RSVP form's classes, so each theme styles it like its RSVP
@@ -21,6 +22,7 @@ export default function GiftExchangeSection({
   disabled?: boolean;
 }) {
   const { details, drawn } = giftExchange;
+  const { ownPage } = useRsvpOptions();
   const [count, setCount] = useState(giftExchange.participantCount);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -90,6 +92,7 @@ export default function GiftExchangeSection({
           <button type="button" className="btn" style={{ width: 'fit-content', margin: '16px auto 0' }} onClick={() => setDone(null)}>
             {t.giftAnother}
           </button>
+          {ownPage && <OwnPageLine ask={t.ownSantaAsk} link={t.ownSantaLink} href={ownPage.santa} />}
         </div>
       ) : (
         <form className="rsvp-form" onSubmit={submit} noValidate>

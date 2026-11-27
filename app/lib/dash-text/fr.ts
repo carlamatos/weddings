@@ -1728,6 +1728,17 @@ export const fr: DashText = {
     done: ' (fait)',
     toDo: ' (à faire)',
   },
+  pageOpens: {
+    opened: 'ouvertures',
+    notYet: 'Pas encore ouverte',
+    people: '{n} personnes ont ouvert votre page',
+    person: '1 personne a ouvert votre page',
+    nobody: 'Personne n’a encore ouvert votre page',
+    thisWeek: '{n} cette semaine',
+    since: 'Compté depuis le {date}.',
+    shareHint: 'Partagez votre lien pour que vos invités voient votre page.',
+    panelNobody: 'Personne n’a encore ouvert votre page. Le plus rapide : collez votre lien dans la conversation de groupe de votre famille ou de vos amis.',
+  },
   pageState: {
     draft: 'Brouillon',
     draftHint: 'Brouillon : vous seul voyez votre page. Publiez-la depuis la bannière ci-dessus.',

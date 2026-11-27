@@ -1,6 +1,7 @@
 import { getTheme } from './registry';
 import type { ThemeProps } from './types';
-import { RsvpOptionsProvider } from './rsvp-options';
+import { RsvpOptionsProvider, type OwnPageLinks } from './rsvp-options';
+import { siteUrl } from '@/app/lib/site-url';
 import type { RsvpFormOptions } from '@/app/lib/rsvp-form-options';
 import { LiveOptionsProvider } from './live-options';
 import HappeningNow from './happening-now';
@@ -34,7 +35,8 @@ export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rs
   const early = hasBackgrounds && !props.sectionTextPageId;
   return (
     <LiveOptionsProvider messagesOn={guestMessagesOn} language={props.language || 'en'}>
-    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals} giftExchange={!!props.giftExchange && !props.giftExchange.drawn} askSong={rsvpAskSong} form={rsvpForm}>
+    <RsvpOptionsProvider guestListOnly={rsvpGuestListOnly} meals={rsvpMeals} giftExchange={!!props.giftExchange && !props.giftExchange.drawn} askSong={rsvpAskSong} form={rsvpForm}
+      ownPage={!props.isPaid && !props.sectionTextPageId && props.userPageId ? ownPageLinks(themeSlug, props.language) : null}>
       {/* The story text's colour: every theme marks its story paragraph (the editor colours its own). */}
       {storyTextColor && /^#[0-9a-f]{6}$/i.test(storyTextColor) && !props.sectionTextPageId && (
         <style>{`[data-mg-theme] [data-story-text]{color:${storyTextColor}!important;-webkit-text-fill-color:${storyTextColor}!important}`}</style>
@@ -58,4 +60,21 @@ export default function ThemeRenderer({ themeSlug, rsvpGuestListOnly = false, rs
     </RsvpOptionsProvider>
     </LiveOptionsProvider>
   );
+}
+
+const CHRISTMAS_THEMES = new Set(['christmas-party', 'white-christmas', 'merry', 'gnomes']);
+
+// "Make your own" after a guest's RSVP or Secret Santa sign-up, on free pages
+// only (Live Party pages never promote MyGala to their guests): MyGala's
+// sign-up, starting from the same kind of event, in the page's language.
+// Tagged so Analytics shows the sign-ups that came from guests.
+function ownPageLinks(themeSlug: string | undefined, language: string | undefined): OwnPageLinks {
+  const category = getTheme(themeSlug).category;
+  const occasion = themeSlug && CHRISTMAS_THEMES.has(themeSlug) ? 'christmas' : category === 'wedding' ? 'wedding' : 'celebration';
+  const lang = language === 'fr' || language === 'es' ? language : null;
+  const link = (start: string, source: string, extra: Record<string, string> = {}) => {
+    const q = new URLSearchParams({ start, ...extra, ...(lang ? { lang } : {}), utm_source: source, utm_medium: 'referral', utm_campaign: 'make_your_own' });
+    return `${siteUrl()}/register?${q}`;
+  };
+  return { rsvp: link('website', 'guest_rsvp', { occasion }), santa: link('secret-santa', 'guest_santa') };
 }

@@ -1727,6 +1727,17 @@ export const en = {
     done: ' (done)',
     toDo: ' (to do)',
   },
+  pageOpens: {
+    opened: 'opened',
+    notYet: 'Not opened yet',
+    people: '{n} people have opened your page',
+    person: '1 person has opened your page',
+    nobody: 'No one has opened your page yet',
+    thisWeek: '{n} this week',
+    since: 'Counted since {date}.',
+    shareHint: 'Share your link so guests can see your page.',
+    panelNobody: 'No one has opened your page yet. The quickest way: paste your link into your family or friends’ group chat.',
+  },
   pageState: {
     draft: 'Draft',
     draftHint: 'Draft: only you can see your page. Publish it from the banner above.',

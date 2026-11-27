@@ -1,6 +1,7 @@
 import { sql } from '@vercel/postgres';
 import { isSuperAdmin } from './admin';
 import { LINK_SHARED_SETTING } from './setup-progress';
+import { VISITS_COUNTED_FROM } from './page-views';
 
 // Admin → Activity's "Sharing rate": of the pages made each week, how many
 // reached guests within their first 14 days. A page counts as shared when,
@@ -15,9 +16,9 @@ import { LINK_SHARED_SETTING } from './setup-progress';
 export const SHARE_WINDOW_DAYS = 14;
 export const SHARE_MIN_VISITORS = 3;
 export const SHARING_WEEKS = 12;
-// Guest visits were first counted on this day (Pacific); for pages made
-// earlier, the visits part of "shared" is incomplete.
-export const VISITS_COUNTED_FROM = '2026-11-25';
+// Guest visits were first counted on VISITS_COUNTED_FROM (Pacific); for
+// pages made earlier, the visits part of "shared" is incomplete.
+export { VISITS_COUNTED_FROM };
 
 export type SharingWeek = {
   week: string;        // Monday, YYYY-MM-DD

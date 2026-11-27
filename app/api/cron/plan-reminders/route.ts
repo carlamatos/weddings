@@ -1,6 +1,6 @@
 import { sendPlanReminders } from '@/app/lib/plan-reminders';
 import { sendGiftExchangeReminders } from '@/app/lib/gift-exchange-reminders';
-import { sendPhotosReadyEmails, sendUpgradeEmails } from '@/app/lib/event-emails';
+import { sendGuestsActiveEmails, sendPhotosReadyEmails, sendUpgradeEmails } from '@/app/lib/event-emails';
 import { runCron } from '@/app/lib/cron-log';
 
 // Called once a day by Vercel Cron (see vercel.json): reminder emails from
@@ -13,5 +13,5 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 export async function GET(request: Request) {
-  return runCron(request, 'plan-reminders', async () => ({ results: await sendPlanReminders(), giftExchange: await sendGiftExchangeReminders(), upgrade: await sendUpgradeEmails(), photosReady: await sendPhotosReadyEmails() }));
+  return runCron(request, 'plan-reminders', async () => ({ results: await sendPlanReminders(), giftExchange: await sendGiftExchangeReminders(), upgrade: await sendUpgradeEmails(), guestsActive: await sendGuestsActiveEmails(), photosReady: await sendPhotosReadyEmails() }));
 }

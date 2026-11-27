@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react';
 import { ShareIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
-import { ShareSheet, type ShareChoice } from './share-menu';
+import { ShareSheet, type OpensInfo, type ShareChoice } from './share-menu';
 import { ShareTipBubble, endShareTip, useShareTip } from './share-tip';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
@@ -28,6 +28,8 @@ export type PhoneActions = {
   shareChoices: ShareChoice[];
   // The "ready to share" tip, under this button on phones and tablets.
   shareTip?: { show: boolean; daysToGo: number | null; far?: boolean };
+  // "Opened by N people", at the top of the share options.
+  opens?: OpensInfo | null;
 };
 
 // The setup checklist's "Add your name" step opens the profile from here
@@ -545,7 +547,7 @@ export default function UserMenu({
 
       {showDelete && page && <DeletePageDialog page={page} onClose={() => setShowDelete(false)} />}
 
-      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} bottom />}
+      {sharing && phoneActions && <ShareSheet choices={phoneActions.shareChoices} onClose={() => setSharing(false)} bottom opens={phoneActions.opens} />}
 
       {/* Phones and tablets: a Share button fixed at the bottom right, with
           the "ready to share" tip just above it. Hidden while the share

@@ -9,6 +9,8 @@ import { ensurePageViewsTable } from '@/app/lib/page-views';
 import { PLUS_FEATURES } from '@/app/lib/plus-features';
 import { fetchCronRuns, type CronRunRow } from '@/app/lib/cron-log';
 import { FOLLOW_UP_SETTING } from '@/app/lib/setup-reminder';
+import { NOT_OPENED_SETTING } from '@/app/lib/share-nudge';
+import { ACTIVE_SENT } from '@/app/lib/event-emails';
 import { siteHref } from '@/app/lib/app-url';
 import { INVITATION_SETTING } from '@/app/lib/invitation';
 import { identifyInvitationDesign } from '@/app/lib/admin-invitation-designs';
@@ -26,10 +28,10 @@ export const dynamic = 'force-dynamic';
 
 const TZ = 'America/Vancouver';
 const JOBS: { job: string; what: string; when: string }[] = [
-  { job: 'setup-reminders', what: 'Follow-up emails to new hosts', when: 'Daily, 7–8 am Pacific' },
+  { job: 'setup-reminders', what: 'Follow-up emails to new hosts, and “not opened yet” for live pages no one has opened', when: 'Daily, 7–8 am Pacific' },
   { job: 'reminders', what: 'Guest reminder emails (Live Party)', when: 'Every hour' },
   { job: 'scheduled-sends', what: 'Invitations and save-the-dates hosts scheduled', when: 'Every hour, at :05' },
-  { job: 'plan-reminders', what: 'RSVP timeline and budget reminders to hosts', when: 'Daily, 6–7 am Pacific' },
+  { job: 'plan-reminders', what: 'RSVP timeline and budget reminders to hosts, and Live Party offers once guests are active', when: 'Daily, 6–7 am Pacific' },
   { job: 'purge-deleted-pages', what: 'Empties pages 30 days in the trash', when: 'Daily, 1–2 am Pacific' },
   { job: 'daily-digest', what: 'Pages published today, emailed to you', when: 'Daily, 11:50 pm Pacific' },
 ];
@@ -45,6 +47,7 @@ type HostRow = {
   first_dashboard_at: Date | null; last_dashboard_at: Date | null; dashboard_visits: number;
   page_id: number | null; slug: string | null; heading: string | null; page_status: string | null;
   page_created: Date | null; guests: number; replies: number; follow_up: string | null;
+  not_opened: string | null; guests_active: string | null; // when those emails went out (ISO)
   santa: number; santa_drawn: boolean; goal: string | null; purpose: string | null;
   plus_box: number; plus_checkout: number; plus_last: Date | null; plus_sections: string | null; plus_paid: boolean;
   event_date: string | null; // YYYY-MM-DD, the page's event date
@@ -130,6 +133,8 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                (SELECT count(*)::int FROM page_gift_exchange x WHERE x.user_page_id = p.id) AS santa,
                EXISTS (SELECT 1 FROM page_gift_exchange x WHERE x.user_page_id = p.id AND x.giftee_id IS NOT NULL) AS santa_drawn,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1) AS follow_up,
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $2) AS not_opened,
+               (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $3) AS guests_active,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'event_goal') AS goal,
                (SELECT setting_value FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'page_purpose') AS purpose,
                (SELECT count(*)::int FROM plus_interest i WHERE i.user_id = u.id AND i.kind = 'box') AS plus_box,
@@ -145,7 +150,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
         LEFT JOIN LATERAL (SELECT * FROM user_page WHERE user_id = u.id ORDER BY created_at DESC LIMIT 1) p ON true
         ORDER BY u.last_dashboard_at DESC NULLS LAST, u.date DESC NULLS LAST
         LIMIT 500
-      `, [FOLLOW_UP_SETTING]),
+      `, [FOLLOW_UP_SETTING, NOT_OPENED_SETTING, ACTIVE_SENT]),
       fetchCronRuns(),
     ]);
     // Live Party upgrades: every page made in the last 12 months, and whether
@@ -345,9 +350,17 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
                   ) : '—'}
                 </td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>
-                  {u.follow_up ? (
-                    <>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></>
-                  ) : '—'}
+                  {u.follow_up && (
+                    <div>{FOLLOW_UP_LABEL[u.follow_up.split(' ')[0]] ?? u.follow_up.split(' ')[0]}<div style={{ color: c.muted, fontSize: 11 }}>{when(u.follow_up.split(' ')[1] ?? null)}</div></div>
+                  )}
+                  {/* app/lib/share-nudge.ts and app/lib/event-emails.ts */}
+                  {u.not_opened && (
+                    <div style={{ marginTop: u.follow_up ? 6 : 0 }}>Not opened yet<div style={{ color: c.muted, fontSize: 11 }}>{when(u.not_opened)}</div></div>
+                  )}
+                  {u.guests_active && (
+                    <div style={{ marginTop: u.follow_up || u.not_opened ? 6 : 0 }}>Live Party offer<div style={{ color: c.muted, fontSize: 11 }}>{when(u.guests_active)}</div></div>
+                  )}
+                  {!u.follow_up && !u.not_opened && !u.guests_active && '—'}
                 </td>
                 {/* Live Party box opens and checkouts started, on any of their pages (app/lib/plus-interest.ts). */}
                 <td style={td}>

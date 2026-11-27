@@ -1,9 +1,10 @@
 import { sql } from '@vercel/postgres';
-import { sendMail, wrap, button, escHtml, type MailLang } from './mail';
+import { sendMail, sendMailBatch, wrap, button, escHtml, type MailLang } from './mail';
 import { siteUrl } from './site-url';
 import { COMPANY } from './company';
 import { ensureAdminEmailTables, userUnsubscribeUrl } from './admin-email';
 import { PLAN_PRICE_PLUS_TAX } from './plans';
+import { ensurePageViewsTable } from './page-views';
 
 // Emails around the event date, from the daily cron (app/api/cron/plan-reminders):
 //  1. sendUpgradeEmails — about two weeks before the event, a free page's host
@@ -11,12 +12,20 @@ import { PLAN_PRICE_PLUS_TAX } from './plans';
 //     screen, up to 500 photos, song requests, Find Your Table…). Once per page.
 //  2. sendPhotosReadyEmails — the day after the event, the host of a page with
 //     guest photos gets a link to see and download them all. Once per page.
+//  3. sendGuestsActiveEmails — as soon as a free page's guests are clearly
+//     engaged (5 RSVPs, or 10 people have opened it), its host hears what
+//     Live Party adds, with the numbers: "9 guests are coming!". Once per page,
+//     and never within a week of the two-weeks email (1), either way round.
 // Neither goes to accounts that unsubscribed from MyGala's emails. Each page
 // is marked (claimed) before sending, so a failed or repeated run never sends
 // twice. event_date is a calendar day, compared in UTC.
 
 const UPGRADE_SENT = 'upgrade_email_sent';
 const PHOTOS_SENT = 'photos_ready_email_sent';
+export const ACTIVE_SENT = 'guests_active_email_sent';
+// What makes a page's guests "active" (sendGuestsActiveEmails).
+export const ACTIVE_MIN_REPLIES = 5;
+export const ACTIVE_MIN_OPENED = 10;
 const BATCH = 200;
 
 type Row = { page_id: number; heading: string | null; language: string | null; user_id: string; email: string; given_name: string | null; photos?: number };
@@ -31,11 +40,18 @@ const TEXT = {
     upgradeSubject: (h: string) => `Two weeks until ${h}: make it a Live Party 🎉`,
     upgradeHeading: 'Make the day itself unforgettable',
     upgradeBody: (h: string) => `<strong>${h}</strong> is two weeks away! Your page is all set for RSVPs. For the day itself, MyGala Live Party adds:`,
-    upgradeList: ['A live photo slideshow for the TV or projector at your venue', 'Up to 500 guest photos, shared by QR code', 'Song requests and a livestream for faraway family', 'Find Your Table: guests scan a sign and see their table', 'Automatic reminder emails to your guests'],
+    upgradeList: ['A live photo slideshow for the TV or projector at your venue', 'Up to 500 guest photos, shared by QR code', 'Song requests and a livestream for faraway family', 'Find Your Table: guests scan a sign and see their table', 'Automatic reminder emails to your guests', 'And many more features'],
     upgradePrice: `One payment of ${PLAN_PRICE_PLUS_TAX} for this event. No subscription.`,
     upgradeButton: 'See Live Party',
     upgradeMore: 'Watch the video and see everything in Live Party',
     upgradePage: '/live-party',
+    activeSubjectComing: (h: string, n: number) => `${n} guests are coming to ${h}! 🎉`,
+    activeSubjectOpened: (h: string, n: number) => `${n} people have opened ${h} 🎉`,
+    activeHeading: 'Your guests are excited!',
+    activeLeadComing: (h: string, n: number) => `<strong>${n} guests</strong> are coming to <strong>${h}</strong>. Your page is doing its job!`,
+    activeLeadOpened: (h: string, n: number) => `<strong>${n} people</strong> have opened <strong>${h}</strong> already. Your page is doing its job!`,
+    activeBody: 'For the party itself, MyGala Live Party adds:',
+    activeReply: 'Not sure what you’d need? Just reply to this email and tell us about your party. We read every message.',
     photosSubject: (h: string, n: number) => `${n} guest photo${n === 1 ? '' : 's'} from ${h} 📸`,
     photosHeading: 'Your guests’ photos are ready',
     photosBody: (h: string, n: number) => `Your guests shared <strong>${n} photo${n === 1 ? '' : 's'}</strong> from <strong>${h}</strong>. See them all in your dashboard and download them in one click.`,
@@ -51,11 +67,18 @@ const TEXT = {
     upgradeSubject: (h: string) => `Plus que deux semaines avant ${h} : passez à Live Party 🎉`,
     upgradeHeading: 'Rendez le jour J inoubliable',
     upgradeBody: (h: string) => `<strong>${h}</strong> a lieu dans deux semaines ! Votre page est prête pour les RSVP. Pour le jour J, MyGala Live Party ajoute :`,
-    upgradeList: ['Un diaporama de photos en direct sur la télé ou le projecteur de votre salle', 'Jusqu’à 500 photos des invités, partagées par code QR', 'Les demandes de chansons et une diffusion en direct pour la famille au loin', 'Find Your Table : les invités scannent une affiche et voient leur table', 'Des courriels de rappel automatiques à vos invités'],
+    upgradeList: ['Un diaporama de photos en direct sur la télé ou le projecteur de votre salle', 'Jusqu’à 500 photos des invités, partagées par code QR', 'Les demandes de chansons et une diffusion en direct pour la famille au loin', 'Find Your Table : les invités scannent une affiche et voient leur table', 'Des courriels de rappel automatiques à vos invités', 'Et bien d’autres fonctionnalités'],
     upgradePrice: `Un seul paiement de ${PLAN_PRICE_PLUS_TAX} pour cet événement. Sans abonnement.`,
     upgradeButton: 'Découvrir Live Party',
     upgradeMore: 'Voir la vidéo et tout ce qu’inclut Live Party (en anglais)',
     upgradePage: '/live-party',
+    activeSubjectComing: (h: string, n: number) => `${n} invités viennent à ${h} ! 🎉`,
+    activeSubjectOpened: (h: string, n: number) => `${n} personnes ont ouvert ${h} 🎉`,
+    activeHeading: 'Vos invités ont hâte !',
+    activeLeadComing: (h: string, n: number) => `<strong>${n} invités</strong> viennent à <strong>${h}</strong>. Votre page fait son travail !`,
+    activeLeadOpened: (h: string, n: number) => `<strong>${n} personnes</strong> ont déjà ouvert <strong>${h}</strong>. Votre page fait son travail !`,
+    activeBody: 'Pour la fête elle-même, MyGala Live Party ajoute :',
+    activeReply: 'Vous ne savez pas ce qu’il vous faut ? Répondez simplement à ce courriel et parlez-nous de votre fête. Nous lisons chaque message.',
     photosSubject: (h: string, n: number) => `${n} photo${n === 1 ? '' : 's'} des invités de ${h} 📸`,
     photosHeading: 'Les photos de vos invités sont prêtes',
     photosBody: (h: string, n: number) => `Vos invités ont partagé <strong>${n} photo${n === 1 ? '' : 's'}</strong> de <strong>${h}</strong>. Voyez-les toutes dans votre tableau de bord et téléchargez-les en un clic.`,
@@ -71,11 +94,18 @@ const TEXT = {
     upgradeSubject: (h: string) => `Faltan dos semanas para ${h}: hazlo Live Party 🎉`,
     upgradeHeading: 'Haz que el gran día sea inolvidable',
     upgradeBody: (h: string) => `¡Faltan dos semanas para <strong>${h}</strong>! Tu página ya está lista para las confirmaciones. Para el día de la fiesta, MyGala Live Party añade:`,
-    upgradeList: ['Una presentación de fotos en vivo en la pantalla o el proyector del salón', 'Hasta 500 fotos de tus invitados, con código QR', 'Peticiones de canciones y transmisión en vivo para la familia lejana', 'Find Your Table: tus invitados escanean un letrero y ven su mesa', 'Recordatorios automáticos por correo para tus invitados'],
+    upgradeList: ['Una presentación de fotos en vivo en la pantalla o el proyector del salón', 'Hasta 500 fotos de tus invitados, con código QR', 'Peticiones de canciones y transmisión en vivo para la familia lejana', 'Find Your Table: tus invitados escanean un letrero y ven su mesa', 'Recordatorios automáticos por correo para tus invitados', 'Y muchas funciones más'],
     upgradePrice: `Un solo pago de ${PLAN_PRICE_PLUS_TAX} por este evento. Sin suscripción.`,
     upgradeButton: 'Ver Live Party',
     upgradeMore: 'Mira el video y todo lo que incluye Live Party',
     upgradePage: '/es/live-party',
+    activeSubjectComing: (h: string, n: number) => `¡${n} invitados vienen a ${h}! 🎉`,
+    activeSubjectOpened: (h: string, n: number) => `${n} personas han abierto ${h} 🎉`,
+    activeHeading: '¡Tus invitados están emocionados!',
+    activeLeadComing: (h: string, n: number) => `<strong>${n} invitados</strong> vienen a <strong>${h}</strong>. ¡Tu página está funcionando!`,
+    activeLeadOpened: (h: string, n: number) => `<strong>${n} personas</strong> ya abrieron <strong>${h}</strong>. ¡Tu página está funcionando!`,
+    activeBody: 'Para la fiesta en sí, MyGala Live Party añade:',
+    activeReply: '¿No sabes qué necesitas? Solo responde a este correo y cuéntanos de tu fiesta. Leemos cada mensaje.',
     photosSubject: (h: string, n: number) => `${n} foto${n === 1 ? '' : 's'} de tus invitados de ${h} 📸`,
     photosHeading: 'Las fotos de tus invitados están listas',
     photosBody: (h: string, n: number) => `Tus invitados compartieron <strong>${n} foto${n === 1 ? '' : 's'}</strong> de <strong>${h}</strong>. Velas todas en tu panel y descárgalas con un clic.`,
@@ -144,8 +174,12 @@ export async function sendUpgradeEmails(): Promise<{ sent: number; failed: numbe
       AND p.event_date IS NOT NULL
       AND p.event_date::date BETWEEN CURRENT_DATE + 12 AND CURRENT_DATE + 14
       AND NOT EXISTS (SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1)
+      AND NOT EXISTS (
+        SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $2
+          AND s.updated_at > (NOW() AT TIME ZONE 'UTC') - interval '7 days'
+      )
       AND NOT EXISTS (SELECT 1 FROM user_email_opt_outs o WHERE o.user_id = u.id)
-    LIMIT ${BATCH}`, [UPGRADE_SENT]);
+    LIMIT ${BATCH}`, [UPGRADE_SENT, ACTIVE_SENT]);
   const site = siteUrl();
   let sent = 0, failed = 0;
   for (const row of rows) {
@@ -184,6 +218,99 @@ export async function sendPhotosReadyEmails(): Promise<{ sent: number; failed: n
       sent++;
     } catch (error) {
       console.error('Failed to send photos-ready email:', error);
+      failed++;
+    }
+  }
+  return { sent, failed };
+}
+
+// ── Guests are active: offer Live Party ─────────────────────────────────────
+
+export type ActiveRow = Row & { replies: number; coming: number; opened: number };
+
+// "9 guests are coming!" when enough replied (at least 2 coming), else
+// "23 people have opened it".
+export function guestsActiveEmail(opts: {
+  name: string | null; heading: string | null; replies: number; coming: number; opened: number;
+  link: string; unsubscribe: string; lang: MailLang;
+}): { subject: string; html: string } {
+  const t = TEXT[opts.lang];
+  const p = 'margin: 0 0 16px; line-height: 1.6;';
+  const plain = plainHeading(opts.heading, t.yourEvent);
+  const heading = escHtml(plain);
+  const byComing = opts.replies >= ACTIVE_MIN_REPLIES && opts.coming >= 2;
+  const inner = `
+    <h2 style="margin: 0 0 16px; font-size: 20px;">${t.activeHeading}</h2>
+    <p style="${p}">${t.hi(escHtml((opts.name ?? '').trim()))}</p>
+    <p style="${p}">${byComing ? t.activeLeadComing(heading, opts.coming) : t.activeLeadOpened(heading, opts.opened)}</p>
+    <p style="${p}">${t.activeBody}</p>
+    <ul style="margin: 0 0 16px; padding-left: 20px; line-height: 1.7;">${t.upgradeList.map((li) => `<li>${escHtml(li)}</li>`).join('')}</ul>
+    <p style="${p}">${escHtml(t.upgradePrice)}</p>
+    <div style="margin: 24px 0;">${button(opts.link, t.upgradeButton)}</div>
+    <p style="${p}"><a href="${siteUrl()}${t.upgradePage}" style="color: #B6584A;">${escHtml(t.upgradeMore)} →</a></p>
+    <p style="${p}">${escHtml(t.activeReply)}</p>`;
+  return {
+    subject: byComing ? t.activeSubjectComing(plain, opts.coming) : t.activeSubjectOpened(plain, opts.opened),
+    html: shell(opts.lang, inner, opts.unsubscribe),
+  };
+}
+
+// Free pages that never had Live Party, whose event hasn't passed (or has no
+// date yet), with 5 or more RSVPs or 10 or more people who opened them. Not
+// Secret Santa pages (Live Party is about the party itself). Read only.
+export async function findGuestsActivePages(): Promise<ActiveRow[]> {
+  await Promise.all([ensureAdminEmailTables(), ensurePageViewsTable()]);
+  const { rows } = await sql.query<ActiveRow>(`
+    SELECT * FROM (
+      SELECT p.id AS page_id, p.heading, p.language, u.id AS user_id, u.email, u.given_name,
+             (SELECT COUNT(*)::int FROM event_guests g WHERE g.user_page_id = p.id AND g.responded_at IS NOT NULL) AS replies,
+             (SELECT COALESCE(SUM(GREATEST(COALESCE(g.guests, 1), 1)), 0)::int FROM event_guests g
+               WHERE g.user_page_id = p.id AND g.status = 'attending') AS coming,
+             (SELECT COALESCE(SUM(COALESCE(v.people, v.visitors)), 0)::int FROM page_view_days v WHERE v.user_page_id = p.id) AS opened
+      FROM user_page p JOIN users u ON u.id = p.user_id
+      WHERE COALESCE(p.plan_type, 'free') <> 'paid'
+        AND p.plan_expires_at IS NULL
+        AND COALESCE(p.status, 'active') = 'active'
+        AND u.email_verified_at IS NOT NULL
+        AND (p.event_date IS NULL OR p.event_date >= CURRENT_DATE)
+        AND NOT EXISTS (SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = 'event_goal' AND s.setting_value = 'secret-santa')
+        AND NOT EXISTS (SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $1)
+        AND NOT EXISTS (
+          SELECT 1 FROM user_page_settings s WHERE s.user_page_id = p.id AND s.setting_name = $2
+            AND s.updated_at > (NOW() AT TIME ZONE 'UTC') - interval '7 days'
+        )
+        AND NOT EXISTS (SELECT 1 FROM user_email_opt_outs o WHERE o.user_id = u.id)
+    ) pages
+    WHERE replies >= $3 OR opened >= $4
+    ORDER BY page_id
+    LIMIT ${BATCH}`, [ACTIVE_SENT, UPGRADE_SENT, ACTIVE_MIN_REPLIES, ACTIVE_MIN_OPENED]);
+  return rows;
+}
+
+export async function sendGuestsActiveEmails(): Promise<{ sent: number; failed: number }> {
+  // A failed lookup mustn't stop the cron's other emails.
+  let rows: ActiveRow[];
+  try { rows = await findGuestsActivePages(); } catch (error) {
+    console.error('Failed to find pages with active guests:', error);
+    return { sent: 0, failed: 1 };
+  }
+  const site = siteUrl();
+  let sent = 0, failed = 0;
+  for (const row of rows) {
+    if (!row.email || !(await claim(row.page_id, ACTIVE_SENT))) continue;
+    try {
+      // Replies go to MyGala, so "just reply" reaches us.
+      await sendMailBatch([{
+        to: row.email,
+        replyTo: COMPANY.email,
+        ...guestsActiveEmail({
+          name: row.given_name, heading: row.heading, replies: row.replies, coming: row.coming, opened: row.opened,
+          link: `${site}/dashboard/pages/${row.page_id}`, unsubscribe: userUnsubscribeUrl(row.user_id), lang: mailLang(row.language),
+        }),
+      }]);
+      sent++;
+    } catch (error) {
+      console.error('Failed to send guests-active email:', error);
       failed++;
     }
   }
