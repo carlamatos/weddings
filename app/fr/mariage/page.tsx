@@ -30,7 +30,7 @@ function FrenchFooter() {
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
       <SocialLinks lang="fr" />
       <p style={{ marginTop: 12, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <Link href="/">Accueil</Link>
+        <Link href="/fr">Accueil</Link>
         <Link href="/events/weddings/start" hrefLang="en">English</Link>
         <Link href="/privacy">Confidentialité</Link>
         <Link href="/terms">Conditions d’utilisation</Link>
