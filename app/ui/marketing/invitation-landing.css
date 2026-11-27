@@ -227,3 +227,14 @@
   .marketing-page .ilp-ny-confetti span { top: var(--ilp-still, 30%); }
   .marketing-page .ilp-ny-sparkle, .marketing-page .ilp-ny-sweep { display: none; }
 }
+
+/* The same page in the other languages (EN · FR · ES), in the top bar. */
+.marketing-page .lp-topbar-langs { display: flex; gap: 4px; margin-right: 6px; }
+.marketing-page .lp-topbar-langs a { padding: 6px 8px; border-radius: 8px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px; color: var(--ink-soft); text-decoration: none; }
+.marketing-page .lp-topbar-langs a:hover { background: rgba(0, 0, 0, 0.05); color: var(--ink); }
+/* Phones: room for the language links beside "Sign up" (Log in is on the home page). */
+@media (max-width: 600px) {
+  .marketing-page .lp-topbar-actions:has(.lp-topbar-langs) .lp-topbar-login { display: none; }
+  .marketing-page .lp-topbar-langs { margin-right: 2px; gap: 0; }
+  .marketing-page .lp-topbar-langs a { padding: 6px 6px; }
+}

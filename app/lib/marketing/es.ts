@@ -12,6 +12,7 @@ import type { Faq, SeoMeta, Video } from './types';
 export const ES_PAGES = {
   home: { path: '/es', label: 'Inicio' },
   quince: { path: '/es/cumpleanos-y-quinceaneras', label: 'Cumpleaños y quinceañeras' },
+  newYears: { path: '/es/fiesta-de-ano-nuevo', label: 'Fiestas de Año Nuevo' },
   features: { path: '/es/funciones', label: 'Funciones' },
   liveParty: { path: '/es/live-party', label: 'Live Party' },
   contact: { path: '/es/contacto', label: 'Contacto' },
@@ -26,10 +27,14 @@ export const ES_PRICE = `$${PLAN_ONE_TIME_PRICE} ${PLAN_CURRENCY}`;
 export const ES_ALTERNATES: Record<string, string> = {
   '/es': '/',
   '/es/cumpleanos-y-quinceaneras': '/events/celebrations',
+  '/es/fiesta-de-ano-nuevo': '/new-years-eve-party',
   '/es/funciones': '/features',
   '/es/live-party': '/live-party',
   '/es/contacto': '/contact',
 };
+
+// The French pages a Spanish page has (hreflang).
+const ES_FRENCH: Record<string, string> = { '/es': '/fr' };
 
 // ---------------------------------------------------------------------------
 // The videos, in Spanish (public/videos/es). A video shows once its file is
@@ -309,7 +314,7 @@ export function esMetadata(seo: SeoMeta, path: string): Metadata {
   const english = ES_ALTERNATES[path];
   return {
     ...meta,
-    alternates: { ...meta.alternates, languages: { es: path, ...(english ? { 'en-CA': english } : {}) } },
+    alternates: { ...meta.alternates, languages: { es: path, ...(english ? { 'en-CA': english } : {}), ...(ES_FRENCH[path] ? { 'fr-CA': ES_FRENCH[path] } : {}) } },
     openGraph: { ...meta.openGraph, locale: 'es_419', alternateLocale: ['en_CA'] },
   };
 }

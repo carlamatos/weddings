@@ -48,6 +48,11 @@ export default function SiteFooter() {
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
       <SocialLinks />
       <p style={{ marginTop: 6 }}>mygala.ca</p>
+      {/* MyGala in French and Spanish (/fr, /es). */}
+      <p style={{ marginTop: 6, display: 'flex', gap: 14, justifyContent: 'center' }}>
+        <Link href="/fr" hrefLang="fr-CA" lang="fr">Français</Link>
+        <Link href="/es" hrefLang="es" lang="es">Español</Link>
+      </p>
       <p style={{ marginTop: 6, fontSize: 12 }}>{copyrightLine()} MyGala is operated by {COMPANY.legalName}</p>
     </footer>
   );

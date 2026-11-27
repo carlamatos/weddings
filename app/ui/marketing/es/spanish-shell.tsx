@@ -21,7 +21,7 @@ export default function SpanishShell({ english = '/', children }: { english?: st
   );
 }
 
-function SpanishFooter({ english }: { english: string }) {
+export function SpanishFooter({ english }: { english: string }) {
   return (
     <footer className="footer site-footer">
       <div className="site-footer-cols">

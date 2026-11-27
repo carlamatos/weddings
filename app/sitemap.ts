@@ -33,9 +33,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...FEATURES.map((f) => entry(`/features/${f.slug}`, 0.8)),
     ...EVENT_TYPES.map((e) => entry(`/events/${e.slug}`, 0.8)),
     ...LANDING_PAGES.map((p) => entry(`/events/${p.slug}/start`, 0.8)),
+    entry('/fr', 0.9),
     entry('/fr/mariage', 0.8),
     ...Object.values(ES_PAGES).map((p) => entry(p.path, p.path === '/es' ? 0.9 : 0.8)),
-    ...Object.values(INVITATION_LANDING_PAGES).map((p) => entry(p.path, 0.9)),
+    // (The Spanish New Year's page is also in ES_PAGES: listed once.)
+    ...Object.values(INVITATION_LANDING_PAGES).filter((p) => !Object.values(ES_PAGES).some((e) => e.path === p.path)).map((p) => entry(p.path, 0.9)),
     entry('/design-your-invitation', 0.8),
     entry('/design-your-christmas-invitation', 0.8),
     entry('/design-your-wedding-invitation', 0.8),

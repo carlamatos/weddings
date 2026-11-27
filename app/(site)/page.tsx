@@ -30,7 +30,9 @@ const HOME_SEO = {
 };
 
 // The title already leads with the brand, so marketingMetadata adds no " | MyGala".
-export const metadata: Metadata = marketingMetadata(HOME_SEO, '/');
+const homeMeta = marketingMetadata(HOME_SEO, '/');
+// The home page in French and Spanish too (/fr, /es).
+export const metadata: Metadata = { ...homeMeta, alternates: { ...homeMeta.alternates, languages: { 'en-CA': '/', 'fr-CA': '/fr', es: '/es' } } };
 
 // Shown on the page and marked up as FAQPage for search engines and AI assistants.
 const HOME_FAQS = [

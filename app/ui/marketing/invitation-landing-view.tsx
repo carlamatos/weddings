@@ -4,6 +4,7 @@ import { greatVibes } from '@/app/ui/fonts';
 import { appHref } from '@/app/lib/app-url';
 import { startQuery } from '@/app/lib/start-intent';
 import { sampleInvitation, sampleStyleName, type FunIcon, type InvitationLandingPage } from '@/app/lib/marketing/invitation-landing';
+import type { LandingLang } from '@/app/lib/marketing/landing-lang';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
 import { previewImage } from '@/app/ui/themes/preview-image';
@@ -30,19 +31,42 @@ const FUN_ICONS: Record<FunIcon, typeof ClockIcon> = {
   clock: ClockIcon, music: MusicalNoteIcon, schedule: CalendarDaysIcon, camera: CameraIcon, sparkles: SparklesIcon, share: PaperAirplaneIcon,
 };
 
-const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.webp`;
+// In French and Spanish, the pictures with MyGala's words in that language.
+const themePagePicture = (slug: string, lang: LandingLang = 'en') => `/images/theme-pages/${lang === 'en' ? '' : `${lang}/`}${slug}.webp`;
 const themeName = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.name ?? slug;
 const themeDesc = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.desc ?? '';
 
-export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
+// The page's own words, in its language.
+const UI: Record<LandingLang, {
+  login: string; signup: string; useDesign: string; startWith: string; liveDemo: string; note: string; pageAlt: string;
+  rsvp: string; map: string; photos: string; languages: string;
+}> = {
+  en: { login: 'Log in', signup: 'Sign up free', useDesign: 'Use this design →', startWith: 'Start with {name}', liveDemo: 'Live demo →', note: 'Free · no credit card · guests don’t need an app', pageAlt: 'The {name} theme, the whole page', rsvp: 'RSVP', map: 'Map & directions', photos: 'Photo wall', languages: 'Languages' },
+  fr: { login: 'Se connecter', signup: 'Inscription gratuite', useDesign: 'Utiliser ce modèle →', startWith: 'Commencer avec {name}', liveDemo: 'Démo en direct →', note: 'Gratuit · sans carte de crédit · aucune appli pour vos invités', pageAlt: 'Le thème {name}, la page complète', rsvp: 'Réponses', map: 'Carte et itinéraire', photos: 'Mur de photos', languages: 'Langues' },
+  es: { login: 'Iniciar sesión', signup: 'Regístrate gratis', useDesign: 'Usar este diseño →', startWith: 'Empezar con {name}', liveDemo: 'Ver ejemplo →', note: 'Gratis · sin tarjeta de crédito · tus invitados no necesitan app', pageAlt: 'El tema {name}, la página completa', rsvp: 'Confirmaciones', map: 'Mapa y cómo llegar', photos: 'Muro de fotos', languages: 'Idiomas' },
+};
+const LANG_NAMES: Record<LandingLang, string> = { en: 'English', fr: 'Français', es: 'Español' };
+const HOMES: Record<LandingLang, string> = { en: '/', fr: '/fr', es: '/es' };
+
+// footer: the page's language's own (French and Spanish); else the English site's.
+export function InvitationLandingView({ page, footer }: { page: InvitationLandingPage; footer?: React.ReactNode }) {
+  const lang = page.lang ?? 'en';
+  const t = UI[lang];
+  const name = (text: string, slug: string) => text.replace('{name}', themeName(slug));
+  // The look: the same page in another language looks the same (ilp--new-years).
+  const look = page.key.replace(/-(fr|es)$/, '');
   // The occasion puts its themes first in the gallery after sign-up.
   const occasion = page.key === 'christmas' ? 'christmas' : page.key === 'weddings' ? 'wedding' : 'celebration';
-  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, occasion);
+  // Sign-up opens in the page's language.
+  const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, occasion) + (lang === 'en' ? '' : `&lang=${lang}`);
   // A theme's buttons: try it first (choose, then sign up) where the page has a try page.
   const start = (theme?: string) => (page.tryPath ? `${page.tryPath}${theme ? `?theme=${theme}` : ''}` : register(theme));
+  // A theme's demo, with MyGala's words in the page's language.
+  const demo = (slug: string) => `/themes/${slug}${lang === 'en' ? '' : `?lang=${lang}`}`;
   const cta = (where: string) => `ilp-${page.key}-${where}`;
-  const hero = sampleInvitation(page.hero.invitation);
-  const groups = page.gallery.groups.map((g) => ({ ...g, cards: g.items.map((s) => ({ sample: s, ...sampleInvitation(s) })) }));
+  const hero = sampleInvitation(page.hero.invitation, lang);
+  const groups = page.gallery.groups.map((g) => ({ ...g, cards: g.items.map((s) => ({ sample: s, ...sampleInvitation(s, lang) })) }));
+  const otherLanguages = page.languages ? (Object.entries(page.languages) as [LandingLang, string][]).filter(([l]) => l !== lang) : [];
 
   // The invitations they can make.
   const gallerySection = (
@@ -60,8 +84,8 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                     <InvitationCard fonts={LANDING_INVITATION_FONTS} design={design} details={details}
                       bgImage={design.background.kind === 'image' ? previewImage(design.background.imageUrl, '(max-width: 640px) 46vw, 230px') : undefined} />
                     <span className="ilp-card-label">
-                      <strong>{sampleStyleName(sample) ?? themeName(sample.theme)}</strong>
-                      <span>Use this design →</span>
+                      <strong>{sampleStyleName(sample, lang) ?? themeName(sample.theme)}</strong>
+                      <span>{t.useDesign}</span>
                     </span>
                   </a>
                 </li>
@@ -85,14 +109,14 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
               <div className="ilp-phone ilp-phone--small">
                 <div className="ilp-phone-screen">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="ilp-scroll" {...previewImage(themePagePicture(slug), '240px')} alt={`The ${themeName(slug)} theme, the whole page`} />
+                  <img className="ilp-scroll" {...previewImage(themePagePicture(slug, lang), '240px')} alt={name(t.pageAlt, slug)} />
                 </div>
               </div>
               <h3 className="ilp-theme-name">{themeName(slug)}</h3>
-              <p className="ilp-theme-desc">{themeDesc(slug)}</p>
+              <p className="ilp-theme-desc">{page.themes.descs?.[slug] ?? themeDesc(slug)}</p>
               <div className="ilp-theme-actions">
-                <a href={start(slug)} className="btn-primary" data-cta={cta(`theme-${slug}`)}>Start with {themeName(slug)}</a>
-                <a href={`/themes/${slug}`} className="ilp-link" data-cta={cta(`demo-${slug}`)}>Live demo →</a>
+                <a href={start(slug)} className="btn-primary" data-cta={cta(`theme-${slug}`)}>{name(t.startWith, slug)}</a>
+                <a href={demo(slug)} className="ilp-link" data-cta={cta(`demo-${slug}`)}>{t.liveDemo}</a>
               </div>
             </li>
           ))}
@@ -102,12 +126,21 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
   );
 
   return (
-    <div className={`marketing-page ilp ilp--${page.key} ${greatVibes.variable}`}>
+    <div className={`marketing-page ilp ilp--${look} ${greatVibes.variable}`}>
       <header className="lp-topbar">
-        <Link href="/" className="wordmark">My<span className="accent">Gala</span></Link>
+        {/* No prefetch: the French and Spanish home pages are static, and
+            prefetching one would load its banner photos alongside this page's. */}
+        <Link href={HOMES[lang]} className="wordmark" prefetch={false}>My<span className="accent">Gala</span></Link>
         <div className="lp-topbar-actions">
-          <a href={appHref('/login')} className="lp-topbar-login">Log in</a>
-          <a href={register()} className="topbar-signup" data-cta={cta('topbar')}>Sign up free</a>
+          {otherLanguages.length > 0 && (
+            <nav className="lp-topbar-langs" aria-label={t.languages}>
+              {otherLanguages.map(([l, href]) => (
+                <a key={l} href={href} hrefLang={l === 'fr' ? 'fr-CA' : l === 'en' ? 'en-CA' : l} lang={l} title={LANG_NAMES[l]}>{l.toUpperCase()}</a>
+              ))}
+            </nav>
+          )}
+          <a href={appHref('/login')} className="lp-topbar-login">{t.login}</a>
+          <a href={register()} className="topbar-signup" data-cta={cta('topbar')}>{t.signup}</a>
         </div>
       </header>
 
@@ -120,7 +153,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
               <div className="ilp-phone">
                 <div className="ilp-phone-screen">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img className="ilp-scroll" {...previewImage(themePagePicture(page.hero.pageTheme), '(max-width: 900px) 210px, 270px', { eager: true })} fetchPriority="low" alt="" />
+                  <img className="ilp-scroll" {...previewImage(themePagePicture(page.hero.pageTheme, lang), '(max-width: 900px) 210px, 270px', { eager: true })} fetchPriority="low" alt="" />
                 </div>
               </div>
               {page.hero.rsvp ? (
@@ -133,9 +166,9 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
                     bgImage={previewImage(hero.design.background.imageUrl, '(max-width: 900px) 64vw, 380px', { priority: true })} />
                 </div>
               )}
-              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP</span>
-              <span className="ilp-chip ilp-chip--map"><MapPinIcon />Map &amp; directions</span>
-              <span className="ilp-chip ilp-chip--photos"><CameraIcon />Photo wall</span>
+              <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />{t.rsvp}</span>
+              <span className="ilp-chip ilp-chip--map"><MapPinIcon />{t.map}</span>
+              <span className="ilp-chip ilp-chip--photos"><CameraIcon />{t.photos}</span>
             </div>}
 
             <div className="ilp-copy ilp-copy-head">
@@ -149,9 +182,9 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
               </ul>
               <div className="ilp-actions">
                 <a href={start(page.hero.invitation.theme)} className="btn-primary ilp-btn-big" data-cta={cta('hero')}>{page.cta}</a>
-                <a href={`/themes/${page.hero.secondary.theme}`} className="ilp-link" data-cta={cta('hero-demo')}>{page.hero.secondary.label} →</a>
+                <a href={demo(page.hero.secondary.theme)} className="ilp-link" data-cta={cta('hero-demo')}>{page.hero.secondary.label} →</a>
               </div>
-              <p className="ilp-note">Free · no credit card · guests don’t need an app</p>
+              <p className="ilp-note">{t.note}</p>
             </div>
           </div>
         </section>
@@ -200,7 +233,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
         </section>
       </main>
 
-      <SiteFooter />
+      {footer ?? <SiteFooter />}
     </div>
   );
 }

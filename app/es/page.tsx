@@ -7,6 +7,8 @@ import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
 import { JsonLd } from '@/app/ui/marketing/json-ld';
 import SpanishShell from '@/app/ui/marketing/es/spanish-shell';
 import { EsFaq, EsFinalCta, EsPricing, EsThemeCards, EsVideo, registerHref } from '@/app/ui/marketing/es/es-blocks';
+import { OccasionSpotlight } from '@/app/ui/marketing/occasion-spotlight';
+import { NEW_YEARS_SPOTLIGHT_ES } from '@/app/lib/marketing/occasion-spotlight';
 
 // MyGala in Spanish: the homepage's overall picture, with the Spanish video.
 const PATH = '/es';
@@ -58,6 +60,9 @@ export default function SpanishHome() {
         </div>
         <p className="hero-note"><span>Gratis para empezar</span> · <span>Sin tarjeta de crédito</span> · <span>Sin saber de diseño</span></p>
       </div>
+
+      {/* Fiestas de Año Nuevo (/es/fiesta-de-ano-nuevo), as on the English home page. */}
+      <OccasionSpotlight spotlight={NEW_YEARS_SPOTLIGHT_ES} cta="es-spotlight-new-years" />
 
       <div className="wrap" id="como-funciona">
         <div className="section home-video-section">
@@ -135,6 +140,7 @@ export default function SpanishHome() {
             <EsThemeCards themes={ES_HOME.themes} />
             <p style={{ marginTop: 28, display: 'flex', gap: 24, flexWrap: 'wrap' }}>
               <Link href="/es/cumpleanos-y-quinceaneras" className="learn-more-link">Cumpleaños y quinceañeras →</Link>
+              <Link href="/es/fiesta-de-ano-nuevo" className="learn-more-link">Fiestas de Año Nuevo →</Link>
               <Link href="/es/funciones" className="learn-more-link">Todas las funciones →</Link>
             </p>
           </div>

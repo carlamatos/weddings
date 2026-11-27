@@ -74,7 +74,7 @@ const BROWSED_KEY = 'mygala:browsed';
 const OCCASION_PATHS: [RegExp, StartOccasion][] = [
   [/^\/(wedding-website|how-to-create-a-wedding-website|design-your-wedding-invitation|wedding-colour-palette|wedding-budget-calculator|fr\/mariage)(\/|$)/, 'wedding'],
   [/^\/(christmas-invitations|design-your-christmas-invitation|secret-santa)(\/|$)/, 'christmas'],
-  [/^\/(party-celebrations|new-years-eve-party|design-your-party-invitation)(\/|$)/, 'celebration'],
+  [/^\/(party-celebrations|new-years-eve-party|es\/fiesta-de-ano-nuevo|fr\/reveillon-du-nouvel-an|design-your-party-invitation)(\/|$)/, 'celebration'],
 ];
 
 export function noteBrowsing(pathname: string) {
