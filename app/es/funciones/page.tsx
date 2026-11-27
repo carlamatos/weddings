@@ -29,7 +29,7 @@ export default function SpanishFeatures() {
           <h1 className="mk-h1">Todo lo que MyGala hace por tu evento, en videos en español.</h1>
           <p className="mk-lead">
             Desde elegir tu tema hasta el día de la fiesta: mira cómo funciona cada cosa en menos de un minuto. El panel de MyGala
-            está en inglés, así que los videos te muestran exactamente dónde tocar.
+            está en español; los videos se grabaron con el panel en inglés, pero cada botón está en el mismo lugar.
           </p>
           <div className="mk-cta-row mk-cta-row--hero">
             <Link {...registerHref('features-hero')} className="btn-primary">Crea tu página gratis</Link>
