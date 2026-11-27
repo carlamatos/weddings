@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 260" role="img" aria-labelledby="t">
+  <title id="t">Glo, MyGala's firefly, asleep with its light turned low</title>
+  <defs>
+    <radialGradient id="aura" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFE7A3" stop-opacity=".85"/>
+      <stop offset="0.45" stop-color="#F6C96B" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#F6C96B" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lantern" cx="45%" cy="38%" r="65%">
+      <stop offset="0" stop-color="#FFFEF2"/>
+      <stop offset="0.4" stop-color="#FFF1B8"/>
+      <stop offset="0.8" stop-color="#F8CF6A"/>
+      <stop offset="1" stop-color="#E7A93E"/>
+    </radialGradient>
+    <radialGradient id="head" cx="38%" cy="30%" r="75%">
+      <stop offset="0" stop-color="#D98472"/>
+      <stop offset="0.6" stop-color="#B6584A"/>
+      <stop offset="1" stop-color="#8C3E2E"/>
+    </radialGradient>
+    <linearGradient id="wing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".97"/>
+      <stop offset="0.55" stop-color="#FBEFD9" stop-opacity=".92"/>
+      <stop offset="1" stop-color="#F1D3A2" stop-opacity=".85"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCE3A7"/>
+      <stop offset="0.5" stop-color="#E8BC76"/>
+      <stop offset="1" stop-color="#C08A3E"/>
+    </linearGradient>
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#FFB3A1" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#FFB3A1" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <path id="spark" d="M0 -10 C1 -3 3 -1 10 0 C3 1 1 3 0 10 C-1 3 -3 1 -10 0 C-3 -1 -1 -3 0 -10 Z"/>
+  </defs>
+  <style>
+    .hover { animation: hover 7s ease-in-out infinite; }
+    .aura { animation: glow 5s ease-in-out infinite; transform-origin: 120px 168px; }
+    .wing-l { transform: rotate(10deg); transform-origin: 112px 118px; }
+    .wing-r { transform: rotate(-10deg); transform-origin: 128px 118px; }
+    .eyes { animation: blink 5.4s infinite; transform-origin: 120px 106px; }
+    .tip { animation: twinkle 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .tip.b { animation-delay: -.9s; }
+    .trail > circle, .trail use { animation: twinkle 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .trail > :nth-child(2) { animation-delay: -.5s } .trail > :nth-child(3) use { animation-delay: -1s } .trail > :nth-child(4) { animation-delay: -1.5s } .trail > :nth-child(5) use { animation-delay: -1.8s }
+    @keyframes hover { 0%, 100% { transform: translate(0, 0) rotate(-2deg) } 50% { transform: translate(4px, -10px) rotate(2deg) } }
+    @keyframes glow { 0%, 100% { transform: scale(.8); opacity: .3 } 50% { transform: scale(.9); opacity: .55 } }
+    @keyframes flap-l { from { transform: rotate(6deg) } to { transform: rotate(-14deg) } }
+    @keyframes flap-r { from { transform: rotate(-6deg) } to { transform: rotate(14deg) } }
+    @keyframes blink { 0%, 44%, 50%, 100% { transform: scaleY(1) } 47% { transform: scaleY(.1) } }
+    @keyframes twinkle { 0%, 100% { transform: scale(.55); opacity: .45 } 50% { transform: scale(1); opacity: 1 } }
+    .zz { animation: zz 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; opacity: 0; }
+    .zz.b { animation-delay: 1s } .zz.c { animation-delay: 2s }
+    @keyframes zz { 0% { opacity: 0; transform: translate(0, 6px) scale(.7) } 30% { opacity: 1 } 100% { opacity: 0; transform: translate(6px, -10px) scale(1.1) } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+  </style>
+
+  <!-- a trail of light behind, where Glo has flown -->
+  <g class="trail" fill="#F2C366">
+    <circle cx="40" cy="226" r="3"/>
+    <circle cx="58" cy="206" r="3.6"/>
+    <g transform="translate(30 196) scale(.65)"><use href="#spark"/></g>
+    <circle cx="76" cy="222" r="2.4"/>
+    <g transform="translate(210 64) scale(.55)"><use href="#spark" fill="#D47766"/></g>
+  </g>
+
+  <g class="hover">
+    <!-- glow -->
+    <circle class="aura" cx="120" cy="168" r="78" fill="url(#aura)"/>
+
+    <!-- wings, behind -->
+    <g class="wing-l">
+      <path d="M114 118 C82 74 40 80 44 106 C48 130 88 132 114 122 Z" fill="url(#wing)" stroke="#D6A961" stroke-width="2.2"/>
+      <path d="M112 120 C92 104 70 98 56 104 M110 121 C94 116 76 116 60 120" fill="none" stroke="#DDB676" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="66" cy="96" r="2.4" fill="#E8BC76"/><circle cx="80" cy="90" r="1.8" fill="#E8BC76"/>
+    </g>
+    <g class="wing-r">
+      <path d="M126 118 C158 74 200 80 196 106 C192 130 152 132 126 122 Z" fill="url(#wing)" stroke="#D6A961" stroke-width="2.2"/>
+      <path d="M128 120 C148 104 170 98 184 104 M130 121 C146 116 164 116 180 120" fill="none" stroke="#DDB676" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="174" cy="96" r="2.4" fill="#E8BC76"/><circle cx="160" cy="90" r="1.8" fill="#E8BC76"/>
+    </g>
+
+    <!-- the lantern (the glowing tail) -->
+    <ellipse cx="120" cy="174" rx="38" ry="40" fill="#FFE49A" filter="url(#soft)" opacity=".35"/>
+    <ellipse cx="120" cy="172" rx="35" ry="37" fill="url(#lantern)" opacity=".8"/>
+    <path d="M90 156 Q120 166 150 156" fill="none" stroke="#E7A93E" stroke-width="2.4" stroke-linecap="round" opacity=".6"/>
+    <path d="M88 178 Q120 189 152 178" fill="none" stroke="#E7A93E" stroke-width="2.4" stroke-linecap="round" opacity=".5"/>
+    <ellipse cx="106" cy="160" rx="10" ry="6" transform="rotate(-30 106 160)" fill="#FFFFFF" opacity=".85"/>
+
+    <!-- a gold collar between head and lantern -->
+    <ellipse cx="120" cy="136" rx="30" ry="8" fill="url(#gold)"/>
+
+    <!-- antennae -->
+    <path d="M108 76 C102 56 92 46 80 42" fill="none" stroke="#7E3628" stroke-width="3.5" stroke-linecap="round"/>
+    <path d="M132 76 C138 56 148 46 160 42" fill="none" stroke="#7E3628" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="79" cy="41" r="9" fill="#FFE49A" filter="url(#soft)"/>
+    <circle cx="161" cy="41" r="9" fill="#FFE49A" filter="url(#soft)"/>
+    <circle class="tip-off" cx="79" cy="41" r="6" fill="url(#lantern)"/>
+    <circle class="tip-off" cx="161" cy="41" r="6" fill="url(#lantern)"/>
+
+    <!-- head -->
+    <circle cx="120" cy="104" r="36" fill="url(#head)"/>
+    <ellipse cx="104" cy="84" rx="11" ry="6" transform="rotate(-28 104 84)" fill="#FFFFFF" opacity=".35"/>
+
+    <!-- face -->
+    <ellipse cx="96" cy="118" rx="9" ry="6" fill="url(#cheek)"/>
+    <ellipse cx="144" cy="118" rx="9" ry="6" fill="url(#cheek)"/>
+    <g>
+      <path d="M99 104 Q107 111 115 104" fill="none" stroke="#2A1410" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M125 104 Q133 111 141 104" fill="none" stroke="#2A1410" stroke-width="3.4" stroke-linecap="round"/>
+    </g>
+    <ellipse cx="120" cy="121" rx="3.4" ry="2.6" fill="#2A1410"/>
+    <g transform="translate(166 70) scale(0.8)"><path class="zz" d="M0 0 H10 L0 12 H10" fill="none" stroke="#9A6B4F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(180 52) scale(1)"><path class="zz b" d="M0 0 H10 L0 12 H10" fill="none" stroke="#9A6B4F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g><g transform="translate(196 30) scale(1.3)"><path class="zz c" d="M0 0 H10 L0 12 H10" fill="none" stroke="#9A6B4F" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></g>
+  </g>
+</svg>

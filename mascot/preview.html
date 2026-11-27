@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meet the MyGala team</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
+<style>
+  :root { --ink: #2B2024; --soft: #6B5C5F; --rose: #B6584A; --gold: #C59F5E; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: #FBF7F2; }
+  header { text-align: center; padding: 48px 20px 0; }
+  .wordmark { font-family: "Great Vibes", cursive; font-size: 46px; margin: 0; line-height: 1; }
+  .wordmark span { color: var(--rose); }
+  h1 { font-family: Georgia, serif; font-weight: 400; font-size: clamp(30px, 4.4vw, 48px); margin: 14px 0 10px; }
+  header > p { color: var(--soft); margin: 0 auto; max-width: 600px; line-height: 1.6; }
+
+  /* the team, together */
+  .team { display: flex; justify-content: center; align-items: flex-end; gap: 0; max-width: 900px; margin: 26px auto 0; padding: 0 20px; }
+  .team img { width: 30%; max-width: 260px; height: auto; }
+  .team img:nth-child(2) { width: 34%; max-width: 300px; margin: 0 -2%; position: relative; z-index: 1; }
+
+  .member { max-width: 1180px; margin: 30px auto; padding: 0 20px; }
+  .member-card { background: #fff; border-radius: 30px; padding: 34px 32px 30px; border: 1px solid #F0E4D6; box-shadow: 0 24px 50px -34px rgba(90, 50, 30, .45); }
+  .member-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 6px; }
+  .member h2 { font-family: Georgia, serif; font-weight: 400; font-size: 36px; margin: 0; }
+  .role { color: var(--rose); font-weight: 700; font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; }
+  .member-card > p { color: var(--soft); line-height: 1.6; margin: 0 0 22px; max-width: 760px; }
+  .poses { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+  .poses.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 880px; }
+  .pose { border-radius: 22px; background: radial-gradient(circle at 50% 40%, #FFF9EE, #F6EADB); padding: 10px 10px 16px; text-align: center; }
+  .pose.night { background: radial-gradient(circle at 50% 40%, #2C2226, #161012); }
+  .pose.night strong { color: #FBEFD9; } .pose.night span { color: #CDB9A6; }
+  .pose img { width: 100%; height: auto; display: block; }
+  .pose strong { display: block; font-size: 15px; margin-top: 4px; }
+  .pose span { display: block; font-size: 13px; color: var(--soft); margin-top: 3px; line-height: 1.4; }
+
+  footer { text-align: center; color: var(--soft); font-size: 14px; padding: 20px 20px 60px; }
+  @media (max-width: 900px) {
+    .poses, .poses.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .member-card { padding: 26px 18px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <p class="wordmark">My<span>Gala</span></p>
+    <h1>Meet the MyGala team</h1>
+    <p>Three friends in MyGala's terracotta and gold, each with its own job. They move on their own (bobbing, blinking, sparkling) and stay still for visitors who turn motion off.</p>
+  </header>
+
+  <div class="team" aria-label="Bubbly, Pop and Glo together">
+    <img src="../public/images/mascot/bubbly-wave.svg" alt="Bubbly waving">
+    <img src="../public/images/mascot/pop.svg" alt="Pop bursting with confetti">
+    <img src="../public/images/mascot/glo-this-way.svg" alt="Glo showing the way">
+  </div>
+
+  <section class="member">
+    <div class="member-card">
+      <div class="member-head"><h2>Bubbly</h2><span class="role">The host · welcomes and helps</span></div>
+      <p>A happy bubble of bubbly in a terracotta party hat. Bubbly greets new hosts, gives tips while they set up their page, and keeps them company on pages that are still empty.</p>
+      <div class="poses">
+        <div class="pose"><img src="../public/images/mascot/bubbly-wave.svg" alt=""><strong>Hello!</strong><span>Sign-up, the first visit to the dashboard</span></div>
+        <div class="pose"><img src="../public/images/mascot/bubbly.svg" alt=""><strong>Happy</strong><span>Everyday: the home page, emails</span></div>
+        <div class="pose"><img src="../public/images/mascot/bubbly-think.svg" alt=""><strong>Thinking</strong><span>Tips and the help centre</span></div>
+        <div class="pose"><img src="../public/images/mascot/bubbly-sleep.svg" alt=""><strong>Sleeping</strong><span>Empty pages: "No RSVPs yet"</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="member">
+    <div class="member-card">
+      <div class="member-head"><h2>Pop</h2><span class="role">The celebrator · the big moments</span></div>
+      <p>A cheering party popper. Pop bursts into confetti when something good happens, and when something goes wrong, it's Pop who says sorry.</p>
+      <div class="poses three">
+        <div class="pose"><img src="../public/images/mascot/pop-ready.svg" alt=""><strong>Ready</strong><span>Just before: "Publish my page"</span></div>
+        <div class="pose"><img src="../public/images/mascot/pop.svg" alt=""><strong>Hooray!</strong><span>Page published, the first RSVP, Live Party</span></div>
+        <div class="pose"><img src="../public/images/mascot/pop-oops.svg" alt=""><strong>Oops</strong><span>Errors: "Something went wrong"</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="member">
+    <div class="member-card">
+      <div class="member-head"><h2>Glo</h2><span class="role">The guide · lights the way</span></div>
+      <p>A little firefly with a glowing golden lantern. Glo shows guests where to go, finds lost visitors, and shines on dark pages and night themes.</p>
+      <div class="poses">
+        <div class="pose"><img src="../public/images/mascot/glo.svg" alt=""><strong>Glowing</strong><span>Everyday, and loading</span></div>
+        <div class="pose night"><img src="../public/images/mascot/glo-this-way.svg" alt=""><strong>This way!</strong><span>Leading guests: "RSVP here"</span></div>
+        <div class="pose night"><img src="../public/images/mascot/glo-lost.svg" alt=""><strong>Lost?</strong><span>The 404 page: "We can't find that page"</span></div>
+        <div class="pose night"><img src="../public/images/mascot/glo-sleep.svg" alt=""><strong>Sleeping</strong><span>After the party, quiet pages</span></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>All 11 drawings are SVG files of about 5–8 KB each, sharp at any size, in public/images/mascot (app/ui/mascot.tsx shows them).</footer>
+</body>
+</html>

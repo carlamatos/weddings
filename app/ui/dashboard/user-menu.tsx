@@ -6,7 +6,7 @@ import { signOut } from 'next-auth/react';
 import { ShareIcon, UserCircleIcon } from '@heroicons/react/24/outline';
 import { setPageStatus } from '@/app/lib/actions';
 import { DeletePageDialog, type DeletablePage } from './delete-page-dialog';
-import { ShareSheet, type OpensInfo, type ShareChoice } from './share-menu';
+import { OPEN_SHARE_EVENT, SHARE_SHEET_QUERY, ShareSheet, type OpensInfo, type ShareChoice } from './share-menu';
 import { ShareTipBubble, endShareTip, useShareTip } from './share-tip';
 import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
@@ -402,6 +402,14 @@ export default function UserMenu({
   const [statusError, setStatusError] = useState<string | null>(null);
   const [showDelete, setShowDelete] = useState(false);
   const [sharing, setSharing] = useState(false);
+  // "Share my page" elsewhere on the dashboard opens the sheet on phones and tablets (share-menu.tsx).
+  const hasPhoneShare = !!phoneActions;
+  useEffect(() => {
+    if (!hasPhoneShare) return;
+    const onOpen = () => { if (window.matchMedia(SHARE_SHEET_QUERY).matches) { setOpen(false); setSharing(true); } };
+    window.addEventListener(OPEN_SHARE_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_SHARE_EVENT, onOpen);
+  }, [hasPhoneShare]);
   const { show: tipShown, dismiss: dismissTip } = useShareTip(phoneActions?.pageId, !!phoneActions?.shareTip?.show);
   const [isPending, startTransition] = useTransition();
   const ref = useRef<HTMLDivElement>(null);

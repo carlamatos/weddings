@@ -7,6 +7,7 @@ import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { rich } from '@/app/ui/dashboard/rich';
 import { fill } from '@/app/lib/dash-text/fill';
 import { THEMES_TIP_DONE_EVENT, themesTipPending } from './theme-switcher';
+import { Mascot } from '@/app/ui/mascot';
 
 // "Your page is ready to share": a tip like the Themes one, under the top
 // bar's Share button (or, on phones and tablets, just above the Share
@@ -89,7 +90,8 @@ export function useShareTip(pageId: number | undefined, enabled: boolean) {
   return { show, dismiss };
 }
 
-// The bubble. where: 'share' under the top bar's Share button (desktops),
+// The bubble, with Pop bursting into confetti beside the words (app/ui/mascot.tsx).
+// where: 'share' under the top bar's Share button (desktops),
 // 'fab' just above the Share button at the bottom right (phones and tablets).
 // far: the event is months away, so it's offered as a save-the-date.
 export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { daysToGo: number | null; far?: boolean; where: 'share' | 'fab'; onClose: () => void }) {
@@ -98,6 +100,7 @@ export function ShareTipBubble({ daysToGo, far = false, where, onClose }: { days
   const soon = daysToGo === null ? null : daysToGo <= 0 ? t.soonToday : daysToGo === 1 ? t.soonTomorrow : fill(t.soonDays, { days: daysToGo });
   return (
     <div className={`dash-themes-tip dash-share-tip dash-share-tip--${where}`} role="status">
+      <Mascot pose="pop" size={54} className="dash-share-tip-mascot" eager />
       <p>
         {soon && <strong className="dash-share-tip-soon">{soon}</strong>}
         {rich(far ? t.saveTheDate : t.ready, { t0: (s) => <strong>{s}</strong> })}

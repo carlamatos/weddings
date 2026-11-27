@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { ShareIcon } from '@heroicons/react/24/outline';
+import { Mascot } from '@/app/ui/mascot';
+import { openShareMenu } from './share-menu';
 import { useRouter } from 'next/navigation';
 import { removeGuest, setGuestEvents, updateGuest } from '@/app/lib/actions';
 import { parseEventReplies, parseInvitedEvents, type SubEvent } from '@/app/lib/sub-events';
@@ -246,7 +249,15 @@ export function GuestListManager({ pageId, guests, isPaid, invitationsHref, show
       </div>
 
       {guests.length === 0 ? (
-        <p style={{ fontSize: 14, color: '#9A8F8C', margin: 0 }}>{d.guestListManager.yourGuestListIsEmpty}</p>
+        // Bubbly asleep until the first RSVP, and the Share menu one tap away.
+        <div className="dash-rsvp-empty">
+          <Mascot pose="bubbly-sleep" size={96} eager />
+          <div>
+            <h3>{d.guestListManager.noRsvpsYet}</h3>
+            <p>{d.guestListManager.noRsvpsYetText}</p>
+            <button type="button" onClick={openShareMenu}><ShareIcon aria-hidden="true" />{d.guestListManager.shareMyPage}</button>
+          </div>
+        </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: showMeals ? 940 : 760 }}>
