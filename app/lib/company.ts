@@ -38,7 +38,7 @@ export const COMPANY: Company = {
   // MyGala's own profile pages elsewhere (Pinterest, AlternativeTo, Instagram…),
   // full URLs. Search engines use them (schema.org sameAs) to tie the
   // profiles to the brand.
-  profiles: [],
+  profiles: ['https://www.youtube.com/@mygalaca'],
 };
 
 export const COPYRIGHT_YEAR_START = 2026;

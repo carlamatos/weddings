@@ -6,6 +6,7 @@ import { ES_FEATURES, ES_PAGES } from '@/app/lib/marketing/es';
 import SpanishTopbar from './spanish-topbar';
 import '@/app/ui/marketing.css';
 import './es.css';
+import SocialLinks from '@/app/ui/marketing/social-links';
 
 // Top bar and footer around the Spanish pages (/es). english: the English
 // page this one stands for, for the "EN" link.
@@ -43,6 +44,7 @@ function SpanishFooter({ english }: { english: string }) {
         </div>
       </div>
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
+      <SocialLinks lang="es" />
       <p style={{ marginTop: 6 }}>mygala.ca</p>
       <p style={{ marginTop: 6, fontSize: 12 }}>{copyrightLine().replace('All rights reserved.', 'Todos los derechos reservados.')} MyGala es operado por {COMPANY.legalName}</p>
     </footer>
