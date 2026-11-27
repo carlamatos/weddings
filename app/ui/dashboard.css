@@ -785,6 +785,24 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-share-tip::before { left: auto; right: 26px; }
 .dash-share-tip .dash-share-tip-soon { color: #F2C4B8; margin-bottom: 2px; }
 .dash-share-tip .dash-share-tip-where { display: block; margin-top: 6px; color: rgba(255, 255, 255, 0.75); }
+/* Pop, bursting into confetti beside "Your page is ready to share". */
+.dash-share-tip { max-width: min(330px, calc(100vw - 32px)); align-items: center; }
+.dash-share-tip .dash-share-tip-mascot { flex: none; align-self: center; margin: -10px -2px -8px -6px; }
+.dash-share-tip button { align-self: flex-start; }
+/* No one has opened the page yet: Bubbly asleep beside the line in the Share menu. */
+.dash-share-opened--zero { display: flex; align-items: center; gap: 10px; }
+.dash-share-opened--zero .mascot { flex: none; margin: -6px 0 -6px -4px; }
+/* Guests & RSVPs before anyone has replied: Bubbly asleep, and Share. */
+.dash-rsvp-empty { display: flex; align-items: center; gap: 18px; padding: 18px 20px; border-radius: 16px; background: #FBF7F2; border: 1px dashed #E5D3C4; }
+.dash-rsvp-empty .mascot { flex: none; }
+.dash-rsvp-empty h3 { margin: 0 0 4px; font-size: 17px; font-weight: 600; color: #241F2B; }
+.dash-rsvp-empty p { margin: 0 0 12px; font-size: 14px; line-height: 1.5; color: #6B6470; }
+.dash-rsvp-empty button { display: inline-flex; align-items: center; gap: 6px; padding: 9px 16px; border: none; border-radius: 999px; background: #B6584A; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+.dash-rsvp-empty button:hover { background: #9E4A3E; }
+.dash-rsvp-empty button svg { width: 16px; height: 16px; }
+@media (max-width: 520px) {
+  .dash-rsvp-empty { flex-direction: column; text-align: center; }
+}
 .dash-share.is-nudging > .dash-share-btn,
 .dash-share-fab.is-nudging > .dash-share-fab-btn { border-color: var(--rose); animation: dash-themes-pulse 1.8s ease-out 0.6s 3; }
 @keyframes dash-themes-tip-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }

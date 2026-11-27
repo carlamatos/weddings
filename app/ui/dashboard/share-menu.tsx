@@ -10,6 +10,7 @@ import { markLinkShared } from '@/app/lib/actions';
 import { ShareTipBubble, useShareTip } from './share-tip';
 import { ShareLocked } from './quick-share';
 import type { ShareLock } from '@/app/lib/page-status';
+import { Mascot } from '@/app/ui/mascot';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
 import { fill, plural } from '@/app/lib/dash-text/fill';
@@ -21,11 +22,21 @@ const enc = encodeURIComponent;
 // November 25, 2026." for pages older than the counting.
 export type OpensInfo = { people: number; week: number; sinceLabel: string | null };
 
+// Opens the share options from elsewhere on the dashboard (Guests & RSVPs'
+// "Share my page"): the top bar's Share menu on desktops, the sheet from the
+// Share button at the bottom right on phones and tablets (user-menu.tsx), the
+// same split as dashboard.css (1024px).
+export const OPEN_SHARE_EVENT = 'mygala:open-share';
+export const SHARE_SHEET_QUERY = '(max-width: 1024px)';
+export function openShareMenu() {
+  window.dispatchEvent(new Event(OPEN_SHARE_EVENT));
+}
+
 function OpensLine({ opens }: { opens: OpensInfo }) {
   const d = useDashText();
   const t = d.pageOpens;
   if (opens.people === 0) {
-    return <p className="dash-share-opened dash-share-opened--zero">{t.panelNobody}</p>;
+    return <p className="dash-share-opened dash-share-opened--zero"><Mascot pose="bubbly-sleep" size={40} eager /><span>{t.panelNobody}</span></p>;
   }
   return (
     <p className="dash-share-opened">
@@ -203,6 +214,16 @@ export default function ShareMenu({ choices, pageId, tip, opens }: { choices: Sh
   const close = useCallback(() => setOpen(false), []);
   useDismiss(open, close, ref);
   const { show: tipShown, dismiss: dismissTip } = useShareTip(pageId, !!tip?.show);
+  useEffect(() => {
+    const onOpen = () => {
+      if (window.matchMedia(SHARE_SHEET_QUERY).matches) return;
+      setOpen(true);
+      if (tipShown) dismissTip();
+      ref.current?.scrollIntoView({ block: 'nearest' });
+    };
+    window.addEventListener(OPEN_SHARE_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_SHARE_EVENT, onOpen);
+  }, [tipShown, dismissTip]);
 
   return (
     <div className={`dash-share${tipShown ? ' is-nudging' : ''}`} ref={ref}>

@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -14 240 274" role="img" aria-labelledby="t">
+  <title id="t">Bubbly, MyGala's champagne bubble, thinking</title>
+  <defs>
+    <!-- the bubble: champagne glass, lit from the top left -->
+    <radialGradient id="body" cx="38%" cy="32%" r="75%">
+      <stop offset="0" stop-color="#FFFDF7"/>
+      <stop offset="0.45" stop-color="#FCF0D6"/>
+      <stop offset="0.78" stop-color="#F3D9A4"/>
+      <stop offset="1" stop-color="#E4B867"/>
+    </radialGradient>
+    <radialGradient id="rim" cx="50%" cy="50%" r="50%">
+      <stop offset="0.86" stop-color="#E9C27A" stop-opacity="0"/>
+      <stop offset="1" stop-color="#C9923F" stop-opacity="0.55"/>
+    </radialGradient>
+    <linearGradient id="hat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#D47766"/>
+      <stop offset="0.55" stop-color="#B6584A"/>
+      <stop offset="1" stop-color="#93422F"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCE3A7"/>
+      <stop offset="0.5" stop-color="#E8BC76"/>
+      <stop offset="1" stop-color="#C08A3E"/>
+    </linearGradient>
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F08F7C" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#F08F7C" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="hatClip"><path d="M92 86 L152 80 L126 16 Z"/></clipPath>
+    <path id="spark" d="M0 -10 C1 -3 3 -1 10 0 C3 1 1 3 0 10 C-1 3 -3 1 -10 0 C-3 -1 -1 -3 0 -10 Z"/>
+  </defs>
+  <style>
+    .float { animation: float 4.5s ease-in-out infinite; transform-origin: 120px 150px; }
+    .eyes { animation: blink 5s infinite; transform-origin: 120px 146px; }
+    .rise { animation: rise 3.2s linear infinite; }
+    .rise.b { animation-delay: -1.1s; animation-duration: 3.8s; }
+    .rise.c { animation-delay: -2.3s; animation-duration: 2.9s; }
+    .twinkle { animation: twinkle 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .twinkle.b { animation-delay: -0.9s; } .twinkle.c { animation-delay: -1.7s; }
+    .hat { animation: tilt 4.5s ease-in-out infinite; transform-origin: 122px 84px; }
+    .shadow { animation: shadow 4.5s ease-in-out infinite; transform-origin: 120px 240px; }
+    @keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-9px) } }
+    @keyframes shadow { 0%, 100% { transform: scaleX(1); opacity: .35 } 50% { transform: scaleX(.86); opacity: .22 } }
+    @keyframes tilt { 0%, 100% { transform: rotate(-2deg) } 50% { transform: rotate(3deg) } }
+    @keyframes blink { 0%, 44%, 50%, 100% { transform: scaleY(1) } 47% { transform: scaleY(.1) } }
+    @keyframes rise { 0% { transform: translateY(18px); opacity: 0 } 20% { opacity: .9 } 100% { transform: translateY(-46px); opacity: 0 } }
+    @keyframes twinkle { 0%, 100% { transform: scale(.5); opacity: .4 } 50% { transform: scale(1); opacity: 1 } }
+    .thought { animation: think 3s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .thought.b { animation-delay: .3s } .thought.c { animation-delay: .6s }
+    @keyframes think { 0%, 100% { transform: scale(.9); opacity: .75 } 50% { transform: scale(1.05); opacity: 1 } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+  </style>
+
+  <ellipse class="shadow" cx="120" cy="240" rx="52" ry="8" fill="#7A4A2A" opacity=".3"/>
+
+  <!-- sparkles around -->
+  <g transform="translate(34 96) scale(.9)"><use href="#spark" class="twinkle" fill="#E8BC76"/></g>
+  
+  <g transform="translate(212 182) scale(.55)"><use href="#spark" class="twinkle c" fill="#D47766"/></g>
+  <circle cx="44" cy="186" r="3" fill="#E8BC76" class="twinkle b"/>
+  <circle cx="196" cy="118" r="2.4" fill="#D47766" class="twinkle"/>
+
+  <g class="float">
+    <!-- little bubbles drifting up beside -->
+    <g fill="#FFFFFF" fill-opacity=".55" stroke="#E2B35F" stroke-width="1.6">
+      <circle class="rise" cx="198" cy="150" r="7"/>
+      <circle class="rise b" cx="40" cy="140" r="5"/>
+      <circle class="rise c" cx="186" cy="196" r="4"/>
+    </g>
+
+    <!-- the bubble -->
+    <circle cx="120" cy="150" r="74" fill="url(#body)"/>
+    <circle cx="120" cy="150" r="74" fill="url(#rim)"/>
+    <circle cx="120" cy="150" r="73" fill="none" stroke="#D9A452" stroke-opacity=".55" stroke-width="2"/>
+    <!-- fizz inside -->
+    <g fill="#FFFFFF" stroke="#E7C27D" stroke-width="1.2">
+      <circle cx="160" cy="196" r="4.5"/><circle cx="170" cy="178" r="2.8"/><circle cx="82" cy="200" r="3.4"/><circle cx="148" cy="210" r="2.2"/>
+    </g>
+    <!-- shine -->
+    <ellipse cx="88" cy="112" rx="22" ry="11" transform="rotate(-38 88 112)" fill="#FFFFFF" opacity=".9"/>
+    <circle cx="70" cy="136" r="5" fill="#FFFFFF" opacity=".85"/>
+    <path d="M176 120 A62 62 0 0 1 182 160" fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+
+    <!-- face -->
+    <ellipse cx="86" cy="170" rx="14" ry="9" fill="url(#cheek)"/>
+    <ellipse cx="154" cy="170" rx="14" ry="9" fill="url(#cheek)"/>
+    <g class="eyes">
+      <ellipse cx="104" cy="146" rx="8.5" ry="11" fill="#3A2420"/>
+      <ellipse cx="140" cy="146" rx="8.5" ry="11" fill="#3A2420"/>
+      <circle cx="107" cy="139" r="3.8" fill="#FFFFFF"/><circle cx="143" cy="139" r="3.8" fill="#FFFFFF"/>
+      <path d="M92 128 Q101 122 110 126 M131 125 Q140 120 149 126" fill="none" stroke="#7A4A2A" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+    <ellipse cx="126" cy="173" rx="5" ry="6" fill="#8E3B2E"/>
+
+    <!-- party hat -->
+    <g class="hat">
+      <path d="M92 86 L152 80 L126 16 Z" fill="url(#hat)"/>
+      <g clip-path="url(#hatClip)" fill="#F3CF8E">
+        <circle cx="112" cy="70" r="4"/><circle cx="134" cy="62" r="3.6"/><circle cx="122" cy="44" r="3.2"/>
+        <circle cx="140" cy="78" r="3"/><circle cx="104" cy="82" r="2.6"/><circle cx="127" cy="28" r="2.4"/>
+      </g>
+      <path d="M126 16 L152 80 L140 81 Z" fill="#000" opacity=".12"/>
+      <path d="M89 85 Q122 92 155 79 L153 88 Q122 99 91 94 Z" fill="url(#gold)"/>
+      <!-- pom-pom -->
+      <g transform="translate(126 15)">
+        <circle r="10" fill="url(#gold)"/>
+        <circle cx="-3" cy="-3" r="3.4" fill="#FFF3D2"/>
+        <path d="M-10 0 l-5 -3 M10 -1 l5 -4 M0 -10 l0 -5 M-7 -8 l-3 -4 M7 -8 l3 -4" stroke="#E8BC76" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </g>
+    <!-- thought bubbles -->
+    <g fill="#FFFDF7" stroke="#E2B35F" stroke-width="2">
+      <circle class="thought" cx="170" cy="96" r="5"/>
+      <circle class="thought b" cx="184" cy="76" r="8"/>
+      <circle class="thought c" cx="204" cy="44" r="22"/>
+    </g>
+    <g transform="translate(204 44)"><g class="thought c">
+      <path d="M-6 -6 Q-6 -13 0 -13 Q7 -13 7 -6 Q7 -1 1 2 L1 5" fill="none" stroke="#B6584A" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="1" cy="11" r="2.4" fill="#B6584A"/>
+    </g></g>
+  </g>
+</svg>

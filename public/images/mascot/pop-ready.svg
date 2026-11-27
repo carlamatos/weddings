@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -20 240 280" role="img" aria-labelledby="t">
+  <title id="t">Pop, MyGala's party popper, ready to celebrate</title>
+  <defs>
+    <linearGradient id="cone" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#93422F"/>
+      <stop offset="0.35" stop-color="#C4675A"/>
+      <stop offset="0.6" stop-color="#B6584A"/>
+      <stop offset="1" stop-color="#8A3B2B"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FCE3A7"/>
+      <stop offset="0.5" stop-color="#E8BC76"/>
+      <stop offset="1" stop-color="#C08A3E"/>
+    </linearGradient>
+    <radialGradient id="mouthOfCone" cx="50%" cy="40%" r="60%">
+      <stop offset="0" stop-color="#3B1A14"/>
+      <stop offset="1" stop-color="#6E2C21"/>
+    </radialGradient>
+    <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F7A08E" stop-opacity=".85"/>
+      <stop offset="1" stop-color="#F7A08E" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="flash" cx="50%" cy="60%" r="50%">
+      <stop offset="0" stop-color="#FFF4D6" stop-opacity=".95"/>
+      <stop offset="1" stop-color="#FFF4D6" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="coneClip"><path d="M74 108 L166 108 L128 226 Q120 236 112 226 Z"/></clipPath>
+    <path id="spark" d="M0 -10 C1 -3 3 -1 10 0 C3 1 1 3 0 10 C-1 3 -3 1 -10 0 C-3 -1 -1 -3 0 -10 Z"/>
+  </defs>
+  <style>
+    .bounce { animation: bounce 3.2s cubic-bezier(.5, 0, .5, 1) infinite; transform-origin: 120px 230px; }
+    .burst { animation: burst 2.4s ease-out infinite; transform-origin: 120px 104px; }
+    .flash { animation: flash 2.4s ease-out infinite; transform-origin: 120px 100px; }
+    .eyes { animation: blink 4.8s infinite; transform-origin: 120px 150px; }
+    .arm-l { animation: wave 1.2s ease-in-out infinite; transform-origin: 82px 150px; }
+    .arm-r { animation: wave 1.2s ease-in-out infinite reverse; transform-origin: 158px 150px; }
+    .shadow { animation: shadow 3.2s cubic-bezier(.5, 0, .5, 1) infinite; transform-origin: 120px 244px; }
+    @keyframes bounce { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-5px) } }
+    @keyframes shadow { 0%, 100% { transform: scaleX(1); opacity: .32 } 30% { transform: scaleX(.8); opacity: .18 } 55% { transform: scaleX(1); opacity: .32 } }
+    @keyframes burst { 0%, 8% { transform: scale(.35); opacity: 0 } 18% { opacity: 1 } 40% { transform: scale(1) } 80% { opacity: 1 } 100% { transform: scale(1.06) translateY(6px); opacity: 0 } }
+    @keyframes flash { 0%, 8% { transform: scale(.2); opacity: 0 } 18% { transform: scale(1); opacity: 1 } 45%, 100% { transform: scale(1.3); opacity: 0 } }
+    @keyframes blink { 0%, 44%, 50%, 100% { transform: scaleY(1) } 47% { transform: scaleY(.1) } }
+    @keyframes wave { 0%, 100% { transform: rotate(-8deg) } 50% { transform: rotate(10deg) } }
+    .twinkle { animation: twinkle 2.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    .twinkle.b { animation-delay: -1.1s }
+    @keyframes twinkle { 0%, 100% { transform: scale(.5); opacity: .4 } 50% { transform: scale(1); opacity: 1 } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+  </style>
+
+  <ellipse class="shadow" cx="120" cy="244" rx="40" ry="7" fill="#7A4A2A" opacity=".3"/>
+
+  <g transform="translate(164 64)"><use href="#spark" class="twinkle" fill="#E8BC76"/></g>
+  <g transform="translate(74 82) scale(.7)"><use href="#spark" class="twinkle b" fill="#D47766"/></g>
+  <g class="bounce">
+    <!-- the pop: a flash of light, then confetti, streamers and stars -->
+
+    <!-- arms on its hips -->
+    <g>
+      <path d="M86 148 Q64 158 74 182" fill="none" stroke="#9E4637" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="78" cy="184" r="7" fill="#F3D9A4" stroke="#C08A3E" stroke-width="1.5"/>
+      <path d="M154 148 Q176 158 166 182" fill="none" stroke="#9E4637" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="162" cy="184" r="7" fill="#F3D9A4" stroke="#C08A3E" stroke-width="1.5"/>
+    </g>
+    <!-- the popper -->
+    <path d="M74 108 L166 108 L128 226 Q120 236 112 226 Z" fill="url(#cone)"/>
+    <g clip-path="url(#coneClip)">
+      <!-- gold spiral bands -->
+      <path d="M60 128 L180 112 L180 122 L60 140 Z M60 168 L180 152 L180 162 L60 180 Z M60 208 L180 192 L180 202 L60 220 Z" fill="url(#gold)" opacity=".95"/>
+      <!-- polka dots between -->
+      <g fill="#F3CF8E" opacity=".9">
+        <circle cx="96" cy="152" r="2.4"/><circle cx="146" cy="142" r="2.4"/><circle cx="110" cy="190" r="2.2"/><circle cx="134" cy="184" r="2.2"/>
+      </g>
+      <!-- light down the left side -->
+      <path d="M78 108 L96 108 L118 226 L112 226 Z" fill="#FFFFFF" opacity=".14"/>
+    </g>
+    <!-- rim -->
+    <ellipse cx="120" cy="108" rx="47" ry="12" fill="url(#gold)"/>
+    <ellipse cx="120" cy="107" rx="39" ry="8" fill="url(#mouthOfCone)"/>
+    <path d="M86 112 Q120 122 154 112" fill="none" stroke="#FFF3D2" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+
+    <!-- face -->
+    <ellipse cx="96" cy="172" rx="10" ry="7" fill="url(#cheek)"/>
+    <ellipse cx="144" cy="172" rx="10" ry="7" fill="url(#cheek)"/>
+    <g>
+      <path d="M98 152 Q106 142 114 152" fill="none" stroke="#2E1712" stroke-width="4" stroke-linecap="round"/>
+      <path d="M126 152 Q134 142 142 152" fill="none" stroke="#2E1712" stroke-width="4" stroke-linecap="round"/>
+    </g>
+    <path d="M108 166 Q120 186 132 166 Q120 171 108 166 Z" fill="#3B1A14"/>
+    <path d="M113 175 Q120 182 127 175 Q120 172 113 175 Z" fill="#EE8370"/>
+  </g>
+</svg>
