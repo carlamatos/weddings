@@ -12,6 +12,7 @@ import { FOLLOW_UP_SETTING } from '@/app/lib/setup-reminder';
 import { siteHref } from '@/app/lib/app-url';
 import { INVITATION_SETTING } from '@/app/lib/invitation';
 import { identifyInvitationDesign } from '@/app/lib/admin-invitation-designs';
+import { fetchSharingWeeks, SHARE_MIN_VISITORS, SHARE_WINDOW_DAYS, type SharingWeek } from '@/app/lib/admin-sharing';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import Pagination, { parseOffset } from '@/app/ui/admin/pagination';
 
@@ -113,6 +114,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
   let pages: { month: string; event_type: string | null; goal: string | null; purpose: string | null; upgraded: boolean; email: string }[] = [];
   let themePages: ThemePageRow[] = [];
   let invitations: { name: string; edited: boolean; custom: boolean }[] = [];
+  let sharing: SharingWeek[] = [];
   let error: string | null = null;
   try {
     await Promise.all([ensureVisitColumns(), ensurePlusInterestTable(), ensurePageViewsTable()]);
@@ -177,6 +179,7 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
       WHERE s.setting_name = $1
     `, [INVITATION_SETTING]);
     invitations = invRes.rows.filter((r) => !isSuperAdmin(r.email)).map((r) => identifyInvitationDesign(r.design, r.slug));
+    sharing = await fetchSharingWeeks();
     hosts = h.rows.filter((u) => !isSuperAdmin(u.email));
     runs = r;
   } catch (e) {
@@ -206,6 +209,12 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
     return [...m.entries()].map(([k, rows]) => ({ k, ...rate(rows) }));
   };
   const overall = rate(pages);
+  // Sharing over the final weeks shown (each page has had its 14 days).
+  const completeWeeks = sharing.filter((w) => w.complete);
+  const completeShared = completeWeeks.length ? (() => {
+    const shared = completeWeeks.reduce((n, w) => n + w.shared, 0), confirmed = completeWeeks.reduce((n, w) => n + w.confirmed, 0);
+    return confirmed ? { shared, confirmed, rate: Math.round((shared / confirmed) * 1000) / 10 } : null;
+  })() : null;
   const sortedHosts = [...hosts].sort((a, b) => {
     const x = HOST_SORTS[sort](a), y = HOST_SORTS[sort](b);
     if (x === null || y === null) return x === y ? 0 : x === null ? 1 : -1;
@@ -364,6 +373,45 @@ export default async function AdminActivityPage({ searchParams }: { searchParams
       <Pagination path="/admin/activity" params={{ sort, dir }} offset={hostOffset} hasMore={hostOffset + HOSTS_PER_PAGE < sortedHosts.length} pageSize={HOSTS_PER_PAGE} />
 
       <div style={{ marginBottom: 28 }} />
+
+      <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Sharing rate</h2>
+      <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
+        Of the pages made each week (Monday to Sunday, Pacific) whose host confirmed their email, how many reached guests within
+        their first {SHARE_WINDOW_DAYS} days: {SHARE_MIN_VISITORS} or more guest visitors, or invitations or save-the-dates sent, or an RSVP.
+        A share-button click alone doesn&apos;t count; it has its own column. A week is final {SHARE_WINDOW_DAYS} days after it ends.
+        {completeShared && <strong> Last {completeWeeks.length} final week{completeWeeks.length === 1 ? '' : 's'}: {completeShared.shared} of {completeShared.confirmed} ({completeShared.rate}%).</strong>}
+      </p>
+      <div style={{ ...tableWrap, marginBottom: 28 }}>
+        <table style={table}>
+          <thead>
+            <tr>
+              <th style={th}>Week of</th><th style={th}>Pages made</th><th style={th}>Email confirmed</th>
+              <th style={th}>Clicked share</th><th style={th}>Sent invitations</th><th style={th}>{SHARE_MIN_VISITORS}+ guest visitors</th>
+              <th style={th}>Got an RSVP</th><th style={th}>Shared</th><th style={th}>Sharing rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sharing.length === 0 && <tr><td style={td} colSpan={9}>No pages yet.</td></tr>}
+            {sharing.map((w) => (
+              <tr key={w.week}>
+                <td style={{ ...td, whiteSpace: 'nowrap' }}>
+                  {new Date(`${w.week}T12:00:00Z`).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })}
+                  {!w.complete && <> {pill('So far', c.soft, '#F1EEEA')}</>}
+                  {!w.visitsCounted && <div style={{ color: c.muted, fontSize: 11 }}>Before guest visits were counted</div>}
+                </td>
+                <td style={td}>{w.made}</td>
+                <td style={td}>{w.confirmed}</td>
+                <td style={td}>{w.clicked}</td>
+                <td style={td}>{w.sent}</td>
+                <td style={td}>{w.visitsCounted ? w.visited : '—'}</td>
+                <td style={td}>{w.rsvp}</td>
+                <td style={td}><strong>{w.shared}</strong></td>
+                <td style={td}>{w.rate === null ? '—' : <strong>{w.rate}%</strong>}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <h2 style={{ fontSize: 16, margin: '0 0 6px' }}>Live Party upgrades</h2>
       <p style={{ margin: '0 0 12px', fontSize: 13, color: c.soft, lineHeight: 1.6 }}>
