@@ -7,7 +7,8 @@ import type { Faq, SeoMeta, Video } from './types';
 
 // The Spanish pages (/es): the content, in neutral Latin American Spanish
 // (tú). Event pages, invitations and guest emails already come in Spanish;
-// the dashboard is in English, which the pages say plainly.
+// the dashboard too (it opens in Spanish after signing up from these pages,
+// app/lib/dash-text/server.ts rememberDashLang).
 
 export const ES_PAGES = {
   home: { path: '/es', label: 'Inicio' },
@@ -145,7 +146,7 @@ export const ES_HOME = {
   ],
   faqs: [
     { q: '¿Mi página y mis invitaciones pueden estar en español?', a: 'Sí. Elige Español en el menú de idioma y todo lo que MyGala escribe en tu página cambia: los títulos, los botones, el formulario de confirmación, las fechas, la cuenta regresiva y los recordatorios por correo. Tus propios textos se muestran tal como los escribes.' },
-    { q: '¿El panel de MyGala está en español?', a: 'Por ahora, el panel donde preparas tu página está en inglés. Es muy visual y fácil de usar, y nuestros videos en español te muestran cada paso. Lo que ven tus invitados sí está en español.' },
+    { q: '¿El panel de MyGala está en español?', a: 'Sí. El panel donde preparas tu página también está en español. Si te registras desde nuestras páginas en español, se abre en español, y puedes cambiar de idioma cuando quieras en el menú de tu perfil, en Idioma del panel. El idioma de tu página para tus invitados se elige aparte.' },
     { q: '¿Mis invitados necesitan una cuenta o una aplicación?', a: 'No. Tus invitados solo abren tu enlace para confirmar su asistencia, ver los detalles o subir sus fotos. No tienen que registrarse ni instalar nada.' },
     { q: '¿Qué pasa con mi página después del evento?', a: `Se queda en línea como recuerdo. Las páginas gratis siguen visibles, y las páginas Live Party tienen todas las funciones durante ${PLAN_TERM_MONTHS} meses desde tu compra.` },
     { q: '¿Live Party es una suscripción?', a: `No. Es un solo pago de ${ES_PRICE} más impuestos por evento, que desbloquea todas las funciones durante ${PLAN_TERM_MONTHS} meses. Sin cargos recurrentes y sin guardar tu tarjeta.` },

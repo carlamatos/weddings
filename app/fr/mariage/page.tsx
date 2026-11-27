@@ -9,8 +9,8 @@ import SocialLinks from '@/app/ui/marketing/social-links';
 
 // French wedding landing page for Google Ads in Quebec and French Canada:
 // the same page as /events/weddings/start, in French. The sign-up form and
-// the "check your email" page follow in French (?lang=fr); the dashboard is
-// in English, which the page's FAQ says plainly.
+// the "check your email" page follow in French (?lang=fr), and so does the
+// dashboard (app/lib/dash-text/server.ts rememberDashLang).
 
 const PATH = '/fr/mariage';
 
