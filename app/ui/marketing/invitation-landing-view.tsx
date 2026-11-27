@@ -1,9 +1,9 @@
 import Link from 'next/link';
-import { CameraIcon, CheckIcon, MapPinIcon } from '@heroicons/react/24/outline';
+import { CalendarDaysIcon, CameraIcon, CheckIcon, ClockIcon, MapPinIcon, MusicalNoteIcon, PaperAirplaneIcon, SparklesIcon } from '@heroicons/react/24/outline';
 import { greatVibes } from '@/app/ui/fonts';
 import { appHref } from '@/app/lib/app-url';
 import { startQuery } from '@/app/lib/start-intent';
-import { sampleInvitation, sampleStyleName, type InvitationLandingPage } from '@/app/lib/marketing/invitation-landing';
+import { sampleInvitation, sampleStyleName, type FunIcon, type InvitationLandingPage } from '@/app/lib/marketing/invitation-landing';
 import { THEME_CARDS } from '@/app/lib/marketing/theme-cards';
 import { InvitationCard } from '@/app/ui/dashboard/invitation-card';
 import { previewImage } from '@/app/ui/themes/preview-image';
@@ -11,6 +11,8 @@ import { RsvpPreview } from '@/app/ui/rsvp-preview';
 import { LANDING_INVITATION_FONTS } from './invitation-landing-fonts';
 import SiteFooter from './site-footer';
 import { FreeToolsStrip } from './free-tools-strip';
+import { NewYearsHeroEffect } from './new-years-hero-effect';
+import { OccasionSpotlight } from './occasion-spotlight';
 import '@/app/ui/marketing.css';
 import '@/app/ui/marketing/landing.css';
 import '@/app/ui/marketing/invitation-landing.css';
@@ -24,13 +26,17 @@ import '@/app/ui/marketing/invitation-landing.css';
 // are ready before the cards scroll into view.
 
 // The theme's whole demo page as one tall picture (made by scripts/theme-page-shots.mjs).
+const FUN_ICONS: Record<FunIcon, typeof ClockIcon> = {
+  clock: ClockIcon, music: MusicalNoteIcon, schedule: CalendarDaysIcon, camera: CameraIcon, sparkles: SparklesIcon, share: PaperAirplaneIcon,
+};
+
 const themePagePicture = (slug: string) => `/images/theme-pages/${slug}.webp`;
 const themeName = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.name ?? slug;
 const themeDesc = (slug: string) => THEME_CARDS.find((t) => t.slug === slug)?.desc ?? '';
 
 export function InvitationLandingView({ page }: { page: InvitationLandingPage }) {
   // The occasion puts its themes first in the gallery after sign-up.
-  const occasion = page.key === 'christmas' ? 'christmas' : page.key === 'celebrations' ? 'celebration' : 'wedding';
+  const occasion = page.key === 'christmas' ? 'christmas' : page.key === 'weddings' ? 'wedding' : 'celebration';
   const register = (theme?: string) => appHref('/register') + startQuery(page.start, theme, occasion);
   // A theme's buttons: try it first (choose, then sign up) where the page has a try page.
   const start = (theme?: string) => (page.tryPath ? `${page.tryPath}${theme ? `?theme=${theme}` : ''}` : register(theme));
@@ -107,9 +113,10 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
 
       <main>
         {/* 1. The invitation, opening into its page — and why to make one. */}
-        <section className="ilp-hero">
+        <section className={`ilp-hero${page.hero.effect ? ' ilp-hero--effect' : ''}`}>
+          {page.hero.effect?.kind === 'new-years' && <NewYearsHeroEffect year={page.hero.effect.year} />}
           <div className="ilp-hero-inner">
-            <div className="ilp-stage" aria-hidden="true">
+            {!page.hero.effect && <div className="ilp-stage" aria-hidden="true">
               <div className="ilp-phone">
                 <div className="ilp-phone-screen">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -129,7 +136,7 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
               <span className="ilp-chip ilp-chip--rsvp"><CheckIcon />RSVP</span>
               <span className="ilp-chip ilp-chip--map"><MapPinIcon />Map &amp; directions</span>
               <span className="ilp-chip ilp-chip--photos"><CameraIcon />Photo wall</span>
-            </div>
+            </div>}
 
             <div className="ilp-copy ilp-copy-head">
               <p className="ilp-eyebrow">{page.hero.eyebrow}</p>
@@ -148,6 +155,37 @@ export function InvitationLandingView({ page }: { page: InvitationLandingPage })
             </div>
           </div>
         </section>
+
+        {/* Why it's fun (New Year's Eve). */}
+        {page.fun && (
+          <section className="ilp-section ilp-fun" id="why">
+            <div className="ilp-wrap">
+              <h2 className="ilp-title">{page.fun.title}</h2>
+              <p className="ilp-section-sub">{page.fun.sub}</p>
+              <ul className="ilp-fun-list">
+                {page.fun.items.map((item) => {
+                  const Icon = FUN_ICONS[item.icon];
+                  return (
+                  <li key={item.title} className="ilp-fun-item">
+                    <span className="ilp-fun-icon" aria-hidden="true"><Icon /></span>
+                    <h3>{item.title}</h3>
+                    <p>{item.text}</p>
+                  </li>
+                  );
+                })}
+              </ul>
+              {page.fun.note && (
+                <p className="ilp-fun-note">
+                  {page.fun.note.text}{' '}
+                  <a href={page.fun.note.href} className="ilp-link" data-cta={cta('fun-note')}>{page.fun.note.label} →</a>
+                </p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {/* A page for one occasion (the party page → New Year's Eve). */}
+        {page.spotlight && <OccasionSpotlight spotlight={page.spotlight} cta={cta('spotlight')} />}
 
         {/* 2–3. The invitations they can make, and the pages they open into
             (weddings: the pages first, to choose a theme). */}

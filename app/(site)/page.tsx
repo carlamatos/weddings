@@ -19,6 +19,8 @@ import HeroThemeWall from '@/app/ui/marketing/hero-theme-wall';
 import { HomeVideo } from '@/app/ui/marketing/home-video';
 import type { Video } from '@/app/lib/marketing/types';
 import { Rich } from '@/app/ui/marketing/rich';
+import { OccasionSpotlight } from '@/app/ui/marketing/occasion-spotlight';
+import { NEW_YEARS_SPOTLIGHT } from '@/app/lib/marketing/occasion-spotlight';
 
 const learnMore = (slug: string) => getEventType(slug)?.learnMoreLabel ?? 'Learn more';
 
@@ -96,6 +98,9 @@ export default async function Page() {
         <p className="hero-note"><span>Free to start</span> · <span>No credit card</span> · <span>No design skills needed</span></p>
 
       </div>
+
+      {/* New Year's Eve parties (/new-years-eve-party), as on /party-celebrations. */}
+      <OccasionSpotlight spotlight={NEW_YEARS_SPOTLIGHT} cta="home-spotlight-new-years" />
 
       {/* HOW IT WORKS VIDEO */}
       <div className="wrap" id="how-it-works">
