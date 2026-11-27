@@ -1,4 +1,4 @@
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { auth } from '@/auth';
 import { fetchEventThemes, fetchPageSettings, isSectionOn } from '@/app/lib/data';
 import { isPagePaidAndLive } from '@/app/lib/plans';
@@ -7,7 +7,8 @@ import ThemeSwitcher from './theme-switcher';
 import LanguageSwitcher from './language-switcher';
 import UserMenu from './user-menu';
 import MobileMenu from './MobileMenu';
-import ShareMenu, { type ShareChoice } from './share-menu';
+import ShareMenu, { type OpensInfo, type ShareChoice } from './share-menu';
+import { fetchPageOpens } from '@/app/lib/page-views';
 import { shareTipFor, type SetupStep } from '@/app/lib/setup-progress';
 import { publicPageUrl } from '@/app/lib/share';
 import { pagePath } from '@/app/lib/dashboard';
@@ -15,14 +16,26 @@ import { siteHref } from '@/app/lib/app-url';
 import { shareLockOf } from '@/app/lib/page-status';
 import { isSaveTheDateTime, saveTheDateUrl } from '@/app/lib/save-the-date';
 
-import { getDashText } from '@/app/lib/dash-text/server';
+import { getDashText, savedDashLang } from '@/app/lib/dash-text/server';
 import type { DashText } from '@/app/lib/dash-text/en';
-import { fill } from '@/app/lib/dash-text/fill';
+import { fill, plural } from '@/app/lib/dash-text/fill';
 export default async function TopNav({ page: userPage, status, setup }: { page?: UserPage; status?: Record<string, boolean>; setup?: SetupStep[] }) {
   const d = await getDashText();
   const session = await auth();
   const pageId = userPage ? Number(userPage.id) : undefined;
-  const [themes, settings] = await Promise.all([fetchEventThemes(), pageId !== undefined ? fetchPageSettings(pageId) : Promise.resolve({} as Record<string, string>)]);
+  const live = !!userPage && (userPage.status ?? 'active') === 'active';
+  const [themes, settings, rawOpens, lang] = await Promise.all([
+    fetchEventThemes(),
+    pageId !== undefined ? fetchPageSettings(pageId) : Promise.resolve({} as Record<string, string>),
+    // "Opened by N people": free on every page, while it's live.
+    live && pageId !== undefined ? fetchPageOpens(pageId, userPage?.created_at) : Promise.resolve(null),
+    savedDashLang(),
+  ]);
+  const opens: OpensInfo | null = rawOpens && {
+    people: rawOpens.people,
+    week: rawOpens.week,
+    sinceLabel: rawOpens.since ? fill(d.pageOpens.since, { date: longDate(rawOpens.since, lang) }) : null,
+  };
 
   const isPaid = !!userPage && isPagePaidAndLive(userPage);
   const previewHref = userPage
@@ -89,9 +102,11 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
         </a>
       )}
 
+      {opens && pageState?.kind === 'live' && <PageOpensBadge opens={opens} t={d.pageOpens} />}
+
       {shareChoices && (
         <div className="dash-topnav-actions">
-          <ShareMenu choices={shareChoices} pageId={pageId} tip={shareTip} />
+          <ShareMenu choices={shareChoices} pageId={pageId} tip={shareTip} opens={opens} />
         </div>
       )}
 
@@ -106,7 +121,7 @@ export default async function TopNav({ page: userPage, status, setup }: { page?:
         phoneActions={userPage && pageId !== undefined ? {
           pageId, previewHref, shareChoices: shareChoices!,
           themes, currentThemeId: userPage.theme_id ?? null, language: userPage.language ?? 'en',
-          shareTip,
+          shareTip, opens,
         } : undefined}
       />
     </header>
@@ -121,4 +136,30 @@ function pageStateOf(status: string | undefined, t: DashText['pageState']): { ki
   if (status === 'suspended') return { kind: 'suspended', label: t.suspended, hint: t.suspendedHint };
   if (status === 'inactive') return { kind: 'off', label: t.offline, hint: t.offlineHint };
   return { kind: 'live', label: t.live, hint: t.liveHint };
+}
+
+// "👁 23 opened" beside the page's address (phones: "👁 23"), or "Not opened
+// yet" with a nudge to share. The full sentence is in the tooltip and for
+// screen readers.
+function PageOpensBadge({ opens, t }: { opens: OpensInfo; t: DashText['pageOpens'] }) {
+  const zero = opens.people === 0;
+  const sentence = zero
+    ? `${t.nobody}. ${t.shareHint}`
+    : [plural(opens.people, t.person, t.people) + (opens.week > 0 && opens.week < opens.people ? ` · ${fill(t.thisWeek, { n: opens.week })}` : ''), opens.sinceLabel].filter(Boolean).join('. ');
+  return (
+    <span className={`dash-opened${zero ? ' dash-opened--zero' : ''}`} title={sentence}>
+      <EyeIcon aria-hidden="true" />
+      <span aria-hidden="true">
+        {zero ? <span className="dash-opened-label">{t.notYet}</span> : <>{opens.people}<span className="dash-opened-label"> {t.opened}</span></>}
+        {zero && <span className="dash-opened-zero">0</span>}
+      </span>
+      <span className="dash-sr-only">{sentence}</span>
+    </span>
+  );
+}
+
+// "November 25, 2026" in the dashboard's language, from YYYY-MM-DD.
+function longDate(day: string, lang: string): string {
+  const locale = lang === 'fr' ? 'fr-CA' : lang === 'es' ? 'es' : 'en-CA';
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' });
 }

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import type { Translations } from '@/app/lib/translations';
-import { useRsvpOptions } from './rsvp-options';
+import { OwnPageLine, useRsvpOptions } from './rsvp-options';
 import { subEventWhen, type SubEvent } from '@/app/lib/sub-events';
 
 declare global {
@@ -37,7 +37,7 @@ function onRootDomain(hostname: string): boolean {
 const MAX_PARTY = 50;
 
 export default function RsvpForm({ userPageId, translations: t, disabled = false }: { userPageId?: string; translations: Translations; disabled?: boolean }) {
-  const { guestListOnly, meals: mealOptions, giftExchange, askSong, form } = useRsvpOptions();
+  const { guestListOnly, meals: mealOptions, giftExchange, askSong, form, ownPage } = useRsvpOptions();
   // The host's RSVP form settings (app/lib/rsvp-form-options.ts): one person
   // per reply hides the people counter and every reply counts as 1.
   const onePerson = !!form?.onePerson;
@@ -216,6 +216,7 @@ export default function RsvpForm({ userPageId, translations: t, disabled = false
           {status === 'attending' ? t.successAttending : t.successNotAttending}
         </p>
         <p className="rsvp-sub">{t.confirmationNoted.replace('{{name}}', name)}</p>
+        {ownPage && <OwnPageLine ask={t.ownPageAsk} link={t.ownPageLink} href={ownPage.rsvp} />}
       </div>
     );
   }

@@ -12,7 +12,29 @@ import { ShareLocked } from './quick-share';
 import type { ShareLock } from '@/app/lib/page-status';
 
 import { useDashText } from '@/app/ui/dashboard/dash-text';
+import { fill, plural } from '@/app/lib/dash-text/fill';
 const enc = encodeURIComponent;
+
+// "Opened by N people" (app/lib/page-views.ts fetchPageOpens), shown at the
+// top of the share options of a live page, with "· 9 this week" when not all
+// of them came this week. sinceLabel: "Counted since
+// November 25, 2026." for pages older than the counting.
+export type OpensInfo = { people: number; week: number; sinceLabel: string | null };
+
+function OpensLine({ opens }: { opens: OpensInfo }) {
+  const d = useDashText();
+  const t = d.pageOpens;
+  if (opens.people === 0) {
+    return <p className="dash-share-opened dash-share-opened--zero">{t.panelNobody}</p>;
+  }
+  return (
+    <p className="dash-share-opened">
+      <strong>{plural(opens.people, t.person, t.people)}</strong>
+      {opens.week > 0 && opens.week < opens.people && <> · {fill(t.thisWeek, { n: opens.week })}</>}
+      {opens.sinceLabel && <span className="dash-share-opened-since">{opens.sinceLabel}</span>}
+    </p>
+  );
+}
 
 // The networks offered in the top bar's quick menu, in this order; the rest
 // (Pinterest, Reddit, Threads…) are on the Invite screen.
@@ -144,12 +166,13 @@ function useDismiss(open: boolean, close: () => void, ref: React.RefObject<HTMLE
 // button offers both, as a choice at the top of the panel.
 export type ShareChoice = { tab: string; target: ShareTarget };
 
-function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () => void }) {
+function ChoicePanel({ choices, onDone, opens }: { choices: ShareChoice[]; onDone: () => void; opens?: OpensInfo | null }) {
   const d = useDashText();
   const [index, setIndex] = useState(0);
   const current = choices[index] ?? choices[0];
   return (
     <>
+      {opens && !current.target.lock && <OpensLine opens={opens} />}
       {choices.length > 1 && (
         <div className="dash-share-tabs" role="tablist" aria-label={d.shareMenu.whatToShare}>
           {choices.map((c, i) => (
@@ -173,7 +196,7 @@ function ChoicePanel({ choices, onDone }: { choices: ShareChoice[]; onDone: () =
 
 // The top bar's Share button, with the share options beneath it. tip: show
 // the "ready to share" tip (share-tip.tsx) when it's this page's turn.
-export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoice[]; pageId?: number; tip?: { show: boolean; daysToGo: number | null; far?: boolean } }) {
+export default function ShareMenu({ choices, pageId, tip, opens }: { choices: ShareChoice[]; pageId?: number; tip?: { show: boolean; daysToGo: number | null; far?: boolean }; opens?: OpensInfo | null }) {
   const d = useDashText();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -190,7 +213,7 @@ export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoi
       {tipShown && !open && <ShareTipBubble daysToGo={tip?.daysToGo ?? null} far={!!tip?.far} where="share" onClose={dismissTip} />}
       {open && (
         <div className="dash-share-panel" role="dialog" aria-label={d.shareMenu.share}>
-          <ChoicePanel choices={choices} onDone={close} />
+          <ChoicePanel choices={choices} onDone={close} opens={opens} />
         </div>
       )}
     </div>
@@ -200,13 +223,13 @@ export default function ShareMenu({ choices, pageId, tip }: { choices: ShareChoi
 // The same options opened from elsewhere (the Share button at the bottom
 // right on phones and tablets), as a panel above that button (bottom) or
 // under the top bar.
-export function ShareSheet({ onClose, choices, bottom = false }: { onClose: () => void; choices: ShareChoice[]; bottom?: boolean }) {
+export function ShareSheet({ onClose, choices, bottom = false, opens }: { onClose: () => void; choices: ShareChoice[]; bottom?: boolean; opens?: OpensInfo | null }) {
   const d = useDashText();
   const ref = useRef<HTMLDivElement>(null);
   useDismiss(true, onClose, ref);
   return (
     <div className={`dash-share-panel dash-share-panel--sheet${bottom ? ' dash-share-panel--bottom' : ''}`} role="dialog" aria-label={d.shareMenu.share} ref={ref}>
-      <ChoicePanel choices={choices} onDone={onClose} />
+      <ChoicePanel choices={choices} onDone={onClose} opens={opens} />
     </div>
   );
 }

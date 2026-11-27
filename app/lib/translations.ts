@@ -60,6 +60,11 @@ export interface Translations {
   giftEmailHint: string;
   giftJoin: string;
   giftJoined: string;
+  // After an RSVP or a Secret Santa sign-up on a free page: make your own (MyGala).
+  ownPageAsk: string;
+  ownPageLink: string;
+  ownSantaAsk: string;
+  ownSantaLink: string;
   giftUpdated: string;
   giftCount: string; // {n} = number of people
   giftDrawn: string;
@@ -253,6 +258,10 @@ const en: Translations = {
   giftWishlistPlaceholder: 'e.g. Books, cozy socks, anything chocolate',
   giftEmailHint: 'We’ll email you your Secret Santa. Use the same email to update your gift ideas later.',
   giftJoin: 'Join the gift exchange',
+  ownPageAsk: 'Planning a party or event of your own?',
+  ownPageLink: 'Make a free page like this one',
+  ownSantaAsk: 'Want a Secret Santa for another group?',
+  ownSantaLink: 'Start your own, free',
   giftJoined: 'You’re in! We’ll let you know who you’re buying for once names are drawn.',
   giftUpdated: 'Updated — thanks!',
   giftCount: '{n} joined so far',
@@ -433,6 +442,10 @@ const fr: Translations = {
   giftWishlistPlaceholder: 'ex. Des livres, des chaussettes douillettes, du chocolat',
   giftEmailHint: 'Nous vous enverrons votre Père Noël secret par courriel. Utilisez le même courriel pour modifier vos idées plus tard.',
   giftJoin: 'Participer à l’échange',
+  ownPageAsk: 'Vous organisez votre propre fête ou événement ?',
+  ownPageLink: 'Créez gratuitement une page comme celle-ci',
+  ownSantaAsk: 'Un Père Noël secret pour un autre groupe ?',
+  ownSantaLink: 'Créez le vôtre, gratuitement',
   giftJoined: 'C’est noté ! Nous vous dirons à qui offrir un cadeau une fois le tirage fait.',
   giftUpdated: 'Mis à jour — merci !',
   giftCount: '{n} inscrits pour l’instant',
@@ -613,6 +626,10 @@ const es: Translations = {
   giftWishlistPlaceholder: 'p. ej. Libros, calcetines cómodos, cualquier cosa con chocolate',
   giftEmailHint: 'Te enviaremos tu amigo secreto por correo. Usa el mismo correo para cambiar tus ideas más tarde.',
   giftJoin: 'Unirme al intercambio',
+  ownPageAsk: '¿Organizas tu propia fiesta o evento?',
+  ownPageLink: 'Crea gratis una página como esta',
+  ownSantaAsk: '¿Quieres un amigo secreto para otro grupo?',
+  ownSantaLink: 'Crea el tuyo gratis',
   giftJoined: '¡Ya estás dentro! Te diremos a quién le haces el regalo cuando se haga el sorteo.',
   giftUpdated: 'Actualizado — ¡gracias!',
   giftCount: '{n} apuntados hasta ahora',

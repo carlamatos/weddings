@@ -1553,11 +1553,34 @@ a.dash-user-menu-item { box-sizing: border-box; text-decoration: none; }
 .dash-page-status--off .dash-page-status-label { color: #6B6470; }
 .dash-page-status--suspended .dash-page-status-dot { background: #B91C1C; }
 .dash-page-status--suspended .dash-page-status-label { color: #8B1D1D; }
+.dash-opened {
+  display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0;
+  padding: 6px 11px; border-radius: 999px; background: var(--paper);
+  color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap; cursor: default;
+  font-variant-numeric: tabular-nums;
+}
+.dash-opened svg { width: 15px; height: 15px; color: var(--ink-soft); }
+.dash-opened-label { color: var(--ink-soft); font-weight: 500; }
+.dash-opened--zero { font-weight: 500; }
+.dash-opened--zero .dash-opened-label { color: var(--ink-soft); }
+.dash-opened-zero { display: none; }
+.dash-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.dash-share-opened { margin: 0 0 12px; padding: 9px 12px; border-radius: 10px; background: #F1F7F2; color: #2F5E37; font-size: 13px; line-height: 1.5; }
+.dash-share-opened strong { font-weight: 700; }
+.dash-share-opened--zero { background: #FFF8E7; color: #6E5600; }
+.dash-share-opened-since { display: block; margin-top: 2px; font-size: 12px; opacity: 0.8; }
 @media (max-width: 640px) {
   /* Phones: just "● Live" and the arrow; the address is in the share menu. */
   .dash-page-status-url { display: none; }
   /* Don't let the name beside it squeeze the arrow against the border. */
   .dash-page-status { flex-shrink: 0; padding-right: 14px; }
+  /* "👁 23" (or "👁 0") without the word. */
+  .dash-opened { padding: 6px 9px; }
+  .dash-opened-label { display: none; }
+  .dash-opened-zero { display: inline; }
 }
 
 .dash-share-tabs {
