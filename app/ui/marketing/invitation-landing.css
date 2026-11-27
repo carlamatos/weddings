@@ -147,11 +147,83 @@
    doesn't fill its last row (3 birthdays, 2 Halloween) isn't pushed left.
    About the grid's card widths: 4 a row, 3 a row a bit narrower, 2 at
    900px and below (where the gap is 14px). */
-.marketing-page.ilp--celebrations .ilp-cards { display: flex; flex-wrap: wrap; justify-content: center; }
-.marketing-page.ilp--celebrations .ilp-cards > li { flex: 0 0 calc((100% - 3 * 22px) / 4); min-width: 0; }
+.marketing-page.ilp--celebrations .ilp-cards, .marketing-page.ilp--new-years .ilp-cards { display: flex; flex-wrap: wrap; justify-content: center; }
+.marketing-page.ilp--celebrations .ilp-cards > li, .marketing-page.ilp--new-years .ilp-cards > li { flex: 0 0 calc((100% - 3 * 22px) / 4); min-width: 0; }
 @media (max-width: 1000px) {
-  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 2 * 22px) / 3); }
+  .marketing-page.ilp--celebrations .ilp-cards > li, .marketing-page.ilp--new-years .ilp-cards > li { flex-basis: calc((100% - 2 * 22px) / 3); }
 }
 @media (max-width: 900px) {
-  .marketing-page.ilp--celebrations .ilp-cards > li { flex-basis: calc((100% - 14px) / 2); }
+  .marketing-page.ilp--celebrations .ilp-cards > li, .marketing-page.ilp--new-years .ilp-cards > li { flex-basis: calc((100% - 14px) / 2); }
+}
+
+/* New Year's Eve (/new-years-eve-party): espresso, champagne and gold, with
+   twinkling gold dots in the banner, like the Christmas page's. */
+.marketing-page.ilp--new-years {
+  --ilp-hero-bg:
+    radial-gradient(circle at 82% 12%, rgba(232, 188, 118, 0.22), transparent 42%),
+    radial-gradient(circle at 6% 88%, rgba(239, 148, 136, 0.18), transparent 40%),
+    linear-gradient(160deg, #1E1A0E 0%, #15120A 55%, #0E0B14 100%);
+  --ilp-hero-ink: #F7F1E6;
+  --ilp-hero-soft: rgba(247, 241, 230, 0.8);
+  --ilp-accent: #B07E32;
+  --ilp-gold: #E8BC76;
+}
+.marketing-page.ilp--new-years .ilp-themes { background: linear-gradient(180deg, #F7F1E6 0%, #EFE4D0 100%); }
+/* Two themes and eight invitations: centred rows. */
+.marketing-page.ilp--new-years .ilp-theme-list { grid-template-columns: repeat(2, minmax(0, 320px)); justify-content: center; gap: 46px 60px; }
+@media (max-width: 640px) {
+  .marketing-page.ilp--new-years .ilp-theme-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Why it's fun: six short reasons. */
+.marketing-page .ilp-fun { background: #fff; }
+.marketing-page .ilp-fun-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+.marketing-page .ilp-fun-item { padding: 28px 26px; border-radius: 20px; background: #FBF7F2; border: 1px solid #EFE4D0; }
+.marketing-page .ilp-fun-icon { display: inline-grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: #fff; color: #B07E32; box-shadow: 0 8px 18px -10px rgba(110, 80, 20, 0.45); margin-bottom: 16px; }
+.marketing-page .ilp-fun-icon svg { width: 26px; height: 26px; stroke-width: 1.7; }
+.marketing-page .ilp-fun-item h3 { font-family: var(--font-display); font-size: 22px; font-weight: 400; margin: 0 0 8px; }
+.marketing-page .ilp-fun-item p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-soft); }
+.marketing-page .ilp-fun-note { max-width: 720px; margin: 40px auto 0; text-align: center; font-size: 16px; line-height: 1.7; color: var(--ink-soft); }
+.marketing-page .ilp-fun-note .ilp-link { color: var(--ilp-accent); white-space: nowrap; }
+@media (max-width: 900px) {
+  .marketing-page .ilp-fun-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  .marketing-page .ilp-fun-item { padding: 22px 18px; }
+}
+@media (max-width: 560px) {
+  .marketing-page .ilp-fun-list { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* The banner with an effect behind the words (New Year's Eve): no
+   invitation or phone; the words centred over the theme's own banner. */
+@keyframes ilp-ny-push { from { transform: scale(1.1); } to { transform: scale(1); } }
+@keyframes ilp-ny-year { from { opacity: 0; transform: translate(-50%, -50%) scale(0.92); letter-spacing: 0.02em; } to { opacity: 1; transform: translate(-50%, -50%) scale(1); letter-spacing: 0.08em; } }
+@keyframes ilp-ny-fall { 0% { transform: translate3d(0, -30px, 0) rotate(0deg) rotateY(0deg); } 25% { transform: translate3d(16px, 25vh, 0) rotate(160deg) rotateY(180deg); } 50% { transform: translate3d(-10px, 52vh, 0) rotate(320deg) rotateY(360deg); } 75% { transform: translate3d(12px, 78vh, 0) rotate(480deg) rotateY(540deg); } 100% { transform: translate3d(-4px, 108vh, 0) rotate(640deg) rotateY(720deg); } }
+@keyframes ilp-ny-sparkle { 0%, 100% { transform: scale(0.2); opacity: 0; } 45%, 55% { transform: scale(1); opacity: 1; } }
+.marketing-page .ilp-hero--effect { min-height: min(92vh, 820px); display: flex; align-items: center; padding: 110px 24px 100px; background: #0C0902; }
+.marketing-page .ilp-hero--effect .ilp-hero-inner { z-index: 2; width: 100%; max-width: 820px; display: block; text-align: center; }
+.marketing-page .ilp-hero--effect .ilp-copy { max-width: none; }
+.marketing-page .ilp-hero--effect .ilp-headline { font-size: clamp(42px, 6vw, 76px); text-shadow: 0 4px 30px rgba(12, 9, 2, 0.85); }
+.marketing-page .ilp-hero--effect .ilp-sub { max-width: 640px; margin-left: auto; margin-right: auto; text-shadow: 0 2px 16px rgba(12, 9, 2, 0.9); }
+.marketing-page .ilp-hero--effect .ilp-eyebrow { background: rgba(12, 9, 2, 0.45); }
+.marketing-page .ilp-hero--effect .ilp-points { justify-items: start; width: fit-content; margin-left: auto; margin-right: auto; text-align: left; grid-template-columns: repeat(2, auto); column-gap: 34px; }
+.marketing-page .ilp-hero--effect .ilp-actions { justify-content: center; }
+.marketing-page .ilp-ny { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.marketing-page .ilp-ny-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: ilp-ny-push 14s cubic-bezier(0.2, 0.6, 0.3, 1) both; }
+.marketing-page .ilp-ny-overlay { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(24, 21, 9, 0.62) 0%, rgba(12, 9, 2, 0.78) 70%, rgba(12, 9, 2, 0.92) 100%); }
+/* The gold sweep is on black: screen blending drops the black and keeps the light. */
+.marketing-page .ilp-ny-sweep { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(ellipse 38% 30% at 50% 52%, rgba(0, 0, 0, 0.3) 0%, #000 100%); mask-image: radial-gradient(ellipse 38% 30% at 50% 52%, rgba(0, 0, 0, 0.3) 0%, #000 100%); }
+.marketing-page .ilp-ny-year { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); font-family: var(--font-display); font-size: clamp(150px, 30vw, 440px); line-height: 1; letter-spacing: 0.08em; color: transparent; -webkit-text-stroke: 1.5px rgba(232, 188, 118, 0.3); white-space: nowrap; user-select: none; animation: ilp-ny-year 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both; }
+.marketing-page .ilp-ny-confetti { position: absolute; inset: 0; overflow: hidden; }
+.marketing-page .ilp-ny-confetti span { position: absolute; top: 0; border-radius: 1px; animation: ilp-ny-fall 12s linear infinite; will-change: transform; box-shadow: 0 0 6px rgba(232, 188, 118, 0.35); }
+.marketing-page .ilp-ny-sparkle { position: absolute; animation: ilp-ny-sparkle 4.2s ease-in-out infinite; filter: drop-shadow(0 0 6px rgba(232, 188, 118, 0.9)); }
+@media (max-width: 900px) {
+  .marketing-page .ilp-hero--effect { min-height: 0; padding: 70px 18px 64px; }
+  .marketing-page .ilp-hero--effect .ilp-headline { margin-bottom: 18px; }
+  .marketing-page .ilp-hero--effect .ilp-points { grid-template-columns: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marketing-page .ilp-ny-bg, .marketing-page .ilp-ny-year, .marketing-page .ilp-ny-confetti span, .marketing-page .ilp-ny-sparkle { animation: none !important; }
+  .marketing-page .ilp-ny-confetti span { top: var(--ilp-still, 30%); }
+  .marketing-page .ilp-ny-sparkle, .marketing-page .ilp-ny-sweep { display: none; }
 }

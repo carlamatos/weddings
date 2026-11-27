@@ -1,4 +1,5 @@
 import type { SeoMeta } from './types';
+import { NEW_YEARS_SPOTLIGHT, type OccasionSpotlightData } from './occasion-spotlight';
 import { defaultInvitation, type InvitationDesign, type InvitationDetails } from '@/app/lib/invitation';
 import { INVITATION_CATALOG, applyLook, type DesignStyle } from '@/app/lib/invitation-designs';
 import { en } from '@/app/lib/dash-text/en';
@@ -31,8 +32,11 @@ export type InvitationSample = {
   details?: Partial<InvitationDetails>;
 };
 
+export type FunIcon = 'clock' | 'music' | 'schedule' | 'camera' | 'sparkles' | 'share';
+export type LandingKey = 'christmas' | 'weddings' | 'celebrations' | 'new-years';
+
 export type InvitationLandingPage = {
-  key: 'christmas' | 'weddings' | 'celebrations';
+  key: LandingKey;
   path: string;
   seo: SeoMeta;
   start: 'invitation' | 'website'; // how sign-up starts (app/lib/start-intent.ts)
@@ -53,9 +57,17 @@ export type InvitationLandingPage = {
     // these pages' visitors search for). The invitation still gives its theme,
     // name and date.
     rsvp?: boolean;
+    // The words alone, centred over the New Year's Eve theme's banner
+    // (sparklers, a gold sweep, the year in gold outline, falling confetti)
+    // instead of the invitation and the phone.
+    effect?: { kind: 'new-years'; year: string };
   };
   gallery: { title: string; sub: string; groups: { title?: string; items: InvitationSample[] }[] };
   themes: { title: string; sub: string; slugs: string[] };
+  // Why it's fun: a row of short reasons after the hero (/new-years-eve-party).
+  fun?: { title: string; sub: string; items: { icon: FunIcon; title: string; text: string }[]; note?: { text: string; label: string; href: string } };
+  // A band pointing to a page for one occasion (the party page → New Year's).
+  spotlight?: OccasionSpotlightData;
   // The free planning tools (budget, guest count, RSVP deadline…) above the final call to action.
   freeTools?: { title: string; sub: string };
   final: { title: string; text: string };
@@ -70,6 +82,11 @@ const WEDDING_COPY = {
   eyebrow: 'Together with their families',
   message: 'request the pleasure of your company as they celebrate their marriage.',
   closing: 'Dinner & dancing to follow',
+};
+const NEW_YEARS_COPY = {
+  eyebrow: 'You’re invited to ring in',
+  message: 'Bubbly at the door, music all night and a countdown to midnight. Tap the link to RSVP and see the map.',
+  closing: 'Cheers to 2027!',
 };
 const EVERYDAY_COPY = {
   eyebrow: 'You’re invited to',
@@ -127,7 +144,17 @@ const MORE_OCCASIONS: InvitationSample[] = THEME_CARDS
   .filter((t) => !CELEBRATION_THEMES.includes(t.slug) && t.category !== 'wedding')
   .map((t) => onBanner(t.slug));
 
-export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebrations', InvitationLandingPage> = {
+// The New Year's Eve page's two themes and its three invitations: Fireworks
+// on its fireworks photo, and two of the designer's styles.
+const NEW_YEARS_THEMES = ['new-years-eve', 'fireworks'];
+const NEW_YEARS_GALLERY: InvitationSample[] = [
+  { theme: 'new-years-eve', style: 'wedding-gold-flourish', design: NEW_YEARS_COPY },
+  { theme: 'fireworks', style: 'birthday-confetti', design: NEW_YEARS_COPY },
+  { theme: 'fireworks', image: '/images/themes/fireworks/fireworks.jpeg', wash: { color: '#0E0B14', opacity: 0.55 },
+    design: { headingFont: 'playfair', bodyFont: 'josefin', textColor: '#FCF7EB', accentColor: '#FDE0A6', ...NEW_YEARS_COPY } },
+];
+
+export const INVITATION_LANDING_PAGES: Record<LandingKey, InvitationLandingPage> = {
   christmas: {
     key: 'christmas',
     path: '/christmas-invitations',
@@ -288,9 +315,66 @@ export const INVITATION_LANDING_PAGES: Record<'christmas' | 'weddings' | 'celebr
       sub: 'Each theme is a whole event website: RSVPs, the map, the schedule, a countdown, a photo wall and more, plus a Secret Santa draw and potluck sign-ups for the holidays. Scroll through them and pick your favourite.',
       slugs: CELEBRATION_THEMES,
     },
+    spotlight: NEW_YEARS_SPOTLIGHT,
     final: {
       title: 'Your event website, ready in minutes',
       text: 'Free to create, with invitations to match. Guests need no account and no app — just your link.',
+    },
+  },
+  'new-years': {
+    key: 'new-years',
+    path: '/new-years-eve-party',
+    seo: {
+      title: 'Free New Year’s Eve Party Invitations & Website with RSVP',
+      description:
+        'Plan your New Year’s Eve party with a free event website and invitations to match. A countdown to midnight, RSVPs, song requests, the map and everyone’s photos in one link.',
+      keywords: ['new years eve party invitations', 'new years eve party website', 'new years party rsvp', 'online new years invitation', 'nye party invitation'],
+    },
+    start: 'website',
+    tryPath: '/design-your-party-invitation',
+    cta: 'Create my New Year’s party page',
+    hero: {
+      eyebrow: 'New Year’s Eve parties',
+      headline: 'Ring in 2027 with your own party page',
+      sub: 'Send an invitation that sparkles, then watch the RSVPs roll in. Your page counts down to midnight, collects everyone’s song requests and keeps the photos from the night in one place.',
+      points: [
+        'Free party page and invitations',
+        'A live countdown to midnight',
+        'RSVPs, plus-ones and song requests',
+        'Share by email, text or WhatsApp',
+      ],
+      secondary: { label: 'See a live New Year’s page', theme: 'new-years-eve' },
+      invitation: { theme: 'new-years-eve', image: '/images/themes/new-years-eve/rsvp.jpeg', wash: { color: '#181509', opacity: 0.3 },
+        design: { headingFont: 'great-vibes', bodyFont: 'cormorant', textColor: '#F7F1E6', accentColor: '#E8BC76', ...NEW_YEARS_COPY } },
+      pageTheme: 'fireworks',
+      effect: { kind: 'new-years', year: '2027' },
+    },
+    fun: {
+      title: 'The party starts before midnight',
+      sub: 'New Year’s Eve is the one night everyone is in the mood to celebrate. Your page gets them excited from the moment they open the invitation, and keeps the fun going long after the ball drops.',
+      items: [
+        { icon: 'clock', title: 'A countdown to midnight', text: 'From the day they open your invitation, guests watch the days, hours and minutes tick down to the big moment.' },
+        { icon: 'music', title: 'Everyone picks a song', text: 'Guests add a song when they RSVP, so the playlist is full of everyone’s favourites before the first toast.' },
+        { icon: 'schedule', title: 'The plan for the night', text: 'Bubbly at the door, dinner, the countdown, dancing. Put the schedule, the dress code and the map on one page.' },
+        { icon: 'camera', title: 'Photos from the night', text: 'Guests add their photos to your page, so the sparklers, the midnight kiss and the confetti end up in one place.' },
+        { icon: 'sparkles', title: 'A look to match the night', text: 'Gold and glitter or a sky of fireworks: both themes move, sparkle and look great on every phone.' },
+        { icon: 'share', title: 'One link for everyone', text: 'Send it by email, text or WhatsApp. Guests need no account and no app, and their replies come straight to you.' },
+      ],
+      note: { text: 'Want a party they’ll talk about all year? Live Party adds a live photo slideshow on the TV, song requests all night and a livestream for faraway friends.', label: 'See Live Party', href: '/live-party' },
+    },
+    gallery: {
+      title: 'New Year’s invitations you can create',
+      sub: 'Each one opens into your party page. Change the words, fonts, colours and photo. Tap one to start with it.',
+      groups: [{ items: NEW_YEARS_GALLERY }],
+    },
+    themes: {
+      title: 'Two themes made for the countdown',
+      sub: 'Each one is a whole party page: RSVPs, a countdown to midnight, the night’s schedule, the map, song requests and a photo wall. Scroll through them and pick your favourite.',
+      slugs: NEW_YEARS_THEMES,
+    },
+    final: {
+      title: 'Your New Year’s Eve party, ready in minutes',
+      text: 'Free to create, with invitations to match. Guests need no account and no app, just your link.',
     },
   },
 };
