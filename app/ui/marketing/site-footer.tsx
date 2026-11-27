@@ -4,6 +4,7 @@ import { EVENT_TYPES } from '@/app/lib/marketing/events';
 import { COMPANY, copyrightLine } from '@/app/lib/company';
 import { FREE_TOOLS } from '@/app/lib/marketing/blog';
 import NewsletterForm from './newsletter-form';
+import SocialLinks from '@/app/ui/marketing/social-links';
 
 // Footer for every marketing page: links to each feature and event type
 // page, the free planning tools and the company pages, under the newsletter sign-up.
@@ -45,6 +46,7 @@ export default function SiteFooter() {
         </div>
       </div>
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
+      <SocialLinks />
       <p style={{ marginTop: 6 }}>mygala.ca</p>
       <p style={{ marginTop: 6, fontSize: 12 }}>{copyrightLine()} MyGala is operated by {COMPANY.legalName}</p>
     </footer>

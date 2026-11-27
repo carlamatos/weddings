@@ -5,6 +5,7 @@ import { WEDDING_LANDING_FR } from '@/app/lib/marketing/landing';
 import { marketingMetadata } from '@/app/lib/marketing/seo';
 import { themeCardsFor } from '@/app/lib/marketing/theme-cards';
 import { LandingView } from '@/app/ui/marketing/landing-view';
+import SocialLinks from '@/app/ui/marketing/social-links';
 
 // French wedding landing page for Google Ads in Quebec and French Canada:
 // the same page as /events/weddings/start, in French. The sign-up form and
@@ -27,6 +28,7 @@ function FrenchFooter() {
   return (
     <footer className="footer site-footer">
       <p className="footer-wordmark">My<span className="accent">Gala</span></p>
+      <SocialLinks lang="fr" />
       <p style={{ marginTop: 12, display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link href="/">Accueil</Link>
         <Link href="/events/weddings/start" hrefLang="en">English</Link>

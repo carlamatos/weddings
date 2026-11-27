@@ -693,6 +693,9 @@
 .marketing-page .footer p { font-size: 13px; color: var(--ink-soft); margin: 0; }
 .marketing-page .footer-wordmark { font-family: var(--font-great-vibes), cursive; font-size: 28px; color: var(--ink); line-height: 1; margin: 0; }
 .marketing-page .footer-wordmark .accent { color: var(--rose); }
+.marketing-page .footer-social { display: flex; justify-content: center; gap: 12px; margin: 18px 0 16px; }
+.marketing-page .footer-social a { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: var(--ink-soft); background: #fff; border: 1px solid var(--line); text-decoration: none; transition: color .2s, background .2s, border-color .2s, transform .2s; }
+.marketing-page .footer-social a:hover, .marketing-page .footer-social a:focus-visible { color: #fff; background: var(--rose); border-color: var(--rose); transform: translateY(-2px); }
 
 /* ── Content pages: features, event types, FAQ ─────────────────────── */
 .marketing-page .mk-hero { padding: 56px 0 48px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%); }
