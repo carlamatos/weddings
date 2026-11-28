@@ -14,7 +14,9 @@ import { RESERVED_SLUGS } from './reserved-slugs';
 //
 // Guests' pages (hosts' event pages, /i/ invitation links and hosts' own
 // domains) load no Google tags and show no banner: guests didn't sign up for
-// MyGala, and MyGala's own visit counts there use no cookies.
+// MyGala, and MyGala's own visit counts there use no cookies. Nor does the
+// admin area: its visits aren't MyGala's audience, and its addresses can
+// hold hosts' details (a search for an email).
 
 export const CONSENT_COOKIE = 'mg_consent';
 export type ConsentChoice = 'all' | 'none';
@@ -32,6 +34,8 @@ export const OPT_IN_REGIONS = [
 // The first part of every MyGala page's address (the rest are hosts' pages),
 // except /i/, the invitation links, which guests open.
 const SITE_SECTIONS = [...RESERVED_SLUGS].filter((s) => s !== 'i');
+// MyGala's own sections that load no Google tags either.
+const NO_TAG_SECTIONS = ['admin'];
 
 // MyGala's own hostnames; any other is a host's custom domain.
 const OWN_HOST = /(^|\.)mygala\.ca$|^localhost$|^127\.0\.0\.1$|\.vercel\.app$/;
@@ -40,6 +44,12 @@ export function isGuestPath(hostname: string, pathname: string): boolean {
   if (!OWN_HOST.test(hostname)) return true;
   const first = (pathname.split('/')[1] ?? '').toLowerCase();
   return first !== '' && !SITE_SECTIONS.includes(first);
+}
+
+// No Google tags and no banner: guests' pages and the admin area.
+export function isTagFreePath(hostname: string, pathname: string): boolean {
+  const first = (pathname.split('/')[1] ?? '').toLowerCase();
+  return isGuestPath(hostname, pathname) || (OWN_HOST.test(hostname) && NO_TAG_SECTIONS.includes(first));
 }
 
 // The script that runs first on every page (before React): the consent
@@ -62,7 +72,7 @@ var h=location.hostname,f=(location.pathname.split('/')[1]||'').toLowerCase();
 var own=${OWN_HOST.toString()}.test(h);
 var guest=!own||(f!==''&&${JSON.stringify(SITE_SECTIONS)}.indexOf(f)<0);
 window.__mgGuestPage=guest;
-if(guest||!${JSON.stringify(gtmId)})return;
+if(guest||${JSON.stringify(NO_TAG_SECTIONS)}.indexOf(f)>=0||!${JSON.stringify(gtmId)})return;
 dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
 gtag('js',new Date());
 gtag('config',${JSON.stringify(adsId)});
