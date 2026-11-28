@@ -75,7 +75,10 @@ export default async function CustomDomainPage({ params }: { params: Promise<{ h
   const shareHashtag = normalizeHashtag(pageSettings['share_hashtag']) || undefined;
   const sectionText = sectionTextFromSettings(pageSettings);
   const plusContent = await fetchPlusContent(data.id, isPaid, pageSettings);
-  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  // The event page's map (Maps Embed: free, and shown on hosts' own domains
+  // too) has its own key, restricted to that API only; the billed autocomplete
+  // key is locked to MyGala's addresses. Falls back to that one until it's set.
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   return (
     <>

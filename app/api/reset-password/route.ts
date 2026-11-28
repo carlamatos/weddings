@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import { consumeToken, invalidateTokens } from '@/app/lib/tokens';
 import { ResetPasswordSchema } from '@/app/lib/password-schema';
 import { markPasswordChanged } from '@/app/lib/session-revocation';
+import { z } from 'zod';
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
   });
   if (!parsed.success) {
     return NextResponse.json(
-      { error: parsed.error.flatten().fieldErrors.password?.[0] ?? parsed.error.flatten().fieldErrors.confirmPassword?.[0] ?? 'Invalid password.' },
+      { error: z.flattenError(parsed.error).fieldErrors.password?.[0] ?? z.flattenError(parsed.error).fieldErrors.confirmPassword?.[0] ?? 'Invalid password.' },
       { status: 400 },
     );
   }

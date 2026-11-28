@@ -83,12 +83,10 @@ const EMAIL_VERIFICATION_TTL_MS = 48 * 60 * 60 * 1000;
     event_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid time.' }).optional(),
     event_end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, { message: 'Invalid end date.' }).optional(),
     event_end_time: z.string().regex(/^\d{2}:\d{2}$/, { message: 'Invalid end time.' }).optional(),
-    event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { invalid_type_error: 'Please select an event type.' }),
-    theme_slug: z.string({ invalid_type_error: 'Please choose a theme.' }).min(1, { message: 'Please choose a theme.' }),
+    event_type: z.enum(['wedding', 'birthdays', 'business', 'community'], { error: 'Please select an event type.' }),
+    theme_slug: z.string({ error: 'Please choose a theme.' }).min(1, { message: 'Please choose a theme.' }),
     location: z.enum(['address', 'virtual']),
-    slug: z.string({
-      invalid_type_error: 'Please specify a slug (page URL).',
-    }),
+    slug: z.string({ error: 'Please specify a slug (page URL).' }),
     email: z.string()
       .email({ message: 'Invalid email address. Please enter a valid email.'}),
     phone: z.string().optional().refine((v) => isValidOptionalPhone(v), { message: PHONE_INVALID_MESSAGE }),
@@ -254,7 +252,7 @@ function ensureOptionalEventDate(): Promise<unknown> {
 
     if (!validatedFields.success) {
       return {
-        errors: validatedFields.error.flatten().fieldErrors,
+        errors: z.flattenError(validatedFields.error).fieldErrors,
         message: 'Missing Fields. Failed to Create Page.',
       };
     }
@@ -2329,7 +2327,7 @@ async function createCredentialsAccount(formData: FormData): Promise<{ email: st
   });
 
   if (!validatedFields.success) {
-    return { state: { errors: validatedFields.error.flatten().fieldErrors, message: m.fix } };
+    return { state: { errors: z.flattenError(validatedFields.error).fieldErrors, message: m.fix } };
   }
 
   const { email, password } = validatedFields.data;
