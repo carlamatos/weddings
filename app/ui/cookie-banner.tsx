@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { CONSENT_SETTINGS_EVENT, isGuestPath, saveConsent, savedConsent, type ConsentChoice } from '@/app/lib/consent';
+import { CONSENT_SETTINGS_EVENT, isTagFreePath, saveConsent, savedConsent, type ConsentChoice } from '@/app/lib/consent';
 import { Mascot } from '@/app/ui/mascot';
 
 // "We use cookies": Accept or Reject, with equal weight, and the privacy
 // policy (app/lib/consent.ts). Shown until the visitor chooses, and again
-// from "Cookie settings" in the footer. Not on guests' pages (no Google tags
-// load there). In the page's language (<html lang>). Rendered only where
+// from "Cookie settings" in the footer. Not on guests' pages or in the
+// admin (no Google tags load there). In the page's language (<html lang>). Rendered only where
 // Google's tags run (the live site): elsewhere there's nothing to agree to.
 
 const TEXT = {
@@ -27,7 +27,7 @@ export default function CookieBanner() {
     setLang(l === 'fr' || l === 'es' ? l : 'en');
     // Checked from the address itself (not the boot script's note, which
     // pages such as the 404 don't run).
-    if (!isGuestPath(window.location.hostname, window.location.pathname) && !savedConsent()) setOpen(true);
+    if (!isTagFreePath(window.location.hostname, window.location.pathname) && !savedConsent()) setOpen(true);
     const reopen = () => setOpen(true);
     window.addEventListener(CONSENT_SETTINGS_EVENT, reopen);
     return () => window.removeEventListener(CONSENT_SETTINGS_EVENT, reopen);
