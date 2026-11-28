@@ -5,6 +5,7 @@ import { COMPANY, copyrightLine } from '@/app/lib/company';
 import { FREE_TOOLS } from '@/app/lib/marketing/blog';
 import NewsletterForm from './newsletter-form';
 import SocialLinks from '@/app/ui/marketing/social-links';
+import { CookieSettingsLink } from '@/app/ui/cookie-banner';
 
 // Footer for every marketing page: links to each feature and event type
 // page, the free planning tools and the company pages, under the newsletter sign-up.
@@ -39,6 +40,7 @@ export default function SiteFooter() {
           <Link href="/blog">Blog</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy Policy</Link>
+          <CookieSettingsLink label="Cookie settings" />
           <Link href="/terms">Terms of Service</Link>
           <Link href="/terms#refunds">Refund &amp; Cancellation Policy</Link>
           <Link href="/company">Company Information</Link>

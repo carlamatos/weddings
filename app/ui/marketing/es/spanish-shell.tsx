@@ -7,6 +7,7 @@ import SpanishTopbar from './spanish-topbar';
 import '@/app/ui/marketing.css';
 import './es.css';
 import SocialLinks from '@/app/ui/marketing/social-links';
+import { CookieSettingsLink } from '@/app/ui/cookie-banner';
 
 // Top bar and footer around the Spanish pages (/es). english: the English
 // page this one stands for, for the "EN" link.
@@ -38,6 +39,7 @@ export function SpanishFooter({ english }: { english: string }) {
           <p className="site-footer-heading">Información</p>
           {/* These pages are in English; the labels say so. */}
           <Link href="/privacy" hrefLang="en">Privacidad (en inglés)</Link>
+          <CookieSettingsLink label="Configuración de cookies" />
           <Link href="/terms" hrefLang="en">Términos de uso (en inglés)</Link>
           <Link href="/company" hrefLang="en">Datos de la empresa (en inglés)</Link>
           <Link href={english} hrefLang="en" lang="en">MyGala in English</Link>
