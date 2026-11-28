@@ -6,7 +6,7 @@ import { pageMetadata } from '@/app/lib/marketing/seo';
 
 export const metadata = pageMetadata('Privacy Policy', `How ${COMPANY.legalName} (MyGala) collects, uses, and protects personal information, in compliance with PIPEDA and PIPA.`, '/privacy');
 
-const EFFECTIVE_DATE = 'October 10, 2026';
+const EFFECTIVE_DATE = 'November 27, 2026';
 const CONTACT_EMAIL = COMPANY.email;
 const link = { color: 'var(--rose)' };
 
@@ -69,10 +69,19 @@ export default function PrivacyPage() {
       <p>
         We advertise MyGala with <strong>Google Ads</strong>. When you visit our website, the Google tag sets cookies that let Google tell us whether a visit that started from one of our ads led to a sign-up or a Live Party purchase, and the purchase amount. We do not give Google your name, email address or event details. Google may use these cookies under its own policies, including to show you ads; you can turn off personalised ads in <a href="https://myadcenter.google.com" target="_blank" rel="noopener noreferrer" style={link}>Google&rsquo;s My Ad Center</a>, and learn more at <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer" style={link}>policies.google.com/technologies/ads</a>. You can also block these cookies in your browser settings; the site will still work.
       </p>
-
-      <h3 style={h3}>2.6 Cookies and local storage</h3>
       <p>
-        We use cookies to keep you signed in and to remember that a guest entered an event page&rsquo;s password (for up to 30 days). Google Analytics and Google Ads also set cookies on our website, as described in section 2.5.
+        Our Google tags are loaded through <strong>Google Tag Manager</strong>, which also runs the <strong>Pinterest tag</strong> for our Pinterest ads (Pinterest&rsquo;s practices: <a href="https://policy.pinterest.com/privacy-policy" target="_blank" rel="noopener noreferrer" style={link}>policy.pinterest.com/privacy-policy</a>). None of these tags run on hosts&rsquo; event pages or invitation links: guests who visit them are not tracked by Google or Pinterest.
+      </p>
+      <p>
+        On event pages, MyGala counts visits itself, without cookies, so hosts can see how many people opened their page. For each visit we keep only the page, the day, and three general labels: where the visit came from (for example &ldquo;WhatsApp&rdquo;, &ldquo;Email&rdquo; or the name of a website, taken from the link and never the full address), the country (from the visitor&rsquo;s connection, without keeping the IP address) and the type of device (phone, tablet or computer). Your browser remembers the last day it opened each page, so a visit is counted once a day. None of this identifies a visitor, and it is not shared with anyone.
+      </p>
+
+      <h3 style={h3} id="cookies">2.6 Cookies and local storage</h3>
+      <p>
+        <strong>Needed for the site to work</strong> (always on): cookies that keep you signed in, remember that a guest entered an event page&rsquo;s password (for up to 30 days), remember your dashboard language, remember your cookie choice (for a year), and briefly note a sign-up or a new page so it can be reported to Google Ads if you accepted.
+      </p>
+      <p>
+        <strong>Analytics and advertising</strong> (your choice): the Google Analytics, Google Ads and Pinterest cookies described in section 2.5. The first time you visit, a banner lets you <strong>Accept</strong> or <strong>Reject</strong> them. If you are in Quebec, the European Union, the United Kingdom or Switzerland, they stay off until you accept. Elsewhere they are on unless you reject them. You can change your choice at any time with <strong>Cookie settings</strong> at the bottom of every page. MyGala&rsquo;s own count of visits to event pages uses no cookies (see section 2.5).
       </p>
 
       <h2 style={h2}>3. How we use your information</h2>

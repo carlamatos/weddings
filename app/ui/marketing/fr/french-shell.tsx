@@ -8,6 +8,7 @@ import SocialLinks from '@/app/ui/marketing/social-links';
 import '@/app/ui/marketing.css';
 // The French pages share the Spanish pages' layout styles (.es-page …).
 import '@/app/ui/marketing/es/es.css';
+import { CookieSettingsLink } from '@/app/ui/cookie-banner';
 
 // Top bar and footer around the French pages (/fr). english: the English
 // page this one stands for, for the "EN" link.
@@ -36,6 +37,7 @@ export function FrenchFooter({ english = '/' }: { english?: string }) {
           <Link href="/live-party" hrefLang="en">Live Party (en anglais)</Link>
           <Link href="/contact" hrefLang="en">Nous joindre (en anglais)</Link>
           <Link href="/privacy" hrefLang="en">Confidentialité (en anglais)</Link>
+          <CookieSettingsLink label="Paramètres des témoins" />
           <Link href="/terms" hrefLang="en">Conditions d’utilisation (en anglais)</Link>
         </div>
         <div>

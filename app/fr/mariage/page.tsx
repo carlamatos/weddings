@@ -6,6 +6,7 @@ import { marketingMetadata } from '@/app/lib/marketing/seo';
 import { themeCardsFor } from '@/app/lib/marketing/theme-cards';
 import { LandingView } from '@/app/ui/marketing/landing-view';
 import SocialLinks from '@/app/ui/marketing/social-links';
+import { CookieSettingsLink } from '@/app/ui/cookie-banner';
 
 // French wedding landing page for Google Ads in Quebec and French Canada:
 // the same page as /events/weddings/start, in French. The sign-up form and
@@ -33,6 +34,7 @@ function FrenchFooter() {
         <Link href="/fr">Accueil</Link>
         <Link href="/events/weddings/start" hrefLang="en">English</Link>
         <Link href="/privacy">Confidentialité</Link>
+        <CookieSettingsLink label="Paramètres des témoins" />
         <Link href="/terms">Conditions d’utilisation</Link>
         <Link href="/contact">Nous joindre</Link>
       </p>

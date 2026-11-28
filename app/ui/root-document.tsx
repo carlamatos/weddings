@@ -6,6 +6,8 @@ import { siteUrl } from '@/app/lib/site-url';
 import { Suspense } from 'react';
 import PurchaseConversion from '@/app/ui/purchase-conversion';
 import SignupTracker from '@/app/ui/signup-tracker';
+import CookieBanner from '@/app/ui/cookie-banner';
+import { tagsBootScript } from '@/app/lib/consent';
 
 // The <html> and <body> every page shares. The site has a root layout per
 // language so each page's <html lang> matches it: English for everything in
@@ -26,6 +28,10 @@ export const rootMetadata: Metadata = {
 // Google Tag Manager runs on the live site only (not staging, previews or
 // local dev), so test visits never reach the live container.
 const LIVE_GTM_ID = process.env.VERCEL_ENV === 'production' ? 'GTM-NKSF95VQ' : null;
+const ADS_ID = 'AW-18504468577';
+// COOKIE_BANNER_PREVIEW=1 shows the cookie banner where Google's tags don't
+// run (localhost, staging), to see it without sending test visits to Google.
+const BANNER_PREVIEW = process.env.COOKIE_BANNER_PREVIEW === '1';
 
 // tags={false}: no Tag Manager or conversion tracking, for pages shown only
 // inside another page (the live theme previews, app/(frame)), so they
@@ -35,16 +41,6 @@ export function RootDocument({ lang, children, tags = true }: { lang: string; ch
   return (
     <html lang={lang}>
       <body className={`${inter.className} antialiased`}>
-        {GTM_ID && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-            />
-          </noscript>
-        )}
         {children}
         {tags && (
           <Suspense fallback={null}>
@@ -53,24 +49,17 @@ export function RootDocument({ lang, children, tags = true }: { lang: string; ch
           </Suspense>
         )}
         {/* One Google tag install: the GTM container already holds the GA4
-            tag (G-5MD6D8FQ6X), so gtag.js isn't loaded separately. The queue
-            and gtag() are set up at once, so the visit's start time and any
-            early events (signup, purchase conversions) are kept; GTM itself
-            loads when the browser is idle so it doesn't compete with the
-            page's own content. Google Ads is configured here because the
-            container has no Ads tag. */}
-        {GTM_ID && (
-          <>
-            <Script id="google-tag-queue" strategy="beforeInteractive">
-              {`window.dataLayer=window.dataLayer||[];
-window.gtag=function(){dataLayer.push(arguments);};
-dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});
-gtag('js',new Date());
-gtag('config','AW-18504468577');`}
-            </Script>
-            <Script id="google-tag-manager" src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`} strategy="lazyOnload" />
-          </>
-        )}
+            tag (G-5MD6D8FQ6X), so gtag.js isn't loaded separately; Google Ads
+            is configured here because the container has no Ads tag. The boot
+            script (app/lib/consent.ts) runs first: Consent Mode defaults
+            (Quebec, the EU, the UK and Switzerland wait for Accept), the
+            visitor's saved choice, then Tag Manager when the browser is idle,
+            except on guests' pages (event pages, /i/ invitations, hosts'
+            domains), which load no Google tags. The gtag() queue is always
+            set up, so early events (sign-up, purchase) are kept. No <noscript>
+            Tag Manager: without scripts there's no way to ask for consent. */}
+        {tags && <Script id="google-tags" strategy="beforeInteractive">{tagsBootScript(GTM_ID, ADS_ID)}</Script>}
+        {(GTM_ID || (tags && BANNER_PREVIEW)) && <CookieBanner />}
       </body>
     </html>
   );
