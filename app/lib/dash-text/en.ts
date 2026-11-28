@@ -1730,6 +1730,14 @@ export const en = {
     done: ' (done)',
     toDo: ' (to do)',
   },
+  errorScreen: {
+    title: 'Oops! Something went wrong',
+    text: 'Pop tripped over its own confetti. Your page and your guests’ replies are safe: please try again.',
+    retry: 'Try again',
+    home: 'Back to my pages',
+    help: 'If it keeps happening, write to us at {email}.',
+    reference: 'Reference: {code}',
+  },
   pageOpens: {
     opened: 'opened',
     notYet: 'Not opened yet',

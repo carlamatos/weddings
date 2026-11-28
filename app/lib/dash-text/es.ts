@@ -1731,6 +1731,14 @@ export const es: DashText = {
     done: ' (hecho)',
     toDo: ' (pendiente)',
   },
+  errorScreen: {
+    title: '¡Ups! Algo salió mal',
+    text: 'Pop se tropezó con su propio confeti. Tu página y las respuestas de tus invitados están a salvo: inténtalo de nuevo.',
+    retry: 'Intentar de nuevo',
+    home: 'Volver a mis páginas',
+    help: 'Si sigue pasando, escríbenos a {email}.',
+    reference: 'Referencia: {code}',
+  },
   pageOpens: {
     opened: 'aperturas',
     notYet: 'Aún sin abrir',
