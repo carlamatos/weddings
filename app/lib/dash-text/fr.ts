@@ -1731,6 +1731,14 @@ export const fr: DashText = {
     done: ' (fait)',
     toDo: ' (à faire)',
   },
+  errorScreen: {
+    title: 'Oups ! Un problème est survenu',
+    text: 'Pop s’est pris les pieds dans ses confettis. Votre page et les réponses de vos invités sont en sécurité : veuillez réessayer.',
+    retry: 'Réessayer',
+    home: 'Retour à mes pages',
+    help: 'Si le problème continue, écrivez-nous à {email}.',
+    reference: 'Référence : {code}',
+  },
   pageOpens: {
     opened: 'ouvertures',
     notYet: 'Pas encore ouverte',

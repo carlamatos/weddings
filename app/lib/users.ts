@@ -24,7 +24,7 @@ const OAuthUser = z.object({
 export async function createOAuthUser(user: Omit<DBUser, 'id' | 'password'>): Promise<boolean> {
   const parsed = OAuthUser.safeParse({ ...user, picture: user.picture ?? '' });
   if (!parsed.success) {
-    console.error('OAuth user rejected:', parsed.error.flatten().fieldErrors);
+    console.error('OAuth user rejected:', z.flattenError(parsed.error).fieldErrors);
     return false;
   }
   const { name, email, given_name, family_name, provider, provider_id, picture } = parsed.data;

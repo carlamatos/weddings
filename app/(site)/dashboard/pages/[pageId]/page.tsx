@@ -68,7 +68,10 @@ export default async function Page({ params }: { params: Promise<{ pageId: strin
     potluckProps(pageId, isPaid, pageSettings),
     giftExchangeProps(pageId, isPaid, pageSettings),
   ]);
-  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+  // The event page's map (Maps Embed: free, and shown on hosts' own domains
+  // too) has its own key, restricted to that API only; the billed autocomplete
+  // key is locked to MyGala's addresses. Falls back to that one until it's set.
+  const mapsKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   // Build the date display string the same way each theme would
   const heroDateText = userPage.event_date

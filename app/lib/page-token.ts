@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
+import { signingKey } from './signing-key';
 
 const SECRET = process.env.AUTH_SECRET ?? '';
 
@@ -8,7 +9,7 @@ const SECRET = process.env.AUTH_SECRET ?? '';
 // while rendering that specific page.
 export function signPageId(id: number | string): string {
   const idStr = String(id);
-  const sig = createHmac('sha256', SECRET).update(idStr).digest('hex');
+  const sig = createHmac('sha256', signingKey(SECRET)).update(idStr).digest('hex');
   return `${idStr}.${sig}`;
 }
 
@@ -21,7 +22,7 @@ export function verifyPageToken(token: string | null | undefined): number | null
   const sig = token.slice(dot + 1);
   if (!/^\d+$/.test(idStr)) return null;
 
-  const expected = createHmac('sha256', SECRET).update(idStr).digest('hex');
+  const expected = createHmac('sha256', signingKey(SECRET)).update(idStr).digest('hex');
   const expectedBuf = Buffer.from(expected, 'hex');
   const sigBuf = Buffer.from(sig, 'hex');
   if (expectedBuf.length !== sigBuf.length || !timingSafeEqual(expectedBuf, sigBuf)) {

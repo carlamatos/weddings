@@ -23,7 +23,12 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ offset?: string; q?: string; joined?: string }>;
 }) {
+  // Checked here as well as in the layout: a layout's check doesn't re-run
+  // on every navigation (Next's partial rendering), and this page reads
+  // private data. Without full admin access (2FA included) the layout shows
+  // the login, 2FA or 404 instead, and this page renders nothing.
   const admin = await getSuperAdmin();
+  if (!admin) return null;
   const sp = await searchParams;
   const offset = parseOffset(sp.offset);
   const q = (typeof sp.q === 'string' ? sp.q : '').trim().slice(0, ADMIN_SEARCH_MAX);

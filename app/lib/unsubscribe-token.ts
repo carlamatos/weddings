@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { siteUrl } from './site-url';
+import { signingKey } from './signing-key';
 
 // Signed, per-guest unsubscribe links for reminder/update emails. The
 // "unsubscribe:" prefix keeps these signatures distinct from page tokens
@@ -8,7 +9,7 @@ const SECRET = process.env.AUTH_SECRET ?? '';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function sign(guestId: string): string {
-  return createHmac('sha256', SECRET).update(`unsubscribe:${guestId}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`unsubscribe:${guestId}`).digest('hex');
 }
 
 // Page link for the email footer (asks the guest to confirm).

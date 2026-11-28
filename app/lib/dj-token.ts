@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
+import { signingKey } from './signing-key';
 
 // The DJ's private link to a page's song queue (<page>/dj?k=…): the host
 // copies it from Song Requests and sends it to the DJ. The "dj:" prefix keeps
@@ -6,7 +7,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 const SECRET = process.env.AUTH_SECRET ?? '';
 
 export function djKey(pageId: number | string): string {
-  return createHmac('sha256', SECRET).update(`dj:${pageId}`).digest('hex').slice(0, 32);
+  return createHmac('sha256', signingKey(SECRET)).update(`dj:${pageId}`).digest('hex').slice(0, 32);
 }
 
 export function isDjKey(pageId: number | string, key: string | null | undefined): boolean {

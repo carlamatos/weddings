@@ -88,6 +88,8 @@ const framedByUsHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Don't announce the framework ("X-Powered-By: Next.js") to every visitor.
+  poweredByHeader: false,
   // CSS goes in the page's <head> instead of separate render-blocking files:
   // first visits (most ad traffic) paint ~0.2–0.4 s sooner on phones. Applies
   // to every page; the cost is no cross-page CSS caching.
