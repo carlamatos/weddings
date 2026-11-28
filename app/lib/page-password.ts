@@ -1,4 +1,5 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
+import { signingKey } from './signing-key';
 
 // Live Party: password-protected event pages. Off unless the owner turns it on.
 // Settings (user_page_settings):
@@ -19,7 +20,7 @@ export const PAGE_PASSWORD_MIN = 4;
 export const PAGE_PASSWORD_MAX = 100;
 export const PAGE_ACCESS_MAX_AGE = 60 * 60 * 24 * 30; // 30 days, seconds
 
-const encKey = () => createHash('sha256').update(`page-password-enc|${SECRET}`).digest();
+const encKey = () => createHash('sha256').update(`page-password-enc|${signingKey(SECRET)}`).digest();
 
 export function encryptPagePassword(password: string): string {
   const iv = randomBytes(12);
@@ -60,7 +61,7 @@ export function pageAccessCookieName(pageId: number | string): string {
 }
 
 export function pageAccessValue(pageId: number | string, hash: string): string {
-  return createHmac('sha256', SECRET).update(`page-access|${pageId}|${hash}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`page-access|${pageId}|${hash}`).digest('hex');
 }
 
 // The page is locked: paid, protection on, and a password set.

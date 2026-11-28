@@ -7,6 +7,7 @@ import PageTrashActions from '@/app/ui/admin/page-trash-actions';
 import { formatDateTime } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import type { Metadata } from 'next';
+import { getSuperAdmin } from '@/app/lib/admin';
 
 export const metadata: Metadata = { title: 'Trash' };
 
@@ -23,6 +24,11 @@ const tab = (active: boolean): React.CSSProperties => ({
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 export default async function AdminTrashPage({ searchParams }: { searchParams: Promise<{ offset?: string; view?: string }> }) {
+  // Checked here as well as in the layout: a layout's check doesn't re-run
+  // on every navigation (Next's partial rendering), and this page reads
+  // private data. Without full admin access (2FA included) the layout shows
+  // the login, 2FA or 404 instead, and this page renders nothing.
+  if (!(await getSuperAdmin())) return null;
   const sp = await searchParams;
   const view: View = sp.view === 'pages' ? 'pages' : 'users';
   const offset = parseOffset(sp.offset);

@@ -108,7 +108,11 @@ type ThemePageRow = { theme: string; slug: string | null; status: string; recent
 const HOSTS_PER_PAGE = 10;
 
 export default async function AdminActivityPage({ searchParams }: { searchParams: Promise<{ sort?: string; dir?: string; offset?: string }> }) {
-  await getSuperAdmin();
+  // Checked here as well as in the layout: a layout's check doesn't re-run
+  // on every navigation (Next's partial rendering), and this page reads
+  // private data. Without full admin access (2FA included) the layout shows
+  // the login, 2FA or 404 instead, and this page renders nothing.
+  if (!(await getSuperAdmin())) return null;
   const sp = await searchParams;
   const sort: HostSort = sp.sort && sp.sort in HOST_SORTS ? (sp.sort as HostSort) : 'last';
   const dir: 'asc' | 'desc' = sp.dir === 'asc' ? 'asc' : 'desc';

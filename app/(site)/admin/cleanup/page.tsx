@@ -7,6 +7,7 @@ import Total from '@/app/ui/admin/total';
 import { formatDate } from '@/app/ui/admin/format';
 import { alertError, c, table, tableWrap, td, th } from '@/app/ui/admin/styles';
 import type { Metadata } from 'next';
+import { getSuperAdmin } from '@/app/lib/admin';
 
 export const metadata: Metadata = { title: 'Cleanup' };
 
@@ -25,6 +26,11 @@ function monthsAgo(value: Date | string): string {
 }
 
 export default async function AdminCleanupPage() {
+  // Checked here as well as in the layout: a layout's check doesn't re-run
+  // on every navigation (Next's partial rendering), and this page reads
+  // private data. Without full admin access (2FA included) the layout shows
+  // the login, 2FA or 404 instead, and this page renders nothing.
+  if (!(await getSuperAdmin())) return null;
   const [{ candidates, total, error }, unconfirmed] = await Promise.all([previewPurge(), previewUnconfirmed()]);
 
   return (

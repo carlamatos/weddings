@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from 'crypto';
 import { sql } from '@vercel/postgres';
 import { siteUrl } from './site-url';
 import { signPageId, verifyPageToken } from './page-token';
+import { signingKey } from './signing-key';
 
 // Each guest's own invitation link (/i/<token>) and what it tells the host:
 // opened_at, the first time their email app showed the invitation email (a
@@ -14,7 +15,7 @@ import { signPageId, verifyPageToken } from './page-token';
 const SECRET = process.env.AUTH_SECRET ?? '';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const sign = (guestId: string) => createHmac('sha256', SECRET).update(`invite:${guestId.toLowerCase()}`).digest('hex').slice(0, 24);
+const sign = (guestId: string) => createHmac('sha256', signingKey(SECRET)).update(`invite:${guestId.toLowerCase()}`).digest('hex').slice(0, 24);
 
 export const inviteToken = (guestId: string) => `${guestId.toLowerCase()}.${sign(guestId)}`;
 

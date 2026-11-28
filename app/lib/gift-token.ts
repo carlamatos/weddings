@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { siteUrl } from './site-url';
+import { signingKey } from './signing-key';
 
 // Private, per-participant links to a Gift Exchange draw result
 // (/secret-santa?p=<id>&t=<signature>). Sent by email or as a text from the
@@ -8,7 +9,7 @@ import { siteUrl } from './site-url';
 const SECRET = process.env.AUTH_SECRET ?? '';
 
 function sign(participantId: number): string {
-  return createHmac('sha256', SECRET).update(`gift:${participantId}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`gift:${participantId}`).digest('hex');
 }
 
 export function giftRevealUrl(participantId: number): string {

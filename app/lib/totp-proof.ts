@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto';
+import { signingKey } from './signing-key';
 
 // A short-lived, server-signed "this session just passed 2FA" proof.
 //
@@ -16,7 +17,7 @@ const MAX_AGE_MS = 60 * 1000;
 export type TotpProofState = 'verified' | 'disabled';
 
 function sign(email: string, issuedAt: number, state: TotpProofState): string {
-  return createHmac('sha256', SECRET).update(`totp-${state}|${email.toLowerCase()}|${issuedAt}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`totp-${state}|${email.toLowerCase()}|${issuedAt}`).digest('hex');
 }
 
 export function createTotpProof(email: string, state: TotpProofState): string {

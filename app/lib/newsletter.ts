@@ -4,6 +4,7 @@ import { sendMailBatch, wrap, button, escHtml } from './mail';
 import { siteUrl } from './site-url';
 import { COMPANY } from './company';
 import { PLAN_TERM_MONTHS } from './plans';
+import { signingKey } from './signing-key';
 
 // The MyGala newsletter (sign-up form in the marketing site's footer). New
 // subscribers get an email with a 10%-off code for Live Party. The code itself is a
@@ -70,7 +71,7 @@ export async function isNewsletterSubscriber(email: string): Promise<boolean> {
 // signatures distinct from the guest ones (app/lib/unsubscribe-token.ts).
 const SECRET = process.env.AUTH_SECRET ?? '';
 function sign(email: string): string {
-  return createHmac('sha256', SECRET).update(`newsletter-unsubscribe:${email}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`newsletter-unsubscribe:${email}`).digest('hex');
 }
 
 export function newsletterUnsubscribeUrl(email: string): string {

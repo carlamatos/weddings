@@ -6,6 +6,7 @@ import { COMPANY } from './company';
 import { isSuperAdmin } from './admin';
 import { PLAN_PRICE_PLUS_TAX } from './plans';
 import type { AdminEmailAudience, AdminEmailButtonLink } from './admin-email-templates';
+import { signingKey } from './signing-key';
 
 // The admin email sender (/admin/email): personal emails from MyGala to
 // account holders — setup help, reminders, news. Every email carries an
@@ -57,7 +58,7 @@ export function ensureAdminEmailTables(): Promise<unknown> {
 const SECRET = process.env.AUTH_SECRET ?? '';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function sign(userId: string): string {
-  return createHmac('sha256', SECRET).update(`user-unsubscribe:${userId}`).digest('hex');
+  return createHmac('sha256', signingKey(SECRET)).update(`user-unsubscribe:${userId}`).digest('hex');
 }
 
 export function userUnsubscribeUrl(userId: string): string {
